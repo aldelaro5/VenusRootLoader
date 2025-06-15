@@ -1,0 +1,67 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <PublishAot>true</PublishAot>
+        <SelfContained>true</SelfContained>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <AcceptVSBuildToolsLicense>true</AcceptVSBuildToolsLicense>
+        <XWinCache>$(SolutionDir)../.xwin-cache/</XWinCache>
+        <XwinArches>x86_64</XwinArches>
+        <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)/</IntermediateOutputPath>
+        <EntryObjPath>$(IntermediateOutputPath)entry.obj</EntryObjPath>
+        <PltHookPath>$(IntermediateOutputPath)plthook.obj</PltHookPath>
+        <PublishDir>$(BuildDir)</PublishDir>
+    </PropertyGroup>
+
+    <Target Name="RemoveBuiltInDllMain" AfterTargets="SetupOSSpecificProps">
+        <ItemGroup>
+            <LinkerArg Remove="@(LinkerArg)" Condition="$([System.String]::new('%(Identity)').Contains('dllmain.obj'))" />
+        </ItemGroup>
+    </Target>
+
+    <ItemGroup>
+      <PackageReference Include="PublishAotCrossXWin" Version="1.2.0" />
+    </ItemGroup>
+
+    <Target Name="BuildXwinCache" BeforeTargets="Build" Condition="!Exists('$(XWinCache)splat/sdk/lib/ucrt/$(Platform)') and $([MSBuild]::IsOSPlatform('Linux'))">
+        <Message Importance="high" Text="The xwin cache does not yet exist, building this may take a while..." />
+        <Exec ContinueOnError="false" ConsoleToMsBuild="true" Command="xwin --accept-license --cache-dir &quot;$(XWinCache)&quot; --arch $(XwinArches) --sdk-version 10.0.22621 splat --preserve-ms-arch-notation --include-debug-symbols" />
+    </Target>
+
+    <ItemGroup>
+        <ClangArgs Include="-c" Visible="false" />
+        <ClangArgs Include="-O2" Visible="false" />
+    </ItemGroup>
+
+    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+        <ClangArgs Include="/external:I &quot;$(XWinCache)splat/sdk/include/um&quot;" Visible="false" />
+        <ClangArgs Include="/external:I &quot;$(XWinCache)splat/sdk/include/shared&quot;" Visible="false" />
+        <ClangArgs Include="/external:I &quot;$(XWinCache)splat/sdk/include/ucrt&quot;" Visible="false" />
+        <ClangArgs Include="/external:I &quot;$(XWinCache)splat/crt/include&quot;" Visible="false" />
+    </ItemGroup>
+
+    <Target Name="BuildPLtHook" BeforeTargets="Build" DependsOnTargets="BuildXwinCache">
+        <Exec ContinueOnError="false" ConsoleToMsBuild="true" Command="clang-cl @(ClangArgs, ' ') -w $(SolutionDir)external/plthook/plthook_win32.c -o &quot;$(PltHookPath)&quot;" />
+        <Exec ContinueOnError="false" ConsoleToMsBuild="true" Command="clang-cl @(ClangArgs, ' ') entry.cpp -o &quot;$(EntryObjPath)&quot;" />
+    </Target>
+
+    <ItemGroup>
+        <NativeLibrary Include="$(PltHookPath)" Visible="false" />
+        <NativeLibrary Include="$(EntryObjPath)" Visible="false" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <LinkerArg Include="/DEF:Exports.def" Visible="false" />
+    </ItemGroup>
+
+    <Target Name="PublishAsBuildAfterTarget" AfterTargets="Build" DependsOnTargets="Publish" />
+
+    <Target Name="RenameBinary" AfterTargets="Build">
+        <Move SourceFiles="$(PublishDir)/$(TargetName).dll" DestinationFiles="$(PublishDir)/winhttp.dll" />
+    </Target>
+
+    <Target Name="CopyPdb" AfterTargets="Build" Condition="$(Configuration) == Debug">
+        <Copy ContinueOnError="false" SourceFiles="$(TargetDir)/native/$(TargetName).pdb" DestinationFiles="$(PublishDir)/$(TargetName).pdb" />
+    </Target>
+</Project>

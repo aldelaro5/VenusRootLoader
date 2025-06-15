@@ -27,7 +27,7 @@ The entrypoint side requires some headers from the Windows SDK that needs to be 
 #### Windows
 If you already have Visual Studio installed (with the C/C++ workload), you already have the required headers and can proceed to build.
 
-If you do not, you can install the SDK separately. The version doesn't matter, choose the latest available.
+If you do not, you can install the SDK separately. The version doesn't matter, choose the latest available. You will also need to install the [Visual Studio build tools](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022).
 
 #### Linux
 While the project is already setup to support cross compilation from Linux, there's still some setup required for the Windows SDK headers to be pulled.

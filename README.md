@@ -1,4 +1,4 @@
-# ModLoaderPoc
+# VenusRootLoader
 A proof of concept for a mod loader idea I had for Bug Fables. It doesn't do anything practical for now, and it's only for experimentation.
 
 It can be cross compiled from Linux to Windows. Since the goal is only to support Bug Fables, only win-x64 platform is supported, but it should work under Wine/Proton. It is heavily inspired by [MelonLoader](https://github.com/LavaGang/MelonLoader) and [BepInEx](https://github.com/BepInEx/BepInEx).

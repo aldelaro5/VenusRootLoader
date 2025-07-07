@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace ModLoaderPoc.Bootstrap;
+namespace VenusRootLoader.Bootstrap;
 
 public partial class Entry
 {

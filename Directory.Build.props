@@ -11,4 +11,12 @@
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     </PropertyGroup>
+
+    <PropertyGroup Condition="$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))">
+        <BugFablesDir>$(MSBuildProgramFiles32)/Steam/steamapps/common/Bug Fables</BugFablesDir>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))">
+        <BugFablesDir>$(HOME)/.steam/steam/steamapps/common/Bug Fables</BugFablesDir>
+    </PropertyGroup>
 </Project>

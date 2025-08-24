@@ -65,4 +65,12 @@
     <Target Name="CopyPdb" AfterTargets="Build" Condition="$(Configuration) == Debug">
         <Copy ContinueOnError="false" SourceFiles="$(TargetDir)/native/$(TargetName).pdb" DestinationFiles="$(PublishDir)/$(TargetName).pdb" />
     </Target>
+
+    <Target Name="CopyToBugFables" AfterTargets="Build;CopyPdb">
+        <ItemGroup>
+            <OutFiles Include="$(PublishDir)/**/*.*" />
+        </ItemGroup>
+        <Message Importance="high" Text="Copying build files to $(BugFablesDir)" />
+        <Copy ContinueOnError="false" SourceFiles="@(OutFiles)" DestinationFiles="$(BugFablesDir)/%(RecursiveDir)%(Filename)%(Extension)" />
+    </Target>
 </Project>

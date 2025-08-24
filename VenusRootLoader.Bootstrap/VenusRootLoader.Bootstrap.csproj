@@ -42,6 +42,7 @@
     </ItemGroup>
 
     <Target Name="BuildPLtHook" BeforeTargets="Build" DependsOnTargets="BuildXwinCache">
+        <Message Importance="high" Text="Building PltHook" />
         <Exec ContinueOnError="false" ConsoleToMsBuild="true" Command="clang-cl @(ClangArgs, ' ') -w $(SolutionDir)external/plthook/plthook_win32.c -o &quot;$(PltHookPath)&quot;" />
         <Exec ContinueOnError="false" ConsoleToMsBuild="true" Command="clang-cl @(ClangArgs, ' ') entry.cpp -o &quot;$(EntryObjPath)&quot;" />
     </Target>

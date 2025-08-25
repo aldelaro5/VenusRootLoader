@@ -21,10 +21,6 @@ internal static partial class WindowsNative
     [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
     internal static partial int SetStdHandle(uint nStdHandle, nint handle);
 
-    [LibraryImport("kernel32", EntryPoint = "CloseHandle")]
-    [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
-    internal static partial int CloseHandle(nint hObject);
-
     [LibraryImport("kernel32.dll", EntryPoint = "CreateFileW", StringMarshalling = StringMarshalling.Utf16)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
     internal static partial nint CreateFileW(
@@ -36,14 +32,6 @@ internal static partial class WindowsNative
         int dwFlagsAndAttributes,
         nint hTemplateFile);
 
-    [LibraryImport("kernel32.dll", EntryPoint = "SetFilePointer")]
-    [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
-    internal static partial int SetFilePointer(
-        nint hFile,
-        int lDistanceToMove,
-        nint lpDistanceToMoveTo,
-        int dwMoveMethod);
-
     [LibraryImport("kernel32", EntryPoint = "WriteFile")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
     internal static partial int WriteFile(
@@ -52,25 +40,4 @@ internal static partial class WindowsNative
         int nNumberOfBytesToWrite,
         ref int lpNumberOfBytesWritten,
         nint lpOverlapped);
-
-    [LibraryImport("kernel32.dll")]
-    [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool AllocConsole();
-
-    [LibraryImport("kernel32.dll")]
-    [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
-    internal static partial nint GetConsoleWindow();
-
-    [LibraryImport("user32.dll")]
-    [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool SetWindowPos(
-        nint hWnd,
-        nint hWndInsertAfter,
-        int x,
-        int y,
-        int cx,
-        int cy,
-        uint uFlags);
 }

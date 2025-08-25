@@ -40,6 +40,19 @@ BOOL InstallHook()
     return TRUE;
 }
 
+void AllocateConsoleIfNeeded()
+{
+    HWND condoleHwnd = GetConsoleWindow();
+    HANDLE stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    HMODULE hModNtDll = GetModuleHandle("ntdll.dll");
+    FARPROC wineGetVersion = GetProcAddress(hModNtDll, "wine_get_version");
+    bool isWine = wineGetVersion != nullptr;
+
+    if (condoleHwnd == nullptr && (stdOut == nullptr || isWine))
+        AllocConsole();
+}
+
 BOOL APIENTRY DllMain(HMODULE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 {
     thisModuleHandle = hinstDLL;
@@ -50,7 +63,12 @@ BOOL APIENTRY DllMain(HMODULE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 		strcat_s(path, "\\winhttp.dll");
 		SetupProxy(LoadLibrary(path));
 
-		return InstallHook();
+		BOOL installedHook = InstallHook();
+	    if (!installedHook)
+	        return false;
+
+	    AllocateConsoleIfNeeded();
+	    return true;
 	}
 	return TRUE;
 }

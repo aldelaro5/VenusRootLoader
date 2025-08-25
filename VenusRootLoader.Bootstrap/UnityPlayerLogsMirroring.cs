@@ -41,7 +41,6 @@ internal static class UnityPlayerLogsMirroring
         int dwflagsandattributes,
         nint htemplatefile)
     {
-        // Console.WriteLine($"HookCreateFileW: {lpfilename}");
         if (_foundPlayerLogsHandle)
         {
             return WindowsNative.CreateFileW(lpfilename, dwdesiredaccess, dwsharemode, lpsecurityattributes,
@@ -64,9 +63,8 @@ internal static class UnityPlayerLogsMirroring
     private static int HookWriteFile(nint hFile, nint lpBuffer, int nNumberOfBytesToWrite,
                                     ref int lpNumberOfBytesWritten, nint lpOverlapped)
     {
-        Console.WriteLine($"HookWriteFile: {hFile:X8}");
         bool writeToPlayerLog = _foundPlayerLogsHandle && hFile == _logHandle;
-        bool writeToStandardHandles = hFile == 0x10 || hFile == WindowsConsole.OutputHandle || hFile == WindowsConsole.ErrorHandle;
+        bool writeToStandardHandles = hFile == WindowsConsole.OutputHandle || hFile == WindowsConsole.ErrorHandle;
         if (writeToPlayerLog || writeToStandardHandles)
         {
             string log = Marshal.PtrToStringUTF8(lpBuffer, nNumberOfBytesToWrite);

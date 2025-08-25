@@ -1,18 +1,34 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace VenusRootLoader.Bootstrap;
 
-public partial class Entry
+internal class Entry
 {
-    private const uint MbOk = 0x0;
-    private const uint MbIconInformation = 0x40;
-    
-    [LibraryImport("user32.dll", EntryPoint = "MessageBoxA", StringMarshalling = StringMarshalling.Utf8)]
-    private static partial void MessageBoxA(nint hWnd, string text, string caption, uint uType);
-    
+    public static nint LibraryHandle { get; private set; }
+    public static string GameDir { get; private set; } = null!;
+    public static string DataDir { get; private set; } = null!;
+    public static string PlayerFileName { get; private set; } = null!;
+
     [UnmanagedCallersOnly(EntryPoint = "EntryPoint")]
     public static void EntryPoint(nint module)
     {
-        MessageBoxA(nint.Zero, "Hello World!", "Hello", MbOk | MbIconInformation);
+        LibraryHandle = module;
+
+        var exePath = Environment.ProcessPath!;
+        GameDir = Path.GetDirectoryName(exePath)!;
+
+        DataDir = Path.Combine(GameDir, Path.GetFileNameWithoutExtension(exePath) + "_Data");
+
+        if (!Directory.Exists(DataDir))
+            return;
+
+        PlayerFileName = Process.GetCurrentProcess().Modules
+            .OfType<ProcessModule>()
+            .Single(x => x.FileName.Contains("UnityPlayer")).FileName;
+
+        WindowsConsole.BindToGame();
+        UnityPlayerLogsMirroring.SetupPlayerLogMirroring();
+        Console.WriteLine("Hi!");
     }
 }

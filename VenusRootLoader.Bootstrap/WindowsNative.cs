@@ -3,6 +3,9 @@ using System.Runtime.InteropServices;
 
 namespace VenusRootLoader.Bootstrap;
 
+/// <summary>
+/// This class contains PInvoke abstractions for the Win32 native libraries
+/// </summary>
 internal static partial class WindowsNative
 {
     internal const uint StdInputHandle = 4294967286;

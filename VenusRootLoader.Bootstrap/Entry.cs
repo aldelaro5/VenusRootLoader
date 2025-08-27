@@ -3,7 +3,10 @@ using System.Runtime.InteropServices;
 
 namespace VenusRootLoader.Bootstrap;
 
-internal class Entry
+/// <summary>
+/// This class contains the entrypoint method from the C++ side, and it initialises the rest of the bootstrap
+/// </summary>
+internal static class Entry
 {
     public static nint LibraryHandle { get; private set; }
     public static string GameDir { get; private set; } = null!;
@@ -33,7 +36,13 @@ internal class Entry
         WindowsConsole.SetUp();
         UnityPlayerLogsMirroring.SetUp();
         Console.WriteLine("Bootstrapping Mono...");
-        MonoBootstrap.Setup();
+        MonoInitializer.Setup(new()
+        {
+            AssemblyPath = null,
+            Namespace = null,
+            ClassName = null,
+            MethodName = null
+        });
         Console.WriteLine("Resuming UnityMain");
     }
 }

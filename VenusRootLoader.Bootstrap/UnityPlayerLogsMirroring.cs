@@ -3,6 +3,10 @@ using System.Text;
 
 namespace VenusRootLoader.Bootstrap;
 
+/// <summary>
+/// This class contains all the machinery needed to fully capture and mirror stdout, stderr and Unity's player logs
+/// into our logs
+/// </summary>
 internal static class UnityPlayerLogsMirroring
 {
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]

@@ -40,4 +40,8 @@ internal static partial class WindowsNative
         int nNumberOfBytesToWrite,
         ref int lpNumberOfBytesWritten,
         nint lpOverlapped);
+
+    [LibraryImport("kernel32", EntryPoint = "CloseHandle")]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
+    internal static partial int CloseHandle(uint hObject);
 }

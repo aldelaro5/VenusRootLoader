@@ -38,10 +38,10 @@ internal static class Entry
         Console.WriteLine("Bootstrapping Mono...");
         MonoInitializer.Setup(new()
         {
-            AssemblyPath = null,
-            Namespace = null,
-            ClassName = null,
-            MethodName = null
+            AssemblyPath = Path.Combine(Directory.GetCurrentDirectory(), "VenusRootLoader", "VenusRootLoader.dll"),
+            Namespace = "VenusRootLoader",
+            ClassName = "MonoInitEntry",
+            MethodName = "Main"
         });
         Console.WriteLine("Resuming UnityMain");
     }

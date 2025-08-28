@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net472</TargetFramework>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <OutputPath>$(BuildDir)/VenusRootLoader</OutputPath>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <EnableDynamicLoading>true</EnableDynamicLoading>
+        <DebugType>portable</DebugType>
+        <NoWarn>CS1591</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="HarmonyX" Version="2.14.0" />
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3">
+            <IncludeAssets>build</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+</Project>

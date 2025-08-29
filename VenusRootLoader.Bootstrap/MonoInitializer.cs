@@ -47,11 +47,11 @@ public static class MonoInitializer
 
     public static void Setup(ManagedEntryPointInfo entryPointInfo)
     {
-        // if (!File.Exists(entryPointInfo.AssemblyPath))
-        // {
-        //     Console.WriteLine($"Could not find the entrypoint assembly {entryPointInfo.AssemblyPath}");
-        //     return;
-        // }
+        if (!File.Exists(entryPointInfo.AssemblyPath))
+        {
+            Console.WriteLine($"Could not find the entrypoint assembly {entryPointInfo.AssemblyPath}");
+            return;
+        }
 
         _managedEntryPointInfo = entryPointInfo;
         PltHook.InstallHook(Entry.UnityPlayerDllFileName, "GetProcAddress", Marshal.GetFunctionPointerForDelegate(HookGetProcAddressDelegate));
@@ -161,8 +161,10 @@ public static class MonoInitializer
     private static void SetMonoAssembliesPath()
     {
         StringBuilder newAssembliesPathSb = new();
+        _additionalMonoAssembliesPath = Path.Combine(Entry.GameDir, "unityjit");
+        newAssembliesPathSb.Append(_additionalMonoAssembliesPath);
+        newAssembliesPathSb.Append(';');
         newAssembliesPathSb.Append(Mono.AssemblyGetrootdir());
-        _additionalMonoAssembliesPath = "";
 
         string newAssembliesPath = newAssembliesPathSb.ToString();
         Console.WriteLine($"Setting Mono assemblies path to: {newAssembliesPath}");

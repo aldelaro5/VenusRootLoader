@@ -63,21 +63,22 @@ public static class GameLoadEntrypointInitializer
     }
 
     // Second step of the Mono Core.Start entrypoint: undo the Harmony patch and call the Core.Start method
-    private static void Entrypoint()
+    private static bool Entrypoint()
     {
         if (_monoCoreStartEntrypointAlreadyCalled)
-            return;
+            return true;
 
         _monoCoreStartEntrypointAlreadyCalled = true;
-        try
-        {
-           _harmony.Unpatch(_monoCoreStartHookMethod, HarmonyPatchType.All, "VenusRootLoader");
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"Unexpected error when trying to unhook the Core.Start entrypoint: {e}");
-        }
+        // try
+        // {
+        //     Harmony.Unpatch(_monoCoreStartHookMethod, HarmonyPatchType.All, "VenusRootLoader");
+        // }
+        // catch (Exception e)
+        // {
+        //     Console.WriteLine($"Unexpected error when trying to unhook the Core.Start entrypoint: {e}");
+        // }
 
         GameLoadEntry.Main();
+        return true;
     }
 }

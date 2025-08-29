@@ -161,7 +161,7 @@ public static class MonoInitializer
     private static void SetMonoAssembliesPath()
     {
         StringBuilder newAssembliesPathSb = new();
-        _additionalMonoAssembliesPath = Path.Combine(Entry.GameDir, "unityjit");
+        _additionalMonoAssembliesPath = Path.Combine(Entry.GameDir, "Unityjit-Mono-Bcl");
         newAssembliesPathSb.Append(_additionalMonoAssembliesPath);
         newAssembliesPathSb.Append(';');
         newAssembliesPathSb.Append(Mono.AssemblyGetrootdir());

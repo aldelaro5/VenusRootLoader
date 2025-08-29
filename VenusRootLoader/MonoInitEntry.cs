@@ -13,6 +13,7 @@ public class MonoInitEntry
         {
             Console.WriteLine($"\t{ass.GetName().FullName}");
         }
+        HarmonyLogger.Setup();
         GameLoadEntrypointInitializer.Setup();
     }
 }

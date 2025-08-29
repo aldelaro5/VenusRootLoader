@@ -34,15 +34,23 @@ internal static class Entry
             .Single(x => x.FileName.Contains("UnityPlayer")).FileName;
 
         WindowsConsole.SetUp();
-        UnityPlayerLogsMirroring.SetUp();
-        Console.WriteLine("Bootstrapping Mono...");
-        MonoInitializer.Setup(new()
+        try
         {
-            AssemblyPath = Path.Combine(Directory.GetCurrentDirectory(), "VenusRootLoader", "VenusRootLoader.dll"),
-            Namespace = "VenusRootLoader",
-            ClassName = "MonoInitEntry",
-            MethodName = "Main"
-        });
-        Console.WriteLine("Resuming UnityMain");
+            UnityPlayerLogsMirroring.SetUp();
+            Console.WriteLine("Bootstrapping Mono...");
+            MonoInitializer.Setup(new()
+            {
+                AssemblyPath = Path.Combine(Directory.GetCurrentDirectory(), "VenusRootLoader", "VenusRootLoader.dll"),
+                Namespace = "VenusRootLoader",
+                ClassName = "MonoInitEntry",
+                MethodName = "Main"
+            });
+            Console.WriteLine("Resuming UnityMain");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 }

@@ -68,9 +68,9 @@
 
     <Target Name="CopyUnityjitBcl" AfterTargets="Build">
         <ItemGroup>
-            <UnityjitMonoBclFiles Include="$(SolutionDir)/Unityjit-Mono-Bcl/**/*.*" />
+            <UnityjitMonoBclFiles Include="$(SolutionDir)/UnityJitMonoBcl/**/*.*" />
         </ItemGroup>
-        <Copy ContinueOnError="false" SourceFiles="@(UnityjitMonoBclFiles)" DestinationFolder="$(PublishDir)/Unityjit-Mono-Bcl" />
+        <Copy ContinueOnError="false" SourceFiles="@(UnityjitMonoBclFiles)" DestinationFolder="$(PublishDir)/UnityJitMonoBcl" />
     </Target>
 
     <Target Name="CopyToBugFables" AfterTargets="Build;CopyPdb" Condition="$(BugFablesDir) != ''">

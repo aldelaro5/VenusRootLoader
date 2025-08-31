@@ -3,6 +3,19 @@ using AssetsTools.NET.Extra;
 
 namespace VenusRootLoader.Bootstrap;
 
+/// <summary>
+/// <para>
+/// This class implements a way to skip the Unity splash screen that pops when the game window appears, but before the
+/// game boots. It involves intercepting the opening of the game bundle (data.unity3d file) to create a modified version
+/// using AssetTools.NET. The modified version will have 2 fields edited in the globalmanagers assets file which determine
+/// if the splash screen should execute or not. The downside of this is the bundle needs to be saved on disk so we cache it
+/// inside the VenusRootLoader folder to not consume more disk space for further boots.
+/// </para>
+/// <para>
+/// The modified bundle file is saved uncompressed for performance reasons since compressing the bundle saves ~400 MB,
+/// but takes ~13 seconds to do so which doesn't seem to be a worthy tradeoff
+/// </para>
+/// </summary>
 internal static class UnitySplashScreenSkipper
 {
     private static readonly string ModifiedGameBundlePath =

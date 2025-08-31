@@ -33,7 +33,7 @@ internal static class UnitySplashScreenSkipper
 
     private static void SetGameBundleToSkipSplashScreen(string gameBundlePath)
     {
-        Console.WriteLine("Using AssetTools.NET to create a modified game bundle that skips the splash screen...");
+        Console.WriteLine("Using AssetTools.NET to create a modified game bundle that skips the Unity splash screen...");
 
         var manager = new AssetsManager();
         Console.WriteLine("\tLoading the classdata.tpk file");

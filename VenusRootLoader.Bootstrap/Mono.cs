@@ -1,5 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 
+// ReSharper disable UnusedMember.Global
+
 namespace VenusRootLoader.Bootstrap;
 
 /// <summary>
@@ -59,15 +61,15 @@ internal class Mono
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public unsafe delegate void* StringNewFn(nint domain, nint value);
     public required StringNewFn StringNew { get; init; }
-    
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate nint AssemblyGetObjectFn(nint domain, nint assembly);
     public required AssemblyGetObjectFn AssemblyGetObject { get; init; }
-    
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate nint SetAssembliesPathFn(string domain);
     public required SetAssembliesPathFn SetAssembliesPath { get; init; }
-    
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate string AssemblyGetrootdirFn();
     public required AssemblyGetrootdirFn AssemblyGetrootdir { get; init; }

@@ -38,23 +38,6 @@ internal static partial class WindowsNative
         int dwFlagsAndAttributes,
         nint hTemplateFile);
 
-    [LibraryImport("kernel32", EntryPoint = "ReadFile")]
-    [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
-    internal static unsafe partial int ReadFile(
-        nint hFile,
-        void* lpBuffer,
-        uint nNumberOfBytesToRead,
-        uint* lpNumberOfBytesRead,
-        nint lpOverlapped);
-
-    [LibraryImport("kernel32", EntryPoint = "SetFilePointerEx")]
-    [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
-    internal static unsafe partial int SetFilePointerEx(
-        nint hFile,
-        long liDistanceToMove,
-        long* lpNewFilePointer,
-        int dwMoveMethod);
-    
     [LibraryImport("kernel32", EntryPoint = "WriteFile")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
     internal static partial int WriteFile(

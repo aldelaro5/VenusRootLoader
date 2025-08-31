@@ -66,15 +66,8 @@ internal static class UnitySplashScreenSkipper
         bundleFile.BlockAndDirInfo.DirectoryInfos[0].SetNewData(assetFile);
 
         Console.WriteLine("\tWriting the modified bundle file");
-        using AssetsFileWriter writer = new(ModifiedGameBundlePath);
-        bundleFile.Write(writer);
-
-        // var newUncompressedBundle = new AssetBundleFile();
-        // newUncompressedBundle.Read(new AssetsFileReader(File.OpenRead(uncompressedName)));
-        // using (AssetsFileWriter writer = new AssetsFileWriter(ModifiedGameBundleFilename))
-        // {
-        //     newUncompressedBundle.Pack(writer, AssetBundleCompressionType.LZ4);
-        // }
+        using (AssetsFileWriter writer = new(ModifiedGameBundlePath))
+            bundleFile.Write(writer);
 
         Console.WriteLine("\tClosing the original bundle file");
         bundleFile.Close();

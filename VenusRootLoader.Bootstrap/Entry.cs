@@ -52,6 +52,7 @@ internal static class Entry
         catch (Exception e)
         {
             Console.WriteLine(e);
+            WindowsNative.MessageBoxW(nint.Zero, e.ToString(), "Unhandled Exception", 0x10);
             throw;
         }
     }

@@ -65,7 +65,7 @@ internal static partial class WindowsNative
     [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
     internal static partial int CloseHandle(nint hObject);
 
-    [LibraryImport("user32", EntryPoint = "MessageBoxA", StringMarshalling = StringMarshalling.Utf8)]
+    [LibraryImport("user32", EntryPoint = "MessageBoxW", StringMarshalling = StringMarshalling.Utf16)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
-    internal static partial int MessageBoxA(nint hWnd, string lpText, string lpCaption, uint uType);
+    internal static partial int MessageBoxW(nint hWnd, string lpText, string lpCaption, uint uType);
 }

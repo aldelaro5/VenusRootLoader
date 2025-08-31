@@ -35,6 +35,23 @@ internal static partial class WindowsNative
         int dwFlagsAndAttributes,
         nint hTemplateFile);
 
+    [LibraryImport("kernel32", EntryPoint = "ReadFile")]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
+    internal static unsafe partial int ReadFile(
+        nint hFile,
+        void* lpBuffer,
+        uint nNumberOfBytesToRead,
+        uint* lpNumberOfBytesRead,
+        nint lpOverlapped);
+
+    [LibraryImport("kernel32", EntryPoint = "SetFilePointerEx")]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
+    internal static unsafe partial int SetFilePointerEx(
+        nint hFile,
+        long liDistanceToMove,
+        long* lpNewFilePointer,
+        int dwMoveMethod);
+    
     [LibraryImport("kernel32", EntryPoint = "WriteFile")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
     internal static partial int WriteFile(
@@ -46,5 +63,9 @@ internal static partial class WindowsNative
 
     [LibraryImport("kernel32", EntryPoint = "CloseHandle")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
-    internal static partial int CloseHandle(uint hObject);
+    internal static partial int CloseHandle(nint hObject);
+
+    [LibraryImport("user32", EntryPoint = "MessageBoxA", StringMarshalling = StringMarshalling.Utf8)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
+    internal static partial int MessageBoxA(nint hWnd, string lpText, string lpCaption, uint uType);
 }

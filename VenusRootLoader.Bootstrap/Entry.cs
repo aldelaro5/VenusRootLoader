@@ -36,6 +36,8 @@ internal static class Entry
         WindowsConsole.SetUp();
         try
         {
+            FileHandleHook.Setup();
+            UnitySplashScreenSkipper.Setup();
             UnityPlayerLogsMirroring.SetUp();
             Console.WriteLine("Bootstrapping Mono...");
             MonoInitializer.Setup(new()

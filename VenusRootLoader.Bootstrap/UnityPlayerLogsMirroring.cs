@@ -18,25 +18,13 @@ internal static class UnityPlayerLogsMirroring
         nint lpOverlapped);
     private static readonly WriteFileFn HookWriteFileDelegate = HookWriteFile;
 
-    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-    private delegate nint CreateFileWFn(string lpFileName,
-        uint dwDesiredAccess,
-        int dwShareMode,
-        nint lpSecurityAttributes,
-        int dwCreationDisposition,
-        int dwFlagsAndAttributes,
-        nint hTemplateFile);
-    private static readonly CreateFileWFn HookCreateFileWDelegate = HookCreateFileW;
-
+    private static nint _playerLogHandle = nint.Zero;
     private static readonly StringBuilder LogBuffer = new(2048);
-
-    private static bool _foundPlayerLogsHandle;
-    private static nint _logHandle;
 
     internal static void SetUp()
     {
         PltHook.InstallHook(Entry.UnityPlayerDllFileName, "WriteFile", Marshal.GetFunctionPointerForDelegate(HookWriteFileDelegate));
-        PltHook.InstallHook(Entry.UnityPlayerDllFileName, "CreateFileW", Marshal.GetFunctionPointerForDelegate(HookCreateFileWDelegate));
+        FileHandleHook.RegisterHook(IsUnityPlayerLogFilename, HookFileHandle);
     }
 
     private static bool IsUnityPlayerLogFilename(string lpFilename)
@@ -44,27 +32,12 @@ internal static class UnityPlayerLogsMirroring
         return lpFilename.EndsWith("Player.log") || lpFilename.EndsWith("output_log.txt");
     }
 
-    // This hook is there to obtain the player log filename if Unity is trying to create / open it so we can collect its handle
-    private static nint HookCreateFileW(
-        string lpFilename,
-        uint dwDesiredAccess,
-        int dwShareMode,
-        nint lpSecurityAttributes,
-        int dwCreationDisposition,
-        int dwFlagsAndAttributes,
-        nint hTemplateFile)
+    private static bool HookFileHandle(out nint originalHandle, string lpFilename, uint dwDesiredAccess, int dwShareMode, nint lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, nint hTemplateFile)
     {
-        var fileHandle = WindowsNative.CreateFileW(lpFilename, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
+        originalHandle = WindowsNative.CreateFileW(lpFilename, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
             dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
-
-        if (_foundPlayerLogsHandle || !IsUnityPlayerLogFilename(lpFilename))
-            return fileHandle;
-
-        _logHandle = fileHandle;
-        Console.WriteLine($"Found player logs file with handle 0x{_logHandle:X} at: {lpFilename}");
-
-        _foundPlayerLogsHandle = true;
-        return _logHandle;
+        _playerLogHandle = originalHandle;
+        return false;
     }
 
     // This hook is what collects every stdout, stderr or player logs done by Unity and writes them to our logs
@@ -75,7 +48,7 @@ internal static class UnityPlayerLogsMirroring
         ref int lpNumberOfBytesWritten,
         nint lpOverlapped)
     {
-        var writeToPlayerLog = _foundPlayerLogsHandle && hFile == _logHandle;
+        var writeToPlayerLog = _playerLogHandle == hFile;
         var writeToStandardHandles = hFile == WindowsConsole.OutputHandle || hFile == WindowsConsole.ErrorHandle;
         if (!writeToPlayerLog && !writeToStandardHandles)
             return WindowsNative.WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, ref lpNumberOfBytesWritten, lpOverlapped);

@@ -21,6 +21,7 @@
     </Target>
 
     <ItemGroup>
+      <PackageReference Include="AssetsTools.NET" Version="3.0.1" />
       <PackageReference Include="PublishAotCrossXWin" Version="1.2.0" />
     </ItemGroup>
 
@@ -71,6 +72,10 @@
             <UnityjitMonoBclFiles Include="$(SolutionDir)/UnityJitMonoBcl/**/*.*" />
         </ItemGroup>
         <Copy ContinueOnError="false" SourceFiles="@(UnityjitMonoBclFiles)" DestinationFolder="$(PublishDir)/UnityJitMonoBcl" />
+    </Target>
+
+    <Target Name="CopyClassDataTpk" AfterTargets="Build">
+        <Copy ContinueOnError="false" SourceFiles="$(SolutionDir)classdata.tpk" DestinationFolder="$(PublishDir)/VenusRootLoader" />
     </Target>
 
     <Target Name="CopyToBugFables" AfterTargets="Build;CopyPdb" Condition="$(BugFablesDir) != ''">

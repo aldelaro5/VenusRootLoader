@@ -13,7 +13,7 @@ internal static class WindowsConsole
     internal static nint ErrorHandle;
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-    private delegate int CloseHandleFn(uint hObject);
+    private delegate int CloseHandleFn(nint hObject);
     private static readonly CloseHandleFn HookCloseHandleDelegate = HookCloseHandle;
 
     public static void SetUp()
@@ -36,7 +36,7 @@ internal static class WindowsConsole
 
     // Unity may attempt to close stdout and stderr in order to redirect their streams to their player logs.
     // Since we attempt to control all logging, we want to prevent this from happening which is what this hook is for
-    private static int HookCloseHandle(uint hObject)
+    private static int HookCloseHandle(nint hObject)
     {
         if (hObject == OutputHandle || hObject == ErrorHandle)
         {

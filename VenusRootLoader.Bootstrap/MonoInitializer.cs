@@ -36,13 +36,11 @@ public static class MonoInitializer
     private static readonly Mono.JitInitVersionFn MonoInitDetourFn = MonoJitInitDetour;
     private static readonly Mono.JitParseOptionsFn JitParseOptionsDetourFn = MonoJitParseOptionsDetour;
     private static readonly Mono.DebugInitFn DebugInitDetourFn = MonoDebugInitDetour;
-    private static readonly unsafe Mono.ImageOpenFromDataWithNameFn ImageOpenFromDataWithNameFn = MonoImageOpenFromDataWithNameDetour;
     private static readonly Dictionary<string, nint> SymbolRedirects = new()
     {
         { "mono_jit_init_version", Marshal.GetFunctionPointerForDelegate(MonoInitDetourFn)},
         { "mono_jit_parse_options", Marshal.GetFunctionPointerForDelegate(JitParseOptionsDetourFn)},
         { "mono_debug_init", Marshal.GetFunctionPointerForDelegate(DebugInitDetourFn)},
-        { "mono_image_open_from_data_with_name", Marshal.GetFunctionPointerForDelegate(ImageOpenFromDataWithNameFn)}
     };
 
     public static void Setup(ManagedEntryPointInfo entryPointInfo)
@@ -79,7 +77,6 @@ public static class MonoInitializer
         Console.WriteLine("Loading Mono exports");
         Mono = new Mono
         {
-            Handle = handle,
             RuntimeInvoke = NativeLibrary.GetExportDelegate<Mono.RuntimeInvokeFn>(handle, "mono_runtime_invoke"),
             JitInitVersion = NativeLibrary.GetExportDelegate<Mono.JitInitVersionFn>(handle, "mono_jit_init_version"),
             JitParseOptions = NativeLibrary.GetExportDelegate<Mono.JitParseOptionsFn>(handle, "mono_jit_parse_options"),
@@ -87,17 +84,12 @@ public static class MonoInitializer
             DebugEnabled = NativeLibrary.GetExportDelegate<Mono.DebugEnabledFn>(handle, "mono_debug_enabled"),
             DebugInit = NativeLibrary.GetExportDelegate<Mono.DebugInitFn>(handle, "mono_debug_init"),
             ThreadSetMain = NativeLibrary.GetExportDelegate<Mono.ThreadSetMainFn>(handle, "mono_thread_set_main"),
-            StringNew = NativeLibrary.GetExportDelegate<Mono.StringNewFn>(handle, "mono_string_new"),
-            AssemblyGetObject = NativeLibrary.GetExportDelegate<Mono.AssemblyGetObjectFn>(handle, "mono_assembly_get_object"),
-            MethodGetName = NativeLibrary.GetExportDelegate<Mono.MethodGetNameFn>(handle, "mono_method_get_name"),
             SetAssembliesPath = NativeLibrary.GetExportDelegate<Mono.SetAssembliesPathFn>(handle, "mono_set_assemblies_path"),
             AssemblyGetrootdir = NativeLibrary.GetExportDelegate<Mono.AssemblyGetrootdirFn>(handle, "mono_assembly_getrootdir"),
-            AddInternalCall = NativeLibrary.GetExportDelegate<Mono.AddInternalCallFn>(handle, "mono_add_internal_call"),
             DomainAssemblyOpen = NativeLibrary.GetExportDelegate<Mono.DomainAssemblyOpenFn>(handle, "mono_domain_assembly_open"),
             AssemblyGetImage = NativeLibrary.GetExportDelegate<Mono.AssemblyGetImageFn>(handle, "mono_assembly_get_image"),
             ClassFromName = NativeLibrary.GetExportDelegate<Mono.ClassFromNameFn>(handle, "mono_class_from_name"),
             ClassGetMethodFromName = NativeLibrary.GetExportDelegate<Mono.ClassGetMethodFromNameFn>(handle, "mono_class_get_method_from_name"),
-            ImageOpenFromDataWithName = NativeLibrary.GetExportDelegate<Mono.ImageOpenFromDataWithNameFn>(handle, "mono_image_open_from_data_with_name"),
             DomainSetConfig = NativeLibrary.GetExportDelegate<Mono.DomainSetConfigFn>(handle, "mono_domain_set_config"),
             ConfigParse = NativeLibrary.GetExportDelegate<Mono.ConfigParseFn>(handle, "mono_config_parse")
         };
@@ -235,40 +227,5 @@ public static class MonoInitializer
         var initArgs = stackalloc nint*[] { };
         Console.WriteLine("Invoking entrypoint method");
         Mono.RuntimeInvoke(initMethod, 0, (void**)initArgs, ref ex);
-    }
-
-    // Unity is sneaky, and it will call mono_image_open_from_data_with_name on assemblies Mono resolved beforehand.
-    // This is a problem because it bypasses Mono's assemblies path which we modify to load the unstripped assemblies
-    // containing the BCL. It effectively means it will load the assemblies from the game's Managed folder when we
-    // specifically do NOT want them in the case of the BCL. This forces us to hook on this Mono function so it takes
-    // the Mono's assemblies path into account so we load the assembly we want instead
-    private static unsafe nint MonoImageOpenFromDataWithNameDetour(
-        byte* data,
-        uint dataLen,
-        bool needCopy,
-        ref Mono.MonoImageOpenStatus status,
-        bool refOnly,
-        string name)
-    {
-        if (string.IsNullOrEmpty(name))
-            return Mono.ImageOpenFromDataWithName(data, dataLen, needCopy, ref status, refOnly, name);
-
-        string fileName = Path.GetFileName(name);
-        var foundOverridenFile = _additionalMonoAssembliesPath
-            .Split(";")
-            .Select(x => Path.GetFullPath(Path.Combine(x, fileName)))
-            .FirstOrDefault(File.Exists);
-
-        if (foundOverridenFile == null)
-            return Mono.ImageOpenFromDataWithName(data, dataLen, needCopy, ref status, refOnly, name);
-
-        Console.WriteLine($"Overriding the image load of {name} to {foundOverridenFile}");
-        byte[] newDataArray = File.ReadAllBytes(foundOverridenFile);
-        uint newDataLen = (uint)newDataArray.Length;
-        fixed (byte* newDataPtr = &newDataArray[0])
-        {
-            var newReturn = Mono.ImageOpenFromDataWithName(newDataPtr, newDataLen, needCopy, ref status, refOnly, foundOverridenFile);
-            return newReturn;
-        }
     }
 }

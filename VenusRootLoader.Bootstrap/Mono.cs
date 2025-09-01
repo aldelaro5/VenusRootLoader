@@ -16,16 +16,6 @@ internal class Mono
         MonoDebugFormatDebugger
     }
 
-    public enum MonoImageOpenStatus
-    {
-        MonoImageOk,
-        MonoImageErrorErrno,
-        MonoImageMissingAssemblyRef,
-        MonoImageImageInvalid
-    }
-
-    public required nint Handle { get; init; }
-
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate nint JitInitVersionFn(nint namePtr, nint runtimeVersionPtr);
     public required JitInitVersionFn JitInitVersion { get; init; }
@@ -33,10 +23,6 @@ internal class Mono
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void JitParseOptionsFn(nint argc, string[] argv);
     public required JitParseOptionsFn JitParseOptions { get; init; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public unsafe delegate nint ImageOpenFromDataWithNameFn(byte* data, uint dataLen, bool needCopy, ref MonoImageOpenStatus status, bool refonly, string name);
-    public required ImageOpenFromDataWithNameFn ImageOpenFromDataWithName { get; init; }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate nint ThreadCurrentFn();
@@ -59,28 +45,12 @@ internal class Mono
     public required RuntimeInvokeFn RuntimeInvoke { get; init; }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public unsafe delegate void* StringNewFn(nint domain, nint value);
-    public required StringNewFn StringNew { get; init; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate nint AssemblyGetObjectFn(nint domain, nint assembly);
-    public required AssemblyGetObjectFn AssemblyGetObject { get; init; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate nint SetAssembliesPathFn(string domain);
     public required SetAssembliesPathFn SetAssembliesPath { get; init; }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate string AssemblyGetrootdirFn();
     public required AssemblyGetrootdirFn AssemblyGetrootdir { get; init; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate nint MethodGetNameFn(nint method);
-    public required MethodGetNameFn MethodGetName { get; init; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public delegate void AddInternalCallFn(string name, nint func);
-    public required AddInternalCallFn AddInternalCall { get; init; }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
     public delegate nint DomainAssemblyOpenFn(nint domain, string path);

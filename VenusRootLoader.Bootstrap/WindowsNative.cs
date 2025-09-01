@@ -54,4 +54,12 @@ internal static partial class WindowsNative
     [LibraryImport("user32", EntryPoint = "MessageBoxW", StringMarshalling = StringMarshalling.Utf16)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
     internal static partial int MessageBoxW(nint hWnd, string lpText, string lpCaption, uint uType);
+
+    [LibraryImport("kernel32", EntryPoint = "GetConsoleMode", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
+    internal static partial int GetConsoleMode(nint hConsoleHandle, out uint lpMode);
+
+    [LibraryImport("kernel32", EntryPoint = "SetConsoleMode", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
+    internal static partial int SetConsoleMode(nint hConsoleHandle, uint dwMode);
 }

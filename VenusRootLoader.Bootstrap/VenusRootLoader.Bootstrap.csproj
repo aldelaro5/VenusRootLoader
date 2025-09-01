@@ -24,6 +24,7 @@
       <PackageReference Include="AssetsTools.NET" Version="3.0.1" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0-preview.7.25380.108" />
       <PackageReference Include="PublishAotCrossXWin" Version="1.2.0" />
+      <PackageReference Include="TinyLogger" Version="3.1.0" />
     </ItemGroup>
 
     <Target Name="BuildXwinCache" BeforeTargets="Build" Condition="!Exists('$(XWinCache)splat/sdk/lib/ucrt/$(Platform)') and $([MSBuild]::IsOSPlatform('Linux'))">

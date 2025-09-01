@@ -55,7 +55,7 @@ internal class Entry
             ContentRootPath = GameDir,
             Configuration = null
         });
-        builder.Logging.AddConsole();
+        builder.Logging.AddTinyTrueColorConsoleLogger();
         builder.Logging.SetMinimumLevel(LogLevel.Trace);
         builder.Services.AddHostedService<FileHandleHook>();
         builder.Services.AddHostedService<UnityPlayerLogsMirroring>();
@@ -69,6 +69,14 @@ internal class Entry
 
         try
         {
+            var resultGetMode = WindowsNative.GetConsoleMode(WindowsConsole.OutputHandle, out uint lpMode);
+            if (resultGetMode == 0)
+                throw new Exception($"Failed to get console mode: {Marshal.GetLastWin32Error()}");
+            Console.WriteLine($"{lpMode:X}");
+            var resultSetMode = WindowsNative.SetConsoleMode(WindowsConsole.OutputHandle, lpMode ^ 0x4);
+            if (resultSetMode == 0)
+                throw new Exception($"Failed to set console mode: {Marshal.GetLastWin32Error()}");
+            Console.WriteLine($"Successfully enabled VT");
             host.Start();
             logger.LogInformation("Resuming UnityMain");
         }

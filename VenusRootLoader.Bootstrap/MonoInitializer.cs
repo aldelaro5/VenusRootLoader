@@ -1,5 +1,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace VenusRootLoader.Bootstrap;
 
@@ -7,7 +9,7 @@ namespace VenusRootLoader.Bootstrap;
 /// This class initialises an instance of <see cref="Mono"/>, initialises the Mono runtime using various hooks,
 /// and transitions to the managed side using the newly initialised runtime
 /// </summary>
-public static class MonoInitializer
+public class MonoInitializer : IHostedService
 {
     public struct ManagedEntryPointInfo
     {
@@ -19,9 +21,9 @@ public static class MonoInitializer
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     private delegate nint GetProcAddressFn(nint handle, string symbol);
-    private static readonly GetProcAddressFn HookGetProcAddressDelegate = HookGetProcAddress;
+    private static GetProcAddressFn _hookGetProcAddressDelegate = null!;
 
-    private static ManagedEntryPointInfo _managedEntryPointInfo;
+    private readonly ManagedEntryPointInfo _managedEntryPointInfo;
     private static bool _runtimeInitialised;
     private static bool _debugInitCalled;
     private static bool _jitInitDone;
@@ -33,48 +35,60 @@ public static class MonoInitializer
     private const string MonoDebugArgsStart = "--debugger-agent=transport=dt_socket,server=y,address=";
     private const string MonoDebugNoSuspendArg = ",suspend=n";
 
-    private static readonly Mono.JitInitVersionFn MonoInitDetourFn = MonoJitInitDetour;
-    private static readonly Mono.JitParseOptionsFn JitParseOptionsDetourFn = MonoJitParseOptionsDetour;
-    private static readonly Mono.DebugInitFn DebugInitDetourFn = MonoDebugInitDetour;
-    private static readonly Dictionary<string, nint> SymbolRedirects = new()
-    {
-        { "mono_jit_init_version", Marshal.GetFunctionPointerForDelegate(MonoInitDetourFn)},
-        { "mono_jit_parse_options", Marshal.GetFunctionPointerForDelegate(JitParseOptionsDetourFn)},
-        { "mono_debug_init", Marshal.GetFunctionPointerForDelegate(DebugInitDetourFn)},
-    };
+    private static Mono.JitInitVersionFn _monoInitDetourFn = null!;
+    private static Mono.JitParseOptionsFn _jitParseOptionsDetourFn = null!;
+    private static Mono.DebugInitFn _debugInitDetourFn = null!;
 
-    public static void Setup(ManagedEntryPointInfo entryPointInfo)
+    private readonly Dictionary<string, nint> _symbolRedirects;
+    private readonly ILogger _logger;
+
+    public MonoInitializer(ILogger<MonoInitializer> logger, ManagedEntryPointInfo entryPointInfo)
     {
-        if (!File.Exists(entryPointInfo.AssemblyPath))
-        {
-            Console.WriteLine($"Could not find the entrypoint assembly {entryPointInfo.AssemblyPath}");
-            return;
-        }
+        _logger = logger;
 
         _managedEntryPointInfo = entryPointInfo;
-        PltHook.InstallHook(Entry.UnityPlayerDllFileName, "GetProcAddress", Marshal.GetFunctionPointerForDelegate(HookGetProcAddressDelegate));
+
+        _hookGetProcAddressDelegate = HookGetProcAddress;
+        _monoInitDetourFn = MonoJitInitDetour;
+        _jitParseOptionsDetourFn = MonoJitParseOptionsDetour;
+        _debugInitDetourFn = MonoDebugInitDetour;
+        _symbolRedirects = new Dictionary<string, IntPtr>
+        {
+            { "mono_jit_init_version", Marshal.GetFunctionPointerForDelegate(_monoInitDetourFn)},
+            { "mono_jit_parse_options", Marshal.GetFunctionPointerForDelegate(_jitParseOptionsDetourFn)},
+            { "mono_debug_init", Marshal.GetFunctionPointerForDelegate(_debugInitDetourFn)},
+        };
     }
+
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Bootstrapping Mono...");
+        PltHook.InstallHook(Entry.UnityPlayerDllFileName, "GetProcAddress", Marshal.GetFunctionPointerForDelegate(_hookGetProcAddressDelegate));
+        return Task.CompletedTask;
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     // Unity obtains Mono's symbols by calling GetProcAddress on them as opposed to calling them via their imports.
     // This means we can't PltHook them directly, but we can PltHook GetProcAddress and redirect the ones we're
     // interested in which is what this hook does. It also gives us the Mono's handle as an added bonus since we need it
-    private static nint HookGetProcAddress(nint handle, string symbol)
+    private nint HookGetProcAddress(nint handle, string symbol)
     {
         nint originalSymbolAddress = WindowsNative.GetProcAddress(handle, symbol);
-        if (!SymbolRedirects.TryGetValue(symbol, out var detourAddress))
+        if (!_symbolRedirects.TryGetValue(symbol, out var detourAddress))
             return originalSymbolAddress;
 
         if (!_runtimeInitialised)
             RetrieveMonoExports(handle);
         _runtimeInitialised = true;
 
-        Console.WriteLine($"Redirecting {symbol}");
+        _logger.LogInformation("Redirecting {Symbol}", symbol);
         return detourAddress;
     }
 
-    private static void RetrieveMonoExports(nint handle)
+    private void RetrieveMonoExports(nint handle)
     {
-        Console.WriteLine("Loading Mono exports");
+        _logger.LogInformation("Loading Mono exports");
         Mono = new Mono
         {
             RuntimeInvoke = NativeLibrary.GetExportDelegate<Mono.RuntimeInvokeFn>(handle, "mono_runtime_invoke"),
@@ -97,22 +111,22 @@ public static class MonoInitializer
 
     // This hooks the main Mono initialization function so it contains most of the machinery needed.
     // Most of the initialization process replicates what Unity does so we're effectively seizing control of the runtime
-    private static nint MonoJitInitDetour(nint domainName, nint runtimeVersion)
+    private nint MonoJitInitDetour(nint domainName, nint runtimeVersion)
     {
         if (_jitInitDone)
             return Mono.JitInitVersion(domainName, runtimeVersion);
 
-        Console.WriteLine("In init detour");
+        _logger.LogInformation("In init detour");
         string domainNameStr = Marshal.PtrToStringAnsi(domainName)!;
         string runtimeVersionStr = Marshal.PtrToStringAnsi(runtimeVersion)!;
-        Console.WriteLine($"Domain: {domainNameStr}, Runtime version: {runtimeVersionStr}");
+        _logger.LogInformation("Domain: {DomainNameStr}, Runtime version: {RuntimeVersionStr}", domainNameStr, runtimeVersionStr);
 
         SetMonoAssembliesPath();
 
         MonoJitParseOptionsDetour(0, []);
         InitialiseMonoDebuggerIfNeeded();
 
-        Console.WriteLine("Original init jit version");
+        _logger.LogInformation("Original init jit version");
         Domain = Mono.JitInitVersion(domainName, runtimeVersion);
 
         SetMonoMainThreadToCurrentThread();
@@ -124,33 +138,33 @@ public static class MonoInitializer
         return Domain;
     }
 
-    private static void SetupMonoConfigs()
+    private void SetupMonoConfigs()
     {
         string configFile = $"{Environment.ProcessPath}.config";
-        Console.WriteLine($"Setting Mono Config paths: base_dir: {Entry.GameDir}, config_file_name: {configFile}");
+        _logger.LogInformation($"Setting Mono Config paths: base_dir: {Entry.GameDir}, config_file_name: {configFile}");
         Mono.DomainSetConfig(Domain, Entry.GameDir, configFile);
 
-        Console.WriteLine("Parsing default Mono config");
+        _logger.LogInformation("Parsing default Mono config");
         Mono.ConfigParse(null);
     }
 
-    private static void SetMonoMainThreadToCurrentThread()
+    private void SetMonoMainThreadToCurrentThread()
     {
-        Console.WriteLine("Setting Mono Main Thread");
+        _logger.LogInformation("Setting Mono Main Thread");
         Mono.ThreadSetMain(Mono.ThreadCurrent());
     }
 
-    private static void InitialiseMonoDebuggerIfNeeded()
+    private void InitialiseMonoDebuggerIfNeeded()
     {
         bool debuggerAlreadyEnabled = _debugInitCalled || Mono.DebugEnabled();
         if (debuggerAlreadyEnabled)
             return;
 
-        Console.WriteLine("Initialising Mono debugger");
+        _logger.LogInformation("Initialising Mono debugger");
         Mono.DebugInit(Mono.MonoDebugFormat.MonoDebugFormatMono);
     }
 
-    private static void SetMonoAssembliesPath()
+    private void SetMonoAssembliesPath()
     {
         StringBuilder newAssembliesPathSb = new();
         _additionalMonoAssembliesPath = Path.Combine(Entry.GameDir, "UnityJitMonoBcl");
@@ -159,19 +173,19 @@ public static class MonoInitializer
         newAssembliesPathSb.Append(Mono.AssemblyGetrootdir());
 
         string newAssembliesPath = newAssembliesPathSb.ToString();
-        Console.WriteLine($"Setting Mono assemblies path to: {newAssembliesPath}");
+        _logger.LogInformation("Setting Mono assemblies path to: {NewAssembliesPath}", newAssembliesPath);
         Mono.SetAssembliesPath(newAssembliesPath);
     }
 
     // This hooks appends debugger arguments to enable Mono's SDB server
-    private static void MonoJitParseOptionsDetour(nint argc, string[] argv)
+    private void MonoJitParseOptionsDetour(nint argc, string[] argv)
     {
         if (_jitInitDone)
         {
             Mono.JitParseOptions(argc, argv);
             return;
         }
-        Console.WriteLine("jit parse options");
+        _logger.LogInformation("jit parse options");
 
         string newArgs;
         string? dnSpyEnv = Environment.GetEnvironmentVariable("DNSPY_UNITY_DBG2");
@@ -195,27 +209,27 @@ public static class MonoInitializer
         argc++;
         newArgv[argc - 1] = newArgs;
 
-        Console.WriteLine($"Adding jit option: {string.Join(' ', newArgs)}");
+        _logger.LogInformation("Adding jit option: {NewJitOptions}", string.Join(' ', newArgs));
 
         Mono.JitParseOptions(argc, newArgv);
     }
 
     // It's possible that Mono already wants to initialise its SDB server. We don't have a problem with this, but we do
     // need to make sure that we don't initialise it twice so this hook is still needed to detect this
-    private static void MonoDebugInitDetour(Mono.MonoDebugFormat format)
+    private void MonoDebugInitDetour(Mono.MonoDebugFormat format)
     {
-        Console.WriteLine("Debug init");
+        _logger.LogInformation("Debug init");
         _debugInitCalled = true;
         Mono.DebugInit(format);
     }
 
-    private static unsafe void TransitionToMonoManagedSide()
+    private unsafe void TransitionToMonoManagedSide()
     {
-        Console.WriteLine("Loading entrypoint assembly");
+        _logger.LogInformation("Loading entrypoint assembly");
         var assembly = Mono.DomainAssemblyOpen(Domain, _managedEntryPointInfo.AssemblyPath);
         if (assembly == 0)
         {
-            Console.WriteLine("Failed to load the entrypoint assembly into the Mono domain");
+            _logger.LogCritical("Failed to load the entrypoint assembly into the Mono domain");
             return;
         }
 
@@ -225,7 +239,7 @@ public static class MonoInitializer
 
         nint ex = 0;
         var initArgs = stackalloc nint*[] { };
-        Console.WriteLine("Invoking entrypoint method");
+        _logger.LogInformation("Invoking entrypoint method");
         Mono.RuntimeInvoke(initMethod, 0, (void**)initArgs, ref ex);
     }
 }

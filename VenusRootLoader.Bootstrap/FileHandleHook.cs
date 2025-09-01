@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using Microsoft.Extensions.Hosting;
 
 namespace VenusRootLoader.Bootstrap;
 
@@ -7,7 +8,7 @@ namespace VenusRootLoader.Bootstrap;
 /// they are interested in. Each module can register a sub hook that only runs on files whose filename matches a predicate,
 /// and they can decide to remove themselves from the hook list or change the handle returned
 /// </summary>
-internal static class FileHandleHook
+internal class FileHandleHook : IHostedService
 {
     /// <summary>
     /// A sub hook to CreateFileW
@@ -38,10 +39,13 @@ internal static class FileHandleHook
 
     private static readonly List<(Func<string, bool> predicate, CreateFileWHook Hook)> FileHandlesHooks = new();
 
-    internal static void Setup()
+    public Task StartAsync(CancellationToken cancellationToken)
     {
         PltHook.InstallHook(Entry.UnityPlayerDllFileName, "CreateFileW", Marshal.GetFunctionPointerForDelegate(HookCreateFileWDelegate));
+        return Task.CompletedTask;
     }
+
+    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     /// <summary>
     /// Registers a CreateFileW sub hook

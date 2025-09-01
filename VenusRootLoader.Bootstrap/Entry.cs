@@ -1,17 +1,28 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace VenusRootLoader.Bootstrap;
 
 /// <summary>
 /// This class contains the entrypoint method from the C++ side, and it initialises the rest of the bootstrap
 /// </summary>
-internal static class Entry
+internal class Entry
 {
     public static nint LibraryHandle { get; private set; }
     public static string GameDir { get; private set; } = null!;
     public static string DataDir { get; private set; } = null!;
     public static string UnityPlayerDllFileName { get; private set; } = null!;
+
+    private static readonly MonoInitializer.ManagedEntryPointInfo ManagedEntryPointInfo = new()
+    {
+        AssemblyPath = Path.Combine(Directory.GetCurrentDirectory(), "VenusRootLoader", "VenusRootLoader.dll"),
+        Namespace = "VenusRootLoader",
+        ClassName = "MonoInitEntry",
+        MethodName = "Main"
+    };
 
     [UnmanagedCallersOnly(EntryPoint = "EntryPoint")]
     public static void EntryPoint(nint module)
@@ -34,24 +45,36 @@ internal static class Entry
             .Single(x => x.FileName.Contains("UnityPlayer")).FileName;
 
         WindowsConsole.SetUp();
+
+        var builder = Host.CreateEmptyApplicationBuilder(new()
+        {
+            DisableDefaults = true,
+            ApplicationName = "VenusRootLoader",
+            Args = [],
+            EnvironmentName = "Development",
+            ContentRootPath = GameDir,
+            Configuration = null
+        });
+        builder.Logging.AddConsole();
+        builder.Logging.SetMinimumLevel(LogLevel.Trace);
+        builder.Services.AddHostedService<FileHandleHook>();
+        builder.Services.AddHostedService<UnityPlayerLogsMirroring>();
+        builder.Services.AddHostedService<UnitySplashScreenSkipper>();
+        builder.Services.AddHostedService<MonoInitializer>(s => new(
+            s.GetRequiredService<ILogger<MonoInitializer>>(),
+            ManagedEntryPointInfo));
+        var host = builder.Build();
+
+        var logger = host.Services.GetRequiredService<ILogger<Entry>>();
+
         try
         {
-            FileHandleHook.Setup();
-            UnitySplashScreenSkipper.Setup();
-            UnityPlayerLogsMirroring.SetUp();
-            Console.WriteLine("Bootstrapping Mono...");
-            MonoInitializer.Setup(new()
-            {
-                AssemblyPath = Path.Combine(Directory.GetCurrentDirectory(), "VenusRootLoader", "VenusRootLoader.dll"),
-                Namespace = "VenusRootLoader",
-                ClassName = "MonoInitEntry",
-                MethodName = "Main"
-            });
-            Console.WriteLine("Resuming UnityMain");
+            host.Start();
+            logger.LogInformation("Resuming UnityMain");
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            logger.LogCritical(e, "An unhandled exception occurred during the entrypoint");
             WindowsNative.MessageBoxW(nint.Zero, e.ToString(), "Unhandled Exception", 0x10);
             throw;
         }

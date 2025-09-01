@@ -12,9 +12,9 @@ internal class FileHandleHook : IHostedService
 {
     /// <summary>
     /// A sub hook to CreateFileW
+    /// </summary>
     /// <param name="handle">The handle to return</param>
     /// <returns>True when the hook should be kept in the hook list or false if it should be removed upon return</returns>
-    /// </summary>
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
     internal delegate bool CreateFileWHook(
         out nint handle,

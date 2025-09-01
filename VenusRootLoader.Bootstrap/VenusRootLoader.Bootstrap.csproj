@@ -59,30 +59,8 @@
 
     <Target Name="PublishAsBuildAfterTarget" AfterTargets="Build" DependsOnTargets="Publish" />
 
-    <Target Name="RenameBinary" AfterTargets="Build">
-        <Move SourceFiles="$(PublishDir)/$(TargetName).dll" DestinationFiles="$(PublishDir)/winhttp.dll" />
-    </Target>
-
-    <Target Name="CopyPdb" AfterTargets="Build" Condition="$(Configuration) == Debug">
-        <Copy ContinueOnError="false" SourceFiles="$(TargetDir)/native/$(TargetName).pdb" DestinationFiles="$(PublishDir)/$(TargetName).pdb" />
-    </Target>
-
-    <Target Name="CopyUnityjitBcl" AfterTargets="Build">
-        <ItemGroup>
-            <UnityjitMonoBclFiles Include="$(SolutionDir)/UnityJitMonoBcl/**/*.*" />
-        </ItemGroup>
-        <Copy ContinueOnError="false" SourceFiles="@(UnityjitMonoBclFiles)" DestinationFolder="$(PublishDir)/UnityJitMonoBcl" />
-    </Target>
-
-    <Target Name="CopyClassDataTpk" AfterTargets="Build">
-        <Copy ContinueOnError="false" SourceFiles="$(SolutionDir)classdata.tpk" DestinationFolder="$(PublishDir)/VenusRootLoader" />
-    </Target>
-
-    <Target Name="CopyToBugFables" AfterTargets="Build;CopyPdb" Condition="$(BugFablesDir) != ''">
-        <ItemGroup>
-            <OutFiles Include="$(PublishDir)/**/*.*" />
-        </ItemGroup>
-        <Message Importance="high" Text="Copying build files to $(BugFablesDir)" />
-        <Copy ContinueOnError="false" SourceFiles="@(OutFiles)" DestinationFiles="$(BugFablesDir)/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Target Name="PostBuild" AfterTargets="PublishAsBuildAfterTarget">
+        <Move SourceFiles="$(BuildDir)/$(TargetName).dll" DestinationFiles="$(BuildDir)/winhttp.dll" />
+        <Copy Condition="$(Configuration) == Debug" ContinueOnError="false" SourceFiles="$(TargetDir)/native/$(TargetName).pdb" DestinationFiles="$(BuildDir)/$(TargetName).pdb" />
     </Target>
 </Project>

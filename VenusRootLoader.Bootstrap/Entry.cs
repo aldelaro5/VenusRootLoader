@@ -45,8 +45,6 @@ internal static class Entry
             .OfType<ProcessModule>()
             .Single(x => x.FileName.Contains("UnityPlayer")).FileName;
 
-        WindowsConsole.SetUp();
-
         var builder = Host.CreateEmptyApplicationBuilder(new()
         {
             DisableDefaults = true,
@@ -56,17 +54,21 @@ internal static class Entry
             ContentRootPath = GameDir,
             Configuration = null
         });
+        builder.Services.AddHostedService<WindowsConsole>();
+        builder.Services.AddSingleton<PltHook>();
+        builder.Services.AddHostedService<StandardStreamsProtector>();
         builder.Services.AddSingleton<ILoggerFactory>(_ =>
             LoggerFactory.Create(loggingBuilder =>
             {
                 loggingBuilder.AddConsoleLoggingProvider();
                 loggingBuilder.SetMinimumLevel(LogLevel.Trace);
             }));
-        builder.Services.AddHostedService<FileHandleHook>();
+        builder.Services.AddSingleton<CreateFileWSharedHooker>();
         builder.Services.AddHostedService<UnityPlayerLogsMirroring>();
         builder.Services.AddHostedService<UnitySplashScreenSkipper>();
         builder.Services.AddHostedService<MonoInitializer>(s => new(
             s.GetRequiredService<ILoggerFactory>(),
+            s.GetRequiredService<PltHook>(),
             ManagedEntryPointInfo));
         var host = builder.Build();
 

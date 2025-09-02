@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using Microsoft.Extensions.Hosting;
 
 namespace VenusRootLoader.Bootstrap;
 
@@ -8,7 +7,7 @@ namespace VenusRootLoader.Bootstrap;
 /// they are interested in. Each module can register a sub hook that only runs on files whose filename matches a predicate,
 /// and they can decide to remove themselves from the hook list or change the handle returned
 /// </summary>
-internal class FileHandleHook : IHostedService
+internal class CreateFileWSharedHooker
 {
     /// <summary>
     /// A sub hook to CreateFileW
@@ -35,40 +34,41 @@ internal class FileHandleHook : IHostedService
         int dwCreationDisposition,
         int dwFlagsAndAttributes,
         nint hTemplateFile);
-    private static readonly CreateFileWFn HookCreateFileWDelegate = HookCreateFileW;
+    private static CreateFileWFn _hookCreateFileWDelegate = null!;
 
-    private static readonly List<(Func<string, bool> predicate, CreateFileWHook Hook)> FileHandlesHooks = new();
+    private readonly PltHook _pltHook;
 
-    public Task StartAsync(CancellationToken cancellationToken)
+    private readonly List<(Func<string, bool> predicate, CreateFileWHook Hook)> _fileHandlesHooks = new();
+
+    public CreateFileWSharedHooker(PltHook pltHook)
     {
-        PltHook.InstallHook(Entry.UnityPlayerDllFileName, "CreateFileW", Marshal.GetFunctionPointerForDelegate(HookCreateFileWDelegate));
-        return Task.CompletedTask;
+        _pltHook = pltHook;
+        _hookCreateFileWDelegate = HookCreateFileW;
+        _pltHook.InstallHook(Entry.UnityPlayerDllFileName, "CreateFileW", Marshal.GetFunctionPointerForDelegate(_hookCreateFileWDelegate));
     }
-
-    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     /// <summary>
     /// Registers a CreateFileW sub hook
     /// </summary>
     /// <param name="predicate">A predicate for the filename that returns true if the hook should execute</param>
     /// <param name="hook">The CreateFileW sub hook, see the <see cref="CreateFileWHook"/> documentation to learn more</param>
-    internal static void RegisterHook(Func<string, bool> predicate, CreateFileWHook hook)
+    internal void RegisterHook(Func<string, bool> predicate, CreateFileWHook hook)
     {
-        FileHandlesHooks.Add((predicate, hook));
+        _fileHandlesHooks.Add((predicate, hook));
     }
 
-    private static nint HookCreateFileW(string lpFilename, uint dwDesiredAccess, int dwShareMode, nint lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, nint hTemplateFile)
+    private nint HookCreateFileW(string lpFilename, uint dwDesiredAccess, int dwShareMode, nint lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, nint hTemplateFile)
     {
-        for (var i = 0; i < FileHandlesHooks.Count; i++)
+        for (var i = 0; i < _fileHandlesHooks.Count; i++)
         {
-            var hookWithPredicate = FileHandlesHooks[i];
+            var hookWithPredicate = _fileHandlesHooks[i];
             if (!hookWithPredicate.predicate(lpFilename))
                 continue;
 
             var keepHook = hookWithPredicate.Hook(out var fileHandle, lpFilename, dwDesiredAccess, dwShareMode,
                 lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
             if (!keepHook)
-                FileHandlesHooks.RemoveAt(i);
+                _fileHandlesHooks.RemoveAt(i);
             return fileHandle;
         }
 

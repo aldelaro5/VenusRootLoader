@@ -12,6 +12,9 @@ namespace VenusRootLoader.Bootstrap;
 /// </summary>
 internal class UnityPlayerLogsMirroring : IHostedService
 {
+    private nint _outputHandle;
+    private nint _errorHandle;
+
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     private delegate int WriteFileFn(
         nint hFile,
@@ -21,31 +24,39 @@ internal class UnityPlayerLogsMirroring : IHostedService
         nint lpOverlapped);
     private static WriteFileFn _hookWriteFileDelegate = null!;
 
-    private static nint _playerLogHandle = nint.Zero;
-    private static readonly StringBuilder LogBuffer = new(2048);
-    private readonly ILogger _logger;
+    private nint _playerLogHandle = nint.Zero;
+    private readonly StringBuilder _logBuffer = new(2048);
 
-    public UnityPlayerLogsMirroring(ILoggerFactory loggerFactory)
+    private readonly PltHook _pltHook;
+    private readonly ILogger _logger;
+    private readonly CreateFileWSharedHooker _createFileWSharedHooker;
+
+    public UnityPlayerLogsMirroring(ILoggerFactory loggerFactory, PltHook pltHook, CreateFileWSharedHooker createFileWSharedHooker)
     {
+        _pltHook = pltHook;
+        _createFileWSharedHooker = createFileWSharedHooker;
         _hookWriteFileDelegate = HookWriteFile;
         _logger = loggerFactory.CreateLogger("UNITY", Color.Aqua);
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        PltHook.InstallHook(Entry.UnityPlayerDllFileName, "WriteFile", Marshal.GetFunctionPointerForDelegate(_hookWriteFileDelegate));
-        FileHandleHook.RegisterHook(IsUnityPlayerLogFilename, HookFileHandle);
+        _outputHandle = WindowsNative.GetStdHandle(WindowsNative.StdOutputHandle);
+        _errorHandle = WindowsNative.GetStdHandle(WindowsNative.StdErrorHandle);
+
+        _pltHook.InstallHook(Entry.UnityPlayerDllFileName, "WriteFile", Marshal.GetFunctionPointerForDelegate(_hookWriteFileDelegate));
+        _createFileWSharedHooker.RegisterHook(IsUnityPlayerLogFilename, HookFileHandle);
         return Task.CompletedTask;
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
-    private static bool IsUnityPlayerLogFilename(string lpFilename)
+    private bool IsUnityPlayerLogFilename(string lpFilename)
     {
         return lpFilename.EndsWith("Player.log") || lpFilename.EndsWith("output_log.txt");
     }
 
-    private static bool HookFileHandle(out nint originalHandle, string lpFilename, uint dwDesiredAccess, int dwShareMode, nint lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, nint hTemplateFile)
+    private bool HookFileHandle(out nint originalHandle, string lpFilename, uint dwDesiredAccess, int dwShareMode, nint lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, nint hTemplateFile)
     {
         originalHandle = WindowsNative.CreateFileW(lpFilename, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
             dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
@@ -62,20 +73,20 @@ internal class UnityPlayerLogsMirroring : IHostedService
         nint lpOverlapped)
     {
         var writeToPlayerLog = _playerLogHandle == hFile;
-        var writeToStandardHandles = hFile == WindowsConsole.OutputHandle || hFile == WindowsConsole.ErrorHandle;
+        var writeToStandardHandles = hFile == _outputHandle || hFile == _errorHandle;
         if (!writeToPlayerLog && !writeToStandardHandles)
             return WindowsNative.WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, ref lpNumberOfBytesWritten, lpOverlapped);
 
         string log = Marshal.PtrToStringUTF8(lpBuffer, nNumberOfBytesToWrite);
-        LogBuffer.Append(log);
+        _logBuffer.Append(log);
 
         // Unity sometimes does multiline logs in one write.
         // For them to render correctly, we need to write each line one by one
-        if (LogBuffer[^1] == '\n')
+        if (_logBuffer[^1] == '\n')
         {
-            LogBuffer.Remove(LogBuffer.Length - 1, 1);
-            _logger.LogTrace(LogBuffer.ToString());
-            LogBuffer.Clear();
+            _logBuffer.Remove(_logBuffer.Length - 1, 1);
+            _logger.LogTrace(_logBuffer.ToString());
+            _logBuffer.Clear();
         }
 
         if (writeToStandardHandles)

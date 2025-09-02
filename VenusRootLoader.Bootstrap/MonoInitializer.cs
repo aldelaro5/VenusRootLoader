@@ -10,7 +10,7 @@ namespace VenusRootLoader.Bootstrap;
 /// This class initialises an instance of <see cref="Mono"/>, initialises the Mono runtime using various hooks,
 /// and transitions to the managed side using the newly initialised runtime
 /// </summary>
-public class MonoInitializer : IHostedService
+internal class MonoInitializer : IHostedService
 {
     public struct ManagedEntryPointInfo
     {
@@ -25,13 +25,13 @@ public class MonoInitializer : IHostedService
     private static GetProcAddressFn _hookGetProcAddressDelegate = null!;
 
     private readonly ManagedEntryPointInfo _managedEntryPointInfo;
-    private static bool _runtimeInitialised;
-    private static bool _debugInitCalled;
-    private static bool _jitInitDone;
+    private bool _runtimeInitialised;
+    private bool _debugInitCalled;
+    private bool _jitInitDone;
 
-    private static nint Domain { get; set; }
-    private static Mono Mono { get; set; } = null!;
-    private static string _additionalMonoAssembliesPath = string.Empty;
+    private nint Domain { get; set; }
+    private Mono Mono { get; set; } = null!;
+    private string _additionalMonoAssembliesPath = string.Empty;
 
     private const string MonoDebugArgsStart = "--debugger-agent=transport=dt_socket,server=y,address=";
     private const string MonoDebugNoSuspendArg = ",suspend=n";
@@ -41,11 +41,14 @@ public class MonoInitializer : IHostedService
     private static Mono.DebugInitFn _debugInitDetourFn = null!;
 
     private readonly Dictionary<string, nint> _symbolRedirects;
+    
+    private readonly PltHook _pltHook;
     private readonly ILogger _logger;
 
-    public MonoInitializer(ILoggerFactory loggerFactory, ManagedEntryPointInfo entryPointInfo)
+    public MonoInitializer(ILoggerFactory loggerFactory, PltHook pltHook, ManagedEntryPointInfo entryPointInfo)
     {
         _logger = loggerFactory.CreateLogger(nameof(MonoInitializer), Color.Magenta);
+        _pltHook = pltHook;
 
         _managedEntryPointInfo = entryPointInfo;
 
@@ -64,7 +67,7 @@ public class MonoInitializer : IHostedService
     public Task StartAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Bootstrapping Mono...");
-        PltHook.InstallHook(Entry.UnityPlayerDllFileName, "GetProcAddress", Marshal.GetFunctionPointerForDelegate(_hookGetProcAddressDelegate));
+        _pltHook.InstallHook(Entry.UnityPlayerDllFileName, "GetProcAddress", Marshal.GetFunctionPointerForDelegate(_hookGetProcAddressDelegate));
         return Task.CompletedTask;
     }
 

@@ -13,10 +13,12 @@ internal class StandardStreamsProtector : IHostedService
     private static CloseHandleFn _hookCloseHandleDelegate = null!;
 
     private readonly PltHook _pltHook;
+    private readonly GameExecutionContext _gameExecutionContext;
 
-    public StandardStreamsProtector(PltHook pltHook)
+    public StandardStreamsProtector(PltHook pltHook, GameExecutionContext gameExecutionContext)
     {
         _pltHook = pltHook;
+        _gameExecutionContext = gameExecutionContext;
         _hookCloseHandleDelegate = HookCloseHandle;
     }
 
@@ -25,7 +27,7 @@ internal class StandardStreamsProtector : IHostedService
         _outputHandle = WindowsNative.GetStdHandle(WindowsNative.StdOutputHandle);
         _errorHandle = WindowsNative.GetStdHandle(WindowsNative.StdErrorHandle);
 
-        _pltHook.InstallHook(Entry.UnityPlayerDllFileName, "CloseHandle", Marshal.GetFunctionPointerForDelegate(_hookCloseHandleDelegate));
+        _pltHook.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CloseHandle", Marshal.GetFunctionPointerForDelegate(_hookCloseHandleDelegate));
         return Task.CompletedTask;
     }
 
@@ -35,12 +37,10 @@ internal class StandardStreamsProtector : IHostedService
     // Since we attempt to control all logging, we want to prevent this from happening which is what this hook is for
     private int HookCloseHandle(nint hObject)
     {
-        if (hObject == _outputHandle || hObject == _errorHandle)
-        {
-            Console.WriteLine($"Prevented the CloseHandle of {(hObject == _outputHandle ? "stdout" : "stderr")}");
-            return 1;
-        }
+        if (hObject != _outputHandle && hObject != _errorHandle)
+            return WindowsNative.CloseHandle(hObject);
 
-        return WindowsNative.CloseHandle(hObject);
+        Console.WriteLine($"Prevented the CloseHandle of {(hObject == _outputHandle ? "stdout" : "stderr")}");
+        return 1;
     }
 }

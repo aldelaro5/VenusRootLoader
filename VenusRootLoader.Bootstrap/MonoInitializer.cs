@@ -44,13 +44,15 @@ internal class MonoInitializer : IHostedService
     
     private readonly PltHook _pltHook;
     private readonly ILogger _logger;
+    private readonly GameExecutionContext _gameExecutionContext;
 
-    public MonoInitializer(ILoggerFactory loggerFactory, PltHook pltHook, ManagedEntryPointInfo entryPointInfo)
+    public MonoInitializer(ILoggerFactory loggerFactory, PltHook pltHook, GameExecutionContext gameExecutionContext, ManagedEntryPointInfo entryPointInfo)
     {
         _logger = loggerFactory.CreateLogger(nameof(MonoInitializer), Color.Magenta);
         _pltHook = pltHook;
 
         _managedEntryPointInfo = entryPointInfo;
+        _gameExecutionContext = gameExecutionContext;
 
         _hookGetProcAddressDelegate = HookGetProcAddress;
         _monoInitDetourFn = MonoJitInitDetour;
@@ -67,7 +69,7 @@ internal class MonoInitializer : IHostedService
     public Task StartAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Bootstrapping Mono...");
-        _pltHook.InstallHook(Entry.UnityPlayerDllFileName, "GetProcAddress", Marshal.GetFunctionPointerForDelegate(_hookGetProcAddressDelegate));
+        _pltHook.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "GetProcAddress", Marshal.GetFunctionPointerForDelegate(_hookGetProcAddressDelegate));
         return Task.CompletedTask;
     }
 
@@ -145,8 +147,8 @@ internal class MonoInitializer : IHostedService
     private void SetupMonoConfigs()
     {
         string configFile = $"{Environment.ProcessPath}.config";
-        _logger.LogInformation($"Setting Mono Config paths: base_dir: {Entry.GameDir}, config_file_name: {configFile}");
-        Mono.DomainSetConfig(Domain, Entry.GameDir, configFile);
+        _logger.LogInformation($"Setting Mono Config paths: base_dir: {_gameExecutionContext.GameDir}, config_file_name: {configFile}");
+        Mono.DomainSetConfig(Domain, _gameExecutionContext.GameDir, configFile);
 
         _logger.LogInformation("Parsing default Mono config");
         Mono.ConfigParse(null);
@@ -171,7 +173,7 @@ internal class MonoInitializer : IHostedService
     private void SetMonoAssembliesPath()
     {
         StringBuilder newAssembliesPathSb = new();
-        _additionalMonoAssembliesPath = Path.Combine(Entry.GameDir, "UnityJitMonoBcl");
+        _additionalMonoAssembliesPath = Path.Combine(_gameExecutionContext.GameDir, "UnityJitMonoBcl");
         newAssembliesPathSb.Append(_additionalMonoAssembliesPath);
         newAssembliesPathSb.Append(';');
         newAssembliesPathSb.Append(Mono.AssemblyGetrootdir());

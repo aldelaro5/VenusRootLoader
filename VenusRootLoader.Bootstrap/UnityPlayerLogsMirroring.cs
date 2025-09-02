@@ -30,13 +30,16 @@ internal class UnityPlayerLogsMirroring : IHostedService
     private readonly PltHook _pltHook;
     private readonly ILogger _logger;
     private readonly CreateFileWSharedHooker _createFileWSharedHooker;
+    private readonly GameExecutionContext _gameExecutionContext;
 
-    public UnityPlayerLogsMirroring(ILoggerFactory loggerFactory, PltHook pltHook, CreateFileWSharedHooker createFileWSharedHooker)
+    public UnityPlayerLogsMirroring(ILoggerFactory loggerFactory, PltHook pltHook, CreateFileWSharedHooker createFileWSharedHooker, GameExecutionContext gameExecutionContext)
     {
         _pltHook = pltHook;
-        _createFileWSharedHooker = createFileWSharedHooker;
-        _hookWriteFileDelegate = HookWriteFile;
         _logger = loggerFactory.CreateLogger("UNITY", Color.Aqua);
+        _createFileWSharedHooker = createFileWSharedHooker;
+        _gameExecutionContext = gameExecutionContext;
+
+        _hookWriteFileDelegate = HookWriteFile;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
@@ -44,17 +47,15 @@ internal class UnityPlayerLogsMirroring : IHostedService
         _outputHandle = WindowsNative.GetStdHandle(WindowsNative.StdOutputHandle);
         _errorHandle = WindowsNative.GetStdHandle(WindowsNative.StdErrorHandle);
 
-        _pltHook.InstallHook(Entry.UnityPlayerDllFileName, "WriteFile", Marshal.GetFunctionPointerForDelegate(_hookWriteFileDelegate));
+        _pltHook.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "WriteFile", Marshal.GetFunctionPointerForDelegate(_hookWriteFileDelegate));
         _createFileWSharedHooker.RegisterHook(IsUnityPlayerLogFilename, HookFileHandle);
         return Task.CompletedTask;
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
-    private bool IsUnityPlayerLogFilename(string lpFilename)
-    {
-        return lpFilename.EndsWith("Player.log") || lpFilename.EndsWith("output_log.txt");
-    }
+    private bool IsUnityPlayerLogFilename(string lpFilename) =>
+        lpFilename.EndsWith("Player.log") || lpFilename.EndsWith("output_log.txt");
 
     private bool HookFileHandle(out nint originalHandle, string lpFilename, uint dwDesiredAccess, int dwShareMode, nint lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, nint hTemplateFile)
     {

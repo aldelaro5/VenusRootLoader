@@ -37,14 +37,16 @@ internal class CreateFileWSharedHooker
     private static CreateFileWFn _hookCreateFileWDelegate = null!;
 
     private readonly PltHook _pltHook;
+    private readonly GameExecutionContext _gameExecutionContext;
 
     private readonly List<(Func<string, bool> predicate, CreateFileWHook Hook)> _fileHandlesHooks = new();
 
-    public CreateFileWSharedHooker(PltHook pltHook)
+    public CreateFileWSharedHooker(PltHook pltHook, GameExecutionContext gameExecutionContext)
     {
         _pltHook = pltHook;
+        _gameExecutionContext = gameExecutionContext;
         _hookCreateFileWDelegate = HookCreateFileW;
-        _pltHook.InstallHook(Entry.UnityPlayerDllFileName, "CreateFileW", Marshal.GetFunctionPointerForDelegate(_hookCreateFileWDelegate));
+        _pltHook.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW", Marshal.GetFunctionPointerForDelegate(_hookCreateFileWDelegate));
     }
 
     /// <summary>

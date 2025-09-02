@@ -12,65 +12,25 @@ namespace VenusRootLoader.Bootstrap;
 /// </summary>
 internal static class Entry
 {
-    public static nint LibraryHandle { get; private set; }
-    public static string GameDir { get; private set; } = null!;
-    public static string DataDir { get; private set; } = null!;
-    public static string UnityPlayerDllFileName { get; private set; } = null!;
-
-    private static readonly MonoInitializer.ManagedEntryPointInfo ManagedEntryPointInfo = new()
-    {
-        AssemblyPath = Path.Combine(Directory.GetCurrentDirectory(), "VenusRootLoader", "VenusRootLoader.dll"),
-        Namespace = "VenusRootLoader",
-        ClassName = "MonoInitEntry",
-        MethodName = "Main"
-    };
-
     [UnmanagedCallersOnly(EntryPoint = "EntryPoint")]
     public static void EntryPoint(nint module)
     {
-        LibraryHandle = module;
-
+        var libraryHandle = module;
         var exePath = Environment.ProcessPath!;
-        GameDir = Path.GetDirectoryName(exePath)!;
-
-        DataDir = Path.Combine(GameDir, Path.GetFileNameWithoutExtension(exePath) + "_Data");
+        var gameDir = Path.GetDirectoryName(exePath)!;
+        var dataDir = Path.Combine(gameDir, Path.GetFileNameWithoutExtension(exePath) + "_Data");
 
         // It's technically possible another process residing outside the game's directory ends up right back
         // here even after the initialisation happened. This heuristic protects from that by making sure we are
         // in the game's directory
-        if (!Directory.Exists(DataDir))
+        if (!Directory.Exists(dataDir))
             return;
 
-        UnityPlayerDllFileName = Process.GetCurrentProcess().Modules
+        var unityPlayerDllFileName = Process.GetCurrentProcess().Modules
             .OfType<ProcessModule>()
             .Single(x => x.FileName.Contains("UnityPlayer")).FileName;
 
-        var builder = Host.CreateEmptyApplicationBuilder(new()
-        {
-            DisableDefaults = true,
-            ApplicationName = "VenusRootLoader",
-            Args = [],
-            EnvironmentName = "Development",
-            ContentRootPath = GameDir,
-            Configuration = null
-        });
-        builder.Services.AddHostedService<WindowsConsole>();
-        builder.Services.AddSingleton<PltHook>();
-        builder.Services.AddHostedService<StandardStreamsProtector>();
-        builder.Services.AddSingleton<ILoggerFactory>(_ =>
-            LoggerFactory.Create(loggingBuilder =>
-            {
-                loggingBuilder.AddConsoleLoggingProvider();
-                loggingBuilder.SetMinimumLevel(LogLevel.Trace);
-            }));
-        builder.Services.AddSingleton<CreateFileWSharedHooker>();
-        builder.Services.AddHostedService<UnityPlayerLogsMirroring>();
-        builder.Services.AddHostedService<UnitySplashScreenSkipper>();
-        builder.Services.AddHostedService<MonoInitializer>(s => new(
-            s.GetRequiredService<ILoggerFactory>(),
-            s.GetRequiredService<PltHook>(),
-            ManagedEntryPointInfo));
-        var host = builder.Build();
+        var host = Startup.BuildHost(gameDir, libraryHandle, dataDir, unityPlayerDllFileName);
 
         var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
         var logger = loggerFactory.CreateLogger(nameof(Entry), Color.Magenta);

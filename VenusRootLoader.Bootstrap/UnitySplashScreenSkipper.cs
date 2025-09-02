@@ -21,18 +21,21 @@ namespace VenusRootLoader.Bootstrap;
 /// </summary>
 internal class UnitySplashScreenSkipper : IHostedService
 {
-    private readonly string _modifiedGameBundlePath =
-        Path.Combine(Entry.GameDir, "VenusRootLoader", "data.unity3d.modified");
-    private readonly string _classDataTpkPath =
-        Path.Combine(Entry.GameDir, "VenusRootLoader", "classdata.tpk");
+    private readonly string _modifiedGameBundlePath;
+    private readonly string _classDataTpkPath;
 
     private readonly ILogger _logger;
     private readonly CreateFileWSharedHooker _createFileWSharedHooker;
+    private readonly GameExecutionContext _gameExecutionContext;
 
-    public UnitySplashScreenSkipper(ILoggerFactory loggerFactory, CreateFileWSharedHooker createFileWSharedHooker)
+    public UnitySplashScreenSkipper(ILoggerFactory loggerFactory, CreateFileWSharedHooker createFileWSharedHooker, GameExecutionContext gameExecutionContext)
     {
-        _createFileWSharedHooker = createFileWSharedHooker;
         _logger = loggerFactory.CreateLogger(nameof(UnitySplashScreenSkipper), Color.Magenta);
+        _gameExecutionContext = gameExecutionContext;
+        _createFileWSharedHooker = createFileWSharedHooker;
+
+        _modifiedGameBundlePath = Path.Combine(_gameExecutionContext.GameDir, "VenusRootLoader", "data.unity3d.modified");
+        _classDataTpkPath = Path.Combine(_gameExecutionContext.GameDir, "VenusRootLoader", "classdata.tpk");
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
@@ -43,7 +46,8 @@ internal class UnitySplashScreenSkipper : IHostedService
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
-    private bool IsGameBundleFile(string filename) => filename.EndsWith("data.unity3d");
+    private bool IsGameBundleFile(string filename) =>
+        filename == Path.Combine(_gameExecutionContext.DataDir, "data.unity3d");
 
     private bool HookFileHandle(out nint originalHandle, string lpFilename, uint dwDesiredAccess, int dwShareMode, nint lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, nint hTemplateFile)
     {

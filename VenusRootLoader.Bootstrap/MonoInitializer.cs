@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Extensions.Hosting;
@@ -42,9 +43,9 @@ public class MonoInitializer : IHostedService
     private readonly Dictionary<string, nint> _symbolRedirects;
     private readonly ILogger _logger;
 
-    public MonoInitializer(ILogger<MonoInitializer> logger, ManagedEntryPointInfo entryPointInfo)
+    public MonoInitializer(ILoggerFactory loggerFactory, ManagedEntryPointInfo entryPointInfo)
     {
-        _logger = logger;
+        _logger = loggerFactory.CreateLogger(nameof(MonoInitializer), Color.Magenta);
 
         _managedEntryPointInfo = entryPointInfo;
 

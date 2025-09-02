@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -9,7 +10,7 @@ namespace VenusRootLoader.Bootstrap;
 /// <summary>
 /// This class contains the entrypoint method from the C++ side, and it initialises the rest of the bootstrap
 /// </summary>
-internal class Entry
+internal static class Entry
 {
     public static nint LibraryHandle { get; private set; }
     public static string GameDir { get; private set; } = null!;
@@ -55,17 +56,22 @@ internal class Entry
             ContentRootPath = GameDir,
             Configuration = null
         });
-        builder.Logging.AddConsole();
-        builder.Logging.SetMinimumLevel(LogLevel.Trace);
+        builder.Services.AddSingleton<ILoggerFactory>(_ =>
+            LoggerFactory.Create(loggingBuilder =>
+            {
+                loggingBuilder.AddConsoleLoggingProvider();
+                loggingBuilder.SetMinimumLevel(LogLevel.Trace);
+            }));
         builder.Services.AddHostedService<FileHandleHook>();
         builder.Services.AddHostedService<UnityPlayerLogsMirroring>();
         builder.Services.AddHostedService<UnitySplashScreenSkipper>();
         builder.Services.AddHostedService<MonoInitializer>(s => new(
-            s.GetRequiredService<ILogger<MonoInitializer>>(),
+            s.GetRequiredService<ILoggerFactory>(),
             ManagedEntryPointInfo));
         var host = builder.Build();
 
-        var logger = host.Services.GetRequiredService<ILogger<Entry>>();
+        var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
+        var logger = loggerFactory.CreateLogger(nameof(Entry), Color.Magenta);
 
         try
         {

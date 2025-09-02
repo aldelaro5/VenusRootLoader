@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Extensions.Hosting;
@@ -22,17 +23,16 @@ internal class UnityPlayerLogsMirroring : IHostedService
 
     private static nint _playerLogHandle = nint.Zero;
     private static readonly StringBuilder LogBuffer = new(2048);
-    private readonly ILogger<UnityPlayerLogsMirroring> _logger;
+    private readonly ILogger _logger;
 
-    public UnityPlayerLogsMirroring(ILogger<UnityPlayerLogsMirroring> logger)
+    public UnityPlayerLogsMirroring(ILoggerFactory loggerFactory)
     {
         _hookWriteFileDelegate = HookWriteFile;
-        _logger = logger;
+        _logger = loggerFactory.CreateLogger("UNITY", Color.Aqua);
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("UnityPlayerLogsMirroring started");
         PltHook.InstallHook(Entry.UnityPlayerDllFileName, "WriteFile", Marshal.GetFunctionPointerForDelegate(_hookWriteFileDelegate));
         FileHandleHook.RegisterHook(IsUnityPlayerLogFilename, HookFileHandle);
         return Task.CompletedTask;

@@ -1,3 +1,4 @@
+using System.Drawing;
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using Microsoft.Extensions.Hosting;
@@ -27,7 +28,8 @@ internal class UnitySplashScreenSkipper : IHostedService
 
     private readonly ILogger _logger;
 
-    public UnitySplashScreenSkipper(ILogger<UnitySplashScreenSkipper> logger) => _logger = logger;
+    public UnitySplashScreenSkipper(ILoggerFactory loggerFactory) =>
+        _logger = loggerFactory.CreateLogger(nameof(UnitySplashScreenSkipper), Color.Magenta);
 
     public Task StartAsync(CancellationToken cancellationToken)
     {

@@ -1,4 +1,8 @@
 using System.Drawing;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.Security;
+using Windows.Win32.Storage.FileSystem;
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using Microsoft.Extensions.Hosting;
@@ -40,7 +44,7 @@ internal class UnitySplashScreenSkipper : IHostedService
         _classDataTpkPath = Path.Combine(_gameExecutionContext.GameDir, "VenusRootLoader", "classdata.tpk");
     }
 
-    public Task StartAsync(CancellationToken cancellationToken)
+    public unsafe Task StartAsync(CancellationToken cancellationToken)
     {
         _createFileWSharedHooker.RegisterHook(IsGameBundleFile, HookFileHandle);
         return Task.CompletedTask;
@@ -51,14 +55,17 @@ internal class UnitySplashScreenSkipper : IHostedService
     private bool IsGameBundleFile(string filename) =>
         filename == Path.Combine(_gameExecutionContext.DataDir, "data.unity3d");
 
-    private bool HookFileHandle(out nint originalHandle, string lpFilename, uint dwDesiredAccess, int dwShareMode, nint lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, nint hTemplateFile)
+    private unsafe bool HookFileHandle(out HANDLE originalHandle, PCWSTR lpFileName, uint dwDesiredAccess, FILE_SHARE_MODE dwShareMode, SECURITY_ATTRIBUTES* lpSecurityAttributes, FILE_CREATION_DISPOSITION dwCreationDisposition, FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes, HANDLE hTemplateFile)
     {
         if (!File.Exists(_modifiedGameBundlePath))
-            SetGameBundleToSkipSplashScreen(lpFilename);
+            SetGameBundleToSkipSplashScreen(lpFileName.ToString());
 
         _logger.LogInformation("Redirecting game bundle to {ModifiedGameBundlePath}", _modifiedGameBundlePath);
-        originalHandle = WindowsNative.CreateFileW(_modifiedGameBundlePath, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
-            dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+        fixed (char* fileNamePtr = _modifiedGameBundlePath)
+        {
+            originalHandle = PInvoke.CreateFile(fileNamePtr, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
+                dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+        }
         return true;
     }
 

@@ -1,6 +1,8 @@
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
+using Windows.Win32;
+using Windows.Win32.Foundation;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using VenusRootLoader.Bootstrap.Extensions;
@@ -23,7 +25,7 @@ internal class MonoInitializer : IHostedService
     }
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    private delegate nint GetProcAddressFn(nint handle, string symbol);
+    private delegate nint GetProcAddressFn(HMODULE handle, PCSTR symbol);
     private static GetProcAddressFn _hookGetProcAddressDelegate = null!;
 
     private readonly ManagedEntryPointInfo _managedEntryPointInfo;
@@ -44,11 +46,11 @@ internal class MonoInitializer : IHostedService
 
     private readonly Dictionary<string, nint> _symbolRedirects;
     
-    private readonly Services.PltHook _pltHook;
+    private readonly PltHook _pltHook;
     private readonly ILogger _logger;
     private readonly GameExecutionContext _gameExecutionContext;
 
-    public MonoInitializer(ILoggerFactory loggerFactory, Services.PltHook pltHook, GameExecutionContext gameExecutionContext, ManagedEntryPointInfo entryPointInfo)
+    public MonoInitializer(ILoggerFactory loggerFactory, PltHook pltHook, GameExecutionContext gameExecutionContext, ManagedEntryPointInfo entryPointInfo)
     {
         _logger = loggerFactory.CreateLogger(nameof(MonoInitializer), Color.Magenta);
         _pltHook = pltHook;
@@ -80,10 +82,10 @@ internal class MonoInitializer : IHostedService
     // Unity obtains Mono's symbols by calling GetProcAddress on them as opposed to calling them via their imports.
     // This means we can't PltHook them directly, but we can PltHook GetProcAddress and redirect the ones we're
     // interested in which is what this hook does. It also gives us the Mono's handle as an added bonus since we need it
-    private nint HookGetProcAddress(nint handle, string symbol)
+    private nint HookGetProcAddress(HMODULE handle, PCSTR symbol)
     {
-        nint originalSymbolAddress = WindowsNative.GetProcAddress(handle, symbol);
-        if (!_symbolRedirects.TryGetValue(symbol, out var detourAddress))
+        var originalSymbolAddress = PInvoke.GetProcAddress(handle, symbol);
+        if (!_symbolRedirects.TryGetValue(symbol.ToString(), out var detourAddress))
             return originalSymbolAddress;
 
         if (!_runtimeInitialised)

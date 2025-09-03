@@ -1,3 +1,5 @@
+using Windows.Win32;
+
 namespace VenusRootLoader.Bootstrap;
 
 internal static class WineUtils
@@ -6,8 +8,8 @@ internal static class WineUtils
 
     static WineUtils()
     {
-        var hModNtDll = WindowsNative.GetModuleHandleW("ntdll.dll");
-        var wineGetVersion = WindowsNative.GetProcAddress(hModNtDll, "wine_get_version");
+        var hModNtDll = PInvoke.GetModuleHandle("ntdll.dll");
+        var wineGetVersion = PInvoke.GetProcAddress(hModNtDll, "wine_get_version");
         IsWine = wineGetVersion != nint.Zero;
     }
 }

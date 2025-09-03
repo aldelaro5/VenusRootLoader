@@ -1,4 +1,7 @@
 using System.Runtime.InteropServices;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.System.Console;
 using Microsoft.Extensions.Hosting;
 using VenusRootLoader.Bootstrap.Services;
 
@@ -10,13 +13,13 @@ internal class StandardStreamsProtector : IHostedService
     private nint _errorHandle;
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-    private delegate int CloseHandleFn(nint hObject);
+    private delegate int CloseHandleFn(HANDLE hObject);
     private static CloseHandleFn _hookCloseHandleDelegate = null!;
 
-    private readonly Services.PltHook _pltHook;
+    private readonly PltHook _pltHook;
     private readonly GameExecutionContext _gameExecutionContext;
 
-    public StandardStreamsProtector(Services.PltHook pltHook, GameExecutionContext gameExecutionContext)
+    public StandardStreamsProtector(PltHook pltHook, GameExecutionContext gameExecutionContext)
     {
         _pltHook = pltHook;
         _gameExecutionContext = gameExecutionContext;
@@ -25,8 +28,8 @@ internal class StandardStreamsProtector : IHostedService
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        _outputHandle = WindowsNative.GetStdHandle(WindowsNative.StdOutputHandle);
-        _errorHandle = WindowsNative.GetStdHandle(WindowsNative.StdErrorHandle);
+        _outputHandle = PInvoke.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
+        _errorHandle = PInvoke.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
 
         _pltHook.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CloseHandle", Marshal.GetFunctionPointerForDelegate(_hookCloseHandleDelegate));
         return Task.CompletedTask;
@@ -36,10 +39,10 @@ internal class StandardStreamsProtector : IHostedService
 
     // Unity may attempt to close stdout and stderr in order to redirect their streams to their player logs.
     // Since we attempt to control all logging, we want to prevent this from happening which is what this hook is for
-    private int HookCloseHandle(nint hObject)
+    private int HookCloseHandle(HANDLE hObject)
     {
         if (hObject != _outputHandle && hObject != _errorHandle)
-            return WindowsNative.CloseHandle(hObject);
+            return PInvoke.CloseHandle(hObject);
 
         Console.WriteLine($"Prevented the CloseHandle of {(hObject == _outputHandle ? "stdout" : "stderr")}");
         return 1;

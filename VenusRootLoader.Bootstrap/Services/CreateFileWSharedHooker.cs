@@ -1,4 +1,8 @@
 using System.Runtime.InteropServices;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.Security;
+using Windows.Win32.Storage.FileSystem;
 
 namespace VenusRootLoader.Bootstrap.Services;
 
@@ -15,25 +19,25 @@ internal class CreateFileWSharedHooker
     /// <param name="handle">The handle to return</param>
     /// <returns>True when the hook should be kept in the hook list or false if it should be removed upon return</returns>
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-    internal delegate bool CreateFileWHook(
-        out nint handle,
-        string lpFileName,
+    internal unsafe delegate bool CreateFileWHook(
+        out HANDLE handle,
+        PCWSTR lpFileName,
         uint dwDesiredAccess,
-        int dwShareMode,
-        nint lpSecurityAttributes,
-        int dwCreationDisposition,
-        int dwFlagsAndAttributes,
-        nint hTemplateFile);
+        FILE_SHARE_MODE dwShareMode,
+        SECURITY_ATTRIBUTES* lpSecurityAttributes,
+        FILE_CREATION_DISPOSITION dwCreationDisposition,
+        FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes,
+        HANDLE hTemplateFile);
     
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-    private delegate nint CreateFileWFn(
-        string lpFileName,
+    private unsafe delegate nint CreateFileWFn(
+        PCWSTR lpFileName,
         uint dwDesiredAccess,
-        int dwShareMode,
-        nint lpSecurityAttributes,
-        int dwCreationDisposition,
-        int dwFlagsAndAttributes,
-        nint hTemplateFile);
+        FILE_SHARE_MODE dwShareMode,
+        SECURITY_ATTRIBUTES* lpSecurityAttributes,
+        FILE_CREATION_DISPOSITION dwCreationDisposition,
+        FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes,
+        HANDLE hTemplateFile);
     private static CreateFileWFn _hookCreateFileWDelegate = null!;
 
     private readonly PltHook _pltHook;
@@ -41,7 +45,7 @@ internal class CreateFileWSharedHooker
 
     private readonly List<(Func<string, bool> predicate, CreateFileWHook Hook)> _fileHandlesHooks = new();
 
-    public CreateFileWSharedHooker(PltHook pltHook, GameExecutionContext gameExecutionContext)
+    public unsafe CreateFileWSharedHooker(PltHook pltHook, GameExecutionContext gameExecutionContext)
     {
         _pltHook = pltHook;
         _gameExecutionContext = gameExecutionContext;
@@ -59,22 +63,21 @@ internal class CreateFileWSharedHooker
         _fileHandlesHooks.Add((predicate, hook));
     }
 
-    private nint HookCreateFileW(string lpFilename, uint dwDesiredAccess, int dwShareMode, nint lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, nint hTemplateFile)
+    private unsafe nint HookCreateFileW(PCWSTR lpFileName, uint dwDesiredAccess, FILE_SHARE_MODE dwShareMode, SECURITY_ATTRIBUTES* lpSecurityAttributes, FILE_CREATION_DISPOSITION dwCreationDisposition, FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes, HANDLE hTemplateFile)
     {
         for (var i = 0; i < _fileHandlesHooks.Count; i++)
         {
             var hookWithPredicate = _fileHandlesHooks[i];
-            if (!hookWithPredicate.predicate(lpFilename))
+            if (!hookWithPredicate.predicate(lpFileName.ToString()))
                 continue;
 
-            var keepHook = hookWithPredicate.Hook(out var fileHandle, lpFilename, dwDesiredAccess, dwShareMode,
+            var keepHook = hookWithPredicate.Hook(out var fileHandle, lpFileName, dwDesiredAccess, dwShareMode,
                 lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
             if (!keepHook)
                 _fileHandlesHooks.RemoveAt(i);
             return fileHandle;
         }
-
-        return WindowsNative.CreateFileW(lpFilename, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
+        return PInvoke.CreateFile(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
             dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
     }
 }

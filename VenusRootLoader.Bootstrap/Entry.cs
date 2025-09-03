@@ -1,6 +1,10 @@
 ﻿using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.UI.WindowsAndMessaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -41,10 +45,10 @@ internal static class Entry
             host.Start();
             logger.LogInformation("Resuming UnityMain");
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            logger.LogCritical(e, "An unhandled exception occurred during the entrypoint");
-            WindowsNative.MessageBoxW(nint.Zero, e.ToString(), "Unhandled Exception", 0x10);
+            // logger.LogCritical(ex, "An unhandled exception occurred during the entrypoint");
+            PInvoke.MessageBox(HWND.Null, ex.ToString(), "Unhandled Exception", MESSAGEBOX_STYLE.MB_ICONERROR);
             throw;
         }
     }

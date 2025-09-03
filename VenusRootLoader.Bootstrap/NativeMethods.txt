@@ -1,0 +1,8 @@
+GetModuleHandleW
+GetProcAddress
+GetStdHandle
+SetStdHandle
+CreateFileW
+WriteFile
+CloseHandle
+MessageBoxW

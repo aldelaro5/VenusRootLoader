@@ -12,6 +12,7 @@
         <EntryObjPath>$(IntermediateOutputPath)entry.obj</EntryObjPath>
         <PltHookPath>$(IntermediateOutputPath)plthook.obj</PltHookPath>
         <PublishDir>$(BuildDir)</PublishDir>
+        <NoWarn>CA1416</NoWarn>
     </PropertyGroup>
 
     <Target Name="RemoveBuiltInDllMain" AfterTargets="SetupOSSpecificProps">
@@ -23,6 +24,10 @@
     <ItemGroup>
       <PackageReference Include="AssetsTools.NET" Version="3.0.1" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0-preview.7.25380.108" />
+      <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
       <PackageReference Include="Pastel" Version="7.0.0" />
       <PackageReference Include="PublishAotCrossXWin" Version="1.2.0" />
     </ItemGroup>

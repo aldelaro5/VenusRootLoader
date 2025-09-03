@@ -1,5 +1,5 @@
 #include <windows.h>
-#include "../external/plthook/plthook.h"
+#include "../../external/plthook/plthook.h"
 #include "proxy.h"
 
 extern "C"

@@ -1,8 +1,9 @@
 using System.Drawing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using VenusRootLoader.Bootstrap.Logging;
 
-namespace VenusRootLoader.Bootstrap;
+namespace VenusRootLoader.Bootstrap.Extensions;
 
 public static class LoggingExtensions
 {

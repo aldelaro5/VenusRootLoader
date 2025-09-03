@@ -1,6 +1,6 @@
 using System.Drawing;
 
-namespace VenusRootLoader.Bootstrap;
+namespace VenusRootLoader.Bootstrap.Logging;
 
 public static class ColoredLoggerCategory
 {

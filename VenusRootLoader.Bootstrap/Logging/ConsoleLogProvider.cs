@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 
-namespace VenusRootLoader.Bootstrap;
+namespace VenusRootLoader.Bootstrap.Logging;
 
 public class ConsoleLogProvider : ILoggerProvider
 {

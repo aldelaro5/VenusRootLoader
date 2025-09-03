@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace VenusRootLoader.Bootstrap;
+namespace VenusRootLoader.Bootstrap.Services;
 
 /// <summary>
 /// This class allows the bootstrap to use a shared CreateFileW plt hook that many modules can use to listen for files

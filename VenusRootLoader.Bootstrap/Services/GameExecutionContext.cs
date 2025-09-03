@@ -1,4 +1,4 @@
-namespace VenusRootLoader.Bootstrap;
+namespace VenusRootLoader.Bootstrap.Services;
 
 internal class GameExecutionContext
 {

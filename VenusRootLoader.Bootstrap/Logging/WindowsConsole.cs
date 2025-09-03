@@ -1,7 +1,7 @@
 using System.Text;
 using Microsoft.Extensions.Hosting;
 
-namespace VenusRootLoader.Bootstrap;
+namespace VenusRootLoader.Bootstrap.Logging;
 
 /// <summary>
 /// This class handles the binding of Windows's console for usage in our logs. It also prevents the console's streams to

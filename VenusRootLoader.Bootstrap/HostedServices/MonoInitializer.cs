@@ -3,8 +3,10 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using VenusRootLoader.Bootstrap.Extensions;
+using VenusRootLoader.Bootstrap.Services;
 
-namespace VenusRootLoader.Bootstrap;
+namespace VenusRootLoader.Bootstrap.HostedServices;
 
 /// <summary>
 /// This class initialises an instance of <see cref="Mono"/>, initialises the Mono runtime using various hooks,
@@ -42,11 +44,11 @@ internal class MonoInitializer : IHostedService
 
     private readonly Dictionary<string, nint> _symbolRedirects;
     
-    private readonly PltHook _pltHook;
+    private readonly Services.PltHook _pltHook;
     private readonly ILogger _logger;
     private readonly GameExecutionContext _gameExecutionContext;
 
-    public MonoInitializer(ILoggerFactory loggerFactory, PltHook pltHook, GameExecutionContext gameExecutionContext, ManagedEntryPointInfo entryPointInfo)
+    public MonoInitializer(ILoggerFactory loggerFactory, Services.PltHook pltHook, GameExecutionContext gameExecutionContext, ManagedEntryPointInfo entryPointInfo)
     {
         _logger = loggerFactory.CreateLogger(nameof(MonoInitializer), Color.Magenta);
         _pltHook = pltHook;

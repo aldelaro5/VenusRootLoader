@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using VenusRootLoader.Bootstrap.HostedServices;
 
 // ReSharper disable UnusedMember.Global
 

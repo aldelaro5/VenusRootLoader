@@ -2,8 +2,9 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
+using VenusRootLoader.Bootstrap.Extensions;
 
-namespace VenusRootLoader.Bootstrap;
+namespace VenusRootLoader.Bootstrap.Services;
 
 /// <summary>
 /// This class contains PInvoke abstractions for the PltHook library that's statically linked in the bootstrap
@@ -26,7 +27,7 @@ internal partial class PltHook
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     private static partial nint PlthookError();
 
-    private readonly Dictionary<string, nint> OpenedPltHooksByFilename = new();
+    private readonly Dictionary<string, nint> _openedPltHooksByFilename = new();
 
     private readonly ILogger _logger;
 
@@ -37,7 +38,7 @@ internal partial class PltHook
 
     internal void InstallHook(string fileName, string functionName, nint hookFunctionPtr)
     {
-        if (!OpenedPltHooksByFilename.TryGetValue(fileName, out var pltHookPtr))
+        if (!_openedPltHooksByFilename.TryGetValue(fileName, out var pltHookPtr))
         {
             nint pltHook = IntPtr.Zero;
             var pltHookOpened = PlthookOpen(ref pltHook, fileName) == 0;
@@ -48,7 +49,7 @@ internal partial class PltHook
                 return;
             }
 
-            OpenedPltHooksByFilename.Add(fileName, pltHook);
+            _openedPltHooksByFilename.Add(fileName, pltHook);
             pltHookPtr = pltHook;
             _logger.LogInformation($"plthook_open: Opened with filename {fileName} successfully");
         }
@@ -64,10 +65,10 @@ internal partial class PltHook
 
     internal void CloseFilenameHooksHandleIfExists(string fileName)
     {
-        if (!OpenedPltHooksByFilename.TryGetValue(fileName, out var pltHookPtr))
+        if (!_openedPltHooksByFilename.TryGetValue(fileName, out var pltHookPtr))
             return;
         PlthookClose(pltHookPtr);
-        OpenedPltHooksByFilename.Remove(fileName);
+        _openedPltHooksByFilename.Remove(fileName);
         _logger.LogInformation($"plthook_close: Closed with filename {fileName}");
     }
 }

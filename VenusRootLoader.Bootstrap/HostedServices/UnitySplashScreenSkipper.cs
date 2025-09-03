@@ -3,8 +3,10 @@ using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using VenusRootLoader.Bootstrap.Extensions;
+using VenusRootLoader.Bootstrap.Services;
 
-namespace VenusRootLoader.Bootstrap;
+namespace VenusRootLoader.Bootstrap.HostedServices;
 
 /// <summary>
 /// <para>

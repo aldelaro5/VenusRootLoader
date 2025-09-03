@@ -1,7 +1,8 @@
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Hosting;
+using VenusRootLoader.Bootstrap.Services;
 
-namespace VenusRootLoader.Bootstrap;
+namespace VenusRootLoader.Bootstrap.HostedServices;
 
 internal class StandardStreamsProtector : IHostedService
 {
@@ -12,10 +13,10 @@ internal class StandardStreamsProtector : IHostedService
     private delegate int CloseHandleFn(nint hObject);
     private static CloseHandleFn _hookCloseHandleDelegate = null!;
 
-    private readonly PltHook _pltHook;
+    private readonly Services.PltHook _pltHook;
     private readonly GameExecutionContext _gameExecutionContext;
 
-    public StandardStreamsProtector(PltHook pltHook, GameExecutionContext gameExecutionContext)
+    public StandardStreamsProtector(Services.PltHook pltHook, GameExecutionContext gameExecutionContext)
     {
         _pltHook = pltHook;
         _gameExecutionContext = gameExecutionContext;

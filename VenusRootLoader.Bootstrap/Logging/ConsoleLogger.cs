@@ -2,7 +2,7 @@ using System.Drawing;
 using Microsoft.Extensions.Logging;
 using Pastel;
 
-namespace VenusRootLoader.Bootstrap;
+namespace VenusRootLoader.Bootstrap.Logging;
 
 public class ConsoleLogger : ILogger
 {

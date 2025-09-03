@@ -3,8 +3,10 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using VenusRootLoader.Bootstrap.Extensions;
+using VenusRootLoader.Bootstrap.Services;
 
-namespace VenusRootLoader.Bootstrap;
+namespace VenusRootLoader.Bootstrap.HostedServices;
 
 /// <summary>
 /// This class contains all the machinery needed to fully capture and mirror stdout, stderr and Unity's player logs
@@ -27,12 +29,12 @@ internal class UnityPlayerLogsMirroring : IHostedService
     private nint _playerLogHandle = nint.Zero;
     private readonly StringBuilder _logBuffer = new(2048);
 
-    private readonly PltHook _pltHook;
+    private readonly Services.PltHook _pltHook;
     private readonly ILogger _logger;
     private readonly CreateFileWSharedHooker _createFileWSharedHooker;
     private readonly GameExecutionContext _gameExecutionContext;
 
-    public UnityPlayerLogsMirroring(ILoggerFactory loggerFactory, PltHook pltHook, CreateFileWSharedHooker createFileWSharedHooker, GameExecutionContext gameExecutionContext)
+    public UnityPlayerLogsMirroring(ILoggerFactory loggerFactory, Services.PltHook pltHook, CreateFileWSharedHooker createFileWSharedHooker, GameExecutionContext gameExecutionContext)
     {
         _pltHook = pltHook;
         _logger = loggerFactory.CreateLogger("UNITY", Color.Aqua);

@@ -1,6 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using VenusRootLoader.Bootstrap.Extensions;
+using VenusRootLoader.Bootstrap.HostedServices;
+using VenusRootLoader.Bootstrap.Logging;
+using VenusRootLoader.Bootstrap.Services;
 
 namespace VenusRootLoader.Bootstrap;
 
@@ -35,7 +39,7 @@ internal static class Startup
                 UnityPlayerDllFileName = unityPlayerDllFileName
             });
         builder.Services.AddHostedService<WindowsConsole>();
-        builder.Services.AddSingleton<PltHook>();
+        builder.Services.AddSingleton<Services.PltHook>();
         builder.Services.AddHostedService<StandardStreamsProtector>();
         builder.Services.AddSingleton<ILoggerFactory>(_ =>
             LoggerFactory.Create(loggingBuilder =>
@@ -48,7 +52,7 @@ internal static class Startup
         builder.Services.AddHostedService<UnitySplashScreenSkipper>();
         builder.Services.AddHostedService<MonoInitializer>(s => new(
             s.GetRequiredService<ILoggerFactory>(),
-            s.GetRequiredService<PltHook>(),
+            s.GetRequiredService<Services.PltHook>(),
             s.GetRequiredService<GameExecutionContext>(),
             ManagedEntryPointInfo));
 

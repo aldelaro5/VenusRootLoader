@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using VenusRootLoader.Bootstrap.Extensions;
 
 namespace VenusRootLoader.Bootstrap;
 

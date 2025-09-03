@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace VenusRootLoader.Bootstrap;
+namespace VenusRootLoader.Bootstrap.Extensions;
 
 // ReSharper disable once UnusedType.Global
 internal static class NativeLibraryExtensions

@@ -10,7 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="HarmonyX" Version="2.14.0" />
+        <PackageReference Include="HarmonyX" Version="2.15.0" />
         <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3">
             <IncludeAssets>build</IncludeAssets>
         </PackageReference>

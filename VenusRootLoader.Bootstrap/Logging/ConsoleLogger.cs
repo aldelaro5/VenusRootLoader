@@ -1,6 +1,7 @@
 using System.Drawing;
 using Microsoft.Extensions.Logging;
 using Pastel;
+using VenusRootLoader.Bootstrap.Services;
 
 namespace VenusRootLoader.Bootstrap.Logging;
 
@@ -66,10 +67,13 @@ public class ConsoleLogger : ILogger
         }
     };
 
-    public ConsoleLogger(string categoryName, Color? categoryColor)
+    private readonly GameExecutionContext _gameExecutionContext;
+
+    public ConsoleLogger(GameExecutionContext gameExecutionContext, string categoryName, Color? categoryColor)
     {
         _categoryName = categoryName;
         _categoryColor = categoryColor;
+        _gameExecutionContext = gameExecutionContext;
         if (_categoryColor is not null)
             _legacyCategoryColor = GetClosestConsoleColor(_categoryColor.Value);
     }
@@ -92,7 +96,7 @@ public class ConsoleLogger : ILogger
 
         // Wine does not support VT100 even if GetConsoleMode advertise that it does and even if SetConsoleMode to enable
         // returns no errors, it does not support ANSI color codes
-        if (WineUtils.IsWine)
+        if (_gameExecutionContext.IsWine)
         {
             Console.ResetColor();
             Console.Write('[');

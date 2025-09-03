@@ -18,7 +18,7 @@ internal static class Startup
         MethodName = "Main"
     };
 
-    internal static IHost BuildHost(string gameDir, IntPtr libraryHandle, string dataDir, string unityPlayerDllFileName)
+    internal static IHost BuildHost(string gameDir, IntPtr libraryHandle, string dataDir, string unityPlayerDllFileName, bool isWine)
     {
         var builder = Host.CreateEmptyApplicationBuilder(new()
         {
@@ -36,15 +36,16 @@ internal static class Startup
                 LibraryHandle = libraryHandle,
                 GameDir = gameDir,
                 DataDir = dataDir,
-                UnityPlayerDllFileName = unityPlayerDllFileName
+                UnityPlayerDllFileName = unityPlayerDllFileName,
+                IsWine = isWine
             });
         builder.Services.AddHostedService<WindowsConsole>();
         builder.Services.AddSingleton<PltHook>();
         builder.Services.AddHostedService<StandardStreamsProtector>();
-        builder.Services.AddSingleton<ILoggerFactory>(_ =>
+        builder.Services.AddSingleton<ILoggerFactory>(s =>
             LoggerFactory.Create(loggingBuilder =>
             {
-                loggingBuilder.AddConsoleLoggingProvider();
+                loggingBuilder.AddConsoleLoggingProvider(s.GetRequiredService<GameExecutionContext>());
                 loggingBuilder.SetMinimumLevel(LogLevel.Trace);
             }));
         builder.Services.AddSingleton<CreateFileWSharedHooker>();

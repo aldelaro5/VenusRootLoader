@@ -35,7 +35,11 @@ internal static class Entry
             .OfType<ProcessModule>()
             .Single(x => x.FileName.Contains("UnityPlayer")).FileName;
 
-        var host = Startup.BuildHost(gameDir, libraryHandle, dataDir, unityPlayerDllFileName);
+        var hModNtDll = PInvoke.GetModuleHandle("ntdll.dll");
+        var wineGetVersion = PInvoke.GetProcAddress(hModNtDll, "wine_get_version");
+        var isWine = wineGetVersion != FARPROC.Null;
+
+        var host = Startup.BuildHost(gameDir, libraryHandle, dataDir, unityPlayerDllFileName, isWine);
 
         var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
         var logger = loggerFactory.CreateLogger(nameof(Entry), Color.Magenta);

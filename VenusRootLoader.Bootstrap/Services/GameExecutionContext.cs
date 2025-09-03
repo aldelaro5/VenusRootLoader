@@ -1,9 +1,10 @@
 namespace VenusRootLoader.Bootstrap.Services;
 
-internal class GameExecutionContext
+public class GameExecutionContext
 {
-    internal required nint LibraryHandle { get; init; }
-    internal required string GameDir { get; init; }
-    internal required string DataDir { get; init; }
-    internal required string UnityPlayerDllFileName { get; init; }
+    public required nint LibraryHandle { get; init; }
+    public required string GameDir { get; init; }
+    public required string DataDir { get; init; }
+    public required string UnityPlayerDllFileName { get; init; }
+    public required bool IsWine { get; init; }
 }

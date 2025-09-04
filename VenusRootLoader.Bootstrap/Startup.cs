@@ -35,12 +35,8 @@ internal static class Startup
         builder.Services.AddHostedService<WindowsConsole>();
         builder.Services.AddSingleton<PltHook>();
         builder.Services.AddHostedService<StandardStreamsProtector>();
-        builder.Services.AddSingleton<ILoggerFactory>(provider =>
-            LoggerFactory.Create(loggingBuilder =>
-            {
-                loggingBuilder.AddConsoleLoggingProvider(provider);
-                loggingBuilder.SetMinimumLevel(LogLevel.Trace);
-            }));
+        builder.Logging.AddConsoleLoggingProvider();
+        builder.Logging.SetMinimumLevel(LogLevel.Trace);
         builder.Services.AddSingleton<CreateFileWSharedHooker>();
         builder.Services.AddHostedService<UnityPlayerLogsMirroring>();
         builder.Services.AddHostedService<UnitySplashScreenSkipper>();

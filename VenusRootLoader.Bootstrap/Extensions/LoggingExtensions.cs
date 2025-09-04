@@ -8,9 +8,10 @@ namespace VenusRootLoader.Bootstrap.Extensions;
 
 public static class LoggingExtensions
 {
-    public static void AddConsoleLoggingProvider(this ILoggingBuilder builder, GameExecutionContext context)
+    public static void AddConsoleLoggingProvider(this ILoggingBuilder builder, IServiceProvider serviceProvider)
     {
-        builder.Services.AddSingleton<GameExecutionContext>(_ => context);
+        builder.Services.AddSingleton<GameExecutionContext>(_ =>
+            serviceProvider.GetRequiredService<GameExecutionContext>());
         builder.Services.AddSingleton<ILoggerProvider, ConsoleLogProvider>();
     }
 

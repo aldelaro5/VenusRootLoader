@@ -19,7 +19,7 @@ internal static class Startup
         MethodName = "Main"
     };
 
-    internal static IHost BuildHost(string gameDir, IntPtr libraryHandle, string dataDir, string unityPlayerDllFileName, bool isWine)
+    internal static IHost BuildHost(GameExecutionContext gameExecutionContext)
     {
         var builder = Host.CreateEmptyApplicationBuilder(new()
         {
@@ -27,26 +27,18 @@ internal static class Startup
             ApplicationName = "VenusRootLoader",
             Args = [],
             EnvironmentName = "Development",
-            ContentRootPath = gameDir,
+            ContentRootPath = gameExecutionContext.GameDir,
             Configuration = null
         });
 
-        builder.Services.AddSingleton<GameExecutionContext>(_ =>
-            new()
-            {
-                LibraryHandle = libraryHandle,
-                GameDir = gameDir,
-                DataDir = dataDir,
-                UnityPlayerDllFileName = unityPlayerDllFileName,
-                IsWine = isWine
-            });
+        builder.Services.AddSingleton<GameExecutionContext>(_ => gameExecutionContext);
         builder.Services.AddHostedService<WindowsConsole>();
         builder.Services.AddSingleton<PltHook>();
         builder.Services.AddHostedService<StandardStreamsProtector>();
-        builder.Services.AddSingleton<ILoggerFactory>(s =>
+        builder.Services.AddSingleton<ILoggerFactory>(provider =>
             LoggerFactory.Create(loggingBuilder =>
             {
-                loggingBuilder.AddConsoleLoggingProvider(s.GetRequiredService<GameExecutionContext>());
+                loggingBuilder.AddConsoleLoggingProvider(provider);
                 loggingBuilder.SetMinimumLevel(LogLevel.Trace);
             }));
         builder.Services.AddSingleton<CreateFileWSharedHooker>();

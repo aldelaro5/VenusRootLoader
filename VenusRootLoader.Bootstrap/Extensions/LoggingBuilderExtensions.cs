@@ -4,7 +4,7 @@ using VenusRootLoader.Bootstrap.Logging;
 
 namespace VenusRootLoader.Bootstrap.Extensions;
 
-public static class LoggingExtensions
+public static class LoggingBuilderExtensions
 {
     public static void AddConsoleLoggingProvider(this ILoggingBuilder builder)
     {

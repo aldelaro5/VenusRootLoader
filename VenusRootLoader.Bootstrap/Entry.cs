@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
 using System.Runtime.InteropServices;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -8,15 +7,14 @@ using Windows.Win32.UI.WindowsAndMessaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using VenusRootLoader.Bootstrap.Extensions;
 using VenusRootLoader.Bootstrap.Services;
 
 namespace VenusRootLoader.Bootstrap;
 
 /// <summary>
-/// This class contains the entrypoint method from the C++ side, and it initialises the rest of the bootstrap
+/// This class contains the entrypoint method from the C++ native side, and it initialises the rest of the bootstrap
 /// </summary>
-internal static class Entry
+internal class Entry
 {
     [UnmanagedCallersOnly(EntryPoint = "EntryPoint")]
     public static void EntryPoint(nint module)
@@ -29,10 +27,7 @@ internal static class Entry
                 return;
 
             var host = Startup.BuildHost(gameExecutionContext);
-
-            var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
-            logger = loggerFactory.CreateLogger(nameof(Entry), Color.Magenta);
-
+            logger = host.Services.GetRequiredService<ILogger<Entry>>();
             host.Start();
             logger.LogInformation("Resuming UnityMain");
         }

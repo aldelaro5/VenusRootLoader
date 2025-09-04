@@ -3,6 +3,7 @@ using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Console;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using VenusRootLoader.Bootstrap.Services;
 
 namespace VenusRootLoader.Bootstrap.HostedServices;
@@ -18,10 +19,12 @@ internal class StandardStreamsProtector : IHostedService
 
     private readonly PltHook _pltHook;
     private readonly GameExecutionContext _gameExecutionContext;
+    private readonly ILogger _logger;
 
-    public StandardStreamsProtector(PltHook pltHook, GameExecutionContext gameExecutionContext)
+    public StandardStreamsProtector(ILogger<StandardStreamsProtector> logger, PltHook pltHook, GameExecutionContext gameExecutionContext)
     {
         _pltHook = pltHook;
+        _logger = logger;
         _gameExecutionContext = gameExecutionContext;
         _hookCloseHandleDelegate = HookCloseHandle;
     }
@@ -44,7 +47,7 @@ internal class StandardStreamsProtector : IHostedService
         if (hObject != _outputHandle && hObject != _errorHandle)
             return PInvoke.CloseHandle(hObject);
 
-        Console.WriteLine($"Prevented the CloseHandle of {(hObject == _outputHandle ? "stdout" : "stderr")}");
+        _logger.LogInformation("Prevented the CloseHandle of {StreamName}", hObject == _outputHandle ? "stdout" : "stderr");
         return 1;
     }
 }

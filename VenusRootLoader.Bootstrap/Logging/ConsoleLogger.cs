@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Reflection;
 using Microsoft.Extensions.Logging;
 using Pastel;
 using VenusRootLoader.Bootstrap.Services;
@@ -68,11 +69,22 @@ public class ConsoleLogger : ILogger
     };
 
     private readonly GameExecutionContext _gameExecutionContext;
+    private readonly string _assemblyName = Assembly.GetExecutingAssembly().GetName().Name!;
 
-    public ConsoleLogger(GameExecutionContext gameExecutionContext, string categoryName, Color? categoryColor)
+    public ConsoleLogger(GameExecutionContext gameExecutionContext, string categoryName)
     {
-        _categoryName = categoryName;
-        _categoryColor = categoryColor;
+        var simplifiedCategoryName = categoryName;
+        var lastDotIndex = categoryName.LastIndexOf('.');
+        if (lastDotIndex > -1)
+            simplifiedCategoryName = categoryName[(lastDotIndex + 1) ..];
+
+        _categoryName = simplifiedCategoryName;
+        _categoryColor = categoryName switch
+        {
+            not null when categoryName.Contains(_assemblyName) => Color.Magenta,
+            not null when categoryName == "UNITY" => Color.Cyan,
+            _ => Color.White
+        };
         _gameExecutionContext = gameExecutionContext;
         if (_categoryColor is not null)
             _legacyCategoryColor = GetClosestConsoleColor(_categoryColor.Value);

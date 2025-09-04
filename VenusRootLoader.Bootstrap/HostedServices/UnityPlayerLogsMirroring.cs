@@ -1,4 +1,3 @@
-using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 using Windows.Win32;
@@ -8,7 +7,6 @@ using Windows.Win32.Storage.FileSystem;
 using Windows.Win32.System.Console;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using VenusRootLoader.Bootstrap.Extensions;
 using VenusRootLoader.Bootstrap.Services;
 
 namespace VenusRootLoader.Bootstrap.HostedServices;
@@ -42,7 +40,7 @@ internal class UnityPlayerLogsMirroring : IHostedService
     public unsafe UnityPlayerLogsMirroring(ILoggerFactory loggerFactory, PltHook pltHook, CreateFileWSharedHooker createFileWSharedHooker, GameExecutionContext gameExecutionContext)
     {
         _pltHook = pltHook;
-        _logger = loggerFactory.CreateLogger("UNITY", Color.Aqua);
+        _logger = loggerFactory.CreateLogger("UNITY");
         _createFileWSharedHooker = createFileWSharedHooker;
         _gameExecutionContext = gameExecutionContext;
 

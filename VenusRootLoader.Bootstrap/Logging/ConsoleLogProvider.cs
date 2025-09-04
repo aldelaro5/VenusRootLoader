@@ -16,7 +16,6 @@ public class ConsoleLogProvider : ILoggerProvider
 
     public ILogger CreateLogger(string categoryName)
     {
-        var categoryWithColorInfo = ColoredLoggerCategory.Decode(categoryName);
-        return new ConsoleLogger(_gameExecutionContext, categoryWithColorInfo.category, categoryWithColorInfo.color);
+        return new ConsoleLogger(_gameExecutionContext, categoryName);
     }
 }

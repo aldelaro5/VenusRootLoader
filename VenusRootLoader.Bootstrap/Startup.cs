@@ -45,7 +45,7 @@ internal static class Startup
         builder.Services.AddHostedService<UnityPlayerLogsMirroring>();
         builder.Services.AddHostedService<UnitySplashScreenSkipper>();
         builder.Services.AddHostedService<MonoInitializer>(s => new(
-            s.GetRequiredService<ILoggerFactory>(),
+            s.GetRequiredService<ILogger<MonoInitializer>>(),
             s.GetRequiredService<PltHook>(),
             s.GetRequiredService<GameExecutionContext>(),
             ManagedEntryPointInfo));

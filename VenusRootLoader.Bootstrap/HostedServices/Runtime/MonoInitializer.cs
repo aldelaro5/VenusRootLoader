@@ -1,4 +1,3 @@
-using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 using Windows.Win32;
@@ -50,9 +49,9 @@ internal class MonoInitializer : IHostedService
     private readonly ILogger _logger;
     private readonly GameExecutionContext _gameExecutionContext;
 
-    public MonoInitializer(ILoggerFactory loggerFactory, PltHook pltHook, GameExecutionContext gameExecutionContext, ManagedEntryPointInfo entryPointInfo)
+    public MonoInitializer(ILogger<MonoInitializer> logger, PltHook pltHook, GameExecutionContext gameExecutionContext, ManagedEntryPointInfo entryPointInfo)
     {
-        _logger = loggerFactory.CreateLogger(nameof(MonoInitializer), Color.Magenta);
+        _logger = logger;
         _pltHook = pltHook;
 
         _managedEntryPointInfo = entryPointInfo;

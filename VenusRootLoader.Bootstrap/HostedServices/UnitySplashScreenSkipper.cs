@@ -1,4 +1,3 @@
-using System.Drawing;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Security;
@@ -7,7 +6,6 @@ using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using VenusRootLoader.Bootstrap.Extensions;
 using VenusRootLoader.Bootstrap.Services;
 
 namespace VenusRootLoader.Bootstrap.HostedServices;
@@ -34,9 +32,9 @@ internal class UnitySplashScreenSkipper : IHostedService
     private readonly CreateFileWSharedHooker _createFileWSharedHooker;
     private readonly GameExecutionContext _gameExecutionContext;
 
-    public UnitySplashScreenSkipper(ILoggerFactory loggerFactory, CreateFileWSharedHooker createFileWSharedHooker, GameExecutionContext gameExecutionContext)
+    public UnitySplashScreenSkipper(ILogger<UnitySplashScreenSkipper> logger, CreateFileWSharedHooker createFileWSharedHooker, GameExecutionContext gameExecutionContext)
     {
-        _logger = loggerFactory.CreateLogger(nameof(UnitySplashScreenSkipper), Color.Magenta);
+        _logger = logger;
         _gameExecutionContext = gameExecutionContext;
         _createFileWSharedHooker = createFileWSharedHooker;
 

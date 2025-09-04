@@ -2,7 +2,6 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
-using VenusRootLoader.Bootstrap.Extensions;
 
 namespace VenusRootLoader.Bootstrap.Services;
 
@@ -31,9 +30,9 @@ internal partial class PltHook
 
     private readonly ILogger _logger;
 
-    public PltHook(ILoggerFactory loggerFactory)
+    public PltHook(ILogger<PltHook> logger)
     {
-        _logger = loggerFactory.CreateLogger(nameof(PltHook), Color.Magenta);
+        _logger = logger;
     }
 
     internal void InstallHook(string fileName, string functionName, nint hookFunctionPtr)

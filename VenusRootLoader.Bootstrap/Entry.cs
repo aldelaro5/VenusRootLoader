@@ -21,22 +21,24 @@ internal static class Entry
     [UnmanagedCallersOnly(EntryPoint = "EntryPoint")]
     public static void EntryPoint(nint module)
     {
-        if (!ShouldResumeEntry(module, out var gameExecutionContext))
-            return;
-
-        var host = Startup.BuildHost(gameExecutionContext);
-
-        var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
-        var logger = loggerFactory.CreateLogger(nameof(Entry), Color.Magenta);
+        ILogger? logger = null;
 
         try
         {
+            if (!ShouldResumeEntry(module, out var gameExecutionContext))
+                return;
+
+            var host = Startup.BuildHost(gameExecutionContext);
+
+            var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
+            logger = loggerFactory.CreateLogger(nameof(Entry), Color.Magenta);
+
             host.Start();
             logger.LogInformation("Resuming UnityMain");
         }
         catch (Exception ex)
         {
-            // logger.LogCritical(ex, "An unhandled exception occurred during the entrypoint");
+            logger?.LogCritical(ex, "An unhandled exception occurred during the entrypoint");
             PInvoke.MessageBox(HWND.Null, ex.ToString(), "Unhandled Exception", MESSAGEBOX_STYLE.MB_ICONERROR);
             throw;
         }

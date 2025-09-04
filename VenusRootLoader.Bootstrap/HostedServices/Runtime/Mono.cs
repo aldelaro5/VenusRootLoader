@@ -1,9 +1,8 @@
 ﻿using System.Runtime.InteropServices;
-using VenusRootLoader.Bootstrap.HostedServices;
 
 // ReSharper disable UnusedMember.Global
 
-namespace VenusRootLoader.Bootstrap;
+namespace VenusRootLoader.Bootstrap.HostedServices.Runtime;
 
 /// <summary>
 /// This class contains abstractions to call Mono's functions. A static instance is initialised by <see cref="MonoInitializer"/>

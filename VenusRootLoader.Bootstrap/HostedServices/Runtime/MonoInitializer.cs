@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using VenusRootLoader.Bootstrap.Extensions;
 using VenusRootLoader.Bootstrap.Services;
 
-namespace VenusRootLoader.Bootstrap.HostedServices;
+namespace VenusRootLoader.Bootstrap.HostedServices.Runtime;
 
 /// <summary>
 /// This class initialises an instance of <see cref="Mono"/>, initialises the Mono runtime using various hooks,

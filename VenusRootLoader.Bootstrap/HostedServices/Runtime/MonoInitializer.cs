@@ -4,6 +4,7 @@ using Windows.Win32;
 using Windows.Win32.Foundation;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using VenusRootLoader.Bootstrap.Extensions;
 using VenusRootLoader.Bootstrap.Services;
 
@@ -15,14 +16,6 @@ namespace VenusRootLoader.Bootstrap.HostedServices.Runtime;
 /// </summary>
 internal class MonoInitializer : IHostedService
 {
-    public struct ManagedEntryPointInfo
-    {
-        public required string AssemblyPath { get; init; }
-        public required string Namespace { get; init; }
-        public required string ClassName { get; init; }
-        public required string MethodName { get; init; }
-    }
-
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     private delegate nint GetProcAddressFn(HMODULE handle, PCSTR symbol);
     private static GetProcAddressFn _hookGetProcAddressDelegate = null!;
@@ -49,12 +42,16 @@ internal class MonoInitializer : IHostedService
     private readonly ILogger _logger;
     private readonly GameExecutionContext _gameExecutionContext;
 
-    public MonoInitializer(ILogger<MonoInitializer> logger, PltHook pltHook, GameExecutionContext gameExecutionContext, ManagedEntryPointInfo entryPointInfo)
+    public MonoInitializer(
+        ILogger<MonoInitializer> logger,
+        PltHook pltHook,
+        GameExecutionContext gameExecutionContext,
+        IOptions<ManagedEntryPointInfo> entryPointInfo)
     {
         _logger = logger;
         _pltHook = pltHook;
 
-        _managedEntryPointInfo = entryPointInfo;
+        _managedEntryPointInfo = entryPointInfo.Value;
         _gameExecutionContext = gameExecutionContext;
 
         _hookGetProcAddressDelegate = HookGetProcAddress;

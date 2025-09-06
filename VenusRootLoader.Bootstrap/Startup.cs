@@ -15,7 +15,7 @@ namespace VenusRootLoader.Bootstrap;
 
 internal static class Startup
 {
-    internal static IHost? BuildHost(GameExecutionContext gameExecutionContext)
+    internal static IHost BuildHost(GameExecutionContext gameExecutionContext)
     {
         var builder = Host.CreateEmptyApplicationBuilder(new()
         {
@@ -40,23 +40,13 @@ internal static class Startup
         builder.Configuration.AddJsonFile(Path.Combine("Config", "config.jsonc"));
         builder.Services.AddSingleton<IValidateOptions<GlobalSettings>, ValidateGlobalSettings>();
         builder.Services.AddOptions<GlobalSettings>()
-            .BindConfiguration(nameof(GlobalSettings));
+            .BindConfiguration(nameof(GlobalSettings), options => options.ErrorOnUnknownConfiguration = true);
         builder.Services.AddSingleton<IValidateOptions<LoggingSettings>, ValidateLoggingSettings>();
         builder.Services.AddOptions<LoggingSettings>()
-            .BindConfiguration(nameof(LoggingSettings));
+            .BindConfiguration(nameof(LoggingSettings), options => options.ErrorOnUnknownConfiguration = true);
         builder.Services.AddSingleton<IValidateOptions<ManagedEntryPointInfo>, ValidateManagedEntryPointInfoOptions>();
         builder.Services.AddOptions<ManagedEntryPointInfo>()
-            .BindConfiguration(nameof(ManagedEntryPointInfo));
-
-        var globalSettings = builder.Configuration.GetRequiredSection(nameof(GlobalSettings))
-            .Get<GlobalSettings>(options => options.ErrorOnUnknownConfiguration = true);
-        if (globalSettings!.Disable!.Value)
-            return null;
-
-        var loggingSettings = builder.Configuration.GetRequiredSection(nameof(LoggingSettings))
-            .Get<LoggingSettings>(options => options.ErrorOnUnknownConfiguration = true);
-        if (loggingSettings!.ShowConsole!.Value)
-            PInvoke.ShowWindow(PInvoke.GetConsoleWindow(), SHOW_WINDOW_CMD.SW_SHOW);
+            .BindConfiguration(nameof(ManagedEntryPointInfo), options => options.ErrorOnUnknownConfiguration = true);
 
         builder.Services.AddSingleton<GameExecutionContext>(_ => gameExecutionContext);
         builder.Services.AddSingleton<PltHook>();

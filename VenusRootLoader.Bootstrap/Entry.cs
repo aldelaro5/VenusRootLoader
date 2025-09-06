@@ -5,10 +5,10 @@ using System.Text;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using VenusRootLoader.Bootstrap.Services;
 using VenusRootLoader.Bootstrap.Settings;
 
@@ -32,16 +32,15 @@ internal class Entry
             SetupWindowsConsole();
 
             var host = Startup.BuildHost(gameExecutionContext);
-            if (host is null)
+            var globalSettings = host.Services.GetService<IOptions<GlobalSettings>>();
+            if (globalSettings!.Value.Disable!.Value)
                 return;
 
+            var loggingSettings = host.Services.GetService<IOptions<LoggingSettings>>();
+            if (loggingSettings!.Value.ShowConsole!.Value)
+                PInvoke.ShowWindow(PInvoke.GetConsoleWindow(), SHOW_WINDOW_CMD.SW_SHOW);
+
             logger = host.Services.GetRequiredService<ILogger<Entry>>();
-            var config = host.Services.GetRequiredService<IConfiguration>();
-            foreach (KeyValuePair<string, string?> keyValuePair in config.AsEnumerable())
-            {
-                logger.LogInformation("{key}: {value}", keyValuePair.Key, keyValuePair.Value);
-            }
-            config.GetRequiredSection(nameof(LoggingSettings));
             host.Start();
             logger.LogInformation("Resuming UnityMain");
         }

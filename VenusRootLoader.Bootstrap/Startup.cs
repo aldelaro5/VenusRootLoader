@@ -1,3 +1,5 @@
+using Windows.Win32;
+using Windows.Win32.UI.WindowsAndMessaging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -24,6 +26,8 @@ internal static class Startup
             ContentRootPath = gameExecutionContext.GameDir,
             Configuration = new()
         });
+        builder.Logging.AddConsoleLoggingProvider();
+        builder.Logging.SetMinimumLevel(LogLevel.Trace);
 
         var assemblyPath = Path.Combine(Directory.GetCurrentDirectory(), "VenusRootLoader", "VenusRootLoader.dll");
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
@@ -33,18 +37,24 @@ internal static class Startup
             ["ManagedEntryPointInfo:ClassName"] = "MonoInitEntry",
             ["ManagedEntryPointInfo:MethodName"] = "Main"
         });
-        builder.Services.AddSingleton<GameExecutionContext>(_ => gameExecutionContext);
-        builder.Services.AddHostedService<WindowsConsole>();
-        builder.Services.AddSingleton<PltHook>();
-        builder.Services.AddHostedService<StandardStreamsProtector>();
-        builder.Logging.AddConsoleLoggingProvider();
-        builder.Logging.SetMinimumLevel(LogLevel.Trace);
-        builder.Services.AddSingleton<CreateFileWSharedHooker>();
-        builder.Services.AddHostedService<UnityPlayerLogsMirroring>();
-        builder.Services.AddHostedService<UnitySplashScreenSkipper>();
+        builder.Configuration.AddJsonFile(Path.Combine("Config", "config.jsonc"));
+        builder.Services.AddSingleton<IValidateOptions<LoggingSettings>, ValidateLoggingSettings>();
+        builder.Services.AddOptions<LoggingSettings>()
+            .BindConfiguration(nameof(LoggingSettings));
         builder.Services.AddSingleton<IValidateOptions<ManagedEntryPointInfo>, ValidateManagedEntryPointInfoOptions>();
         builder.Services.AddOptions<ManagedEntryPointInfo>()
             .BindConfiguration(nameof(ManagedEntryPointInfo));
+
+        var loggingSettings = builder.Configuration.GetRequiredSection(nameof(LoggingSettings)).Get<LoggingSettings>();
+        if (loggingSettings!.HideConsole!.Value)
+            PInvoke.ShowWindow(PInvoke.GetConsoleWindow(), SHOW_WINDOW_CMD.SW_HIDE);
+
+        builder.Services.AddSingleton<GameExecutionContext>(_ => gameExecutionContext);
+        builder.Services.AddSingleton<PltHook>();
+        builder.Services.AddHostedService<StandardStreamsProtector>();
+        builder.Services.AddSingleton<CreateFileWSharedHooker>();
+        builder.Services.AddHostedService<UnityPlayerLogsMirroring>();
+        builder.Services.AddHostedService<UnitySplashScreenSkipper>();
         builder.Services.AddHostedService<MonoInitializer>();
 
         return builder.Build();

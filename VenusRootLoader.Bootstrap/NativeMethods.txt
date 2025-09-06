@@ -6,3 +6,5 @@ CreateFileW
 WriteFile
 CloseHandle
 MessageBoxW
+ShowWindow
+GetConsoleWindow

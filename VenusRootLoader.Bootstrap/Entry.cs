@@ -1,12 +1,15 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+using System.Text;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using VenusRootLoader.Bootstrap.Logging;
 using VenusRootLoader.Bootstrap.Services;
 
 namespace VenusRootLoader.Bootstrap;
@@ -26,8 +29,18 @@ internal class Entry
             if (!ShouldResumeEntry(module, out var gameExecutionContext))
                 return;
 
+            SetupWindowsConsole();
+
             var host = Startup.BuildHost(gameExecutionContext);
             logger = host.Services.GetRequiredService<ILogger<Entry>>();
+
+            var config = host.Services.GetRequiredService<IConfiguration>();
+            foreach (KeyValuePair<string, string?> keyValuePair in config.AsEnumerable())
+            {
+                logger.LogInformation("{key}: {value}", keyValuePair.Key, keyValuePair.Value);
+            }
+
+            config.GetRequiredSection(nameof(LoggingSettings));
             host.Start();
             logger.LogInformation("Resuming UnityMain");
         }
@@ -72,5 +85,18 @@ internal class Entry
             IsWine = isWine
         };
         return true;
+    }
+
+    private static void SetupWindowsConsole()
+    {
+        // The actual logic that creates the console if needed is done on the C++ side because it is required to perform
+        // this logic during DllMain under a loader lock due to the need to do this before UnityPlayer.dll's CRT initialisation.
+        // Since it's not possible to initialise the bootstrap under loader lock as of .NET 10, the console's creation
+        // has to be handled on the C++ side
+        Console.SetOut(new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true });
+        Console.SetError(new StreamWriter(Console.OpenStandardError()) { AutoFlush = true });
+        Console.SetIn(new StreamReader(Console.OpenStandardInput()));
+
+        Console.OutputEncoding = Encoding.UTF8;
     }
 }

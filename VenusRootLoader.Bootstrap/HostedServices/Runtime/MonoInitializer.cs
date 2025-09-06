@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using VenusRootLoader.Bootstrap.Extensions;
 using VenusRootLoader.Bootstrap.Services;
+using VenusRootLoader.Bootstrap.Settings;
 
 namespace VenusRootLoader.Bootstrap.HostedServices.Runtime;
 
@@ -41,18 +42,20 @@ internal class MonoInitializer : IHostedService
     private readonly PltHook _pltHook;
     private readonly ILogger _logger;
     private readonly GameExecutionContext _gameExecutionContext;
+    private readonly MonoDebuggerSettings _debuggerSettings;
 
     public MonoInitializer(
         ILogger<MonoInitializer> logger,
         PltHook pltHook,
         GameExecutionContext gameExecutionContext,
-        IOptions<ManagedEntryPointInfo> entryPointInfo)
+        IOptions<ManagedEntryPointInfo> entryPointInfo, IOptions<MonoDebuggerSettings> debuggerSettings)
     {
         _logger = logger;
         _pltHook = pltHook;
 
         _managedEntryPointInfo = entryPointInfo.Value;
         _gameExecutionContext = gameExecutionContext;
+        _debuggerSettings = debuggerSettings.Value;
 
         _hookGetProcAddressDelegate = HookGetProcAddress;
         _monoInitDetourFn = MonoJitInitDetour;
@@ -163,7 +166,7 @@ internal class MonoInitializer : IHostedService
     private void InitialiseMonoDebuggerIfNeeded()
     {
         bool debuggerAlreadyEnabled = _debugInitCalled || Mono.DebugEnabled();
-        if (debuggerAlreadyEnabled)
+        if (debuggerAlreadyEnabled || !_debuggerSettings.Enable!.Value)
             return;
 
         _logger.LogInformation("Initialising Mono debugger");
@@ -195,19 +198,24 @@ internal class MonoInitializer : IHostedService
 
         string newArgs;
         string? dnSpyEnv = Environment.GetEnvironmentVariable("DNSPY_UNITY_DBG2");
-        if (dnSpyEnv is null)
+        if (dnSpyEnv is not null)
+        {
+            newArgs = dnSpyEnv;
+        }
+        else if (_debuggerSettings.Enable!.Value)
         {
             StringBuilder newArgsSb = new(MonoDebugArgsStart);
-            newArgsSb.Append("127.0.0.1");
+            newArgsSb.Append(_debuggerSettings.IpAddress);
             newArgsSb.Append(':');
-            newArgsSb.Append("10000");
-            if (true)
+            newArgsSb.Append(_debuggerSettings.Port);
+            if (!_debuggerSettings.SuspendOnBoot!.Value)
                 newArgsSb.Append(MonoDebugNoSuspendArg);
             newArgs = newArgsSb.ToString();
         }
         else
         {
-            newArgs = dnSpyEnv;
+            Mono.JitParseOptions(argc, argv);
+            return;
         }
 
         string[] newArgv = new string[argc + 1];
@@ -215,7 +223,7 @@ internal class MonoInitializer : IHostedService
         argc++;
         newArgv[argc - 1] = newArgs;
 
-        _logger.LogInformation("Adding jit option: {NewJitOptions}", string.Join(' ', newArgs));
+        _logger.LogInformation("Adding jit options: {NewJitOptions}", string.Join(' ', newArgs));
 
         Mono.JitParseOptions(argc, newArgv);
     }

@@ -4,5 +4,11 @@
   "LoggingSettings": {
     "ShowConsole": true,
     "DisableUnityLogs": false
+  },
+  "MonoDebuggerSettings": {
+    "Enable": true,
+    "IpAddress": "127.0.0.1",
+    "Port": 10000,
+    "SuspendOnBoot": false
   }
 }

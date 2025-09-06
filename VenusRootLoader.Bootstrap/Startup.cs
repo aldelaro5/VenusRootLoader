@@ -42,6 +42,9 @@ internal static class Startup
         builder.Services.AddSingleton<IValidateOptions<LoggingSettings>, ValidateLoggingSettings>();
         builder.Services.AddOptions<LoggingSettings>()
             .BindConfiguration(nameof(LoggingSettings), options => options.ErrorOnUnknownConfiguration = true);
+        builder.Services.AddSingleton<IValidateOptions<MonoDebuggerSettings>, ValidateMonoDebuggerSettings>();
+        builder.Services.AddOptions<MonoDebuggerSettings>()
+            .BindConfiguration(nameof(MonoDebuggerSettings), options => options.ErrorOnUnknownConfiguration = true);
         builder.Services.AddSingleton<IValidateOptions<ManagedEntryPointInfo>, ValidateManagedEntryPointInfoOptions>();
         builder.Services.AddOptions<ManagedEntryPointInfo>()
             .BindConfiguration(nameof(ManagedEntryPointInfo), options => options.ErrorOnUnknownConfiguration = true);

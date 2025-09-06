@@ -7,6 +7,9 @@ public class LoggingSettings
 {
     [Required]
     public bool? HideConsole { get; set; }
+
+    [Required]
+    public bool? DisableUnityLogs { get; set; }
 }
 
 [OptionsValidator]

@@ -7,6 +7,8 @@ using Windows.Win32.Storage.FileSystem;
 using Windows.Win32.System.Console;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using VenusRootLoader.Bootstrap.Logging;
 using VenusRootLoader.Bootstrap.Services;
 
 namespace VenusRootLoader.Bootstrap.HostedServices;
@@ -36,13 +38,20 @@ internal class UnityPlayerLogsMirroring : IHostedService
     private readonly ILogger _logger;
     private readonly CreateFileWSharedHooker _createFileWSharedHooker;
     private readonly GameExecutionContext _gameExecutionContext;
+    private readonly bool _disableMirroring;
 
-    public unsafe UnityPlayerLogsMirroring(ILoggerFactory loggerFactory, PltHook pltHook, CreateFileWSharedHooker createFileWSharedHooker, GameExecutionContext gameExecutionContext)
+    public unsafe UnityPlayerLogsMirroring(
+        ILoggerFactory loggerFactory,
+        PltHook pltHook,
+        CreateFileWSharedHooker createFileWSharedHooker,
+        GameExecutionContext gameExecutionContext,
+        IOptions<LoggingSettings> loggingSettings)
     {
         _pltHook = pltHook;
         _logger = loggerFactory.CreateLogger("UNITY");
         _createFileWSharedHooker = createFileWSharedHooker;
         _gameExecutionContext = gameExecutionContext;
+        _disableMirroring = loggingSettings.Value.DisableUnityLogs!.Value;
 
         _hookWriteFileDelegate = HookWriteFile;
     }
@@ -82,6 +91,13 @@ internal class UnityPlayerLogsMirroring : IHostedService
         var writeToStandardHandles = hFile == _outputHandle || hFile == _errorHandle;
         if (!writeToPlayerLog && !writeToStandardHandles)
             return PInvoke.WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
+
+        if (_disableMirroring)
+        {
+            if (writeToStandardHandles)
+                return 1;
+            return PInvoke.WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
+        }
 
         string log = Marshal.PtrToStringUTF8((nint)lpBuffer, (int)nNumberOfBytesToWrite);
         _logBuffer.Append(log);

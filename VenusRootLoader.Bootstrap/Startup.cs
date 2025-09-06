@@ -24,8 +24,6 @@ internal static class Startup
             ContentRootPath = gameExecutionContext.GameDir,
             Configuration = new()
         });
-        builder.Logging.AddConsoleLoggingProvider();
-        builder.Logging.SetMinimumLevel(LogLevel.Trace);
 
         var assemblyPath = Path.Combine(Directory.GetCurrentDirectory(), "VenusRootLoader", "VenusRootLoader.dll");
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
@@ -36,6 +34,12 @@ internal static class Startup
             ["ManagedEntryPointInfo:MethodName"] = "Main"
         });
         builder.Configuration.AddJsonFile(Path.Combine("Config", "config.jsonc"));
+
+        builder.Logging.AddConfiguration(builder.Configuration.GetRequiredSection("Logging"));
+        builder.Logging.AddConsoleLoggingProvider();
+        if (!builder.Configuration.GetValue<bool>("LoggingSettings:DisableUnityLogs"))
+            builder.Logging.AddFilter("UNITY", LogLevel.Trace);
+
         builder.Services.AddSingleton<IValidateOptions<GlobalSettings>, ValidateGlobalSettings>();
         builder.Services.AddOptions<GlobalSettings>()
             .BindConfiguration(string.Empty);

@@ -10,5 +10,11 @@
     "IpAddress": "127.0.0.1",
     "Port": 10000,
     "SuspendOnBoot": false
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Trace",
+      "VenusRootLoader.Bootstrap": "Trace"
+    }
   }
 }

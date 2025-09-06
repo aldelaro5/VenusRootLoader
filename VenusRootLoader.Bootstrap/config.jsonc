@@ -1,7 +1,6 @@
 {
-  "GlobalSettings": {
-    "Disable": false
-  },
+  "Disable": false,
+  "SkipUnitySplashScreen": true,
   "LoggingSettings": {
     "ShowConsole": true,
     "DisableUnityLogs": false

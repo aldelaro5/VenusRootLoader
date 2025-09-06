@@ -7,6 +7,9 @@ public class GlobalSettings
 {
     [Required]
     public bool? Disable { get; set; }
+
+    [Required]
+    public bool? SkipUnitySplashScreen { get; set; }
 }
 
 [OptionsValidator]

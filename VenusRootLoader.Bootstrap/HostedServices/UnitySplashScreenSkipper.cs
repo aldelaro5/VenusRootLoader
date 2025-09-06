@@ -6,7 +6,9 @@ using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using VenusRootLoader.Bootstrap.Services;
+using VenusRootLoader.Bootstrap.Settings;
 
 namespace VenusRootLoader.Bootstrap.HostedServices;
 
@@ -31,12 +33,18 @@ internal class UnitySplashScreenSkipper : IHostedService
     private readonly ILogger _logger;
     private readonly CreateFileWSharedHooker _createFileWSharedHooker;
     private readonly GameExecutionContext _gameExecutionContext;
+    private readonly bool _enableSkipper;
 
-    public UnitySplashScreenSkipper(ILogger<UnitySplashScreenSkipper> logger, CreateFileWSharedHooker createFileWSharedHooker, GameExecutionContext gameExecutionContext)
+    public UnitySplashScreenSkipper(
+        ILogger<UnitySplashScreenSkipper> logger,
+        CreateFileWSharedHooker createFileWSharedHooker,
+        GameExecutionContext gameExecutionContext,
+        IOptions<GlobalSettings> globalSettings)
     {
         _logger = logger;
         _gameExecutionContext = gameExecutionContext;
         _createFileWSharedHooker = createFileWSharedHooker;
+        _enableSkipper = globalSettings.Value.SkipUnitySplashScreen!.Value;
 
         _modifiedGameBundlePath = Path.Combine(_gameExecutionContext.GameDir, "VenusRootLoader", "data.unity3d.modified");
         _classDataTpkPath = Path.Combine(_gameExecutionContext.GameDir, "VenusRootLoader", "classdata.tpk");
@@ -44,6 +52,9 @@ internal class UnitySplashScreenSkipper : IHostedService
 
     public unsafe Task StartAsync(CancellationToken cancellationToken)
     {
+        if (!_enableSkipper)
+            return Task.CompletedTask;
+
         _createFileWSharedHooker.RegisterHook(IsGameBundleFile, HookFileHandle);
         return Task.CompletedTask;
     }

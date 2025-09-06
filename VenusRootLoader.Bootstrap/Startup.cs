@@ -40,7 +40,7 @@ internal static class Startup
         builder.Configuration.AddJsonFile(Path.Combine("Config", "config.jsonc"));
         builder.Services.AddSingleton<IValidateOptions<GlobalSettings>, ValidateGlobalSettings>();
         builder.Services.AddOptions<GlobalSettings>()
-            .BindConfiguration(nameof(GlobalSettings), options => options.ErrorOnUnknownConfiguration = true);
+            .BindConfiguration(string.Empty);
         builder.Services.AddSingleton<IValidateOptions<LoggingSettings>, ValidateLoggingSettings>();
         builder.Services.AddOptions<LoggingSettings>()
             .BindConfiguration(nameof(LoggingSettings), options => options.ErrorOnUnknownConfiguration = true);

@@ -1,3 +1,4 @@
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 using Windows.Win32;
@@ -205,7 +206,7 @@ internal class MonoInitializer : IHostedService
         else if (_debuggerSettings.Enable!.Value)
         {
             StringBuilder newArgsSb = new(MonoDebugArgsStart);
-            newArgsSb.Append(_debuggerSettings.IpAddress);
+            newArgsSb.Append(IPAddress.Parse(_debuggerSettings.IpAddress));
             newArgsSb.Append(':');
             newArgsSb.Append(_debuggerSettings.Port);
             if (!_debuggerSettings.SuspendOnBoot!.Value)

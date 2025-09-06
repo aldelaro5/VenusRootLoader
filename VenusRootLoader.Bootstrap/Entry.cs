@@ -99,5 +99,6 @@ internal class Entry
         Console.SetIn(new StreamReader(Console.OpenStandardInput()));
 
         Console.OutputEncoding = Encoding.UTF8;
+        PInvoke.ShowWindow(PInvoke.GetConsoleWindow(), SHOW_WINDOW_CMD.SW_HIDE);
     }
 }

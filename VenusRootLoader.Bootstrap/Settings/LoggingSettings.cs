@@ -6,7 +6,7 @@ namespace VenusRootLoader.Bootstrap.Settings;
 public class LoggingSettings
 {
     [Required]
-    public bool? HideConsole { get; set; }
+    public bool? ShowConsole { get; set; }
 
     [Required]
     public bool? DisableUnityLogs { get; set; }

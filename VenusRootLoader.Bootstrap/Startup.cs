@@ -10,7 +10,6 @@ using VenusRootLoader.Bootstrap.HostedServices;
 using VenusRootLoader.Bootstrap.HostedServices.Runtime;
 using VenusRootLoader.Bootstrap.Services;
 using VenusRootLoader.Bootstrap.Settings;
-using ValidateLoggingSettings = VenusRootLoader.Bootstrap.Settings.ValidateLoggingSettings;
 
 namespace VenusRootLoader.Bootstrap;
 
@@ -49,14 +48,15 @@ internal static class Startup
         builder.Services.AddOptions<ManagedEntryPointInfo>()
             .BindConfiguration(nameof(ManagedEntryPointInfo));
 
-        var globalSettings = builder.Configuration.GetRequiredSection(nameof(GlobalSettings)).Get<GlobalSettings>();
-        var loggingSettings = builder.Configuration.GetRequiredSection(nameof(LoggingSettings)).Get<LoggingSettings>();
-        var hideLogs = loggingSettings!.HideConsole!.Value;
-        var globalDisable = globalSettings!.Disable!.Value;
-        if (hideLogs || globalDisable)
-            PInvoke.ShowWindow(PInvoke.GetConsoleWindow(), SHOW_WINDOW_CMD.SW_HIDE);
-        if (globalDisable)
+        var globalSettings = builder.Configuration.GetRequiredSection(nameof(GlobalSettings))
+            .Get<GlobalSettings>(options => options.ErrorOnUnknownConfiguration = true);
+        if (globalSettings!.Disable!.Value)
             return null;
+
+        var loggingSettings = builder.Configuration.GetRequiredSection(nameof(LoggingSettings))
+            .Get<LoggingSettings>(options => options.ErrorOnUnknownConfiguration = true);
+        if (loggingSettings!.ShowConsole!.Value)
+            PInvoke.ShowWindow(PInvoke.GetConsoleWindow(), SHOW_WINDOW_CMD.SW_SHOW);
 
         builder.Services.AddSingleton<GameExecutionContext>(_ => gameExecutionContext);
         builder.Services.AddSingleton<PltHook>();

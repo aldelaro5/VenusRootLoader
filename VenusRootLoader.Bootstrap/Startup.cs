@@ -1,5 +1,3 @@
-using Windows.Win32;
-using Windows.Win32.UI.WindowsAndMessaging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

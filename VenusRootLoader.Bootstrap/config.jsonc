@@ -1,4 +1,7 @@
 {
+  "GlobalSettings": {
+    "Disale": false
+  },
   "LoggingSettings": {
     "HideConsole": false,
     "DisableUnityLogs": false

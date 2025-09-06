@@ -9,8 +9,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using VenusRootLoader.Bootstrap.Logging;
 using VenusRootLoader.Bootstrap.Services;
+using VenusRootLoader.Bootstrap.Settings;
 
 namespace VenusRootLoader.Bootstrap;
 
@@ -32,14 +32,15 @@ internal class Entry
             SetupWindowsConsole();
 
             var host = Startup.BuildHost(gameExecutionContext);
-            logger = host.Services.GetRequiredService<ILogger<Entry>>();
+            if (host is null)
+                return;
 
+            logger = host.Services.GetRequiredService<ILogger<Entry>>();
             var config = host.Services.GetRequiredService<IConfiguration>();
             foreach (KeyValuePair<string, string?> keyValuePair in config.AsEnumerable())
             {
                 logger.LogInformation("{key}: {value}", keyValuePair.Key, keyValuePair.Value);
             }
-
             config.GetRequiredSection(nameof(LoggingSettings));
             host.Start();
             logger.LogInformation("Resuming UnityMain");

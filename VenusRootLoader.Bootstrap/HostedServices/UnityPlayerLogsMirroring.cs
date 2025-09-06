@@ -8,8 +8,8 @@ using Windows.Win32.System.Console;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using VenusRootLoader.Bootstrap.Logging;
 using VenusRootLoader.Bootstrap.Services;
+using VenusRootLoader.Bootstrap.Settings;
 
 namespace VenusRootLoader.Bootstrap.HostedServices;
 

@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.Extensions.Options;
 
-namespace VenusRootLoader.Bootstrap.Logging;
+namespace VenusRootLoader.Bootstrap.Settings;
 
 public class LoggingSettings
 {
@@ -14,4 +14,3 @@ public class LoggingSettings
 
 [OptionsValidator]
 public partial class ValidateLoggingSettings : IValidateOptions<LoggingSettings>;
-

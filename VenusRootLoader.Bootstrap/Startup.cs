@@ -8,14 +8,15 @@ using Microsoft.Extensions.Options;
 using VenusRootLoader.Bootstrap.Extensions;
 using VenusRootLoader.Bootstrap.HostedServices;
 using VenusRootLoader.Bootstrap.HostedServices.Runtime;
-using VenusRootLoader.Bootstrap.Logging;
 using VenusRootLoader.Bootstrap.Services;
+using VenusRootLoader.Bootstrap.Settings;
+using ValidateLoggingSettings = VenusRootLoader.Bootstrap.Settings.ValidateLoggingSettings;
 
 namespace VenusRootLoader.Bootstrap;
 
 internal static class Startup
 {
-    internal static IHost BuildHost(GameExecutionContext gameExecutionContext)
+    internal static IHost? BuildHost(GameExecutionContext gameExecutionContext)
     {
         var builder = Host.CreateEmptyApplicationBuilder(new()
         {
@@ -38,6 +39,9 @@ internal static class Startup
             ["ManagedEntryPointInfo:MethodName"] = "Main"
         });
         builder.Configuration.AddJsonFile(Path.Combine("Config", "config.jsonc"));
+        builder.Services.AddSingleton<IValidateOptions<GlobalSettings>, ValidateGlobalSettings>();
+        builder.Services.AddOptions<GlobalSettings>()
+            .BindConfiguration(nameof(GlobalSettings));
         builder.Services.AddSingleton<IValidateOptions<LoggingSettings>, ValidateLoggingSettings>();
         builder.Services.AddOptions<LoggingSettings>()
             .BindConfiguration(nameof(LoggingSettings));
@@ -45,9 +49,14 @@ internal static class Startup
         builder.Services.AddOptions<ManagedEntryPointInfo>()
             .BindConfiguration(nameof(ManagedEntryPointInfo));
 
+        var globalSettings = builder.Configuration.GetRequiredSection(nameof(GlobalSettings)).Get<GlobalSettings>();
         var loggingSettings = builder.Configuration.GetRequiredSection(nameof(LoggingSettings)).Get<LoggingSettings>();
-        if (loggingSettings!.HideConsole!.Value)
+        var hideLogs = loggingSettings!.HideConsole!.Value;
+        var globalDisable = globalSettings!.Disable!.Value;
+        if (hideLogs || globalDisable)
             PInvoke.ShowWindow(PInvoke.GetConsoleWindow(), SHOW_WINDOW_CMD.SW_HIDE);
+        if (globalDisable)
+            return null;
 
         builder.Services.AddSingleton<GameExecutionContext>(_ => gameExecutionContext);
         builder.Services.AddSingleton<PltHook>();

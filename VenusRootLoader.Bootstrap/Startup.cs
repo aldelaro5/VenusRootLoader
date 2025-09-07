@@ -60,6 +60,7 @@ internal static class Startup
         builder.Services.AddHostedService<UnityPlayerLogsMirroring>();
         builder.Services.AddHostedService<UnitySplashScreenSkipper>();
         builder.Services.AddHostedService<MonoInitializer>();
+        builder.Services.AddHostedService<UnityPlayerConnectionDiscovery>();
 
         return builder.Build();
     }

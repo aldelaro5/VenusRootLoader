@@ -202,6 +202,7 @@ internal class MonoInitializer : IHostedService
         if (dnSpyEnv is not null)
         {
             newArgs = dnSpyEnv;
+            _logger.LogInformation("Overriding the Mono debugging configuration by the DNSPY_UNITY_DBG2 environment variable");
         }
         else if (_debuggerSettings.Enable!.Value)
         {

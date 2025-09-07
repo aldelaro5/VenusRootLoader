@@ -34,6 +34,7 @@ internal static class Startup
             ["ManagedEntryPointInfo:MethodName"] = "Main"
         });
         builder.Configuration.AddJsonFile(Path.Combine("Config", "config.jsonc"));
+        builder.Configuration.AddJsonFile(Path.Combine("Config", "boot.jsonc"));
 
         builder.Logging.AddConfiguration(builder.Configuration.GetRequiredSection("Logging"));
         builder.Logging.AddConsoleLoggingProvider();
@@ -49,6 +50,8 @@ internal static class Startup
         builder.Services.AddSingleton<IValidateOptions<MonoDebuggerSettings>, ValidateMonoDebuggerSettings>();
         builder.Services.AddOptions<MonoDebuggerSettings>()
             .BindConfiguration(nameof(MonoDebuggerSettings), options => options.ErrorOnUnknownConfiguration = true);
+        builder.Services.AddOptions<BootConfigSettings>()
+            .Bind(builder.Configuration.GetRequiredSection(nameof(BootConfigSettings)));
         builder.Services.AddSingleton<IValidateOptions<ManagedEntryPointInfo>, ValidateManagedEntryPointInfoOptions>();
         builder.Services.AddOptions<ManagedEntryPointInfo>()
             .BindConfiguration(nameof(ManagedEntryPointInfo), options => options.ErrorOnUnknownConfiguration = true);
@@ -59,6 +62,7 @@ internal static class Startup
         builder.Services.AddSingleton<CreateFileWSharedHooker>();
         builder.Services.AddHostedService<UnityPlayerLogsMirroring>();
         builder.Services.AddHostedService<UnitySplashScreenSkipper>();
+        builder.Services.AddHostedService<UnityBootConfigCustomizer>();
         builder.Services.AddSingleton<UnityPlayerConnectionDiscovery>();
         builder.Services.AddHostedService<MonoInitializer>();
 

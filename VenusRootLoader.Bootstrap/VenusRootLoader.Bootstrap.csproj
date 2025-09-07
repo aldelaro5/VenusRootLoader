@@ -72,5 +72,6 @@
         <Move SourceFiles="$(BuildDir)/$(TargetName).dll" DestinationFiles="$(BuildDir)/winhttp.dll" />
         <Copy Condition="$(Configuration) == Debug" ContinueOnError="false" SourceFiles="$(TargetDir)/native/$(TargetName).pdb" DestinationFiles="$(BuildDir)/$(TargetName).pdb" />
         <Copy ContinueOnError="false" SourceFiles="$(MSBuildProjectDirectory)/config.jsonc" DestinationFolder="$(BuildDir)Config" />
+        <Copy ContinueOnError="false" SourceFiles="$(MSBuildProjectDirectory)/boot.jsonc" DestinationFolder="$(BuildDir)Config" />
     </Target>
 </Project>

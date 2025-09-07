@@ -3,9 +3,11 @@ GetProcAddress
 GetStdHandle
 SetStdHandle
 CreateFileW
+ReadFile
 WriteFile
 CloseHandle
 MessageBoxW
 ShowWindow
 GetConsoleWindow
+SetFilePointerEx
 sendto

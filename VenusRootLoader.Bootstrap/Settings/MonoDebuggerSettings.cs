@@ -14,7 +14,7 @@ public class MonoDebuggerSettings
 
     [Required]
     [Range(0, ushort.MaxValue)]
-    public int Port { get; set; }
+    public int? Port { get; set; }
 
     [Required]
     public bool? SuspendOnBoot { get; set; }

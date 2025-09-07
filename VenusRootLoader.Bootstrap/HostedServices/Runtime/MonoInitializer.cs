@@ -44,18 +44,22 @@ internal class MonoInitializer : IHostedService
     private readonly ILogger _logger;
     private readonly GameExecutionContext _gameExecutionContext;
     private readonly MonoDebuggerSettings _debuggerSettings;
+    private readonly UnityPlayerConnectionDiscovery _unityPlayerConnectionDiscovery;
 
     public MonoInitializer(
         ILogger<MonoInitializer> logger,
         PltHook pltHook,
         GameExecutionContext gameExecutionContext,
-        IOptions<ManagedEntryPointInfo> entryPointInfo, IOptions<MonoDebuggerSettings> debuggerSettings)
+        IOptions<ManagedEntryPointInfo> entryPointInfo,
+        IOptions<MonoDebuggerSettings> debuggerSettings,
+        UnityPlayerConnectionDiscovery unityPlayerConnectionDiscovery)
     {
         _logger = logger;
         _pltHook = pltHook;
 
         _managedEntryPointInfo = entryPointInfo.Value;
         _gameExecutionContext = gameExecutionContext;
+        _unityPlayerConnectionDiscovery = unityPlayerConnectionDiscovery;
         _debuggerSettings = debuggerSettings.Value;
 
         _hookGetProcAddressDelegate = HookGetProcAddress;
@@ -137,6 +141,22 @@ internal class MonoInitializer : IHostedService
         InitialiseMonoDebuggerIfNeeded();
 
         _logger.LogInformation("Original init jit version");
+        if (_debuggerSettings.Enable!.Value)
+        {
+            if (_debugInitCalled)
+            {
+                _unityPlayerConnectionDiscovery.StartDiscoveryWithSendToHook(
+                    _debuggerSettings.IpAddress,
+                    (ushort)_debuggerSettings.Port!.Value);
+            }
+            else
+            {
+                _unityPlayerConnectionDiscovery.StartDiscoveryWithOwnSocket(
+                    _debuggerSettings.IpAddress,
+                    (ushort)_debuggerSettings.Port!.Value);
+            }
+        }
+
         Domain = Mono.JitInitVersion(domainName, runtimeVersion);
 
         SetMonoMainThreadToCurrentThread();

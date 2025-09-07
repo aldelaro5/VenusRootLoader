@@ -7,7 +7,7 @@ namespace VenusRootLoader.Bootstrap.Services;
 /// <summary>
 /// This class contains PInvoke abstractions for the PltHook library that's statically linked in the bootstrap
 /// </summary>
-internal partial class PltHook
+public partial class PltHook
 {
     [LibraryImport("*", EntryPoint = "plthook_open", StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]

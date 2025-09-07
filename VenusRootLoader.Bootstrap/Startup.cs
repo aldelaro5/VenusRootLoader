@@ -59,8 +59,8 @@ internal static class Startup
         builder.Services.AddSingleton<CreateFileWSharedHooker>();
         builder.Services.AddHostedService<UnityPlayerLogsMirroring>();
         builder.Services.AddHostedService<UnitySplashScreenSkipper>();
+        builder.Services.AddSingleton<UnityPlayerConnectionDiscovery>();
         builder.Services.AddHostedService<MonoInitializer>();
-        builder.Services.AddHostedService<UnityPlayerConnectionDiscovery>();
 
         return builder.Build();
     }

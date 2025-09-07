@@ -8,3 +8,4 @@ CloseHandle
 MessageBoxW
 ShowWindow
 GetConsoleWindow
+sendto

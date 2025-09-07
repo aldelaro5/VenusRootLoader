@@ -14,7 +14,8 @@
   "Logging": {
     "LogLevel": {
       "Default": "Trace",
-      "VenusRootLoader.Bootstrap": "Trace"
+      "VenusRootLoader.Bootstrap": "Trace",
+      "VenusRootLoader.Bootstrap.HostedServices.UnityPlayerConnectionDiscovery": "Debug" 
     }
   }
 }

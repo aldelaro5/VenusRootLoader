@@ -39,12 +39,13 @@ internal class MonoInitializer : IHostedService
     private static Mono.DebugInitFn _debugInitDetourFn = null!;
 
     private readonly Dictionary<string, nint> _symbolRedirects;
-    
+
     private readonly PltHook _pltHook;
     private readonly ILogger _logger;
     private readonly GameExecutionContext _gameExecutionContext;
     private readonly MonoDebuggerSettings _debuggerSettings;
     private readonly UnityPlayerConnectionDiscovery _unityPlayerConnectionDiscovery;
+    private readonly MonoWinePathSdbTranslator _monoWinePathSdbTranslator;
 
     public MonoInitializer(
         ILogger<MonoInitializer> logger,
@@ -52,10 +53,12 @@ internal class MonoInitializer : IHostedService
         GameExecutionContext gameExecutionContext,
         IOptions<ManagedEntryPointInfo> entryPointInfo,
         IOptions<MonoDebuggerSettings> debuggerSettings,
-        UnityPlayerConnectionDiscovery unityPlayerConnectionDiscovery)
+        UnityPlayerConnectionDiscovery unityPlayerConnectionDiscovery,
+        MonoWinePathSdbTranslator monoWinePathSdbTranslator)
     {
         _logger = logger;
         _pltHook = pltHook;
+        _monoWinePathSdbTranslator = monoWinePathSdbTranslator;
 
         _managedEntryPointInfo = entryPointInfo.Value;
         _gameExecutionContext = gameExecutionContext;
@@ -86,14 +89,26 @@ internal class MonoInitializer : IHostedService
     // Unity obtains Mono's symbols by calling GetProcAddress on them as opposed to calling them via their imports.
     // This means we can't PltHook them directly, but we can PltHook GetProcAddress and redirect the ones we're
     // interested in which is what this hook does. It also gives us the Mono's handle as an added bonus since we need it
-    private nint HookGetProcAddress(HMODULE handle, PCSTR symbol)
+    private unsafe nint HookGetProcAddress(HMODULE handle, PCSTR symbol)
     {
         var originalSymbolAddress = PInvoke.GetProcAddress(handle, symbol);
         if (!_symbolRedirects.TryGetValue(symbol.ToString(), out var detourAddress))
             return originalSymbolAddress;
 
         if (!_runtimeInitialised)
+        {
             RetrieveMonoExports(handle);
+            if (_gameExecutionContext.IsWine)
+            {
+                fixed (char* monoFileNamePtr = new char[2048])
+                {
+                    PInvoke.GetModuleFileName(handle, new PWSTR(monoFileNamePtr), 2048);
+                    var monoFileName = Marshal.PtrToStringAuto((nint)monoFileNamePtr)!;
+                    _monoWinePathSdbTranslator.Setup(monoFileName);
+                }
+            }
+        }
+
         _runtimeInitialised = true;
 
         _logger.LogInformation("Redirecting {Symbol}", symbol);

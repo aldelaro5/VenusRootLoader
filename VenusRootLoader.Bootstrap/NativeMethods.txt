@@ -11,3 +11,6 @@ ShowWindow
 GetConsoleWindow
 SetFilePointerEx
 sendto
+GetModuleFileNameW
+send
+recv

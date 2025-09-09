@@ -43,7 +43,7 @@ public partial class PltHook
 
             if (!pltHookOpened)
             {
-                _logger.LogError($"plthook_open error: {Marshal.PtrToStringAuto(PlthookError())}");
+                _logger.LogError($"plthook_open error: {Marshal.PtrToStringUTF8(PlthookError())}");
                 return;
             }
 

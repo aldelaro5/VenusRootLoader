@@ -30,7 +30,7 @@ internal class UnityBootConfigCustomizer : IHostedService
         long* lpNewFilePointer,
         SET_FILE_POINTER_MOVE_METHOD dwMoveMethod);
     private static SetFilePointerExFn _hookSetFilePointerDelegate = null!;
-    
+
     private readonly ILogger _logger;
     private readonly CreateFileWSharedHooker _createFileWSharedHooker;
     private readonly GameExecutionContext _gameExecutionContext;
@@ -44,7 +44,7 @@ internal class UnityBootConfigCustomizer : IHostedService
     // scripting-runtime-version=latest
     // vr-enabled=0
     // hdr-display-enabled=0
-    
+
     // mono-codegen=il2cpp
     // max-num-loops-no-job-before-going-idle=10
     // wait-for-managed-debugger=0
@@ -62,7 +62,7 @@ internal class UnityBootConfigCustomizer : IHostedService
     // http-filesystem-pubkey=
     // --headless
     // --single-instance
-    
+
     // player-connection-ip=0
     // player-connection-debug=0
     // player-connection-mode=0
@@ -72,9 +72,8 @@ internal class UnityBootConfigCustomizer : IHostedService
     // profiler-maxpoolmemory=4194304 (0x400000)
     // profiler-maxusedmemory=16777216 (0x1000000)
     // profiler-enable-on-startup=0
-    
 
-    private string _modifiedBootConfig;
+    private readonly string _modifiedBootConfig;
     private readonly byte[] _bootConfigBytes;
 
     private long _modifiedFilePointer;

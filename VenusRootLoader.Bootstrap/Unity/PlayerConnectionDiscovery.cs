@@ -113,9 +113,11 @@ public class PlayerConnectionDiscovery
         // be a way for the Unity editor to identify a version of a build which doesn't really matter to us because we will
         // always deal with one version: the vanilla release one
         sb.Append("[EditorId] 0 ");
-        // Harcoded by Unity as confirmed with Ghidra and Resharper-Unity
+        // Hardcoded by Unity as confirmed with Ghidra and Resharper-Unity
         sb.Append("[Version] 1048832 ");
-        // This replicates exactly what was seen in Ghidra including the underscore replacements
+        // This replicates exactly what was seen in Ghidra including the underscore replacements with one exception: Unity
+        // normally doesn't put the port here, but rather, it derives it from the [Guid] as explained in Resharper-UNity.
+        // While we could do that, it's much simpler to just specify it here
         sb.Append($"[Id] WindowsPlayer({Dns.GetHostName().Replace(' ', '_')}):{portToUse} ");
         // Since we obviously want IDE to know debugging works, we always want to send 1 here
         sb.Append("[Debug] 1 ");

@@ -4,7 +4,7 @@ using Windows.Win32.Foundation;
 using Windows.Win32.Security;
 using Windows.Win32.Storage.FileSystem;
 
-namespace VenusRootLoader.Bootstrap.Services;
+namespace VenusRootLoader.Bootstrap.Shared;
 
 /// <summary>
 /// This class allows the bootstrap to use a shared CreateFileW plt hook that many modules can use to listen for files

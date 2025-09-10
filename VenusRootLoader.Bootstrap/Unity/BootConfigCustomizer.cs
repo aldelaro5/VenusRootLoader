@@ -7,12 +7,13 @@ using Windows.Win32.Storage.FileSystem;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using VenusRootLoader.Bootstrap.Services;
 using VenusRootLoader.Bootstrap.Settings;
+using VenusRootLoader.Bootstrap.Shared;
+using PltHook = VenusRootLoader.Bootstrap.Shared.PltHook;
 
-namespace VenusRootLoader.Bootstrap.HostedServices;
+namespace VenusRootLoader.Bootstrap.Unity;
 
-internal class UnityBootConfigCustomizer : IHostedService
+internal class BootConfigCustomizer : IHostedService
 {
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     private unsafe delegate int ReadFileFn(
@@ -78,8 +79,8 @@ internal class UnityBootConfigCustomizer : IHostedService
 
     private long _modifiedFilePointer;
 
-    public unsafe UnityBootConfigCustomizer(
-        ILogger<UnityBootConfigCustomizer> logger,
+    public unsafe BootConfigCustomizer(
+        ILogger<BootConfigCustomizer> logger,
         PltHook pltHook,
         CreateFileWSharedHooker createFileWSharedHooker,
         GameExecutionContext gameExecutionContext,

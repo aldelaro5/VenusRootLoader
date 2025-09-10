@@ -2,7 +2,7 @@ using System.Drawing;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
 using Pastel;
-using VenusRootLoader.Bootstrap.Services;
+using VenusRootLoader.Bootstrap.Shared;
 
 namespace VenusRootLoader.Bootstrap.Logging;
 

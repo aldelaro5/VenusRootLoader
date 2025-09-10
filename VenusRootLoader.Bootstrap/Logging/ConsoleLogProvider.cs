@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using VenusRootLoader.Bootstrap.Services;
+using VenusRootLoader.Bootstrap.Shared;
 
 namespace VenusRootLoader.Bootstrap.Logging;
 

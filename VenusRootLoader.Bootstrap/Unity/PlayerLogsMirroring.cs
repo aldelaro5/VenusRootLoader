@@ -8,16 +8,17 @@ using Windows.Win32.System.Console;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using VenusRootLoader.Bootstrap.Services;
 using VenusRootLoader.Bootstrap.Settings;
+using VenusRootLoader.Bootstrap.Shared;
+using PltHook = VenusRootLoader.Bootstrap.Shared.PltHook;
 
-namespace VenusRootLoader.Bootstrap.HostedServices;
+namespace VenusRootLoader.Bootstrap.Unity;
 
 /// <summary>
 /// This class contains all the machinery needed to fully capture and mirror stdout, stderr and Unity's player logs
 /// into our logs
 /// </summary>
-internal class UnityPlayerLogsMirroring : IHostedService
+internal class PlayerLogsMirroring : IHostedService
 {
     private nint _outputHandle;
     private nint _errorHandle;
@@ -40,7 +41,7 @@ internal class UnityPlayerLogsMirroring : IHostedService
     private readonly GameExecutionContext _gameExecutionContext;
     private readonly bool _disableMirroring;
 
-    public unsafe UnityPlayerLogsMirroring(
+    public unsafe PlayerLogsMirroring(
         ILoggerFactory loggerFactory,
         PltHook pltHook,
         CreateFileWSharedHooker createFileWSharedHooker,

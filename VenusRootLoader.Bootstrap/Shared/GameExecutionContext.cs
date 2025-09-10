@@ -1,4 +1,4 @@
-namespace VenusRootLoader.Bootstrap.Services;
+namespace VenusRootLoader.Bootstrap.Shared;
 
 public class GameExecutionContext
 {

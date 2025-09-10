@@ -5,9 +5,9 @@ using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Networking.WinSock;
 using Microsoft.Extensions.Logging;
-using VenusRootLoader.Bootstrap.Services;
+using PltHook = VenusRootLoader.Bootstrap.Shared.PltHook;
 
-namespace VenusRootLoader.Bootstrap.HostedServices.Runtime;
+namespace VenusRootLoader.Bootstrap.Mono;
 
 /// <summary>
 /// <para>
@@ -28,7 +28,7 @@ namespace VenusRootLoader.Bootstrap.HostedServices.Runtime;
 /// For more information on the SDB protocol, consult its documentation available here: https://www.mono-project.com/docs/advanced/runtime/docs/soft-debugger-wire-format/
 /// </para>
 /// </summary>
-public class MonoSdbWinePathTranslator
+public class SdbWinePathTranslator
 {
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     private delegate int SendFn(SOCKET s, PCSTR buf, int len, SEND_RECV_FLAGS flags);
@@ -39,7 +39,7 @@ public class MonoSdbWinePathTranslator
     private static RecvFn _hookRecvFnDelegate = null!;
 
     private readonly PltHook _pltHook;
-    private readonly ILogger<MonoSdbWinePathTranslator> _logger;
+    private readonly ILogger<SdbWinePathTranslator> _logger;
 
     private const int MessageHeaderLength = 11;
     private const int CommandSetByteIndex = 9;
@@ -53,7 +53,7 @@ public class MonoSdbWinePathTranslator
     private static readonly SdbSetCommand CommandModuleGetInfo = new(SdbModuleCommandSet, 1);
     private SdbSetCommand _lastSetCommandWithFilePath = new(byte.MaxValue, byte.MaxValue);
 
-    public MonoSdbWinePathTranslator(ILogger<MonoSdbWinePathTranslator> logger, PltHook pltHook)
+    public SdbWinePathTranslator(ILogger<SdbWinePathTranslator> logger, PltHook pltHook)
     {
         _pltHook = pltHook;
         _logger = logger;

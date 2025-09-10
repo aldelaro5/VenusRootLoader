@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 
-namespace VenusRootLoader.Bootstrap.Services;
+namespace VenusRootLoader.Bootstrap.Shared;
 
 /// <summary>
 /// This class contains PInvoke abstractions for the PltHook library that's statically linked in the bootstrap

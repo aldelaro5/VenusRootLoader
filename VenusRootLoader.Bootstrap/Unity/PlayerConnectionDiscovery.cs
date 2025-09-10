@@ -7,12 +7,13 @@ using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Networking.WinSock;
 using Microsoft.Extensions.Logging;
-using VenusRootLoader.Bootstrap.Services;
+using VenusRootLoader.Bootstrap.Shared;
+using PltHook = VenusRootLoader.Bootstrap.Shared.PltHook;
 using Timer = System.Timers.Timer;
 
-namespace VenusRootLoader.Bootstrap.HostedServices;
+namespace VenusRootLoader.Bootstrap.Unity;
 
-public class UnityPlayerConnectionDiscovery
+public class PlayerConnectionDiscovery
 {
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     private unsafe delegate int SendToFn(
@@ -29,7 +30,7 @@ public class UnityPlayerConnectionDiscovery
     private const string FlagsTakeIpFromMessage = "8";
     private const string FlagsTakeIpFromSource = "0";
 
-    private readonly ILogger<UnityPlayerConnectionDiscovery> _logger;
+    private readonly ILogger<PlayerConnectionDiscovery> _logger;
     private readonly PltHook _pltHook;
     private readonly GameExecutionContext _gameExecutionContext;
 
@@ -39,7 +40,7 @@ public class UnityPlayerConnectionDiscovery
     private byte[] _messageBuffer = [];
     private unsafe byte* _messagePtr = null;
 
-    public unsafe UnityPlayerConnectionDiscovery(ILogger<UnityPlayerConnectionDiscovery> logger, PltHook pltHook, GameExecutionContext gameExecutionContext)
+    public unsafe PlayerConnectionDiscovery(ILogger<PlayerConnectionDiscovery> logger, PltHook pltHook, GameExecutionContext gameExecutionContext)
     {
         _logger = logger;
         _pltHook = pltHook;

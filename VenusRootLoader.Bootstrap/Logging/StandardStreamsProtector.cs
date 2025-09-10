@@ -4,9 +4,10 @@ using Windows.Win32.Foundation;
 using Windows.Win32.System.Console;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using VenusRootLoader.Bootstrap.Services;
+using VenusRootLoader.Bootstrap.Shared;
+using PltHook = VenusRootLoader.Bootstrap.Shared.PltHook;
 
-namespace VenusRootLoader.Bootstrap.HostedServices;
+namespace VenusRootLoader.Bootstrap.Logging;
 
 internal class StandardStreamsProtector : IHostedService
 {

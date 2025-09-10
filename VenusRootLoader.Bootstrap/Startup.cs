@@ -4,10 +4,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using VenusRootLoader.Bootstrap.Extensions;
-using VenusRootLoader.Bootstrap.HostedServices;
-using VenusRootLoader.Bootstrap.HostedServices.Runtime;
-using VenusRootLoader.Bootstrap.Services;
+using VenusRootLoader.Bootstrap.Logging;
+using VenusRootLoader.Bootstrap.Mono;
 using VenusRootLoader.Bootstrap.Settings;
+using VenusRootLoader.Bootstrap.Shared;
+using VenusRootLoader.Bootstrap.Unity;
+using PltHook = VenusRootLoader.Bootstrap.Shared.PltHook;
+using ValidateManagedEntryPointInfoOptions = VenusRootLoader.Bootstrap.Mono.ValidateManagedEntryPointInfoOptions;
 
 namespace VenusRootLoader.Bootstrap;
 
@@ -60,11 +63,11 @@ internal static class Startup
         builder.Services.AddSingleton<PltHook>();
         builder.Services.AddHostedService<StandardStreamsProtector>();
         builder.Services.AddSingleton<CreateFileWSharedHooker>();
-        builder.Services.AddHostedService<UnityPlayerLogsMirroring>();
-        builder.Services.AddHostedService<UnitySplashScreenSkipper>();
-        builder.Services.AddHostedService<UnityBootConfigCustomizer>();
-        builder.Services.AddSingleton<UnityPlayerConnectionDiscovery>();
-        builder.Services.AddSingleton<MonoSdbWinePathTranslator>();
+        builder.Services.AddHostedService<PlayerLogsMirroring>();
+        builder.Services.AddHostedService<SplashScreenSkipper>();
+        builder.Services.AddHostedService<BootConfigCustomizer>();
+        builder.Services.AddSingleton<PlayerConnectionDiscovery>();
+        builder.Services.AddSingleton<SdbWinePathTranslator>();
         builder.Services.AddHostedService<MonoInitializer>();
 
         return builder.Build();

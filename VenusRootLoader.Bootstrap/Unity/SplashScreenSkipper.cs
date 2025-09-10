@@ -7,10 +7,10 @@ using AssetsTools.NET.Extra;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using VenusRootLoader.Bootstrap.Services;
 using VenusRootLoader.Bootstrap.Settings;
+using VenusRootLoader.Bootstrap.Shared;
 
-namespace VenusRootLoader.Bootstrap.HostedServices;
+namespace VenusRootLoader.Bootstrap.Unity;
 
 /// <summary>
 /// <para>
@@ -25,7 +25,7 @@ namespace VenusRootLoader.Bootstrap.HostedServices;
 /// but takes ~13 seconds to do so which doesn't seem to be a worthy tradeoff
 /// </para>
 /// </summary>
-internal class UnitySplashScreenSkipper : IHostedService
+internal class SplashScreenSkipper : IHostedService
 {
     private readonly string _modifiedGameBundlePath;
     private readonly string _classDataTpkPath;
@@ -35,8 +35,8 @@ internal class UnitySplashScreenSkipper : IHostedService
     private readonly GameExecutionContext _gameExecutionContext;
     private readonly bool _enableSkipper;
 
-    public UnitySplashScreenSkipper(
-        ILogger<UnitySplashScreenSkipper> logger,
+    public SplashScreenSkipper(
+        ILogger<SplashScreenSkipper> logger,
         CreateFileWSharedHooker createFileWSharedHooker,
         GameExecutionContext gameExecutionContext,
         IOptions<GlobalSettings> globalSettings)

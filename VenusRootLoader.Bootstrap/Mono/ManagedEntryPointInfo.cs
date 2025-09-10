@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.Extensions.Options;
 
-namespace VenusRootLoader.Bootstrap.HostedServices.Runtime;
+namespace VenusRootLoader.Bootstrap.Mono;
 
 public class ManagedEntryPointInfo
 {

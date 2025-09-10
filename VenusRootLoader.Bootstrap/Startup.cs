@@ -64,7 +64,7 @@ internal static class Startup
         builder.Services.AddHostedService<UnitySplashScreenSkipper>();
         builder.Services.AddHostedService<UnityBootConfigCustomizer>();
         builder.Services.AddSingleton<UnityPlayerConnectionDiscovery>();
-        builder.Services.AddSingleton<MonoWinePathSdbTranslator>();
+        builder.Services.AddSingleton<MonoSdbWinePathTranslator>();
         builder.Services.AddHostedService<MonoInitializer>();
 
         return builder.Build();

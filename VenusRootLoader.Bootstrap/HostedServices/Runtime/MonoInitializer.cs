@@ -45,7 +45,7 @@ internal class MonoInitializer : IHostedService
     private readonly GameExecutionContext _gameExecutionContext;
     private readonly MonoDebuggerSettings _debuggerSettings;
     private readonly UnityPlayerConnectionDiscovery _unityPlayerConnectionDiscovery;
-    private readonly MonoWinePathSdbTranslator _monoWinePathSdbTranslator;
+    private readonly MonoSdbWinePathTranslator _monoSdbWinePathTranslator;
 
     public MonoInitializer(
         ILogger<MonoInitializer> logger,
@@ -54,11 +54,11 @@ internal class MonoInitializer : IHostedService
         IOptions<ManagedEntryPointInfo> entryPointInfo,
         IOptions<MonoDebuggerSettings> debuggerSettings,
         UnityPlayerConnectionDiscovery unityPlayerConnectionDiscovery,
-        MonoWinePathSdbTranslator monoWinePathSdbTranslator)
+        MonoSdbWinePathTranslator monoSdbWinePathTranslator)
     {
         _logger = logger;
         _pltHook = pltHook;
-        _monoWinePathSdbTranslator = monoWinePathSdbTranslator;
+        _monoSdbWinePathTranslator = monoSdbWinePathTranslator;
 
         _managedEntryPointInfo = entryPointInfo.Value;
         _gameExecutionContext = gameExecutionContext;
@@ -104,7 +104,7 @@ internal class MonoInitializer : IHostedService
                 {
                     PInvoke.GetModuleFileName(handle, new PWSTR(monoFileNamePtr), 2048);
                     var monoFileName = Marshal.PtrToStringAuto((nint)monoFileNamePtr)!;
-                    _monoWinePathSdbTranslator.Setup(monoFileName);
+                    _monoSdbWinePathTranslator.Setup(monoFileName);
                 }
             }
         }

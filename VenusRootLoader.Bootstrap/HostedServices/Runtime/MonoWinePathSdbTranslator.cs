@@ -74,76 +74,67 @@ public class MonoWinePathSdbTranslator
 
     private unsafe int HookSendFnDelegate(SOCKET s, PCSTR buf, int len, SEND_RECV_FLAGS flags)
     {
-        var bytes = new byte[len];
-        Marshal.Copy((nint)buf.Value, bytes, 0, len);
-
         if (_lastSetCommandWithFilePath.Set == byte.MaxValue)
             return PInvoke.send(s, buf, len, flags);
 
+        var modifiedBytesPtr = Marshal.AllocHGlobal(len - 2);
         if (_lastSetCommandWithFilePath == ModuleGetInfo)
         {
-            var modifiedBytes = new byte[len - 2];
-
-            var fullNameIndex = SdbMessageHeaderLength;
-            var lengthBaseName = BinaryPrimitives.ReverseEndianness(BitConverter.ToInt32(bytes, fullNameIndex));
-            fullNameIndex += 4;
-            fullNameIndex += lengthBaseName;
-            var lengthScopeName = BinaryPrimitives.ReverseEndianness(BitConverter.ToInt32(bytes, fullNameIndex));
-            fullNameIndex += 4;
-            fullNameIndex += lengthScopeName;
-            var lengthFullName = BinaryPrimitives.ReverseEndianness(BitConverter.ToInt32(bytes, fullNameIndex));
-            fullNameIndex += 4;
-            var chars = Encoding.ASCII.GetString(bytes, fullNameIndex, lengthFullName);
+            var fullNameStringInfo = GetStringInfoInPacketData(buf, 2);
+            var chars = Encoding.ASCII.GetString(buf.Value + fullNameStringInfo.Index, fullNameStringInfo.Length);
             chars = chars.Substring(2).Replace('\\', '/');
 
-            BinaryPrimitives.WriteInt32BigEndian(modifiedBytes.AsSpan(0, 4), modifiedBytes.Length);
-            Buffer.BlockCopy(bytes, 4, modifiedBytes, 4, fullNameIndex - 4 - 4);
-            BinaryPrimitives.WriteInt32BigEndian(modifiedBytes.AsSpan(fullNameIndex - 4, 4), chars.Length);
-            Buffer.BlockCopy(Encoding.ASCII.GetBytes(chars), 0, modifiedBytes, fullNameIndex, chars.Length);
-            Buffer.BlockCopy(bytes, fullNameIndex + chars.Length + 2, modifiedBytes, fullNameIndex + chars.Length,
-                bytes.Length - lengthFullName - fullNameIndex);
-
-            if (_logger.IsEnabled(LogLevel.Trace))
-            {
-                PrintPacket("SEND", bytes);
-                PrintPacket("SEND", modifiedBytes);
-            }
-
-            _lastSetCommandWithFilePath.Set = byte.MaxValue;
-            _lastSetCommandWithFilePath.Id = byte.MaxValue;
-            fixed (byte* bufPtr = modifiedBytes)
-            {
-                return PInvoke.send(s, new(bufPtr), len - 2, flags);
-            }
+            Marshal.WriteInt32(modifiedBytesPtr, BinaryPrimitives.ReverseEndianness(len - 2));
+            Buffer.MemoryCopy(buf.Value + 4, (void*)(modifiedBytesPtr + 4), fullNameStringInfo.Index - 4 - 4, fullNameStringInfo.Index - 4 - 4);
+            Marshal.WriteInt32(modifiedBytesPtr + fullNameStringInfo.Index - 4, BinaryPrimitives.ReverseEndianness(chars.Length));
+            Marshal.Copy(Encoding.ASCII.GetBytes(chars), 0, modifiedBytesPtr + fullNameStringInfo.Index, chars.Length);
+            Buffer.MemoryCopy(
+                buf.Value + fullNameStringInfo.Index + chars.Length + 2,
+                (void*)(modifiedBytesPtr + fullNameStringInfo.Index + chars.Length),
+                len - fullNameStringInfo.Length - fullNameStringInfo.Index,
+                len - fullNameStringInfo.Length - fullNameStringInfo.Index);
         }
-
-        if (_lastSetCommandWithFilePath == AssemblyGetLocation)
+        else
         {
-            var modifiedBytes = new byte[len - 2];
-
-            var lengthFullName = BinaryPrimitives.ReverseEndianness(BitConverter.ToInt32(bytes, 11));
-            var chars = Encoding.ASCII.GetString(bytes, SdbMessageHeaderLength + 4, lengthFullName);
+            var lengthFullName = GetStringInfoInPacketData(buf, 0).Length;
+            var chars = Encoding.ASCII.GetString(buf.Value + SdbMessageHeaderLength + 4, lengthFullName);
             chars = chars.Substring(2).Replace('\\', '/');
 
-            BinaryPrimitives.WriteInt32BigEndian(modifiedBytes.AsSpan(0, 4), modifiedBytes.Length);
-            Buffer.BlockCopy(bytes, 4, modifiedBytes, 4, SdbMessageHeaderLength - 4);
-            BinaryPrimitives.WriteInt32BigEndian(modifiedBytes.AsSpan(SdbMessageHeaderLength, 4), chars.Length);
-            Buffer.BlockCopy(Encoding.ASCII.GetBytes(chars), 0, modifiedBytes, SdbMessageHeaderLength + 4, chars.Length);
-
-            if (_logger.IsEnabled(LogLevel.Trace))
-            {
-                PrintPacket("SEND", bytes);
-                PrintPacket("SEND", modifiedBytes);
-            }
-
-            _lastSetCommandWithFilePath.Set = byte.MaxValue;
-            _lastSetCommandWithFilePath.Id = byte.MaxValue;
-            fixed (byte* bufPtr = modifiedBytes)
-                return PInvoke.send(s, new(bufPtr), len - 2, flags);
+            Marshal.WriteInt32(modifiedBytesPtr, BinaryPrimitives.ReverseEndianness(len - 2));
+            Buffer.MemoryCopy(buf.Value + 4, (void*)(modifiedBytesPtr + 4), SdbMessageHeaderLength - 4, SdbMessageHeaderLength - 4);
+            Marshal.WriteInt32(modifiedBytesPtr + SdbMessageHeaderLength, BinaryPrimitives.ReverseEndianness(chars.Length));
+            Marshal.Copy(Encoding.ASCII.GetBytes(chars), 0, modifiedBytesPtr + SdbMessageHeaderLength + 4, chars.Length);
         }
+
+        if (_logger.IsEnabled(LogLevel.Trace))
+        {
+            var bytes = new byte[len];
+            Marshal.Copy((nint)buf.Value, bytes, 0, len);
+            var modifiedBytes = new byte[len - 2];
+            Marshal.Copy(modifiedBytesPtr, modifiedBytes, 0, len - 2);
+            PrintPacket("SEND-ORIG", bytes);
+            PrintPacket("SEND-EDIT", modifiedBytes);
+        }
+
         _lastSetCommandWithFilePath.Set = byte.MaxValue;
         _lastSetCommandWithFilePath.Id = byte.MaxValue;
-        return PInvoke.send(s, buf, len, flags);
+        var result = PInvoke.send(s, new((byte*)modifiedBytesPtr), len - 2, flags);
+
+        Marshal.FreeHGlobal(modifiedBytesPtr);
+        return result;
+    }
+
+    private static unsafe (int Length, int Index) GetStringInfoInPacketData(PCSTR packet, uint stringIndexInData)
+    {
+        var index = SdbMessageHeaderLength;
+        var length = 0;
+        for (var i = 0; i <= stringIndexInData; i++)
+        {
+            index += length;
+            length = BinaryPrimitives.ReverseEndianness(Marshal.ReadInt32((nint)packet.Value, index));
+            index += 4;
+        }
+        return (length, index);
     }
 
     private void PrintPacket(string prefix, byte[] modifiedBytes)

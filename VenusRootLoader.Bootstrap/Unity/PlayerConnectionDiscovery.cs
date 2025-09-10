@@ -116,7 +116,7 @@ public class PlayerConnectionDiscovery
         // Hardcoded by Unity as confirmed with Ghidra and Resharper-Unity
         sb.Append("[Version] 1048832 ");
         // This replicates exactly what was seen in Ghidra including the underscore replacements with one exception: Unity
-        // normally doesn't put the port here, but rather, it derives it from the [Guid] as explained in Resharper-UNity.
+        // normally doesn't put the port here, but rather, it derives it from the [Guid] as explained in Resharper-Unity.
         // While we could do that, it's much simpler to just specify it here
         sb.Append($"[Id] WindowsPlayer({Dns.GetHostName().Replace(' ', '_')}):{portToUse} ");
         // Since we obviously want IDE to know debugging works, we always want to send 1 here

@@ -13,6 +13,17 @@ using PltHook = VenusRootLoader.Bootstrap.Shared.PltHook;
 
 namespace VenusRootLoader.Bootstrap.Unity;
 
+/// <summary>
+/// <para>
+/// This service implements a way to change the contents of boot.config read at runtime by UnityPlayer. The format and
+/// documentations are in the boot.jsonc file in this repository. It is an internal Unity file provided when the game
+/// is built.
+/// </para>
+/// <para>
+/// This is an experimental feature. There's almost no useful need to modify the default boot.config, but this is done
+/// just in case it happens to be handy.
+/// </para>
+/// </summary>
 internal class BootConfigCustomizer : IHostedService
 {
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
@@ -39,40 +50,6 @@ internal class BootConfigCustomizer : IHostedService
     private readonly BootConfigSettings _bootConfigSettings;
     private readonly string _bootConfigPath;
     private HANDLE _bootConfigFileHandle = HANDLE.Null;
-
-    // gfx-enable-native-gfx-jobs=
-    // wait-for-native-debugger=0
-    // scripting-runtime-version=latest
-    // vr-enabled=0
-    // hdr-display-enabled=0
-
-    // mono-codegen=il2cpp
-    // max-num-loops-no-job-before-going-idle=10
-    // wait-for-managed-debugger=0
-    // preload-manager-thread-stack-size=0
-    // gfx-disable-mt-rendering=0
-    // gfx-enable-gfx-jobs=0
-    // force-gfx-direct=0
-    // force-gfx-st=0
-    // force-gfx-mt=0
-    // force-gfx-jobs=0
-    // gfx-jobs-sync=0
-    // http-filesystem-apikey=
-    // http-filesystem-enable=0
-    // http-filesystem-prefix=
-    // http-filesystem-pubkey=
-    // --headless
-    // --single-instance
-
-    // player-connection-ip=0
-    // player-connection-debug=0
-    // player-connection-mode=0
-    // player-connection-guid=0
-    // player-connection-listen-address=0.0.0.0
-    // player-connection-wait-timeout=-1
-    // profiler-maxpoolmemory=4194304 (0x400000)
-    // profiler-maxusedmemory=16777216 (0x1000000)
-    // profiler-enable-on-startup=0
 
     private readonly string _modifiedBootConfig;
     private readonly byte[] _bootConfigBytes;
@@ -104,67 +81,66 @@ internal class BootConfigCustomizer : IHostedService
     private string BuildModifiedBootConfig()
     {
         var sb = new StringBuilder();
+        // These 5 keys must go first since that's how the vanilla boot.config is laid out.
+        // gfx-enable-native-gfx-jobs by default is empty string which is the same as the key being absent, but we try to
+        // replicate defaults as much as possible so we put empty string if null just for this one
         sb.Append($"gfx-enable-native-gfx-jobs={_bootConfigSettings.GfxEnableNativeGfxJobs.ToString()}\n");
-        if (_bootConfigSettings.WaitForNativeDebugger is not null)
-            sb.Append($"wait-for-native-debugger={_bootConfigSettings.WaitForNativeDebugger}\n");
-        if (_bootConfigSettings.ScriptingRuntimeVersion is not null)
-            sb.Append($"scripting-runtime-version={_bootConfigSettings.ScriptingRuntimeVersion}\n");
-        if (_bootConfigSettings.VrEnabled is not null)
-            sb.Append($"vr-enabled={_bootConfigSettings.VrEnabled}\n");
-        if (_bootConfigSettings.HdrDisplayEnabled is not null)
-            sb.Append($"hdr-display-enabled={_bootConfigSettings.HdrDisplayEnabled}\n");
-        if (_bootConfigSettings.MaxNumLoopsNoJobBeforeGoingIdle is not null)
-            sb.Append($"max-num-loops-no-job-before-going-idle={_bootConfigSettings.MaxNumLoopsNoJobBeforeGoingIdle}\n");
-        if (_bootConfigSettings.WaitForManagedDebugger is not null)
-            sb.Append($"wait-for-managed-debugger={_bootConfigSettings.WaitForManagedDebugger}\n");
-        if (_bootConfigSettings.PreloadManagerThreadStackSize is not null)
-            sb.Append($"preload-manager-thread-stack-size={_bootConfigSettings.PreloadManagerThreadStackSize}\n");
-        if (_bootConfigSettings.GfxDisableMtRendering is not null)
-            sb.Append($"gfx-disable-mt-rendering={_bootConfigSettings.GfxDisableMtRendering}\n");
-        if (_bootConfigSettings.GfxEnableGfxJobs is not null)
-            sb.Append($"gfx-enable-gfx-jobs={_bootConfigSettings.GfxEnableGfxJobs}\n");
-        if (_bootConfigSettings.ForceGfxDirect is not null)
-            sb.Append($"force-gfx-direct={_bootConfigSettings.ForceGfxDirect}\n");
-        if (_bootConfigSettings.ForceGfxSt is not null)
-            sb.Append($"force-gfx-st={_bootConfigSettings.ForceGfxSt}\n");
-        if (_bootConfigSettings.ForceGfxMt is not null)
-            sb.Append($"force-gfx-mt={_bootConfigSettings.ForceGfxMt}\n");
-        if (_bootConfigSettings.ForceGfxJobs is not null)
-            sb.Append($"force-gfx-jobs={_bootConfigSettings.ForceGfxJobs}\n");
-        if (_bootConfigSettings.GfxJobsSync is not null)
-            sb.Append($"gfx-jobs-sync={_bootConfigSettings.GfxJobsSync}\n");
-        if (_bootConfigSettings.HttpFilesystemApiKey is not null)
-            sb.Append($"http-filesystem-apikey={_bootConfigSettings.HttpFilesystemApiKey}\n");
-        if (_bootConfigSettings.HttpFilesystemEnable is not null)
-            sb.Append($"http-filesystem-enable={_bootConfigSettings.HttpFilesystemEnable}\n");
-        if (_bootConfigSettings.HttpFilesystemPrefix is not null)
-            sb.Append($"http-filesystem-prefix={_bootConfigSettings.HttpFilesystemPrefix}\n");
-        if (_bootConfigSettings.HttpFilesystemPubKey is not null)
-            sb.Append($"http-filesystem-pubkey={_bootConfigSettings.HttpFilesystemPubKey}\n");
-        if (_bootConfigSettings.PlayerConnectionIp is not null)
-            sb.Append($"player-connection-ip={_bootConfigSettings.PlayerConnectionIp}\n");
-        if (_bootConfigSettings.PlayerConnectionDebug is not null)
-            sb.Append($"player-connection-debug={_bootConfigSettings.PlayerConnectionDebug}\n");
-        if (_bootConfigSettings.PlayerConnectionMode is not null)
-            sb.Append($"player-connection-mode={_bootConfigSettings.PlayerConnectionMode}\n");
-        if (_bootConfigSettings.PlayerConnectionGuid is not null)
-            sb.Append($"player-connection-guid={_bootConfigSettings.PlayerConnectionGuid}\n");
-        if (_bootConfigSettings.PlayerConnectionListenAddress is not null)
-            sb.Append($"player-connection-listen-address={_bootConfigSettings.PlayerConnectionListenAddress}\n");
-        if (_bootConfigSettings.PlayerConnectionWaitTimeout is not null)
-            sb.Append($"player-connection-wait-timeout={_bootConfigSettings.PlayerConnectionWaitTimeout}\n");
-        if (_bootConfigSettings.ProfilerMaxPoolMemory is not null)
-            sb.Append($"profiler-maxpoolmemory={_bootConfigSettings.ProfilerMaxPoolMemory})\n");
-        if (_bootConfigSettings.ProfilerMaxUsedMemory is not null)
-            sb.Append($"profiler-maxusedmemory={_bootConfigSettings.ProfilerMaxUsedMemory}\n");
-        if (_bootConfigSettings.ProfilerEnableOnStartup is not null)
-            sb.Append($"profiler-enable-on-startup={_bootConfigSettings.ProfilerEnableOnStartup}");
-        if (_bootConfigSettings.Headless is not null)
-            sb.Append($"headless={_bootConfigSettings.Headless}");
-        if (_bootConfigSettings.SingleInstance is not null)
-            sb.Append($"single-instance={_bootConfigSettings.SingleInstance}");
+        AppendKeyValuePair(sb, "wait-for-native-debugger", _bootConfigSettings.WaitForNativeDebugger);
+        AppendKeyValuePair(sb, "scripting-runtime-version", _bootConfigSettings.ScriptingRuntimeVersion);
+        AppendKeyValuePair(sb, "vr-enabled", _bootConfigSettings.VrEnabled);
+        AppendKeyValuePair(sb, "hdr-display-enabled", _bootConfigSettings.HdrDisplayEnabled);
+
+        AppendKeyValuePair(sb, "wait-for-managed-debugger", _bootConfigSettings.WaitForManagedDebugger);
+        AppendKeyValuePair(sb, "mono-codegen", _bootConfigSettings.MonoCodeGen);
+        AppendKeyValuePair(sb, "max-num-loops-no-job-before-going-idle", _bootConfigSettings.MaxNumLoopsNoJobBeforeGoingIdle);
+        AppendKeyValuePair(sb, "preload-manager-thread-stack-size", _bootConfigSettings.PreloadManagerThreadStackSize);
+
+        AppendKeyValuePair(sb, "force-gfx-direct", _bootConfigSettings.ForceGfxDirect);
+        AppendKeyValuePair(sb, "force-gfx-st", _bootConfigSettings.ForceGfxSt);
+        AppendKeyValuePair(sb, "force-gfx-mt", _bootConfigSettings.ForceGfxMt);
+        AppendKeyValuePair(sb, "force-gfx-jobs", _bootConfigSettings.ForceGfxJobs);
+        AppendKeyValuePair(sb, "gfx-enable-gfx-jobs", _bootConfigSettings.GfxEnableGfxJobs);
+        AppendKeyValuePair(sb, "gfx-jobs-sync", _bootConfigSettings.GfxJobsSync);
+        AppendKeyValuePair(sb, "gfx-disable-mt-rendering", _bootConfigSettings.GfxDisableMtRendering);
+
+        AppendKeyValuePair(sb, "http-filesystem-enable", _bootConfigSettings.HttpFilesystemEnable);
+        AppendKeyValuePair(sb, "http-filesystem-prefix", _bootConfigSettings.HttpFilesystemPrefix);
+        AppendKeyValuePair(sb, "http-filesystem-apikey", _bootConfigSettings.HttpFilesystemApiKey);
+        AppendKeyValuePair(sb, "http-filesystem-pubkey", _bootConfigSettings.HttpFilesystemPubKey);
+
+        AppendKeyValuePair(sb, "player-connection-ip", _bootConfigSettings.PlayerConnectionIp);
+        AppendKeyValuePair(sb, "player-connection-mode", _bootConfigSettings.PlayerConnectionMode);
+        AppendKeyValuePair(sb, "player-connection-debug", _bootConfigSettings.PlayerConnectionDebug);
+        AppendKeyValuePair(sb, "player-connection-guid", _bootConfigSettings.PlayerConnectionGuid);
+        AppendKeyValuePair(sb, "player-connection-listen-address", _bootConfigSettings.PlayerConnectionListenAddress);
+        AppendKeyValuePair(sb, "player-connection-wait-timeout", _bootConfigSettings.PlayerConnectionWaitTimeout);
+
+        AppendKeyValuePair(sb, "profiler-maxpoolmemory", _bootConfigSettings.ProfilerMaxPoolMemory);
+        AppendKeyValuePair(sb, "profiler-maxusedmemory", _bootConfigSettings.ProfilerMaxUsedMemory);
+        AppendKeyValuePair(sb, "profiler-enable-on-startup", _bootConfigSettings.ProfilerEnableOnStartup);
+
+        AppendKeyValuePair(sb, "headless", _bootConfigSettings.Headless);
+        AppendKeyValuePair(sb, "single-instance", _bootConfigSettings.SingleInstance);
 
         return sb.ToString();
+    }
+
+    private static void AppendKeyValuePair(StringBuilder sb, string key, bool? value)
+    {
+        if (value is not null)
+            sb.Append($"{key}={(value.Value ? "1" : "0")}\n");
+    }
+
+    private static void AppendKeyValuePair(StringBuilder sb, string key, int? value)
+    {
+        if (value is not null)
+            sb.Append($"{key}={value}\n");
+    }
+
+    private static void AppendKeyValuePair(StringBuilder sb, string key, string? value)
+    {
+        if (value is not null)
+            sb.Append($"{key}={value}\n");
     }
 
     public unsafe Task StartAsync(CancellationToken cancellationToken)

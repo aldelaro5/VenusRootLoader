@@ -46,8 +46,8 @@ internal class SplashScreenSkipper : IHostedService
         _createFileWSharedHooker = createFileWSharedHooker;
         _enableSkipper = globalSettings.Value.SkipUnitySplashScreen!.Value;
 
-        _modifiedGameBundlePath = Path.Combine(_gameExecutionContext.GameDir, "VenusRootLoader", "data.unity3d.modified");
-        _classDataTpkPath = Path.Combine(_gameExecutionContext.GameDir, "VenusRootLoader", "classdata.tpk");
+        _modifiedGameBundlePath = Path.Combine(_gameExecutionContext.VenusRootLoaderDir, "data.unity3d.modified");
+        _classDataTpkPath = Path.Combine(_gameExecutionContext.VenusRootLoaderDir, "classdata.tpk");
     }
 
     public unsafe Task StartAsync(CancellationToken cancellationToken)

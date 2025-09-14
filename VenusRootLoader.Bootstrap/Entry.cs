@@ -82,7 +82,8 @@ internal class Entry
             GameDir = gameDir,
             DataDir = dataDir,
             UnityPlayerDllFileName = unityPlayerDllFileName,
-            IsWine = isWine
+            IsWine = isWine,
+            VenusRootLoaderDir = Path.Combine(gameDir, "VenusRootLoader"),
         };
         return true;
     }

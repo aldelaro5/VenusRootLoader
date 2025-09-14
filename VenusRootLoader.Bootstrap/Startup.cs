@@ -28,10 +28,9 @@ internal static class Startup
             Configuration = new()
         });
 
-        var assemblyPath = Path.Combine(Directory.GetCurrentDirectory(), "VenusRootLoader", "VenusRootLoader.dll");
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
         {
-            ["ManagedEntryPointInfo:AssemblyPath"] = assemblyPath,
+            ["ManagedEntryPointInfo:AssemblyPath"] = Path.Combine(gameExecutionContext.VenusRootLoaderDir, "VenusRootLoader.dll"),
             ["ManagedEntryPointInfo:Namespace"] = "VenusRootLoader",
             ["ManagedEntryPointInfo:ClassName"] = "MonoInitEntry",
             ["ManagedEntryPointInfo:MethodName"] = "Main"

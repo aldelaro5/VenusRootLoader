@@ -10,4 +10,9 @@ public static class LoggingBuilderExtensions
     {
         builder.Services.AddSingleton<ILoggerProvider, ConsoleLogProvider>();
     }
+
+    public static void AddFileLoggingProvider(this ILoggingBuilder builder)
+    {
+        builder.Services.AddSingleton<ILoggerProvider, FileLoggerProvider>();
+    }
 }

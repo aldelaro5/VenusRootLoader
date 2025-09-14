@@ -40,6 +40,7 @@ internal static class Startup
 
         builder.Logging.AddConfiguration(builder.Configuration.GetRequiredSection("Logging"));
         builder.Logging.AddConsoleLoggingProvider();
+        builder.Logging.AddFileLoggingProvider();
         if (!builder.Configuration.GetValue<bool>("LoggingSettings:DisableUnityLogs"))
             builder.Logging.AddFilter("UNITY", LogLevel.Trace);
 

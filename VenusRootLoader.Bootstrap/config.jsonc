@@ -3,7 +3,9 @@
   "SkipUnitySplashScreen": true,
   "LoggingSettings": {
     "ShowConsole": true,
-    "DisableUnityLogs": false
+    "DisableUnityLogs": false,
+    "EnableDiskLogging": true,
+    "DiskLoggingMaxFiles": 5
   },
   "MonoDebuggerSettings": {
     "Enable": true,

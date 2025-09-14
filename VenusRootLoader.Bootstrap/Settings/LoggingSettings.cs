@@ -10,6 +10,13 @@ public class LoggingSettings
 
     [Required]
     public bool? DisableUnityLogs { get; set; }
+
+    [Required]
+    public bool? EnableDiskLogging { get; set; }
+
+    [Required]
+    [Range(1, int.MaxValue)]
+    public int? DiskLoggingMaxFiles { get; set; }
 }
 
 [OptionsValidator]

@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using System.Text;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Security;
@@ -33,7 +32,6 @@ internal class PlayerLogsMirroring : IHostedService
     private static WriteFileFn _hookWriteFileDelegate = null!;
 
     private nint _playerLogHandle = nint.Zero;
-    private readonly StringBuilder _logBuffer = new(2048);
 
     private readonly PltHook _pltHook;
     private readonly ILogger _logger;
@@ -101,16 +99,7 @@ internal class PlayerLogsMirroring : IHostedService
         }
 
         string log = Marshal.PtrToStringUTF8((nint)lpBuffer, (int)nNumberOfBytesToWrite);
-        _logBuffer.Append(log);
-
-        // Unity sometimes does multiline logs in one write.
-        // For them to render correctly, we need to write each line one by one
-        if (_logBuffer[^1] == '\n')
-        {
-            _logBuffer.Remove(_logBuffer.Length - 1, 1);
-            _logger.LogTrace(_logBuffer.ToString());
-            _logBuffer.Clear();
-        }
+        _logger.LogTrace(log.TrimEnd("\r\n").ToString());
 
         if (writeToStandardHandles)
             return 1;

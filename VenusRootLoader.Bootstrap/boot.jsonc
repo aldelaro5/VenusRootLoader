@@ -172,7 +172,7 @@
     // This key is only used in a dev build of UnityPlayer.dll.
     // Default: null (int)
     "PlayerConnectionWaitTimeout": null,
-    // Determines whether or not the profiler will be enabled on boot.
+    // Determines whether the profiler will be enabled on boot.
     // This key is only used in a dev build of UnityPlayer.dll.
     // Default: null (bool)
     "ProfilerEnableOnStartup": null,

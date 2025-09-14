@@ -11,6 +11,8 @@ public class FileLoggerProvider :  ILoggerProvider
     private readonly GameExecutionContext _gameExecutionContext;
     private readonly StreamWriter? _logWriter;
     private readonly LoggingSettings _loggingSettings;
+    
+    private readonly bool _initialised;
 
     public FileLoggerProvider(GameExecutionContext gameExecutionContext, IOptions<LoggingSettings> loggingSettings)
     {
@@ -19,22 +21,32 @@ public class FileLoggerProvider :  ILoggerProvider
         if (!_loggingSettings.EnableDiskLogging!.Value)
             return;
 
-        var logsDirectory = Path.Combine(_gameExecutionContext.GameDir, "Logs");
-        if (!Directory.Exists(logsDirectory))
-            Directory.CreateDirectory(logsDirectory);
-
-        PurgeOldLogFiles(logsDirectory, _loggingSettings.DiskLoggingMaxFiles!.Value);
-        var latestLogFilePath = Path.Combine(logsDirectory, "latest.log");
-        FreeLatestLogFilePath(latestLogFilePath);
-        _logWriter = new(File.Open(latestLogFilePath, FileMode.Create, FileAccess.Write))
+        try
         {
-            AutoFlush = true
-        };
+            var logsDirectory = Path.Combine(_gameExecutionContext.GameDir, "Logs");
+            if (!Directory.Exists(logsDirectory))
+                Directory.CreateDirectory(logsDirectory);
+
+            PurgeOldLogFiles(logsDirectory, _loggingSettings.DiskLoggingMaxFiles!.Value);
+            var latestLogFilePath = Path.Combine(logsDirectory, "latest.log");
+            FreeLatestLogFilePath(latestLogFilePath);
+            _logWriter = new(File.Open(latestLogFilePath, FileMode.Create, FileAccess.Write))
+            {
+                AutoFlush = true
+            };
+            _initialised = true;
+        }
+        catch (IOException e)
+        {
+            Console.WriteLine($"Disabling the disk file logger due to an IO error, make sure no other instances of the " +
+                              $"game are running: {e}");
+            _initialised = false;
+        }
     }
 
     public ILogger CreateLogger(string categoryName)
     {
-        if (!_loggingSettings.EnableDiskLogging!.Value)
+        if (!_loggingSettings.EnableDiskLogging!.Value || !_initialised)
             return NullLogger.Instance;
         return new FileLogger(categoryName, _logWriter!);
     }

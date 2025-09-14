@@ -75,7 +75,6 @@ internal class BootConfigCustomizer : IHostedService
         _hookReadFileDelegate = ReadFileHook;
         _hookSetFilePointerDelegate = SetFilePointerEx;
         _bootConfigPath = Path.Combine(_gameExecutionContext.DataDir, "boot.config").Replace('\\', '/');
-        _logger.LogDebug("The boot.config file will be modified to:\n{modifiedBootConfig}", _modifiedBootConfig);
     }
 
     private string BuildModifiedBootConfig()
@@ -145,6 +144,7 @@ internal class BootConfigCustomizer : IHostedService
 
     public unsafe Task StartAsync(CancellationToken cancellationToken)
     {
+        _logger.LogDebug("The boot.config file will be modified to:\n{modifiedBootConfig}", _modifiedBootConfig);
         _createFileWSharedHooker.RegisterHook(IsBootConfig, HookFileHandle);
         _pltHook.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(PInvoke.ReadFile), Marshal.GetFunctionPointerForDelegate(_hookReadFileDelegate));
         _pltHook.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(PInvoke.SetFilePointerEx), Marshal.GetFunctionPointerForDelegate(_hookSetFilePointerDelegate));

@@ -11,7 +11,7 @@ public class FileLoggerProvider :  ILoggerProvider
     private readonly GameExecutionContext _gameExecutionContext;
     private readonly StreamWriter? _logWriter;
     private readonly LoggingSettings _loggingSettings;
-    
+
     private readonly bool _initialised;
 
     public FileLoggerProvider(GameExecutionContext gameExecutionContext, IOptions<LoggingSettings> loggingSettings)

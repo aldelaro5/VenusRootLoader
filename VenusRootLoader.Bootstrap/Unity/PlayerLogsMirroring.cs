@@ -61,7 +61,7 @@ internal class PlayerLogsMirroring : IHostedService
         _errorHandle = PInvoke.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
 
         _pltHook.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "WriteFile", Marshal.GetFunctionPointerForDelegate(_hookWriteFileDelegate));
-        _createFileWSharedHooker.RegisterHook(IsUnityPlayerLogFilename, HookFileHandle);
+        _createFileWSharedHooker.RegisterHook(nameof(PlayerLogsMirroring), IsUnityPlayerLogFilename, HookFileHandle);
         return Task.CompletedTask;
     }
 
@@ -70,12 +70,12 @@ internal class PlayerLogsMirroring : IHostedService
     private bool IsUnityPlayerLogFilename(string lpFilename) =>
         lpFilename.EndsWith("Player.log") || lpFilename.EndsWith("output_log.txt");
 
-    private unsafe bool HookFileHandle(out HANDLE originalHandle, PCWSTR lpFileName, uint dwDesiredAccess, FILE_SHARE_MODE dwShareMode, SECURITY_ATTRIBUTES* lpSecurityAttributes, FILE_CREATION_DISPOSITION dwCreationDisposition, FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes, HANDLE hTemplateFile)
+    private unsafe void HookFileHandle(out HANDLE originalHandle, PCWSTR lpFileName, uint dwDesiredAccess, FILE_SHARE_MODE dwShareMode, SECURITY_ATTRIBUTES* lpSecurityAttributes, FILE_CREATION_DISPOSITION dwCreationDisposition, FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes, HANDLE hTemplateFile)
     {
         originalHandle = PInvoke.CreateFile(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
             dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
         _playerLogHandle = originalHandle;
-        return false;
+        _createFileWSharedHooker.UnregisterHook(nameof(PlayerLogsMirroring));
     }
 
     // This hook is what collects every stdout, stderr or player logs done by Unity and writes them to our logs

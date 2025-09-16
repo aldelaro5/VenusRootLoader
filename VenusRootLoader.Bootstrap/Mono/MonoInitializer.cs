@@ -48,6 +48,7 @@ internal class MonoInitializer : IHostedService
     private readonly MonoDebuggerSettings _debuggerSettings;
     private readonly PlayerConnectionDiscovery _playerConnectionDiscovery;
     private readonly SdbWinePathTranslator _sdbWinePathTranslator;
+    private readonly GameLifecycleEvents _gameLifecycleEvents;
 
     public MonoInitializer(
         ILogger<MonoInitializer> logger,
@@ -56,11 +57,13 @@ internal class MonoInitializer : IHostedService
         IOptions<ManagedEntryPointInfo> entryPointInfo,
         IOptions<MonoDebuggerSettings> debuggerSettings,
         PlayerConnectionDiscovery playerConnectionDiscovery,
-        SdbWinePathTranslator sdbWinePathTranslator)
+        SdbWinePathTranslator sdbWinePathTranslator,
+        GameLifecycleEvents gameLifecycleEvents)
     {
         _logger = logger;
         _pltHook = pltHook;
         _sdbWinePathTranslator = sdbWinePathTranslator;
+        _gameLifecycleEvents = gameLifecycleEvents;
 
         _managedEntryPointInfo = entryPointInfo.Value;
         _gameExecutionContext = gameExecutionContext;
@@ -100,7 +103,7 @@ internal class MonoInitializer : IHostedService
         if (!_runtimeInitialised)
         {
             RetrieveMonoExports(handle);
-            if (_gameExecutionContext.IsWine)
+            if (_gameExecutionContext.IsWine && _debuggerSettings.Enable!.Value)
             {
                 fixed (char* monoFileNamePtr = new char[2048])
                 {
@@ -174,6 +177,8 @@ internal class MonoInitializer : IHostedService
             }
         }
 
+        _gameLifecycleEvents.Publish(this, new() {LifeCycle = GameLifecycle.MonoInitialising});
+        _pltHook.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, "GetProcAddress");
         Domain = MonoFunctions.JitInitVersion(domainName, runtimeVersion);
 
         SetMonoMainThreadToCurrentThread();

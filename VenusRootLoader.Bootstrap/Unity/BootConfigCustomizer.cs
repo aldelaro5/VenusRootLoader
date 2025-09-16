@@ -48,6 +48,7 @@ internal class BootConfigCustomizer : IHostedService
     private readonly GameExecutionContext _gameExecutionContext;
     private readonly PltHook _pltHook;
     private readonly BootConfigSettings _bootConfigSettings;
+    private readonly GameLifecycleEvents _gameLifecycleEvents;
     private readonly string _bootConfigPath;
     private HANDLE _bootConfigFileHandle = HANDLE.Null;
 
@@ -61,11 +62,13 @@ internal class BootConfigCustomizer : IHostedService
         PltHook pltHook,
         CreateFileWSharedHooker createFileWSharedHooker,
         GameExecutionContext gameExecutionContext,
-        IOptions<BootConfigSettings> bootConfigSettings)
+        IOptions<BootConfigSettings> bootConfigSettings,
+        GameLifecycleEvents gameLifecycleEvents)
     {
         _logger = logger;
         _pltHook = pltHook;
         _gameExecutionContext = gameExecutionContext;
+        _gameLifecycleEvents = gameLifecycleEvents;
         _bootConfigSettings = bootConfigSettings.Value;
         _createFileWSharedHooker = createFileWSharedHooker;
 
@@ -144,24 +147,33 @@ internal class BootConfigCustomizer : IHostedService
 
     public unsafe Task StartAsync(CancellationToken cancellationToken)
     {
-        _logger.LogDebug("The boot.config file will be modified to:\n{modifiedBootConfig}", _modifiedBootConfig);
-        _createFileWSharedHooker.RegisterHook(IsBootConfig, HookFileHandle);
+        _createFileWSharedHooker.RegisterHook(nameof(BootConfigCustomizer), IsBootConfig, HookFileHandle);
         _pltHook.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(PInvoke.ReadFile), Marshal.GetFunctionPointerForDelegate(_hookReadFileDelegate));
         _pltHook.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(PInvoke.SetFilePointerEx), Marshal.GetFunctionPointerForDelegate(_hookSetFilePointerDelegate));
+        _gameLifecycleEvents.Subscribe(OnGameLifecycle);
+        _logger.LogDebug("The boot.config file will be modified to:\n{modifiedBootConfig}", _modifiedBootConfig);
         return Task.CompletedTask;
+    }
+
+    private void OnGameLifecycle(object? sender, GameLifecycleEventArgs e)
+    {
+        if (e.LifeCycle != GameLifecycle.MonoInitialising)
+            return;
+        _pltHook.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(PInvoke.ReadFile));
+        _pltHook.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(PInvoke.SetFilePointerEx));
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     private bool IsBootConfig(string filename) => filename == _bootConfigPath;
 
-    private unsafe bool HookFileHandle(out HANDLE originalHandle, PCWSTR lpFileName, uint dwDesiredAccess, FILE_SHARE_MODE dwShareMode, SECURITY_ATTRIBUTES* lpSecurityAttributes, FILE_CREATION_DISPOSITION dwCreationDisposition, FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes, HANDLE hTemplateFile)
+    private unsafe void HookFileHandle(out HANDLE originalHandle, PCWSTR lpFileName, uint dwDesiredAccess, FILE_SHARE_MODE dwShareMode, SECURITY_ATTRIBUTES* lpSecurityAttributes, FILE_CREATION_DISPOSITION dwCreationDisposition, FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes, HANDLE hTemplateFile)
     {
         originalHandle = PInvoke.CreateFile(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
                 dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
         _bootConfigFileHandle = originalHandle;
         _logger.LogInformation("Opened boot.config with handle {_bootConfigFileHandle:X}", _bootConfigFileHandle);
-        return false;
+        _createFileWSharedHooker.UnregisterHook(nameof(BootConfigCustomizer));
     }
 
     private unsafe int SetFilePointerEx(HANDLE hFile, long liDistanceToMove, long* lpNewFilePointer, SET_FILE_POINTER_MOVE_METHOD dwMoveMethod)

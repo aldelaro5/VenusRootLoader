@@ -55,7 +55,7 @@ internal class SplashScreenSkipper : IHostedService
         if (!_enableSkipper)
             return Task.CompletedTask;
 
-        _createFileWSharedHooker.RegisterHook(IsGameBundleFile, HookFileHandle);
+        _createFileWSharedHooker.RegisterHook(nameof(SplashScreenSkipper), IsGameBundleFile, HookFileHandle);
         return Task.CompletedTask;
     }
 
@@ -64,7 +64,7 @@ internal class SplashScreenSkipper : IHostedService
     private bool IsGameBundleFile(string filename) =>
         filename == Path.Combine(_gameExecutionContext.DataDir, "data.unity3d");
 
-    private unsafe bool HookFileHandle(out HANDLE originalHandle, PCWSTR lpFileName, uint dwDesiredAccess, FILE_SHARE_MODE dwShareMode, SECURITY_ATTRIBUTES* lpSecurityAttributes, FILE_CREATION_DISPOSITION dwCreationDisposition, FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes, HANDLE hTemplateFile)
+    private unsafe void HookFileHandle(out HANDLE originalHandle, PCWSTR lpFileName, uint dwDesiredAccess, FILE_SHARE_MODE dwShareMode, SECURITY_ATTRIBUTES* lpSecurityAttributes, FILE_CREATION_DISPOSITION dwCreationDisposition, FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes, HANDLE hTemplateFile)
     {
         if (!File.Exists(_modifiedGameBundlePath))
             SetGameBundleToSkipSplashScreen(lpFileName.ToString());
@@ -75,7 +75,6 @@ internal class SplashScreenSkipper : IHostedService
             originalHandle = PInvoke.CreateFile(fileNamePtr, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
                 dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
         }
-        return true;
     }
 
     private void SetGameBundleToSkipSplashScreen(string gameBundlePath)

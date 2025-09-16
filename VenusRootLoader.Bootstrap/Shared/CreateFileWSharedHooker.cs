@@ -19,7 +19,7 @@ internal class CreateFileWSharedHooker
     /// <param name="handle">The handle to return</param>
     /// <returns>True when the hook should be kept in the hook list or false if it should be removed upon return</returns>
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-    internal unsafe delegate bool CreateFileWHook(
+    internal unsafe delegate void CreateFileWHook(
         out HANDLE handle,
         PCWSTR lpFileName,
         uint dwDesiredAccess,
@@ -42,39 +42,61 @@ internal class CreateFileWSharedHooker
 
     private readonly PltHook _pltHook;
     private readonly GameExecutionContext _gameExecutionContext;
+    private readonly GameLifecycleEvents _gameLifecycleEvents;
 
-    private readonly List<(Func<string, bool> predicate, CreateFileWHook Hook)> _fileHandlesHooks = new();
+    private readonly Dictionary<string, (Func<string, bool> predicate, CreateFileWHook Hook)> _fileHandlesHooks = new();
 
-    public unsafe CreateFileWSharedHooker(PltHook pltHook, GameExecutionContext gameExecutionContext)
+    public unsafe CreateFileWSharedHooker(
+        PltHook pltHook,
+        GameExecutionContext gameExecutionContext,
+        GameLifecycleEvents gameLifecycleEvents)
     {
         _pltHook = pltHook;
         _gameExecutionContext = gameExecutionContext;
+        _gameLifecycleEvents = gameLifecycleEvents;
         _hookCreateFileWDelegate = HookCreateFileW;
         _pltHook.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW", Marshal.GetFunctionPointerForDelegate(_hookCreateFileWDelegate));
+        _gameLifecycleEvents.Subscribe(OnGameLifecycle);
+    }
+
+    private void OnGameLifecycle(object? sender, GameLifecycleEventArgs e)
+    {
+        if (e.LifeCycle != GameLifecycle.MonoInitialising)
+            return;
+        _fileHandlesHooks.Clear();
+        _pltHook.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW");
     }
 
     /// <summary>
     /// Registers a CreateFileW sub hook
     /// </summary>
+    /// <param name="name">The name of the hook</param>
     /// <param name="predicate">A predicate for the filename that returns true if the hook should execute</param>
     /// <param name="hook">The CreateFileW sub hook, see the <see cref="CreateFileWHook"/> documentation to learn more</param>
-    internal void RegisterHook(Func<string, bool> predicate, CreateFileWHook hook)
+    internal void RegisterHook(string name, Func<string, bool> predicate, CreateFileWHook hook)
     {
-        _fileHandlesHooks.Add((predicate, hook));
+        _fileHandlesHooks.Add(name, (predicate, hook));
+    }
+
+    /// <summary>
+    /// Unregisters a CreateFileW sub hook
+    /// </summary>
+    /// <param name="name">The name of the hook to unregister</param>
+    internal void UnregisterHook(string name)
+    {
+        _fileHandlesHooks.Remove(name);
     }
 
     private unsafe nint HookCreateFileW(PCWSTR lpFileName, uint dwDesiredAccess, FILE_SHARE_MODE dwShareMode, SECURITY_ATTRIBUTES* lpSecurityAttributes, FILE_CREATION_DISPOSITION dwCreationDisposition, FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes, HANDLE hTemplateFile)
     {
-        for (var i = 0; i < _fileHandlesHooks.Count; i++)
+        foreach (var hookWithPredicate in _fileHandlesHooks.Values)
         {
-            var hookWithPredicate = _fileHandlesHooks[i];
             if (!hookWithPredicate.predicate(lpFileName.ToString()))
                 continue;
 
-            var keepHook = hookWithPredicate.Hook(out var fileHandle, lpFileName, dwDesiredAccess, dwShareMode,
+            hookWithPredicate.Hook(out var fileHandle, lpFileName, dwDesiredAccess, dwShareMode,
                 lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
-            if (!keepHook)
-                _fileHandlesHooks.RemoveAt(i);
+
             return fileHandle;
         }
         return PInvoke.CreateFile(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes,

@@ -50,7 +50,7 @@ internal class PlayerLogsMirroring : IHostedService
         _logger = loggerFactory.CreateLogger("UNITY");
         _createFileWSharedHooker = createFileWSharedHooker;
         _gameExecutionContext = gameExecutionContext;
-        _disableMirroring = loggingSettings.Value.DisableUnityLogs!.Value;
+        _disableMirroring = !loggingSettings.Value.IncludeUnityLogs!.Value;
 
         _hookWriteFileDelegate = HookWriteFile;
     }

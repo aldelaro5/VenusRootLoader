@@ -13,6 +13,6 @@ public static class LoggingBuilderExtensions
 
     public static void AddFileLoggingProvider(this ILoggingBuilder builder)
     {
-        builder.Services.AddSingleton<ILoggerProvider, FileLoggerProvider>();
+        builder.Services.AddSingleton<ILoggerProvider, DiskFileLoggerProvider>();
     }
 }

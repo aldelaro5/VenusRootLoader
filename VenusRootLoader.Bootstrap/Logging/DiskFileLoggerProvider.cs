@@ -1,24 +1,24 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using VenusRootLoader.Bootstrap.Settings;
+using VenusRootLoader.Bootstrap.Settings.LogProvider;
 using VenusRootLoader.Bootstrap.Shared;
 
 namespace VenusRootLoader.Bootstrap.Logging;
 
-public class FileLoggerProvider :  ILoggerProvider
+public sealed class DiskFileLoggerProvider :  ILoggerProvider
 {
     private readonly GameExecutionContext _gameExecutionContext;
     private readonly StreamWriter? _logWriter;
-    private readonly LoggingSettings _loggingSettings;
+    private readonly DiskFileLoggerSettings _diskFileLoggerSettings;
 
     private readonly bool _initialised;
 
-    public FileLoggerProvider(GameExecutionContext gameExecutionContext, IOptions<LoggingSettings> loggingSettings)
+    public DiskFileLoggerProvider(GameExecutionContext gameExecutionContext, IOptions<DiskFileLoggerSettings> loggingSettings)
     {
         _gameExecutionContext = gameExecutionContext;
-        _loggingSettings = loggingSettings.Value;
-        if (!_loggingSettings.EnableDiskLogging!.Value)
+        _diskFileLoggerSettings = loggingSettings.Value;
+        if (!_diskFileLoggerSettings.Enable!.Value)
             return;
 
         try
@@ -27,7 +27,7 @@ public class FileLoggerProvider :  ILoggerProvider
             if (!Directory.Exists(logsDirectory))
                 Directory.CreateDirectory(logsDirectory);
 
-            PurgeOldLogFiles(logsDirectory, _loggingSettings.DiskLoggingMaxFiles!.Value);
+            PurgeOldLogFiles(logsDirectory, _diskFileLoggerSettings.MaxFilesToKeep!.Value);
             var latestLogFilePath = Path.Combine(logsDirectory, "latest.log");
             FreeLatestLogFilePath(latestLogFilePath);
             _logWriter = new(File.Open(latestLogFilePath, FileMode.Create, FileAccess.Write))
@@ -46,9 +46,9 @@ public class FileLoggerProvider :  ILoggerProvider
 
     public ILogger CreateLogger(string categoryName)
     {
-        if (!_loggingSettings.EnableDiskLogging!.Value || !_initialised)
+        if (!_diskFileLoggerSettings.Enable!.Value || !_initialised)
             return NullLogger.Instance;
-        return new FileLogger(categoryName, _logWriter!);
+        return new DiskFileLogger(categoryName, _logWriter!);
     }
 
     public void Dispose() => _logWriter?.Dispose();

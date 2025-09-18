@@ -37,7 +37,7 @@ internal class Entry
                 return;
 
             var loggingSettings = host.Services.GetService<IOptions<LoggingSettings>>();
-            if (loggingSettings!.Value.ShowConsole!.Value)
+            if (loggingSettings!.Value.ConsoleLoggerSettings.Enable!.Value)
                 PInvoke.ShowWindow(PInvoke.GetConsoleWindow(), SHOW_WINDOW_CMD.SW_SHOW);
 
             logger = host.Services.GetRequiredService<ILogger<Entry>>();

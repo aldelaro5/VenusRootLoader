@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 
 namespace VenusRootLoader.Bootstrap.Logging;
 
-public class FileLogger : ILogger
+public class DiskFileLogger : ILogger
 {
     private readonly Dictionary<LogLevel, string> _logLevelInfos = new()
     {
@@ -17,7 +17,7 @@ public class FileLogger : ILogger
     private readonly string _categoryName;
     private readonly StreamWriter _logWriter;
 
-    public FileLogger(string categoryName, StreamWriter logWriter)
+    public DiskFileLogger(string categoryName, StreamWriter logWriter)
     {
         var simplifiedCategoryName = categoryName;
         var lastDotIndex = categoryName.LastIndexOf('.');

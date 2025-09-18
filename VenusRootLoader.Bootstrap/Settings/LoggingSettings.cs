@@ -1,22 +1,21 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.Extensions.Options;
+using VenusRootLoader.Bootstrap.Settings.LogProvider;
 
 namespace VenusRootLoader.Bootstrap.Settings;
 
 public class LoggingSettings
 {
     [Required]
-    public bool? ShowConsole { get; set; }
+    public bool? IncludeUnityLogs { get; set; }
 
+    [ValidateObjectMembers]
     [Required]
-    public bool? DisableUnityLogs { get; set; }
+    public required ConsoleLoggerSettings ConsoleLoggerSettings { get; set; }
 
+    [ValidateObjectMembers]
     [Required]
-    public bool? EnableDiskLogging { get; set; }
-
-    [Required]
-    [Range(1, int.MaxValue)]
-    public int? DiskLoggingMaxFiles { get; set; }
+    public required DiskFileLoggerSettings DiskFileLoggerSettings { get; set; }
 }
 
 [OptionsValidator]

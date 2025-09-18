@@ -7,9 +7,11 @@ using VenusRootLoader.Bootstrap.Extensions;
 using VenusRootLoader.Bootstrap.Logging;
 using VenusRootLoader.Bootstrap.Mono;
 using VenusRootLoader.Bootstrap.Settings;
+using VenusRootLoader.Bootstrap.Settings.LogProvider;
 using VenusRootLoader.Bootstrap.Shared;
 using VenusRootLoader.Bootstrap.Unity;
 using PltHook = VenusRootLoader.Bootstrap.Shared.PltHook;
+using ValidateLoggingSettings = VenusRootLoader.Bootstrap.Settings.ValidateLoggingSettings;
 using ValidateManagedEntryPointInfoOptions = VenusRootLoader.Bootstrap.Mono.ValidateManagedEntryPointInfoOptions;
 
 namespace VenusRootLoader.Bootstrap;
@@ -50,6 +52,13 @@ internal static class Startup
         builder.Services.AddSingleton<IValidateOptions<LoggingSettings>, ValidateLoggingSettings>();
         builder.Services.AddOptions<LoggingSettings>()
             .BindConfiguration(nameof(LoggingSettings), options => options.ErrorOnUnknownConfiguration = true);
+        builder.Services.AddOptions<ConsoleLoggerSettings>()
+            .BindConfiguration($"{nameof(LoggingSettings)}:{nameof(ConsoleLoggerSettings)}",
+                options => options.ErrorOnUnknownConfiguration = true);
+        builder.Services.AddOptions<DiskFileLoggerSettings>()
+            .BindConfiguration($"{nameof(LoggingSettings)}:{nameof(DiskFileLoggerSettings)}",
+                options => options.ErrorOnUnknownConfiguration = true);
+
         builder.Services.AddSingleton<IValidateOptions<MonoDebuggerSettings>, ValidateMonoDebuggerSettings>();
         builder.Services.AddOptions<MonoDebuggerSettings>()
             .BindConfiguration(nameof(MonoDebuggerSettings), options => options.ErrorOnUnknownConfiguration = true);

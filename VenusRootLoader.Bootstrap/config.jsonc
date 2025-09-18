@@ -2,10 +2,15 @@
   "Disable": false,
   "SkipUnitySplashScreen": true,
   "LoggingSettings": {
-    "ShowConsole": true,
-    "DisableUnityLogs": false,
-    "EnableDiskLogging": true,
-    "DiskLoggingMaxFiles": 5
+    "IncludeUnityLogs": true,
+    "ConsoleLoggerSettings": {
+      "Enable": true,
+      "LogWithColors": true
+    },
+    "DiskFileLoggerSettings": {
+      "Enable": true,
+      "MaxFilesToKeep": 5
+    }
   },
   "MonoDebuggerSettings": {
     "Enable": true,

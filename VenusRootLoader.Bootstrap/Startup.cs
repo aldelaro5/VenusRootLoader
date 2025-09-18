@@ -12,7 +12,6 @@ using VenusRootLoader.Bootstrap.Shared;
 using VenusRootLoader.Bootstrap.Unity;
 using PltHook = VenusRootLoader.Bootstrap.Shared.PltHook;
 using ValidateLoggingSettings = VenusRootLoader.Bootstrap.Settings.ValidateLoggingSettings;
-using ValidateManagedEntryPointInfoOptions = VenusRootLoader.Bootstrap.Mono.ValidateManagedEntryPointInfoOptions;
 
 namespace VenusRootLoader.Bootstrap;
 
@@ -30,13 +29,6 @@ internal static class Startup
             Configuration = new()
         });
 
-        builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
-        {
-            ["ManagedEntryPointInfo:AssemblyPath"] = Path.Combine(gameExecutionContext.VenusRootLoaderDir, "VenusRootLoader.dll"),
-            ["ManagedEntryPointInfo:Namespace"] = "VenusRootLoader",
-            ["ManagedEntryPointInfo:ClassName"] = "MonoInitEntry",
-            ["ManagedEntryPointInfo:MethodName"] = "Main"
-        });
         builder.Configuration.AddJsonFile(Path.Combine("Config", "config.jsonc"));
         builder.Configuration.AddJsonFile(Path.Combine("Config", "boot.jsonc"));
 
@@ -64,9 +56,6 @@ internal static class Startup
             .BindConfiguration(nameof(MonoDebuggerSettings), options => options.ErrorOnUnknownConfiguration = true);
         builder.Services.AddOptions<BootConfigSettings>()
             .Bind(builder.Configuration.GetRequiredSection(nameof(BootConfigSettings)));
-        builder.Services.AddSingleton<IValidateOptions<ManagedEntryPointInfo>, ValidateManagedEntryPointInfoOptions>();
-        builder.Services.AddOptions<ManagedEntryPointInfo>()
-            .BindConfiguration(nameof(ManagedEntryPointInfo), options => options.ErrorOnUnknownConfiguration = true);
 
         builder.Services.AddSingleton<GameExecutionContext>(_ => gameExecutionContext);
         builder.Services.AddSingleton<PltHook>();

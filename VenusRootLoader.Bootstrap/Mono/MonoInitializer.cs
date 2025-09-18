@@ -20,11 +20,18 @@ namespace VenusRootLoader.Bootstrap.Mono;
 /// </summary>
 internal class MonoInitializer : IHostedService
 {
+    private struct ManagedEntryPointInfo
+    {
+        internal required string AssemblyPath { get; init; }
+        internal required string Namespace { get; init; }
+        internal required string ClassName { get; init; }
+        internal required string MethodName { get; init; }
+    }
+
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     private delegate nint GetProcAddressFn(HMODULE handle, PCSTR symbol);
     private static GetProcAddressFn _hookGetProcAddressDelegate = null!;
 
-    private readonly ManagedEntryPointInfo _managedEntryPointInfo;
     private bool _runtimeInitialised;
     private bool _debugInitCalled;
     private bool _jitInitDone;
@@ -54,7 +61,6 @@ internal class MonoInitializer : IHostedService
         ILogger<MonoInitializer> logger,
         PltHook pltHook,
         GameExecutionContext gameExecutionContext,
-        IOptions<ManagedEntryPointInfo> entryPointInfo,
         IOptions<MonoDebuggerSettings> debuggerSettings,
         PlayerConnectionDiscovery playerConnectionDiscovery,
         SdbWinePathTranslator sdbWinePathTranslator,
@@ -65,7 +71,6 @@ internal class MonoInitializer : IHostedService
         _sdbWinePathTranslator = sdbWinePathTranslator;
         _gameLifecycleEvents = gameLifecycleEvents;
 
-        _managedEntryPointInfo = entryPointInfo.Value;
         _gameExecutionContext = gameExecutionContext;
         _playerConnectionDiscovery = playerConnectionDiscovery;
         _debuggerSettings = debuggerSettings.Value;
@@ -184,7 +189,13 @@ internal class MonoInitializer : IHostedService
         SetMonoMainThreadToCurrentThread();
         SetupMonoConfigs();
 
-        TransitionToMonoManagedSide();
+        TransitionToMonoManagedSide(new()
+        {
+            AssemblyPath = Path.Combine(_gameExecutionContext.VenusRootLoaderDir, "VenusRootLoader.dll"),
+            Namespace = "VenusRootLoader",
+            ClassName = "MonoInitEntry",
+            MethodName = "Main"
+        });
 
         _jitInitDone = true;
         return Domain;
@@ -281,10 +292,10 @@ internal class MonoInitializer : IHostedService
         MonoFunctions.DebugInit(format);
     }
 
-    private unsafe void TransitionToMonoManagedSide()
+    private unsafe void TransitionToMonoManagedSide(ManagedEntryPointInfo entryPointInfo)
     {
         _logger.LogInformation("Loading entrypoint assembly");
-        var assembly = MonoFunctions.DomainAssemblyOpen(Domain, _managedEntryPointInfo.AssemblyPath);
+        var assembly = MonoFunctions.DomainAssemblyOpen(Domain, entryPointInfo.AssemblyPath);
         if (assembly == 0)
         {
             _logger.LogCritical("Failed to load the entrypoint assembly into the Mono domain");
@@ -292,8 +303,8 @@ internal class MonoInitializer : IHostedService
         }
 
         var image = MonoFunctions.AssemblyGetImage(assembly);
-        var interopClass = MonoFunctions.ClassFromName(image, _managedEntryPointInfo.Namespace, _managedEntryPointInfo.ClassName);
-        var initMethod = MonoFunctions.ClassGetMethodFromName(interopClass, _managedEntryPointInfo.MethodName, 0);
+        var interopClass = MonoFunctions.ClassFromName(image, entryPointInfo.Namespace, entryPointInfo.ClassName);
+        var initMethod = MonoFunctions.ClassGetMethodFromName(interopClass, entryPointInfo.MethodName, 0);
 
         nint ex = 0;
         var initArgs = stackalloc nint*[] { };

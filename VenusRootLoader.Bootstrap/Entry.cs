@@ -33,7 +33,7 @@ internal class Entry
 
             var host = Startup.BuildHost(gameExecutionContext);
             var globalSettings = host.Services.GetService<IOptions<GlobalSettings>>();
-            if (globalSettings!.Value.Disable!.Value)
+            if (globalSettings!.Value.DisableVrl!.Value)
                 return;
 
             var loggingSettings = host.Services.GetService<IOptions<LoggingSettings>>();

@@ -56,6 +56,7 @@ internal class MonoInitializer : IHostedService
     private readonly PlayerConnectionDiscovery _playerConnectionDiscovery;
     private readonly SdbWinePathTranslator _sdbWinePathTranslator;
     private readonly GameLifecycleEvents _gameLifecycleEvents;
+    private readonly IHostEnvironment _hostEnvironment;
 
     public MonoInitializer(
         ILogger<MonoInitializer> logger,
@@ -64,12 +65,14 @@ internal class MonoInitializer : IHostedService
         IOptions<MonoDebuggerSettings> debuggerSettings,
         PlayerConnectionDiscovery playerConnectionDiscovery,
         SdbWinePathTranslator sdbWinePathTranslator,
-        GameLifecycleEvents gameLifecycleEvents)
+        GameLifecycleEvents gameLifecycleEvents,
+        IHostEnvironment hostEnvironment)
     {
         _logger = logger;
         _pltHook = pltHook;
         _sdbWinePathTranslator = sdbWinePathTranslator;
         _gameLifecycleEvents = gameLifecycleEvents;
+        _hostEnvironment = hostEnvironment;
 
         _gameExecutionContext = gameExecutionContext;
         _playerConnectionDiscovery = playerConnectionDiscovery;
@@ -191,7 +194,7 @@ internal class MonoInitializer : IHostedService
 
         TransitionToMonoManagedSide(new()
         {
-            AssemblyPath = Path.Combine(_gameExecutionContext.VenusRootLoaderDir, "VenusRootLoader.dll"),
+            AssemblyPath = Path.Combine(_hostEnvironment.ContentRootPath, "VenusRootLoader", "VenusRootLoader.dll"),
             Namespace = "VenusRootLoader",
             ClassName = "MonoInitEntry",
             MethodName = "Main"
@@ -230,7 +233,7 @@ internal class MonoInitializer : IHostedService
     private void SetMonoAssembliesPath()
     {
         StringBuilder newAssembliesPathSb = new();
-        _additionalMonoAssembliesPath = Path.Combine(_gameExecutionContext.GameDir, "UnityJitMonoBcl");
+        _additionalMonoAssembliesPath = Path.Combine(_hostEnvironment.ContentRootPath, "UnityJitMonoBcl");
         newAssembliesPathSb.Append(_additionalMonoAssembliesPath);
         newAssembliesPathSb.Append(';');
         newAssembliesPathSb.Append(MonoFunctions.AssemblyGetrootdir());

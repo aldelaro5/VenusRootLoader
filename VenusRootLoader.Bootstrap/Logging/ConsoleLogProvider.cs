@@ -32,10 +32,10 @@ public sealed class ConsoleLogProvider : ILoggerProvider
         }
         // Wine does not support VT100 even if GetConsoleMode advertise that it does and even if SetConsoleMode to enable
         // returns no errors, it does not support ANSI color codes
-        else if (gameExecutionContext.IsWine)
-        {
-            _renderingMode = RenderingMode.LegacyColors;
-        }
+        // else if (gameExecutionContext.IsWine)
+        // {
+        //     _renderingMode = RenderingMode.LegacyColors;
+        // }
         else
         {
             var outHandle = PInvoke.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);

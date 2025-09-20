@@ -41,6 +41,8 @@ internal class Entry
                 PInvoke.ShowWindow(PInvoke.GetConsoleWindow(), SHOW_WINDOW_CMD.SW_SHOW);
 
             logger = host.Services.GetRequiredService<ILogger<Entry>>();
+            var environment = host.Services.GetRequiredService<IHostEnvironment>();
+            logger.LogInformation("Using base directory {EnvironmentContentRootPath}", environment.ContentRootPath);
             host.Start();
             logger.LogInformation("Resuming UnityMain");
         }
@@ -82,8 +84,7 @@ internal class Entry
             GameDir = gameDir,
             DataDir = dataDir,
             UnityPlayerDllFileName = unityPlayerDllFileName,
-            IsWine = isWine,
-            VenusRootLoaderDir = Path.Combine(gameDir, "VenusRootLoader"),
+            IsWine = isWine
         };
         return true;
     }

@@ -33,6 +33,7 @@ internal class SplashScreenSkipper : IHostedService
     private readonly ILogger _logger;
     private readonly CreateFileWSharedHooker _createFileWSharedHooker;
     private readonly GameExecutionContext _gameExecutionContext;
+    private readonly IHostEnvironment _hostEnvironment;
     private readonly bool _enableSkipper;
 
     private bool _redirectedOnceBefore;
@@ -41,15 +42,17 @@ internal class SplashScreenSkipper : IHostedService
         ILogger<SplashScreenSkipper> logger,
         CreateFileWSharedHooker createFileWSharedHooker,
         GameExecutionContext gameExecutionContext,
-        IOptions<GlobalSettings> globalSettings)
+        IOptions<GlobalSettings> globalSettings,
+        IHostEnvironment hostEnvironment)
     {
         _logger = logger;
         _gameExecutionContext = gameExecutionContext;
+        _hostEnvironment = hostEnvironment;
         _createFileWSharedHooker = createFileWSharedHooker;
         _enableSkipper = globalSettings.Value.SkipUnitySplashScreen!.Value;
 
-        _modifiedGameBundlePath = Path.Combine(_gameExecutionContext.VenusRootLoaderDir, "data.unity3d.modified");
-        _classDataTpkPath = Path.Combine(_gameExecutionContext.VenusRootLoaderDir, "classdata.tpk");
+        _modifiedGameBundlePath = Path.Combine(_hostEnvironment.ContentRootPath, "VenusRootLoader", "data.unity3d.modified");
+        _classDataTpkPath = Path.Combine(_hostEnvironment.ContentRootPath, "VenusRootLoader", "classdata.tpk");
     }
 
     public unsafe Task StartAsync(CancellationToken cancellationToken)

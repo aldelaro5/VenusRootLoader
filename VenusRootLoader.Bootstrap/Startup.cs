@@ -29,10 +29,13 @@ internal static class Startup
             Configuration = new()
         });
 
-        builder.Configuration.AddJsonFile(Path.Combine("Config", "config.jsonc"));
-        builder.Configuration.AddJsonFile(Path.Combine("Config", "boot.jsonc"));
+        var sanitisedArgs = SanitiseCommandLineArguments();
+        SetCustomContentRootPathIfProvided(builder.Environment, sanitisedArgs);
+
+        builder.Configuration.AddJsonFile(Path.Combine(builder.Environment.ContentRootPath, "Config", "config.jsonc"));
+        builder.Configuration.AddJsonFile(Path.Combine(builder.Environment.ContentRootPath, "Config", "boot.jsonc"));
         builder.Configuration.AddEnvironmentVariables("VRL_");
-        builder.Configuration.AddCommandLine(Environment.GetCommandLineArgs(), new Dictionary<string, string>
+        builder.Configuration.AddCommandLine(sanitisedArgs.ToArray(), new Dictionary<string, string>
         {
             ["--include-unity-logs"] = $"{nameof(LoggingSettings)}:{nameof(LoggingSettings.IncludeUnityLogs)}",
             ["--enable-console-logs"] = $"{nameof(LoggingSettings)}:{nameof(ConsoleLoggerSettings)}:{nameof(ConsoleLoggerSettings.Enable)}",
@@ -83,5 +86,37 @@ internal static class Startup
         builder.Services.AddHostedService<MonoInitializer>();
 
         return builder.Build();
+    }
+
+    private static void SetCustomContentRootPathIfProvided(IHostEnvironment hostEnvironment, List<string> args)
+    {
+        var baseDirEnv = Environment.GetEnvironmentVariable("VRL_BASE_DIRECTORY");
+        if (!string.IsNullOrWhiteSpace(baseDirEnv) && Directory.Exists(baseDirEnv))
+            hostEnvironment.ContentRootPath = baseDirEnv;
+
+        var baseDirArgIndex = args.IndexOf("--base-directory");
+        if (baseDirArgIndex == -1)
+            return;
+        if (baseDirArgIndex + 1 >= args.Count)
+            return;
+        if (!string.IsNullOrWhiteSpace(args[baseDirArgIndex + 1]))
+            hostEnvironment.ContentRootPath = args[baseDirArgIndex + 1];
+    }
+
+    private static List<string> SanitiseCommandLineArguments()
+    {
+        var args = Environment.GetCommandLineArgs();
+        List<string> sanitisedArgs = new();
+        for (int i = 0; i < args.Length - 1; i++)
+        {
+            var arg = args[i];
+            if (!arg.StartsWith("--"))
+                continue;
+
+            sanitisedArgs.Add(arg);
+            sanitisedArgs.Add(args[i + 1]);
+        }
+
+        return sanitisedArgs;
     }
 }

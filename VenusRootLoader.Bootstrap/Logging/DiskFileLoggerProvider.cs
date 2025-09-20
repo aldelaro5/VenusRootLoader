@@ -8,22 +8,22 @@ namespace VenusRootLoader.Bootstrap.Logging;
 
 public sealed class DiskFileLoggerProvider :  ILoggerProvider
 {
-    private readonly GameExecutionContext _gameExecutionContext;
     private readonly StreamWriter? _logWriter;
     private readonly DiskFileLoggerSettings _diskFileLoggerSettings;
 
     private readonly bool _initialised;
 
-    public DiskFileLoggerProvider(GameExecutionContext gameExecutionContext, IOptions<DiskFileLoggerSettings> loggingSettings)
+    public DiskFileLoggerProvider(
+        GameExecutionContext gameExecutionContext,
+        IOptions<DiskFileLoggerSettings> loggingSettings)
     {
-        _gameExecutionContext = gameExecutionContext;
         _diskFileLoggerSettings = loggingSettings.Value;
         if (!_diskFileLoggerSettings.Enable!.Value)
             return;
 
         try
         {
-            var logsDirectory = Path.Combine(_gameExecutionContext.GameDir, "Logs");
+            var logsDirectory = Path.Combine(gameExecutionContext.GameDir, "Logs");
             if (!Directory.Exists(logsDirectory))
                 Directory.CreateDirectory(logsDirectory);
 
@@ -34,6 +34,8 @@ public sealed class DiskFileLoggerProvider :  ILoggerProvider
             {
                 AutoFlush = true
             };
+            // For some reason, this isn't done correctly on native Windows so we have to do this to make sure
+            File.SetCreationTime(latestLogFilePath, DateTime.Now);
             _initialised = true;
         }
         catch (IOException e)

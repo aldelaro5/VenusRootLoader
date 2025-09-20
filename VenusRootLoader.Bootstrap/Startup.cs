@@ -31,6 +31,7 @@ internal static class Startup
 
         builder.Configuration.AddJsonFile(Path.Combine("Config", "config.jsonc"));
         builder.Configuration.AddJsonFile(Path.Combine("Config", "boot.jsonc"));
+        builder.Configuration.AddEnvironmentVariables("VRL_");
 
         builder.Logging.AddConfiguration(builder.Configuration.GetRequiredSection("Logging"));
         builder.Logging.AddConsoleLoggingProvider();

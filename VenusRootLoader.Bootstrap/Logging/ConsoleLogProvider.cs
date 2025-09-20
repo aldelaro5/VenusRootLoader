@@ -17,13 +17,13 @@ public sealed class ConsoleLogProvider : ILoggerProvider
         NoColors
     }
 
-    private readonly GameExecutionContext _gameExecutionContext;
     private readonly ConsoleLoggerSettings _consoleLoggerSettings;
     private readonly RenderingMode _renderingMode;
 
-    public unsafe ConsoleLogProvider(GameExecutionContext gameExecutionContext, IOptions<ConsoleLoggerSettings> loggingSettings)
+    public unsafe ConsoleLogProvider(
+        GameExecutionContext gameExecutionContext,
+        IOptions<ConsoleLoggerSettings> loggingSettings)
     {
-        _gameExecutionContext = gameExecutionContext;
         _consoleLoggerSettings = loggingSettings.Value;
 
         if (!_consoleLoggerSettings.LogWithColors!.Value)
@@ -32,17 +32,21 @@ public sealed class ConsoleLogProvider : ILoggerProvider
         }
         // Wine does not support VT100 even if GetConsoleMode advertise that it does and even if SetConsoleMode to enable
         // returns no errors, it does not support ANSI color codes
-        else if (_gameExecutionContext.IsWine)
+        else if (gameExecutionContext.IsWine)
         {
             _renderingMode = RenderingMode.LegacyColors;
         }
         else
         {
             var outHandle = PInvoke.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
-            CONSOLE_MODE mode;
-            PInvoke.GetConsoleMode(outHandle, &mode);
-            Console.WriteLine(mode);
-            _renderingMode = mode.HasFlag(CONSOLE_MODE.ENABLE_VIRTUAL_TERMINAL_PROCESSING)
+            var errHandle = PInvoke.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
+            CONSOLE_MODE outMode;
+            CONSOLE_MODE errMode;
+            PInvoke.GetConsoleMode(outHandle, &outMode);
+            PInvoke.GetConsoleMode(errHandle, &errMode);
+            outMode |= CONSOLE_MODE.ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+            errMode |= CONSOLE_MODE.ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+            _renderingMode = PInvoke.SetConsoleMode(outHandle, outMode) && PInvoke.SetConsoleMode(errHandle, errMode)
                 ? RenderingMode.AnsiColors
                 : RenderingMode.LegacyColors;
         }

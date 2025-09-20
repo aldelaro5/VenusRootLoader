@@ -32,6 +32,18 @@ internal static class Startup
         builder.Configuration.AddJsonFile(Path.Combine("Config", "config.jsonc"));
         builder.Configuration.AddJsonFile(Path.Combine("Config", "boot.jsonc"));
         builder.Configuration.AddEnvironmentVariables("VRL_");
+        builder.Configuration.AddCommandLine(Environment.GetCommandLineArgs(), new Dictionary<string, string>
+        {
+            ["--include-unity-logs"] = $"{nameof(LoggingSettings)}:{nameof(LoggingSettings.IncludeUnityLogs)}",
+            ["--enable-console-logs"] = $"{nameof(LoggingSettings)}:{nameof(ConsoleLoggerSettings)}:{nameof(ConsoleLoggerSettings.Enable)}",
+            ["--console-colors"] = $"{nameof(LoggingSettings)}:{nameof(ConsoleLoggerSettings)}:{nameof(ConsoleLoggerSettings.LogWithColors)}",
+            ["--enable-files-logs"] = $"{nameof(LoggingSettings)}:{nameof(DiskFileLoggerSettings)}:{nameof(DiskFileLoggerSettings.Enable)}",
+            ["--max-files-logs"] = $"{nameof(LoggingSettings)}:{nameof(DiskFileLoggerSettings)}:{nameof(DiskFileLoggerSettings.MaxFilesToKeep)}",
+            ["--debugger-enable"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.Enable)}",
+            ["--debugger-ip-address"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.IpAddress)}",
+            ["--debugger-port"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.Port)}",
+            ["--debugger-suspend-boot"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.SuspendOnBoot)}",
+        });
 
         builder.Logging.AddConfiguration(builder.Configuration.GetRequiredSection("Logging"));
         builder.Logging.AddConsoleLoggingProvider();

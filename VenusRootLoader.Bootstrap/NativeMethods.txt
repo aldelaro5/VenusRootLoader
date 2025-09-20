@@ -14,3 +14,4 @@ sendto
 GetModuleFileNameW
 send
 recv
+GetConsoleMode

@@ -2,7 +2,6 @@ using System.Drawing;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
 using Pastel;
-using VenusRootLoader.Bootstrap.Shared;
 
 namespace VenusRootLoader.Bootstrap.Logging;
 
@@ -16,6 +15,7 @@ public class ConsoleLogger : ILogger
     }
 
     private readonly string _categoryName;
+    private readonly ConsoleLogProvider.RenderingMode _renderingMode;
     private readonly Color? _categoryColor;
     private readonly ConsoleColor? _legacyCategoryColor;
 
@@ -68,10 +68,9 @@ public class ConsoleLogger : ILogger
         }
     };
 
-    private readonly GameExecutionContext _gameExecutionContext;
     private readonly string _assemblyName = Assembly.GetExecutingAssembly().GetName().Name!;
 
-    public ConsoleLogger(GameExecutionContext gameExecutionContext, string categoryName)
+    public ConsoleLogger(string categoryName, ConsoleLogProvider.RenderingMode renderingMode)
     {
         var simplifiedCategoryName = categoryName;
         var lastDotIndex = categoryName.LastIndexOf('.');
@@ -85,7 +84,7 @@ public class ConsoleLogger : ILogger
             not null when categoryName == "UNITY" => Color.Cyan,
             _ => Color.White
         };
-        _gameExecutionContext = gameExecutionContext;
+        _renderingMode = renderingMode;
         if (_categoryColor is not null)
             _legacyCategoryColor = GetClosestConsoleColor(_categoryColor.Value);
     }
@@ -106,9 +105,7 @@ public class ConsoleLogger : ILogger
         if (exception is not null)
             message += $" {exception}";
 
-        // Wine does not support VT100 even if GetConsoleMode advertise that it does and even if SetConsoleMode to enable
-        // returns no errors, it does not support ANSI color codes
-        if (_gameExecutionContext.IsWine)
+        if (_renderingMode == ConsoleLogProvider.RenderingMode.LegacyColors)
         {
             Console.ResetColor();
             Console.Write('[');
@@ -141,10 +138,20 @@ public class ConsoleLogger : ILogger
 
         var categoryColor = _categoryColor ?? Color.White;
 
-        Console.WriteLine($"[{time.Pastel(TimeColor)}] " +
-                          $"[{_logLevelInfos[logLevel].Moniker.Pastel(_logLevelInfos[logLevel].Color)}] " +
-                          $"[{_categoryName.Pastel(categoryColor)}] " +
-                          $"{message.Pastel(_logLevelInfos[logLevel].Color)}");
+        if (_renderingMode == ConsoleLogProvider.RenderingMode.AnsiColors)
+        {
+            Console.WriteLine($"[{time.Pastel(TimeColor)}] " +
+                              $"[{_logLevelInfos[logLevel].Moniker.Pastel(_logLevelInfos[logLevel].Color)}] " +
+                              $"[{_categoryName.Pastel(categoryColor)}] " +
+                              $"{message.Pastel(_logLevelInfos[logLevel].Color)}");
+        }
+        else
+        {
+            Console.WriteLine($"[{time}] " +
+                              $"[{_logLevelInfos[logLevel].Moniker}] " +
+                              $"[{_categoryName}] " +
+                              $"{message}");
+        }
     }
 
     private static ConsoleColor GetClosestConsoleColor(Color color)

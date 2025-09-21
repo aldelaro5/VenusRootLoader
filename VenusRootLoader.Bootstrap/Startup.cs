@@ -34,7 +34,18 @@ internal static class Startup
 
         builder.Configuration.AddJsonFile(Path.Combine(builder.Environment.ContentRootPath, "Config", "config.jsonc"));
         builder.Configuration.AddJsonFile(Path.Combine(builder.Environment.ContentRootPath, "Config", "boot.jsonc"));
-        builder.Configuration.AddEnvironmentVariables("VRL_");
+        builder.Configuration.AddCustomEnvironmentVariables("VRL_", new Dictionary<string, string>()
+        {
+            ["INCLUDE_UNITY_LOGS"] = $"{nameof(LoggingSettings)}:{nameof(LoggingSettings.IncludeUnityLogs)}",
+            ["ENABLE_CONSOLE_LOGS"] = $"{nameof(LoggingSettings)}:{nameof(ConsoleLoggerSettings)}:{nameof(ConsoleLoggerSettings.Enable)}",
+            ["CONSOLE_COLORS"] = $"{nameof(LoggingSettings)}:{nameof(ConsoleLoggerSettings)}:{nameof(ConsoleLoggerSettings.LogWithColors)}",
+            ["ENABLE_FILES_LOGS"] = $"{nameof(LoggingSettings)}:{nameof(DiskFileLoggerSettings)}:{nameof(DiskFileLoggerSettings.Enable)}",
+            ["MAX_FILES_LOGS"] = $"{nameof(LoggingSettings)}:{nameof(DiskFileLoggerSettings)}:{nameof(DiskFileLoggerSettings.MaxFilesToKeep)}",
+            ["DEBUGGER_ENABLE"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.Enable)}",
+            ["DEBUGGER_IP_ADDRESS"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.IpAddress)}",
+            ["DEBUGGER_PORT"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.Port)}",
+            ["DEBUGGER_SUSPEND_BOOT"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.SuspendOnBoot)}"
+        });
         builder.Configuration.AddCommandLine(sanitisedArgs.ToArray(), new Dictionary<string, string>
         {
             ["--include-unity-logs"] = $"{nameof(LoggingSettings)}:{nameof(LoggingSettings.IncludeUnityLogs)}",
@@ -45,7 +56,7 @@ internal static class Startup
             ["--debugger-enable"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.Enable)}",
             ["--debugger-ip-address"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.IpAddress)}",
             ["--debugger-port"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.Port)}",
-            ["--debugger-suspend-boot"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.SuspendOnBoot)}",
+            ["--debugger-suspend-boot"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.SuspendOnBoot)}"
         });
 
         builder.Logging.AddConfiguration(builder.Configuration.GetRequiredSection("Logging"));

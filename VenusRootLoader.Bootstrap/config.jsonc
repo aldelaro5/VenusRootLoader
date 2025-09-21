@@ -1,5 +1,5 @@
 {
-  "Disable": false,
+  "DisableVrl": false,
   "SkipUnitySplashScreen": true,
   "LoggingSettings": {
     "IncludeUnityLogs": true,

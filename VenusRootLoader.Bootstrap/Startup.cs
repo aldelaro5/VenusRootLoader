@@ -17,6 +17,19 @@ namespace VenusRootLoader.Bootstrap;
 
 internal static class Startup
 {
+    private static readonly Dictionary<string, string> EnvironmentVariablesConfigMapping = new()
+    {
+        ["INCLUDE_UNITY_LOGS"] = $"{nameof(LoggingSettings)}:{nameof(LoggingSettings.IncludeUnityLogs)}",
+        ["ENABLE_CONSOLE_LOGS"] = $"{nameof(LoggingSettings)}:{nameof(ConsoleLoggerSettings)}:{nameof(ConsoleLoggerSettings.Enable)}",
+        ["CONSOLE_COLORS"] = $"{nameof(LoggingSettings)}:{nameof(ConsoleLoggerSettings)}:{nameof(ConsoleLoggerSettings.LogWithColors)}",
+        ["ENABLE_FILES_LOGS"] = $"{nameof(LoggingSettings)}:{nameof(DiskFileLoggerSettings)}:{nameof(DiskFileLoggerSettings.Enable)}",
+        ["MAX_FILES_LOGS"] = $"{nameof(LoggingSettings)}:{nameof(DiskFileLoggerSettings)}:{nameof(DiskFileLoggerSettings.MaxFilesToKeep)}",
+        ["DEBUGGER_ENABLE"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.Enable)}",
+        ["DEBUGGER_IP_ADDRESS"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.IpAddress)}",
+        ["DEBUGGER_PORT"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.Port)}",
+        ["DEBUGGER_SUSPEND_BOOT"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.SuspendOnBoot)}"
+    };
+
     internal static IHost BuildHost(GameExecutionContext gameExecutionContext)
     {
         var builder = Host.CreateEmptyApplicationBuilder(new()
@@ -34,30 +47,9 @@ internal static class Startup
 
         builder.Configuration.AddJsonFile(Path.Combine(builder.Environment.ContentRootPath, "Config", "config.jsonc"));
         builder.Configuration.AddJsonFile(Path.Combine(builder.Environment.ContentRootPath, "Config", "boot.jsonc"));
-        builder.Configuration.AddCustomEnvironmentVariables("VRL_", new Dictionary<string, string>()
-        {
-            ["INCLUDE_UNITY_LOGS"] = $"{nameof(LoggingSettings)}:{nameof(LoggingSettings.IncludeUnityLogs)}",
-            ["ENABLE_CONSOLE_LOGS"] = $"{nameof(LoggingSettings)}:{nameof(ConsoleLoggerSettings)}:{nameof(ConsoleLoggerSettings.Enable)}",
-            ["CONSOLE_COLORS"] = $"{nameof(LoggingSettings)}:{nameof(ConsoleLoggerSettings)}:{nameof(ConsoleLoggerSettings.LogWithColors)}",
-            ["ENABLE_FILES_LOGS"] = $"{nameof(LoggingSettings)}:{nameof(DiskFileLoggerSettings)}:{nameof(DiskFileLoggerSettings.Enable)}",
-            ["MAX_FILES_LOGS"] = $"{nameof(LoggingSettings)}:{nameof(DiskFileLoggerSettings)}:{nameof(DiskFileLoggerSettings.MaxFilesToKeep)}",
-            ["DEBUGGER_ENABLE"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.Enable)}",
-            ["DEBUGGER_IP_ADDRESS"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.IpAddress)}",
-            ["DEBUGGER_PORT"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.Port)}",
-            ["DEBUGGER_SUSPEND_BOOT"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.SuspendOnBoot)}"
-        });
-        builder.Configuration.AddCommandLine(sanitisedArgs.ToArray(), new Dictionary<string, string>
-        {
-            ["--include-unity-logs"] = $"{nameof(LoggingSettings)}:{nameof(LoggingSettings.IncludeUnityLogs)}",
-            ["--enable-console-logs"] = $"{nameof(LoggingSettings)}:{nameof(ConsoleLoggerSettings)}:{nameof(ConsoleLoggerSettings.Enable)}",
-            ["--console-colors"] = $"{nameof(LoggingSettings)}:{nameof(ConsoleLoggerSettings)}:{nameof(ConsoleLoggerSettings.LogWithColors)}",
-            ["--enable-files-logs"] = $"{nameof(LoggingSettings)}:{nameof(DiskFileLoggerSettings)}:{nameof(DiskFileLoggerSettings.Enable)}",
-            ["--max-files-logs"] = $"{nameof(LoggingSettings)}:{nameof(DiskFileLoggerSettings)}:{nameof(DiskFileLoggerSettings.MaxFilesToKeep)}",
-            ["--debugger-enable"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.Enable)}",
-            ["--debugger-ip-address"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.IpAddress)}",
-            ["--debugger-port"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.Port)}",
-            ["--debugger-suspend-boot"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.SuspendOnBoot)}"
-        });
+        builder.Configuration.AddCustomEnvironmentVariables("VRL_", EnvironmentVariablesConfigMapping);
+        builder.Configuration.AddCommandLine(sanitisedArgs.ToArray(), EnvironmentVariablesConfigMapping
+            .ToDictionary(key => $"--{key.Key.ToLower().Replace('_', '-')}", value => value.Value));
 
         builder.Logging.AddConfiguration(builder.Configuration.GetRequiredSection("Logging"));
         builder.Logging.AddConsoleLoggingProvider();

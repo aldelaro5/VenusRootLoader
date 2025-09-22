@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using VenusRootLoader.Bootstrap.Settings;
 using VenusRootLoader.Bootstrap.Shared;
-using PltHook = VenusRootLoader.Bootstrap.Shared.PltHook;
 
 namespace VenusRootLoader.Bootstrap.Unity;
 
@@ -46,7 +45,7 @@ internal class BootConfigCustomizer : IHostedService
     private readonly ILogger _logger;
     private readonly CreateFileWSharedHooker _createFileWSharedHooker;
     private readonly GameExecutionContext _gameExecutionContext;
-    private readonly PltHook _pltHook;
+    private readonly IPltHooksManager _pltHooksManager;
     private readonly BootConfigSettings _bootConfigSettings;
     private readonly GameLifecycleEvents _gameLifecycleEvents;
     private readonly string _bootConfigPath;
@@ -59,14 +58,14 @@ internal class BootConfigCustomizer : IHostedService
 
     public unsafe BootConfigCustomizer(
         ILogger<BootConfigCustomizer> logger,
-        PltHook pltHook,
+        IPltHooksManager pltHooksManager,
         CreateFileWSharedHooker createFileWSharedHooker,
         GameExecutionContext gameExecutionContext,
         IOptions<BootConfigSettings> bootConfigSettings,
         GameLifecycleEvents gameLifecycleEvents)
     {
         _logger = logger;
-        _pltHook = pltHook;
+        _pltHooksManager = pltHooksManager;
         _gameExecutionContext = gameExecutionContext;
         _gameLifecycleEvents = gameLifecycleEvents;
         _bootConfigSettings = bootConfigSettings.Value;
@@ -148,8 +147,8 @@ internal class BootConfigCustomizer : IHostedService
     public unsafe Task StartAsync(CancellationToken cancellationToken)
     {
         _createFileWSharedHooker.RegisterHook(nameof(BootConfigCustomizer), IsBootConfig, HookFileHandle);
-        _pltHook.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(PInvoke.ReadFile), Marshal.GetFunctionPointerForDelegate(_hookReadFileDelegate));
-        _pltHook.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(PInvoke.SetFilePointerEx), Marshal.GetFunctionPointerForDelegate(_hookSetFilePointerDelegate));
+        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(PInvoke.ReadFile), Marshal.GetFunctionPointerForDelegate(_hookReadFileDelegate));
+        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(PInvoke.SetFilePointerEx), Marshal.GetFunctionPointerForDelegate(_hookSetFilePointerDelegate));
         _gameLifecycleEvents.Subscribe(OnGameLifecycle);
         _logger.LogDebug("The boot.config file will be modified to:\n{modifiedBootConfig}", _modifiedBootConfig);
         return Task.CompletedTask;
@@ -159,8 +158,8 @@ internal class BootConfigCustomizer : IHostedService
     {
         if (e.LifeCycle != GameLifecycle.MonoInitialising)
             return;
-        _pltHook.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(PInvoke.ReadFile));
-        _pltHook.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(PInvoke.SetFilePointerEx));
+        _pltHooksManager.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(PInvoke.ReadFile));
+        _pltHooksManager.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(PInvoke.SetFilePointerEx));
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

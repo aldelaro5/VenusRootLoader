@@ -8,7 +8,6 @@ using Windows.Win32.Foundation;
 using Windows.Win32.Networking.WinSock;
 using Microsoft.Extensions.Logging;
 using VenusRootLoader.Bootstrap.Shared;
-using PltHook = VenusRootLoader.Bootstrap.Shared.PltHook;
 using Timer = System.Timers.Timer;
 
 namespace VenusRootLoader.Bootstrap.Unity;
@@ -52,7 +51,7 @@ public class PlayerConnectionDiscovery
     private const string FlagsTakeIpFromSource = "0";
 
     private readonly ILogger<PlayerConnectionDiscovery> _logger;
-    private readonly PltHook _pltHook;
+    private readonly IPltHooksManager _pltHooksManager;
     private readonly GameExecutionContext _gameExecutionContext;
 
     private Socket? _socket;
@@ -61,10 +60,13 @@ public class PlayerConnectionDiscovery
     private byte[] _messageBuffer = [];
     private unsafe byte* _messagePtr = null;
 
-    public unsafe PlayerConnectionDiscovery(ILogger<PlayerConnectionDiscovery> logger, PltHook pltHook, GameExecutionContext gameExecutionContext)
+    public unsafe PlayerConnectionDiscovery(
+        ILogger<PlayerConnectionDiscovery> logger,
+        IPltHooksManager pltHooksManager,
+        GameExecutionContext gameExecutionContext)
     {
         _logger = logger;
-        _pltHook = pltHook;
+        _pltHooksManager = pltHooksManager;
         _gameExecutionContext = gameExecutionContext;
         _sendToDelegate = SendToHook;
     }
@@ -166,7 +168,7 @@ public class PlayerConnectionDiscovery
         _message = ConstructWhoAmIString(IPAddress.Parse(ipAddress), port);
         _messagePtr = (byte*)Marshal.StringToHGlobalAnsi(_message);
 
-        _pltHook.InstallHook(_gameExecutionContext.UnityPlayerDllFileName,
+        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName,
             nameof(PInvoke.sendto),
             Marshal.GetFunctionPointerForDelegate(_sendToDelegate));
     }

@@ -10,7 +10,6 @@ using VenusRootLoader.Bootstrap.Extensions;
 using VenusRootLoader.Bootstrap.Settings;
 using VenusRootLoader.Bootstrap.Shared;
 using VenusRootLoader.Bootstrap.Unity;
-using PltHook = VenusRootLoader.Bootstrap.Shared.PltHook;
 
 namespace VenusRootLoader.Bootstrap.Mono;
 
@@ -49,7 +48,7 @@ internal class MonoInitializer : IHostedService
 
     private readonly Dictionary<string, nint> _symbolRedirects;
 
-    private readonly PltHook _pltHook;
+    private readonly IPltHooksManager _pltHooksManager;
     private readonly ILogger _logger;
     private readonly GameExecutionContext _gameExecutionContext;
     private readonly MonoDebuggerSettings _debuggerSettings;
@@ -60,7 +59,7 @@ internal class MonoInitializer : IHostedService
 
     public MonoInitializer(
         ILogger<MonoInitializer> logger,
-        PltHook pltHook,
+        IPltHooksManager pltHooksManager,
         GameExecutionContext gameExecutionContext,
         IOptions<MonoDebuggerSettings> debuggerSettings,
         PlayerConnectionDiscovery playerConnectionDiscovery,
@@ -69,7 +68,7 @@ internal class MonoInitializer : IHostedService
         IHostEnvironment hostEnvironment)
     {
         _logger = logger;
-        _pltHook = pltHook;
+        _pltHooksManager = pltHooksManager;
         _sdbWinePathTranslator = sdbWinePathTranslator;
         _gameLifecycleEvents = gameLifecycleEvents;
         _hostEnvironment = hostEnvironment;
@@ -93,7 +92,7 @@ internal class MonoInitializer : IHostedService
     public Task StartAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Bootstrapping Mono...");
-        _pltHook.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "GetProcAddress", Marshal.GetFunctionPointerForDelegate(_hookGetProcAddressDelegate));
+        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "GetProcAddress", Marshal.GetFunctionPointerForDelegate(_hookGetProcAddressDelegate));
         return Task.CompletedTask;
     }
 
@@ -186,7 +185,7 @@ internal class MonoInitializer : IHostedService
         }
 
         _gameLifecycleEvents.Publish(this, new() {LifeCycle = GameLifecycle.MonoInitialising});
-        _pltHook.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, "GetProcAddress");
+        _pltHooksManager.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, "GetProcAddress");
         Domain = MonoFunctions.JitInitVersion(domainName, runtimeVersion);
 
         SetMonoMainThreadToCurrentThread();

@@ -10,7 +10,6 @@ using VenusRootLoader.Bootstrap.Settings;
 using VenusRootLoader.Bootstrap.Settings.LogProvider;
 using VenusRootLoader.Bootstrap.Shared;
 using VenusRootLoader.Bootstrap.Unity;
-using PltHook = VenusRootLoader.Bootstrap.Shared.PltHook;
 using ValidateLoggingSettings = VenusRootLoader.Bootstrap.Settings.ValidateLoggingSettings;
 
 namespace VenusRootLoader.Bootstrap;
@@ -77,7 +76,8 @@ internal static class Startup
             .Bind(builder.Configuration.GetRequiredSection(nameof(BootConfigSettings)));
 
         builder.Services.AddSingleton<GameExecutionContext>(_ => gameExecutionContext);
-        builder.Services.AddSingleton<PltHook>();
+        builder.Services.AddSingleton<IPltHooksManager ,PltHooksManager>(sp => 
+            new PltHooksManager(sp.GetRequiredService<ILogger<PltHooksManager>>(), new PltHook()));
         builder.Services.AddSingleton<GameLifecycleEvents>();
         builder.Services.AddHostedService<StandardStreamsProtector>();
         builder.Services.AddSingleton<CreateFileWSharedHooker>();

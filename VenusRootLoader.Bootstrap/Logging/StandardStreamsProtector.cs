@@ -5,7 +5,6 @@ using Windows.Win32.System.Console;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using VenusRootLoader.Bootstrap.Shared;
-using PltHook = VenusRootLoader.Bootstrap.Shared.PltHook;
 
 namespace VenusRootLoader.Bootstrap.Logging;
 
@@ -18,17 +17,18 @@ internal class StandardStreamsProtector : IHostedService
     private delegate int CloseHandleFn(HANDLE hObject);
     private static CloseHandleFn _hookCloseHandleDelegate = null!;
 
-    private readonly PltHook _pltHook;
+    private readonly IPltHooksManager _pltHooksManager;
     private readonly GameExecutionContext _gameExecutionContext;
     private readonly ILogger _logger;
     private readonly GameLifecycleEvents _gameLifecycleEvents;
 
     public StandardStreamsProtector(
         ILogger<StandardStreamsProtector> logger,
-        PltHook pltHook, GameExecutionContext gameExecutionContext,
+        IPltHooksManager pltHooksManager,
+        GameExecutionContext gameExecutionContext,
         GameLifecycleEvents gameLifecycleEvents)
     {
-        _pltHook = pltHook;
+        _pltHooksManager = pltHooksManager;
         _logger = logger;
         _gameExecutionContext = gameExecutionContext;
         _gameLifecycleEvents = gameLifecycleEvents;
@@ -40,7 +40,7 @@ internal class StandardStreamsProtector : IHostedService
         _outputHandle = PInvoke.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
         _errorHandle = PInvoke.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
 
-        _pltHook.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CloseHandle", Marshal.GetFunctionPointerForDelegate(_hookCloseHandleDelegate));
+        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CloseHandle", Marshal.GetFunctionPointerForDelegate(_hookCloseHandleDelegate));
         _gameLifecycleEvents.Subscribe(OnGameLifecycle);
         return Task.CompletedTask;
     }
@@ -49,7 +49,7 @@ internal class StandardStreamsProtector : IHostedService
     {
         if (e.LifeCycle != GameLifecycle.MonoInitialising)
             return;
-        _pltHook.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CloseHandle");
+        _pltHooksManager.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CloseHandle");
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

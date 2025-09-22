@@ -5,7 +5,7 @@ using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Networking.WinSock;
 using Microsoft.Extensions.Logging;
-using PltHook = VenusRootLoader.Bootstrap.Shared.PltHook;
+using VenusRootLoader.Bootstrap.Shared;
 
 namespace VenusRootLoader.Bootstrap.Mono;
 
@@ -38,7 +38,7 @@ public class SdbWinePathTranslator
     private delegate int RecvFn(SOCKET s, PSTR buf, int len, SEND_RECV_FLAGS flags);
     private static RecvFn _hookRecvFnDelegate = null!;
 
-    private readonly PltHook _pltHook;
+    private readonly IPltHooksManager _pltHooksManager;
     private readonly ILogger<SdbWinePathTranslator> _logger;
 
     private const int MessageHeaderLength = 11;
@@ -53,9 +53,9 @@ public class SdbWinePathTranslator
     private static readonly SdbSetCommand CommandModuleGetInfo = new(SdbModuleCommandSet, 1);
     private SdbSetCommand _lastSetCommandWithFilePath = new(byte.MaxValue, byte.MaxValue);
 
-    public SdbWinePathTranslator(ILogger<SdbWinePathTranslator> logger, PltHook pltHook)
+    public SdbWinePathTranslator(ILogger<SdbWinePathTranslator> logger, IPltHooksManager pltHooksManager)
     {
-        _pltHook = pltHook;
+        _pltHooksManager = pltHooksManager;
         _logger = logger;
         _hookSendFnDelegate = HookSendFnDelegate;
         _hookRecvFnDelegate = HookRecvFnDelegate;
@@ -63,8 +63,8 @@ public class SdbWinePathTranslator
 
     public void Setup(string monoModuleFilename)
     {
-        _pltHook.InstallHook(monoModuleFilename, nameof(PInvoke.send), Marshal.GetFunctionPointerForDelegate(_hookSendFnDelegate));
-        _pltHook.InstallHook(monoModuleFilename, nameof(PInvoke.recv), Marshal.GetFunctionPointerForDelegate(_hookRecvFnDelegate));
+        _pltHooksManager.InstallHook(monoModuleFilename, nameof(PInvoke.send), Marshal.GetFunctionPointerForDelegate(_hookSendFnDelegate));
+        _pltHooksManager.InstallHook(monoModuleFilename, nameof(PInvoke.recv), Marshal.GetFunctionPointerForDelegate(_hookRecvFnDelegate));
     }
 
     private unsafe int HookRecvFnDelegate(SOCKET s, PSTR buf, int len, SEND_RECV_FLAGS flags)

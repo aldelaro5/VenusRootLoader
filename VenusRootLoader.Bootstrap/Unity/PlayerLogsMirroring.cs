@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using VenusRootLoader.Bootstrap.Settings;
 using VenusRootLoader.Bootstrap.Shared;
-using PltHook = VenusRootLoader.Bootstrap.Shared.PltHook;
 
 namespace VenusRootLoader.Bootstrap.Unity;
 
@@ -33,7 +32,7 @@ internal class PlayerLogsMirroring : IHostedService
 
     private nint _playerLogHandle = nint.Zero;
 
-    private readonly PltHook _pltHook;
+    private readonly IPltHooksManager _pltHooksManager;
     private readonly ILogger _logger;
     private readonly CreateFileWSharedHooker _createFileWSharedHooker;
     private readonly GameExecutionContext _gameExecutionContext;
@@ -43,13 +42,13 @@ internal class PlayerLogsMirroring : IHostedService
 
     public unsafe PlayerLogsMirroring(
         ILoggerFactory loggerFactory,
-        PltHook pltHook,
+        IPltHooksManager pltHooksManager,
         CreateFileWSharedHooker createFileWSharedHooker,
         GameExecutionContext gameExecutionContext,
         IOptions<LoggingSettings> loggingSettings,
         GameLifecycleEvents gameLifecycleEvents)
     {
-        _pltHook = pltHook;
+        _pltHooksManager = pltHooksManager;
         _logger = loggerFactory.CreateLogger("UNITY");
         _createFileWSharedHooker = createFileWSharedHooker;
         _gameExecutionContext = gameExecutionContext;
@@ -72,7 +71,7 @@ internal class PlayerLogsMirroring : IHostedService
         _outputHandle = PInvoke.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
         _errorHandle = PInvoke.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
 
-        _pltHook.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "WriteFile", Marshal.GetFunctionPointerForDelegate(_hookWriteFileDelegate));
+        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "WriteFile", Marshal.GetFunctionPointerForDelegate(_hookWriteFileDelegate));
         _createFileWSharedHooker.RegisterHook(nameof(PlayerLogsMirroring), IsUnityPlayerLogFilename, HookFileHandle);
         return Task.CompletedTask;
     }

@@ -40,19 +40,19 @@ internal class CreateFileWSharedHooker
         HANDLE hTemplateFile);
     private static CreateFileWFn _hookCreateFileWDelegate = null!;
 
-    private readonly PltHook _pltHook;
+    private readonly IPltHooksManager _pltHooksManager;
     private readonly GameExecutionContext _gameExecutionContext;
 
     private readonly Dictionary<string, (Func<string, bool> predicate, CreateFileWHook Hook)> _fileHandlesHooks = new();
 
     public unsafe CreateFileWSharedHooker(
-        PltHook pltHook,
+        IPltHooksManager pltHooksManager,
         GameExecutionContext gameExecutionContext)
     {
-        _pltHook = pltHook;
+        _pltHooksManager = pltHooksManager;
         _gameExecutionContext = gameExecutionContext;
         _hookCreateFileWDelegate = HookCreateFileW;
-        _pltHook.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW", Marshal.GetFunctionPointerForDelegate(_hookCreateFileWDelegate));
+        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW", Marshal.GetFunctionPointerForDelegate(_hookCreateFileWDelegate));
     }
 
     /// <summary>
@@ -74,7 +74,7 @@ internal class CreateFileWSharedHooker
     {
         _fileHandlesHooks.Remove(name);
         if (_fileHandlesHooks.Count <= 0)
-            _pltHook.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW");
+            _pltHooksManager.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW");
     }
 
     private unsafe nint HookCreateFileW(PCWSTR lpFileName, uint dwDesiredAccess, FILE_SHARE_MODE dwShareMode, SECURITY_ATTRIBUTES* lpSecurityAttributes, FILE_CREATION_DISPOSITION dwCreationDisposition, FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes, HANDLE hTemplateFile)

@@ -77,6 +77,7 @@ internal static class Startup
         builder.Services.AddOptions<BootConfigSettings>()
             .Bind(builder.Configuration.GetRequiredSection(nameof(BootConfigSettings)));
 
+        builder.Services.AddSingleton(TimeProvider.System);
         builder.Services.AddSingleton<IFileSystem, FileSystem>();
         builder.Services.AddSingleton<IWin32, Win32>();
         builder.Services.AddSingleton<GameExecutionContext>(_ => gameExecutionContext);

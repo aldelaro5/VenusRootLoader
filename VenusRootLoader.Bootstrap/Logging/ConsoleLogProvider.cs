@@ -16,6 +16,7 @@ public sealed class ConsoleLogProvider : ILoggerProvider
         NoColors
     }
 
+    private readonly TimeProvider _timeProvider;
     private readonly IWin32 _win32;
     private readonly ConsoleLoggerSettings _consoleLoggerSettings;
     private readonly RenderingMode _renderingMode;
@@ -23,9 +24,11 @@ public sealed class ConsoleLogProvider : ILoggerProvider
     public unsafe ConsoleLogProvider(
         GameExecutionContext gameExecutionContext,
         IOptions<ConsoleLoggerSettings> loggingSettings,
-        IWin32 win32)
+        IWin32 win32,
+        TimeProvider timeProvider)
     {
         _win32 = win32;
+        _timeProvider = timeProvider;
         _consoleLoggerSettings = loggingSettings.Value;
 
         if (!_consoleLoggerSettings.LogWithColors!.Value)
@@ -59,7 +62,7 @@ public sealed class ConsoleLogProvider : ILoggerProvider
         if (!_consoleLoggerSettings.Enable!.Value)
             return NullLogger.Instance;
 
-        return new ConsoleLogger(categoryName, _renderingMode);
+        return new ConsoleLogger(categoryName, _renderingMode, _timeProvider);
     }
 
     public void Dispose() { }

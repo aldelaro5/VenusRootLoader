@@ -68,9 +68,10 @@ public class ConsoleLogger : ILogger
         }
     };
 
+    private readonly TimeProvider _timeProvider;
     private readonly string _assemblyName = Assembly.GetExecutingAssembly().GetName().Name!;
 
-    public ConsoleLogger(string categoryName, ConsoleLogProvider.RenderingMode renderingMode)
+    public ConsoleLogger(string categoryName, ConsoleLogProvider.RenderingMode renderingMode, TimeProvider timeProvider)
     {
         var simplifiedCategoryName = categoryName;
         var lastDotIndex = categoryName.LastIndexOf('.');
@@ -85,6 +86,7 @@ public class ConsoleLogger : ILogger
             _ => Color.White
         };
         _renderingMode = renderingMode;
+        _timeProvider = timeProvider;
         if (_categoryColor is not null)
             _legacyCategoryColor = GetClosestConsoleColor(_categoryColor.Value);
     }
@@ -98,7 +100,7 @@ public class ConsoleLogger : ILogger
         if (!IsEnabled(logLevel))
             return;
 
-        var time = DateTime.Now.ToString("HH:mm:ss.fff");
+        var time = _timeProvider.GetLocalNow().ToString("HH:mm:ss.fff");
         var legacyCategoryColor = _legacyCategoryColor ?? ConsoleColor.White;
 
         string message = formatter(state, exception);

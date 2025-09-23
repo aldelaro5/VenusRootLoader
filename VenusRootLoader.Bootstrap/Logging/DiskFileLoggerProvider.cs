@@ -9,6 +9,7 @@ namespace VenusRootLoader.Bootstrap.Logging;
 
 public sealed class DiskFileLoggerProvider : ILoggerProvider
 {
+    private readonly TimeProvider _timeProvider;
     private readonly IFileSystem _fileSystem;
     private readonly StreamWriter? _logWriter;
     private readonly DiskFileLoggerSettings _diskFileLoggerSettings;
@@ -17,9 +18,11 @@ public sealed class DiskFileLoggerProvider : ILoggerProvider
     public DiskFileLoggerProvider(
         IOptions<DiskFileLoggerSettings> loggingSettings,
         IHostEnvironment hostEnvironment,
-        IFileSystem fileSystem)
+        IFileSystem fileSystem,
+        TimeProvider timeProvider)
     {
         _fileSystem = fileSystem;
+        _timeProvider = timeProvider;
         _diskFileLoggerSettings = loggingSettings.Value;
         if (!_diskFileLoggerSettings.Enable!.Value)
             return;
@@ -37,7 +40,7 @@ public sealed class DiskFileLoggerProvider : ILoggerProvider
                 AutoFlush = true
             };
             // For some reason, this isn't done correctly on native Windows so we have to do this to make sure
-            _fileSystem.File.SetCreationTime(latestLogFilePath, DateTime.Now);
+            _fileSystem.File.SetCreationTime(latestLogFilePath, _timeProvider.GetLocalNow().DateTime);
             _initialised = true;
         }
         catch (IOException e)
@@ -50,7 +53,7 @@ public sealed class DiskFileLoggerProvider : ILoggerProvider
     {
         if (!_diskFileLoggerSettings.Enable!.Value || !_initialised)
             return NullLogger.Instance;
-        return new DiskFileLogger(categoryName, _logWriter!);
+        return new DiskFileLogger(categoryName, _logWriter!,  _timeProvider);
     }
 
     public void Dispose() => _logWriter?.Dispose();

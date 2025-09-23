@@ -75,6 +75,7 @@ internal static class Startup
         builder.Services.AddOptions<BootConfigSettings>()
             .Bind(builder.Configuration.GetRequiredSection(nameof(BootConfigSettings)));
 
+        builder.Services.AddSingleton<IWin32, Win32>();
         builder.Services.AddSingleton<GameExecutionContext>(_ => gameExecutionContext);
         builder.Services.AddSingleton<IPltHooksManager ,PltHooksManager>(sp => 
             new PltHooksManager(sp.GetRequiredService<ILogger<PltHooksManager>>(), new PltHook()));

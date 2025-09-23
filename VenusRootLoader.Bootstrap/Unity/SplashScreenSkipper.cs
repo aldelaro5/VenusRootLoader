@@ -1,4 +1,3 @@
-using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Security;
 using Windows.Win32.Storage.FileSystem;
@@ -30,6 +29,7 @@ internal class SplashScreenSkipper : IHostedService
     private readonly string _modifiedGameBundlePath;
     private readonly string _classDataTpkPath;
 
+    private readonly IWin32 _win32;
     private readonly ILogger _logger;
     private readonly CreateFileWSharedHooker _createFileWSharedHooker;
     private readonly GameExecutionContext _gameExecutionContext;
@@ -43,11 +43,13 @@ internal class SplashScreenSkipper : IHostedService
         CreateFileWSharedHooker createFileWSharedHooker,
         GameExecutionContext gameExecutionContext,
         IOptions<GlobalSettings> globalSettings,
-        IHostEnvironment hostEnvironment)
+        IHostEnvironment hostEnvironment,
+        IWin32 win32)
     {
         _logger = logger;
         _gameExecutionContext = gameExecutionContext;
         _hostEnvironment = hostEnvironment;
+        _win32 = win32;
         _createFileWSharedHooker = createFileWSharedHooker;
         _enableSkipper = globalSettings.Value.SkipUnitySplashScreen!.Value;
 
@@ -77,7 +79,7 @@ internal class SplashScreenSkipper : IHostedService
         _logger.LogInformation("Redirecting game bundle to {ModifiedGameBundlePath}", _modifiedGameBundlePath);
         fixed (char* fileNamePtr = _modifiedGameBundlePath)
         {
-            originalHandle = PInvoke.CreateFile(fileNamePtr, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
+            originalHandle = _win32.CreateFile(fileNamePtr, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
                 dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
         }
 

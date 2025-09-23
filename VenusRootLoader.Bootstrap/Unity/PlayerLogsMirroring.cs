@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Security;
 using Windows.Win32.Storage.FileSystem;
@@ -32,6 +31,7 @@ internal class PlayerLogsMirroring : IHostedService
 
     private nint _playerLogHandle = nint.Zero;
 
+    private readonly IWin32 _win32;
     private readonly IPltHooksManager _pltHooksManager;
     private readonly ILogger _logger;
     private readonly CreateFileWSharedHooker _createFileWSharedHooker;
@@ -46,13 +46,15 @@ internal class PlayerLogsMirroring : IHostedService
         CreateFileWSharedHooker createFileWSharedHooker,
         GameExecutionContext gameExecutionContext,
         IOptions<LoggingSettings> loggingSettings,
-        GameLifecycleEvents gameLifecycleEvents)
+        GameLifecycleEvents gameLifecycleEvents,
+        IWin32 win32)
     {
         _pltHooksManager = pltHooksManager;
         _logger = loggerFactory.CreateLogger("UNITY");
         _createFileWSharedHooker = createFileWSharedHooker;
         _gameExecutionContext = gameExecutionContext;
         _gameLifecycleEvents = gameLifecycleEvents;
+        _win32 = win32;
         _disableMirroring = !loggingSettings.Value.IncludeUnityLogs!.Value;
 
         _hookWriteFileDelegate = HookWriteFile;
@@ -68,8 +70,8 @@ internal class PlayerLogsMirroring : IHostedService
 
     public unsafe Task StartAsync(CancellationToken cancellationToken)
     {
-        _outputHandle = PInvoke.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
-        _errorHandle = PInvoke.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
+        _outputHandle = _win32.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
+        _errorHandle = _win32.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
 
         _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "WriteFile", Marshal.GetFunctionPointerForDelegate(_hookWriteFileDelegate));
         _createFileWSharedHooker.RegisterHook(nameof(PlayerLogsMirroring), IsUnityPlayerLogFilename, HookFileHandle);
@@ -83,7 +85,7 @@ internal class PlayerLogsMirroring : IHostedService
 
     private unsafe void HookFileHandle(out HANDLE originalHandle, PCWSTR lpFileName, uint dwDesiredAccess, FILE_SHARE_MODE dwShareMode, SECURITY_ATTRIBUTES* lpSecurityAttributes, FILE_CREATION_DISPOSITION dwCreationDisposition, FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes, HANDLE hTemplateFile)
     {
-        originalHandle = PInvoke.CreateFile(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
+        originalHandle = _win32.CreateFile(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
             dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
         _playerLogHandle = originalHandle;
         _createFileWSharedHooker.UnregisterHook(nameof(PlayerLogsMirroring));
@@ -100,13 +102,13 @@ internal class PlayerLogsMirroring : IHostedService
         var writeToPlayerLog = _playerLogHandle == hFile;
         var writeToStandardHandles = hFile == _outputHandle || hFile == _errorHandle;
         if (!writeToPlayerLog && !writeToStandardHandles)
-            return PInvoke.WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
+            return _win32.WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
 
         if (_disableMirroring)
         {
             if (writeToStandardHandles)
                 return 1;
-            return PInvoke.WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
+            return _win32.WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
         }
 
         string log = Marshal.PtrToStringUTF8((nint)lpBuffer, (int)nNumberOfBytesToWrite);
@@ -115,6 +117,6 @@ internal class PlayerLogsMirroring : IHostedService
         if (writeToStandardHandles)
             return 1;
 
-        return PInvoke.WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
+        return _win32.WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
     }
 }

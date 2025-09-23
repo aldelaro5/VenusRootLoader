@@ -1,7 +1,6 @@
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
-using Windows.Win32;
 using Windows.Win32.Foundation;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -48,6 +47,7 @@ internal class MonoInitializer : IHostedService
 
     private readonly Dictionary<string, nint> _symbolRedirects;
 
+    private readonly IWin32 _win32;
     private readonly IPltHooksManager _pltHooksManager;
     private readonly ILogger _logger;
     private readonly GameExecutionContext _gameExecutionContext;
@@ -65,13 +65,15 @@ internal class MonoInitializer : IHostedService
         PlayerConnectionDiscovery playerConnectionDiscovery,
         SdbWinePathTranslator sdbWinePathTranslator,
         GameLifecycleEvents gameLifecycleEvents,
-        IHostEnvironment hostEnvironment)
+        IHostEnvironment hostEnvironment,
+        IWin32 win32)
     {
         _logger = logger;
         _pltHooksManager = pltHooksManager;
         _sdbWinePathTranslator = sdbWinePathTranslator;
         _gameLifecycleEvents = gameLifecycleEvents;
         _hostEnvironment = hostEnvironment;
+        _win32 = win32;
 
         _gameExecutionContext = gameExecutionContext;
         _playerConnectionDiscovery = playerConnectionDiscovery;
@@ -103,7 +105,7 @@ internal class MonoInitializer : IHostedService
     // interested in which is what this hook does. It also gives us the Mono's handle as an added bonus since we need it
     private unsafe nint HookGetProcAddress(HMODULE handle, PCSTR symbol)
     {
-        var originalSymbolAddress = PInvoke.GetProcAddress(handle, symbol);
+        var originalSymbolAddress = _win32.GetProcAddress(handle, symbol);
         if (!_symbolRedirects.TryGetValue(symbol.ToString(), out var detourAddress))
             return originalSymbolAddress;
 
@@ -114,7 +116,7 @@ internal class MonoInitializer : IHostedService
             {
                 fixed (char* monoFileNamePtr = new char[2048])
                 {
-                    PInvoke.GetModuleFileName(handle, new PWSTR(monoFileNamePtr), 2048);
+                    _win32.GetModuleFileName(handle, new PWSTR(monoFileNamePtr), 2048);
                     var monoFileName = Marshal.PtrToStringAuto((nint)monoFileNamePtr)!;
                     _sdbWinePathTranslator.Setup(monoFileName);
                 }

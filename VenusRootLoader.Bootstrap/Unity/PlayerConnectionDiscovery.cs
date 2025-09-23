@@ -3,7 +3,6 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Timers;
-using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Networking.WinSock;
 using Microsoft.Extensions.Logging;
@@ -50,6 +49,7 @@ public class PlayerConnectionDiscovery
     private const string FlagsTakeIpFromMessage = "8";
     private const string FlagsTakeIpFromSource = "0";
 
+    private readonly IWin32 _win32;
     private readonly ILogger<PlayerConnectionDiscovery> _logger;
     private readonly IPltHooksManager _pltHooksManager;
     private readonly GameExecutionContext _gameExecutionContext;
@@ -63,11 +63,13 @@ public class PlayerConnectionDiscovery
     public unsafe PlayerConnectionDiscovery(
         ILogger<PlayerConnectionDiscovery> logger,
         IPltHooksManager pltHooksManager,
-        GameExecutionContext gameExecutionContext)
+        GameExecutionContext gameExecutionContext,
+        IWin32 win32)
     {
         _logger = logger;
         _pltHooksManager = pltHooksManager;
         _gameExecutionContext = gameExecutionContext;
+        _win32 = win32;
         _sendToDelegate = SendToHook;
     }
 
@@ -169,13 +171,13 @@ public class PlayerConnectionDiscovery
         _messagePtr = (byte*)Marshal.StringToHGlobalAnsi(_message);
 
         _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName,
-            nameof(PInvoke.sendto),
+            nameof(_win32.sendto),
             Marshal.GetFunctionPointerForDelegate(_sendToDelegate));
     }
 
     private unsafe int SendToHook(SOCKET s, PCSTR buf, int len, int flags, SOCKADDR* to, int toLen)
     {
         _logger.LogTrace("Overriding message to send via sendto of length {bytesSent}: {message}", _message.Length, _message);
-        return PInvoke.sendto(s, new(_messagePtr), _message.Length, flags, to, toLen);
+        return _win32.sendto(s, new(_messagePtr), _message.Length, flags, to, toLen);
     }
 }

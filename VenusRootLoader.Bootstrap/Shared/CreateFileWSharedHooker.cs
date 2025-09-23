@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Security;
 using Windows.Win32.Storage.FileSystem;
@@ -40,6 +39,7 @@ internal class CreateFileWSharedHooker
         HANDLE hTemplateFile);
     private static CreateFileWFn _hookCreateFileWDelegate = null!;
 
+    private readonly IWin32 _win32;
     private readonly IPltHooksManager _pltHooksManager;
     private readonly GameExecutionContext _gameExecutionContext;
 
@@ -47,10 +47,12 @@ internal class CreateFileWSharedHooker
 
     public unsafe CreateFileWSharedHooker(
         IPltHooksManager pltHooksManager,
-        GameExecutionContext gameExecutionContext)
+        GameExecutionContext gameExecutionContext,
+        IWin32 win32)
     {
         _pltHooksManager = pltHooksManager;
         _gameExecutionContext = gameExecutionContext;
+        _win32 = win32;
         _hookCreateFileWDelegate = HookCreateFileW;
         _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW", Marshal.GetFunctionPointerForDelegate(_hookCreateFileWDelegate));
     }
@@ -89,7 +91,7 @@ internal class CreateFileWSharedHooker
 
             return fileHandle;
         }
-        return PInvoke.CreateFile(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
+        return _win32.CreateFile(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
             dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
     }
 }

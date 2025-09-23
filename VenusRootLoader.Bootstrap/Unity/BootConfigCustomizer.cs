@@ -1,6 +1,5 @@
 using System.Runtime.InteropServices;
 using System.Text;
-using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Security;
 using Windows.Win32.Storage.FileSystem;
@@ -42,6 +41,7 @@ internal class BootConfigCustomizer : IHostedService
         SET_FILE_POINTER_MOVE_METHOD dwMoveMethod);
     private static SetFilePointerExFn _hookSetFilePointerDelegate = null!;
 
+    private readonly IWin32 _win32;
     private readonly ILogger _logger;
     private readonly CreateFileWSharedHooker _createFileWSharedHooker;
     private readonly GameExecutionContext _gameExecutionContext;
@@ -62,12 +62,14 @@ internal class BootConfigCustomizer : IHostedService
         CreateFileWSharedHooker createFileWSharedHooker,
         GameExecutionContext gameExecutionContext,
         IOptions<BootConfigSettings> bootConfigSettings,
-        GameLifecycleEvents gameLifecycleEvents)
+        GameLifecycleEvents gameLifecycleEvents,
+        IWin32 win32)
     {
         _logger = logger;
         _pltHooksManager = pltHooksManager;
         _gameExecutionContext = gameExecutionContext;
         _gameLifecycleEvents = gameLifecycleEvents;
+        _win32 = win32;
         _bootConfigSettings = bootConfigSettings.Value;
         _createFileWSharedHooker = createFileWSharedHooker;
 
@@ -147,8 +149,8 @@ internal class BootConfigCustomizer : IHostedService
     public unsafe Task StartAsync(CancellationToken cancellationToken)
     {
         _createFileWSharedHooker.RegisterHook(nameof(BootConfigCustomizer), IsBootConfig, HookFileHandle);
-        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(PInvoke.ReadFile), Marshal.GetFunctionPointerForDelegate(_hookReadFileDelegate));
-        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(PInvoke.SetFilePointerEx), Marshal.GetFunctionPointerForDelegate(_hookSetFilePointerDelegate));
+        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.ReadFile), Marshal.GetFunctionPointerForDelegate(_hookReadFileDelegate));
+        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.SetFilePointerEx), Marshal.GetFunctionPointerForDelegate(_hookSetFilePointerDelegate));
         _gameLifecycleEvents.Subscribe(OnGameLifecycle);
         _logger.LogDebug("The boot.config file will be modified to:\n{modifiedBootConfig}", _modifiedBootConfig);
         return Task.CompletedTask;
@@ -158,8 +160,8 @@ internal class BootConfigCustomizer : IHostedService
     {
         if (e.LifeCycle != GameLifecycle.MonoInitialising)
             return;
-        _pltHooksManager.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(PInvoke.ReadFile));
-        _pltHooksManager.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(PInvoke.SetFilePointerEx));
+        _pltHooksManager.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.ReadFile));
+        _pltHooksManager.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.SetFilePointerEx));
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
@@ -168,7 +170,7 @@ internal class BootConfigCustomizer : IHostedService
 
     private unsafe void HookFileHandle(out HANDLE originalHandle, PCWSTR lpFileName, uint dwDesiredAccess, FILE_SHARE_MODE dwShareMode, SECURITY_ATTRIBUTES* lpSecurityAttributes, FILE_CREATION_DISPOSITION dwCreationDisposition, FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes, HANDLE hTemplateFile)
     {
-        originalHandle = PInvoke.CreateFile(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
+        originalHandle = _win32.CreateFile(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
                 dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
         _bootConfigFileHandle = originalHandle;
         _logger.LogInformation("Opened boot.config with handle {_bootConfigFileHandle:X}", _bootConfigFileHandle);
@@ -199,7 +201,7 @@ internal class BootConfigCustomizer : IHostedService
             return 1;
         }
 
-        return PInvoke.SetFilePointerEx(hFile, liDistanceToMove, lpNewFilePointer, dwMoveMethod);
+        return _win32.SetFilePointerEx(hFile, liDistanceToMove, lpNewFilePointer, dwMoveMethod);
     }
 
     private unsafe int ReadFileHook(HANDLE hFile, byte* lpBuffer, uint nNumberOfBytesToRead, uint* lpNumberOfBytesRead, NativeOverlapped* lpOverlapped)
@@ -216,6 +218,6 @@ internal class BootConfigCustomizer : IHostedService
             return 1;
         }
 
-        return PInvoke.ReadFile(hFile, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped);
+        return _win32.ReadFile(hFile, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped);
     }
 }

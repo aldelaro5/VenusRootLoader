@@ -1,4 +1,3 @@
-using Windows.Win32;
 using Windows.Win32.System.Console;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -17,13 +16,16 @@ public sealed class ConsoleLogProvider : ILoggerProvider
         NoColors
     }
 
+    private readonly IWin32 _win32;
     private readonly ConsoleLoggerSettings _consoleLoggerSettings;
     private readonly RenderingMode _renderingMode;
 
     public unsafe ConsoleLogProvider(
         GameExecutionContext gameExecutionContext,
-        IOptions<ConsoleLoggerSettings> loggingSettings)
+        IOptions<ConsoleLoggerSettings> loggingSettings,
+        IWin32 win32)
     {
+        _win32 = win32;
         _consoleLoggerSettings = loggingSettings.Value;
 
         if (!_consoleLoggerSettings.LogWithColors!.Value)
@@ -38,15 +40,15 @@ public sealed class ConsoleLogProvider : ILoggerProvider
         }
         else
         {
-            var outHandle = PInvoke.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
-            var errHandle = PInvoke.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
+            var outHandle = _win32.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
+            var errHandle = _win32.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
             CONSOLE_MODE outMode;
             CONSOLE_MODE errMode;
-            PInvoke.GetConsoleMode(outHandle, &outMode);
-            PInvoke.GetConsoleMode(errHandle, &errMode);
+            _win32.GetConsoleMode(outHandle, &outMode);
+            _win32.GetConsoleMode(errHandle, &errMode);
             outMode |= CONSOLE_MODE.ENABLE_VIRTUAL_TERMINAL_PROCESSING;
             errMode |= CONSOLE_MODE.ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-            _renderingMode = PInvoke.SetConsoleMode(outHandle, outMode) && PInvoke.SetConsoleMode(errHandle, errMode)
+            _renderingMode = _win32.SetConsoleMode(outHandle, outMode) && _win32.SetConsoleMode(errHandle, errMode)
                 ? RenderingMode.AnsiColors
                 : RenderingMode.LegacyColors;
         }

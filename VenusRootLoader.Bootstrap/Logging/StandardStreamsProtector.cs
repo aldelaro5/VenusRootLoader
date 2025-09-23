@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Console;
 using Microsoft.Extensions.Hosting;
@@ -17,6 +16,7 @@ internal class StandardStreamsProtector : IHostedService
     private delegate int CloseHandleFn(HANDLE hObject);
     private static CloseHandleFn _hookCloseHandleDelegate = null!;
 
+    private readonly IWin32 _win32;
     private readonly IPltHooksManager _pltHooksManager;
     private readonly GameExecutionContext _gameExecutionContext;
     private readonly ILogger _logger;
@@ -26,19 +26,21 @@ internal class StandardStreamsProtector : IHostedService
         ILogger<StandardStreamsProtector> logger,
         IPltHooksManager pltHooksManager,
         GameExecutionContext gameExecutionContext,
-        GameLifecycleEvents gameLifecycleEvents)
+        GameLifecycleEvents gameLifecycleEvents,
+        IWin32 win32)
     {
         _pltHooksManager = pltHooksManager;
         _logger = logger;
         _gameExecutionContext = gameExecutionContext;
         _gameLifecycleEvents = gameLifecycleEvents;
+        _win32 = win32;
         _hookCloseHandleDelegate = HookCloseHandle;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        _outputHandle = PInvoke.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
-        _errorHandle = PInvoke.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
+        _outputHandle = _win32.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
+        _errorHandle = _win32.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
 
         _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CloseHandle", Marshal.GetFunctionPointerForDelegate(_hookCloseHandleDelegate));
         _gameLifecycleEvents.Subscribe(OnGameLifecycle);
@@ -59,7 +61,7 @@ internal class StandardStreamsProtector : IHostedService
     private int HookCloseHandle(HANDLE hObject)
     {
         if (hObject != _outputHandle && hObject != _errorHandle)
-            return PInvoke.CloseHandle(hObject);
+            return _win32.CloseHandle(hObject);
 
         _logger.LogInformation("Prevented the CloseHandle of {StreamName}", hObject == _outputHandle ? "stdout" : "stderr");
         return 1;

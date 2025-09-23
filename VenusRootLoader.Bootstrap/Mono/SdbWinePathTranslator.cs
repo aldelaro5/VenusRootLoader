@@ -1,7 +1,6 @@
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using System.Text;
-using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Networking.WinSock;
 using Microsoft.Extensions.Logging;
@@ -38,6 +37,7 @@ public class SdbWinePathTranslator
     private delegate int RecvFn(SOCKET s, PSTR buf, int len, SEND_RECV_FLAGS flags);
     private static RecvFn _hookRecvFnDelegate = null!;
 
+    private readonly IWin32 _win32;
     private readonly IPltHooksManager _pltHooksManager;
     private readonly ILogger<SdbWinePathTranslator> _logger;
 
@@ -53,9 +53,10 @@ public class SdbWinePathTranslator
     private static readonly SdbSetCommand CommandModuleGetInfo = new(SdbModuleCommandSet, 1);
     private SdbSetCommand _lastSetCommandWithFilePath = new(byte.MaxValue, byte.MaxValue);
 
-    public SdbWinePathTranslator(ILogger<SdbWinePathTranslator> logger, IPltHooksManager pltHooksManager)
+    public SdbWinePathTranslator(ILogger<SdbWinePathTranslator> logger, IPltHooksManager pltHooksManager, IWin32 win32)
     {
         _pltHooksManager = pltHooksManager;
+        _win32 = win32;
         _logger = logger;
         _hookSendFnDelegate = HookSendFnDelegate;
         _hookRecvFnDelegate = HookRecvFnDelegate;
@@ -63,13 +64,13 @@ public class SdbWinePathTranslator
 
     public void Setup(string monoModuleFilename)
     {
-        _pltHooksManager.InstallHook(monoModuleFilename, nameof(PInvoke.send), Marshal.GetFunctionPointerForDelegate(_hookSendFnDelegate));
-        _pltHooksManager.InstallHook(monoModuleFilename, nameof(PInvoke.recv), Marshal.GetFunctionPointerForDelegate(_hookRecvFnDelegate));
+        _pltHooksManager.InstallHook(monoModuleFilename, nameof(_win32.send), Marshal.GetFunctionPointerForDelegate(_hookSendFnDelegate));
+        _pltHooksManager.InstallHook(monoModuleFilename, nameof(_win32.recv), Marshal.GetFunctionPointerForDelegate(_hookRecvFnDelegate));
     }
 
     private unsafe int HookRecvFnDelegate(SOCKET s, PSTR buf, int len, SEND_RECV_FLAGS flags)
     {
-        var length = PInvoke.recv(s, buf, len, flags);
+        var length = _win32.recv(s, buf, len, flags);
         if (length < MessageHeaderLength)
             return length;
 
@@ -92,7 +93,7 @@ public class SdbWinePathTranslator
     private unsafe int HookSendFnDelegate(SOCKET s, PCSTR buf, int len, SEND_RECV_FLAGS flags)
     {
         if (_lastSetCommandWithFilePath.Set == byte.MaxValue)
-            return PInvoke.send(s, buf, len, flags);
+            return _win32.send(s, buf, len, flags);
 
         // We always remove the first 2 characters of the Wine path (typically the "Z:" part)
         var lengthNewPacket = len - 2;
@@ -147,7 +148,7 @@ public class SdbWinePathTranslator
             PrintPacket("SEND-EDIT", modifiedBytes);
         }
 
-        var result = PInvoke.send(s, new((byte*)modifiedBytesPtr), lengthNewPacket, flags);
+        var result = _win32.send(s, new((byte*)modifiedBytesPtr), lengthNewPacket, flags);
         _lastSetCommandWithFilePath.Set = byte.MaxValue;
         _lastSetCommandWithFilePath.Id = byte.MaxValue;
         Marshal.FreeHGlobal(modifiedBytesPtr);

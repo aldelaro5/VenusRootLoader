@@ -31,12 +31,12 @@ public class PltHooksManager : IPltHooksManager
         _pltHook = pltHook;
         _fileSystem = fileSystem;
     }
-    public void InstallHook(string fileName, string functionName, nint hookFunctionPtr)
+    public unsafe void InstallHook(string fileName, string functionName, nint hookFunctionPtr)
     {
         if (!_openedPltHooksByFilename.TryGetValue(fileName, out var moduleHook))
         {
             ModulePltHook newModuleHook = (nint.Zero, new Dictionary<string, nint>());
-            if (!_pltHook.PlthookOpen(ref newModuleHook.ptr, fileName))
+            if (!_pltHook.PlthookOpen(new(&newModuleHook.ptr), fileName))
             {
                 _logger.LogError($"plthook_open error: {Marshal.PtrToStringUTF8(_pltHook.PlthookError())}");
                 return;
@@ -48,7 +48,7 @@ public class PltHooksManager : IPltHooksManager
         }
 
         nint addressOriginal = nint.Zero;
-        if (!_pltHook.PlthookReplace(moduleHook.ptr, functionName, hookFunctionPtr, ref addressOriginal))
+        if (!_pltHook.PlthookReplace(moduleHook.ptr, functionName, hookFunctionPtr, new(&addressOriginal)))
         {
             _logger.LogError($"plthook_replace error: when hooking {functionName}: {Marshal.PtrToStringUTF8(_pltHook.PlthookError())}");
             return;
@@ -60,7 +60,7 @@ public class PltHooksManager : IPltHooksManager
             LogAllActiveHooks();
     }
 
-    public void UninstallHook(string fileName, string functionName)
+    public unsafe void UninstallHook(string fileName, string functionName)
     {
         if (!_openedPltHooksByFilename.TryGetValue(fileName, out var moduleHook))
             return;
@@ -69,7 +69,7 @@ public class PltHooksManager : IPltHooksManager
             return;
 
         var oldFunc = nint.Zero;
-        if (!_pltHook.PlthookReplace(moduleHook.ptr, functionName, originalHookedFunc, ref oldFunc))
+        if (!_pltHook.PlthookReplace(moduleHook.ptr, functionName, originalHookedFunc, new(&oldFunc)))
         {
             _logger.LogError($"plthook_replace error: when unhooking {functionName}: {Marshal.PtrToStringUTF8(_pltHook.PlthookError())}");
             return;

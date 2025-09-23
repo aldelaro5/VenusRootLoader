@@ -91,7 +91,7 @@ internal class CreateFileWSharedHooker
 
             return fileHandle;
         }
-        return _win32.CreateFile(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
+        return _win32.CreateFile(lpFileName, dwDesiredAccess, dwShareMode, new(lpSecurityAttributes),
             dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
     }
 }

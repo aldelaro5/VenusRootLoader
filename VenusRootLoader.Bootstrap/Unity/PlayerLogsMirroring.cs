@@ -85,7 +85,7 @@ internal class PlayerLogsMirroring : IHostedService
 
     private unsafe void HookFileHandle(out HANDLE originalHandle, PCWSTR lpFileName, uint dwDesiredAccess, FILE_SHARE_MODE dwShareMode, SECURITY_ATTRIBUTES* lpSecurityAttributes, FILE_CREATION_DISPOSITION dwCreationDisposition, FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes, HANDLE hTemplateFile)
     {
-        originalHandle = _win32.CreateFile(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
+        originalHandle = _win32.CreateFile(lpFileName, dwDesiredAccess, dwShareMode, new(lpSecurityAttributes),
             dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
         _playerLogHandle = originalHandle;
         _createFileWSharedHooker.UnregisterHook(nameof(PlayerLogsMirroring));
@@ -102,13 +102,13 @@ internal class PlayerLogsMirroring : IHostedService
         var writeToPlayerLog = _playerLogHandle == hFile;
         var writeToStandardHandles = hFile == _outputHandle || hFile == _errorHandle;
         if (!writeToPlayerLog && !writeToStandardHandles)
-            return _win32.WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
+            return _win32.WriteFile(hFile, new(lpBuffer), nNumberOfBytesToWrite, new(lpNumberOfBytesWritten), new(lpOverlapped));
 
         if (_disableMirroring)
         {
             if (writeToStandardHandles)
                 return 1;
-            return _win32.WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
+            return _win32.WriteFile(hFile, new(lpBuffer), nNumberOfBytesToWrite, new(lpNumberOfBytesWritten), new(lpOverlapped));
         }
 
         string log = Marshal.PtrToStringUTF8((nint)lpBuffer, (int)nNumberOfBytesToWrite);
@@ -117,6 +117,6 @@ internal class PlayerLogsMirroring : IHostedService
         if (writeToStandardHandles)
             return 1;
 
-        return _win32.WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
+        return _win32.WriteFile(hFile, new(lpBuffer), nNumberOfBytesToWrite, new(lpNumberOfBytesWritten), new(lpOverlapped));
     }
 }

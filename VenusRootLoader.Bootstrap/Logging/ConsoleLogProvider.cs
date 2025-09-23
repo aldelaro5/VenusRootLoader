@@ -47,8 +47,8 @@ public sealed class ConsoleLogProvider : ILoggerProvider
             var errHandle = _win32.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
             CONSOLE_MODE outMode;
             CONSOLE_MODE errMode;
-            _win32.GetConsoleMode(outHandle, &outMode);
-            _win32.GetConsoleMode(errHandle, &errMode);
+            _win32.GetConsoleMode(outHandle, new(&outMode));
+            _win32.GetConsoleMode(errHandle, new(&errMode));
             outMode |= CONSOLE_MODE.ENABLE_VIRTUAL_TERMINAL_PROCESSING;
             errMode |= CONSOLE_MODE.ENABLE_VIRTUAL_TERMINAL_PROCESSING;
             _renderingMode = _win32.SetConsoleMode(outHandle, outMode) && _win32.SetConsoleMode(errHandle, errMode)

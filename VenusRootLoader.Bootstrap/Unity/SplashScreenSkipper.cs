@@ -80,7 +80,7 @@ internal class SplashScreenSkipper : IHostedService
         _logger.LogInformation("Redirecting game bundle to {ModifiedGameBundlePath}", _modifiedGameBundlePath);
         fixed (char* fileNamePtr = _modifiedGameBundlePath)
         {
-            originalHandle = _win32.CreateFile(fileNamePtr, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
+            originalHandle = _win32.CreateFile(fileNamePtr, dwDesiredAccess, dwShareMode, new(lpSecurityAttributes),
                 dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
         }
 

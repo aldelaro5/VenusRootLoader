@@ -174,7 +174,7 @@ internal class BootConfigCustomizer : IHostedService
 
     private unsafe void HookFileHandle(out HANDLE originalHandle, PCWSTR lpFileName, uint dwDesiredAccess, FILE_SHARE_MODE dwShareMode, SECURITY_ATTRIBUTES* lpSecurityAttributes, FILE_CREATION_DISPOSITION dwCreationDisposition, FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes, HANDLE hTemplateFile)
     {
-        originalHandle = _win32.CreateFile(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
+        originalHandle = _win32.CreateFile(lpFileName, dwDesiredAccess, dwShareMode, new(lpSecurityAttributes),
                 dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
         _bootConfigFileHandle = originalHandle;
         _logger.LogInformation("Opened boot.config with handle {_bootConfigFileHandle:X}", _bootConfigFileHandle);
@@ -205,7 +205,7 @@ internal class BootConfigCustomizer : IHostedService
             return 1;
         }
 
-        return _win32.SetFilePointerEx(hFile, liDistanceToMove, lpNewFilePointer, dwMoveMethod);
+        return _win32.SetFilePointerEx(hFile, liDistanceToMove, new(lpNewFilePointer), dwMoveMethod);
     }
 
     private unsafe int ReadFileHook(HANDLE hFile, byte* lpBuffer, uint nNumberOfBytesToRead, uint* lpNumberOfBytesRead, NativeOverlapped* lpOverlapped)
@@ -222,6 +222,6 @@ internal class BootConfigCustomizer : IHostedService
             return 1;
         }
 
-        return _win32.ReadFile(hFile, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped);
+        return _win32.ReadFile(hFile, new(lpBuffer), nNumberOfBytesToRead, new(lpNumberOfBytesRead), new(lpOverlapped));
     }
 }

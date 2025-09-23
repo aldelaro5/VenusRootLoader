@@ -178,6 +178,6 @@ public class PlayerConnectionDiscovery
     private unsafe int SendToHook(SOCKET s, PCSTR buf, int len, int flags, SOCKADDR* to, int toLen)
     {
         _logger.LogTrace("Overriding message to send via sendto of length {bytesSent}: {message}", _message.Length, _message);
-        return _win32.sendto(s, new(_messagePtr), _message.Length, flags, to, toLen);
+        return _win32.sendto(s, new(_messagePtr), _message.Length, flags, new(to), toLen);
     }
 }

@@ -1,3 +1,4 @@
+using System.IO.Abstractions;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -11,9 +12,10 @@ public class PltHooksManagerTests
 {
     private readonly IPltHook _pltHookSub = Substitute.For<IPltHook>();
     private readonly ILogger<PltHooksManager> _loggerSub = Substitute.For<ILogger<PltHooksManager>>();
+    private readonly IFileSystem  _fileSystem = Substitute.For<IFileSystem>();
     private readonly PltHooksManager _sut;
 
-    public PltHooksManagerTests() => _sut = new(_loggerSub, _pltHookSub);
+    public PltHooksManagerTests() => _sut = new(_loggerSub, _pltHookSub, _fileSystem);
 
     [Fact]
     public void InstallHook_OpensHookAndInstallHook_WhenCalledForTheFirstTimeForFilenameAndSucceeds()

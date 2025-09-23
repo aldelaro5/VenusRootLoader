@@ -1,3 +1,4 @@
+using System.IO.Abstractions;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 
@@ -16,17 +17,20 @@ public interface IPltHooksManager
 /// </summary>
 public class PltHooksManager : IPltHooksManager
 {
+    private readonly IFileSystem _fileSystem;
     private readonly Dictionary<string, ModulePltHook> _openedPltHooksByFilename = new();
 
     private readonly ILogger _logger;
     private readonly IPltHook _pltHook;
-
-    public PltHooksManager(ILogger<PltHooksManager> logger, IPltHook pltHook)
+    public PltHooksManager(
+        ILogger<PltHooksManager> logger,
+        IPltHook pltHook,
+        IFileSystem fileSystem)
     {
         _logger = logger;
         _pltHook = pltHook;
+        _fileSystem = fileSystem;
     }
-
     public void InstallHook(string fileName, string functionName, nint hookFunctionPtr)
     {
         if (!_openedPltHooksByFilename.TryGetValue(fileName, out var moduleHook))
@@ -84,7 +88,7 @@ public class PltHooksManager : IPltHooksManager
         _pltHook.PlthookClose(moduleHook.ptr);
         _logger.LogInformation($"plthook_close: Closed with filename {fileName}");
         _openedPltHooksByFilename.Remove(fileName);
-        
+
         if (_logger.IsEnabled(LogLevel.Trace))
             LogAllActiveHooks();
     }
@@ -94,7 +98,7 @@ public class PltHooksManager : IPltHooksManager
         _logger.LogTrace("All active hooks:");
         foreach (var moduleHook in _openedPltHooksByFilename)
         {
-            _logger.LogTrace("\t{fileName}", Path.GetFileName(moduleHook.Key));
+            _logger.LogTrace("\t{fileName}", _fileSystem.Path.GetFileName(moduleHook.Key));
             foreach (var functionHook in moduleHook.Value.originalHookedFunc.Keys)
                 _logger.LogTrace("\t\t{functionName}", functionHook);
         }

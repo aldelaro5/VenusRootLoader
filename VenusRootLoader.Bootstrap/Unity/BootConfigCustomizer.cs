@@ -1,3 +1,4 @@
+using System.IO.Abstractions;
 using System.Runtime.InteropServices;
 using System.Text;
 using Windows.Win32.Foundation;
@@ -41,6 +42,7 @@ internal class BootConfigCustomizer : IHostedService
         SET_FILE_POINTER_MOVE_METHOD dwMoveMethod);
     private static SetFilePointerExFn _hookSetFilePointerDelegate = null!;
 
+    private readonly IFileSystem _fileSystem;
     private readonly IWin32 _win32;
     private readonly ILogger _logger;
     private readonly CreateFileWSharedHooker _createFileWSharedHooker;
@@ -63,13 +65,15 @@ internal class BootConfigCustomizer : IHostedService
         GameExecutionContext gameExecutionContext,
         IOptions<BootConfigSettings> bootConfigSettings,
         GameLifecycleEvents gameLifecycleEvents,
-        IWin32 win32)
+        IWin32 win32,
+        IFileSystem fileSystem)
     {
         _logger = logger;
         _pltHooksManager = pltHooksManager;
         _gameExecutionContext = gameExecutionContext;
         _gameLifecycleEvents = gameLifecycleEvents;
         _win32 = win32;
+        _fileSystem = fileSystem;
         _bootConfigSettings = bootConfigSettings.Value;
         _createFileWSharedHooker = createFileWSharedHooker;
 
@@ -78,7 +82,7 @@ internal class BootConfigCustomizer : IHostedService
 
         _hookReadFileDelegate = ReadFileHook;
         _hookSetFilePointerDelegate = SetFilePointerEx;
-        _bootConfigPath = Path.Combine(_gameExecutionContext.DataDir, "boot.config").Replace('\\', '/');
+        _bootConfigPath = _fileSystem.Path.Combine(_gameExecutionContext.DataDir, "boot.config").Replace('\\', '/');
     }
 
     private string BuildModifiedBootConfig()

@@ -32,6 +32,11 @@
       </PackageReference>
       <PackageReference Include="Pastel" Version="7.0.0" />
       <PackageReference Include="PublishAotCrossXWin" Version="1.2.0" />
+      <PackageReference Include="TestableIO.System.IO.Abstractions.Analyzers" Version="2022.0.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.0.16" />
     </ItemGroup>
 
     <Target Name="BuildXwinCache" BeforeTargets="Build" Condition="!Exists('$(XWinCache)splat/sdk/lib/ucrt/$(Platform)') and $([MSBuild]::IsOSPlatform('Linux'))">

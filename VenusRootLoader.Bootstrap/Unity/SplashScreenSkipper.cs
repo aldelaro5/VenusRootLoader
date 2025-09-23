@@ -1,3 +1,4 @@
+using System.IO.Abstractions;
 using Windows.Win32.Foundation;
 using Windows.Win32.Security;
 using Windows.Win32.Storage.FileSystem;
@@ -26,6 +27,7 @@ namespace VenusRootLoader.Bootstrap.Unity;
 /// </summary>
 internal class SplashScreenSkipper : IHostedService
 {
+    private readonly IFileSystem _fileSystem;
     private readonly string _modifiedGameBundlePath;
     private readonly string _classDataTpkPath;
 
@@ -37,26 +39,25 @@ internal class SplashScreenSkipper : IHostedService
     private readonly bool _enableSkipper;
 
     private bool _redirectedOnceBefore;
-
     public SplashScreenSkipper(
         ILogger<SplashScreenSkipper> logger,
         CreateFileWSharedHooker createFileWSharedHooker,
         GameExecutionContext gameExecutionContext,
         IOptions<GlobalSettings> globalSettings,
         IHostEnvironment hostEnvironment,
-        IWin32 win32)
+        IWin32 win32,
+        IFileSystem fileSystem)
     {
         _logger = logger;
+        _fileSystem = fileSystem;
         _gameExecutionContext = gameExecutionContext;
         _hostEnvironment = hostEnvironment;
         _win32 = win32;
         _createFileWSharedHooker = createFileWSharedHooker;
         _enableSkipper = globalSettings.Value.SkipUnitySplashScreen!.Value;
-
-        _modifiedGameBundlePath = Path.Combine(_hostEnvironment.ContentRootPath, "VenusRootLoader", "data.unity3d.modified");
-        _classDataTpkPath = Path.Combine(_hostEnvironment.ContentRootPath, "VenusRootLoader", "classdata.tpk");
+        _modifiedGameBundlePath = _fileSystem.Path.Combine(_hostEnvironment.ContentRootPath, "VenusRootLoader", "data.unity3d.modified");
+        _classDataTpkPath = _fileSystem.Path.Combine(_hostEnvironment.ContentRootPath, "VenusRootLoader", "classdata.tpk");
     }
-
     public unsafe Task StartAsync(CancellationToken cancellationToken)
     {
         if (!_enableSkipper)
@@ -69,11 +70,11 @@ internal class SplashScreenSkipper : IHostedService
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     private bool IsGameBundleFile(string filename) =>
-        filename == Path.Combine(_gameExecutionContext.DataDir, "data.unity3d");
+        filename == _fileSystem.Path.Combine(_gameExecutionContext.DataDir, "data.unity3d");
 
     private unsafe void HookFileHandle(out HANDLE originalHandle, PCWSTR lpFileName, uint dwDesiredAccess, FILE_SHARE_MODE dwShareMode, SECURITY_ATTRIBUTES* lpSecurityAttributes, FILE_CREATION_DISPOSITION dwCreationDisposition, FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes, HANDLE hTemplateFile)
     {
-        if (!File.Exists(_modifiedGameBundlePath))
+        if (!_fileSystem.File.Exists(_modifiedGameBundlePath))
             SetGameBundleToSkipSplashScreen(lpFileName.ToString());
 
         _logger.LogInformation("Redirecting game bundle to {ModifiedGameBundlePath}", _modifiedGameBundlePath);
@@ -136,8 +137,8 @@ internal class SplashScreenSkipper : IHostedService
         //     newUncompressedBundle.Pack(writer, AssetBundleCompressionType.LZ4);
         // newUncompressedBundle.Close();
 
-        File.Move(uncompressedBundlePath, _modifiedGameBundlePath);
-        File.Delete(uncompressedBundlePath);
+        _fileSystem.File.Move(uncompressedBundlePath, _modifiedGameBundlePath);
+        _fileSystem.File.Delete(uncompressedBundlePath);
 
         _logger.LogDebug("\tClosing the original bundle file");
         bundleFile.Close();

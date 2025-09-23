@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO.Abstractions;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -60,14 +61,15 @@ internal class Entry
     private static bool ShouldResumeEntry(IntPtr module, [NotNullWhen(true)] out GameExecutionContext? gameExecutionContext)
     {
         var libraryHandle = module;
+        var fileSystem = new FileSystem();
         var exePath = Environment.ProcessPath!;
-        var gameDir = Path.GetDirectoryName(exePath)!;
-        var dataDir = Path.Combine(gameDir, Path.GetFileNameWithoutExtension(exePath) + "_Data");
+        var gameDir = fileSystem.Path.GetDirectoryName(exePath)!;
+        var dataDir = fileSystem.Path.Combine(gameDir, fileSystem.Path.GetFileNameWithoutExtension(exePath) + "_Data");
 
         // It's technically possible another process residing outside the game's directory ends up right back
         // here even after the initialisation happened. This heuristic protects from that by making sure we are
         // in the game's directory
-        if (!Directory.Exists(dataDir))
+        if (!fileSystem.Directory.Exists(dataDir))
         {
             gameExecutionContext = null;
             return false;

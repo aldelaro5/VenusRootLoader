@@ -1,3 +1,4 @@
+using System.IO.Abstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -41,11 +42,12 @@ internal static class Startup
             Configuration = new()
         });
 
+        var fileSystem = new FileSystem();
         var sanitisedArgs = SanitiseCommandLineArguments();
-        SetCustomContentRootPathIfProvided(builder.Environment, sanitisedArgs);
+        SetCustomContentRootPathIfProvided(builder.Environment, sanitisedArgs, fileSystem);
 
-        builder.Configuration.AddJsonFile(Path.Combine(builder.Environment.ContentRootPath, "Config", "config.jsonc"));
-        builder.Configuration.AddJsonFile(Path.Combine(builder.Environment.ContentRootPath, "Config", "boot.jsonc"));
+        builder.Configuration.AddJsonFile(fileSystem.Path.Combine(builder.Environment.ContentRootPath, "Config", "config.jsonc"));
+        builder.Configuration.AddJsonFile(fileSystem.Path.Combine(builder.Environment.ContentRootPath, "Config", "boot.jsonc"));
         builder.Configuration.AddCustomEnvironmentVariables("VRL_", EnvironmentVariablesConfigMapping);
         builder.Configuration.AddCommandLine(sanitisedArgs.ToArray(), EnvironmentVariablesConfigMapping
             .ToDictionary(key => $"--{key.Key.ToLower().Replace('_', '-')}", value => value.Value));
@@ -75,10 +77,11 @@ internal static class Startup
         builder.Services.AddOptions<BootConfigSettings>()
             .Bind(builder.Configuration.GetRequiredSection(nameof(BootConfigSettings)));
 
+        builder.Services.AddSingleton<IFileSystem, FileSystem>();
         builder.Services.AddSingleton<IWin32, Win32>();
         builder.Services.AddSingleton<GameExecutionContext>(_ => gameExecutionContext);
         builder.Services.AddSingleton<IPltHooksManager ,PltHooksManager>(sp => 
-            new PltHooksManager(sp.GetRequiredService<ILogger<PltHooksManager>>(), new PltHook()));
+            new PltHooksManager(sp.GetRequiredService<ILogger<PltHooksManager>>(), new PltHook(), new FileSystem()));
         builder.Services.AddSingleton<GameLifecycleEvents>();
         builder.Services.AddHostedService<StandardStreamsProtector>();
         builder.Services.AddSingleton<CreateFileWSharedHooker>();
@@ -92,10 +95,11 @@ internal static class Startup
         return builder.Build();
     }
 
-    private static void SetCustomContentRootPathIfProvided(IHostEnvironment hostEnvironment, List<string> args)
+    private static void SetCustomContentRootPathIfProvided(IHostEnvironment hostEnvironment, List<string> args,
+        FileSystem fileSystem)
     {
         var baseDirEnv = Environment.GetEnvironmentVariable("VRL_BASE_DIRECTORY");
-        if (!string.IsNullOrWhiteSpace(baseDirEnv) && Directory.Exists(baseDirEnv))
+        if (!string.IsNullOrWhiteSpace(baseDirEnv) && fileSystem.Directory.Exists(baseDirEnv))
             hostEnvironment.ContentRootPath = baseDirEnv;
 
         var baseDirArgIndex = args.IndexOf("--base-directory");

@@ -1,3 +1,4 @@
+using System.IO.Abstractions;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -47,6 +48,7 @@ internal class MonoInitializer : IHostedService
 
     private readonly Dictionary<string, nint> _symbolRedirects;
 
+    private readonly IFileSystem _fileSystem;
     private readonly IWin32 _win32;
     private readonly IPltHooksManager _pltHooksManager;
     private readonly ILogger _logger;
@@ -66,7 +68,8 @@ internal class MonoInitializer : IHostedService
         SdbWinePathTranslator sdbWinePathTranslator,
         GameLifecycleEvents gameLifecycleEvents,
         IHostEnvironment hostEnvironment,
-        IWin32 win32)
+        IWin32 win32,
+        IFileSystem fileSystem)
     {
         _logger = logger;
         _pltHooksManager = pltHooksManager;
@@ -74,6 +77,7 @@ internal class MonoInitializer : IHostedService
         _gameLifecycleEvents = gameLifecycleEvents;
         _hostEnvironment = hostEnvironment;
         _win32 = win32;
+        _fileSystem = fileSystem;
 
         _gameExecutionContext = gameExecutionContext;
         _playerConnectionDiscovery = playerConnectionDiscovery;
@@ -186,7 +190,7 @@ internal class MonoInitializer : IHostedService
             }
         }
 
-        _gameLifecycleEvents.Publish(this, new() {LifeCycle = GameLifecycle.MonoInitialising});
+        _gameLifecycleEvents.Publish(this, new() { LifeCycle = GameLifecycle.MonoInitialising });
         _pltHooksManager.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, "GetProcAddress");
         Domain = MonoFunctions.JitInitVersion(domainName, runtimeVersion);
 
@@ -195,7 +199,7 @@ internal class MonoInitializer : IHostedService
 
         TransitionToMonoManagedSide(new()
         {
-            AssemblyPath = Path.Combine(_hostEnvironment.ContentRootPath, "VenusRootLoader", "VenusRootLoader.dll"),
+            AssemblyPath = _fileSystem.Path.Combine(_hostEnvironment.ContentRootPath, "VenusRootLoader", "VenusRootLoader.dll"),
             Namespace = "VenusRootLoader",
             ClassName = "MonoInitEntry",
             MethodName = "Main"
@@ -234,7 +238,7 @@ internal class MonoInitializer : IHostedService
     private void SetMonoAssembliesPath()
     {
         StringBuilder newAssembliesPathSb = new();
-        _additionalMonoAssembliesPath = Path.Combine(_hostEnvironment.ContentRootPath, "UnityJitMonoBcl");
+        _additionalMonoAssembliesPath = _fileSystem.Path.Combine(_hostEnvironment.ContentRootPath, "UnityJitMonoBcl");
         newAssembliesPathSb.Append(_additionalMonoAssembliesPath);
         newAssembliesPathSb.Append(';');
         newAssembliesPathSb.Append(MonoFunctions.AssemblyGetrootdir());

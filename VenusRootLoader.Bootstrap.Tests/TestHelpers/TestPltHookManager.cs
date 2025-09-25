@@ -18,7 +18,9 @@ public class TestPltHookManager : IPltHooksManager
 
     public object? SimulateHook(string fileName, string functionName, params object?[]? args)
     {
-        return Hooks[(fileName, functionName)].DynamicInvoke(args);
+        return Hooks.TryGetValue((fileName, functionName), out var hook)
+            ? hook.DynamicInvoke(args)
+            : null;
     }
 
     public bool ContainsHook(string fileName, string functionName)

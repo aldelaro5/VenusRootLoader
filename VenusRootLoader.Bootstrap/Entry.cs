@@ -15,6 +15,7 @@ using VenusRootLoader.Bootstrap.Settings;
 using VenusRootLoader.Bootstrap.Shared;
 
 [assembly: InternalsVisibleTo("VenusRootLoader.Bootstrap.Tests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
 namespace VenusRootLoader.Bootstrap;
 

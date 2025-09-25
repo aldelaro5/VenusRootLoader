@@ -4,7 +4,7 @@ namespace VenusRootLoader.Bootstrap.Tests.TestHelpers;
 
 public class TestPltHookManager : IPltHooksManager
 {
-    private Dictionary<(string fileName, string functionName), Delegate> Hooks { get; } = new();
+    internal Dictionary<(string fileName, string functionName), Delegate> Hooks { get; } = new();
 
     public void InstallHook<T>(string fileName, string functionName, T hook) where T : Delegate
     {
@@ -21,10 +21,5 @@ public class TestPltHookManager : IPltHooksManager
         return Hooks.TryGetValue((fileName, functionName), out var hook)
             ? hook.DynamicInvoke(args)
             : null;
-    }
-
-    public bool ContainsHook(string fileName, string functionName)
-    {
-        return Hooks.ContainsKey((fileName, functionName));
     }
 }

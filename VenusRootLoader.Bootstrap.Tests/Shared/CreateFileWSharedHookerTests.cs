@@ -227,7 +227,7 @@ public class CreateFileWSharedHookerTests
             default(FILE_FLAGS_AND_ATTRIBUTES),
             default(HANDLE))!;
 
-        _pltHooksManager.ContainsHook(_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW").Should().BeFalse();
+        _pltHooksManager.Hooks.Should().BeEmpty();
         _win32.DidNotReceiveWithAnyArgs().CreateFile(
             default,
             0u,

@@ -36,7 +36,7 @@ public class StandardStreamsProtectorTests
 
         _win32.Received(1).GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
         _win32.Received(1).GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
-        _pltHookManager.ContainsHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(IWin32.CloseHandle)).Should().BeTrue();
+        _pltHookManager.Hooks.Should().ContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(IWin32.CloseHandle)));
         _gameLifecycleEvents.Listeners.Should().ContainSingle();
     }
 
@@ -99,6 +99,7 @@ public class StandardStreamsProtectorTests
             LifeCycle = GameLifecycle.MonoInitialising
         });
 
-        _pltHookManager.ContainsHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(IWin32.CloseHandle)).Should().BeFalse();
+        _pltHookManager.Hooks
+            .Should().NotContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(IWin32.CloseHandle)));
     }
 }

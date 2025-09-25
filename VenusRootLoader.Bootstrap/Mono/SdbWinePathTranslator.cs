@@ -64,8 +64,8 @@ public class SdbWinePathTranslator
 
     public void Setup(string monoModuleFilename)
     {
-        _pltHooksManager.InstallHook(monoModuleFilename, nameof(_win32.send), Marshal.GetFunctionPointerForDelegate(_hookSendFnDelegate));
-        _pltHooksManager.InstallHook(monoModuleFilename, nameof(_win32.recv), Marshal.GetFunctionPointerForDelegate(_hookRecvFnDelegate));
+        _pltHooksManager.InstallHook(monoModuleFilename, nameof(_win32.send), _hookSendFnDelegate);
+        _pltHooksManager.InstallHook(monoModuleFilename, nameof(_win32.recv), _hookRecvFnDelegate);
     }
 
     private unsafe int HookRecvFnDelegate(SOCKET s, PSTR buf, int len, SEND_RECV_FLAGS flags)

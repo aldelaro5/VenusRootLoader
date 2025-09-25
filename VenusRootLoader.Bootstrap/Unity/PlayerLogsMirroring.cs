@@ -73,7 +73,7 @@ internal class PlayerLogsMirroring : IHostedService
         _outputHandle = _win32.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
         _errorHandle = _win32.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
 
-        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "WriteFile", Marshal.GetFunctionPointerForDelegate(_hookWriteFileDelegate));
+        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "WriteFile", _hookWriteFileDelegate);
         _createFileWSharedHooker.RegisterHook(nameof(PlayerLogsMirroring), IsUnityPlayerLogFilename, HookFileHandle);
         return Task.CompletedTask;
     }

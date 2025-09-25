@@ -8,7 +8,7 @@ using ModulePltHook = (nint ptr, Dictionary<string, nint> originalHookedFunc);
 
 public interface IPltHooksManager
 {
-    void InstallHook(string fileName, string functionName, nint hookFunctionPtr);
+    void InstallHook<T>(string fileName, string functionName, T hook) where T : Delegate;
     void UninstallHook(string fileName, string functionName);
 }
 
@@ -22,6 +22,7 @@ public class PltHooksManager : IPltHooksManager
 
     private readonly ILogger _logger;
     private readonly IPltHook _pltHook;
+
     public PltHooksManager(
         ILogger<PltHooksManager> logger,
         IPltHook pltHook,
@@ -31,7 +32,8 @@ public class PltHooksManager : IPltHooksManager
         _pltHook = pltHook;
         _fileSystem = fileSystem;
     }
-    public unsafe void InstallHook(string fileName, string functionName, nint hookFunctionPtr)
+
+    public unsafe void InstallHook<T>(string fileName, string functionName, T hook) where T : Delegate
     {
         if (!_openedPltHooksByFilename.TryGetValue(fileName, out var moduleHook))
         {
@@ -48,7 +50,7 @@ public class PltHooksManager : IPltHooksManager
         }
 
         nint addressOriginal = nint.Zero;
-        if (!_pltHook.PlthookReplace(moduleHook.ptr, functionName, hookFunctionPtr, new(&addressOriginal)))
+        if (!_pltHook.PlthookReplace(moduleHook.ptr, functionName, Marshal.GetFunctionPointerForDelegate(hook), new(&addressOriginal)))
         {
             _logger.LogError($"plthook_replace error: when hooking {functionName}: {Marshal.PtrToStringUTF8(_pltHook.PlthookError())}");
             return;

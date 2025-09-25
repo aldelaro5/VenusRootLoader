@@ -170,9 +170,7 @@ public class PlayerConnectionDiscovery
         _message = ConstructWhoAmIString(IPAddress.Parse(ipAddress), port);
         _messagePtr = (byte*)Marshal.StringToHGlobalAnsi(_message);
 
-        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName,
-            nameof(_win32.sendto),
-            Marshal.GetFunctionPointerForDelegate(_sendToDelegate));
+        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.sendto), _sendToDelegate);
     }
 
     private unsafe int SendToHook(SOCKET s, PCSTR buf, int len, int flags, SOCKADDR* to, int toLen)

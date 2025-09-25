@@ -22,7 +22,7 @@ public class PltHooksManagerTests
     {
         string fileName = "filename";
         string functionName = "functionName";
-        nint pointer = Random.Shared.Next();
+        Action hook = () => {};
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -35,10 +35,14 @@ public class PltHooksManagerTests
                 Arg.Any<Pointer<nint>>())
             .ReturnsForAnyArgs(true);
 
-        _sut.InstallHook(fileName, functionName, pointer);
+        _sut.InstallHook(fileName, functionName, hook);
 
         _pltHookSub.Received(1).PlthookOpen(Arg.Any<Pointer<nint>>(), fileName);
-        _pltHookSub.Received(1).PlthookReplace(Arg.Any<nint>(), functionName, pointer, Arg.Any<Pointer<nint>>());
+        _pltHookSub.Received(1).PlthookReplace(
+            Arg.Any<nint>(),
+            functionName,
+            Arg.Is<nint>(x => Marshal.GetDelegateForFunctionPointer<Action>(x) == hook),
+            Arg.Any<Pointer<nint>>());
     }
 
     [Fact]
@@ -47,7 +51,7 @@ public class PltHooksManagerTests
         string fileName = "filename";
         string functionName1 = "functionName1";
         string functionName2 = "functionName2";
-        nint pointer = Random.Shared.Next();
+        Action hook = () => {};
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -60,12 +64,20 @@ public class PltHooksManagerTests
                 Arg.Any<Pointer<nint>>())
             .ReturnsForAnyArgs(true);
 
-        _sut.InstallHook(fileName, functionName1, pointer);
-        _sut.InstallHook(fileName, functionName2, pointer);
+        _sut.InstallHook(fileName, functionName1, hook);
+        _sut.InstallHook(fileName, functionName2, hook);
 
         _pltHookSub.Received(1).PlthookOpen(Arg.Any<Pointer<nint>>(), fileName);
-        _pltHookSub.Received(1).PlthookReplace(Arg.Any<nint>(), functionName1, pointer, Arg.Any<Pointer<nint>>());
-        _pltHookSub.Received(1).PlthookReplace(Arg.Any<nint>(), functionName2, pointer, Arg.Any<Pointer<nint>>());
+        _pltHookSub.Received(1).PlthookReplace(
+            Arg.Any<nint>(),
+            functionName1,
+            Arg.Is<nint>(x => Marshal.GetDelegateForFunctionPointer<Action>(x) == hook),
+            Arg.Any<Pointer<nint>>());
+        _pltHookSub.Received(1).PlthookReplace(
+            Arg.Any<nint>(),
+            functionName2,
+            Arg.Is<nint>(x => Marshal.GetDelegateForFunctionPointer<Action>(x) == hook),
+            Arg.Any<Pointer<nint>>());
     }
 
     [Fact]
@@ -73,7 +85,7 @@ public class PltHooksManagerTests
     {
         string[] fileNames = ["filename1", "filename2"];
         string[] functionNames = ["functionName1", "functionName2"];
-        nint pointer = Random.Shared.Next();
+        Action hook = () => {};
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -96,10 +108,14 @@ public class PltHooksManagerTests
             {
                 var functionName = functionNames[j];
                 functionNameAmount++;
-                _sut.InstallHook(fileName, functionName, pointer);
+                _sut.InstallHook(fileName, functionName, hook);
                 if (j == 0)
                     _pltHookSub.Received(1).PlthookOpen(Arg.Any<Pointer<nint>>(), fileName);
-                _pltHookSub.Received(1).PlthookReplace(Arg.Any<nint>(), functionName, pointer, Arg.Any<Pointer<nint>>());
+                _pltHookSub.Received(1).PlthookReplace(
+                    Arg.Any<nint>(),
+                    functionName,
+                    Arg.Is<nint>(x => Marshal.GetDelegateForFunctionPointer<Action>(x) == hook),
+                    Arg.Any<Pointer<nint>>());
                 _loggerSub.ReceivedLog(1 + fileNameAmount + functionNameAmount, LogLevel.Trace);
 
                 _pltHookSub.ClearReceivedCalls();
@@ -113,7 +129,7 @@ public class PltHooksManagerTests
     {
         string fileName = "filename";
         string functionName = "functionName";
-        nint pointer = Random.Shared.Next();
+        Action hook = () => {};
         string errorString = "error";
 
         _pltHookSub.PlthookOpen(
@@ -128,10 +144,10 @@ public class PltHooksManagerTests
             .ReturnsForAnyArgs(true);
         _pltHookSub.PlthookError().ReturnsForAnyArgs(Marshal.StringToHGlobalUni(errorString));
 
-        _sut.InstallHook(fileName, functionName, pointer);
+        _sut.InstallHook(fileName, functionName, hook);
 
         _pltHookSub.Received(1).PlthookOpen(Arg.Any<Pointer<nint>>(), fileName);
-        _pltHookSub.DidNotReceiveWithAnyArgs().PlthookReplace(Arg.Any<nint>(), functionName, pointer, Arg.Any<Pointer<nint>>());
+        _pltHookSub.DidNotReceiveWithAnyArgs().PlthookReplace(Arg.Any<nint>(), Arg.Any<string>(), Arg.Any<nint>(), Arg.Any<Pointer<nint>>());
         _pltHookSub.Received(1).PlthookError();
         _loggerSub.ReceivedLog(1, LogLevel.Error, log => log.ToString()!.Contains(errorString));
     }
@@ -141,7 +157,7 @@ public class PltHooksManagerTests
     {
         string fileName = "filename";
         string functionName = "functionName";
-        nint pointer = Random.Shared.Next();
+        Action hook = () => {};
         string errorString = "<some error>";
 
         _pltHookSub.PlthookOpen(
@@ -156,10 +172,14 @@ public class PltHooksManagerTests
             .ReturnsForAnyArgs(false);
         _pltHookSub.PlthookError().ReturnsForAnyArgs(Marshal.StringToHGlobalAuto(errorString));
 
-        _sut.InstallHook(fileName, functionName, pointer);
+        _sut.InstallHook(fileName, functionName, hook);
 
         _pltHookSub.Received(1).PlthookOpen(Arg.Any<Pointer<nint>>(), fileName);
-        _pltHookSub.Received(1).PlthookReplace(Arg.Any<nint>(), functionName, pointer, Arg.Any<Pointer<nint>>());
+        _pltHookSub.Received(1).PlthookReplace(
+            Arg.Any<nint>(),
+            functionName,
+            Arg.Is<nint>(x => Marshal.GetDelegateForFunctionPointer<Action>(x) == hook),
+            Arg.Any<Pointer<nint>>());
         _pltHookSub.Received(1).PlthookError();
         _loggerSub.ReceivedLog(1, LogLevel.Error, log => log.ToString()!.Contains(errorString));
     }
@@ -191,7 +211,7 @@ public class PltHooksManagerTests
     {
         string fileName = "filename";
         string functionName = "functionName";
-        nint pointer = Random.Shared.Next();
+        Action hook = () => {};
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -204,7 +224,7 @@ public class PltHooksManagerTests
                 Arg.Any<Pointer<nint>>())
             .ReturnsForAnyArgs(true);
 
-        _sut.InstallHook(fileName, "some other function", pointer);
+        _sut.InstallHook(fileName, "some other function", hook);
         _pltHookSub.ClearReceivedCalls();
         _sut.UninstallHook(fileName, functionName);
 
@@ -220,7 +240,7 @@ public class PltHooksManagerTests
     {
         string fileName = "filename";
         string functionName = "functionName";
-        nint pointer = Random.Shared.Next();
+        Action hook = () => {};
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -233,7 +253,7 @@ public class PltHooksManagerTests
                 Arg.Any<Pointer<nint>>())
             .ReturnsForAnyArgs(true);
 
-        _sut.InstallHook(fileName, functionName, pointer);
+        _sut.InstallHook(fileName, functionName, hook);
         _pltHookSub.ClearReceivedCalls();
         _sut.UninstallHook(fileName, functionName);
 
@@ -250,7 +270,7 @@ public class PltHooksManagerTests
     {
         string fileName = "filename";
         string functionName = "functionName";
-        nint pointer = Random.Shared.Next();
+        Action hook = () => {};
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -264,7 +284,7 @@ public class PltHooksManagerTests
             .ReturnsForAnyArgs(true);
         _loggerSub.IsEnabled(LogLevel.Trace).Returns(true);
 
-        _sut.InstallHook(fileName, functionName, pointer);
+        _sut.InstallHook(fileName, functionName, hook);
         _pltHookSub.ClearReceivedCalls();
         _loggerSub.ClearReceivedCalls();
         _sut.UninstallHook(fileName, functionName);
@@ -278,7 +298,7 @@ public class PltHooksManagerTests
     {
         string fileName = "filename";
         string functionName = "functionName";
-        nint pointer = Random.Shared.Next();
+        Action hook = () => {};
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -291,8 +311,8 @@ public class PltHooksManagerTests
                 Arg.Any<Pointer<nint>>())
             .ReturnsForAnyArgs(true);
 
-        _sut.InstallHook(fileName, functionName, pointer);
-        _sut.InstallHook(fileName, "some other function", pointer);
+        _sut.InstallHook(fileName, functionName, hook);
+        _sut.InstallHook(fileName, "some other function", hook);
         _pltHookSub.ClearReceivedCalls();
         _sut.UninstallHook(fileName, functionName);
 
@@ -309,7 +329,7 @@ public class PltHooksManagerTests
     {
         string fileName = "filename";
         string functionName = "functionName";
-        nint pointer = Random.Shared.Next();
+        Action hook = () => {};
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -323,8 +343,8 @@ public class PltHooksManagerTests
             .ReturnsForAnyArgs(true);
         _loggerSub.IsEnabled(LogLevel.Trace).Returns(true);
 
-        _sut.InstallHook(fileName, functionName, pointer);
-        _sut.InstallHook(fileName, "some other function", pointer);
+        _sut.InstallHook(fileName, functionName, hook);
+        _sut.InstallHook(fileName, "some other function", hook);
         _pltHookSub.ClearReceivedCalls();
         _loggerSub.ClearReceivedCalls();
         _sut.UninstallHook(fileName, functionName);
@@ -345,7 +365,7 @@ public class PltHooksManagerTests
     {
         string fileName = "filename";
         string functionName = "functionName";
-        nint pointer = Random.Shared.Next();
+        Action hook = () => {};
         string errorString = "<some error>";
 
         _pltHookSub.PlthookOpen(
@@ -360,8 +380,8 @@ public class PltHooksManagerTests
             .ReturnsForAnyArgs(true);
         _pltHookSub.PlthookError().ReturnsForAnyArgs(Marshal.StringToHGlobalAuto(errorString));
 
-        _sut.InstallHook(fileName, functionName, pointer);
-        _sut.InstallHook(fileName, "some other function", pointer);
+        _sut.InstallHook(fileName, functionName, hook);
+        _sut.InstallHook(fileName, "some other function", hook);
         _pltHookSub.ClearReceivedCalls();
         _pltHookSub.Configure().PlthookReplace(
                 Arg.Any<nint>(),

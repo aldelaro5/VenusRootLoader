@@ -42,7 +42,7 @@ internal class StandardStreamsProtector : IHostedService
         _outputHandle = _win32.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
         _errorHandle = _win32.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
 
-        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CloseHandle", Marshal.GetFunctionPointerForDelegate(_hookCloseHandleDelegate));
+        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CloseHandle", _hookCloseHandleDelegate);
         _gameLifecycleEvents.Subscribe(OnGameLifecycle);
         return Task.CompletedTask;
     }

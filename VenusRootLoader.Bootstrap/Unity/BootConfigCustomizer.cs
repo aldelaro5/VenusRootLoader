@@ -153,8 +153,8 @@ internal class BootConfigCustomizer : IHostedService
     public unsafe Task StartAsync(CancellationToken cancellationToken)
     {
         _createFileWSharedHooker.RegisterHook(nameof(BootConfigCustomizer), IsBootConfig, HookFileHandle);
-        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.ReadFile), Marshal.GetFunctionPointerForDelegate(_hookReadFileDelegate));
-        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.SetFilePointerEx), Marshal.GetFunctionPointerForDelegate(_hookSetFilePointerDelegate));
+        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.ReadFile), _hookReadFileDelegate);
+        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.SetFilePointerEx), _hookSetFilePointerDelegate);
         _gameLifecycleEvents.Subscribe(OnGameLifecycle);
         _logger.LogDebug("The boot.config file will be modified to:\n{modifiedBootConfig}", _modifiedBootConfig);
         return Task.CompletedTask;

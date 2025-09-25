@@ -54,7 +54,7 @@ internal class CreateFileWSharedHooker
         _gameExecutionContext = gameExecutionContext;
         _win32 = win32;
         _hookCreateFileWDelegate = HookCreateFileW;
-        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW", Marshal.GetFunctionPointerForDelegate(_hookCreateFileWDelegate));
+        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW", _hookCreateFileWDelegate);
     }
 
     /// <summary>

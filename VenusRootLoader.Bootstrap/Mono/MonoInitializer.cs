@@ -98,7 +98,7 @@ internal class MonoInitializer : IHostedService
     public Task StartAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Bootstrapping Mono...");
-        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "GetProcAddress", Marshal.GetFunctionPointerForDelegate(_hookGetProcAddressDelegate));
+        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "GetProcAddress", _hookGetProcAddressDelegate);
         return Task.CompletedTask;
     }
 

@@ -25,6 +25,6 @@ public class TestPltHookManager : IPltHooksManager
 
     public bool ContainsHook(string fileName, string functionName)
     {
-        return Hooks.TryGetValue((fileName, functionName), out _);
+        return Hooks.ContainsKey((fileName, functionName));
     }
 }

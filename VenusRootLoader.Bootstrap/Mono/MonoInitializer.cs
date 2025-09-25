@@ -56,7 +56,7 @@ internal class MonoInitializer : IHostedService
     private readonly MonoDebuggerSettings _debuggerSettings;
     private readonly PlayerConnectionDiscovery _playerConnectionDiscovery;
     private readonly SdbWinePathTranslator _sdbWinePathTranslator;
-    private readonly GameLifecycleEvents _gameLifecycleEvents;
+    private readonly IGameLifecycleEvents _gameLifecycleEvents;
     private readonly IHostEnvironment _hostEnvironment;
 
     public MonoInitializer(
@@ -66,7 +66,7 @@ internal class MonoInitializer : IHostedService
         IOptions<MonoDebuggerSettings> debuggerSettings,
         PlayerConnectionDiscovery playerConnectionDiscovery,
         SdbWinePathTranslator sdbWinePathTranslator,
-        GameLifecycleEvents gameLifecycleEvents,
+        IGameLifecycleEvents gameLifecycleEvents,
         IHostEnvironment hostEnvironment,
         IWin32 win32,
         IFileSystem fileSystem)

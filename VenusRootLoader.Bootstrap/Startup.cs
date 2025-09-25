@@ -83,7 +83,7 @@ internal static class Startup
         builder.Services.AddSingleton<GameExecutionContext>(_ => gameExecutionContext);
         builder.Services.AddSingleton<IPltHooksManager ,PltHooksManager>(sp => 
             new PltHooksManager(sp.GetRequiredService<ILogger<PltHooksManager>>(), new PltHook(), new FileSystem()));
-        builder.Services.AddSingleton<GameLifecycleEvents>();
+        builder.Services.AddSingleton<IGameLifecycleEvents, GameLifecycleEvents>();
         builder.Services.AddHostedService<StandardStreamsProtector>();
         builder.Services.AddSingleton<CreateFileWSharedHooker>();
         builder.Services.AddHostedService<PlayerLogsMirroring>();

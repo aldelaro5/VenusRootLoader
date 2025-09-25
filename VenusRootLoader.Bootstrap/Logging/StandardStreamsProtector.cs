@@ -13,20 +13,20 @@ internal class StandardStreamsProtector : IHostedService
     private nint _errorHandle;
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-    private delegate int CloseHandleFn(HANDLE hObject);
+    private delegate BOOL CloseHandleFn(HANDLE hObject);
     private static CloseHandleFn _hookCloseHandleDelegate = null!;
 
     private readonly IWin32 _win32;
     private readonly IPltHooksManager _pltHooksManager;
     private readonly GameExecutionContext _gameExecutionContext;
     private readonly ILogger _logger;
-    private readonly GameLifecycleEvents _gameLifecycleEvents;
+    private readonly IGameLifecycleEvents _gameLifecycleEvents;
 
     public StandardStreamsProtector(
         ILogger<StandardStreamsProtector> logger,
         IPltHooksManager pltHooksManager,
         GameExecutionContext gameExecutionContext,
-        GameLifecycleEvents gameLifecycleEvents,
+        IGameLifecycleEvents gameLifecycleEvents,
         IWin32 win32)
     {
         _pltHooksManager = pltHooksManager;
@@ -58,12 +58,12 @@ internal class StandardStreamsProtector : IHostedService
 
     // Unity may attempt to close stdout and stderr in order to redirect their streams to their player logs.
     // Since we attempt to control all logging, we want to prevent this from happening which is what this hook is for
-    private int HookCloseHandle(HANDLE hObject)
+    private BOOL HookCloseHandle(HANDLE hObject)
     {
         if (hObject != _outputHandle && hObject != _errorHandle)
             return _win32.CloseHandle(hObject);
 
         _logger.LogInformation("Prevented the CloseHandle of {StreamName}", hObject == _outputHandle ? "stdout" : "stderr");
-        return 1;
+        return true;
     }
 }

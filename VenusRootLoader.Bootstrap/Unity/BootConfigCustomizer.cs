@@ -49,7 +49,7 @@ internal class BootConfigCustomizer : IHostedService
     private readonly GameExecutionContext _gameExecutionContext;
     private readonly IPltHooksManager _pltHooksManager;
     private readonly BootConfigSettings _bootConfigSettings;
-    private readonly GameLifecycleEvents _gameLifecycleEvents;
+    private readonly IGameLifecycleEvents _gameLifecycleEvents;
     private readonly string _bootConfigPath;
     private HANDLE _bootConfigFileHandle = HANDLE.Null;
 
@@ -64,7 +64,7 @@ internal class BootConfigCustomizer : IHostedService
         CreateFileWSharedHooker createFileWSharedHooker,
         GameExecutionContext gameExecutionContext,
         IOptions<BootConfigSettings> bootConfigSettings,
-        GameLifecycleEvents gameLifecycleEvents,
+        IGameLifecycleEvents gameLifecycleEvents,
         IWin32 win32,
         IFileSystem fileSystem)
     {

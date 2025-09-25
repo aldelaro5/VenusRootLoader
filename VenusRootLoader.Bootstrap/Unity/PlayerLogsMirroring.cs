@@ -36,7 +36,7 @@ internal class PlayerLogsMirroring : IHostedService
     private readonly ILogger _logger;
     private readonly CreateFileWSharedHooker _createFileWSharedHooker;
     private readonly GameExecutionContext _gameExecutionContext;
-    private readonly GameLifecycleEvents _gameLifecycleEvents;
+    private readonly IGameLifecycleEvents _gameLifecycleEvents;
 
     private readonly bool _disableMirroring;
 
@@ -46,7 +46,7 @@ internal class PlayerLogsMirroring : IHostedService
         CreateFileWSharedHooker createFileWSharedHooker,
         GameExecutionContext gameExecutionContext,
         IOptions<LoggingSettings> loggingSettings,
-        GameLifecycleEvents gameLifecycleEvents,
+        IGameLifecycleEvents gameLifecycleEvents,
         IWin32 win32)
     {
         _pltHooksManager = pltHooksManager;

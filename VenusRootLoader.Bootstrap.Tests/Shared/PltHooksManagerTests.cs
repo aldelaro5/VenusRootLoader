@@ -1,17 +1,18 @@
 using System.IO.Abstractions;
 using System.Runtime.InteropServices;
+using AwesomeAssertions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
 using NSubstitute.Extensions;
 using VenusRootLoader.Bootstrap.Shared;
-using VenusRootLoader.Bootstrap.Tests.Extensions;
 
 namespace VenusRootLoader.Bootstrap.Tests.Shared;
 
 public class PltHooksManagerTests
 {
     private readonly IPltHook _pltHookSub = Substitute.For<IPltHook>();
-    private readonly ILogger<PltHooksManager> _loggerSub = Substitute.For<ILogger<PltHooksManager>>();
+    private readonly FakeLogger<PltHooksManager> _loggerSub = new();
     private readonly IFileSystem  _fileSystem = Substitute.For<IFileSystem>();
     private readonly PltHooksManager _sut;
 
@@ -97,7 +98,7 @@ public class PltHooksManagerTests
                 Arg.Any<nint>(),
                 Arg.Any<Pointer<nint>>())
             .ReturnsForAnyArgs(true);
-        _loggerSub.IsEnabled(LogLevel.Trace).Returns(true);
+        _loggerSub.ControlLevel(LogLevel.Trace, true);
 
         int fileNameAmount = 0;
         int functionNameAmount = 0;
@@ -116,10 +117,11 @@ public class PltHooksManagerTests
                     functionName,
                     Arg.Is<nint>(x => Marshal.GetDelegateForFunctionPointer<Action>(x) == hook),
                     Arg.Any<Pointer<nint>>());
-                _loggerSub.ReceivedLog(1 + fileNameAmount + functionNameAmount, LogLevel.Trace);
+                _loggerSub.Collector.GetSnapshot().Where(r => r.Level == LogLevel.Trace)
+                    .Should().HaveCount(1 + fileNameAmount + functionNameAmount);
 
                 _pltHookSub.ClearReceivedCalls();
-                _loggerSub.ClearReceivedCalls();
+                _loggerSub.Collector.Clear();
             }
         }
     }
@@ -149,7 +151,7 @@ public class PltHooksManagerTests
         _pltHookSub.Received(1).PlthookOpen(Arg.Any<Pointer<nint>>(), fileName);
         _pltHookSub.DidNotReceiveWithAnyArgs().PlthookReplace(Arg.Any<nint>(), Arg.Any<string>(), Arg.Any<nint>(), Arg.Any<Pointer<nint>>());
         _pltHookSub.Received(1).PlthookError();
-        _loggerSub.ReceivedLog(1, LogLevel.Error, log => log.ToString()!.Contains(errorString));
+        _loggerSub.LatestRecord.Should().Match<FakeLogRecord>(r => r.Level == LogLevel.Error && r.Message.Contains(errorString));
     }
 
     [Fact]
@@ -181,7 +183,7 @@ public class PltHooksManagerTests
             Arg.Is<nint>(x => Marshal.GetDelegateForFunctionPointer<Action>(x) == hook),
             Arg.Any<Pointer<nint>>());
         _pltHookSub.Received(1).PlthookError();
-        _loggerSub.ReceivedLog(1, LogLevel.Error, log => log.ToString()!.Contains(errorString));
+        _loggerSub.LatestRecord.Should().Match<FakeLogRecord>(r => r.Level == LogLevel.Error && r.Message.Contains(errorString));
     }
 
     [Fact]
@@ -282,15 +284,15 @@ public class PltHooksManagerTests
                 Arg.Any<nint>(),
                 Arg.Any<Pointer<nint>>())
             .ReturnsForAnyArgs(true);
-        _loggerSub.IsEnabled(LogLevel.Trace).Returns(true);
+        _loggerSub.ControlLevel(LogLevel.Trace, true);
 
         _sut.InstallHook(fileName, functionName, hook);
         _pltHookSub.ClearReceivedCalls();
-        _loggerSub.ClearReceivedCalls();
+        _loggerSub.Collector.Clear();
         _sut.UninstallHook(fileName, functionName);
 
         // Only header log since no more hooks exists
-        _loggerSub.ReceivedLog(1, LogLevel.Trace);
+        _loggerSub.Collector.GetSnapshot().Should().ContainSingle(r => r.Level == LogLevel.Trace);
     }
 
     [Fact]
@@ -341,12 +343,12 @@ public class PltHooksManagerTests
                 Arg.Any<nint>(),
                 Arg.Any<Pointer<nint>>())
             .ReturnsForAnyArgs(true);
-        _loggerSub.IsEnabled(LogLevel.Trace).Returns(true);
+        _loggerSub.ControlLevel(LogLevel.Trace, true);
 
         _sut.InstallHook(fileName, functionName, hook);
         _sut.InstallHook(fileName, "some other function", hook);
         _pltHookSub.ClearReceivedCalls();
-        _loggerSub.ClearReceivedCalls();
+        _loggerSub.Collector.Clear();
         _sut.UninstallHook(fileName, functionName);
 
         _pltHookSub.Received(1).PlthookReplace(
@@ -357,7 +359,8 @@ public class PltHooksManagerTests
         _pltHookSub.DidNotReceiveWithAnyArgs().PlthookClose(Arg.Any<nint>());
 
         // The header, filename and function name
-        _loggerSub.ReceivedLog(3, LogLevel.Trace);
+        _loggerSub.Collector.GetSnapshot().Where(r => r.Level == LogLevel.Trace)
+            .Should().HaveCount(3);
     }
 
     [Fact]
@@ -397,6 +400,6 @@ public class PltHooksManagerTests
             functionName,
             Arg.Any<nint>(),
             Arg.Any<Pointer<nint>>());
-        _loggerSub.ReceivedLog(1, LogLevel.Error, log => log.ToString()!.Contains(errorString));
+        _loggerSub.LatestRecord.Should().Match<FakeLogRecord>(r => r.Level == LogLevel.Error && r.Message.Contains(errorString));
     }
 }

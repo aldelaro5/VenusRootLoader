@@ -1,6 +1,104 @@
+using Windows.Win32.Foundation;
+using Windows.Win32.System.Console;
+using AwesomeAssertions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
+using NSubstitute;
+using VenusRootLoader.Bootstrap.Logging;
+using VenusRootLoader.Bootstrap.Shared;
+using VenusRootLoader.Bootstrap.Tests.TestHelpers;
+
 namespace VenusRootLoader.Bootstrap.Tests.Logging;
 
-internal class StandardStreamsProtectorTests
+public class StandardStreamsProtectorTests
 {
+    private readonly FakeLogger<StandardStreamsProtector> _logger = new();
+    private readonly IWin32 _win32 = Substitute.For<IWin32>();
+    private readonly TestPltHookManager _pltHookManager = new();
+    private readonly TestGameLifecycleEvents _gameLifecycleEvents = new();
+    private readonly GameExecutionContext _gameExecutionContext = new()
+    {
+        LibraryHandle = 0,
+        GameDir = "",
+        DataDir = "",
+        UnityPlayerDllFileName = "UnityPlayer.dll",
+        IsWine = false
+    };
+
+    private readonly StandardStreamsProtector _sut;
     
+    public StandardStreamsProtectorTests() => _sut = new(_logger, _pltHookManager, _gameExecutionContext, _gameLifecycleEvents, _win32);
+
+    [Fact]
+    public async Task StartAsync_SetupHooks_WhenCalled()
+    {
+        await _sut.StartAsync(CancellationToken.None);
+
+        _win32.Received(1).GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
+        _win32.Received(1).GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
+        _pltHookManager.ContainsHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(IWin32.CloseHandle)).Should().BeTrue();
+        _gameLifecycleEvents.Listeners.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task CloseHandleHook_CallsOriginal_WhenHandleIsNotStdoutOrStderr()
+    {
+        var stdOutHandle = (HANDLE)Random.Shared.Next();
+        var stdErrHandle = (HANDLE)Random.Shared.Next();
+        var receivedHandle = (HANDLE)Random.Shared.Next();
+        var expectedResult = (BOOL)(Random.Shared.Next() % 2 == 0);
+
+        _win32.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE).Returns(stdOutHandle);
+        _win32.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE).Returns(stdErrHandle);
+        _win32.CloseHandle(Arg.Any<HANDLE>()).Returns(expectedResult);
+        
+        await _sut.StartAsync(CancellationToken.None);
+        BOOL result = (BOOL)_pltHookManager.SimulateHook(
+            _gameExecutionContext.UnityPlayerDllFileName,
+            nameof(IWin32.CloseHandle),
+            receivedHandle)!;
+
+        result.Should().Be(expectedResult);
+        _win32.Received(1).CloseHandle(receivedHandle);
+    }
+
+    [Theory]
+    [InlineData(STD_HANDLE.STD_OUTPUT_HANDLE)]
+    [InlineData(STD_HANDLE.STD_ERROR_HANDLE)]
+    public async Task CloseHandleHook_ReturnsTrueWithoutCallingOriginal_WhenHandleIsStdoutOrStderr(STD_HANDLE stdHandle)
+    {
+        var stdOutHandle = (HANDLE)Random.Shared.Next();
+        var stdErrHandle = (HANDLE)Random.Shared.Next();
+        var receivedHandle = stdHandle == STD_HANDLE.STD_OUTPUT_HANDLE
+            ? stdOutHandle
+            : stdErrHandle;
+        var expectedResult = (BOOL)(Random.Shared.Next() % 2 == 0);
+
+        _win32.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE).Returns(stdOutHandle);
+        _win32.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE).Returns(stdErrHandle);
+        _win32.CloseHandle(Arg.Any<HANDLE>()).Returns(expectedResult);
+        
+        await _sut.StartAsync(CancellationToken.None);
+        BOOL result = (BOOL)_pltHookManager.SimulateHook(
+            _gameExecutionContext.UnityPlayerDllFileName,
+            nameof(IWin32.CloseHandle),
+            receivedHandle)!;
+
+        result.Should().Be((BOOL)true);
+        _logger.Collector.GetSnapshot().Should().ContainSingle(r => r.Level == LogLevel.Information);
+        _win32.DidNotReceive().CloseHandle(receivedHandle);
+    }
+
+    [Fact]
+    public async Task OnGameLifeCycle_UninstallPltHook_WhenMonoInitialisedEventReceived()
+    {
+        await _sut.StartAsync(CancellationToken.None);
+
+        _gameLifecycleEvents.Publish(this, new()
+        {
+            LifeCycle = GameLifecycle.MonoInitialising
+        });
+
+        _pltHookManager.ContainsHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(IWin32.CloseHandle)).Should().BeFalse();
+    }
 }

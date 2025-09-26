@@ -75,6 +75,6 @@ public sealed class DiskFileLoggerProvider : ILoggerProvider
 
         var localCreationDateTime = _fileSystem.File.GetCreationTime(latestLogFilePath);
         var logsDirectory = _fileSystem.Path.GetDirectoryName(latestLogFilePath)!;
-        _fileSystem.File.Move(latestLogFilePath, _fileSystem.Path.Combine(logsDirectory, $"{localCreationDateTime:yyyy-MM-dd_HH-mm-ss-FFF}.log"));
+        _fileSystem.File.Move(latestLogFilePath, _fileSystem.Path.Combine(logsDirectory, $"{localCreationDateTime:yyyy-MM-dd_HH-mm-ss}.log"));
     }
 }

@@ -20,9 +20,6 @@ public sealed class ConsoleLogProviderTests
     [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_renderingMode")]
     private static extern ref ConsoleLogProvider.RenderingMode ConsoleLogProviderRenderingMode(ConsoleLogger provider);
 
-
-    private ConsoleLogProvider _sut = null!;
-
     [Fact]
     public void CreateLogger_ReturnsNullLogger_WhenConsoleLoggerIsDisabled()
     {
@@ -40,8 +37,8 @@ public sealed class ConsoleLogProviderTests
             IsWine = false
         };
 
-        _sut = new(gameExecutionContext, _consoleLoggerOptions, _win32, _timeProvider);
-        var logger = _sut.CreateLogger("category");
+        using var sut = new ConsoleLogProvider(gameExecutionContext, _consoleLoggerOptions, _win32, _timeProvider);
+        var logger = sut.CreateLogger("category");
 
         logger.Should().BeOfType<NullLogger>();
     }
@@ -63,8 +60,8 @@ public sealed class ConsoleLogProviderTests
             IsWine = false
         };
 
-        _sut = new(gameExecutionContext, _consoleLoggerOptions, _win32, _timeProvider);
-        var logger = _sut.CreateLogger("category");
+        using var sut = new ConsoleLogProvider(gameExecutionContext, _consoleLoggerOptions, _win32, _timeProvider);
+        var logger = sut.CreateLogger("category");
 
         logger.Should().BeOfType<ConsoleLogger>();
         ConsoleLogProviderRenderingMode((ConsoleLogger)logger)
@@ -94,8 +91,8 @@ public sealed class ConsoleLogProviderTests
         _win32.GetStdHandle(stdHandleWithoutAnsi).Returns(handleWithoutAnsi);
         _win32.SetConsoleMode(handleWithoutAnsi, Arg.Any<CONSOLE_MODE>()).Returns((BOOL)false);
 
-        _sut = new(gameExecutionContext, _consoleLoggerOptions, _win32, _timeProvider);
-        var logger = _sut.CreateLogger("category");
+        using var sut = new ConsoleLogProvider(gameExecutionContext, _consoleLoggerOptions, _win32, _timeProvider);
+        var logger = sut.CreateLogger("category");
 
         logger.Should().BeOfType<ConsoleLogger>();
         ConsoleLogProviderRenderingMode((ConsoleLogger)logger)
@@ -125,8 +122,8 @@ public sealed class ConsoleLogProviderTests
         _win32.SetConsoleMode(stdOutHandle, Arg.Any<CONSOLE_MODE>()).Returns((BOOL)true);
         _win32.SetConsoleMode(stdErrHandle, Arg.Any<CONSOLE_MODE>()).Returns((BOOL)true);
 
-        _sut = new(gameExecutionContext, _consoleLoggerOptions, _win32, _timeProvider);
-        var logger = _sut.CreateLogger("category");
+        using var sut = new ConsoleLogProvider(gameExecutionContext, _consoleLoggerOptions, _win32, _timeProvider);
+        var logger = sut.CreateLogger("category");
 
         logger.Should().BeOfType<ConsoleLogger>();
         ConsoleLogProviderRenderingMode((ConsoleLogger)logger)
@@ -156,8 +153,8 @@ public sealed class ConsoleLogProviderTests
         _win32.SetConsoleMode(stdOutHandle, Arg.Any<CONSOLE_MODE>()).Returns((BOOL)true);
         _win32.SetConsoleMode(stdErrHandle, Arg.Any<CONSOLE_MODE>()).Returns((BOOL)true);
 
-        _sut = new(gameExecutionContext, _consoleLoggerOptions, _win32, _timeProvider);
-        var logger = _sut.CreateLogger("category");
+        using var sut = new ConsoleLogProvider(gameExecutionContext, _consoleLoggerOptions, _win32, _timeProvider);
+        var logger = sut.CreateLogger("category");
 
         logger.Should().BeOfType<ConsoleLogger>();
         ConsoleLogProviderRenderingMode((ConsoleLogger)logger)

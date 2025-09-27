@@ -125,13 +125,13 @@ public class ConsoleLogger : ILogger
             Console.Write("] [");
 
             Console.ForegroundColor = legacyCategoryColor;
-            Console.Out.Write(_categoryName);
+            Console.Write(_categoryName);
 
             Console.ResetColor();
             Console.Write("] ");
 
             Console.ForegroundColor = _logLevelInfos[logLevel].LegacyColor;
-            Console.Out.WriteLine($"{message}");
+            Console.WriteLine($"{message}");
 
             Console.ResetColor();
 

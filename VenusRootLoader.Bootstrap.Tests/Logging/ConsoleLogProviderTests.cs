@@ -16,7 +16,7 @@ public sealed class ConsoleLogProviderTests
     private readonly IOptions<ConsoleLoggerSettings> _consoleLoggerOptions = Substitute.For<IOptions<ConsoleLoggerSettings>>();
     private readonly TimeProvider _timeProvider = Substitute.For<TimeProvider>();
     private readonly IWin32 _win32 = Substitute.For<IWin32>();
-    
+
     [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_renderingMode")]
     private static extern ref ConsoleLogProvider.RenderingMode ConsoleLogProviderRenderingMode(ConsoleLogger provider);
 

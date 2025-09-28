@@ -285,3 +285,7 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+
+# Unity TestProject
+Unity/TestProject/Library
+Unity/TestProject/Temp

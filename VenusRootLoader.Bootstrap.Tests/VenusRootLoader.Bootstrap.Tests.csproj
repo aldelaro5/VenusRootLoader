@@ -19,6 +19,11 @@
         <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest"/>
     </ItemGroup>
 
+    <Target Name="CopyTestFiles" AfterTargets="Build">
+        <Copy ContinueOnError="false" SourceFiles="$(SolutionDir)classdata.tpk" DestinationFolder="$(TargetDir)/VenusRootLoader" />
+        <Copy ContinueOnError="false" SourceFiles="$(SolutionDir)Unity/CompiledProject/VenusRootLoaderTestProject_Data/data.unity3d" DestinationFolder="$(TargetDir)/Unity" />
+    </Target>
+
     <ItemGroup>
         <Using Include="Xunit"/>
     </ItemGroup>

@@ -90,7 +90,7 @@ public class BootConfigCustomizerTests
             default(HANDLE))!;
 
         result.Should().Be(expectedReturn);
-        _win32.ReceivedWithAnyArgs(1).CreateFile(fileNamePtr, 0, default, default, default, default, default);
+        _win32.Received(1).CreateFile(fileNamePtr, 0, default, default, default, default, default);
         _pltHooksManager.Hooks.Should().NotContainKey((_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW"));
         _pltHooksManager.Hooks.Should().ContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.ReadFile)));
         _pltHooksManager.Hooks.Should().ContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.SetFilePointerEx)));

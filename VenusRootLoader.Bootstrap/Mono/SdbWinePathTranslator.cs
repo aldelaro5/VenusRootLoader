@@ -8,6 +8,11 @@ using VenusRootLoader.Bootstrap.Shared;
 
 namespace VenusRootLoader.Bootstrap.Mono;
 
+public interface ISdbWinePathTranslator
+{
+    void Setup(string monoModuleFilename);
+}
+
 /// <summary>
 /// <para>
 /// This service addresses a problem specific to Mono's debugger (aka SDB) when the game is running under Wine. Specifically,
@@ -27,7 +32,7 @@ namespace VenusRootLoader.Bootstrap.Mono;
 /// For more information on the SDB protocol, consult its documentation available here: https://www.mono-project.com/docs/advanced/runtime/docs/soft-debugger-wire-format/
 /// </para>
 /// </summary>
-public class SdbWinePathTranslator
+public class SdbWinePathTranslator : ISdbWinePathTranslator
 {
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     private delegate int SendFn(SOCKET s, PCSTR buf, int len, SEND_RECV_FLAGS flags);

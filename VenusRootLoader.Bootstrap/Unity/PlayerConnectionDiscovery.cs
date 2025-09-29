@@ -11,6 +11,12 @@ using Timer = System.Timers.Timer;
 
 namespace VenusRootLoader.Bootstrap.Unity;
 
+public interface IPlayerConnectionDiscovery
+{
+    void StartDiscoveryWithOwnSocket(string ipAddress, ushort port);
+    void StartDiscoveryWithSendToHook(string ipAddress, ushort port);
+}
+
 /// <summary>
 /// <para>
 /// This service implements the ability for IDEs to discover the connection information of the Mono debugger without having
@@ -30,7 +36,7 @@ namespace VenusRootLoader.Bootstrap.Unity;
 /// The source file containing these comments can be consulted here: https://github.com/JetBrains/resharper-unity/blob/0ef394cb50c4cffda3cde3c3f881fce05dad602b/rider/src/main/kotlin/com/jetbrains/rider/plugins/unity/run/UnityPlayerListener.kt
 /// </para>
 /// </summary>
-public class PlayerConnectionDiscovery : IDisposable
+public class PlayerConnectionDiscovery : IDisposable, IPlayerConnectionDiscovery
 {
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     private unsafe delegate int SendToFn(
@@ -133,7 +139,7 @@ public class PlayerConnectionDiscovery : IDisposable
         return sb.ToString();
     }
 
-    internal void StartDiscoveryWithOwnSocket(string ipAddress, ushort port)
+    public void StartDiscoveryWithOwnSocket(string ipAddress, ushort port)
     {
         _message = ConstructWhoAmIString(IPAddress.Parse(ipAddress), port);
         _messageBuffer = Encoding.ASCII.GetBytes(_message);
@@ -165,7 +171,7 @@ public class PlayerConnectionDiscovery : IDisposable
         _logger.LogTrace("Sent message to socket of length {bytesSent}: {message}", bytesSent, _message);
     }
 
-    internal unsafe void StartDiscoveryWithSendToHook(string ipAddress, ushort port)
+    public unsafe void StartDiscoveryWithSendToHook(string ipAddress, ushort port)
     {
         _message = ConstructWhoAmIString(IPAddress.Parse(ipAddress), port);
         _messagePtr = (byte*)Marshal.StringToHGlobalAnsi(_message);

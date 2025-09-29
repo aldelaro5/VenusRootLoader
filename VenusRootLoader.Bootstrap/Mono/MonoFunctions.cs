@@ -1,77 +1,43 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
+using Windows.Win32.Foundation;
+using VenusRootLoader.Bootstrap.Extensions;
 
-// ReSharper disable UnusedMember.Global
 namespace VenusRootLoader.Bootstrap.Mono;
 
-/// <summary>
-/// This class contains abstractions to call Mono's functions. An instance is initialised by <see cref="MonoInitializer"/>
-/// </summary>
-internal class MonoFunctions
+public class MonoFunctions : IMonoFunctions
 {
-    public enum MonoDebugFormat
+    public void Initialize(HMODULE handle)
     {
-        MonoDebugFormatNone,
-        MonoDebugFormatMono,
-        MonoDebugFormatDebugger
+        RuntimeInvoke = NativeLibrary.GetExportDelegate<IMonoFunctions.RuntimeInvokeFn>(handle, "mono_runtime_invoke");
+        JitInitVersion = NativeLibrary.GetExportDelegate<IMonoFunctions.JitInitVersionFn>(handle, "mono_jit_init_version");
+        JitParseOptions = NativeLibrary.GetExportDelegate<IMonoFunctions.JitParseOptionsFn>(handle, "mono_jit_parse_options");
+        ThreadCurrent = NativeLibrary.GetExportDelegate<IMonoFunctions.ThreadCurrentFn>(handle, "mono_thread_current");
+        DebugEnabled = NativeLibrary.GetExportDelegate<IMonoFunctions.DebugEnabledFn>(handle, "mono_debug_enabled");
+        DebugInit = NativeLibrary.GetExportDelegate<IMonoFunctions.DebugInitFn>(handle, "mono_debug_init");
+        ThreadSetMain = NativeLibrary.GetExportDelegate<IMonoFunctions.ThreadSetMainFn>(handle, "mono_thread_set_main");
+        SetAssembliesPath = NativeLibrary.GetExportDelegate<IMonoFunctions.SetAssembliesPathFn>(handle, "mono_set_assemblies_path");
+        AssemblyGetrootdir = NativeLibrary.GetExportDelegate<IMonoFunctions.AssemblyGetrootdirFn>(handle, "mono_assembly_getrootdir");
+        DomainAssemblyOpen = NativeLibrary.GetExportDelegate<IMonoFunctions.DomainAssemblyOpenFn>(handle, "mono_domain_assembly_open");
+        AssemblyGetImage = NativeLibrary.GetExportDelegate<IMonoFunctions.AssemblyGetImageFn>(handle, "mono_assembly_get_image");
+        ClassFromName = NativeLibrary.GetExportDelegate<IMonoFunctions.ClassFromNameFn>(handle, "mono_class_from_name");
+        ClassGetMethodFromName = NativeLibrary.GetExportDelegate<IMonoFunctions.ClassGetMethodFromNameFn>(handle, "mono_class_get_method_from_name");
+        DomainSetConfig = NativeLibrary.GetExportDelegate<IMonoFunctions.DomainSetConfigFn>(handle, "mono_domain_set_config");
+        ConfigParse = NativeLibrary.GetExportDelegate<IMonoFunctions.ConfigParseFn>(handle, "mono_config_parse");
     }
 
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate nint JitInitVersionFn(nint namePtr, nint runtimeVersionPtr);
-    public required JitInitVersionFn JitInitVersion { get; init; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void JitParseOptionsFn(nint argc, string[] argv);
-    public required JitParseOptionsFn JitParseOptions { get; init; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate nint ThreadCurrentFn();
-    public required ThreadCurrentFn ThreadCurrent { get; init; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void DebugInitFn(MonoDebugFormat format);
-    public required DebugInitFn DebugInit { get; init; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public delegate void ConfigParseFn(string? configPath);
-    public required ConfigParseFn ConfigParse { get; init; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void ThreadSetMainFn(nint thread);
-    public required ThreadSetMainFn ThreadSetMain { get; init; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public unsafe delegate nint RuntimeInvokeFn(nint method, nint obj, void** args, ref nint ex);
-    public required RuntimeInvokeFn RuntimeInvoke { get; init; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate nint SetAssembliesPathFn(string domain);
-    public required SetAssembliesPathFn SetAssembliesPath { get; init; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate string AssemblyGetrootdirFn();
-    public required AssemblyGetrootdirFn AssemblyGetrootdir { get; init; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public delegate nint DomainAssemblyOpenFn(nint domain, string path);
-    public required DomainAssemblyOpenFn DomainAssemblyOpen { get; init; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate nint AssemblyGetImageFn(nint assembly);
-    public required AssemblyGetImageFn AssemblyGetImage { get; init; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public delegate nint ClassFromNameFn(nint image, string nameSpace, string name);
-    public required ClassFromNameFn ClassFromName { get; init; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public delegate nint ClassGetMethodFromNameFn(nint clas, string name, int paramCount);
-    public required ClassGetMethodFromNameFn ClassGetMethodFromName { get; init; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public delegate void DomainSetConfigFn(nint domain, string configPath, string configFile);
-    public required DomainSetConfigFn DomainSetConfig { get; init; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate bool DebugEnabledFn();
-    public required DebugEnabledFn DebugEnabled { get; init; }
+    public IMonoFunctions.JitInitVersionFn JitInitVersion { get; private set; } = null!;
+    public IMonoFunctions.JitParseOptionsFn JitParseOptions { get; private set; } = null!;
+    public IMonoFunctions.ThreadCurrentFn ThreadCurrent { get; private set; } = null!;
+    public IMonoFunctions.DebugInitFn DebugInit { get; private set; } = null!;
+    public IMonoFunctions.ConfigParseFn ConfigParse { get; private set; } = null!;
+    public IMonoFunctions.ThreadSetMainFn ThreadSetMain { get; private set; } = null!;
+    public IMonoFunctions.RuntimeInvokeFn RuntimeInvoke { get; private set; } = null!;
+    public IMonoFunctions.SetAssembliesPathFn SetAssembliesPath { get; private set; } = null!;
+    public IMonoFunctions.AssemblyGetrootdirFn AssemblyGetrootdir { get; private set; } = null!;
+    public IMonoFunctions.DomainAssemblyOpenFn DomainAssemblyOpen { get; private set; } = null!;
+    public IMonoFunctions.AssemblyGetImageFn AssemblyGetImage { get; private set; } = null!;
+    public IMonoFunctions.ClassFromNameFn ClassFromName { get; private set; } = null!;
+    public IMonoFunctions.ClassGetMethodFromNameFn ClassGetMethodFromName { get; private set; } = null!;
+    public IMonoFunctions.DomainSetConfigFn DomainSetConfig { get; private set; } = null!;
+    public IMonoFunctions.DebugEnabledFn DebugEnabled { get; private set; } = null!;
 }

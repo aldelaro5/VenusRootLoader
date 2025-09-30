@@ -58,7 +58,10 @@ public class SdbWinePathTranslator : ISdbWinePathTranslator
     private static readonly SdbSetCommand CommandModuleGetInfo = new(SdbModuleCommandSet, 1);
     private SdbSetCommand _lastSetCommandWithFilePath = new(byte.MaxValue, byte.MaxValue);
 
-    public SdbWinePathTranslator(ILogger<SdbWinePathTranslator> logger, IPltHooksManager pltHooksManager, IWin32 win32)
+    public SdbWinePathTranslator(
+        ILogger<SdbWinePathTranslator> logger,
+        IPltHooksManager pltHooksManager,
+        IWin32 win32)
     {
         _pltHooksManager = pltHooksManager;
         _win32 = win32;

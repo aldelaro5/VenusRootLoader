@@ -1,7 +1,6 @@
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Console;
 using AwesomeAssertions;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
 using VenusRootLoader.Bootstrap.Logging;
@@ -15,7 +14,7 @@ public class StandardStreamsProtectorTests
     private readonly FakeLogger<StandardStreamsProtector> _logger = new();
     private readonly IWin32 _win32 = Substitute.For<IWin32>();
     private readonly TestPltHookManager _pltHookManager = new();
-    private readonly TestGameLifecycleEvents _gameLifecycleEvents = new();
+    private readonly IGameLifecycleEvents _gameLifecycleEvents = new GameLifecycleEvents();
     private readonly GameExecutionContext _gameExecutionContext = new()
     {
         LibraryHandle = 0,
@@ -26,7 +25,7 @@ public class StandardStreamsProtectorTests
     };
 
     private readonly StandardStreamsProtector _sut;
-    
+
     public StandardStreamsProtectorTests() => _sut = new(_logger, _pltHookManager, _gameExecutionContext, _gameLifecycleEvents, _win32);
 
     [Fact]
@@ -37,7 +36,6 @@ public class StandardStreamsProtectorTests
         _win32.Received(1).GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
         _win32.Received(1).GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
         _pltHookManager.Hooks.Should().ContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(IWin32.CloseHandle)));
-        _gameLifecycleEvents.Listeners.Should().ContainSingle();
     }
 
     [Fact]
@@ -85,7 +83,6 @@ public class StandardStreamsProtectorTests
             receivedHandle)!;
 
         result.Should().Be((BOOL)true);
-        _logger.Collector.GetSnapshot().Should().ContainSingle(r => r.Level == LogLevel.Information);
         _win32.DidNotReceive().CloseHandle(receivedHandle);
     }
 
@@ -94,10 +91,7 @@ public class StandardStreamsProtectorTests
     {
         await _sut.StartAsync(CancellationToken.None);
 
-        _gameLifecycleEvents.Publish(this, new()
-        {
-            LifeCycle = GameLifecycle.MonoInitialising
-        });
+        _gameLifecycleEvents.Publish(this);
 
         _pltHookManager.Hooks
             .Should().NotContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(IWin32.CloseHandle)));

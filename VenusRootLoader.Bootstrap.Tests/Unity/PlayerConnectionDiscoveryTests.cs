@@ -29,6 +29,11 @@ public class PlayerConnectionDiscoveryTests
         IsWine = false
     };
 
+    public PlayerConnectionDiscoveryTests()
+    {
+        Environment.SetEnvironmentVariable("DNSPY_UNITY_DBG2", null);
+    }
+
     [Fact]
     public void StartDiscoveryWithOwnSocket_OpensUdpSocketAndSendCorrectMessageEverySecond_WhenCalled()
     {
@@ -39,7 +44,6 @@ public class PlayerConnectionDiscoveryTests
         var remoteEp = new IPEndPoint(broadcastIp, 0);
         var ip = $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
         var port = (ushort)Random.Shared.Next();
-        Environment.SetEnvironmentVariable("DNSPY_UNITY_DBG2", null);
 
         using var sut = new PlayerConnectionDiscovery(_logger, _pltHooksManager, _gameExecutionContext, _win32);
         sut.StartDiscoveryWithOwnSocket(ip, port);
@@ -95,7 +99,6 @@ public class PlayerConnectionDiscoveryTests
     {
         var ip = $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
         var port = (ushort)Random.Shared.Next();
-        Environment.SetEnvironmentVariable("DNSPY_UNITY_DBG2", null);
         PCSTR receivedBuffer = default;
         int receivedLength = 0;
         _win32.sendto(

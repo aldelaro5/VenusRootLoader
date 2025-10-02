@@ -45,7 +45,7 @@ internal class BootConfigCustomizer : IHostedService
     private readonly IFileSystem _fileSystem;
     private readonly IWin32 _win32;
     private readonly ILogger _logger;
-    private readonly CreateFileWSharedHooker _createFileWSharedHooker;
+    private readonly ICreateFileWSharedHooker _createFileWSharedHooker;
     private readonly GameExecutionContext _gameExecutionContext;
     private readonly IPltHooksManager _pltHooksManager;
     private readonly BootConfigSettings _bootConfigSettings;
@@ -61,7 +61,7 @@ internal class BootConfigCustomizer : IHostedService
     public unsafe BootConfigCustomizer(
         ILogger<BootConfigCustomizer> logger,
         IPltHooksManager pltHooksManager,
-        CreateFileWSharedHooker createFileWSharedHooker,
+        ICreateFileWSharedHooker createFileWSharedHooker,
         GameExecutionContext gameExecutionContext,
         IOptions<BootConfigSettings> bootConfigSettings,
         IGameLifecycleEvents gameLifecycleEvents,
@@ -160,10 +160,8 @@ internal class BootConfigCustomizer : IHostedService
         return Task.CompletedTask;
     }
 
-    private void OnGameLifecycle(object? sender, GameLifecycleEventArgs e)
+    private void OnGameLifecycle(object? sender, EventArgs e)
     {
-        if (e.LifeCycle != GameLifecycle.MonoInitialising)
-            return;
         _pltHooksManager.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.ReadFile));
         _pltHooksManager.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.SetFilePointerEx));
     }

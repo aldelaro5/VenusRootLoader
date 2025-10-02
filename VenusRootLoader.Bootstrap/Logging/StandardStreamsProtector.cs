@@ -47,10 +47,8 @@ internal class StandardStreamsProtector : IHostedService
         return Task.CompletedTask;
     }
 
-    private void OnGameLifecycle(object? sender, GameLifecycleEventArgs e)
+    private void OnGameLifecycle(object? sender, EventArgs e)
     {
-        if (e.LifeCycle != GameLifecycle.MonoInitialising)
-            return;
         _pltHooksManager.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CloseHandle");
     }
 

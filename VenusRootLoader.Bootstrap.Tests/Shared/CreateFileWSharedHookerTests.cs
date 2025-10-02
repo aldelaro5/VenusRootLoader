@@ -24,10 +24,7 @@ public class CreateFileWSharedHookerTests
 
     private readonly CreateFileWSharedHooker _sut;
 
-    public CreateFileWSharedHookerTests()
-    {
-        _sut = new(_pltHooksManager, _gameExecutionContext, _win32);
-    }
+    public CreateFileWSharedHookerTests() => _sut = new(_pltHooksManager, _gameExecutionContext, _win32);
 
     [Fact]
     public unsafe void CreateFileWHook_CallsOriginal_WhenNoFileHooksAreRegistered()
@@ -64,6 +61,8 @@ public class CreateFileWSharedHookerTests
             default,
             default);
         result.Should().Be(expectedReturn);
+
+        Marshal.FreeHGlobal((nint)fileNamePtr.Value);
     }
 
     [Fact]
@@ -107,6 +106,8 @@ public class CreateFileWSharedHookerTests
             default,
             default);
         result.Should().Be(expectedReturn);
+
+        Marshal.FreeHGlobal((nint)fileNamePtr.Value);
     }
 
     [Fact]
@@ -151,6 +152,8 @@ public class CreateFileWSharedHookerTests
             default,
             default);
         result.Should().Be(expectedReturn);
+
+        Marshal.FreeHGlobal((nint)fileNamePtr.Value);
     }
 
     [Fact]
@@ -197,6 +200,8 @@ public class CreateFileWSharedHookerTests
             default,
             default);
         result.Should().Be(expectedReturn);
+
+        Marshal.FreeHGlobal((nint)fileNamePtr.Value);
     }
 
     [Fact]
@@ -237,5 +242,7 @@ public class CreateFileWSharedHookerTests
             default,
             default);
         result.Should().BeNull();
+
+        Marshal.FreeHGlobal((nint)fileNamePtr.Value);
     }
 }

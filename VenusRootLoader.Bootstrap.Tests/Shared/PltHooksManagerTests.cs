@@ -133,6 +133,7 @@ public class PltHooksManagerTests
         string functionName = "functionName";
         Action hook = () => {};
         string errorString = "error";
+        var errorStringPtr = Marshal.StringToHGlobalUni(errorString);
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -144,7 +145,7 @@ public class PltHooksManagerTests
                 Arg.Any<nint>(),
                 Arg.Any<Pointer<nint>>())
             .ReturnsForAnyArgs(true);
-        _pltHookSub.PlthookError().ReturnsForAnyArgs(Marshal.StringToHGlobalUni(errorString));
+        _pltHookSub.PlthookError().ReturnsForAnyArgs(errorStringPtr);
 
         _sut.InstallHook(fileName, functionName, hook);
 
@@ -152,6 +153,8 @@ public class PltHooksManagerTests
         _pltHookSub.DidNotReceiveWithAnyArgs().PlthookReplace(Arg.Any<nint>(), Arg.Any<string>(), Arg.Any<nint>(), Arg.Any<Pointer<nint>>());
         _pltHookSub.Received(1).PlthookError();
         _loggerSub.LatestRecord.Should().Match<FakeLogRecord>(r => r.Level == LogLevel.Error && r.Message.Contains(errorString));
+
+        Marshal.FreeHGlobal(errorStringPtr);
     }
 
     [Fact]

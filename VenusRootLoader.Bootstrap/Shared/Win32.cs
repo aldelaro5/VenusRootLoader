@@ -14,7 +14,7 @@ internal class Win32 : IWin32
     public FARPROC GetProcAddress(HMODULE hModule, PCSTR lpProcName) => PInvoke.GetProcAddress(hModule, lpProcName);
     public HANDLE GetStdHandle(STD_HANDLE nStdHandle) => PInvoke.GetStdHandle(nStdHandle);
     public unsafe HANDLE CreateFile(PCWSTR lpFileName, uint dwDesiredAccess, FILE_SHARE_MODE dwShareMode, Pointer<SECURITY_ATTRIBUTES> lpSecurityAttributes, FILE_CREATION_DISPOSITION dwCreationDisposition, FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes, HANDLE hTemplateFile) => PInvoke.CreateFile(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes.Value, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
-    public unsafe BOOL ReadFile(HANDLE hFile, Pointer<byte> lpBuffer, uint nNumberOfBytesToRead, Pointer<uint> lpNumberOfBytesRead, Pointer<NativeOverlapped> lpOverlapped) => PInvoke.ReadFile(hFile, lpBuffer.Value, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped);
+    public unsafe BOOL ReadFile(HANDLE hFile, Pointer<byte> lpBuffer, uint nNumberOfBytesToRead, Pointer<uint> lpNumberOfBytesRead, Pointer<NativeOverlapped> lpOverlapped) => PInvoke.ReadFile(hFile, lpBuffer.Value, nNumberOfBytesToRead, lpNumberOfBytesRead.Value, lpOverlapped.Value);
     public unsafe BOOL WriteFile(HANDLE hFile, Pointer<byte> lpBuffer, uint nNumberOfBytesToWrite, Pointer<uint> lpNumberOfBytesWritten, Pointer<NativeOverlapped> lpOverlapped) => PInvoke.WriteFile(hFile, lpBuffer.Value, nNumberOfBytesToWrite, lpNumberOfBytesWritten.Value, lpOverlapped.Value);
     public BOOL CloseHandle(HANDLE hObject) => PInvoke.CloseHandle(hObject);
     public MESSAGEBOX_RESULT MessageBox(HWND hWnd, string lpText, string lpCaption, MESSAGEBOX_STYLE uType) => PInvoke.MessageBox(hWnd, lpText, lpCaption, uType);

@@ -29,8 +29,8 @@ public partial class PltHook : IPltHook
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     private static partial nint PinvokePlthookError();
 
-    public unsafe bool PlthookOpen(Pointer<nint> pltHookOut, string? filename) => PinvokePlthookOpen(pltHookOut, filename) == 0;
-    public unsafe bool PlthookReplace(nint pltHook, string funcName, nint funcAddr, Pointer<nint> oldFunc) => PinvokePlthookReplace(pltHook, funcName, funcAddr, oldFunc) == 0;
+    public unsafe bool PlthookOpen(Pointer<nint> pltHookOut, string? filename) => PinvokePlthookOpen(pltHookOut.Value, filename) == 0;
+    public unsafe bool PlthookReplace(nint pltHook, string funcName, nint funcAddr, Pointer<nint> oldFunc) => PinvokePlthookReplace(pltHook, funcName, funcAddr, oldFunc.Value) == 0;
     public void PlthookClose(nint pltHook) => PinvokePlthookClose(pltHook);
     public nint PlthookError() => PinvokePlthookError();
 }

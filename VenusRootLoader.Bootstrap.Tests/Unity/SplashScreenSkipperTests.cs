@@ -25,7 +25,7 @@ public class SplashScreenSkipperTests : IDisposable
     private readonly IWin32 _win32  = Substitute.For<IWin32>();
     private readonly IFileSystem _fileSystem = new FileSystem();
     private readonly TestPltHookManager _pltHookManager = new();
-    private readonly CreateFileWSharedHooker _createFileWSharedHooker;
+    private readonly TestCreateFileWSharedHooker _createFileWSharedHooker = new();
     private readonly GameExecutionContext _gameExecutionContext;
     private readonly GlobalSettings _globalSettingsValue = new()
     {
@@ -50,7 +50,6 @@ public class SplashScreenSkipperTests : IDisposable
         _dataUnity3dPath = Path.Combine(_gameExecutionContext.DataDir, "data.unity3d");
         _pathModifiedBundle = Path.Combine(_hostEnvironment.ContentRootPath, "VenusRootLoader", "data.unity3d.modified");
         DeleteRealTestFiles();
-        _createFileWSharedHooker = new(_pltHookManager, _gameExecutionContext, _win32);
     }
 
     private void DeleteRealTestFiles()
@@ -73,22 +72,13 @@ public class SplashScreenSkipperTests : IDisposable
         _globalSettingsValue.SkipUnitySplashScreen = false;
         StartService();
 
-        var fileNamePtr = (PCWSTR)(char*)Marshal.StringToHGlobalUni(_dataUnity3dPath);
-        _pltHookManager.SimulateHook(
-            _gameExecutionContext.UnityPlayerDllFileName,
-            "CreateFileW",
-            fileNamePtr,
-            0u,
-            default(FILE_SHARE_MODE),
-            null,
-            default(FILE_CREATION_DISPOSITION),
-            default(FILE_FLAGS_AND_ATTRIBUTES),
-            default(HANDLE));
+        var fileNamePtr = (char*)Marshal.StringToHGlobalUni(_dataUnity3dPath);
+
+        _createFileWSharedHooker.SimulateHook(fileNamePtr);
 
         File.Exists(_pathModifiedBundle).Should().BeFalse();
-        _win32.Received(1).CreateFile(
-            Arg.Is<PCWSTR>(s => string.Equals(s.ToString(), _dataUnity3dPath, StringComparison.Ordinal)),
-            0, default, default, default, default, default);
+
+        Marshal.FreeHGlobal((nint)fileNamePtr);
     }
 
     [Fact]
@@ -97,7 +87,7 @@ public class SplashScreenSkipperTests : IDisposable
         StartService();
 
         var expectedReturn = (HANDLE)Random.Shared.Next();
-        var fileNamePtr = (PCWSTR)(char*)Marshal.StringToHGlobalUni(_dataUnity3dPath);
+        var fileNamePtr = (char*)Marshal.StringToHGlobalUni(_dataUnity3dPath);
         _win32.CreateFile(
                 Arg.Any<PCWSTR>(),
                 Arg.Any<uint>(),
@@ -108,16 +98,7 @@ public class SplashScreenSkipperTests : IDisposable
                 Arg.Any<HANDLE>())
             .ReturnsForAnyArgs(expectedReturn);
 
-        var result = (nint)_pltHookManager.SimulateHook(
-            _gameExecutionContext.UnityPlayerDllFileName,
-            "CreateFileW",
-            fileNamePtr,
-            0u,
-            default(FILE_SHARE_MODE),
-            null,
-            default(FILE_CREATION_DISPOSITION),
-            default(FILE_FLAGS_AND_ATTRIBUTES),
-            default(HANDLE))!;
+        var result = _createFileWSharedHooker.SimulateHook(fileNamePtr);
 
         result.Should().Be(expectedReturn);
         File.Exists(_pathModifiedBundle).Should().BeTrue();
@@ -125,6 +106,8 @@ public class SplashScreenSkipperTests : IDisposable
         _win32.Received(1).CreateFile(
             Arg.Is<PCWSTR>(s => string.Equals(s.ToString(), _pathModifiedBundle, StringComparison.Ordinal)),
             0, default, default, default, default, default);
+
+        Marshal.FreeHGlobal((nint)fileNamePtr);
     }
 
     [Fact]
@@ -132,34 +115,18 @@ public class SplashScreenSkipperTests : IDisposable
     {
         StartService();
 
-        var fileNamePtr = (PCWSTR)(char*)Marshal.StringToHGlobalUni(_dataUnity3dPath);
+        var fileNamePtr = (char*)Marshal.StringToHGlobalUni(_dataUnity3dPath);
 
-        _pltHookManager.SimulateHook(
-            _gameExecutionContext.UnityPlayerDllFileName,
-            "CreateFileW",
-            fileNamePtr,
-            0u,
-            default(FILE_SHARE_MODE),
-            null,
-            default(FILE_CREATION_DISPOSITION),
-            default(FILE_FLAGS_AND_ATTRIBUTES),
-            default(HANDLE));
-        _pltHookManager.SimulateHook(
-            _gameExecutionContext.UnityPlayerDllFileName,
-            "CreateFileW",
-            fileNamePtr,
-            0u,
-            default(FILE_SHARE_MODE),
-            null,
-            default(FILE_CREATION_DISPOSITION),
-            default(FILE_FLAGS_AND_ATTRIBUTES),
-            default(HANDLE));
+        _createFileWSharedHooker.SimulateHook(fileNamePtr);
+        _createFileWSharedHooker.SimulateHook(fileNamePtr);
 
         File.Exists(_pathModifiedBundle).Should().BeTrue();
         _win32.Received(2).CreateFile(
             Arg.Is<PCWSTR>(s =>string.Equals(s.ToString(), _pathModifiedBundle, StringComparison.Ordinal)),
             0, default, default, default, default, default);
         _pltHookManager.Hooks.Should().BeEmpty();
+
+        Marshal.FreeHGlobal((nint)fileNamePtr);
     }
 
     private void AssertModifiedBundleIsCorrect()

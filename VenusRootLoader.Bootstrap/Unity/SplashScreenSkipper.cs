@@ -33,7 +33,7 @@ internal class SplashScreenSkipper : IHostedService
 
     private readonly IWin32 _win32;
     private readonly ILogger _logger;
-    private readonly CreateFileWSharedHooker _createFileWSharedHooker;
+    private readonly ICreateFileWSharedHooker _createFileWSharedHooker;
     private readonly GameExecutionContext _gameExecutionContext;
     private readonly IHostEnvironment _hostEnvironment;
     private readonly bool _enableSkipper;
@@ -41,7 +41,7 @@ internal class SplashScreenSkipper : IHostedService
     private bool _redirectedOnceBefore;
     public SplashScreenSkipper(
         ILogger<SplashScreenSkipper> logger,
-        CreateFileWSharedHooker createFileWSharedHooker,
+        ICreateFileWSharedHooker createFileWSharedHooker,
         GameExecutionContext gameExecutionContext,
         IOptions<GlobalSettings> globalSettings,
         IHostEnvironment hostEnvironment,

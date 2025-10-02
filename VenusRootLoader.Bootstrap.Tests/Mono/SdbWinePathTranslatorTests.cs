@@ -93,20 +93,12 @@ public class SdbWinePathTranslatorTests
         _win32.recv(default, default, 0, default).ReturnsForAnyArgs(packetLengthRecv);
         _win32.send(default, default, 0, default).ReturnsForAnyArgs(messageSend.Length);
 
-        int resultRecv = (int)_pltHooksManager.SimulateHook(
+        var (resultRecv, resultSend) = SimulateRecvSendHooks(
             monoModuleFilename,
-            nameof(_win32.recv),
-            default(SOCKET),
             messageRecvPStr,
-            messageRecv.Length,
-            default(SEND_RECV_FLAGS))!;
-        int resultSend = (int)_pltHooksManager.SimulateHook(
-            monoModuleFilename,
-            nameof(_win32.send),
-            default(SOCKET),
+            messageRecv,
             messageSendPStr,
-            messageSend.Length,
-            default(SEND_RECV_FLAGS))!;
+            messageSend);
 
         resultRecv.Should().Be(packetLengthRecv);
         resultSend.Should().Be(messageSend.Length);
@@ -142,20 +134,12 @@ public class SdbWinePathTranslatorTests
         _win32.recv(default, default, 0, default).ReturnsForAnyArgs(messageRecv.Length);
         _win32.send(default, default, 0, default).ReturnsForAnyArgs(messageSend.Length);
 
-        int resultRecv = (int)_pltHooksManager.SimulateHook(
+        var (resultRecv, resultSend) = SimulateRecvSendHooks(
             monoModuleFilename,
-            nameof(_win32.recv),
-            default(SOCKET),
             messageRecvPStr,
-            messageRecv.Length,
-            default(SEND_RECV_FLAGS))!;
-        int resultSend = (int)_pltHooksManager.SimulateHook(
-            monoModuleFilename,
-            nameof(_win32.send),
-            default(SOCKET),
+            messageRecv,
             messageSendPStr,
-            messageSend.Length,
-            default(SEND_RECV_FLAGS))!;
+            messageSend);
 
         resultRecv.Should().Be(messageRecv.Length);
         resultSend.Should().Be(messageSend.Length);
@@ -196,20 +180,12 @@ public class SdbWinePathTranslatorTests
         _win32.send(default, default, 0, default).ReturnsForAnyArgs(messageSendModified.Length)
             .AndDoes(c => Marshal.Copy((nint)c.ArgAt<PCSTR>(1).Value, bytes, 0, messageSendModified.Length));
 
-        int resultRecv = (int)_pltHooksManager.SimulateHook(
+        var (resultRecv, resultSend) = SimulateRecvSendHooks(
             monoModuleFilename,
-            nameof(_win32.recv),
-            default(SOCKET),
             messageRecvPStr,
-            messageRecv.Length,
-            default(SEND_RECV_FLAGS))!;
-        int resultSend = (int)_pltHooksManager.SimulateHook(
-            monoModuleFilename,
-            nameof(_win32.send),
-            default(SOCKET),
+            messageRecv,
             messageSendOriginalPStr,
-            messageSendOriginal.Length,
-            default(SEND_RECV_FLAGS))!;
+            messageSendOriginal);
 
         resultRecv.Should().Be(messageRecv.Length);
         resultSend.Should().Be(messageSendModified.Length);
@@ -255,20 +231,12 @@ public class SdbWinePathTranslatorTests
         _win32.send(default, default, 0, default).ReturnsForAnyArgs(messageSendModified.Length)
             .AndDoes(c => Marshal.Copy((nint)c.ArgAt<PCSTR>(1).Value, bytes, 0, messageSendModified.Length));
 
-        int resultRecv = (int)_pltHooksManager.SimulateHook(
+        var (resultRecv, resultSend) = SimulateRecvSendHooks(
             monoModuleFilename,
-            nameof(_win32.recv),
-            default(SOCKET),
             messageRecvPStr,
-            messageRecv.Length,
-            default(SEND_RECV_FLAGS))!;
-        int resultSend = (int)_pltHooksManager.SimulateHook(
-            monoModuleFilename,
-            nameof(_win32.send),
-            default(SOCKET),
+            messageRecv,
             messageSendOriginalPStr,
-            messageSendOriginal.Length,
-            default(SEND_RECV_FLAGS))!;
+            messageSendOriginal);
 
         resultRecv.Should().Be(messageRecv.Length);
         resultSend.Should().Be(messageSendModified.Length);
@@ -343,5 +311,29 @@ public class SdbWinePathTranslatorTests
         writerSend.Write(BinaryPrimitives.ReverseEndianness(id));
         byte[] messageSend = streamSend.ToArray();
         return messageSend;
+    }
+
+    private (int resultRecv, int resultSend) SimulateRecvSendHooks(
+        string monoModuleFilename,
+        PSTR messageRecvPStr,
+        byte[] messageRecv,
+        PCSTR messageSendPStr,
+        byte[] messageSend)
+    {
+        int resultRecv = (int)_pltHooksManager.SimulateHook(
+            monoModuleFilename,
+            nameof(_win32.recv),
+            default(SOCKET),
+            messageRecvPStr,
+            messageRecv.Length,
+            default(SEND_RECV_FLAGS))!;
+        int resultSend = (int)_pltHooksManager.SimulateHook(
+            monoModuleFilename,
+            nameof(_win32.send),
+            default(SOCKET),
+            messageSendPStr,
+            messageSend.Length,
+            default(SEND_RECV_FLAGS))!;
+        return (resultRecv, resultSend);
     }
 }

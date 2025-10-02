@@ -85,7 +85,7 @@ internal static class Startup
             new PltHooksManager(sp.GetRequiredService<ILogger<PltHooksManager>>(), new PltHook(), new FileSystem()));
         builder.Services.AddSingleton<IGameLifecycleEvents, GameLifecycleEvents>();
         builder.Services.AddHostedService<StandardStreamsProtector>();
-        builder.Services.AddSingleton<CreateFileWSharedHooker>();
+        builder.Services.AddSingleton<ICreateFileWSharedHooker, CreateFileWSharedHooker>();
         builder.Services.AddHostedService<PlayerLogsMirroring>();
         builder.Services.AddHostedService<SplashScreenSkipper>();
         builder.Services.AddHostedService<BootConfigCustomizer>();

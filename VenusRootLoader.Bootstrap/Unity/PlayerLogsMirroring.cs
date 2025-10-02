@@ -34,7 +34,7 @@ internal class PlayerLogsMirroring : IHostedService
     private readonly IWin32 _win32;
     private readonly IPltHooksManager _pltHooksManager;
     private readonly ILogger _logger;
-    private readonly CreateFileWSharedHooker _createFileWSharedHooker;
+    private readonly ICreateFileWSharedHooker _createFileWSharedHooker;
     private readonly GameExecutionContext _gameExecutionContext;
     private readonly IGameLifecycleEvents _gameLifecycleEvents;
 
@@ -43,7 +43,7 @@ internal class PlayerLogsMirroring : IHostedService
     public unsafe PlayerLogsMirroring(
         ILoggerFactory loggerFactory,
         IPltHooksManager pltHooksManager,
-        CreateFileWSharedHooker createFileWSharedHooker,
+        ICreateFileWSharedHooker createFileWSharedHooker,
         GameExecutionContext gameExecutionContext,
         IOptions<LoggingSettings> loggingSettings,
         IGameLifecycleEvents gameLifecycleEvents,
@@ -61,10 +61,8 @@ internal class PlayerLogsMirroring : IHostedService
         _gameLifecycleEvents.Subscribe(OnGameLifecycle);
     }
 
-    private void OnGameLifecycle(object? sender, GameLifecycleEventArgs e)
+    private void OnGameLifecycle(object? sender, EventArgs e)
     {
-        if (e.LifeCycle != GameLifecycle.MonoInitialising)
-            return;
         _createFileWSharedHooker.UnregisterHook(nameof(PlayerLogsMirroring));
     }
 

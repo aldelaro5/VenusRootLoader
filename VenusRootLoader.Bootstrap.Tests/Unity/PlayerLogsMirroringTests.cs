@@ -30,8 +30,8 @@ public class PlayerLogsMirroringTests
         IncludeUnityLogs = true
     };
     private readonly IWin32 _win32 = Substitute.For<IWin32>();
-    private readonly TestGameLifecycleEvents _gameLifecycleEvents = new();
-    private readonly CreateFileWSharedHooker _createFileWSharedHooker;
+    private readonly IGameLifecycleEvents _gameLifecycleEvents = new GameLifecycleEvents();
+    private readonly TestCreateFileWSharedHooker _createFileWSharedHooker = new();
     private readonly GameExecutionContext _gameExecutionContext = new()
     {
         LibraryHandle = 0,
@@ -44,7 +44,6 @@ public class PlayerLogsMirroringTests
     public PlayerLogsMirroringTests()
     {
         _loggerFactory.CreateLogger(Arg.Any<string>()).Returns(_logger);
-        _createFileWSharedHooker = new(_pltHooksManager, _gameExecutionContext, _win32);
         _loggingSettings.Value.Returns(_loggingSettingsValue);
     }
 
@@ -69,7 +68,7 @@ public class PlayerLogsMirroringTests
         _win32.Received(1).GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
         _win32.Received(1).GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
         _pltHooksManager.Hooks.Should().ContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.WriteFile)));
-        _pltHooksManager.Hooks.Should().ContainKey((_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW"));
+        _createFileWSharedHooker.Hooks.Should().ContainKey(nameof(PlayerLogsMirroring));
     }
 
     [Theory]
@@ -78,22 +77,15 @@ public class PlayerLogsMirroringTests
     public unsafe void CreateFileHook_UnregistersHook_WhenCalledWithPlayerLogsFilename(string filename)
     {
         StartService();
-        var fileNamePtr = (PCWSTR)(char*)Marshal.StringToHGlobalUni(filename);
-        _pltHooksManager.SimulateHook(
-            _gameExecutionContext.UnityPlayerDllFileName,
-            "CreateFileW",
-            fileNamePtr,
-            0u,
-            default(FILE_SHARE_MODE),
-            null,
-            default(FILE_CREATION_DISPOSITION),
-            default(FILE_FLAGS_AND_ATTRIBUTES),
-            default(HANDLE));
+        var fileNamePtr = (char*)Marshal.StringToHGlobalUni(filename);
+        _createFileWSharedHooker.SimulateHook(fileNamePtr);
 
         _pltHooksManager.Hooks.Should().NotContainKey((_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW"));
         _win32.Received(1).CreateFile(
             Arg.Is<PCWSTR>(s => string.Equals(s.ToString(), filename, StringComparison.Ordinal)),
             0, default, default, default, default, default);
+
+        Marshal.FreeHGlobal((nint)fileNamePtr);
     }
 
     [Fact]
@@ -101,22 +93,13 @@ public class PlayerLogsMirroringTests
     {
         StartService();
         var filename = "SomeOtherFiles.txt";
-        var fileNamePtr = (PCWSTR)(char*)Marshal.StringToHGlobalUni(filename);
-        _pltHooksManager.SimulateHook(
-            _gameExecutionContext.UnityPlayerDllFileName,
-            "CreateFileW",
-            fileNamePtr,
-            0u,
-            default(FILE_SHARE_MODE),
-            null,
-            default(FILE_CREATION_DISPOSITION),
-            default(FILE_FLAGS_AND_ATTRIBUTES),
-            default(HANDLE));
+        var fileNamePtr = (char*)Marshal.StringToHGlobalUni(filename);
 
-        _pltHooksManager.Hooks.Should().ContainKey((_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW"));
-        _win32.Received(1).CreateFile(
-            Arg.Is<PCWSTR>(s => string.Equals(s.ToString(), filename, StringComparison.Ordinal)),
-            0, default, default, default, default, default);
+        _createFileWSharedHooker.SimulateHook(fileNamePtr);
+
+        _createFileWSharedHooker.Hooks.Should().ContainKey(nameof(PlayerLogsMirroring));
+
+        Marshal.FreeHGlobal((nint)fileNamePtr);
     }
 
     [Fact]
@@ -124,19 +107,11 @@ public class PlayerLogsMirroringTests
     {
         StartService();
         var filename = "output_log.txt";
-        var fileNamePtr = (PCWSTR)(char*)Marshal.StringToHGlobalUni(filename);
+        var fileNamePtr = (char*)Marshal.StringToHGlobalUni(filename);
         var handleReceived = (HANDLE)Random.Shared.Next();
         var expectedReturn = (BOOL)(Random.Shared.Next() == 0);
-        _pltHooksManager.SimulateHook(
-            _gameExecutionContext.UnityPlayerDllFileName,
-            "CreateFileW",
-            fileNamePtr,
-            0u,
-            default(FILE_SHARE_MODE),
-            null,
-            default(FILE_CREATION_DISPOSITION),
-            default(FILE_FLAGS_AND_ATTRIBUTES),
-            default(HANDLE));
+        _createFileWSharedHooker.SimulateHook(fileNamePtr);
+
         _win32.WriteFile(
                 Arg.Any<HANDLE>(),
                 Arg.Any<Pointer<byte>>(),
@@ -160,6 +135,8 @@ public class PlayerLogsMirroringTests
             0, default, default, default, default, default);
         _win32.Received(1).WriteFile(handleReceived, default, 0u, default, default);
         _logger.Collector.Count.Should().Be(0);
+
+        Marshal.FreeHGlobal((nint)fileNamePtr);
     }
 
     [Fact]
@@ -168,7 +145,7 @@ public class PlayerLogsMirroringTests
         _loggingSettingsValue.IncludeUnityLogs = false;
         StartService();
         var filename = "output_log.txt";
-        var fileNamePtr = (PCWSTR)(char*)Marshal.StringToHGlobalUni(filename);
+        var fileNamePtr = (char*)Marshal.StringToHGlobalUni(filename);
         var handlePlayerLogFile = (HANDLE)Random.Shared.Next();
         var expectedReturn = (BOOL)(Random.Shared.Next() == 0);
         _win32.CreateFile(
@@ -180,16 +157,7 @@ public class PlayerLogsMirroringTests
                 Arg.Any<FILE_FLAGS_AND_ATTRIBUTES>(),
                 Arg.Any<HANDLE>())
             .ReturnsForAnyArgs(handlePlayerLogFile);
-        _pltHooksManager.SimulateHook(
-            _gameExecutionContext.UnityPlayerDllFileName,
-            "CreateFileW",
-            fileNamePtr,
-            0u,
-            default(FILE_SHARE_MODE),
-            null,
-            default(FILE_CREATION_DISPOSITION),
-            default(FILE_FLAGS_AND_ATTRIBUTES),
-            default(HANDLE));
+        _createFileWSharedHooker.SimulateHook(fileNamePtr);
         _win32.WriteFile(
                 Arg.Any<HANDLE>(),
                 Arg.Any<Pointer<byte>>(),
@@ -213,6 +181,8 @@ public class PlayerLogsMirroringTests
             0, default, default, default, default, default);
         _win32.Received(1).WriteFile(handlePlayerLogFile, default, 0u, default, default);
         _logger.Collector.Count.Should().Be(0);
+
+        Marshal.FreeHGlobal((nint)fileNamePtr);
     }
 
     [Fact]
@@ -234,16 +204,7 @@ public class PlayerLogsMirroringTests
                 Arg.Any<FILE_FLAGS_AND_ATTRIBUTES>(),
                 Arg.Any<HANDLE>())
             .ReturnsForAnyArgs(handlePlayerLogFile);
-        _pltHooksManager.SimulateHook(
-            _gameExecutionContext.UnityPlayerDllFileName,
-            "CreateFileW",
-            fileNamePtr,
-            0u,
-            default(FILE_SHARE_MODE),
-            null,
-            default(FILE_CREATION_DISPOSITION),
-            default(FILE_FLAGS_AND_ATTRIBUTES),
-            default(HANDLE));
+        _createFileWSharedHooker.SimulateHook(fileNamePtr);
         _win32.WriteFile(
                 Arg.Any<HANDLE>(),
                 Arg.Any<Pointer<byte>>(),
@@ -269,6 +230,8 @@ public class PlayerLogsMirroringTests
         _logger.Collector.Count.Should().Be(1);
         _logger.LatestRecord.Level.Should().Be(LogLevel.Trace);
         _logger.LatestRecord.Message.Should().Be(message.TrimEnd("\r\n").ToString());
+
+        Marshal.FreeHGlobal((nint)messagePtr);
     }
 
     [Theory]
@@ -320,29 +283,21 @@ public class PlayerLogsMirroringTests
         _logger.Collector.Count.Should().Be(1);
         _logger.LatestRecord.Level.Should().Be(LogLevel.Trace);
         _logger.LatestRecord.Message.Should().Be(message.TrimEnd("\r\n").ToString());
+
+        Marshal.FreeHGlobal((nint)messagePtr);
     }
 
     [Fact]
     public unsafe void OnGameLifeCycle_UninstallPltHook_WhenMonoInitialisedEventReceived()
     {
         StartService();
-        var fileNamePtr = (PCWSTR)(char*)Marshal.StringToHGlobalUni("output_log.txt");
-        _pltHooksManager.SimulateHook(
-            _gameExecutionContext.UnityPlayerDllFileName,
-            "CreateFileW",
-            fileNamePtr,
-            0u,
-            default(FILE_SHARE_MODE),
-            null,
-            default(FILE_CREATION_DISPOSITION),
-            default(FILE_FLAGS_AND_ATTRIBUTES),
-            default(HANDLE));
+        var fileNamePtr = (char*)Marshal.StringToHGlobalUni("output_log.txt");
+        _createFileWSharedHooker.SimulateHook(fileNamePtr);
 
-        _gameLifecycleEvents.Publish(this, new()
-        {
-            LifeCycle = GameLifecycle.MonoInitialising
-        });
+        _gameLifecycleEvents.Publish(this);
 
         _pltHooksManager.Hooks.Should().NotContainKey((_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW"));
+
+        Marshal.FreeHGlobal((nint)fileNamePtr);
     }
 }

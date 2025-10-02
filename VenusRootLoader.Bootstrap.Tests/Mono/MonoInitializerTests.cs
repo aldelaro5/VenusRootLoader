@@ -65,6 +65,7 @@ public class MonoInitializerTests
             _fileSystem,
             _monoFunctions);
         sut.StartAsync(TestContext.Current.CancellationToken);
+        Environment.SetEnvironmentVariable("DNSPY_UNITY_DBG2", null);
     }
 
     [Fact]
@@ -94,6 +95,8 @@ public class MonoInitializerTests
 
         result.Should().Be(symbolAddress);
         _win32.Received(1).GetProcAddress(moduleHandle, symbolPtr);
+
+        Marshal.FreeHGlobal((nint)symbolPtr.Value);
     }
 
     [Theory]
@@ -117,6 +120,8 @@ public class MonoInitializerTests
 
         result.Should().NotBe(symbolAddress);
         _win32.Received(1).GetProcAddress(moduleHandle, symbolPtr);
+
+        Marshal.FreeHGlobal((nint)symbolPtr.Value);
     }
 
     [Theory]
@@ -155,6 +160,8 @@ public class MonoInitializerTests
         _win32.Received(1).GetModuleFileName(moduleHandle, Arg.Any<PWSTR>(), Arg.Any<uint>());
         _sdbWinePathTranslator.Received(1).Setup(monoFileName);
         _win32.Received(1).GetProcAddress(moduleHandle, symbolPtr);
+
+        Marshal.FreeHGlobal((nint)symbolPtr.Value);
     }
 
     [Fact]
@@ -180,7 +187,6 @@ public class MonoInitializerTests
         string receivedSetConfigPath = "";
         string receivedSetConfigFile = "";
         string? receivedConfigParse = "";
-        Environment.SetEnvironmentVariable("DNSPY_UNITY_DBG2", null);
         _monoFunctions.JitParseOptions.Returns((argc, argv) => receivedArgs = ((int)argc, argv));
         _monoFunctions.JitInitVersion.Returns((domainName, runtimeVersion) =>
         {
@@ -226,10 +232,13 @@ public class MonoInitializerTests
         _monoFunctions.ReceivedWithAnyArgs(1).ClassFromName(Arg.Any<nint>(), Arg.Any<string>(), Arg.Any<string>());
         _monoFunctions.ReceivedWithAnyArgs(1).ClassGetMethodFromName(Arg.Any<nint>(), Arg.Any<string>(), Arg.Any<int>());
         _monoFunctions.ReceivedWithAnyArgs(1).RuntimeInvoke(Arg.Any<nint>(), Arg.Any<nint>(), null, ref Arg.Any<nint>());
-        _gameLifecycleEvents.Received(1).Publish(Arg.Any<object>(), Arg.Is<GameLifecycleEventArgs>(e =>
-            e.LifeCycle == GameLifecycle.MonoInitialising));
+        _gameLifecycleEvents.Received(1).Publish(Arg.Any<object>());
         _pltHooksManager.Hooks.Should()
             .NotContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.GetProcAddress)));
+
+        Marshal.FreeHGlobal(domainNamePtr);
+        Marshal.FreeHGlobal(runtimeVersionPtr);
+        Marshal.FreeHGlobal((nint)symbolPtr.Value);
     }
 
     [Fact]
@@ -247,7 +256,6 @@ public class MonoInitializerTests
         var expectedArgs = GetArgsFromString($"--debugger-agent=transport=dt_socket,server=y,address=" +
                                              $"{_debuggerSettings.Value.IpAddress}:{_debuggerSettings.Value.Port}" +
                                              ",suspend=n");
-        Environment.SetEnvironmentVariable("DNSPY_UNITY_DBG2", null);
         var receivedFormat = IMonoFunctions.MonoDebugFormat.MonoDebugFormatNone;
         _monoFunctions.DebugInit.Returns(format => receivedFormat = format);
         _monoFunctions.JitParseOptions.Returns((argc, argv) => receivedArgs = ((int)argc, argv));
@@ -266,6 +274,10 @@ public class MonoInitializerTests
         receivedFormat.Should().Be(IMonoFunctions.MonoDebugFormat.MonoDebugFormatMono);
         _playerConnectionDiscovery.Received(1)
             .StartDiscoveryWithOwnSocket(_debuggerSettingsValue.IpAddress, (ushort)_debuggerSettingsValue.Port!.Value);
+
+        Marshal.FreeHGlobal(domainNamePtr);
+        Marshal.FreeHGlobal(runtimeVersionPtr);
+        Marshal.FreeHGlobal((nint)symbolPtr.Value);
     }
 
     [Fact]
@@ -284,7 +296,6 @@ public class MonoInitializerTests
         var expectedArgs = GetArgsFromString($"--debugger-agent=transport=dt_socket,server=y,address=" +
                                              $"{_debuggerSettings.Value.IpAddress}:{_debuggerSettings.Value.Port}" +
                                              ",suspend=n");
-        Environment.SetEnvironmentVariable("DNSPY_UNITY_DBG2", null);
         var receivedFormat = IMonoFunctions.MonoDebugFormat.MonoDebugFormatNone;
         _monoFunctions.DebugInit.Returns(format => receivedFormat = format);
         _monoFunctions.JitParseOptions.Returns((argc, argv) => receivedArgs = ((int)argc, argv));
@@ -311,6 +322,11 @@ public class MonoInitializerTests
         _monoFunctions.Received(1).DebugInit(Arg.Any<IMonoFunctions.MonoDebugFormat>());
         _playerConnectionDiscovery.Received(1)
             .StartDiscoveryWithSendToHook(_debuggerSettingsValue.IpAddress, (ushort)_debuggerSettingsValue.Port!.Value);
+
+        Marshal.FreeHGlobal(domainNamePtr);
+        Marshal.FreeHGlobal(runtimeVersionPtr);
+        Marshal.FreeHGlobal((nint)jitInitSymbolPtr.Value);
+        Marshal.FreeHGlobal((nint)debugInitSymbolPtr.Value);
     }
 
     [Fact]
@@ -348,8 +364,11 @@ public class MonoInitializerTests
         result.Should().Be(expectedReturn);
         receivedDomainNamePtr.Should().Be(domainNamePtr);
         receivedRuntimeVersionPtr.Should().Be(runtimeVersionPtr);
-        _gameLifecycleEvents.Received(1).Publish(Arg.Any<object>(), Arg.Is<GameLifecycleEventArgs>(e =>
-            e.LifeCycle == GameLifecycle.MonoInitialising));
+        _gameLifecycleEvents.Received(1).Publish(Arg.Any<object>());
+
+        Marshal.FreeHGlobal(domainNamePtr);
+        Marshal.FreeHGlobal(runtimeVersionPtr);
+        Marshal.FreeHGlobal((nint)symbolPtr.Value);
     }
 
     [Fact]
@@ -361,7 +380,6 @@ public class MonoInitializerTests
         var runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
         var symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_init_version");
         var moduleHandle = (HMODULE)Random.Shared.Next();
-        Environment.SetEnvironmentVariable("DNSPY_UNITY_DBG2", null);
         _monoFunctions.DomainAssemblyOpen.Returns((_, _) => nint.Zero);
         var detourPtr = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
@@ -375,6 +393,10 @@ public class MonoInitializerTests
         _monoFunctions.ReceivedWithAnyArgs(1).DomainAssemblyOpen(result, Arg.Any<string>());
         _monoFunctions.DidNotReceiveWithAnyArgs().RuntimeInvoke(Arg.Any<nint>(), Arg.Any<nint>(), null, ref Arg.Any<nint>());
         _logger.Collector.GetSnapshot().Should().ContainSingle(log => log.Level == LogLevel.Critical);
+
+        Marshal.FreeHGlobal(domainNamePtr);
+        Marshal.FreeHGlobal(runtimeVersionPtr);
+        Marshal.FreeHGlobal((nint)symbolPtr.Value);
     }
 
     [Fact]
@@ -386,7 +408,6 @@ public class MonoInitializerTests
         var symbolAddress = (FARPROC)Random.Shared.Next();
         var moduleHandle = (HMODULE)Random.Shared.Next();
         var originalArgs = GetArgsFromString("stuff things");
-        Environment.SetEnvironmentVariable("DNSPY_UNITY_DBG2", null);
         (int argc, string[] args) receivedArgs = default;
         _monoFunctions.JitParseOptions.Returns((argc, argv) => receivedArgs = ((int)argc, argv));
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
@@ -400,6 +421,8 @@ public class MonoInitializerTests
         detour(originalArgs.argc, originalArgs.argv);
 
         receivedArgs.Should().BeEquivalentTo(originalArgs);
+
+        Marshal.FreeHGlobal((nint)symbolPtr.Value);
     }
 
     [Fact]
@@ -429,6 +452,8 @@ public class MonoInitializerTests
         detour(originalArgs.argc, originalArgs.argv);
 
         receivedArgs.Should().BeEquivalentTo(expectedArgs);
+
+        Marshal.FreeHGlobal((nint)symbolPtr.Value);
     }
 
     [Theory]
@@ -448,7 +473,6 @@ public class MonoInitializerTests
                         $"{_debuggerSettings.Value.IpAddress}:{_debuggerSettings.Value.Port}" +
                         $"{(withSuspend ? "" : ",suspend=n")}";
         var expectedArgs = GetArgsFromString($"stuff things {debugArgs}");
-        Environment.SetEnvironmentVariable("DNSPY_UNITY_DBG2", null);
         (int argc, string[] args) receivedArgs = default;
         _monoFunctions.JitParseOptions.Returns((argc, argv) => receivedArgs = ((int)argc, argv));
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
@@ -462,6 +486,8 @@ public class MonoInitializerTests
         detour(originalArgs.argc, originalArgs.argv);
 
         receivedArgs.Should().BeEquivalentTo(expectedArgs);
+
+        Marshal.FreeHGlobal((nint)symbolPtr.Value);
     }
 
     [Fact]
@@ -492,6 +518,8 @@ public class MonoInitializerTests
         detour(originalArgs.argc, originalArgs.argv);
     
         receivedArgs.Should().BeEquivalentTo(expectedArgs);
+
+        Marshal.FreeHGlobal((nint)symbolPtr.Value);
     }
 
     [Fact]
@@ -507,7 +535,6 @@ public class MonoInitializerTests
         var symbolAddress = (FARPROC)Random.Shared.Next();
         var moduleHandle = (HMODULE)Random.Shared.Next();
         var originalArgs = GetArgsFromString("stuff things");
-        Environment.SetEnvironmentVariable("DNSPY_UNITY_DBG2", null);
         (int argc, string[] args) receivedArgs = default;
         _monoFunctions.JitParseOptions.Returns((argc, argv) => receivedArgs = ((int)argc, argv));
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
@@ -527,6 +554,11 @@ public class MonoInitializerTests
         detourJitInit(domainNamePtr, runtimeVersionPtr);
         detourJitParseOptions(originalArgs.argc, originalArgs.argv);
         receivedArgs.Should().BeEquivalentTo(originalArgs);
+
+        Marshal.FreeHGlobal(domainNamePtr);
+        Marshal.FreeHGlobal(runtimeVersionPtr);
+        Marshal.FreeHGlobal((nint)jitParseOptionSymbolPtr.Value);
+        Marshal.FreeHGlobal((nint)jitInitSymbolPtr.Value);
     }
 
     [Fact]
@@ -551,6 +583,8 @@ public class MonoInitializerTests
         detour(debugFormat);
 
         receivedFormat.Should().Be((int)debugFormat);
+
+        Marshal.FreeHGlobal((nint)symbolPtr.Value);
     }
 
     private (int argc, string[] argv) GetArgsFromString(string args)

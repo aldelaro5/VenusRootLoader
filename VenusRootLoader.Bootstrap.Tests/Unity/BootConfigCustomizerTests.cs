@@ -20,9 +20,9 @@ public class BootConfigCustomizerTests
 {
     private readonly ILogger<BootConfigCustomizer> _logger = Substitute.For<ILogger<BootConfigCustomizer>>();
     private readonly TestPltHookManager _pltHooksManager = new();
-    private readonly CreateFileWSharedHooker _createFileWSharedHooker;
+    private readonly TestCreateFileWSharedHooker _createFileWSharedHooker = new();
     private readonly IOptions<BootConfigSettings> _bootConfigSettings =  Substitute.For<IOptions<BootConfigSettings>>();
-    private readonly TestGameLifecycleEvents _gameLifecycleEvents = new();
+    private readonly IGameLifecycleEvents _gameLifecycleEvents = new GameLifecycleEvents();
     private readonly IWin32 _win32 = Substitute.For<IWin32>();
     private readonly MockFileSystem _fileSystem = new();
     private readonly GameExecutionContext _gameExecutionContext = new()
@@ -38,7 +38,6 @@ public class BootConfigCustomizerTests
 
     public BootConfigCustomizerTests()
     {
-        _createFileWSharedHooker = new(_pltHooksManager, _gameExecutionContext, _win32);
         _bootConfigSettingsValue = new();
         _bootConfigSettings.Value.Returns(_bootConfigSettingsValue);
         _bootConfigFilePath = Path.Combine(_gameExecutionContext.DataDir, "boot.config");
@@ -67,7 +66,7 @@ public class BootConfigCustomizerTests
         StartService();
 
         var expectedReturn = (HANDLE)Random.Shared.Next();
-        var fileNamePtr = (PCWSTR)(char*)Marshal.StringToHGlobalUni(_bootConfigFilePath);
+        var fileNamePtr = (char*)Marshal.StringToHGlobalUni(_bootConfigFilePath);
         _win32.CreateFile(
                 Arg.Any<PCWSTR>(),
                 Arg.Any<uint>(),
@@ -78,22 +77,15 @@ public class BootConfigCustomizerTests
                 Arg.Any<HANDLE>())
             .ReturnsForAnyArgs(expectedReturn);
 
-        var result = (nint)_pltHooksManager.SimulateHook(
-            _gameExecutionContext.UnityPlayerDllFileName,
-            "CreateFileW",
-            fileNamePtr,
-            0u,
-            default(FILE_SHARE_MODE),
-            null,
-            default(FILE_CREATION_DISPOSITION),
-            default(FILE_FLAGS_AND_ATTRIBUTES),
-            default(HANDLE))!;
+        var result = _createFileWSharedHooker.SimulateHook(fileNamePtr)!;
 
         result.Should().Be(expectedReturn);
         _win32.Received(1).CreateFile(fileNamePtr, 0, default, default, default, default, default);
         _pltHooksManager.Hooks.Should().NotContainKey((_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW"));
         _pltHooksManager.Hooks.Should().ContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.ReadFile)));
         _pltHooksManager.Hooks.Should().ContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.SetFilePointerEx)));
+
+        Marshal.FreeHGlobal((nint)fileNamePtr);
     }
 
     [Fact]
@@ -103,23 +95,14 @@ public class BootConfigCustomizerTests
 
         var expectedReturn = Random.Shared.Next() % 2 == 0;
         var receivedHandle = (HANDLE)Random.Shared.Next();
-        var fileNamePtr = (PCWSTR)(char*)Marshal.StringToHGlobalUni(_bootConfigFilePath);
+        var fileNamePtr = (char*)Marshal.StringToHGlobalUni(_bootConfigFilePath);
         _win32.SetFilePointerEx(
                 Arg.Any<HANDLE>(),
                 Arg.Any<long>(),
                 Arg.Any<Pointer<long>>(),
                 Arg.Any<SET_FILE_POINTER_MOVE_METHOD>())
             .ReturnsForAnyArgs((BOOL)expectedReturn);
-        _pltHooksManager.SimulateHook(
-            _gameExecutionContext.UnityPlayerDllFileName,
-            "CreateFileW",
-            fileNamePtr,
-            0u,
-            default(FILE_SHARE_MODE),
-            null,
-            default(FILE_CREATION_DISPOSITION),
-            default(FILE_FLAGS_AND_ATTRIBUTES),
-            default(HANDLE));
+        _createFileWSharedHooker.SimulateHook(fileNamePtr);
 
         var result = (int)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
@@ -131,6 +114,8 @@ public class BootConfigCustomizerTests
 
         result.Should().Be((BOOL)expectedReturn);
         _win32.Received(1).SetFilePointerEx(receivedHandle, 0, default, default);
+
+        Marshal.FreeHGlobal((nint)fileNamePtr);
     }
 
     [Fact]
@@ -148,7 +133,7 @@ public class BootConfigCustomizerTests
             "gfx-enable-native-gfx-jobs=\n".Length +
             nameof(_bootConfigSettingsValue.Headless).Length +
             3;
-        var fileNamePtr = (PCWSTR)(char*)Marshal.StringToHGlobalUni(_bootConfigFilePath);
+        var fileNamePtr = (char*)Marshal.StringToHGlobalUni(_bootConfigFilePath);
         _win32.CreateFile(
                 Arg.Any<PCWSTR>(),
                 Arg.Any<uint>(),
@@ -164,16 +149,7 @@ public class BootConfigCustomizerTests
                 Arg.Any<Pointer<long>>(),
                 Arg.Any<SET_FILE_POINTER_MOVE_METHOD>())
             .ReturnsForAnyArgs((BOOL)expectedReturn);
-        _pltHooksManager.SimulateHook(
-            _gameExecutionContext.UnityPlayerDllFileName,
-            "CreateFileW",
-            fileNamePtr,
-            0u,
-            default(FILE_SHARE_MODE),
-            null,
-            default(FILE_CREATION_DISPOSITION),
-            default(FILE_FLAGS_AND_ATTRIBUTES),
-            default(HANDLE));
+        _createFileWSharedHooker.SimulateHook(fileNamePtr);
 
         var result = (int)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
@@ -212,6 +188,8 @@ public class BootConfigCustomizerTests
         modifiedFilePointer.Should().Be(fileLength + distanceToMove);
 
         _win32.DidNotReceiveWithAnyArgs().SetFilePointerEx(default, 0, default, default);
+
+        Marshal.FreeHGlobal((nint)fileNamePtr);
     }
 
     [Fact]
@@ -221,7 +199,7 @@ public class BootConfigCustomizerTests
 
         var expectedReturn = Random.Shared.Next() % 2 == 0;
         var receivedHandle = (HANDLE)Random.Shared.Next();
-        var fileNamePtr = (PCWSTR)(char*)Marshal.StringToHGlobalUni(_bootConfigFilePath);
+        var fileNamePtr = (char*)Marshal.StringToHGlobalUni(_bootConfigFilePath);
         _win32.ReadFile(
                 Arg.Any<HANDLE>(),
                 Arg.Any<Pointer<byte>>(),
@@ -229,16 +207,7 @@ public class BootConfigCustomizerTests
                 Arg.Any<Pointer<uint>>(),
                 Arg.Any<Pointer<NativeOverlapped>>())
             .ReturnsForAnyArgs((BOOL)expectedReturn);
-        _pltHooksManager.SimulateHook(
-            _gameExecutionContext.UnityPlayerDllFileName,
-            "CreateFileW",
-            fileNamePtr,
-            0u,
-            default(FILE_SHARE_MODE),
-            null,
-            default(FILE_CREATION_DISPOSITION),
-            default(FILE_FLAGS_AND_ATTRIBUTES),
-            default(HANDLE));
+        _createFileWSharedHooker.SimulateHook(fileNamePtr);
 
         var result = (int)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
@@ -251,6 +220,8 @@ public class BootConfigCustomizerTests
 
         result.Should().Be((BOOL)expectedReturn);
         _win32.Received(1).ReadFile(receivedHandle, default, 0, default, default);
+
+        Marshal.FreeHGlobal((nint)fileNamePtr);
     }
 
     [Fact]
@@ -266,7 +237,7 @@ public class BootConfigCustomizerTests
         var expectedReturn = Random.Shared.Next() % 2 == 0;
         var receivedHandle = (HANDLE)Random.Shared.Next();
         var filePointer = (long)0;
-        var fileNamePtr = (PCWSTR)(char*)Marshal.StringToHGlobalUni(_bootConfigFilePath);
+        var fileNamePtr = (char*)Marshal.StringToHGlobalUni(_bootConfigFilePath);
         _win32.CreateFile(
                 Arg.Any<PCWSTR>(),
                 Arg.Any<uint>(),
@@ -283,16 +254,7 @@ public class BootConfigCustomizerTests
                 Arg.Any<Pointer<uint>>(),
                 Arg.Any<Pointer<NativeOverlapped>>())
             .ReturnsForAnyArgs((BOOL)expectedReturn);
-        _pltHooksManager.SimulateHook(
-            _gameExecutionContext.UnityPlayerDllFileName,
-            "CreateFileW",
-            fileNamePtr,
-            0u,
-            default(FILE_SHARE_MODE),
-            null,
-            default(FILE_CREATION_DISPOSITION),
-            default(FILE_FLAGS_AND_ATTRIBUTES),
-            default(HANDLE));
+        _createFileWSharedHooker.SimulateHook(fileNamePtr);
         _pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.SetFilePointerEx),
@@ -322,7 +284,6 @@ public class BootConfigCustomizerTests
 
         result.Should().Be(1);
         var fileContent = Marshal.PtrToStringAnsi(bytes, (int)fileLength);
-        Marshal.FreeHGlobal(bytes);
 
         fileContent.Should().Contain("gfx-enable-native-gfx-jobs=\n");
         fileContent.Should().Contain($"wait-for-native-debugger={(_bootConfigSettingsValue.WaitForNativeDebugger.Value ? 1 : 0)}\n");
@@ -332,29 +293,22 @@ public class BootConfigCustomizerTests
         fileContent.Should().Contain($"max-num-loops-no-job-before-going-idle={_bootConfigSettingsValue.MaxNumLoopsNoJobBeforeGoingIdle}\n");
 
         _win32.DidNotReceiveWithAnyArgs().ReadFile(default, default, 0, default, default);
+
+        Marshal.FreeHGlobal((nint)fileNamePtr);
+        Marshal.FreeHGlobal(bytes);
     }
 
     [Fact]
     public unsafe void OnGameLifeCycle_UninstallPltHook_WhenMonoInitialisedEventReceived()
     {
         StartService();
-        var fileNamePtr = (PCWSTR)(char*)Marshal.StringToHGlobalUni(_bootConfigFilePath);
-        _pltHooksManager.SimulateHook(
-            _gameExecutionContext.UnityPlayerDllFileName,
-            "CreateFileW",
-            fileNamePtr,
-            0u,
-            default(FILE_SHARE_MODE),
-            null,
-            default(FILE_CREATION_DISPOSITION),
-            default(FILE_FLAGS_AND_ATTRIBUTES),
-            default(HANDLE));
+        var fileNamePtr = (char*)Marshal.StringToHGlobalUni(_bootConfigFilePath);
+        _createFileWSharedHooker.SimulateHook(fileNamePtr);
 
-        _gameLifecycleEvents.Publish(this, new()
-        {
-            LifeCycle = GameLifecycle.MonoInitialising
-        });
+        _gameLifecycleEvents.Publish(this);
 
         _pltHooksManager.Hooks.Should().BeEmpty();
+
+        Marshal.FreeHGlobal((nint)fileNamePtr);
     }
 }

@@ -1,30 +1,20 @@
 namespace VenusRootLoader.Bootstrap.Shared;
 
-public enum GameLifecycle
-{
-    MonoInitialising
-}
-
-public class GameLifecycleEventArgs : EventArgs
-{
-    public GameLifecycle LifeCycle { get; init; }
-}
-
 public interface IGameLifecycleEvents
 {
-    void Subscribe(EventHandler<GameLifecycleEventArgs> listener);
-    void Publish(object sender, GameLifecycleEventArgs eventArgs);
+    void Subscribe(EventHandler listener);
+    void Publish(object sender);
 }
 
 public class GameLifecycleEvents : IGameLifecycleEvents
 {
-    private readonly List<EventHandler<GameLifecycleEventArgs>> _events = new();
+    private readonly List<EventHandler> _events = new();
 
-    public void Subscribe(EventHandler<GameLifecycleEventArgs> listener) => _events.Add(listener);
+    public void Subscribe(EventHandler listener) => _events.Add(listener);
 
-    public void Publish(object sender, GameLifecycleEventArgs eventArgs)
+    public void Publish(object sender)
     {
         foreach (var listener in _events)
-            listener(sender, eventArgs);
+            listener(sender, EventArgs.Empty);
     }
 }

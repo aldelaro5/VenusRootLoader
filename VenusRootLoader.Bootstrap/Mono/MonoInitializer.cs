@@ -174,7 +174,7 @@ internal class MonoInitializer : IHostedService
             }
         }
 
-        _gameLifecycleEvents.Publish(this, new() { LifeCycle = GameLifecycle.MonoInitialising });
+        _gameLifecycleEvents.Publish(this);
         _pltHooksManager.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, "GetProcAddress");
         Domain = _monoFunctions.JitInitVersion(domainName, runtimeVersion);
 

@@ -17,7 +17,7 @@ public class GameLifecycleEventsTests
         sut.Subscribe((_, _) => secondCalled = true);
         sut.Subscribe((_, _) => thirdCalled = true);
 
-        sut.Publish(this, new GameLifecycleEventArgs { LifeCycle = GameLifecycle.MonoInitialising });
+        sut.Publish(this);
 
         firstCalled.Should().BeTrue();
         secondCalled.Should().BeTrue();

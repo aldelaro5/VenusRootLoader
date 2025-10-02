@@ -140,15 +140,13 @@ internal class SplashScreenSkipper : IHostedService
         using (AssetsFileWriter writer = new(uncompressedBundlePath))
             bundleFile.Write(writer);
 
-        // TODO: Uncomment when it's possible to call Pack with speed optimisation
-        // _logger.LogDebug("\tCompressing the modified bundle file...");
-        // var newUncompressedBundle = new AssetBundleFile();
-        // newUncompressedBundle.Read(new AssetsFileReader(File.OpenRead(uncompressedBundlePath)));
-        // using (AssetsFileWriter writer = new AssetsFileWriter(_modifiedGameBundlePath))
-        //     newUncompressedBundle.Pack(writer, AssetBundleCompressionType.LZ4);
-        // newUncompressedBundle.Close();
+        _logger.LogDebug("\tCompressing the modified bundle file...");
+        var newUncompressedBundle = new AssetBundleFile();
+        newUncompressedBundle.Read(new AssetsFileReader(_fileSystem.File.OpenRead(uncompressedBundlePath)));
+        using (AssetsFileWriter writer = new AssetsFileWriter(_modifiedGameBundlePath))
+            newUncompressedBundle.Pack(writer, AssetBundleCompressionType.LZ4Fast);
+        newUncompressedBundle.Close();
 
-        _fileSystem.File.Move(uncompressedBundlePath, _modifiedGameBundlePath);
         _fileSystem.File.Delete(uncompressedBundlePath);
 
         _logger.LogDebug("\tClosing the original bundle file");

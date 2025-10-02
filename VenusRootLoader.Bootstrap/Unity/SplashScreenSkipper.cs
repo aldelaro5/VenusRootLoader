@@ -76,7 +76,17 @@ internal class SplashScreenSkipper : IHostedService
     private unsafe void HookFileHandle(out HANDLE originalHandle, PCWSTR lpFileName, uint dwDesiredAccess, FILE_SHARE_MODE dwShareMode, SECURITY_ATTRIBUTES* lpSecurityAttributes, FILE_CREATION_DISPOSITION dwCreationDisposition, FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes, HANDLE hTemplateFile)
     {
         if (!_fileSystem.File.Exists(_modifiedGameBundlePath))
-            SetGameBundleToSkipSplashScreen(lpFileName.ToString());
+        {
+            try
+            {
+                SetGameBundleToSkipSplashScreen(lpFileName.ToString());
+            }
+            catch (Exception e)
+            {
+                _logger.LogCritical(e, "An error occured while saving the modified bundle\n");
+                throw;
+            }
+        }
 
         _logger.LogInformation("Redirecting game bundle to {ModifiedGameBundlePath}", _modifiedGameBundlePath);
         fixed (char* fileNamePtr = _modifiedGameBundlePath)

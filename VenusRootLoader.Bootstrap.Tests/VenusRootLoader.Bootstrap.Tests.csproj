@@ -46,8 +46,8 @@
 
     <Target Name="CopyTestFiles" AfterTargets="Build">
         <ItemGroup>
-            <UnityCompiledProjectFiles Include="$(SolutionDir)/Data/UnityTestProject/CompiledProject/*/**" />
-            <UnityCompiledProjectFiles Include="$(SolutionDir)/Data/UnityTestProject/CompiledProject/*" />
+            <UnityCompiledProjectFiles Include="$(SolutionDir)/Data/UnityCompiledTestProject/*/**" />
+            <UnityCompiledProjectFiles Include="$(SolutionDir)/Data/UnityCompiledTestProject/*" />
         </ItemGroup>
         <ItemGroup>
             <BuiltProject Include="$(BuildDir)/*/**" />

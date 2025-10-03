@@ -287,5 +287,5 @@ __pycache__/
 *.xsd.cs
 
 # Unity TestProject
-Data/UnityTestProject/TestProject/Library
-Data/UnityTestProject/TestProject/Temp
+Data/UnityTestProject/Library
+Data/UnityTestProject/Temp

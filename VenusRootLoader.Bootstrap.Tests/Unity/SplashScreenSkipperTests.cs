@@ -39,14 +39,14 @@ public class SplashScreenSkipperTests : IDisposable
 
     public SplashScreenSkipperTests()
     {
-        _hostEnvironment.ContentRootPath.Returns(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+        _hostEnvironment.ContentRootPath.Returns(
+            Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "TestInstall"));
         _globalSettings.Value.Returns(_globalSettingsValue);
         _gameExecutionContext = new()
         {
             LibraryHandle = 0,
             GameDir = "",
-            DataDir =
-                Path.Combine(_hostEnvironment.ContentRootPath, "UnityCompiledProject/VenusRootLoaderTestProject_Data"),
+            DataDir = Path.Combine(_hostEnvironment.ContentRootPath, "VenusRootLoaderTestProject_Data"),
             UnityPlayerDllFileName = "UnityPlayer.dll",
             IsWine = false
         };

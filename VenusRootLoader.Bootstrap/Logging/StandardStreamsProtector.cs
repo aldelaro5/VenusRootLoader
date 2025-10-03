@@ -14,6 +14,7 @@ internal class StandardStreamsProtector : IHostedService
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     private delegate BOOL CloseHandleFn(HANDLE hObject);
+
     private static CloseHandleFn _hookCloseHandleDelegate = null!;
 
     private readonly IWin32 _win32;
@@ -42,7 +43,10 @@ internal class StandardStreamsProtector : IHostedService
         _outputHandle = _win32.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
         _errorHandle = _win32.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
 
-        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CloseHandle", _hookCloseHandleDelegate);
+        _pltHooksManager.InstallHook(
+            _gameExecutionContext.UnityPlayerDllFileName,
+            "CloseHandle",
+            _hookCloseHandleDelegate);
         _gameLifecycleEvents.Subscribe(OnGameLifecycle);
         return Task.CompletedTask;
     }
@@ -61,7 +65,9 @@ internal class StandardStreamsProtector : IHostedService
         if (hObject != _outputHandle && hObject != _errorHandle)
             return _win32.CloseHandle(hObject);
 
-        _logger.LogInformation("Prevented the CloseHandle of {StreamName}", hObject == _outputHandle ? "stdout" : "stderr");
+        _logger.LogInformation(
+            "Prevented the CloseHandle of {StreamName}",
+            hObject == _outputHandle ? "stdout" : "stderr");
         return true;
     }
 }

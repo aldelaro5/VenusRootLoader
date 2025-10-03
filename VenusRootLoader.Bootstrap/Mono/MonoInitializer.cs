@@ -28,6 +28,7 @@ internal class MonoInitializer : IHostedService
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     private delegate nint GetProcAddressFn(HMODULE handle, PCSTR symbol);
+
     private static GetProcAddressFn _hookGetProcAddressDelegate = null!;
 
     private bool _runtimeInitialised;
@@ -90,16 +91,19 @@ internal class MonoInitializer : IHostedService
         _debugInitDetourFn = MonoDebugInitDetour;
         _symbolRedirects = new Dictionary<string, IntPtr>
         {
-            { "mono_jit_init_version", Marshal.GetFunctionPointerForDelegate(_monoInitDetourFn)},
-            { "mono_jit_parse_options", Marshal.GetFunctionPointerForDelegate(_jitParseOptionsDetourFn)},
-            { "mono_debug_init", Marshal.GetFunctionPointerForDelegate(_debugInitDetourFn)},
+            { "mono_jit_init_version", Marshal.GetFunctionPointerForDelegate(_monoInitDetourFn) },
+            { "mono_jit_parse_options", Marshal.GetFunctionPointerForDelegate(_jitParseOptionsDetourFn) },
+            { "mono_debug_init", Marshal.GetFunctionPointerForDelegate(_debugInitDetourFn) },
         };
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Bootstrapping Mono...");
-        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "GetProcAddress", _hookGetProcAddressDelegate);
+        _pltHooksManager.InstallHook(
+            _gameExecutionContext.UnityPlayerDllFileName,
+            "GetProcAddress",
+            _hookGetProcAddressDelegate);
         return Task.CompletedTask;
     }
 
@@ -150,7 +154,10 @@ internal class MonoInitializer : IHostedService
         _logger.LogInformation("In init detour");
         string domainNameStr = Marshal.PtrToStringAnsi(domainName)!;
         string runtimeVersionStr = Marshal.PtrToStringAnsi(runtimeVersion)!;
-        _logger.LogInformation("Domain: {DomainNameStr}, Runtime version: {RuntimeVersionStr}", domainNameStr, runtimeVersionStr);
+        _logger.LogInformation(
+            "Domain: {DomainNameStr}, Runtime version: {RuntimeVersionStr}",
+            domainNameStr,
+            runtimeVersionStr);
 
         SetMonoAssembliesPath();
 
@@ -181,13 +188,18 @@ internal class MonoInitializer : IHostedService
         SetMonoMainThreadToCurrentThread();
         SetupMonoConfigs();
 
-        TransitionToMonoManagedSide(new()
-        {
-            AssemblyPath = _fileSystem.Path.Combine(_hostEnvironment.ContentRootPath, "VenusRootLoader", "VenusRootLoader.dll"),
-            Namespace = "VenusRootLoader",
-            ClassName = "MonoInitEntry",
-            MethodName = "Main"
-        });
+        TransitionToMonoManagedSide(
+            new()
+            {
+                AssemblyPath =
+                    _fileSystem.Path.Combine(
+                        _hostEnvironment.ContentRootPath,
+                        "VenusRootLoader",
+                        "VenusRootLoader.dll"),
+                Namespace = "VenusRootLoader",
+                ClassName = "MonoInitEntry",
+                MethodName = "Main"
+            });
 
         _jitInitDone = true;
         return Domain;
@@ -196,7 +208,8 @@ internal class MonoInitializer : IHostedService
     private void SetupMonoConfigs()
     {
         string configFile = $"{Environment.ProcessPath}.config";
-        _logger.LogInformation($"Setting Mono Config paths: base_dir: {_gameExecutionContext.GameDir}, config_file_name: {configFile}");
+        _logger.LogInformation(
+            $"Setting Mono Config paths: base_dir: {_gameExecutionContext.GameDir}, config_file_name: {configFile}");
         _monoFunctions.DomainSetConfig(Domain, _gameExecutionContext.GameDir, configFile);
 
         _logger.LogInformation("Parsing default Mono config");
@@ -240,6 +253,7 @@ internal class MonoInitializer : IHostedService
             _monoFunctions.JitParseOptions(argc, argv);
             return;
         }
+
         _logger.LogInformation("jit parse options");
 
         string newArgs;
@@ -247,7 +261,8 @@ internal class MonoInitializer : IHostedService
         if (dnSpyEnv is not null)
         {
             newArgs = dnSpyEnv;
-            _logger.LogInformation("Overriding the Mono debugging configuration by the DNSPY_UNITY_DBG2 environment variable");
+            _logger.LogInformation(
+                "Overriding the Mono debugging configuration by the DNSPY_UNITY_DBG2 environment variable");
         }
         else if (_debuggerSettings.Enable!.Value)
         {

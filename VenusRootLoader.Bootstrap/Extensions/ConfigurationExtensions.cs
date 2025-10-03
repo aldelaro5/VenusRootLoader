@@ -11,11 +11,12 @@ public static class ConfigurationExtensions
         string prefix,
         IDictionary<string, string> environmentVariablesMapping)
     {
-        builder.Add(new CustomEnvironmentVariablesConfigurationSource
-        {
-            Prefix = prefix,
-            EnvironmentVariablesMapping = environmentVariablesMapping
-        });
+        builder.Add(
+            new CustomEnvironmentVariablesConfigurationSource
+            {
+                Prefix = prefix,
+                EnvironmentVariablesMapping = environmentVariablesMapping
+            });
         return builder;
     }
 }

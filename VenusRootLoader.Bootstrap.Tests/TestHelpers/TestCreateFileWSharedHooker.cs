@@ -5,7 +5,10 @@ namespace VenusRootLoader.Bootstrap.Tests.TestHelpers;
 
 public class TestCreateFileWSharedHooker : ICreateFileWSharedHooker
 {
-    internal Dictionary<string, (Func<string, bool> Predicate, CreateFileWSharedHooker.CreateFileWHook Hook)> Hooks { get; } = new();
+    internal Dictionary<string, (Func<string, bool> Predicate, CreateFileWSharedHooker.CreateFileWHook Hook)> Hooks
+    {
+        get;
+    } = new();
 
     public void RegisterHook(string name, Func<string, bool> predicate, CreateFileWSharedHooker.CreateFileWHook hook)
     {

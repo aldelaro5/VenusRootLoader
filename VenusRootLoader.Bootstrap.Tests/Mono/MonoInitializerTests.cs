@@ -19,15 +19,22 @@ namespace VenusRootLoader.Bootstrap.Tests.Mono;
 public class MonoInitializerTests
 {
     private readonly FakeLogger<MonoInitializer> _logger = new FakeLogger<MonoInitializer>();
-    private readonly IOptions<MonoDebuggerSettings> _debuggerSettings = Substitute.For<IOptions<MonoDebuggerSettings>>();
+
+    private readonly IOptions<MonoDebuggerSettings>
+        _debuggerSettings = Substitute.For<IOptions<MonoDebuggerSettings>>();
+
     private readonly IWin32 _win32 = Substitute.For<IWin32>();
     private readonly IHostEnvironment _hostEnvironment = Substitute.For<IHostEnvironment>();
-    private readonly IPlayerConnectionDiscovery _playerConnectionDiscovery = Substitute.For<IPlayerConnectionDiscovery>();
+
+    private readonly IPlayerConnectionDiscovery _playerConnectionDiscovery =
+        Substitute.For<IPlayerConnectionDiscovery>();
+
     private readonly ISdbWinePathTranslator _sdbWinePathTranslator = Substitute.For<ISdbWinePathTranslator>();
     private readonly IMonoFunctions _monoFunctions = Substitute.For<IMonoFunctions>();
     private readonly IGameLifecycleEvents _gameLifecycleEvents = Substitute.For<IGameLifecycleEvents>();
     private readonly TestPltHookManager _pltHooksManager = new();
     private readonly MockFileSystem _fileSystem = new();
+
     private readonly MonoDebuggerSettings _debuggerSettingsValue = new()
     {
         Enable = false,
@@ -35,6 +42,7 @@ public class MonoInitializerTests
         Port = 55555,
         SuspendOnBoot = false
     };
+
     private GameExecutionContext _gameExecutionContext = new()
     {
         LibraryHandle = 0,
@@ -73,7 +81,8 @@ public class MonoInitializerTests
     {
         StartService();
 
-        _pltHooksManager.Hooks.Should().ContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.GetProcAddress)));
+        _pltHooksManager.Hooks.Should()
+            .ContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.GetProcAddress)));
     }
 
     [Fact]
@@ -179,7 +188,8 @@ public class MonoInitializerTests
         var expectedReturn = Random.Shared.Next();
         var assemblyRootDir = "rootdir";
         var receivedMonoAssembliesPath = "";
-        var expectedMonoAssembliesPath = $"{Path.Combine(_hostEnvironment.ContentRootPath, "UnityJitMonoBcl")};{assemblyRootDir}";
+        var expectedMonoAssembliesPath =
+            $"{Path.Combine(_hostEnvironment.ContentRootPath, "UnityJitMonoBcl")};{assemblyRootDir}";
         var monoThreadCurrent = (nint)Random.Shared.Next();
         nint receivedMonoThreadSetMain = nint.Zero;
         (int argc, string[] argv) receivedArgs = default;
@@ -230,8 +240,13 @@ public class MonoInitializerTests
         _monoFunctions.ReceivedWithAnyArgs(1).AssemblyGetImage(Arg.Any<nint>());
         _monoFunctions.ReceivedWithAnyArgs(1).DomainAssemblyOpen(result, Arg.Any<string>());
         _monoFunctions.ReceivedWithAnyArgs(1).ClassFromName(Arg.Any<nint>(), Arg.Any<string>(), Arg.Any<string>());
-        _monoFunctions.ReceivedWithAnyArgs(1).ClassGetMethodFromName(Arg.Any<nint>(), Arg.Any<string>(), Arg.Any<int>());
-        _monoFunctions.ReceivedWithAnyArgs(1).RuntimeInvoke(Arg.Any<nint>(), Arg.Any<nint>(), null, ref Arg.Any<nint>());
+        _monoFunctions.ReceivedWithAnyArgs(1)
+            .ClassGetMethodFromName(Arg.Any<nint>(), Arg.Any<string>(), Arg.Any<int>());
+        _monoFunctions.ReceivedWithAnyArgs(1).RuntimeInvoke(
+            Arg.Any<nint>(),
+            Arg.Any<nint>(),
+            null,
+            ref Arg.Any<nint>());
         _gameLifecycleEvents.Received(1).Publish(Arg.Any<object>());
         _pltHooksManager.Hooks.Should()
             .NotContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.GetProcAddress)));
@@ -253,9 +268,10 @@ public class MonoInitializerTests
         var symbolAddress = (FARPROC)Random.Shared.Next();
         var moduleHandle = (HMODULE)Random.Shared.Next();
         (int argc, string[] args) receivedArgs = default;
-        var expectedArgs = GetArgsFromString($"--debugger-agent=transport=dt_socket,server=y,address=" +
-                                             $"{_debuggerSettings.Value.IpAddress}:{_debuggerSettings.Value.Port}" +
-                                             ",suspend=n");
+        var expectedArgs = GetArgsFromString(
+            $"--debugger-agent=transport=dt_socket,server=y,address=" +
+            $"{_debuggerSettings.Value.IpAddress}:{_debuggerSettings.Value.Port}" +
+            ",suspend=n");
         var receivedFormat = IMonoFunctions.MonoDebugFormat.MonoDebugFormatNone;
         _monoFunctions.DebugInit.Returns(format => receivedFormat = format);
         _monoFunctions.JitParseOptions.Returns((argc, argv) => receivedArgs = ((int)argc, argv));
@@ -293,9 +309,10 @@ public class MonoInitializerTests
         var symbolAddress = (FARPROC)Random.Shared.Next();
         var moduleHandle = (HMODULE)Random.Shared.Next();
         (int argc, string[] args) receivedArgs = default;
-        var expectedArgs = GetArgsFromString($"--debugger-agent=transport=dt_socket,server=y,address=" +
-                                             $"{_debuggerSettings.Value.IpAddress}:{_debuggerSettings.Value.Port}" +
-                                             ",suspend=n");
+        var expectedArgs = GetArgsFromString(
+            $"--debugger-agent=transport=dt_socket,server=y,address=" +
+            $"{_debuggerSettings.Value.IpAddress}:{_debuggerSettings.Value.Port}" +
+            ",suspend=n");
         var receivedFormat = IMonoFunctions.MonoDebugFormat.MonoDebugFormatNone;
         _monoFunctions.DebugInit.Returns(format => receivedFormat = format);
         _monoFunctions.JitParseOptions.Returns((argc, argv) => receivedArgs = ((int)argc, argv));
@@ -391,7 +408,11 @@ public class MonoInitializerTests
         var result = detour(domainNamePtr, runtimeVersionPtr);
 
         _monoFunctions.ReceivedWithAnyArgs(1).DomainAssemblyOpen(result, Arg.Any<string>());
-        _monoFunctions.DidNotReceiveWithAnyArgs().RuntimeInvoke(Arg.Any<nint>(), Arg.Any<nint>(), null, ref Arg.Any<nint>());
+        _monoFunctions.DidNotReceiveWithAnyArgs().RuntimeInvoke(
+            Arg.Any<nint>(),
+            Arg.Any<nint>(),
+            null,
+            ref Arg.Any<nint>());
         _logger.Collector.GetSnapshot().Should().ContainSingle(log => log.Level == LogLevel.Critical);
 
         Marshal.FreeHGlobal(domainNamePtr);
@@ -434,7 +455,8 @@ public class MonoInitializerTests
         var symbolAddress = (FARPROC)Random.Shared.Next();
         var moduleHandle = (HMODULE)Random.Shared.Next();
         var originalArgs = GetArgsFromString("stuff things");
-        var dnSpyIp = $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
+        var dnSpyIp =
+            $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
         var dnSpyPort = (ushort)Random.Shared.Next();
         var dnSpyEnvVar = $"things,address={dnSpyIp}:{dnSpyPort},stuff";
         var expectedArgs = GetArgsFromString($"stuff things {dnSpyEnvVar}");
@@ -491,7 +513,8 @@ public class MonoInitializerTests
     }
 
     [Fact]
-    public unsafe void MonoJitParseOptionsDetour_OverridesDebugArgsWithDnSpyDebugArgs_WhenDnSpyEnvVarIsSetAndDebuggerIsEnabled()
+    public unsafe void
+        MonoJitParseOptionsDetour_OverridesDebugArgsWithDnSpyDebugArgs_WhenDnSpyEnvVarIsSetAndDebuggerIsEnabled()
     {
         _debuggerSettingsValue.Enable = true;
         StartService();
@@ -500,7 +523,8 @@ public class MonoInitializerTests
         var symbolAddress = (FARPROC)Random.Shared.Next();
         var moduleHandle = (HMODULE)Random.Shared.Next();
         var originalArgs = GetArgsFromString("stuff things");
-        var dnSpyIp = $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
+        var dnSpyIp =
+            $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
         var dnSpyPort = (ushort)Random.Shared.Next();
         var dnSpyEnvVar = $"things,address={dnSpyIp}:{dnSpyPort},stuff";
         var expectedArgs = GetArgsFromString($"stuff things {dnSpyEnvVar}");
@@ -548,7 +572,8 @@ public class MonoInitializerTests
             nameof(_win32.GetProcAddress),
             moduleHandle,
             jitInitSymbolPtr)!;
-        var detourJitParseOptions = Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitParseOptionsFn>(detourJitParseOptionsPtr);
+        var detourJitParseOptions =
+            Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitParseOptionsFn>(detourJitParseOptionsPtr);
         var detourJitInit = Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitInitVersionFn>(detourJitInitPtr);
 
         detourJitInit(domainNamePtr, runtimeVersionPtr);

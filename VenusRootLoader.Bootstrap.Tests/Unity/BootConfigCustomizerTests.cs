@@ -25,6 +25,7 @@ public class BootConfigCustomizerTests
     private readonly IGameLifecycleEvents _gameLifecycleEvents = new GameLifecycleEvents();
     private readonly IWin32 _win32 = Substitute.For<IWin32>();
     private readonly MockFileSystem _fileSystem = new();
+
     private readonly GameExecutionContext _gameExecutionContext = new()
     {
         LibraryHandle = 0,
@@ -33,6 +34,7 @@ public class BootConfigCustomizerTests
         UnityPlayerDllFileName = "UnityPlayer.dll",
         IsWine = false
     };
+
     private readonly BootConfigSettings _bootConfigSettingsValue;
     private readonly string _bootConfigFilePath;
 
@@ -82,8 +84,10 @@ public class BootConfigCustomizerTests
         result.Should().Be(expectedReturn);
         _win32.Received(1).CreateFile(fileNamePtr, 0, default, default, default, default, default);
         _pltHooksManager.Hooks.Should().NotContainKey((_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW"));
-        _pltHooksManager.Hooks.Should().ContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.ReadFile)));
-        _pltHooksManager.Hooks.Should().ContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.SetFilePointerEx)));
+        _pltHooksManager.Hooks.Should()
+            .ContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.ReadFile)));
+        _pltHooksManager.Hooks.Should()
+            .ContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.SetFilePointerEx)));
 
         Marshal.FreeHGlobal((nint)fileNamePtr);
     }
@@ -286,11 +290,14 @@ public class BootConfigCustomizerTests
         var fileContent = Marshal.PtrToStringAnsi(bytes, (int)fileLength);
 
         fileContent.Should().Contain("gfx-enable-native-gfx-jobs=\n");
-        fileContent.Should().Contain($"wait-for-native-debugger={(_bootConfigSettingsValue.WaitForNativeDebugger.Value ? 1 : 0)}\n");
+        fileContent.Should().Contain(
+            $"wait-for-native-debugger={(_bootConfigSettingsValue.WaitForNativeDebugger.Value ? 1 : 0)}\n");
         fileContent.Should().Contain($"scripting-runtime-version={_bootConfigSettingsValue.ScriptingRuntimeVersion}\n");
         fileContent.Should().Contain($"vr-enabled={(_bootConfigSettingsValue.VrEnabled.Value ? 1 : 0)}\n");
-        fileContent.Should().Contain($"hdr-display-enabled={(_bootConfigSettingsValue.HdrDisplayEnabled.Value ? 1 : 0)}\n");
-        fileContent.Should().Contain($"max-num-loops-no-job-before-going-idle={_bootConfigSettingsValue.MaxNumLoopsNoJobBeforeGoingIdle}\n");
+        fileContent.Should().Contain(
+            $"hdr-display-enabled={(_bootConfigSettingsValue.HdrDisplayEnabled.Value ? 1 : 0)}\n");
+        fileContent.Should().Contain(
+            $"max-num-loops-no-job-before-going-idle={_bootConfigSettingsValue.MaxNumLoopsNoJobBeforeGoingIdle}\n");
 
         _win32.DidNotReceiveWithAnyArgs().ReadFile(default, default, 0, default, default);
 

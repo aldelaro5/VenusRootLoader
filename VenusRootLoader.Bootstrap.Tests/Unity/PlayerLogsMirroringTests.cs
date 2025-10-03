@@ -23,15 +23,18 @@ public class PlayerLogsMirroringTests
     private readonly ILoggerFactory _loggerFactory = Substitute.For<ILoggerFactory>();
     private readonly TestPltHookManager _pltHooksManager = new();
     private readonly IOptions<LoggingSettings> _loggingSettings = Substitute.For<IOptions<LoggingSettings>>();
+
     private readonly LoggingSettings _loggingSettingsValue = new()
     {
         ConsoleLoggerSettings = new(),
         DiskFileLoggerSettings = new(),
         IncludeUnityLogs = true
     };
+
     private readonly IWin32 _win32 = Substitute.For<IWin32>();
     private readonly IGameLifecycleEvents _gameLifecycleEvents = new GameLifecycleEvents();
     private readonly TestCreateFileWSharedHooker _createFileWSharedHooker = new();
+
     private readonly GameExecutionContext _gameExecutionContext = new()
     {
         LibraryHandle = 0,
@@ -67,7 +70,8 @@ public class PlayerLogsMirroringTests
 
         _win32.Received(1).GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
         _win32.Received(1).GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
-        _pltHooksManager.Hooks.Should().ContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.WriteFile)));
+        _pltHooksManager.Hooks.Should()
+            .ContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.WriteFile)));
         _createFileWSharedHooker.Hooks.Should().ContainKey(nameof(PlayerLogsMirroring));
     }
 
@@ -83,7 +87,12 @@ public class PlayerLogsMirroringTests
         _pltHooksManager.Hooks.Should().NotContainKey((_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW"));
         _win32.Received(1).CreateFile(
             Arg.Is<PCWSTR>(s => string.Equals(s.ToString(), filename, StringComparison.Ordinal)),
-            0, default, default, default, default, default);
+            0,
+            default,
+            default,
+            default,
+            default,
+            default);
 
         Marshal.FreeHGlobal((nint)fileNamePtr);
     }
@@ -132,7 +141,12 @@ public class PlayerLogsMirroringTests
         result.Should().Be(expectedReturn);
         _win32.Received(1).CreateFile(
             Arg.Is<PCWSTR>(s => string.Equals(s.ToString(), filename, StringComparison.Ordinal)),
-            0, default, default, default, default, default);
+            0,
+            default,
+            default,
+            default,
+            default,
+            default);
         _win32.Received(1).WriteFile(handleReceived, default, 0u, default, default);
         _logger.Collector.Count.Should().Be(0);
 
@@ -178,7 +192,12 @@ public class PlayerLogsMirroringTests
         result.Should().Be(expectedReturn);
         _win32.Received(1).CreateFile(
             Arg.Is<PCWSTR>(s => string.Equals(s.ToString(), filename, StringComparison.Ordinal)),
-            0, default, default, default, default, default);
+            0,
+            default,
+            default,
+            default,
+            default,
+            default);
         _win32.Received(1).WriteFile(handlePlayerLogFile, default, 0u, default, default);
         _logger.Collector.Count.Should().Be(0);
 
@@ -225,8 +244,18 @@ public class PlayerLogsMirroringTests
         result.Should().Be(expectedReturn);
         _win32.Received(1).CreateFile(
             Arg.Is<PCWSTR>(s => string.Equals(s.ToString(), filename, StringComparison.Ordinal)),
-            0, default, default, default, default, default);
-        _win32.Received(1).WriteFile(handlePlayerLogFile, Arg.Any<Pointer<byte>>(), (uint)message.Length, default, default);
+            0,
+            default,
+            default,
+            default,
+            default,
+            default);
+        _win32.Received(1).WriteFile(
+            handlePlayerLogFile,
+            Arg.Any<Pointer<byte>>(),
+            (uint)message.Length,
+            default,
+            default);
         _logger.Collector.Count.Should().Be(1);
         _logger.LatestRecord.Level.Should().Be(LogLevel.Trace);
         _logger.LatestRecord.Message.Should().Be(message.TrimEnd("\r\n").ToString());
@@ -237,7 +266,8 @@ public class PlayerLogsMirroringTests
     [Theory]
     [InlineData(STD_HANDLE.STD_OUTPUT_HANDLE)]
     [InlineData(STD_HANDLE.STD_ERROR_HANDLE)]
-    public void WriteFileHook_DoesNotCallsOriginalWithoutLogging_WhenLogMirroringIsDisabledAndHandleIsStdHandle(STD_HANDLE stdHandle)
+    public void WriteFileHook_DoesNotCallsOriginalWithoutLogging_WhenLogMirroringIsDisabledAndHandleIsStdHandle(
+        STD_HANDLE stdHandle)
     {
         _loggingSettingsValue.IncludeUnityLogs = false;
         var handle = (HANDLE)Random.Shared.Next();
@@ -261,7 +291,8 @@ public class PlayerLogsMirroringTests
     [Theory]
     [InlineData(STD_HANDLE.STD_OUTPUT_HANDLE)]
     [InlineData(STD_HANDLE.STD_ERROR_HANDLE)]
-    public unsafe void WriteFileHook_DoesNotCallsOriginalWithLogging_WhenLogMirroringIsEnabledAndHandleIsStdHandle(STD_HANDLE stdHandle)
+    public unsafe void WriteFileHook_DoesNotCallsOriginalWithLogging_WhenLogMirroringIsEnabledAndHandleIsStdHandle(
+        STD_HANDLE stdHandle)
     {
         var handle = (HANDLE)Random.Shared.Next();
         _win32.GetStdHandle(stdHandle).Returns(handle);

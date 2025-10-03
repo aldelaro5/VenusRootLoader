@@ -54,6 +54,7 @@ public class CreateFileWSharedHooker : ICreateFileWSharedHooker
         FILE_CREATION_DISPOSITION dwCreationDisposition,
         FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes,
         HANDLE hTemplateFile);
+
     private static CreateFileWFn _hookCreateFileWDelegate = null!;
 
     private readonly IWin32 _win32;
@@ -71,7 +72,10 @@ public class CreateFileWSharedHooker : ICreateFileWSharedHooker
         _gameExecutionContext = gameExecutionContext;
         _win32 = win32;
         _hookCreateFileWDelegate = HookCreateFileW;
-        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW", _hookCreateFileWDelegate);
+        _pltHooksManager.InstallHook(
+            _gameExecutionContext.UnityPlayerDllFileName,
+            "CreateFileW",
+            _hookCreateFileWDelegate);
     }
 
     /// <summary>
@@ -96,19 +100,40 @@ public class CreateFileWSharedHooker : ICreateFileWSharedHooker
             _pltHooksManager.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW");
     }
 
-    public unsafe nint HookCreateFileW(PCWSTR lpFileName, uint dwDesiredAccess, FILE_SHARE_MODE dwShareMode, SECURITY_ATTRIBUTES* lpSecurityAttributes, FILE_CREATION_DISPOSITION dwCreationDisposition, FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes, HANDLE hTemplateFile)
+    public unsafe nint HookCreateFileW(
+        PCWSTR lpFileName,
+        uint dwDesiredAccess,
+        FILE_SHARE_MODE dwShareMode,
+        SECURITY_ATTRIBUTES* lpSecurityAttributes,
+        FILE_CREATION_DISPOSITION dwCreationDisposition,
+        FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes,
+        HANDLE hTemplateFile)
     {
         foreach (var hookWithPredicate in _fileHandlesHooks.Values)
         {
             if (!hookWithPredicate.predicate(lpFileName.ToString()))
                 continue;
 
-            hookWithPredicate.Hook(out var fileHandle, lpFileName, dwDesiredAccess, dwShareMode,
-                lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+            hookWithPredicate.Hook(
+                out var fileHandle,
+                lpFileName,
+                dwDesiredAccess,
+                dwShareMode,
+                lpSecurityAttributes,
+                dwCreationDisposition,
+                dwFlagsAndAttributes,
+                hTemplateFile);
 
             return fileHandle;
         }
-        return _win32.CreateFile(lpFileName, dwDesiredAccess, dwShareMode, new(lpSecurityAttributes),
-            dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+
+        return _win32.CreateFile(
+            lpFileName,
+            dwDesiredAccess,
+            dwShareMode,
+            new(lpSecurityAttributes),
+            dwCreationDisposition,
+            dwFlagsAndAttributes,
+            hTemplateFile);
     }
 }

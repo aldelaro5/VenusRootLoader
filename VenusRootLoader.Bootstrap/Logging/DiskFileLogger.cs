@@ -30,7 +30,12 @@ public class DiskFileLogger : ILogger
         _timeProvider = timeProvider;
     }
 
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+    public void Log<TState>(
+        LogLevel logLevel,
+        EventId eventId,
+        TState state,
+        Exception? exception,
+        Func<TState, Exception?, string> formatter)
     {
         if (!IsEnabled(logLevel))
             return;
@@ -41,10 +46,11 @@ public class DiskFileLogger : ILogger
         if (exception is not null)
             message += $" {exception}";
 
-        _logWriter.WriteLine($"[{time}] " +
-                             $"[{_logLevelInfos[logLevel]}] " +
-                             $"[{_categoryName}] " +
-                             $"{message}");
+        _logWriter.WriteLine(
+            $"[{time}] " +
+            $"[{_logLevelInfos[logLevel]}] " +
+            $"[{_categoryName}] " +
+            $"{message}");
     }
 
     public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None;

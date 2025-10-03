@@ -150,9 +150,14 @@ public class PltHooksManagerTests
         _sut.InstallHook(fileName, functionName, hook);
 
         _pltHookSub.Received(1).PlthookOpen(Arg.Any<Pointer<nint>>(), fileName);
-        _pltHookSub.DidNotReceiveWithAnyArgs().PlthookReplace(Arg.Any<nint>(), Arg.Any<string>(), Arg.Any<nint>(), Arg.Any<Pointer<nint>>());
+        _pltHookSub.DidNotReceiveWithAnyArgs().PlthookReplace(
+            Arg.Any<nint>(),
+            Arg.Any<string>(),
+            Arg.Any<nint>(),
+            Arg.Any<Pointer<nint>>());
         _pltHookSub.Received(1).PlthookError();
-        _loggerSub.LatestRecord.Should().Match<FakeLogRecord>(r => r.Level == LogLevel.Error && r.Message.Contains(errorString));
+        _loggerSub.LatestRecord.Should()
+            .Match<FakeLogRecord>(r => r.Level == LogLevel.Error && r.Message.Contains(errorString));
 
         Marshal.FreeHGlobal(errorStringPtr);
     }
@@ -186,7 +191,8 @@ public class PltHooksManagerTests
             Arg.Is<nint>(x => Marshal.GetDelegateForFunctionPointer<Action>(x) == hook),
             Arg.Any<Pointer<nint>>());
         _pltHookSub.Received(1).PlthookError();
-        _loggerSub.LatestRecord.Should().Match<FakeLogRecord>(r => r.Level == LogLevel.Error && r.Message.Contains(errorString));
+        _loggerSub.LatestRecord.Should()
+            .Match<FakeLogRecord>(r => r.Level == LogLevel.Error && r.Message.Contains(errorString));
     }
 
     [Fact]
@@ -403,6 +409,7 @@ public class PltHooksManagerTests
             functionName,
             Arg.Any<nint>(),
             Arg.Any<Pointer<nint>>());
-        _loggerSub.LatestRecord.Should().Match<FakeLogRecord>(r => r.Level == LogLevel.Error && r.Message.Contains(errorString));
+        _loggerSub.LatestRecord.Should()
+            .Match<FakeLogRecord>(r => r.Level == LogLevel.Error && r.Message.Contains(errorString));
     }
 }

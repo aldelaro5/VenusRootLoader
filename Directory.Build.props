@@ -22,20 +22,20 @@
 
     <Target Name="CopyUnityjitBcl" AfterTargets="Build">
         <ItemGroup>
-            <UnityjitMonoBclFiles Include="$(SolutionDir)/UnityJitMonoBcl/**/*.*" />
+            <UnityjitMonoBclFiles Include="$(SolutionDir)/UnityJitMonoBcl/**/*.*"/>
         </ItemGroup>
-        <Copy ContinueOnError="false" SourceFiles="@(UnityjitMonoBclFiles)" DestinationFolder="$(BuildDir)/UnityJitMonoBcl" />
+        <Copy ContinueOnError="false" SourceFiles="@(UnityjitMonoBclFiles)" DestinationFolder="$(BuildDir)/UnityJitMonoBcl"/>
     </Target>
 
     <Target Name="CopyClassDataTpk" AfterTargets="Build">
-        <Copy ContinueOnError="false" SourceFiles="$(SolutionDir)Data/classdata.tpk" DestinationFolder="$(BuildDir)/VenusRootLoader" />
+        <Copy ContinueOnError="false" SourceFiles="$(SolutionDir)Data/classdata.tpk" DestinationFolder="$(BuildDir)/VenusRootLoader"/>
     </Target>
 
     <Target Name="CopyToBugFables" AfterTargets="PostBuild" Condition="$(BugFablesDir) != ''">
         <ItemGroup>
-            <OutFiles Include="$(BuildDir)/**/*.*" />
+            <OutFiles Include="$(BuildDir)/**/*.*"/>
         </ItemGroup>
-        <Message Importance="high" Text="Copying build files to $(BugFablesDir)" />
-        <Copy ContinueOnError="false" SourceFiles="@(OutFiles)" DestinationFiles="$(BugFablesDir)/%(RecursiveDir)%(Filename)%(Extension)" />
+        <Message Importance="high" Text="Copying build files to $(BugFablesDir)"/>
+        <Copy ContinueOnError="false" SourceFiles="@(OutFiles)" DestinationFiles="$(BugFablesDir)/%(RecursiveDir)%(Filename)%(Extension)"/>
     </Target>
 </Project>

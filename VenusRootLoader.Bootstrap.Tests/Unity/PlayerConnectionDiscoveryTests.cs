@@ -20,6 +20,7 @@ public class PlayerConnectionDiscoveryTests
     private readonly ILogger<PlayerConnectionDiscovery> _logger = Substitute.For<ILogger<PlayerConnectionDiscovery>>();
     private readonly TestPltHookManager _pltHooksManager = new();
     private readonly IWin32 _win32 = Substitute.For<IWin32>();
+
     private readonly GameExecutionContext _gameExecutionContext = new()
     {
         LibraryHandle = 0,
@@ -42,7 +43,8 @@ public class PlayerConnectionDiscoveryTests
         client.Client.ReceiveTimeout = 2000;
         client.JoinMulticastGroup(broadcastIp);
         var remoteEp = new IPEndPoint(broadcastIp, 0);
-        var ip = $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
+        var ip =
+            $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
         var port = (ushort)Random.Shared.Next();
 
         using var sut = new PlayerConnectionDiscovery(_logger, _pltHooksManager, _gameExecutionContext, _win32);
@@ -75,9 +77,11 @@ public class PlayerConnectionDiscoveryTests
         client.Client.ReceiveTimeout = 2000;
         client.JoinMulticastGroup(broadcastIp);
         var remoteEp = new IPEndPoint(broadcastIp, 0);
-        var ip = $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
+        var ip =
+            $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
         var port = (ushort)Random.Shared.Next();
-        var dnSpyIp = $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
+        var dnSpyIp =
+            $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
         var dnSpyPort = (ushort)Random.Shared.Next();
         Environment.SetEnvironmentVariable("DNSPY_UNITY_DBG2", $"stuff,address={dnSpyIp}:{dnSpyPort},things");
 
@@ -97,7 +101,8 @@ public class PlayerConnectionDiscoveryTests
     [Fact]
     public unsafe void StartDiscoveryWithSendToHook_OverridesMessageToSend_WhenSendToIsCalled()
     {
-        var ip = $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
+        var ip =
+            $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
         var port = (ushort)Random.Shared.Next();
         PCSTR receivedBuffer = default;
         int receivedLength = 0;
@@ -145,11 +150,14 @@ public class PlayerConnectionDiscoveryTests
     }
 
     [Fact]
-    public unsafe void StartDiscoveryWithSendToHook_OverridesMessageToSendWithDnSpyDebugConfig_WhenCalledWithDnSpyEnvironmentVariableSet()
+    public unsafe void
+        StartDiscoveryWithSendToHook_OverridesMessageToSendWithDnSpyDebugConfig_WhenCalledWithDnSpyEnvironmentVariableSet()
     {
-        var ip = $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
+        var ip =
+            $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
         var port = (ushort)Random.Shared.Next();
-        var dnSpyIp = $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
+        var dnSpyIp =
+            $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
         var dnSpyPort = (ushort)Random.Shared.Next();
         Environment.SetEnvironmentVariable("DNSPY_UNITY_DBG2", $"stuff,address={dnSpyIp}:{dnSpyPort},things");
         PCSTR receivedBuffer = default;

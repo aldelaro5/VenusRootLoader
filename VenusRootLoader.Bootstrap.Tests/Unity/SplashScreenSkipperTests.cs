@@ -27,11 +27,13 @@ public class SplashScreenSkipperTests : IDisposable
     private readonly TestPltHookManager _pltHookManager = new();
     private readonly TestCreateFileWSharedHooker _createFileWSharedHooker = new();
     private readonly GameExecutionContext _gameExecutionContext;
+
     private readonly GlobalSettings _globalSettingsValue = new()
     {
         DisableVrl = false,
         SkipUnitySplashScreen = true
     };
+
     private readonly string _dataUnity3dPath;
     private readonly string _pathModifiedBundle;
 
@@ -43,12 +45,16 @@ public class SplashScreenSkipperTests : IDisposable
         {
             LibraryHandle = 0,
             GameDir = "",
-            DataDir = Path.Combine(_hostEnvironment.ContentRootPath, "UnityCompiledProject/VenusRootLoaderTestProject_Data"),
+            DataDir =
+                Path.Combine(_hostEnvironment.ContentRootPath, "UnityCompiledProject/VenusRootLoaderTestProject_Data"),
             UnityPlayerDllFileName = "UnityPlayer.dll",
             IsWine = false
         };
         _dataUnity3dPath = Path.Combine(_gameExecutionContext.DataDir, "data.unity3d");
-        _pathModifiedBundle = Path.Combine(_hostEnvironment.ContentRootPath, "VenusRootLoader", "data.unity3d.modified");
+        _pathModifiedBundle = Path.Combine(
+            _hostEnvironment.ContentRootPath,
+            "VenusRootLoader",
+            "data.unity3d.modified");
         DeleteRealTestFiles();
     }
 
@@ -62,7 +68,14 @@ public class SplashScreenSkipperTests : IDisposable
 
     private void StartService()
     {
-        var sut = new SplashScreenSkipper(_logger, _createFileWSharedHooker, _gameExecutionContext, _globalSettings, _hostEnvironment, _win32, _fileSystem);
+        var sut = new SplashScreenSkipper(
+            _logger,
+            _createFileWSharedHooker,
+            _gameExecutionContext,
+            _globalSettings,
+            _hostEnvironment,
+            _win32,
+            _fileSystem);
         sut.StartAsync(TestContext.Current.CancellationToken);
     }
 
@@ -105,7 +118,12 @@ public class SplashScreenSkipperTests : IDisposable
         AssertModifiedBundleIsCorrect();
         _win32.Received(1).CreateFile(
             Arg.Is<PCWSTR>(s => string.Equals(s.ToString(), _pathModifiedBundle, StringComparison.Ordinal)),
-            0, default, default, default, default, default);
+            0,
+            default,
+            default,
+            default,
+            default,
+            default);
 
         Marshal.FreeHGlobal((nint)fileNamePtr);
     }
@@ -123,7 +141,12 @@ public class SplashScreenSkipperTests : IDisposable
         File.Exists(_pathModifiedBundle).Should().BeTrue();
         _win32.Received(2).CreateFile(
             Arg.Is<PCWSTR>(s => string.Equals(s.ToString(), _pathModifiedBundle, StringComparison.Ordinal)),
-            0, default, default, default, default, default);
+            0,
+            default,
+            default,
+            default,
+            default,
+            default);
         _pltHookManager.Hooks.Should().BeEmpty();
 
         Marshal.FreeHGlobal((nint)fileNamePtr);

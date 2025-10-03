@@ -59,7 +59,9 @@ internal class Entry
         }
     }
 
-    private static bool ShouldResumeEntry(IntPtr module, [NotNullWhen(true)] out GameExecutionContext? gameExecutionContext)
+    private static bool ShouldResumeEntry(
+        IntPtr module,
+        [NotNullWhen(true)] out GameExecutionContext? gameExecutionContext)
     {
         var libraryHandle = module;
         var fileSystem = new FileSystem();

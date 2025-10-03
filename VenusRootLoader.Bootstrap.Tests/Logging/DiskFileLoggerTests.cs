@@ -24,10 +24,7 @@ public class DiskFileLoggerTests
         var category = "Some category";
         var message = "Some logging message";
         var stream = new MemoryStream();
-        var writer = new StreamWriter(stream)
-        {
-            AutoFlush = true
-        };
+        var writer = new StreamWriter(stream) { AutoFlush = true };
 
         DiskFileLogger sut = new(category, writer, _timeProvider);
         sut.Log(logLevel, message);
@@ -45,10 +42,7 @@ public class DiskFileLoggerTests
     public void Log_LogsWithSimplifiedCategory_WhenItContainsDots(string category, string expected)
     {
         var stream = new MemoryStream();
-        var writer = new StreamWriter(stream)
-        {
-            AutoFlush = true
-        };
+        var writer = new StreamWriter(stream) { AutoFlush = true };
 
         DiskFileLogger sut = new(category, writer, _timeProvider);
         sut.LogInformation("Some logging message");
@@ -64,10 +58,7 @@ public class DiskFileLoggerTests
         var message = "Some logging message";
         var exception = new Exception("Some exception message");
         var stream = new MemoryStream();
-        var writer = new StreamWriter(stream)
-        {
-            AutoFlush = true
-        };
+        var writer = new StreamWriter(stream) { AutoFlush = true };
 
         DiskFileLogger sut = new("Some category", writer, _timeProvider);
         sut.LogInformation(exception, message);

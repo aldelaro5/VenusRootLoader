@@ -36,10 +36,12 @@ public class SdbWinePathTranslator : ISdbWinePathTranslator
 {
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     private delegate int SendFn(SOCKET s, PCSTR buf, int len, SEND_RECV_FLAGS flags);
+
     private static SendFn _hookSendFnDelegate = null!;
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     private delegate int RecvFn(SOCKET s, PSTR buf, int len, SEND_RECV_FLAGS flags);
+
     private static RecvFn _hookRecvFnDelegate = null!;
 
     private readonly IWin32 _win32;
@@ -131,7 +133,9 @@ public class SdbWinePathTranslator : ISdbWinePathTranslator
 
         // Write the new length of the string first which is needed because all strings are its length followed by the content
         // (without a null termination needed)
-        Marshal.WriteInt32(modifiedBytesPtr + fullNameStringInfo.Index - sizeof(int), BinaryPrimitives.ReverseEndianness(chars.Length));
+        Marshal.WriteInt32(
+            modifiedBytesPtr + fullNameStringInfo.Index - sizeof(int),
+            BinaryPrimitives.ReverseEndianness(chars.Length));
 
         // Finally, write the new string
         Marshal.Copy(Encoding.ASCII.GetBytes(chars), 0, modifiedBytesPtr + fullNameStringInfo.Index, chars.Length);
@@ -182,6 +186,7 @@ public class SdbWinePathTranslator : ISdbWinePathTranslator
             length = BinaryPrimitives.ReverseEndianness(Marshal.ReadInt32((nint)packet.Value, index));
             index += 4;
         }
+
         return (length, index);
     }
 
@@ -192,6 +197,7 @@ public class SdbWinePathTranslator : ISdbWinePathTranslator
         {
             sbBin.Append(b.ToString("X2"));
         }
+
         _logger.LogTrace("{prefix}(BIN): {packetBin}", prefix, sbBin.ToString());
         var ascii = Encoding.ASCII.GetString(modifiedBytes);
         var sbAscii = new StringBuilder();
@@ -200,6 +206,7 @@ public class SdbWinePathTranslator : ISdbWinePathTranslator
             sbAscii.Append(' ');
             sbAscii.Append(b);
         }
+
         _logger.LogTrace("{prefix}(STR): {packet}", prefix, sbAscii.ToString());
     }
 }

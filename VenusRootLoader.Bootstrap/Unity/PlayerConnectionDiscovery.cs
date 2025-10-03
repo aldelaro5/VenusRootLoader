@@ -46,6 +46,7 @@ public class PlayerConnectionDiscovery : IDisposable, IPlayerConnectionDiscovery
         int flags,
         SOCKADDR* to,
         int toLen);
+
     private static SendToFn _sendToDelegate = null!;
 
     // While Resharper-Unity seems to indicate other ports could be used, this port number was found to be hardcoded for
@@ -92,8 +93,10 @@ public class PlayerConnectionDiscovery : IDisposable, IPlayerConnectionDiscovery
             var addressParts = addressArgument.Split(':');
             addressToUse = IPAddress.Parse(addressParts[0]);
             portToUse = ushort.Parse(addressParts[1]);
-            _logger.LogInformation("Overriding the IP address to {ipAddress}:{port} from the DNSPY_UNITY_DBG2 environment variable",
-                addressToUse, portToUse);
+            _logger.LogInformation(
+                "Overriding the IP address to {ipAddress}:{port} from the DNSPY_UNITY_DBG2 environment variable",
+                addressToUse,
+                portToUse);
         }
 
         StringBuilder sb = new StringBuilder();
@@ -161,8 +164,11 @@ public class PlayerConnectionDiscovery : IDisposable, IPlayerConnectionDiscovery
         timer.Elapsed += TimerOnElapsed;
         timer.Start();
 
-        _logger.LogInformation("Sending {message} to {ipAddress}:{port} every second",
-            _message, IpMessageDestination, PortMessageDestination);
+        _logger.LogInformation(
+            "Sending {message} to {ipAddress}:{port} every second",
+            _message,
+            IpMessageDestination,
+            PortMessageDestination);
     }
 
     private void TimerOnElapsed(object? sender, ElapsedEventArgs e)
@@ -176,12 +182,18 @@ public class PlayerConnectionDiscovery : IDisposable, IPlayerConnectionDiscovery
         _message = ConstructWhoAmIString(IPAddress.Parse(ipAddress), port);
         _messagePtr = (byte*)Marshal.StringToHGlobalAnsi(_message);
 
-        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.sendto), _sendToDelegate);
+        _pltHooksManager.InstallHook(
+            _gameExecutionContext.UnityPlayerDllFileName,
+            nameof(_win32.sendto),
+            _sendToDelegate);
     }
 
     private unsafe int SendToHook(SOCKET s, PCSTR buf, int len, int flags, SOCKADDR* to, int toLen)
     {
-        _logger.LogTrace("Overriding message to send via sendto of length {bytesSent}: {message}", _message.Length, _message);
+        _logger.LogTrace(
+            "Overriding message to send via sendto of length {bytesSent}: {message}",
+            _message.Length,
+            _message);
         return _win32.sendto(s, new(_messagePtr), _message.Length, flags, new(to), toLen);
     }
 

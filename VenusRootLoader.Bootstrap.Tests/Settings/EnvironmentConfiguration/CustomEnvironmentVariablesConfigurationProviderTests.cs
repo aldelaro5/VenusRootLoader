@@ -16,10 +16,7 @@ public class CustomEnvironmentVariablesConfigurationProviderTests
         var prefix = "PREFIX_";
         var configKey = "ConfigKey";
         var value = "true";
-        var mappings = new Dictionary<string, string>
-        {
-            ["EXIST"] = configKey
-        };
+        var mappings = new Dictionary<string, string> { ["EXIST"] = configKey };
         var sut = new CustomEnvironmentVariablesConfigurationProvider(prefix, mappings);
         Environment.SetEnvironmentVariable("NO_PREFIX", value);
         Environment.SetEnvironmentVariable($"{prefix}DOES_NOT_EXIST", value);

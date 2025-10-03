@@ -12,7 +12,9 @@ namespace VenusRootLoader.Bootstrap.Tests.Logging;
 
 public sealed class DiskFileLoggerProviderTests
 {
-    private readonly IOptions<DiskFileLoggerSettings> _diskFileLoggerSettings = Substitute.For<IOptions<DiskFileLoggerSettings>>();
+    private readonly IOptions<DiskFileLoggerSettings> _diskFileLoggerSettings =
+        Substitute.For<IOptions<DiskFileLoggerSettings>>();
+
     private readonly FakeTimeProvider _timeProvider = new();
     private readonly IHostEnvironment _hostEnvironment = Substitute.For<IHostEnvironment>();
     private readonly MockFileSystem _fileSystem = new();
@@ -20,11 +22,12 @@ public sealed class DiskFileLoggerProviderTests
     [Fact]
     public void CreateLogger_ReturnsNullLogger_WhenDiskFileLoggingIsDisabled()
     {
-        _diskFileLoggerSettings.Value.Returns(new DiskFileLoggerSettings
-        {
-            Enable = false,
-            MaxFilesToKeep = 5
-        });
+        _diskFileLoggerSettings.Value.Returns(
+            new DiskFileLoggerSettings
+            {
+                Enable = false,
+                MaxFilesToKeep = 5
+            });
 
         var sut = new DiskFileLoggerProvider(_diskFileLoggerSettings, _hostEnvironment, _fileSystem, _timeProvider);
         var logger = sut.CreateLogger("Test");
@@ -39,16 +42,14 @@ public sealed class DiskFileLoggerProviderTests
         var existingLogPath = $"/{rootPath}/Logs/latest.log";
         var existingLogsContent = "existing logs";
 
-        _diskFileLoggerSettings.Value.Returns(new DiskFileLoggerSettings
-        {
-            Enable = true,
-            MaxFilesToKeep = 5
-        });
+        _diskFileLoggerSettings.Value.Returns(
+            new DiskFileLoggerSettings
+            {
+                Enable = true,
+                MaxFilesToKeep = 5
+            });
         _hostEnvironment.ContentRootPath.Returns(rootPath);
-        _fileSystem.AddFile(existingLogPath, new(existingLogsContent)
-        {
-            AllowedFileShare = FileShare.None
-        });
+        _fileSystem.AddFile(existingLogPath, new(existingLogsContent) { AllowedFileShare = FileShare.None });
 
         var sut = new DiskFileLoggerProvider(_diskFileLoggerSettings, _hostEnvironment, _fileSystem, _timeProvider);
         var logger = sut.CreateLogger("Test");
@@ -64,14 +65,19 @@ public sealed class DiskFileLoggerProviderTests
         var rootPath = "root";
         var expectedPath = $"/{rootPath}/Logs/latest.log";
 
-        _diskFileLoggerSettings.Value.Returns(new DiskFileLoggerSettings
-        {
-            Enable = true,
-            MaxFilesToKeep = 5
-        });
+        _diskFileLoggerSettings.Value.Returns(
+            new DiskFileLoggerSettings
+            {
+                Enable = true,
+                MaxFilesToKeep = 5
+            });
         _hostEnvironment.ContentRootPath.Returns(rootPath);
 
-        using var sut = new DiskFileLoggerProvider(_diskFileLoggerSettings, _hostEnvironment, _fileSystem, _timeProvider);
+        using var sut = new DiskFileLoggerProvider(
+            _diskFileLoggerSettings,
+            _hostEnvironment,
+            _fileSystem,
+            _timeProvider);
         var logger = sut.CreateLogger("Test");
 
         logger.Should().BeOfType<DiskFileLogger>();
@@ -88,11 +94,12 @@ public sealed class DiskFileLoggerProviderTests
         var olderLogPath = $"/{rootPath}/Logs/{olderLogFileTimeStamp:yyyy-MM-dd_HH-mm-ss}.log";
         var currentTime = DateTimeOffset.Now;
 
-        _diskFileLoggerSettings.Value.Returns(new DiskFileLoggerSettings
-        {
-            Enable = true,
-            MaxFilesToKeep = 5
-        });
+        _diskFileLoggerSettings.Value.Returns(
+            new DiskFileLoggerSettings
+            {
+                Enable = true,
+                MaxFilesToKeep = 5
+            });
         _hostEnvironment.ContentRootPath.Returns(rootPath);
         _fileSystem.AddFile(latestLogPath, new(existingLogsContent));
         _fileSystem.File.SetCreationTime(latestLogPath, olderLogFileTimeStamp);
@@ -100,7 +107,11 @@ public sealed class DiskFileLoggerProviderTests
         _timeProvider.SetLocalTimeZone(TimeZoneInfo.Utc);
         _timeProvider.SetUtcNow(currentTime);
 
-        using var sut = new DiskFileLoggerProvider(_diskFileLoggerSettings, _hostEnvironment, _fileSystem, _timeProvider);
+        using var sut = new DiskFileLoggerProvider(
+            _diskFileLoggerSettings,
+            _hostEnvironment,
+            _fileSystem,
+            _timeProvider);
         var logger = sut.CreateLogger("Test");
 
         logger.Should().BeOfType<DiskFileLogger>();
@@ -129,11 +140,12 @@ public sealed class DiskFileLoggerProviderTests
         var newerLogPath = $"/{rootPath}/Logs/{newerLogTimeStamp:yyyy-MM-dd_HH-mm-ss}.log";
         var currentTime = DateTimeOffset.Now;
 
-        _diskFileLoggerSettings.Value.Returns(new DiskFileLoggerSettings
-        {
-            Enable = true,
-            MaxFilesToKeep = 2
-        });
+        _diskFileLoggerSettings.Value.Returns(
+            new DiskFileLoggerSettings
+            {
+                Enable = true,
+                MaxFilesToKeep = 2
+            });
         _hostEnvironment.ContentRootPath.Returns(rootPath);
         _fileSystem.AddFile(latestLogPath, new(newerLogContent));
         _fileSystem.AddFile(newerLogPath, new(olderLogContent));
@@ -143,7 +155,11 @@ public sealed class DiskFileLoggerProviderTests
         _timeProvider.SetLocalTimeZone(TimeZoneInfo.Utc);
         _timeProvider.SetUtcNow(currentTime);
 
-        using var sut = new DiskFileLoggerProvider(_diskFileLoggerSettings, _hostEnvironment, _fileSystem, _timeProvider);
+        using var sut = new DiskFileLoggerProvider(
+            _diskFileLoggerSettings,
+            _hostEnvironment,
+            _fileSystem,
+            _timeProvider);
         var logger = sut.CreateLogger("Test");
 
         logger.Should().BeOfType<DiskFileLogger>();

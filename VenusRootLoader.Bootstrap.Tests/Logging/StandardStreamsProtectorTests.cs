@@ -15,6 +15,7 @@ public class StandardStreamsProtectorTests
     private readonly IWin32 _win32 = Substitute.For<IWin32>();
     private readonly TestPltHookManager _pltHookManager = new();
     private readonly IGameLifecycleEvents _gameLifecycleEvents = new GameLifecycleEvents();
+
     private readonly GameExecutionContext _gameExecutionContext = new()
     {
         LibraryHandle = 0,
@@ -26,7 +27,12 @@ public class StandardStreamsProtectorTests
 
     private readonly StandardStreamsProtector _sut;
 
-    public StandardStreamsProtectorTests() => _sut = new(_logger, _pltHookManager, _gameExecutionContext, _gameLifecycleEvents, _win32);
+    public StandardStreamsProtectorTests() => _sut = new(
+        _logger,
+        _pltHookManager,
+        _gameExecutionContext,
+        _gameLifecycleEvents,
+        _win32);
 
     [Fact]
     public async Task StartAsync_SetupHooks_WhenCalled()
@@ -35,7 +41,8 @@ public class StandardStreamsProtectorTests
 
         _win32.Received(1).GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
         _win32.Received(1).GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
-        _pltHookManager.Hooks.Should().ContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(IWin32.CloseHandle)));
+        _pltHookManager.Hooks.Should()
+            .ContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(IWin32.CloseHandle)));
     }
 
     [Fact]

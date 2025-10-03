@@ -13,7 +13,9 @@ namespace VenusRootLoader.Bootstrap.Tests.Logging;
 
 public sealed class ConsoleLogProviderTests
 {
-    private readonly IOptions<ConsoleLoggerSettings> _consoleLoggerOptions = Substitute.For<IOptions<ConsoleLoggerSettings>>();
+    private readonly IOptions<ConsoleLoggerSettings> _consoleLoggerOptions =
+        Substitute.For<IOptions<ConsoleLoggerSettings>>();
+
     private readonly TimeProvider _timeProvider = Substitute.For<TimeProvider>();
     private readonly IWin32 _win32 = Substitute.For<IWin32>();
 
@@ -23,11 +25,12 @@ public sealed class ConsoleLogProviderTests
     [Fact]
     public void CreateLogger_ReturnsNullLogger_WhenConsoleLoggerIsDisabled()
     {
-        _consoleLoggerOptions.Value.Returns(new ConsoleLoggerSettings
-        {
-            Enable = false,
-            LogWithColors = true
-        });
+        _consoleLoggerOptions.Value.Returns(
+            new ConsoleLoggerSettings
+            {
+                Enable = false,
+                LogWithColors = true
+            });
         var gameExecutionContext = new GameExecutionContext
         {
             LibraryHandle = 0,
@@ -46,11 +49,12 @@ public sealed class ConsoleLogProviderTests
     [Fact]
     public void CreateLogger_ReturnsConsoleLoggerWithNoColors_WhenColorsAreDisabled()
     {
-        _consoleLoggerOptions.Value.Returns(new ConsoleLoggerSettings
-        {
-            Enable = true,
-            LogWithColors = false
-        });
+        _consoleLoggerOptions.Value.Returns(
+            new ConsoleLoggerSettings
+            {
+                Enable = true,
+                LogWithColors = false
+            });
         var gameExecutionContext = new GameExecutionContext
         {
             LibraryHandle = 0,
@@ -71,14 +75,16 @@ public sealed class ConsoleLogProviderTests
     [Theory]
     [InlineData(STD_HANDLE.STD_OUTPUT_HANDLE)]
     [InlineData(STD_HANDLE.STD_ERROR_HANDLE)]
-    public void CreateLogger_ReturnsConsoleLoggerWithLegacyColors_WhenColorsAreEnabledAndAnsiIsNotSupported(STD_HANDLE stdHandleWithoutAnsi)
+    public void CreateLogger_ReturnsConsoleLoggerWithLegacyColors_WhenColorsAreEnabledAndAnsiIsNotSupported(
+        STD_HANDLE stdHandleWithoutAnsi)
     {
         var handleWithoutAnsi = (HANDLE)Random.Shared.Next();
-        _consoleLoggerOptions.Value.Returns(new ConsoleLoggerSettings
-        {
-            Enable = true,
-            LogWithColors = true
-        });
+        _consoleLoggerOptions.Value.Returns(
+            new ConsoleLoggerSettings
+            {
+                Enable = true,
+                LogWithColors = true
+            });
         var gameExecutionContext = new GameExecutionContext
         {
             LibraryHandle = 0,
@@ -104,11 +110,12 @@ public sealed class ConsoleLogProviderTests
     {
         var stdOutHandle = (HANDLE)Random.Shared.Next();
         var stdErrHandle = (HANDLE)Random.Shared.Next();
-        _consoleLoggerOptions.Value.Returns(new ConsoleLoggerSettings
-        {
-            Enable = true,
-            LogWithColors = true
-        });
+        _consoleLoggerOptions.Value.Returns(
+            new ConsoleLoggerSettings
+            {
+                Enable = true,
+                LogWithColors = true
+            });
         var gameExecutionContext = new GameExecutionContext
         {
             LibraryHandle = 0,
@@ -135,11 +142,12 @@ public sealed class ConsoleLogProviderTests
     {
         var stdOutHandle = (HANDLE)Random.Shared.Next();
         var stdErrHandle = (HANDLE)Random.Shared.Next();
-        _consoleLoggerOptions.Value.Returns(new ConsoleLoggerSettings
-        {
-            Enable = true,
-            LogWithColors = true
-        });
+        _consoleLoggerOptions.Value.Returns(
+            new ConsoleLoggerSettings
+            {
+                Enable = true,
+                LogWithColors = true
+            });
         var gameExecutionContext = new GameExecutionContext
         {
             LibraryHandle = 0,

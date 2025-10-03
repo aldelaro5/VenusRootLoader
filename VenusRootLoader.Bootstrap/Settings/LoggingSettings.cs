@@ -6,16 +6,11 @@ namespace VenusRootLoader.Bootstrap.Settings;
 
 public class LoggingSettings
 {
-    [Required]
-    public bool? IncludeUnityLogs { get; set; }
+    [Required] public bool? IncludeUnityLogs { get; set; }
 
-    [ValidateObjectMembers]
-    [Required]
-    public required ConsoleLoggerSettings ConsoleLoggerSettings { get; set; }
+    [ValidateObjectMembers] [Required] public required ConsoleLoggerSettings ConsoleLoggerSettings { get; set; }
 
-    [ValidateObjectMembers]
-    [Required]
-    public required DiskFileLoggerSettings DiskFileLoggerSettings { get; set; }
+    [ValidateObjectMembers] [Required] public required DiskFileLoggerSettings DiskFileLoggerSettings { get; set; }
 }
 
 [OptionsValidator]

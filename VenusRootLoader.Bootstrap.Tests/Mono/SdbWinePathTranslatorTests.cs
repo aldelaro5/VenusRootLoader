@@ -281,7 +281,12 @@ public class SdbWinePathTranslatorTests
         return messageSend;
     }
 
-    private static byte[] BuildModuleGetInfoSendPacket(string baseName, string scopeName, string fullName, string guid, int id)
+    private static byte[] BuildModuleGetInfoSendPacket(
+        string baseName,
+        string scopeName,
+        string fullName,
+        string guid,
+        int id)
     {
         using var streamSend = new MemoryStream();
         BinaryWriter writerSend = new(streamSend);

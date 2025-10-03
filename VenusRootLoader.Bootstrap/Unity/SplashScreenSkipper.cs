@@ -39,6 +39,7 @@ internal class SplashScreenSkipper : IHostedService
     private readonly bool _enableSkipper;
 
     private bool _redirectedOnceBefore;
+
     public SplashScreenSkipper(
         ILogger<SplashScreenSkipper> logger,
         ICreateFileWSharedHooker createFileWSharedHooker,
@@ -55,8 +56,14 @@ internal class SplashScreenSkipper : IHostedService
         _win32 = win32;
         _createFileWSharedHooker = createFileWSharedHooker;
         _enableSkipper = globalSettings.Value.SkipUnitySplashScreen!.Value;
-        _modifiedGameBundlePath = _fileSystem.Path.Combine(_hostEnvironment.ContentRootPath, "VenusRootLoader", "data.unity3d.modified");
-        _classDataTpkPath = _fileSystem.Path.Combine(_hostEnvironment.ContentRootPath, "VenusRootLoader", "classdata.tpk");
+        _modifiedGameBundlePath = _fileSystem.Path.Combine(
+            _hostEnvironment.ContentRootPath,
+            "VenusRootLoader",
+            "data.unity3d.modified");
+        _classDataTpkPath = _fileSystem.Path.Combine(
+            _hostEnvironment.ContentRootPath,
+            "VenusRootLoader",
+            "classdata.tpk");
     }
 
     public unsafe Task StartAsync(CancellationToken cancellationToken)
@@ -73,7 +80,15 @@ internal class SplashScreenSkipper : IHostedService
     private bool IsGameBundleFile(string filename) =>
         filename == _fileSystem.Path.Combine(_gameExecutionContext.DataDir, "data.unity3d");
 
-    private unsafe void HookFileHandle(out HANDLE originalHandle, PCWSTR lpFileName, uint dwDesiredAccess, FILE_SHARE_MODE dwShareMode, SECURITY_ATTRIBUTES* lpSecurityAttributes, FILE_CREATION_DISPOSITION dwCreationDisposition, FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes, HANDLE hTemplateFile)
+    private unsafe void HookFileHandle(
+        out HANDLE originalHandle,
+        PCWSTR lpFileName,
+        uint dwDesiredAccess,
+        FILE_SHARE_MODE dwShareMode,
+        SECURITY_ATTRIBUTES* lpSecurityAttributes,
+        FILE_CREATION_DISPOSITION dwCreationDisposition,
+        FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes,
+        HANDLE hTemplateFile)
     {
         if (!_fileSystem.File.Exists(_modifiedGameBundlePath))
         {
@@ -91,8 +106,14 @@ internal class SplashScreenSkipper : IHostedService
         _logger.LogInformation("Redirecting game bundle to {ModifiedGameBundlePath}", _modifiedGameBundlePath);
         fixed (char* fileNamePtr = _modifiedGameBundlePath)
         {
-            originalHandle = _win32.CreateFile(fileNamePtr, dwDesiredAccess, dwShareMode, new(lpSecurityAttributes),
-                dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+            originalHandle = _win32.CreateFile(
+                fileNamePtr,
+                dwDesiredAccess,
+                dwShareMode,
+                new(lpSecurityAttributes),
+                dwCreationDisposition,
+                dwFlagsAndAttributes,
+                hTemplateFile);
         }
 
         if (!_redirectedOnceBefore)
@@ -103,7 +124,8 @@ internal class SplashScreenSkipper : IHostedService
 
     private void SetGameBundleToSkipSplashScreen(string gameBundlePath)
     {
-        _logger.LogInformation("Using AssetTools.NET to create a modified game bundle that skips the Unity splash screen...");
+        _logger.LogInformation(
+            "Using AssetTools.NET to create a modified game bundle that skips the Unity splash screen...");
 
         var manager = new AssetsManager();
         _logger.LogDebug("\tLoading the classdata.tpk file");
@@ -152,6 +174,8 @@ internal class SplashScreenSkipper : IHostedService
         _logger.LogDebug("\tClosing the original bundle file");
         bundleFile.Close();
 
-        _logger.LogInformation("Modified bundle file written successfully at {ModifiedGameBundlePath}", _modifiedGameBundlePath);
+        _logger.LogInformation(
+            "Modified bundle file written successfully at {ModifiedGameBundlePath}",
+            _modifiedGameBundlePath);
     }
 }

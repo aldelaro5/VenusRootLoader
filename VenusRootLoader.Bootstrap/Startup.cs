@@ -21,10 +21,14 @@ internal static class Startup
     private static readonly Dictionary<string, string> EnvironmentVariablesConfigMapping = new()
     {
         ["INCLUDE_UNITY_LOGS"] = $"{nameof(LoggingSettings)}:{nameof(LoggingSettings.IncludeUnityLogs)}",
-        ["ENABLE_CONSOLE_LOGS"] = $"{nameof(LoggingSettings)}:{nameof(ConsoleLoggerSettings)}:{nameof(ConsoleLoggerSettings.Enable)}",
-        ["CONSOLE_COLORS"] = $"{nameof(LoggingSettings)}:{nameof(ConsoleLoggerSettings)}:{nameof(ConsoleLoggerSettings.LogWithColors)}",
-        ["ENABLE_FILES_LOGS"] = $"{nameof(LoggingSettings)}:{nameof(DiskFileLoggerSettings)}:{nameof(DiskFileLoggerSettings.Enable)}",
-        ["MAX_FILES_LOGS"] = $"{nameof(LoggingSettings)}:{nameof(DiskFileLoggerSettings)}:{nameof(DiskFileLoggerSettings.MaxFilesToKeep)}",
+        ["ENABLE_CONSOLE_LOGS"] =
+            $"{nameof(LoggingSettings)}:{nameof(ConsoleLoggerSettings)}:{nameof(ConsoleLoggerSettings.Enable)}",
+        ["CONSOLE_COLORS"] =
+            $"{nameof(LoggingSettings)}:{nameof(ConsoleLoggerSettings)}:{nameof(ConsoleLoggerSettings.LogWithColors)}",
+        ["ENABLE_FILES_LOGS"] =
+            $"{nameof(LoggingSettings)}:{nameof(DiskFileLoggerSettings)}:{nameof(DiskFileLoggerSettings.Enable)}",
+        ["MAX_FILES_LOGS"] =
+            $"{nameof(LoggingSettings)}:{nameof(DiskFileLoggerSettings)}:{nameof(DiskFileLoggerSettings.MaxFilesToKeep)}",
         ["DEBUGGER_ENABLE"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.Enable)}",
         ["DEBUGGER_IP_ADDRESS"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.IpAddress)}",
         ["DEBUGGER_PORT"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.Port)}",
@@ -33,25 +37,30 @@ internal static class Startup
 
     internal static IHost BuildHost(GameExecutionContext gameExecutionContext)
     {
-        var builder = Host.CreateEmptyApplicationBuilder(new()
-        {
-            DisableDefaults = true,
-            ApplicationName = "VenusRootLoader",
-            Args = [],
-            EnvironmentName = "Development",
-            ContentRootPath = gameExecutionContext.GameDir,
-            Configuration = new()
-        });
+        var builder = Host.CreateEmptyApplicationBuilder(
+            new()
+            {
+                DisableDefaults = true,
+                ApplicationName = "VenusRootLoader",
+                Args = [],
+                EnvironmentName = "Development",
+                ContentRootPath = gameExecutionContext.GameDir,
+                Configuration = new()
+            });
 
         var fileSystem = new FileSystem();
         var sanitisedArgs = SanitiseCommandLineArguments();
         SetCustomContentRootPathIfProvided(builder.Environment, sanitisedArgs, fileSystem);
 
-        builder.Configuration.AddJsonFile(fileSystem.Path.Combine(builder.Environment.ContentRootPath, "Config", "config.jsonc"));
-        builder.Configuration.AddJsonFile(fileSystem.Path.Combine(builder.Environment.ContentRootPath, "Config", "boot.jsonc"));
+        builder.Configuration.AddJsonFile(
+            fileSystem.Path.Combine(builder.Environment.ContentRootPath, "Config", "config.jsonc"));
+        builder.Configuration.AddJsonFile(
+            fileSystem.Path.Combine(builder.Environment.ContentRootPath, "Config", "boot.jsonc"));
         builder.Configuration.AddCustomEnvironmentVariables("VRL_", EnvironmentVariablesConfigMapping);
-        builder.Configuration.AddCommandLine(sanitisedArgs.ToArray(), EnvironmentVariablesConfigMapping
-            .ToDictionary(key => $"--{key.Key.ToLower().Replace('_', '-')}", value => value.Value));
+        builder.Configuration.AddCommandLine(
+            sanitisedArgs.ToArray(),
+            EnvironmentVariablesConfigMapping
+                .ToDictionary(key => $"--{key.Key.ToLower().Replace('_', '-')}", value => value.Value));
 
         builder.Logging.AddConfiguration(builder.Configuration.GetRequiredSection("Logging"));
         builder.Logging.AddConsoleLoggingProvider();
@@ -66,10 +75,12 @@ internal static class Startup
         builder.Services.AddOptions<LoggingSettings>()
             .BindConfiguration(nameof(LoggingSettings), options => options.ErrorOnUnknownConfiguration = true);
         builder.Services.AddOptions<ConsoleLoggerSettings>()
-            .BindConfiguration($"{nameof(LoggingSettings)}:{nameof(ConsoleLoggerSettings)}",
+            .BindConfiguration(
+                $"{nameof(LoggingSettings)}:{nameof(ConsoleLoggerSettings)}",
                 options => options.ErrorOnUnknownConfiguration = true);
         builder.Services.AddOptions<DiskFileLoggerSettings>()
-            .BindConfiguration($"{nameof(LoggingSettings)}:{nameof(DiskFileLoggerSettings)}",
+            .BindConfiguration(
+                $"{nameof(LoggingSettings)}:{nameof(DiskFileLoggerSettings)}",
                 options => options.ErrorOnUnknownConfiguration = true);
 
         builder.Services.AddSingleton<IValidateOptions<MonoDebuggerSettings>, ValidateMonoDebuggerSettings>();
@@ -98,7 +109,9 @@ internal static class Startup
         return builder.Build();
     }
 
-    private static void SetCustomContentRootPathIfProvided(IHostEnvironment hostEnvironment, List<string> args,
+    private static void SetCustomContentRootPathIfProvided(
+        IHostEnvironment hostEnvironment,
+        List<string> args,
         FileSystem fileSystem)
     {
         var baseDirEnv = Environment.GetEnvironmentVariable("VRL_BASE_DIRECTORY");

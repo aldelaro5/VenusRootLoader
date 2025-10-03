@@ -50,11 +50,17 @@ public class PltHooksManager : IPltHooksManager
         }
 
         nint addressOriginal = nint.Zero;
-        if (!_pltHook.PlthookReplace(moduleHook.ptr, functionName, Marshal.GetFunctionPointerForDelegate(hook), new(&addressOriginal)))
+        if (!_pltHook.PlthookReplace(
+                moduleHook.ptr,
+                functionName,
+                Marshal.GetFunctionPointerForDelegate(hook),
+                new(&addressOriginal)))
         {
-            _logger.LogError($"plthook_replace error: when hooking {functionName}: {Marshal.PtrToStringUTF8(_pltHook.PlthookError())}");
+            _logger.LogError(
+                $"plthook_replace error: when hooking {functionName}: {Marshal.PtrToStringUTF8(_pltHook.PlthookError())}");
             return;
         }
+
         moduleHook.originalHookedFunc[functionName] = addressOriginal;
         _logger.LogInformation($"plthook_replace: Plt hooked {functionName} successfully");
 
@@ -73,12 +79,16 @@ public class PltHooksManager : IPltHooksManager
         var oldFunc = nint.Zero;
         if (!_pltHook.PlthookReplace(moduleHook.ptr, functionName, originalHookedFunc, new(&oldFunc)))
         {
-            _logger.LogError($"plthook_replace error: when unhooking {functionName}: {Marshal.PtrToStringUTF8(_pltHook.PlthookError())}");
+            _logger.LogError(
+                $"plthook_replace error: when unhooking {functionName}: {Marshal.PtrToStringUTF8(_pltHook.PlthookError())}");
             return;
         }
+
         moduleHook.originalHookedFunc.Remove(functionName);
-        _logger.LogInformation("Uninstalled hook with filename {FileName} and function {FunctionName} successfully",
-            fileName, functionName);
+        _logger.LogInformation(
+            "Uninstalled hook with filename {FileName} and function {FunctionName} successfully",
+            fileName,
+            functionName);
 
         if (moduleHook.originalHookedFunc.Count > 0)
         {

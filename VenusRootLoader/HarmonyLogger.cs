@@ -14,7 +14,8 @@ internal static class HarmonyLogger
 
     internal static void Setup()
     {
-        Logger.ChannelFilter = Logger.LogChannel.Warn; // DetermineChannelFilter(LoaderConfig.Current.Loader.HarmonyLogLevel);
+        Logger.ChannelFilter =
+            Logger.LogChannel.Warn; // DetermineChannelFilter(LoaderConfig.Current.Loader.HarmonyLogLevel);
         Logger.MessageReceived += LoggerOnMessageReceived;
     }
 

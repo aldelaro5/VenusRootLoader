@@ -82,7 +82,10 @@ public class ConsoleLoggerTests
 
     [Theory]
     [MemberData(nameof(LogLevelsTestDataAnsi))]
-    public void Log_LogsWithTheCorrectColors_WhenCalledInAnsiMode(LogLevel logLevel, string levelMoniker, Color levelColor)
+    public void Log_LogsWithTheCorrectColors_WhenCalledInAnsiMode(
+        LogLevel logLevel,
+        string levelMoniker,
+        Color levelColor)
     {
         var timeStamp = DateTimeOffset.Now;
         var timeStampString = timeStamp.ToString("HH:mm:ss.fff");
@@ -139,7 +142,10 @@ public class ConsoleLoggerTests
 
     [Theory]
     [MemberData(nameof(LogLevelsTestDataLegacy))]
-    public void Log_LogsWithTheCorrectColors_WhenCalledInLegacyMode(LogLevel logLevel, string levelMoniker, ConsoleColor levelColor)
+    public void Log_LogsWithTheCorrectColors_WhenCalledInLegacyMode(
+        LogLevel logLevel,
+        string levelMoniker,
+        ConsoleColor levelColor)
     {
         var timeStamp = DateTimeOffset.Now;
         var timeStampString = timeStamp.ToString("HH:mm:ss.fff");
@@ -170,7 +176,9 @@ public class ConsoleLoggerTests
 
     [Theory]
     [MemberData(nameof(LogCategoriesTestDataLegacy))]
-    public void Log_LogsCategoryWithTheCorrectColors_WhenCalledInLegacyMode(string categoryName, ConsoleColor levelColor)
+    public void Log_LogsCategoryWithTheCorrectColors_WhenCalledInLegacyMode(
+        string categoryName,
+        ConsoleColor levelColor)
     {
         var writer = new LegacyConsoleColorsCaptureTextWriter();
         Console.SetOut(writer);

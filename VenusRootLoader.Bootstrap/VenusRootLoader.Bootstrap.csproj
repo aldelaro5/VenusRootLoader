@@ -18,67 +18,67 @@
 
     <Target Name="RemoveBuiltInDllMain" AfterTargets="SetupOSSpecificProps">
         <ItemGroup>
-            <LinkerArg Remove="@(LinkerArg)" Condition="$([System.String]::new('%(Identity)').Contains('dllmain.obj'))" />
+            <LinkerArg Remove="@(LinkerArg)" Condition="$([System.String]::new('%(Identity)').Contains('dllmain.obj'))"/>
         </ItemGroup>
     </Target>
 
     <ItemGroup>
-      <PackageReference Include="AssetsTools.NET" Version="3.0.2" />
-      <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0-preview.7.25380.108" />
-      <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.0-preview.7.25380.108" />
-      <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="9.9.0" />
-      <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.205">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-      <PackageReference Include="Pastel" Version="7.0.0" />
-      <PackageReference Include="PublishAotCrossXWin" Version="1.2.0" />
-      <PackageReference Include="TestableIO.System.IO.Abstractions.Analyzers" Version="2022.0.0">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-      <PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.0.16" />
+        <PackageReference Include="AssetsTools.NET" Version="3.0.2"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0-preview.7.25380.108"/>
+        <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.0-preview.7.25380.108"/>
+        <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="9.9.0"/>
+        <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.205">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Pastel" Version="7.0.0"/>
+        <PackageReference Include="PublishAotCrossXWin" Version="1.2.0"/>
+        <PackageReference Include="TestableIO.System.IO.Abstractions.Analyzers" Version="2022.0.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.0.16"/>
     </ItemGroup>
 
     <Target Name="BuildXwinCache" BeforeTargets="Build" Condition="!Exists('$(XWinCache)splat/sdk/lib/ucrt/$(Platform)') and $([MSBuild]::IsOSPlatform('Linux'))">
-        <Message Importance="high" Text="The xwin cache does not yet exist, building this may take a while..." />
-        <Exec ContinueOnError="false" ConsoleToMsBuild="true" Command="xwin --accept-license --cache-dir &quot;$(XWinCache)&quot; --arch $(XwinArches) --sdk-version 10.0.22621 splat --preserve-ms-arch-notation --include-debug-symbols" />
+        <Message Importance="high" Text="The xwin cache does not yet exist, building this may take a while..."/>
+        <Exec ContinueOnError="false" ConsoleToMsBuild="true" Command="xwin --accept-license --cache-dir &quot;$(XWinCache)&quot; --arch $(XwinArches) --sdk-version 10.0.22621 splat --preserve-ms-arch-notation --include-debug-symbols"/>
     </Target>
 
     <ItemGroup>
-        <ClangArgs Include="-c" Visible="false" />
-        <ClangArgs Include="-O2" Visible="false" />
+        <ClangArgs Include="-c" Visible="false"/>
+        <ClangArgs Include="-O2" Visible="false"/>
     </ItemGroup>
 
     <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
-        <ClangArgs Include="/external:I &quot;$(XWinCache)splat/sdk/include/um&quot;" Visible="false" />
-        <ClangArgs Include="/external:I &quot;$(XWinCache)splat/sdk/include/shared&quot;" Visible="false" />
-        <ClangArgs Include="/external:I &quot;$(XWinCache)splat/sdk/include/ucrt&quot;" Visible="false" />
-        <ClangArgs Include="/external:I &quot;$(XWinCache)splat/crt/include&quot;" Visible="false" />
+        <ClangArgs Include="/external:I &quot;$(XWinCache)splat/sdk/include/um&quot;" Visible="false"/>
+        <ClangArgs Include="/external:I &quot;$(XWinCache)splat/sdk/include/shared&quot;" Visible="false"/>
+        <ClangArgs Include="/external:I &quot;$(XWinCache)splat/sdk/include/ucrt&quot;" Visible="false"/>
+        <ClangArgs Include="/external:I &quot;$(XWinCache)splat/crt/include&quot;" Visible="false"/>
     </ItemGroup>
 
     <Target Name="BuildPLtHook" BeforeTargets="Build" DependsOnTargets="BuildXwinCache">
-        <Message Importance="high" Text="Building PltHook" />
-        <Exec ContinueOnError="false" ConsoleToMsBuild="true" Command="clang-cl @(ClangArgs, ' ') -w $(SolutionDir)External/plthook/plthook_win32.c -o &quot;$(PltHookPath)&quot;" />
-        <Message Importance="high" Text="Building NativeEntry" />
-        <Exec ContinueOnError="false" ConsoleToMsBuild="true" Command="clang-cl @(ClangArgs, ' ') NativeEntry/entry.cpp -o &quot;$(EntryObjPath)&quot;" />
+        <Message Importance="high" Text="Building PltHook"/>
+        <Exec ContinueOnError="false" ConsoleToMsBuild="true" Command="clang-cl @(ClangArgs, ' ') -w $(SolutionDir)External/plthook/plthook_win32.c -o &quot;$(PltHookPath)&quot;"/>
+        <Message Importance="high" Text="Building NativeEntry"/>
+        <Exec ContinueOnError="false" ConsoleToMsBuild="true" Command="clang-cl @(ClangArgs, ' ') NativeEntry/entry.cpp -o &quot;$(EntryObjPath)&quot;"/>
     </Target>
 
     <ItemGroup>
-        <NativeLibrary Include="$(PltHookPath)" Visible="false" />
-        <NativeLibrary Include="$(EntryObjPath)" Visible="false" />
+        <NativeLibrary Include="$(PltHookPath)" Visible="false"/>
+        <NativeLibrary Include="$(EntryObjPath)" Visible="false"/>
     </ItemGroup>
 
     <ItemGroup>
-        <LinkerArg Include="/DEF:Exports.def" Visible="false" />
+        <LinkerArg Include="/DEF:Exports.def" Visible="false"/>
     </ItemGroup>
 
-    <Target Name="PublishAsBuildAfterTarget" AfterTargets="Build" DependsOnTargets="Publish" />
+    <Target Name="PublishAsBuildAfterTarget" AfterTargets="Build" DependsOnTargets="Publish"/>
 
     <Target Name="PostBuild" AfterTargets="PublishAsBuildAfterTarget">
-        <Move SourceFiles="$(BuildDir)/$(TargetName).dll" DestinationFiles="$(BuildDir)/winhttp.dll" />
-        <Copy Condition="$(Configuration) == Debug" ContinueOnError="false" SourceFiles="$(TargetDir)/native/$(TargetName).pdb" DestinationFiles="$(BuildDir)/$(TargetName).pdb" />
-        <Copy ContinueOnError="false" SourceFiles="$(MSBuildProjectDirectory)/config.jsonc" DestinationFolder="$(BuildDir)Config" />
-        <Copy ContinueOnError="false" SourceFiles="$(MSBuildProjectDirectory)/boot.jsonc" DestinationFolder="$(BuildDir)Config" />
+        <Move SourceFiles="$(BuildDir)/$(TargetName).dll" DestinationFiles="$(BuildDir)/winhttp.dll"/>
+        <Copy Condition="$(Configuration) == Debug" ContinueOnError="false" SourceFiles="$(TargetDir)/native/$(TargetName).pdb" DestinationFiles="$(BuildDir)/$(TargetName).pdb"/>
+        <Copy ContinueOnError="false" SourceFiles="$(MSBuildProjectDirectory)/config.jsonc" DestinationFolder="$(BuildDir)Config"/>
+        <Copy ContinueOnError="false" SourceFiles="$(MSBuildProjectDirectory)/boot.jsonc" DestinationFolder="$(BuildDir)Config"/>
     </Target>
 </Project>

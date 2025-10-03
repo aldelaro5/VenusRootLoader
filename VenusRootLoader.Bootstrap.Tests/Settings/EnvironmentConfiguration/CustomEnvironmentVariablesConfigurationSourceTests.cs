@@ -11,10 +11,12 @@ public class CustomEnvironmentVariablesConfigurationSourceTests
     private readonly IConfigurationBuilder _configuration = Substitute.For<IConfigurationBuilder>();
 
     [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_prefix")]
-    private static extern ref string CustomEnvVarConfigProviderPrefix(CustomEnvironmentVariablesConfigurationProvider provider);
+    private static extern ref string CustomEnvVarConfigProviderPrefix(
+        CustomEnvironmentVariablesConfigurationProvider provider);
 
     [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_environmentVariablesMapping")]
-    private static extern ref IDictionary<string, string> CustomEnvVarConfigProviderMappings(CustomEnvironmentVariablesConfigurationProvider provider);
+    private static extern ref IDictionary<string, string> CustomEnvVarConfigProviderMappings(
+        CustomEnvironmentVariablesConfigurationProvider provider);
 
     [Fact]
     public void Build_GivesCorrectBuilder_WhenCalled()
@@ -22,10 +24,7 @@ public class CustomEnvironmentVariablesConfigurationSourceTests
         var sut = new CustomEnvironmentVariablesConfigurationSource
         {
             Prefix = "PREFIX_",
-            EnvironmentVariablesMapping = new Dictionary<string, string>
-            {
-                ["a"] = "b"
-            }
+            EnvironmentVariablesMapping = new Dictionary<string, string> { ["a"] = "b" }
         };
         var result = sut.Build(_configuration);
 

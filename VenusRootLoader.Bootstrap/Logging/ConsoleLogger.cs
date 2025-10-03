@@ -24,42 +24,48 @@ public class ConsoleLogger : ILogger
 
     private readonly Dictionary<LogLevel, LogLevelInfo> _logLevelInfos = new()
     {
-        { LogLevel.Critical, new()
+        {
+            LogLevel.Critical, new()
             {
                 LegacyColor = ConsoleColor.Red,
                 Color = Color.Red,
                 Moniker = "!"
             }
         },
-        { LogLevel.Error, new()
+        {
+            LogLevel.Error, new()
             {
                 LegacyColor = ConsoleColor.Red,
                 Color = Color.Red,
                 Moniker = "E"
             }
         },
-        { LogLevel.Warning, new()
+        {
+            LogLevel.Warning, new()
             {
                 LegacyColor = ConsoleColor.Yellow,
                 Color = Color.Yellow,
                 Moniker = "W"
             }
         },
-        { LogLevel.Information, new()
+        {
+            LogLevel.Information, new()
             {
                 LegacyColor = ConsoleColor.White,
                 Color = Color.White,
                 Moniker = "I"
             }
         },
-        { LogLevel.Debug, new()
+        {
+            LogLevel.Debug, new()
             {
                 LegacyColor = ConsoleColor.Gray,
                 Color = Color.Gray,
                 Moniker = "D"
             }
         },
-        { LogLevel.Trace, new()
+        {
+            LogLevel.Trace, new()
             {
                 LegacyColor = ConsoleColor.DarkGray,
                 Color = Color.DimGray,
@@ -95,7 +101,12 @@ public class ConsoleLogger : ILogger
 
     public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
 
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+    public void Log<TState>(
+        LogLevel logLevel,
+        EventId eventId,
+        TState state,
+        Exception? exception,
+        Func<TState, Exception?, string> formatter)
     {
         if (!IsEnabled(logLevel))
             return;
@@ -142,17 +153,19 @@ public class ConsoleLogger : ILogger
 
         if (_renderingMode == ConsoleLogProvider.RenderingMode.AnsiColors)
         {
-            Console.WriteLine($"[{time.Pastel(TimeColor)}] " +
-                              $"[{_logLevelInfos[logLevel].Moniker.Pastel(_logLevelInfos[logLevel].Color)}] " +
-                              $"[{_categoryName.Pastel(categoryColor)}] " +
-                              $"{message.Pastel(_logLevelInfos[logLevel].Color)}");
+            Console.WriteLine(
+                $"[{time.Pastel(TimeColor)}] " +
+                $"[{_logLevelInfos[logLevel].Moniker.Pastel(_logLevelInfos[logLevel].Color)}] " +
+                $"[{_categoryName.Pastel(categoryColor)}] " +
+                $"{message.Pastel(_logLevelInfos[logLevel].Color)}");
         }
         else
         {
-            Console.WriteLine($"[{time}] " +
-                              $"[{_logLevelInfos[logLevel].Moniker}] " +
-                              $"[{_categoryName}] " +
-                              $"{message}");
+            Console.WriteLine(
+                $"[{time}] " +
+                $"[{_logLevelInfos[logLevel].Moniker}] " +
+                $"[{_categoryName}] " +
+                $"{message}");
         }
     }
 
@@ -179,6 +192,7 @@ public class ConsoleLogger : ILogger
             lowestSquareDistance = squareDistance;
             result = consoleColor;
         }
+
         return result;
     }
 }

@@ -13,6 +13,7 @@ public class CreateFileWSharedHookerTests
 {
     private readonly TestPltHookManager _pltHooksManager = new();
     private readonly IWin32 _win32 = Substitute.For<IWin32>();
+
     private readonly GameExecutionContext _gameExecutionContext = new()
     {
         LibraryHandle = 0,

@@ -43,7 +43,7 @@ public class SplashScreenSkipperTests : IDisposable
         {
             LibraryHandle = 0,
             GameDir = "",
-            DataDir = Path.Combine(_hostEnvironment.ContentRootPath, "Unity"),
+            DataDir = Path.Combine(_hostEnvironment.ContentRootPath, "UnityCompiledProject/VenusRootLoaderTestProject_Data"),
             UnityPlayerDllFileName = "UnityPlayer.dll",
             IsWine = false
         };

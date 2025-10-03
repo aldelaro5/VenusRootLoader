@@ -19,11 +19,6 @@
         <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest"/>
     </ItemGroup>
 
-    <Target Name="CopyTestFiles" AfterTargets="Build">
-        <Copy ContinueOnError="false" SourceFiles="$(SolutionDir)classdata.tpk" DestinationFolder="$(TargetDir)/VenusRootLoader" />
-        <Copy ContinueOnError="false" SourceFiles="$(SolutionDir)Unity/CompiledProject/VenusRootLoaderTestProject_Data/data.unity3d" DestinationFolder="$(TargetDir)/Unity" />
-    </Target>
-
     <ItemGroup>
         <Using Include="Xunit"/>
     </ItemGroup>
@@ -48,5 +43,18 @@
     <ItemGroup>
       <ProjectReference Include="..\VenusRootLoader.Bootstrap\VenusRootLoader.Bootstrap.csproj" />
     </ItemGroup>
+
+    <Target Name="CopyTestFiles" AfterTargets="Build">
+        <ItemGroup>
+            <UnityCompiledProjectFiles Include="$(SolutionDir)/Unity/CompiledProject/*/**" />
+            <UnityCompiledProjectFiles Include="$(SolutionDir)/Unity/CompiledProject/*" />
+        </ItemGroup>
+        <ItemGroup>
+            <BuiltProject Include="$(BuildDir)/*/**" />
+            <BuiltProject Include="$(BuildDir)/*" />
+        </ItemGroup>
+        <Copy ContinueOnError="false" SourceFiles="@(UnityCompiledProjectFiles)" DestinationFolder="$(OutputPath)/TestInstall/%(RecursiveDir)" />
+        <Copy ContinueOnError="false" SourceFiles="@(BuiltProject)" DestinationFolder="$(OutputPath)/TestInstall/%(RecursiveDir)" />
+    </Target>
 
 </Project>

@@ -28,7 +28,7 @@
     </Target>
 
     <Target Name="CopyClassDataTpk" AfterTargets="Build">
-        <Copy ContinueOnError="false" SourceFiles="$(SolutionDir)classdata.tpk" DestinationFolder="$(BuildDir)/VenusRootLoader" />
+        <Copy ContinueOnError="false" SourceFiles="$(SolutionDir)Data/classdata.tpk" DestinationFolder="$(BuildDir)/VenusRootLoader" />
     </Target>
 
     <Target Name="CopyToBugFables" AfterTargets="PostBuild" Condition="$(BugFablesDir) != ''">

@@ -1,10 +1,10 @@
+using Microsoft.Extensions.Logging;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using System.Text;
+using VenusRootLoader.Bootstrap.Shared;
 using Windows.Win32.Foundation;
 using Windows.Win32.Networking.WinSock;
-using Microsoft.Extensions.Logging;
-using VenusRootLoader.Bootstrap.Shared;
 
 namespace VenusRootLoader.Bootstrap.Mono;
 
@@ -121,7 +121,7 @@ public class SdbWinePathTranslator : ISdbWinePathTranslator
         // All int in the packet must be in big endian and since we are changing the length of the packet, we need to write
         // that new length at the start of the header
         Marshal.WriteInt32(modifiedBytesPtr, BinaryPrimitives.ReverseEndianness(lengthNewPacket));
-        
+
         // Copies all data we don't need to touch that sits between the packet length and the path we want to edit
         Buffer.MemoryCopy(
             buf.Value + sizeof(int),

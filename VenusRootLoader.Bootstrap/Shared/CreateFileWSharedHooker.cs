@@ -44,7 +44,7 @@ public class CreateFileWSharedHooker : ICreateFileWSharedHooker
         FILE_CREATION_DISPOSITION dwCreationDisposition,
         FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes,
         HANDLE hTemplateFile);
-    
+
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
     private unsafe delegate nint CreateFileWFn(
         PCWSTR lpFileName,

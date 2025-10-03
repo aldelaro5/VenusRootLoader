@@ -1,16 +1,16 @@
+using AwesomeAssertions;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using Windows.Win32.Foundation;
-using Windows.Win32.Networking.WinSock;
-using AwesomeAssertions;
-using Microsoft.Extensions.Logging;
-using NSubstitute;
 using VenusRootLoader.Bootstrap.Shared;
 using VenusRootLoader.Bootstrap.Tests.TestHelpers;
 using VenusRootLoader.Bootstrap.Unity;
+using Windows.Win32.Foundation;
+using Windows.Win32.Networking.WinSock;
 
 namespace VenusRootLoader.Bootstrap.Tests.Unity;
 

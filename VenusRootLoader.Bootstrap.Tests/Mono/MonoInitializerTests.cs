@@ -1,18 +1,18 @@
-using System.IO.Abstractions.TestingHelpers;
-using System.Runtime.InteropServices;
-using System.Text;
-using Windows.Win32.Foundation;
 using AwesomeAssertions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using System.IO.Abstractions.TestingHelpers;
+using System.Runtime.InteropServices;
+using System.Text;
 using VenusRootLoader.Bootstrap.Mono;
 using VenusRootLoader.Bootstrap.Settings;
 using VenusRootLoader.Bootstrap.Shared;
 using VenusRootLoader.Bootstrap.Tests.TestHelpers;
 using VenusRootLoader.Bootstrap.Unity;
+using Windows.Win32.Foundation;
 
 namespace VenusRootLoader.Bootstrap.Tests.Mono;
 
@@ -495,7 +495,7 @@ public class MonoInitializerTests
     {
         _debuggerSettingsValue.Enable = true;
         StartService();
-    
+
         var symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_parse_options");
         var symbolAddress = (FARPROC)Random.Shared.Next();
         var moduleHandle = (HMODULE)Random.Shared.Next();
@@ -514,9 +514,9 @@ public class MonoInitializerTests
             moduleHandle,
             symbolPtr)!;
         var detour = Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitParseOptionsFn>(result);
-    
+
         detour(originalArgs.argc, originalArgs.argv);
-    
+
         receivedArgs.Should().BeEquivalentTo(expectedArgs);
 
         Marshal.FreeHGlobal((nint)symbolPtr.Value);
@@ -527,7 +527,7 @@ public class MonoInitializerTests
     {
         _debuggerSettingsValue.Enable = true;
         StartService();
-    
+
         var domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
         var runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
         var jitParseOptionSymbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_parse_options");

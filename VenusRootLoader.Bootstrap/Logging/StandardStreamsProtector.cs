@@ -1,9 +1,9 @@
-using System.Runtime.InteropServices;
-using Windows.Win32.Foundation;
-using Windows.Win32.System.Console;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.Runtime.InteropServices;
 using VenusRootLoader.Bootstrap.Shared;
+using Windows.Win32.Foundation;
+using Windows.Win32.System.Console;
 
 namespace VenusRootLoader.Bootstrap.Logging;
 

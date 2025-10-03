@@ -1,6 +1,6 @@
+using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 using System.Runtime.InteropServices;
-using Microsoft.Extensions.Logging;
 
 namespace VenusRootLoader.Bootstrap.Shared;
 

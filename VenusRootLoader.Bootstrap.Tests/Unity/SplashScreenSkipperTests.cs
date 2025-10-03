@@ -1,19 +1,19 @@
-using System.IO.Abstractions;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using Windows.Win32.Foundation;
-using Windows.Win32.Security;
-using Windows.Win32.Storage.FileSystem;
 using AssetsTools.NET.Extra;
 using AwesomeAssertions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using System.IO.Abstractions;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using VenusRootLoader.Bootstrap.Settings;
 using VenusRootLoader.Bootstrap.Shared;
 using VenusRootLoader.Bootstrap.Tests.TestHelpers;
 using VenusRootLoader.Bootstrap.Unity;
+using Windows.Win32.Foundation;
+using Windows.Win32.Security;
+using Windows.Win32.Storage.FileSystem;
 
 namespace VenusRootLoader.Bootstrap.Tests.Unity;
 
@@ -22,7 +22,7 @@ public class SplashScreenSkipperTests : IDisposable
     private readonly ILogger<SplashScreenSkipper> _logger = Substitute.For<ILogger<SplashScreenSkipper>>();
     private readonly IOptions<GlobalSettings> _globalSettings = Substitute.For<IOptions<GlobalSettings>>();
     private readonly IHostEnvironment _hostEnvironment = Substitute.For<IHostEnvironment>();
-    private readonly IWin32 _win32  = Substitute.For<IWin32>();
+    private readonly IWin32 _win32 = Substitute.For<IWin32>();
     private readonly IFileSystem _fileSystem = new FileSystem();
     private readonly TestPltHookManager _pltHookManager = new();
     private readonly TestCreateFileWSharedHooker _createFileWSharedHooker = new();
@@ -122,7 +122,7 @@ public class SplashScreenSkipperTests : IDisposable
 
         File.Exists(_pathModifiedBundle).Should().BeTrue();
         _win32.Received(2).CreateFile(
-            Arg.Is<PCWSTR>(s =>string.Equals(s.ToString(), _pathModifiedBundle, StringComparison.Ordinal)),
+            Arg.Is<PCWSTR>(s => string.Equals(s.ToString(), _pathModifiedBundle, StringComparison.Ordinal)),
             0, default, default, default, default, default);
         _pltHookManager.Hooks.Should().BeEmpty();
 

@@ -1,5 +1,5 @@
-using Windows.Win32.Foundation;
 using VenusRootLoader.Bootstrap.Shared;
+using Windows.Win32.Foundation;
 
 namespace VenusRootLoader.Bootstrap.Tests.TestHelpers;
 

@@ -1,6 +1,6 @@
-using System.Runtime.CompilerServices;
 using AwesomeAssertions;
 using Microsoft.Extensions.Configuration;
+using System.Runtime.CompilerServices;
 using VenusRootLoader.Bootstrap.Settings.EnvironmentConfiguration;
 
 namespace VenusRootLoader.Bootstrap.Tests.Settings.EnvironmentConfiguration;

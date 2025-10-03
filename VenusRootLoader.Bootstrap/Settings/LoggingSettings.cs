@@ -1,5 +1,5 @@
-using System.ComponentModel.DataAnnotations;
 using Microsoft.Extensions.Options;
+using System.ComponentModel.DataAnnotations;
 using VenusRootLoader.Bootstrap.Settings.LogProvider;
 
 namespace VenusRootLoader.Bootstrap.Settings;

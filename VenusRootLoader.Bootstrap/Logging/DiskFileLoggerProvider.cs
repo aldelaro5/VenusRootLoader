@@ -1,8 +1,8 @@
-using System.IO.Abstractions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+using System.IO.Abstractions;
 using VenusRootLoader.Bootstrap.Settings.LogProvider;
 
 namespace VenusRootLoader.Bootstrap.Logging;
@@ -53,7 +53,7 @@ public sealed class DiskFileLoggerProvider : ILoggerProvider
     {
         if (!_diskFileLoggerSettings.Enable!.Value || !_initialised)
             return NullLogger.Instance;
-        return new DiskFileLogger(categoryName, _logWriter!,  _timeProvider);
+        return new DiskFileLogger(categoryName, _logWriter!, _timeProvider);
     }
 
     public void Dispose() => _logWriter?.Dispose();

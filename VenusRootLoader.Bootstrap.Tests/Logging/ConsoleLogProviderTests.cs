@@ -1,13 +1,13 @@
-using System.Runtime.CompilerServices;
-using Windows.Win32.Foundation;
-using Windows.Win32.System.Console;
 using AwesomeAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using System.Runtime.CompilerServices;
 using VenusRootLoader.Bootstrap.Logging;
 using VenusRootLoader.Bootstrap.Settings.LogProvider;
 using VenusRootLoader.Bootstrap.Shared;
+using Windows.Win32.Foundation;
+using Windows.Win32.System.Console;
 
 namespace VenusRootLoader.Bootstrap.Tests.Logging;
 

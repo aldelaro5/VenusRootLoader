@@ -1,5 +1,5 @@
-using System.Collections;
 using Microsoft.Extensions.Configuration;
+using System.Collections;
 
 namespace VenusRootLoader.Bootstrap.Settings.EnvironmentConfiguration;
 

@@ -1,14 +1,14 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using System.Text;
-using Windows.Win32.Foundation;
-using Windows.Win32.Networking.WinSock;
 using AwesomeAssertions;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using System.Text;
 using VenusRootLoader.Bootstrap.Mono;
 using VenusRootLoader.Bootstrap.Shared;
 using VenusRootLoader.Bootstrap.Tests.TestHelpers;
+using Windows.Win32.Foundation;
+using Windows.Win32.Networking.WinSock;
 
 namespace VenusRootLoader.Bootstrap.Tests.Mono;
 
@@ -161,7 +161,7 @@ public class SdbWinePathTranslatorTests
         string monoModuleFilename = "mono-2.0-bdwgc.dll";
         string assemblyLocationOriginal = @"Z:\Bug Fables_Data\Managed\Assembly-CSharp.dll";
         string assemblyLocationModified = "/Bug Fables_Data/Managed/Assembly-CSharp.dll";
-        
+
         var messageRecv = BuildReceivePacket(AssemblyCommandSet);
         byte* messageRecvPtr = stackalloc byte[messageRecv.Length];
         PSTR messageRecvPStr = new(messageRecvPtr);
@@ -289,9 +289,9 @@ public class SdbWinePathTranslatorTests
                            sizeof(int) +
                            baseName.Length +
                            sizeof(int) +
-                           scopeName.Length + 
+                           scopeName.Length +
                            sizeof(int) +
-                           fullName.Length + 
+                           fullName.Length +
                            sizeof(int) +
                            guid.Length +
                            sizeof(int);

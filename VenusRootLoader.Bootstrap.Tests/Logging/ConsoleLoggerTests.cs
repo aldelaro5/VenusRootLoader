@@ -1,8 +1,8 @@
-using System.Drawing;
 using AwesomeAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Time.Testing;
 using Pastel;
+using System.Drawing;
 using VenusRootLoader.Bootstrap.Logging;
 using VenusRootLoader.Bootstrap.Tests.TestHelpers;
 
@@ -118,7 +118,7 @@ public class ConsoleLoggerTests
         var simplifiedCategoryName = categoryName;
         var lastDotIndex = categoryName.LastIndexOf('.');
         if (lastDotIndex > -1)
-            simplifiedCategoryName = categoryName[(lastDotIndex + 1) ..];
+            simplifiedCategoryName = categoryName[(lastDotIndex + 1)..];
 
         ConsoleLogger sut = new(categoryName, ConsoleLogProvider.RenderingMode.AnsiColors, _timeProvider);
         sut.LogInformation("Some logging message");
@@ -177,7 +177,7 @@ public class ConsoleLoggerTests
         var simplifiedCategoryName = categoryName;
         var lastDotIndex = categoryName.LastIndexOf('.');
         if (lastDotIndex > -1)
-            simplifiedCategoryName = categoryName[(lastDotIndex + 1) ..];
+            simplifiedCategoryName = categoryName[(lastDotIndex + 1)..];
 
         ConsoleLogger sut = new(categoryName, ConsoleLogProvider.RenderingMode.LegacyColors, _timeProvider);
         sut.LogInformation("Some logging message");

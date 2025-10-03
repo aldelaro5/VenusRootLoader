@@ -1,11 +1,11 @@
-using Windows.Win32.Foundation;
-using Windows.Win32.System.Console;
 using AwesomeAssertions;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
 using VenusRootLoader.Bootstrap.Logging;
 using VenusRootLoader.Bootstrap.Shared;
 using VenusRootLoader.Bootstrap.Tests.TestHelpers;
+using Windows.Win32.Foundation;
+using Windows.Win32.System.Console;
 
 namespace VenusRootLoader.Bootstrap.Tests.Logging;
 
@@ -49,7 +49,7 @@ public class StandardStreamsProtectorTests
         _win32.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE).Returns(stdOutHandle);
         _win32.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE).Returns(stdErrHandle);
         _win32.CloseHandle(Arg.Any<HANDLE>()).Returns(expectedResult);
-        
+
         await _sut.StartAsync(CancellationToken.None);
         BOOL result = (BOOL)_pltHookManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
@@ -75,7 +75,7 @@ public class StandardStreamsProtectorTests
         _win32.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE).Returns(stdOutHandle);
         _win32.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE).Returns(stdErrHandle);
         _win32.CloseHandle(Arg.Any<HANDLE>()).Returns(expectedResult);
-        
+
         await _sut.StartAsync(CancellationToken.None);
         BOOL result = (BOOL)_pltHookManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,

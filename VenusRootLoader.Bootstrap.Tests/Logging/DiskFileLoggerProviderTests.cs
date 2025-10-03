@@ -1,10 +1,10 @@
-using System.IO.Abstractions.TestingHelpers;
 using AwesomeAssertions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Time.Testing;
 using NSubstitute;
+using System.IO.Abstractions.TestingHelpers;
 using VenusRootLoader.Bootstrap.Logging;
 using VenusRootLoader.Bootstrap.Settings.LogProvider;
 

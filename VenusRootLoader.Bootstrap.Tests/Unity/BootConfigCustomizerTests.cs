@@ -1,17 +1,17 @@
-using System.Diagnostics.CodeAnalysis;
-using System.IO.Abstractions.TestingHelpers;
-using System.Runtime.InteropServices;
-using Windows.Win32.Foundation;
-using Windows.Win32.Security;
-using Windows.Win32.Storage.FileSystem;
 using AwesomeAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using System.Diagnostics.CodeAnalysis;
+using System.IO.Abstractions.TestingHelpers;
+using System.Runtime.InteropServices;
 using VenusRootLoader.Bootstrap.Settings;
 using VenusRootLoader.Bootstrap.Shared;
 using VenusRootLoader.Bootstrap.Tests.TestHelpers;
 using VenusRootLoader.Bootstrap.Unity;
+using Windows.Win32.Foundation;
+using Windows.Win32.Security;
+using Windows.Win32.Storage.FileSystem;
 
 namespace VenusRootLoader.Bootstrap.Tests.Unity;
 
@@ -21,7 +21,7 @@ public class BootConfigCustomizerTests
     private readonly ILogger<BootConfigCustomizer> _logger = Substitute.For<ILogger<BootConfigCustomizer>>();
     private readonly TestPltHookManager _pltHooksManager = new();
     private readonly TestCreateFileWSharedHooker _createFileWSharedHooker = new();
-    private readonly IOptions<BootConfigSettings> _bootConfigSettings =  Substitute.For<IOptions<BootConfigSettings>>();
+    private readonly IOptions<BootConfigSettings> _bootConfigSettings = Substitute.For<IOptions<BootConfigSettings>>();
     private readonly IGameLifecycleEvents _gameLifecycleEvents = new GameLifecycleEvents();
     private readonly IWin32 _win32 = Substitute.For<IWin32>();
     private readonly MockFileSystem _fileSystem = new();

@@ -1,7 +1,7 @@
-using System.Drawing;
-using System.Reflection;
 using Microsoft.Extensions.Logging;
 using Pastel;
+using System.Drawing;
+using System.Reflection;
 
 namespace VenusRootLoader.Bootstrap.Logging;
 
@@ -76,7 +76,7 @@ public class ConsoleLogger : ILogger
         var simplifiedCategoryName = categoryName;
         var lastDotIndex = categoryName.LastIndexOf('.');
         if (lastDotIndex > -1)
-            simplifiedCategoryName = categoryName[(lastDotIndex + 1) ..];
+            simplifiedCategoryName = categoryName[(lastDotIndex + 1)..];
 
         _categoryName = simplifiedCategoryName;
         _categoryColor = categoryName switch

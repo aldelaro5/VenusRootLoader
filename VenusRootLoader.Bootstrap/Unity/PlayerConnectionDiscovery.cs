@@ -1,12 +1,12 @@
+using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Timers;
+using VenusRootLoader.Bootstrap.Shared;
 using Windows.Win32.Foundation;
 using Windows.Win32.Networking.WinSock;
-using Microsoft.Extensions.Logging;
-using VenusRootLoader.Bootstrap.Shared;
 using Timer = System.Timers.Timer;
 
 namespace VenusRootLoader.Bootstrap.Unity;
@@ -89,7 +89,7 @@ public class PlayerConnectionDiscovery : IDisposable, IPlayerConnectionDiscovery
         {
             var arguments = dnSpyEnv.Split(',');
             var addressArgument = arguments.Single(x => x.StartsWith("address=")).TrimStart("address=").ToString();
-            var addressParts  = addressArgument.Split(':');
+            var addressParts = addressArgument.Split(':');
             addressToUse = IPAddress.Parse(addressParts[0]);
             portToUse = ushort.Parse(addressParts[1]);
             _logger.LogInformation("Overriding the IP address to {ipAddress}:{port} from the DNSPY_UNITY_DBG2 environment variable",

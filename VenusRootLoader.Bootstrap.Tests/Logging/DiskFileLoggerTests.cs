@@ -1,7 +1,7 @@
-using System.Text;
 using AwesomeAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Time.Testing;
+using System.Text;
 using VenusRootLoader.Bootstrap.Logging;
 
 namespace VenusRootLoader.Bootstrap.Tests.Logging;

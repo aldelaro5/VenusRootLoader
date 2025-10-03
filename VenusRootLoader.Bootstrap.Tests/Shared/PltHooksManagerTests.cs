@@ -1,10 +1,10 @@
-using System.IO.Abstractions;
-using System.Runtime.InteropServices;
 using AwesomeAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
 using NSubstitute.Extensions;
+using System.IO.Abstractions;
+using System.Runtime.InteropServices;
 using VenusRootLoader.Bootstrap.Shared;
 
 namespace VenusRootLoader.Bootstrap.Tests.Shared;
@@ -13,7 +13,7 @@ public class PltHooksManagerTests
 {
     private readonly IPltHook _pltHookSub = Substitute.For<IPltHook>();
     private readonly FakeLogger<PltHooksManager> _loggerSub = new();
-    private readonly IFileSystem  _fileSystem = Substitute.For<IFileSystem>();
+    private readonly IFileSystem _fileSystem = Substitute.For<IFileSystem>();
     private readonly PltHooksManager _sut;
 
     public PltHooksManagerTests() => _sut = new(_loggerSub, _pltHookSub, _fileSystem);
@@ -23,7 +23,7 @@ public class PltHooksManagerTests
     {
         string fileName = "filename";
         string functionName = "functionName";
-        Action hook = () => {};
+        Action hook = () => { };
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -52,7 +52,7 @@ public class PltHooksManagerTests
         string fileName = "filename";
         string functionName1 = "functionName1";
         string functionName2 = "functionName2";
-        Action hook = () => {};
+        Action hook = () => { };
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -86,7 +86,7 @@ public class PltHooksManagerTests
     {
         string[] fileNames = ["filename1", "filename2"];
         string[] functionNames = ["functionName1", "functionName2"];
-        Action hook = () => {};
+        Action hook = () => { };
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -131,7 +131,7 @@ public class PltHooksManagerTests
     {
         string fileName = "filename";
         string functionName = "functionName";
-        Action hook = () => {};
+        Action hook = () => { };
         string errorString = "error";
         var errorStringPtr = Marshal.StringToHGlobalUni(errorString);
 
@@ -162,7 +162,7 @@ public class PltHooksManagerTests
     {
         string fileName = "filename";
         string functionName = "functionName";
-        Action hook = () => {};
+        Action hook = () => { };
         string errorString = "<some error>";
 
         _pltHookSub.PlthookOpen(
@@ -216,7 +216,7 @@ public class PltHooksManagerTests
     {
         string fileName = "filename";
         string functionName = "functionName";
-        Action hook = () => {};
+        Action hook = () => { };
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -245,7 +245,7 @@ public class PltHooksManagerTests
     {
         string fileName = "filename";
         string functionName = "functionName";
-        Action hook = () => {};
+        Action hook = () => { };
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -275,7 +275,7 @@ public class PltHooksManagerTests
     {
         string fileName = "filename";
         string functionName = "functionName";
-        Action hook = () => {};
+        Action hook = () => { };
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -303,7 +303,7 @@ public class PltHooksManagerTests
     {
         string fileName = "filename";
         string functionName = "functionName";
-        Action hook = () => {};
+        Action hook = () => { };
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -334,7 +334,7 @@ public class PltHooksManagerTests
     {
         string fileName = "filename";
         string functionName = "functionName";
-        Action hook = () => {};
+        Action hook = () => { };
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -371,7 +371,7 @@ public class PltHooksManagerTests
     {
         string fileName = "filename";
         string functionName = "functionName";
-        Action hook = () => {};
+        Action hook = () => { };
         string errorString = "<some error>";
 
         _pltHookSub.PlthookOpen(

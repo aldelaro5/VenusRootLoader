@@ -1,9 +1,9 @@
-using Windows.Win32.System.Console;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using VenusRootLoader.Bootstrap.Settings.LogProvider;
 using VenusRootLoader.Bootstrap.Shared;
+using Windows.Win32.System.Console;
 
 namespace VenusRootLoader.Bootstrap.Logging;
 

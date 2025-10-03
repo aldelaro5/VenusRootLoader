@@ -1,11 +1,11 @@
+using AwesomeAssertions;
+using NSubstitute;
 using System.Runtime.InteropServices;
+using VenusRootLoader.Bootstrap.Shared;
+using VenusRootLoader.Bootstrap.Tests.TestHelpers;
 using Windows.Win32.Foundation;
 using Windows.Win32.Security;
 using Windows.Win32.Storage.FileSystem;
-using AwesomeAssertions;
-using NSubstitute;
-using VenusRootLoader.Bootstrap.Shared;
-using VenusRootLoader.Bootstrap.Tests.TestHelpers;
 
 namespace VenusRootLoader.Bootstrap.Tests.Shared;
 
@@ -190,7 +190,7 @@ public class CreateFileWSharedHookerTests
             default(FILE_CREATION_DISPOSITION),
             default(FILE_FLAGS_AND_ATTRIBUTES),
             default(HANDLE))!;
-    
+
         _win32.DidNotReceiveWithAnyArgs().CreateFile(
             default,
             0u,

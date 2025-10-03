@@ -23,7 +23,7 @@ public class DiskFileLogger : ILogger
         var simplifiedCategoryName = categoryName;
         var lastDotIndex = categoryName.LastIndexOf('.');
         if (lastDotIndex > -1)
-            simplifiedCategoryName = categoryName[(lastDotIndex + 1) ..];
+            simplifiedCategoryName = categoryName[(lastDotIndex + 1)..];
 
         _categoryName = simplifiedCategoryName;
         _logWriter = logWriter;

@@ -1,18 +1,18 @@
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
-using Windows.Win32.Foundation;
-using Windows.Win32.Security;
-using Windows.Win32.Storage.FileSystem;
-using Windows.Win32.System.Console;
 using AwesomeAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using VenusRootLoader.Bootstrap.Settings;
 using VenusRootLoader.Bootstrap.Shared;
 using VenusRootLoader.Bootstrap.Tests.TestHelpers;
 using VenusRootLoader.Bootstrap.Unity;
+using Windows.Win32.Foundation;
+using Windows.Win32.Security;
+using Windows.Win32.Storage.FileSystem;
+using Windows.Win32.System.Console;
 
 namespace VenusRootLoader.Bootstrap.Tests.Unity;
 

@@ -38,8 +38,6 @@ internal class SplashScreenSkipper : IHostedService
     private readonly IHostEnvironment _hostEnvironment;
     private readonly bool _enableSkipper;
 
-    private bool _redirectedOnceBefore;
-
     public SplashScreenSkipper(
         ILogger<SplashScreenSkipper> logger,
         ICreateFileWSharedHooker createFileWSharedHooker,
@@ -115,11 +113,6 @@ internal class SplashScreenSkipper : IHostedService
                 dwFlagsAndAttributes,
                 hTemplateFile);
         }
-
-        if (!_redirectedOnceBefore)
-            _redirectedOnceBefore = true;
-        else
-            _createFileWSharedHooker.UnregisterHook(nameof(SplashScreenSkipper));
     }
 
     private void SetGameBundleToSkipSplashScreen(string gameBundlePath)

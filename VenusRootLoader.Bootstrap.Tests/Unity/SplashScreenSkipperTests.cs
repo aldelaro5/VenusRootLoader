@@ -24,7 +24,6 @@ public class SplashScreenSkipperTests : IDisposable
     private readonly IHostEnvironment _hostEnvironment = Substitute.For<IHostEnvironment>();
     private readonly IWin32 _win32 = Substitute.For<IWin32>();
     private readonly IFileSystem _fileSystem = new FileSystem();
-    private readonly TestPltHookManager _pltHookManager = new();
     private readonly TestCreateFileWSharedHooker _createFileWSharedHooker = new();
     private readonly GameExecutionContext _gameExecutionContext;
 
@@ -124,30 +123,6 @@ public class SplashScreenSkipperTests : IDisposable
             default,
             default,
             default);
-
-        Marshal.FreeHGlobal((nint)fileNamePtr);
-    }
-
-    [Fact]
-    public unsafe void CreateFileHook_UnregisterHook_WhenCalledTwice()
-    {
-        StartService();
-
-        var fileNamePtr = (char*)Marshal.StringToHGlobalUni(_dataUnity3dPath);
-
-        _createFileWSharedHooker.SimulateHook(fileNamePtr);
-        _createFileWSharedHooker.SimulateHook(fileNamePtr);
-
-        File.Exists(_pathModifiedBundle).Should().BeTrue();
-        _win32.Received(2).CreateFile(
-            Arg.Is<PCWSTR>(s => string.Equals(s.ToString(), _pathModifiedBundle, StringComparison.Ordinal)),
-            0,
-            default,
-            default,
-            default,
-            default,
-            default);
-        _pltHookManager.Hooks.Should().BeEmpty();
 
         Marshal.FreeHGlobal((nint)fileNamePtr);
     }

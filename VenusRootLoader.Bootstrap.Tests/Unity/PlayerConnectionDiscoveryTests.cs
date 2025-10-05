@@ -14,7 +14,7 @@ using Windows.Win32.Networking.WinSock;
 
 namespace VenusRootLoader.Bootstrap.Tests.Unity;
 
-[Collection("PlayerConnectionDiscovery")]
+[Collection(nameof(PlayerConnectionDiscoveryTests))]
 public class PlayerConnectionDiscoveryTests
 {
     private readonly ILogger<PlayerConnectionDiscovery> _logger = Substitute.For<ILogger<PlayerConnectionDiscovery>>();

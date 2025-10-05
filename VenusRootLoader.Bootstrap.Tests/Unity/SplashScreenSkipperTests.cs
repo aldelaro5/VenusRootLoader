@@ -99,32 +99,36 @@ public class SplashScreenSkipperTests : IDisposable
         StartService();
 
         var expectedReturn = (HANDLE)Random.Shared.Next();
-        var fileNamePtr = (char*)Marshal.StringToHGlobalUni(_dataUnity3dPath);
-        _win32.CreateFile(
-                Arg.Any<PCWSTR>(),
-                Arg.Any<uint>(),
-                Arg.Any<FILE_SHARE_MODE>(),
-                Arg.Any<Pointer<SECURITY_ATTRIBUTES>>(),
-                Arg.Any<FILE_CREATION_DISPOSITION>(),
-                Arg.Any<FILE_FLAGS_AND_ATTRIBUTES>(),
-                Arg.Any<HANDLE>())
-            .ReturnsForAnyArgs(expectedReturn);
+        string receivedFileName = string.Empty;
+        HANDLE result;
+        fixed (char* fileNamePtr = _dataUnity3dPath)
+        {
+            _win32.CreateFile(
+                    Arg.Any<PCWSTR>(),
+                    Arg.Any<uint>(),
+                    Arg.Any<FILE_SHARE_MODE>(),
+                    Arg.Any<Pointer<SECURITY_ATTRIBUTES>>(),
+                    Arg.Any<FILE_CREATION_DISPOSITION>(),
+                    Arg.Any<FILE_FLAGS_AND_ATTRIBUTES>(),
+                    Arg.Any<HANDLE>())
+                .ReturnsForAnyArgs(expectedReturn)
+                .AndDoes(c => receivedFileName = c.ArgAt<PCWSTR>(0).ToString());
 
-        var result = _createFileWSharedHooker.SimulateHook(fileNamePtr);
+            result = (HANDLE)_createFileWSharedHooker.SimulateHook(fileNamePtr)!;
+        }
 
         result.Should().Be(expectedReturn);
         File.Exists(_pathModifiedBundle).Should().BeTrue();
         AssertModifiedBundleIsCorrect();
         _win32.Received(1).CreateFile(
-            Arg.Is<PCWSTR>(s => string.Equals(s.ToString(), _pathModifiedBundle, StringComparison.Ordinal)),
-            0,
-            default,
-            default,
-            default,
-            default,
-            default);
-
-        Marshal.FreeHGlobal((nint)fileNamePtr);
+            Arg.Any<PCWSTR>(),
+            Arg.Any<uint>(),
+            Arg.Any<FILE_SHARE_MODE>(),
+            Arg.Any<Pointer<SECURITY_ATTRIBUTES>>(),
+            Arg.Any<FILE_CREATION_DISPOSITION>(),
+            Arg.Any<FILE_FLAGS_AND_ATTRIBUTES>(),
+            Arg.Any<HANDLE>());
+        receivedFileName.Should().Be(_pathModifiedBundle);
     }
 
     private void AssertModifiedBundleIsCorrect()

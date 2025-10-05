@@ -63,15 +63,19 @@ internal static class Startup
             EnvironmentVariablesConfigMapping
                 .ToDictionary(key => $"--{key.Key.ToLower().Replace('_', '-')}", value => value.Value));
 
+        builder.Services.AddSingleton<IValidateOptions<GlobalSettings>, ValidateGlobalSettings>();
+        builder.Services.AddOptions<GlobalSettings>()
+            .BindConfiguration(string.Empty);
+
+        if (builder.Configuration.GetValue<bool>(nameof(GlobalSettings.DisableVrl)))
+            return builder.Build();
+
         builder.Logging.AddConfiguration(builder.Configuration.GetRequiredSection("Logging"));
         builder.Logging.AddConsoleLoggingProvider();
         builder.Logging.AddFileLoggingProvider();
         if (!builder.Configuration.GetValue<bool>("LoggingSettings:DisableUnityLogs"))
             builder.Logging.AddFilter("UNITY", LogLevel.Trace);
 
-        builder.Services.AddSingleton<IValidateOptions<GlobalSettings>, ValidateGlobalSettings>();
-        builder.Services.AddOptions<GlobalSettings>()
-            .BindConfiguration(string.Empty);
         builder.Services.AddSingleton<IValidateOptions<LoggingSettings>, ValidateLoggingSettings>();
         builder.Services.AddOptions<LoggingSettings>()
             .BindConfiguration(nameof(LoggingSettings), options => options.ErrorOnUnknownConfiguration = true);

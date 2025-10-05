@@ -7,28 +7,38 @@ namespace VenusRootLoader.Bootstrap.Tests.IntegrationTests;
 public class IntegrationTests : IDisposable
 {
     private const string SilentPlayerArguments = "-hidewindow -nographics -batchmode -no-dialogs";
+    private const string ReleaseBuildInstallPath = "./TestInstall";
+    private const string DevBuildInstallPath = "./TestInstallDevBuild";
 
     public IntegrationTests()
     {
-        CleanupTestData();
+        CleanupTestData(ReleaseBuildInstallPath);
+        CleanupTestData(DevBuildInstallPath);
     }
 
-    private static void CleanupTestData()
+    private static void CleanupTestData(string rootPath)
     {
-        if (Directory.Exists("./TestInstall/Logs"))
-            Directory.Delete("./TestInstall/Logs", true);
-        if (File.Exists("./TestInstall/VenusRootLoader/data.unity3d.modified"))
-            File.Delete("./TestInstall/VenusRootLoader/data.unity3d.modified");
-        if (File.Exists("./TestInstall/VenusRootLoader/data.unity3d.modified.uncompressed"))
-            File.Delete("./TestInstall/VenusRootLoader/data.unity3d.modified.uncompressed");
+        if (Directory.Exists(Path.Combine(rootPath, "Logs")))
+            Directory.Delete(Path.Combine(rootPath, "Logs"), true);
+        if (File.Exists(Path.Combine(rootPath, "VenusRootLoader", "data.unity3d.modified")))
+            File.Delete(Path.Combine(rootPath, "VenusRootLoader", "data.unity3d.modified"));
+        if (File.Exists(Path.Combine(rootPath, "VenusRootLoader", "data.unity3d.modified.uncompressed")))
+            File.Delete(Path.Combine(rootPath, "VenusRootLoader", "data.unity3d.modified.uncompressed"));
     }
 
     [Theory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
-    public void Bootstrap_BootsGameSuccessfully_WhenVrlIsEnabled(bool debugMode, bool skipSplashScreen)
+    [InlineData(ReleaseBuildInstallPath, false, false)]
+    [InlineData(ReleaseBuildInstallPath, false, true)]
+    [InlineData(ReleaseBuildInstallPath, true, false)]
+    [InlineData(ReleaseBuildInstallPath, true, true)]
+    [InlineData(DevBuildInstallPath, false, false)]
+    [InlineData(DevBuildInstallPath, false, true)]
+    [InlineData(DevBuildInstallPath, true, false)]
+    [InlineData(DevBuildInstallPath, true, true)]
+    public void Bootstrap_BootsGameSuccessfully_WhenVrlIsEnabled(
+        string buildPath,
+        bool debugMode,
+        bool skipSplashScreen)
     {
         Process proc = new()
         {
@@ -43,17 +53,18 @@ public class IntegrationTests : IDisposable
                     ["VRL_ENABLE_FILES_LOGS"] = "true",
                     ["VRL_DEBUGGER_SUSPEND_BOOT"] = "false",
                     ["VRL_DEBUGGER_ENABLE"] = debugMode.ToString(),
-                    ["VRL_SKIP_UNITY_SPLASHSCREEN"] = skipSplashScreen.ToString()
+                    ["VRL_SKIP_UNITY_SPLASHSCREEN"] = skipSplashScreen.ToString(),
+                    ["DNSPY_UNITY_DBG2"] = null
                 },
                 FileName = "wine",
                 UseShellExecute = false,
-                WorkingDirectory = "TestInstall"
+                WorkingDirectory = buildPath
             }
         };
         proc.Start();
         proc.WaitForExit(skipSplashScreen ? TimeSpan.FromSeconds(3) : TimeSpan.FromSeconds(7));
         proc.Kill();
-        string[] logs = File.ReadAllLines("./TestInstall/Logs/latest.log");
+        string[] logs = File.ReadAllLines(Path.Combine(buildPath, "Logs", "latest.log"));
         logs.Should().NotContainMatch("*[!]*");
         logs.Should().NotContainMatch("*[E]*");
         logs.Should().NotContainMatch("*[W]*");
@@ -62,14 +73,17 @@ public class IntegrationTests : IDisposable
         else
             logs.Should().NotContain(l => l.Contains("Redirecting game bundle"));
         if (debugMode)
-            logs.Should().Contain(l => l.Contains("Initialising Mono debugger"));
+            logs.Should().Contain(l => l.Contains("Adding jit options"));
         else
-            logs.Should().NotContain(l => l.Contains("Initialising Mono debugger"));
+            logs.Should().NotContain(l => l.Contains("Adding jit options"));
+
         logs.Should().ContainSingle(l => l.EndsWith("<Game started successfully>"));
     }
 
-    [Fact]
-    public void Bootstrap_DoesNothing_WhenVrlIsDisabled()
+    [Theory]
+    [InlineData(ReleaseBuildInstallPath)]
+    [InlineData(DevBuildInstallPath)]
+    public void Bootstrap_DoesNothing_WhenVrlIsDisabled(string buildPath)
     {
         Process proc = new()
         {
@@ -84,7 +98,7 @@ public class IntegrationTests : IDisposable
                 },
                 FileName = "wine",
                 UseShellExecute = false,
-                WorkingDirectory = "TestInstall"
+                WorkingDirectory = buildPath
             }
         };
         proc.Start();
@@ -95,6 +109,7 @@ public class IntegrationTests : IDisposable
 
     public void Dispose()
     {
-        CleanupTestData();
+        CleanupTestData(ReleaseBuildInstallPath);
+        CleanupTestData(DevBuildInstallPath);
     }
 }

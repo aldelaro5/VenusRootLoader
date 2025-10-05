@@ -13,6 +13,10 @@
 
     <ItemGroup>
         <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage"/>
+        <AssemblyAttribute Include="CollectionBehavior">
+            <DisableTestParallelization>true</DisableTestParallelization>
+            <DisableTestParallelization_TypeName>System.Boolean</DisableTestParallelization_TypeName>
+        </AssemblyAttribute>
     </ItemGroup>
 
     <ItemGroup>
@@ -48,6 +52,8 @@
         <ItemGroup>
             <UnityCompiledProjectFiles Include="$(SolutionDir)/Data/UnityCompiledTestProject/*/**"/>
             <UnityCompiledProjectFiles Include="$(SolutionDir)/Data/UnityCompiledTestProject/*"/>
+            <UnityCompiledProjectFilesDev Include="$(SolutionDir)/Data/UnityCompiledTestProjectDev/*/**"/>
+            <UnityCompiledProjectFilesDev Include="$(SolutionDir)/Data/UnityCompiledTestProjectDev/*"/>
         </ItemGroup>
         <ItemGroup>
             <BuiltProject Include="$(BuildDir)/*/**"/>
@@ -55,6 +61,8 @@
         </ItemGroup>
         <Copy ContinueOnError="false" SourceFiles="@(UnityCompiledProjectFiles)" DestinationFolder="$(OutputPath)/TestInstall/%(RecursiveDir)"/>
         <Copy ContinueOnError="false" SourceFiles="@(BuiltProject)" DestinationFolder="$(OutputPath)/TestInstall/%(RecursiveDir)"/>
+        <Copy ContinueOnError="false" SourceFiles="@(UnityCompiledProjectFilesDev)" DestinationFolder="$(OutputPath)/TestInstallDevBuild/%(RecursiveDir)"/>
+        <Copy ContinueOnError="false" SourceFiles="@(BuiltProject)" DestinationFolder="$(OutputPath)/TestInstallDevBuild/%(RecursiveDir)"/>
     </Target>
 
 </Project>

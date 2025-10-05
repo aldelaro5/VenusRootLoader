@@ -5,5 +5,6 @@ public class MainManager : MonoBehaviour
     void Start()
     {
         print("<Game started successfully>");
+        Application.Quit();
     }
 }

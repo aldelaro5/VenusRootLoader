@@ -9,9 +9,6 @@ namespace VenusRootLoader.Bootstrap.Logging;
 
 internal class StandardStreamsProtector : IHostedService
 {
-    private nint _outputHandle;
-    private nint _errorHandle;
-
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     private delegate BOOL CloseHandleFn(HANDLE hObject);
 
@@ -22,6 +19,9 @@ internal class StandardStreamsProtector : IHostedService
     private readonly GameExecutionContext _gameExecutionContext;
     private readonly ILogger _logger;
     private readonly IGameLifecycleEvents _gameLifecycleEvents;
+
+    private HANDLE _outputHandle;
+    private HANDLE _errorHandle;
 
     public StandardStreamsProtector(
         ILogger<StandardStreamsProtector> logger,
@@ -62,7 +62,7 @@ internal class StandardStreamsProtector : IHostedService
     // Since we attempt to control all logging, we want to prevent this from happening which is what this hook is for
     private BOOL HookCloseHandle(HANDLE hObject)
     {
-        if (hObject != _outputHandle && hObject != _errorHandle)
+        if (!_win32.CompareObjectHandles(hObject, _outputHandle) && !_win32.CompareObjectHandles(hObject, _errorHandle))
             return _win32.CloseHandle(hObject);
 
         _logger.LogInformation(

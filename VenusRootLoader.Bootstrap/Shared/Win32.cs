@@ -86,4 +86,7 @@ internal class Win32 : IWin32
 
     public BOOL SetConsoleMode(HANDLE hConsoleHandle, CONSOLE_MODE dwMode) =>
         PInvoke.SetConsoleMode(hConsoleHandle, dwMode);
+
+    public BOOL CompareObjectHandles(HANDLE hFirstObjectHandle, HANDLE hSecondObjectHandle) =>
+        PInvoke.CompareObjectHandles(hFirstObjectHandle, hSecondObjectHandle);
 }

@@ -56,4 +56,5 @@ public interface IWin32
     public int recv(SOCKET s, PSTR buf, int len, SEND_RECV_FLAGS flags);
     public BOOL GetConsoleMode(HANDLE hConsoleHandle, Pointer<CONSOLE_MODE> lpMode);
     public BOOL SetConsoleMode(HANDLE hConsoleHandle, CONSOLE_MODE dwMode);
+    public BOOL CompareObjectHandles(HANDLE hFirstObjectHandle, HANDLE hSecondObjectHandle);
 }

@@ -231,6 +231,10 @@ public class PlayerLogsMirroringTests
                 Arg.Any<Pointer<uint>>(),
                 Arg.Any<Pointer<NativeOverlapped>>())
             .ReturnsForAnyArgs(expectedReturn);
+        _win32.CompareObjectHandles(
+                Arg.Any<HANDLE>(),
+                Arg.Any<HANDLE>())
+            .ReturnsForAnyArgs(c => (BOOL)(c.ArgAt<HANDLE>(0) == c.ArgAt<HANDLE>(1)));
 
         var result = (int)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
@@ -272,6 +276,10 @@ public class PlayerLogsMirroringTests
         _loggingSettingsValue.IncludeUnityLogs = false;
         var handle = (HANDLE)Random.Shared.Next();
         _win32.GetStdHandle(stdHandle).Returns(handle);
+        _win32.CompareObjectHandles(
+                Arg.Any<HANDLE>(),
+                Arg.Any<HANDLE>())
+            .ReturnsForAnyArgs(c => (BOOL)(c.ArgAt<HANDLE>(0) == c.ArgAt<HANDLE>(1)));
         StartService();
 
         var result = (int)_pltHooksManager.SimulateHook(
@@ -300,6 +308,10 @@ public class PlayerLogsMirroringTests
 
         var message = "Some logging message\r\n";
         var messagePtr = (byte*)Marshal.StringToHGlobalAnsi(message);
+        _win32.CompareObjectHandles(
+                Arg.Any<HANDLE>(),
+                Arg.Any<HANDLE>())
+            .ReturnsForAnyArgs(c => (BOOL)(c.ArgAt<HANDLE>(0) == c.ArgAt<HANDLE>(1)));
         var result = (int)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.WriteFile),

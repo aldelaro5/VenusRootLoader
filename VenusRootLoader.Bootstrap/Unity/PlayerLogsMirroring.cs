@@ -17,9 +17,6 @@ namespace VenusRootLoader.Bootstrap.Unity;
 /// </summary>
 internal class PlayerLogsMirroring : IHostedService
 {
-    private nint _outputHandle;
-    private nint _errorHandle;
-
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     private unsafe delegate int WriteFileFn(
         HANDLE hFile,
@@ -30,7 +27,9 @@ internal class PlayerLogsMirroring : IHostedService
 
     private static WriteFileFn _hookWriteFileDelegate = null!;
 
-    private nint _playerLogHandle = nint.Zero;
+    private HANDLE _outputHandle;
+    private HANDLE _errorHandle;
+    private HANDLE _playerLogHandle = (HANDLE)nint.Zero;
 
     private readonly IWin32 _win32;
     private readonly IPltHooksManager _pltHooksManager;
@@ -112,8 +111,9 @@ internal class PlayerLogsMirroring : IHostedService
         uint* lpNumberOfBytesWritten,
         NativeOverlapped* lpOverlapped)
     {
-        var writeToPlayerLog = _playerLogHandle == hFile;
-        var writeToStandardHandles = hFile == _outputHandle || hFile == _errorHandle;
+        var writeToPlayerLog = _win32.CompareObjectHandles(_playerLogHandle, hFile);
+        var writeToStandardHandles = _win32.CompareObjectHandles(hFile, _outputHandle) ||
+                                     _win32.CompareObjectHandles(hFile, _errorHandle);
         if (!writeToPlayerLog && !writeToStandardHandles)
             return _win32.WriteFile(
                 hFile,

@@ -82,6 +82,10 @@ public class StandardStreamsProtectorTests
         _win32.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE).Returns(stdOutHandle);
         _win32.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE).Returns(stdErrHandle);
         _win32.CloseHandle(Arg.Any<HANDLE>()).Returns(expectedResult);
+        _win32.CompareObjectHandles(
+                Arg.Any<HANDLE>(),
+                Arg.Any<HANDLE>())
+            .ReturnsForAnyArgs(c => (BOOL)(c.ArgAt<HANDLE>(0) == c.ArgAt<HANDLE>(1)));
 
         await _sut.StartAsync(CancellationToken.None);
         BOOL result = (BOOL)_pltHookManager.SimulateHook(

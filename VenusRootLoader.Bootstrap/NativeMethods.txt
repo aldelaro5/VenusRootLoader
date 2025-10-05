@@ -16,3 +16,4 @@ send
 recv
 GetConsoleMode
 SetConsoleMode
+FreeConsole

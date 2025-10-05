@@ -44,6 +44,8 @@ internal class Entry
             var loggingSettings = host.Services.GetService<IOptions<LoggingSettings>>();
             if (loggingSettings!.Value.ConsoleLoggerSettings.Enable!.Value)
                 PInvoke.ShowWindow(PInvoke.GetConsoleWindow(), SHOW_WINDOW_CMD.SW_SHOW);
+            else
+                PInvoke.FreeConsole();
 
             logger = host.Services.GetRequiredService<ILogger<Entry>>();
             var environment = host.Services.GetRequiredService<IHostEnvironment>();
@@ -108,6 +110,5 @@ internal class Entry
         Console.SetIn(new StreamReader(Console.OpenStandardInput()));
 
         Console.OutputEncoding = Encoding.UTF8;
-        PInvoke.ShowWindow(PInvoke.GetConsoleWindow(), SHOW_WINDOW_CMD.SW_HIDE);
     }
 }

@@ -13,6 +13,7 @@ UINT (*orig)(HINSTANCE, HINSTANCE, LPWSTR, INT) = nullptr;
 
 UINT UnityMainHook(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, INT nShowCmd)
 {
+    ShowWindow(GetConsoleWindow(), SW_HIDE);
     EntryPoint(thisModuleHandle);
     return orig(hInstance, hPrevInstance, lpCmdLine, nShowCmd);
 }

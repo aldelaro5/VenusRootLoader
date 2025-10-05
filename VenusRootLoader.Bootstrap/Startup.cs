@@ -20,6 +20,8 @@ internal static class Startup
 {
     private static readonly Dictionary<string, string> EnvironmentVariablesConfigMapping = new()
     {
+        ["SKIP_UNITY_SPLASHSCREEN"] = $"{nameof(GlobalSettings.SkipUnitySplashScreen)}",
+        ["GLOBAL_DISABLE"] = $"{nameof(GlobalSettings.DisableVrl)}",
         ["INCLUDE_UNITY_LOGS"] = $"{nameof(LoggingSettings)}:{nameof(LoggingSettings.IncludeUnityLogs)}",
         ["ENABLE_CONSOLE_LOGS"] =
             $"{nameof(LoggingSettings)}:{nameof(ConsoleLoggerSettings)}:{nameof(ConsoleLoggerSettings.Enable)}",

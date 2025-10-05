@@ -1,4 +1,4 @@
-#include <windows.h>
+#include <Windows.h>
 #include "../../External/plthook/plthook.h"
 #include "proxy.h"
 
@@ -22,7 +22,9 @@ BOOL InstallHook()
 {
     plthook_t *plthook = nullptr;
 
-    if (plthook_open_by_handle(&plthook, GetModuleHandleA("Bug Fables.exe")) != 0)
+    wchar_t szUnquotedPath[MAX_PATH];
+    GetModuleFileNameW(nullptr, szUnquotedPath, MAX_PATH);
+    if (plthook_open_by_handle(&plthook, GetModuleHandleW(szUnquotedPath)) != 0)
     {
         MessageBoxA(nullptr, plthook_error(), "plthook_open error", MB_OK | MB_ICONERROR);
         return FALSE;

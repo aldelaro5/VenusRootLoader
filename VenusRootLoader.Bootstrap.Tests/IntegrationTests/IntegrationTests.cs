@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace VenusRootLoader.Bootstrap.Tests.IntegrationTests;
 
@@ -7,8 +8,18 @@ namespace VenusRootLoader.Bootstrap.Tests.IntegrationTests;
 public class IntegrationTests : IDisposable
 {
     private const string SilentPlayerArguments = "-hidewindow -nographics -batchmode -no-dialogs";
-    private const string ReleaseBuildInstallPath = "./TestInstall";
-    private const string DevBuildInstallPath = "./TestInstallDevBuild";
+
+    private static readonly string ReleaseBuildInstallPath = "TestInstall";
+    private static readonly string DevBuildInstallPath =  "TestInstallDevBuild";
+
+    private static string TestExecutable(string buildPath) =>
+        RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+            ? Path.Combine(Directory.GetCurrentDirectory(), buildPath, "VenusRootLoaderTestProject.exe")
+            : "wine";
+
+    private static string TestArguments => RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+        ? SilentPlayerArguments
+        : $"./VenusRootLoaderTestProject.exe {SilentPlayerArguments}";
 
     public IntegrationTests()
     {
@@ -26,15 +37,26 @@ public class IntegrationTests : IDisposable
             File.Delete(Path.Combine(rootPath, "VenusRootLoader", "data.unity3d.modified.uncompressed"));
     }
 
+    public static List<object[]> VrlEnabledTestData =>
+    [
+        [ReleaseBuildInstallPath, false, false],
+        [ReleaseBuildInstallPath, false, true],
+        [ReleaseBuildInstallPath, true, false],
+        [ReleaseBuildInstallPath, true, true],
+        [DevBuildInstallPath, false, false],
+        [DevBuildInstallPath, false, true],
+        [DevBuildInstallPath, true, false],
+        [DevBuildInstallPath, true, true],
+    ];
+
+    public static List<object[]> VrlDisabledTestData =>
+    [
+        [ReleaseBuildInstallPath],
+        [DevBuildInstallPath],
+    ];
+
     [Theory]
-    [InlineData(ReleaseBuildInstallPath, false, false)]
-    [InlineData(ReleaseBuildInstallPath, false, true)]
-    [InlineData(ReleaseBuildInstallPath, true, false)]
-    [InlineData(ReleaseBuildInstallPath, true, true)]
-    [InlineData(DevBuildInstallPath, false, false)]
-    [InlineData(DevBuildInstallPath, false, true)]
-    [InlineData(DevBuildInstallPath, true, false)]
-    [InlineData(DevBuildInstallPath, true, true)]
+    [MemberData(nameof(VrlEnabledTestData))]
     public void Bootstrap_BootsGameSuccessfully_WhenVrlIsEnabled(
         string buildPath,
         bool debugMode,
@@ -44,7 +66,7 @@ public class IntegrationTests : IDisposable
         {
             StartInfo = new()
             {
-                Arguments = "./VenusRootLoaderTestProject.exe " + SilentPlayerArguments,
+                Arguments = TestArguments,
                 EnvironmentVariables =
                 {
                     ["VRL_GLOBAL_DISABLE"] = "false",
@@ -56,9 +78,9 @@ public class IntegrationTests : IDisposable
                     ["VRL_SKIP_UNITY_SPLASHSCREEN"] = skipSplashScreen.ToString(),
                     ["DNSPY_UNITY_DBG2"] = null
                 },
-                FileName = "wine",
+                FileName = TestExecutable(buildPath),
                 UseShellExecute = false,
-                WorkingDirectory = buildPath
+                WorkingDirectory = Path.Combine(Directory.GetCurrentDirectory(), buildPath)
             }
         };
         proc.Start();
@@ -81,24 +103,23 @@ public class IntegrationTests : IDisposable
     }
 
     [Theory]
-    [InlineData(ReleaseBuildInstallPath)]
-    [InlineData(DevBuildInstallPath)]
+    [MemberData(nameof(VrlDisabledTestData))]
     public void Bootstrap_DoesNothing_WhenVrlIsDisabled(string buildPath)
     {
         Process proc = new()
         {
             StartInfo = new()
             {
-                Arguments = "./VenusRootLoaderTestProject.exe " + SilentPlayerArguments,
+                Arguments = TestArguments,
                 EnvironmentVariables =
                 {
                     ["VRL_GLOBAL_DISABLE"] = "true",
                     ["VRL_ENABLE_CONSOLE_LOGS"] = "false",
                     ["VRL_ENABLE_FILES_LOGS"] = "true"
                 },
-                FileName = "wine",
+                FileName = TestExecutable(buildPath),
                 UseShellExecute = false,
-                WorkingDirectory = buildPath
+                WorkingDirectory = Path.Combine(Directory.GetCurrentDirectory(), buildPath)
             }
         };
         proc.Start();

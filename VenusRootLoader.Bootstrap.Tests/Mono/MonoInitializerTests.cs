@@ -152,11 +152,11 @@ public class MonoInitializerTests
         StartService();
 
         var monoFileName = "mono-2.0-bdwgc.dll";
-        var monoFileNameBytes = Encoding.UTF8.GetBytes(monoFileName);
+        var monoFileNameBytes = Encoding.Unicode.GetBytes(monoFileName);
         var symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi(symbol);
         var symbolAddress = (FARPROC)Random.Shared.Next();
         var moduleHandle = (HMODULE)Random.Shared.Next();
-        _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
+        _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).ReturnsForAnyArgs(symbolAddress);
         _win32.WhenForAnyArgs(x => x.GetModuleFileName(Arg.Any<HMODULE>(), Arg.Any<PWSTR>(), Arg.Any<uint>()))
             .Do(c => Marshal.Copy(monoFileNameBytes, 0, (nint)c.ArgAt<PWSTR>(1).Value, monoFileNameBytes.Length));
 
@@ -164,7 +164,7 @@ public class MonoInitializerTests
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
-            symbolPtr)!;
+            new PCSTR(symbolPtr))!;
 
         result.Should().NotBe(symbolAddress);
         _win32.Received(1).GetModuleFileName(moduleHandle, Arg.Any<PWSTR>(), Arg.Any<uint>());

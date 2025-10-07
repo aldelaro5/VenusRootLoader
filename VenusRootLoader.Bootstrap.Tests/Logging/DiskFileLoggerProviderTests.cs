@@ -39,7 +39,11 @@ public sealed class DiskFileLoggerProviderTests
     public void CreateLogger_ReturnsNullLogger_WhenLogFileIsAlreadyOpened()
     {
         var rootPath = "root";
-        var existingLogPath = $"/{rootPath}/Logs/latest.log";
+        var existingLogPath = Path.Combine(
+            Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()),
+            rootPath,
+            "Logs",
+            "latest.log");
         var existingLogsContent = "existing logs";
 
         _diskFileLoggerSettings.Value.Returns(
@@ -63,7 +67,11 @@ public sealed class DiskFileLoggerProviderTests
     public void CreateLogger_ReturnsDiskFileLoggerWithCorrectFilename_WhenDiskFileLoggingIsEnabled()
     {
         var rootPath = "root";
-        var expectedPath = $"/{rootPath}/Logs/latest.log";
+        var expectedPath = Path.Combine(
+            Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()),
+            rootPath,
+            "Logs",
+            "latest.log");
 
         _diskFileLoggerSettings.Value.Returns(
             new DiskFileLoggerSettings
@@ -88,10 +96,18 @@ public sealed class DiskFileLoggerProviderTests
     public void CreateLogger_ReturnsDiskFileLoggerAfterOrganisingLogFiles_WhenALogFileExistsAlready()
     {
         var rootPath = "root";
-        var latestLogPath = $"/{rootPath}/Logs/latest.log";
+        var latestLogPath = Path.Combine(
+            Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()),
+            rootPath,
+            "Logs",
+            "latest.log");
         var existingLogsContent = "existing logs";
         var olderLogFileTimeStamp = new DateTime(2025, 6, 15, 12, 30, 30);
-        var olderLogPath = $"/{rootPath}/Logs/{olderLogFileTimeStamp:yyyy-MM-dd_HH-mm-ss}.log";
+        var olderLogPath = Path.Combine(
+            Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()),
+            rootPath,
+            "Logs",
+            $"{olderLogFileTimeStamp:yyyy-MM-dd_HH-mm-ss}.log");
         var currentTime = DateTimeOffset.Now;
 
         _diskFileLoggerSettings.Value.Returns(
@@ -133,11 +149,19 @@ public sealed class DiskFileLoggerProviderTests
     public void CreateLogger_ReturnsDiskFileLoggerAfterDeletingOldFiles_WhenTheAmountOfFilesExceedsTheLimit()
     {
         var rootPath = "root";
-        var latestLogPath = $"/{rootPath}/Logs/latest.log";
+        var latestLogPath = Path.Combine(
+            Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()),
+            rootPath,
+            "Logs",
+            "latest.log");
         var newerLogContent = "newer logs";
         var olderLogContent = "older logs";
         var newerLogTimeStamp = new DateTime(2025, 6, 15, 12, 30, 30);
-        var newerLogPath = $"/{rootPath}/Logs/{newerLogTimeStamp:yyyy-MM-dd_HH-mm-ss}.log";
+        var newerLogPath = Path.Combine(
+            Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()),
+            rootPath,
+            "Logs",
+            $"{newerLogTimeStamp:yyyy-MM-dd_HH-mm-ss}.log");
         var currentTime = DateTimeOffset.Now;
 
         _diskFileLoggerSettings.Value.Returns(

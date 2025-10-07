@@ -169,6 +169,7 @@ public class PltHooksManagerTests
         string functionName = "functionName";
         Action hook = () => { };
         string errorString = "<some error>";
+        var errorStringPtr = Marshal.StringToHGlobalAnsi(errorString);
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -180,7 +181,7 @@ public class PltHooksManagerTests
                 Arg.Any<nint>(),
                 Arg.Any<Pointer<nint>>())
             .ReturnsForAnyArgs(false);
-        _pltHookSub.PlthookError().ReturnsForAnyArgs(Marshal.StringToHGlobalAuto(errorString));
+        _pltHookSub.PlthookError().ReturnsForAnyArgs(errorStringPtr);
 
         _sut.InstallHook(fileName, functionName, hook);
 
@@ -193,6 +194,8 @@ public class PltHooksManagerTests
         _pltHookSub.Received(1).PlthookError();
         _loggerSub.LatestRecord.Should()
             .Match<FakeLogRecord>(r => r.Level == LogLevel.Error && r.Message.Contains(errorString));
+
+        Marshal.FreeHGlobal(errorStringPtr);
     }
 
     [Fact]
@@ -379,6 +382,7 @@ public class PltHooksManagerTests
         string functionName = "functionName";
         Action hook = () => { };
         string errorString = "<some error>";
+        var errorStringPtr = Marshal.StringToHGlobalAnsi(errorString);
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -390,7 +394,7 @@ public class PltHooksManagerTests
                 Arg.Any<nint>(),
                 Arg.Any<Pointer<nint>>())
             .ReturnsForAnyArgs(true);
-        _pltHookSub.PlthookError().ReturnsForAnyArgs(Marshal.StringToHGlobalAuto(errorString));
+        _pltHookSub.PlthookError().ReturnsForAnyArgs(errorStringPtr);
 
         _sut.InstallHook(fileName, functionName, hook);
         _sut.InstallHook(fileName, "some other function", hook);

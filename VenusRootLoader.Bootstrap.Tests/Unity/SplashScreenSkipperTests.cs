@@ -6,7 +6,6 @@ using Microsoft.Extensions.Options;
 using NSubstitute;
 using System.IO.Abstractions;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using VenusRootLoader.Bootstrap.Settings;
 using VenusRootLoader.Bootstrap.Shared;
 using VenusRootLoader.Bootstrap.Tests.TestHelpers;
@@ -17,6 +16,7 @@ using Windows.Win32.Storage.FileSystem;
 
 namespace VenusRootLoader.Bootstrap.Tests.Unity;
 
+[Collection(nameof(SplashScreenSkipperTests))]
 public class SplashScreenSkipperTests : IDisposable
 {
     private readonly ILogger<SplashScreenSkipper> _logger = Substitute.For<ILogger<SplashScreenSkipper>>();
@@ -84,13 +84,10 @@ public class SplashScreenSkipperTests : IDisposable
         _globalSettingsValue.SkipUnitySplashScreen = false;
         StartService();
 
-        var fileNamePtr = (char*)Marshal.StringToHGlobalUni(_dataUnity3dPath);
-
-        _createFileWSharedHooker.SimulateHook(fileNamePtr);
+        fixed (char* fileNamePtr = _dataUnity3dPath)
+            _createFileWSharedHooker.SimulateHook(fileNamePtr);
 
         File.Exists(_pathModifiedBundle).Should().BeFalse();
-
-        Marshal.FreeHGlobal((nint)fileNamePtr);
     }
 
     [Fact]

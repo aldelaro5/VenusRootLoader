@@ -120,31 +120,31 @@ public class ConsoleLogger : ILogger
 
         if (_renderingMode == ConsoleLogProvider.RenderingMode.LegacyColors)
         {
-            Console.ResetColor();
+            Console.ForegroundColor = ConsoleColor.Gray;
             Console.Write('[');
 
             Console.ForegroundColor = LegacyTimeColor;
             Console.Write(time);
 
-            Console.ResetColor();
+            Console.ForegroundColor = ConsoleColor.Gray;
             Console.Write("] [");
 
             Console.ForegroundColor = _logLevelInfos[logLevel].LegacyColor;
             Console.Write(_logLevelInfos[logLevel].Moniker);
 
-            Console.ResetColor();
+            Console.ForegroundColor = ConsoleColor.Gray;
             Console.Write("] [");
 
             Console.ForegroundColor = legacyCategoryColor;
             Console.Write(_categoryName);
 
-            Console.ResetColor();
+            Console.ForegroundColor = ConsoleColor.Gray;
             Console.Write("] ");
 
             Console.ForegroundColor = _logLevelInfos[logLevel].LegacyColor;
             Console.WriteLine($"{message}");
 
-            Console.ResetColor();
+            Console.ForegroundColor = ConsoleColor.Gray;
 
             return;
         }

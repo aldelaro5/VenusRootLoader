@@ -42,7 +42,7 @@ public class BootConfigCustomizerTests
     {
         _bootConfigSettingsValue = new();
         _bootConfigSettings.Value.Returns(_bootConfigSettingsValue);
-        _bootConfigFilePath = Path.Combine(_gameExecutionContext.DataDir, "boot.config");
+        _bootConfigFilePath = Path.Combine(_gameExecutionContext.DataDir, "boot.config").Replace('\\', '/');
     }
 
     private void StartService()

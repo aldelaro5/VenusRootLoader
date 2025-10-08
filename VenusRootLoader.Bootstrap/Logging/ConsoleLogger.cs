@@ -75,9 +75,14 @@ public class ConsoleLogger : ILogger
     };
 
     private readonly TimeProvider _timeProvider;
+    private readonly IConsole _console;
     private readonly string _assemblyName = Assembly.GetExecutingAssembly().GetName().Name!;
 
-    public ConsoleLogger(string categoryName, ConsoleLogProvider.RenderingMode renderingMode, TimeProvider timeProvider)
+    public ConsoleLogger(
+        string categoryName,
+        ConsoleLogProvider.RenderingMode renderingMode,
+        TimeProvider timeProvider,
+        IConsole console)
     {
         var simplifiedCategoryName = categoryName;
         var lastDotIndex = categoryName.LastIndexOf('.');
@@ -93,6 +98,7 @@ public class ConsoleLogger : ILogger
         };
         _renderingMode = renderingMode;
         _timeProvider = timeProvider;
+        _console = console;
         if (_categoryColor is not null)
             _legacyCategoryColor = GetClosestConsoleColor(_categoryColor.Value);
     }
@@ -120,31 +126,31 @@ public class ConsoleLogger : ILogger
 
         if (_renderingMode == ConsoleLogProvider.RenderingMode.LegacyColors)
         {
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Write('[');
+            _console.ForegroundColor = ConsoleColor.Gray;
+            _console.Write('[');
 
-            Console.ForegroundColor = LegacyTimeColor;
-            Console.Write(time);
+            _console.ForegroundColor = LegacyTimeColor;
+            _console.Write(time);
 
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Write("] [");
+            _console.ForegroundColor = ConsoleColor.Gray;
+            _console.Write("] [");
 
-            Console.ForegroundColor = _logLevelInfos[logLevel].LegacyColor;
-            Console.Write(_logLevelInfos[logLevel].Moniker);
+            _console.ForegroundColor = _logLevelInfos[logLevel].LegacyColor;
+            _console.Write(_logLevelInfos[logLevel].Moniker);
 
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Write("] [");
+            _console.ForegroundColor = ConsoleColor.Gray;
+            _console.Write("] [");
 
-            Console.ForegroundColor = legacyCategoryColor;
-            Console.Write(_categoryName);
+            _console.ForegroundColor = legacyCategoryColor;
+            _console.Write(_categoryName);
 
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Write("] ");
+            _console.ForegroundColor = ConsoleColor.Gray;
+            _console.Write("] ");
 
-            Console.ForegroundColor = _logLevelInfos[logLevel].LegacyColor;
-            Console.WriteLine($"{message}");
+            _console.ForegroundColor = _logLevelInfos[logLevel].LegacyColor;
+            _console.WriteLine($"{message}");
 
-            Console.ForegroundColor = ConsoleColor.Gray;
+            _console.ForegroundColor = ConsoleColor.Gray;
 
             return;
         }
@@ -153,7 +159,7 @@ public class ConsoleLogger : ILogger
 
         if (_renderingMode == ConsoleLogProvider.RenderingMode.AnsiColors)
         {
-            Console.WriteLine(
+            _console.WriteLine(
                 $"[{time.Pastel(TimeColor)}] " +
                 $"[{_logLevelInfos[logLevel].Moniker.Pastel(_logLevelInfos[logLevel].Color)}] " +
                 $"[{_categoryName.Pastel(categoryColor)}] " +
@@ -161,7 +167,7 @@ public class ConsoleLogger : ILogger
         }
         else
         {
-            Console.WriteLine(
+            _console.WriteLine(
                 $"[{time}] " +
                 $"[{_logLevelInfos[logLevel].Moniker}] " +
                 $"[{_categoryName}] " +

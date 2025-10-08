@@ -11,6 +11,10 @@ namespace VenusRootLoader.Bootstrap.Tests.Logging;
 public class ConsoleLoggerTests
 {
     private readonly FakeTimeProvider _timeProvider = new();
+    private readonly StringWriter _writer = new();
+    private readonly TestConsole _console;
+
+    public ConsoleLoggerTests() => _console = new(_writer);
 
     [Theory]
     [InlineData(LogLevel.Trace, "T")]
@@ -25,12 +29,10 @@ public class ConsoleLoggerTests
         _timeProvider.AdjustTime(timeStamp);
         var category = "Some category";
         var message = "Some logging message";
-        var writer = new StringWriter();
-        Console.SetOut(writer);
 
-        ConsoleLogger sut = new(category, ConsoleLogProvider.RenderingMode.NoColors, _timeProvider);
+        ConsoleLogger sut = new(category, ConsoleLogProvider.RenderingMode.NoColors, _timeProvider, _console);
         sut.Log(logLevel, message);
-        var result = writer.ToString();
+        var result = _writer.ToString();
 
         result.Should().Contain(timeStamp.ToString("HH:mm:ss.fff"));
         result.Should().Contain($"[{levelMoniker}]");
@@ -43,12 +45,9 @@ public class ConsoleLoggerTests
     [InlineData("first.second.third", "third")]
     public void Log_LogsWithSimplifiedCategory_WhenItContainsDots(string category, string expected)
     {
-        var writer = new StringWriter();
-        Console.SetOut(writer);
-
-        ConsoleLogger sut = new(category, ConsoleLogProvider.RenderingMode.NoColors, _timeProvider);
+        ConsoleLogger sut = new(category, ConsoleLogProvider.RenderingMode.NoColors, _timeProvider, _console);
         sut.LogInformation("Some logging message");
-        var result = writer.ToString();
+        var result = _writer.ToString();
 
         result.Should().Contain(expected);
         result.Should().NotContain(category);
@@ -59,12 +58,10 @@ public class ConsoleLoggerTests
     {
         var message = "Some logging message";
         var exception = new Exception("Some exception message");
-        var writer = new StringWriter();
-        Console.SetOut(writer);
 
-        ConsoleLogger sut = new("Some category", ConsoleLogProvider.RenderingMode.NoColors, _timeProvider);
+        ConsoleLogger sut = new("Some category", ConsoleLogProvider.RenderingMode.NoColors, _timeProvider, _console);
         sut.LogInformation(exception, message);
-        var result = writer.ToString();
+        var result = _writer.ToString();
 
         result.Should().Contain(message);
         result.Should().Contain(exception.ToString());
@@ -92,12 +89,10 @@ public class ConsoleLoggerTests
         _timeProvider.AdjustTime(timeStamp);
         var category = "Some category";
         var message = "Some logging message";
-        var writer = new StringWriter();
-        Console.SetOut(writer);
 
-        ConsoleLogger sut = new(category, ConsoleLogProvider.RenderingMode.AnsiColors, _timeProvider);
+        ConsoleLogger sut = new(category, ConsoleLogProvider.RenderingMode.AnsiColors, _timeProvider, _console);
         sut.Log(logLevel, message);
-        var result = writer.ToString();
+        var result = _writer.ToString();
 
         result.Should().Contain($"[{timeStampString.Pastel(Color.LimeGreen)}]");
         result.Should().Contain($"[{levelMoniker.Pastel(levelColor)}]");
@@ -116,16 +111,14 @@ public class ConsoleLoggerTests
     [MemberData(nameof(LogCategoriesTestDataAnsi))]
     public void Log_LogsCategoryWithTheCorrectColors_WhenCalledInAnsiMode(string categoryName, Color levelColor)
     {
-        var writer = new StringWriter();
-        Console.SetOut(writer);
         var simplifiedCategoryName = categoryName;
         var lastDotIndex = categoryName.LastIndexOf('.');
         if (lastDotIndex > -1)
             simplifiedCategoryName = categoryName[(lastDotIndex + 1)..];
 
-        ConsoleLogger sut = new(categoryName, ConsoleLogProvider.RenderingMode.AnsiColors, _timeProvider);
+        ConsoleLogger sut = new(categoryName, ConsoleLogProvider.RenderingMode.AnsiColors, _timeProvider, _console);
         sut.LogInformation("Some logging message");
-        var result = writer.ToString();
+        var result = _writer.ToString();
 
         result.Should().Contain($"[{simplifiedCategoryName.Pastel(levelColor)}]");
     }
@@ -147,17 +140,16 @@ public class ConsoleLoggerTests
         string levelMoniker,
         ConsoleColor levelColor)
     {
+        _console.WriteLegacyColorMarkers = true;
         var timeStamp = DateTimeOffset.Now;
         var timeStampString = timeStamp.ToString("HH:mm:ss.fff");
         _timeProvider.AdjustTime(timeStamp);
         var category = "Some category";
         var message = "Some logging message";
-        var writer = new LegacyConsoleColorsCaptureTextWriter();
-        Console.SetOut(writer);
 
-        ConsoleLogger sut = new(category, ConsoleLogProvider.RenderingMode.LegacyColors, _timeProvider);
+        ConsoleLogger sut = new(category, ConsoleLogProvider.RenderingMode.LegacyColors, _timeProvider, _console);
         sut.Log(logLevel, message);
-        var result = writer.ToString();
+        var result = _writer.ToString();
 
         result.Should().Contain($"[~{nameof(ConsoleColor.Green)}~{timeStampString}~{ConsoleColor.Gray}~]");
         result.Should().Contain($"[~{levelColor.ToString()}~{levelMoniker}~{ConsoleColor.Gray}~]");
@@ -180,16 +172,15 @@ public class ConsoleLoggerTests
         string categoryName,
         ConsoleColor levelColor)
     {
-        var writer = new LegacyConsoleColorsCaptureTextWriter();
-        Console.SetOut(writer);
+        _console.WriteLegacyColorMarkers = true;
         var simplifiedCategoryName = categoryName;
         var lastDotIndex = categoryName.LastIndexOf('.');
         if (lastDotIndex > -1)
             simplifiedCategoryName = categoryName[(lastDotIndex + 1)..];
 
-        ConsoleLogger sut = new(categoryName, ConsoleLogProvider.RenderingMode.LegacyColors, _timeProvider);
+        ConsoleLogger sut = new(categoryName, ConsoleLogProvider.RenderingMode.LegacyColors, _timeProvider, _console);
         sut.LogInformation("Some logging message");
-        var result = writer.ToString();
+        var result = _writer.ToString();
 
         result.Should().Contain($"[~{levelColor.ToString()}~{simplifiedCategoryName}~{ConsoleColor.Gray}~]");
     }

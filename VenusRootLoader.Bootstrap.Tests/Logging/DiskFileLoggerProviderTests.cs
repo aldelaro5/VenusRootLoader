@@ -38,9 +38,8 @@ public sealed class DiskFileLoggerProviderTests
     [Fact]
     public void CreateLogger_ReturnsNullLogger_WhenLogFileIsAlreadyOpened()
     {
-        var rootPath = "root";
+        var rootPath = Path.Combine(Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()), "root");
         var existingLogPath = Path.Combine(
-            Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()),
             rootPath,
             "Logs",
             "latest.log");
@@ -66,9 +65,8 @@ public sealed class DiskFileLoggerProviderTests
     [Fact]
     public void CreateLogger_ReturnsDiskFileLoggerWithCorrectFilename_WhenDiskFileLoggingIsEnabled()
     {
-        var rootPath = "root";
+        var rootPath = Path.Combine(Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()), "root");
         var expectedPath = Path.Combine(
-            Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()),
             rootPath,
             "Logs",
             "latest.log");
@@ -95,16 +93,14 @@ public sealed class DiskFileLoggerProviderTests
     [Fact]
     public void CreateLogger_ReturnsDiskFileLoggerAfterOrganisingLogFiles_WhenALogFileExistsAlready()
     {
-        var rootPath = "root";
+        var rootPath = Path.Combine(Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()), "root");
         var latestLogPath = Path.Combine(
-            Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()),
             rootPath,
             "Logs",
             "latest.log");
         var existingLogsContent = "existing logs";
         var olderLogFileTimeStamp = new DateTime(2025, 6, 15, 12, 30, 30);
         var olderLogPath = Path.Combine(
-            Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()),
             rootPath,
             "Logs",
             $"{olderLogFileTimeStamp:yyyy-MM-dd_HH-mm-ss}.log");
@@ -148,9 +144,8 @@ public sealed class DiskFileLoggerProviderTests
     [Fact]
     public void CreateLogger_ReturnsDiskFileLoggerAfterDeletingOldFiles_WhenTheAmountOfFilesExceedsTheLimit()
     {
-        var rootPath = "root";
+        var rootPath = Path.Combine(Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()), "root");
         var latestLogPath = Path.Combine(
-            Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()),
             rootPath,
             "Logs",
             "latest.log");
@@ -158,7 +153,6 @@ public sealed class DiskFileLoggerProviderTests
         var olderLogContent = "older logs";
         var newerLogTimeStamp = new DateTime(2025, 6, 15, 12, 30, 30);
         var newerLogPath = Path.Combine(
-            Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()),
             rootPath,
             "Logs",
             $"{newerLogTimeStamp:yyyy-MM-dd_HH-mm-ss}.log");

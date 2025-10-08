@@ -10,6 +10,11 @@
         <BuildDir>$(SolutionDir)/Output/$(Configuration)/</BuildDir>
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
+        <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+        <TestingPlatformCaptureOutput>false</TestingPlatformCaptureOutput>
+        <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+        <TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
     </PropertyGroup>
 
     <PropertyGroup Condition="$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))">
@@ -31,7 +36,7 @@
         <Copy ContinueOnError="false" SourceFiles="$(SolutionDir)Data/classdata.tpk" DestinationFolder="$(BuildDir)/VenusRootLoader"/>
     </Target>
 
-    <Target Name="CopyToBugFables" AfterTargets="PostBuild" Condition="$(BugFablesDir) != ''">
+    <Target Name="CopyToBugFables" AfterTargets="PostBuild" Condition="Exists($(BugFablesDir))">
         <ItemGroup>
             <OutFiles Include="$(BuildDir)/**/*.*"/>
         </ItemGroup>

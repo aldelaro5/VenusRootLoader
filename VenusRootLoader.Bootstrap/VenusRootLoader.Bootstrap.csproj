@@ -24,8 +24,8 @@
 
     <ItemGroup>
         <PackageReference Include="AssetsTools.NET" Version="3.0.2"/>
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0-preview.7.25380.108"/>
-        <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.0-preview.7.25380.108"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0-rc.1.25451.107"/>
+        <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.0-rc.1.25451.107"/>
         <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="9.9.0"/>
         <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.205">
             <PrivateAssets>all</PrivateAssets>

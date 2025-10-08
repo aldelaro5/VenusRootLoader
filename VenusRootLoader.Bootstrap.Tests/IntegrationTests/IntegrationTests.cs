@@ -46,7 +46,7 @@ public class IntegrationTests : IDisposable
         [DevBuildInstallPath, false, false],
         [DevBuildInstallPath, false, true],
         [DevBuildInstallPath, true, false],
-        [DevBuildInstallPath, true, true],
+        [DevBuildInstallPath, true, true]
     ];
 
     public static List<object[]> VrlDisabledTestData =>
@@ -83,23 +83,41 @@ public class IntegrationTests : IDisposable
                 WorkingDirectory = Path.Combine(Directory.GetCurrentDirectory(), buildPath)
             }
         };
-        proc.Start();
-        proc.WaitForExit(skipSplashScreen ? TimeSpan.FromSeconds(3) : TimeSpan.FromSeconds(7));
-        proc.Kill();
-        string[] logs = File.ReadAllLines(Path.Combine(buildPath, "Logs", "latest.log"));
-        logs.Should().NotContainMatch("*[!]*");
-        logs.Should().NotContainMatch("*[E]*");
-        logs.Should().NotContainMatch("*[W]*");
-        if (skipSplashScreen)
-            logs.Should().Contain(l => l.Contains("Redirecting game bundle"));
-        else
-            logs.Should().NotContain(l => l.Contains("Redirecting game bundle"));
-        if (debugMode)
-            logs.Should().Contain(l => l.Contains("Adding jit options"));
-        else
-            logs.Should().NotContain(l => l.Contains("Adding jit options"));
 
-        logs.Should().ContainSingle(l => l.EndsWith("<Game started successfully>"));
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            SetupWineEnvironment(proc);
+
+        proc.Start();
+        proc.WaitForExit(TimeSpan.FromSeconds(10));
+        proc.Kill();
+        foreach (var file in Directory.GetFiles(Path.Combine(buildPath, "VenusRootLoader")))
+        {
+            TestContext.Current.TestOutputHelper!.WriteLine(file);
+        }
+        string[] logs = File.ReadAllLines(Path.Combine(buildPath, "Logs", "latest.log"));
+        try
+        {
+            logs.Should().NotContainMatch("*[!]*");
+            logs.Should().NotContainMatch("*[E]*");
+            logs.Should().NotContainMatch("*[W]*");
+            if (skipSplashScreen)
+                logs.Should().Contain(l => l.Contains("Redirecting game bundle"));
+            else
+                logs.Should().NotContain(l => l.Contains("Redirecting game bundle"));
+            if (debugMode)
+                logs.Should().Contain(l => l.Contains("Adding jit options"));
+            else
+                logs.Should().NotContain(l => l.Contains("Adding jit options"));
+
+            logs.Should().ContainSingle(l => l.EndsWith("<Game started successfully>"));
+        }
+        catch (Exception)
+        {
+            TestContext.Current.TestOutputHelper!.WriteLine("Full VenusRootLoader logs:");
+            foreach (string log in logs)
+                TestContext.Current.TestOutputHelper!.WriteLine(log);
+            throw;
+        }
     }
 
     [Theory]
@@ -122,10 +140,19 @@ public class IntegrationTests : IDisposable
                 WorkingDirectory = Path.Combine(Directory.GetCurrentDirectory(), buildPath)
             }
         };
+
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            SetupWineEnvironment(proc);
+
         proc.Start();
         proc.WaitForExit(TimeSpan.FromSeconds(7));
         proc.Kill();
         Directory.Exists("./TestInstall/Logs").Should().BeFalse();
+    }
+
+    private static void SetupWineEnvironment(Process proc)
+    {
+        proc.StartInfo.EnvironmentVariables["WINEDLLOVERRIDES"] = "winhttp.dll=n,b";
     }
 
     public void Dispose()

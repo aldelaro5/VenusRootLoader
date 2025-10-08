@@ -31,7 +31,7 @@
         <Copy ContinueOnError="false" SourceFiles="$(SolutionDir)Data/classdata.tpk" DestinationFolder="$(BuildDir)/VenusRootLoader"/>
     </Target>
 
-    <Target Name="CopyToBugFables" AfterTargets="PostBuild" Condition="$(BugFablesDir) != ''">
+    <Target Name="CopyToBugFables" AfterTargets="PostBuild" Condition="Exists($(BugFablesDir))">
         <ItemGroup>
             <OutFiles Include="$(BuildDir)/**/*.*"/>
         </ItemGroup>

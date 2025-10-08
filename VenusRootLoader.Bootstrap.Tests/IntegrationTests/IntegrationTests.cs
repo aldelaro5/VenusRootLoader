@@ -15,7 +15,7 @@ public class IntegrationTests : IDisposable
     private static string TestExecutable(string buildPath) =>
         RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
             ? Path.Combine(Directory.GetCurrentDirectory(), buildPath, "VenusRootLoaderTestProject.exe")
-            : "wine";
+            : "wineconsole";
 
     private static string TestArguments => RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
         ? SilentPlayerArguments
@@ -46,7 +46,7 @@ public class IntegrationTests : IDisposable
         [DevBuildInstallPath, false, false],
         [DevBuildInstallPath, false, true],
         [DevBuildInstallPath, true, false],
-        [DevBuildInstallPath, true, true],
+        [DevBuildInstallPath, true, true]
     ];
 
     public static List<object[]> VrlDisabledTestData =>
@@ -83,6 +83,10 @@ public class IntegrationTests : IDisposable
                 WorkingDirectory = Path.Combine(Directory.GetCurrentDirectory(), buildPath)
             }
         };
+
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            SetupWineEnvironment(proc);
+
         proc.Start();
         proc.WaitForExit(skipSplashScreen ? TimeSpan.FromSeconds(3) : TimeSpan.FromSeconds(7));
         proc.Kill();
@@ -122,10 +126,19 @@ public class IntegrationTests : IDisposable
                 WorkingDirectory = Path.Combine(Directory.GetCurrentDirectory(), buildPath)
             }
         };
+
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            SetupWineEnvironment(proc);
+
         proc.Start();
         proc.WaitForExit(TimeSpan.FromSeconds(7));
         proc.Kill();
         Directory.Exists("./TestInstall/Logs").Should().BeFalse();
+    }
+
+    private static void SetupWineEnvironment(Process proc)
+    {
+        proc.StartInfo.EnvironmentVariables["WINEDLLOVERRIDES"] = "winhttp.dll=n,b";
     }
 
     public void Dispose()

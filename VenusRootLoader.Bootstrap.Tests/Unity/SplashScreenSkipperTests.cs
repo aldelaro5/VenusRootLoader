@@ -144,6 +144,8 @@ public class SplashScreenSkipperTests : IDisposable
         var buildSettingAsset = assetFile.GetAssetInfo(11);
         var buildSettingsTypeValueField = manager.GetBaseField(assetsFileInstance, buildSettingAsset);
         buildSettingsTypeValueField["hasPROVersion"].AsBool.Should().BeTrue();
+
+        manager.UnloadAll();
     }
 
     public void Dispose() => DeleteRealTestFiles();

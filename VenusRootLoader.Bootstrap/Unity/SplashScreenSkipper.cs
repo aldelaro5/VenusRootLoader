@@ -164,7 +164,7 @@ internal class SplashScreenSkipper : IHostedService
 
         _fileSystem.File.Delete(uncompressedBundlePath);
 
-        _logger.LogDebug("\tClosing the original bundle file");
+        _logger.LogDebug("\tClosing the AssetsManager");
         manager.UnloadAll();
 
         _logger.LogInformation(

@@ -156,7 +156,7 @@ public class ConsoleLoggerTests
         result.Should().Contain($"[~{nameof(ConsoleColor.White)}~{category}~{ConsoleColor.Gray}~]");
         result.Should().Contain($"~{levelColor.ToString()}~{message}");
 
-        Console.ForegroundColor.Should().Be(ConsoleColor.Gray);
+        _console.ForegroundColor.Should().Be(ConsoleColor.Gray);
     }
 
     public static List<object[]> LogCategoriesTestDataLegacy =>

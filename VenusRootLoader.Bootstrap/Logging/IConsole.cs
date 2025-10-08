@@ -6,5 +6,6 @@
         void WriteLine(string message);
         void Write(string message);
         void Write(char c);
+        void ResetColor();
     }
 }

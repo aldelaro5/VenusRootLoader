@@ -151,12 +151,12 @@ public class ConsoleLoggerTests
         sut.Log(logLevel, message);
         var result = _writer.ToString();
 
-        result.Should().Contain($"[~{nameof(ConsoleColor.Green)}~{timeStampString}~{ConsoleColor.Gray}~]");
-        result.Should().Contain($"[~{levelColor.ToString()}~{levelMoniker}~{ConsoleColor.Gray}~]");
-        result.Should().Contain($"[~{nameof(ConsoleColor.White)}~{category}~{ConsoleColor.Gray}~]");
+        result.Should().Contain($"[~{nameof(ConsoleColor.Green)}~{timeStampString}~~]");
+        result.Should().Contain($"[~{levelColor.ToString()}~{levelMoniker}~~]");
+        result.Should().Contain($"[~{nameof(ConsoleColor.White)}~{category}~~]");
         result.Should().Contain($"~{levelColor.ToString()}~{message}");
 
-        _console.ForegroundColor.Should().Be(ConsoleColor.Gray);
+        _console.ForegroundColor.Should().Be((ConsoleColor)(-1));
     }
 
     public static List<object[]> LogCategoriesTestDataLegacy =>
@@ -182,6 +182,6 @@ public class ConsoleLoggerTests
         sut.LogInformation("Some logging message");
         var result = _writer.ToString();
 
-        result.Should().Contain($"[~{levelColor.ToString()}~{simplifiedCategoryName}~{ConsoleColor.Gray}~]");
+        result.Should().Contain($"[~{levelColor.ToString()}~{simplifiedCategoryName}~~]");
     }
 }

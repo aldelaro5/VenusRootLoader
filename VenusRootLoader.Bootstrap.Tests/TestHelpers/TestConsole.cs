@@ -32,6 +32,8 @@ namespace VenusRootLoader.Bootstrap.Tests.TestHelpers
             _writer.Write(c);
         }
 
+        public void ResetColor() => ForegroundColor = (ConsoleColor)(-1);
+
         private void WriteColorMarker()
         {
             _writer.Write("~");

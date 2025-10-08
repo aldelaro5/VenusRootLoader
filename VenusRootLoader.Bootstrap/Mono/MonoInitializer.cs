@@ -126,7 +126,7 @@ internal class MonoInitializer : IHostedService
                 fixed (char* monoFileNamePtr = new char[2048])
                 {
                     _win32.GetModuleFileName(handle, new PWSTR(monoFileNamePtr), 2048);
-                    var monoFileName = Marshal.PtrToStringAuto((nint)monoFileNamePtr)!;
+                    var monoFileName = Marshal.PtrToStringUni((nint)monoFileNamePtr)!;
                     _sdbWinePathTranslator.Setup(monoFileName);
                 }
             }

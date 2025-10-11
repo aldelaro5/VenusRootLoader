@@ -55,8 +55,6 @@ internal static class Startup
 
         builder.Configuration.AddJsonFile(
             fileSystem.Path.Combine(builder.Environment.ContentRootPath, "Config", "config.jsonc"));
-        builder.Configuration.AddJsonFile(
-            fileSystem.Path.Combine(builder.Environment.ContentRootPath, "Config", "boot.jsonc"));
         builder.Configuration.AddCustomEnvironmentVariables("VRL_", EnvironmentVariablesConfigMapping);
         builder.Configuration.AddCommandLine(
             sanitisedArgs.ToArray(),
@@ -91,8 +89,6 @@ internal static class Startup
         builder.Services.AddSingleton<IValidateOptions<MonoDebuggerSettings>, ValidateMonoDebuggerSettings>();
         builder.Services.AddOptions<MonoDebuggerSettings>()
             .BindConfiguration(nameof(MonoDebuggerSettings), options => options.ErrorOnUnknownConfiguration = true);
-        builder.Services.AddOptions<BootConfigSettings>()
-            .Bind(builder.Configuration.GetRequiredSection(nameof(BootConfigSettings)));
 
         builder.Services.AddSingleton(TimeProvider.System);
         builder.Services.AddSingleton<IFileSystem, FileSystem>();
@@ -105,7 +101,6 @@ internal static class Startup
         builder.Services.AddSingleton<ICreateFileWSharedHooker, CreateFileWSharedHooker>();
         builder.Services.AddHostedService<PlayerLogsMirroring>();
         builder.Services.AddHostedService<SplashScreenSkipper>();
-        builder.Services.AddHostedService<BootConfigCustomizer>();
         builder.Services.AddSingleton<IPlayerConnectionDiscovery, PlayerConnectionDiscovery>();
         builder.Services.AddSingleton<ISdbWinePathTranslator, SdbWinePathTranslator>();
         builder.Services.AddSingleton<IMonoFunctions, MonoFunctions>();

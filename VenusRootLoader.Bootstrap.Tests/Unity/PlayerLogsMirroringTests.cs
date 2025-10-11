@@ -32,7 +32,7 @@ public class PlayerLogsMirroringTests
     };
 
     private readonly IWin32 _win32 = Substitute.For<IWin32>();
-    private readonly IGameLifecycleEvents _gameLifecycleEvents = new GameLifecycleEvents();
+    private readonly IMonoInitLifeCycleEvents _monoInitLifeCycleEvents = new MonoInitLifeCycleEvents();
     private readonly TestCreateFileWSharedHooker _createFileWSharedHooker = new();
 
     private readonly GameExecutionContext _gameExecutionContext = new()
@@ -58,7 +58,7 @@ public class PlayerLogsMirroringTests
             _createFileWSharedHooker,
             _gameExecutionContext,
             _loggingSettings,
-            _gameLifecycleEvents,
+            _monoInitLifeCycleEvents,
             _win32);
         sut.StartAsync(TestContext.Current.CancellationToken);
     }
@@ -337,7 +337,7 @@ public class PlayerLogsMirroringTests
         var fileNamePtr = (char*)Marshal.StringToHGlobalUni("output_log.txt");
         _createFileWSharedHooker.SimulateHook(fileNamePtr);
 
-        _gameLifecycleEvents.Publish(this);
+        _monoInitLifeCycleEvents.Publish(this);
 
         _pltHooksManager.Hooks.Should().NotContainKey((_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW"));
 

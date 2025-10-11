@@ -3,14 +3,20 @@ using System.Runtime.InteropServices;
 
 namespace VenusRootLoader.Bootstrap.Shared;
 
+/// <summary>
+/// An abstracted interface of all PltHook functions we use so they can easily be mocked in unit tests
+/// </summary>
 public interface IPltHook
 {
-    public bool PlthookOpen(Pointer<nint> pltHookOut, string? filename);
-    public bool PlthookReplace(nint pltHook, string funcName, nint funcAddr, Pointer<nint> oldFunc);
-    public void PlthookClose(nint pltHook);
-    public nint PlthookError();
+    bool PlthookOpen(Pointer<nint> pltHookOut, string? filename);
+    bool PlthookReplace(nint pltHook, string funcName, nint funcAddr, Pointer<nint> oldFunc);
+    void PlthookClose(nint pltHook);
+    nint PlthookError();
 }
 
+/// <summary>
+/// The real implementation of <see cref="IPltHook"/> that calls the real functions with PInvoke
+/// </summary>
 public partial class PltHook : IPltHook
 {
     [LibraryImport("*", EntryPoint = "plthook_open", StringMarshalling = StringMarshalling.Utf8)]

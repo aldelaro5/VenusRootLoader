@@ -5,6 +5,14 @@ using System.Reflection;
 
 namespace VenusRootLoader.Bootstrap.Logging;
 
+/// <summary>
+/// A console logger whose rendering was configured by a <see cref="ConsoleLogProvider"/>
+/// It features colors logic support such that each levels uses a different colors in the message and the categories are
+/// rendered with a color determined like the following:
+/// - Our bootstrap logs uses magenta
+/// - Unity player logs (marked with the special UNITY category) uses cyan
+/// - Every other categories renders white, but it could be possible to customise this in the future
+/// </summary>
 public class ConsoleLogger : ILogger
 {
     private struct LogLevelInfo

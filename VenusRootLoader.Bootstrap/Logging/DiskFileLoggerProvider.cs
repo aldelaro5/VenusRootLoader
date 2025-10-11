@@ -7,6 +7,11 @@ using VenusRootLoader.Bootstrap.Settings.LogProvider;
 
 namespace VenusRootLoader.Bootstrap.Logging;
 
+/// <summary>
+/// A disk file logger provider that will always log to a file named "latest.log" using a <see cref="DiskFileLogger"/>,
+/// but it will keep the last X amount of existing files by renaming them before creating a new "latest.log".
+/// X here is a value determined from the configuration system. Other log files are named after their creation timestamp
+/// </summary>
 public sealed class DiskFileLoggerProvider : ILoggerProvider
 {
     private readonly TimeProvider _timeProvider;

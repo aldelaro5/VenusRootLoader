@@ -1,6 +1,7 @@
+// ReSharper disable UnusedMemberInSuper.Global
 namespace VenusRootLoader.Bootstrap.Settings.LogProvider;
 
 public interface ILogProviderSettings
 {
-    public bool? Enable { get; set; }
+    bool? Enable { get; set; }
 }

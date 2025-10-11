@@ -17,6 +17,12 @@ namespace VenusRootLoader.Bootstrap;
 
 internal static class Startup
 {
+    // To enforce consistencies between environment variables and command line arguments, we enforce the following:
+    // - All environment variables are all uppercase in snake case and prefixed by VRL_ (the mappings below omits the prefix)
+    // - All command line arguments are their environment variables counterpart, but in all lowercase, in snake case and prefixed with "--"
+    // - All command line arguments are specified in pair: the first one is the key and the next one is assumed to be the value
+    // - The only environment variable not in the mapping below is VRL_BASE_DIRECTORY because it can't come from a
+    //   config file and needs to be loaded early
     private static readonly Dictionary<string, string> EnvironmentVariablesConfigMapping = new()
     {
         ["SKIP_UNITY_SPLASHSCREEN"] = $"{nameof(GlobalSettings.SkipUnitySplashScreen)}",
@@ -65,12 +71,13 @@ internal static class Startup
         builder.Services.AddOptions<GlobalSettings>()
             .BindConfiguration(string.Empty);
 
+        // We want to get out as early as possible if needed because it prevents any other services to start
         if (builder.Configuration.GetValue<bool>(nameof(GlobalSettings.DisableVrl)))
             return builder.Build();
 
         builder.Logging.AddConfiguration(builder.Configuration.GetRequiredSection("Logging"));
-        builder.Logging.AddConsoleLoggingProvider();
-        builder.Logging.AddFileLoggingProvider();
+        builder.Logging.Services.AddSingleton<ILoggerProvider, ConsoleLogProvider>();
+        builder.Logging.Services.AddSingleton<ILoggerProvider, DiskFileLoggerProvider>();
         if (!builder.Configuration.GetValue<bool>("LoggingSettings:DisableUnityLogs"))
             builder.Logging.AddFilter("UNITY", LogLevel.Trace);
 
@@ -96,7 +103,7 @@ internal static class Startup
         builder.Services.AddSingleton<GameExecutionContext>(_ => gameExecutionContext);
         builder.Services.AddSingleton<IPltHooksManager, PltHooksManager>(sp =>
             new PltHooksManager(sp.GetRequiredService<ILogger<PltHooksManager>>(), new PltHook(), new FileSystem()));
-        builder.Services.AddSingleton<IGameLifecycleEvents, GameLifecycleEvents>();
+        builder.Services.AddSingleton<IMonoInitLifeCycleEvents, MonoInitLifeCycleEvents>();
         builder.Services.AddHostedService<StandardStreamsProtector>();
         builder.Services.AddSingleton<ICreateFileWSharedHooker, CreateFileWSharedHooker>();
         builder.Services.AddHostedService<PlayerLogsMirroring>();

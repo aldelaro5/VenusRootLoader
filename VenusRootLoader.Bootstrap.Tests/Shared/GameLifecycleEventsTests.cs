@@ -3,7 +3,7 @@ using VenusRootLoader.Bootstrap.Shared;
 
 namespace VenusRootLoader.Bootstrap.Tests.Shared;
 
-public class GameLifecycleEventsTests
+public class MonoInitLifeCycleEventsTests
 {
     [Fact]
     public void Publish_CallsAllSubscribers_WhenThereAreSubscribers()
@@ -12,7 +12,7 @@ public class GameLifecycleEventsTests
         bool secondCalled = false;
         bool thirdCalled = false;
 
-        var sut = new GameLifecycleEvents();
+        var sut = new MonoInitLifeCycleEvents();
         sut.Subscribe((_, _) => firstCalled = true);
         sut.Subscribe((_, _) => secondCalled = true);
         sut.Subscribe((_, _) => thirdCalled = true);

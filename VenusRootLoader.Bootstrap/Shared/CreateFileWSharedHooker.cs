@@ -23,8 +23,8 @@ public interface ICreateFileWSharedHooker
 }
 
 /// <summary>
-/// This class allows the bootstrap to use a shared CreateFileW plt hook that many modules can use to listen for files
-/// they are interested in. Each module can register a sub hook that only runs on files whose filename matches a predicate,
+/// This service allows the bootstrap to use a shared CreateFileW plt hook that many services can use to listen for files
+/// they are interested in. Each service can register a sub hook that only runs on files whose filename matches a predicate,
 /// and they can decide to remove themselves from the hook list or change the handle returned
 /// </summary>
 public class CreateFileWSharedHooker : ICreateFileWSharedHooker
@@ -100,7 +100,7 @@ public class CreateFileWSharedHooker : ICreateFileWSharedHooker
             _pltHooksManager.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW");
     }
 
-    public unsafe nint HookCreateFileW(
+    private unsafe nint HookCreateFileW(
         PCWSTR lpFileName,
         uint dwDesiredAccess,
         FILE_SHARE_MODE dwShareMode,

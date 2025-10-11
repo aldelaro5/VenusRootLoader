@@ -5,91 +5,91 @@ using Windows.Win32.Foundation;
 namespace VenusRootLoader.Bootstrap.Mono;
 
 /// <summary>
-/// This class contains abstractions to call Mono's functions. An instance is initialised by <see cref="MonoInitializer"/>
+/// This interface contains abstractions to call Mono's functions. An instance is initialised by <see cref="MonoInitializer"/>
 /// </summary>
 public interface IMonoFunctions
 {
-    public enum MonoDebugFormat
+    enum MonoDebugFormat
     {
         MonoDebugFormatNone,
         MonoDebugFormatMono,
         MonoDebugFormatDebugger
     }
 
-    public void Initialize(HMODULE handle);
+    void Initialize(HMODULE handle);
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate nint JitInitVersionFn(nint namePtr, nint runtimeVersionPtr);
+    delegate nint JitInitVersionFn(nint namePtr, nint runtimeVersionPtr);
 
-    public JitInitVersionFn JitInitVersion { get; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void JitParseOptionsFn(nint argc, string[] argv);
-
-    public JitParseOptionsFn JitParseOptions { get; }
+    JitInitVersionFn JitInitVersion { get; }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate nint ThreadCurrentFn();
+    delegate void JitParseOptionsFn(nint argc, string[] argv);
 
-    public ThreadCurrentFn ThreadCurrent { get; }
+    JitParseOptionsFn JitParseOptions { get; }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void DebugInitFn(MonoDebugFormat format);
+    delegate nint ThreadCurrentFn();
 
-    public DebugInitFn DebugInit { get; }
+    ThreadCurrentFn ThreadCurrent { get; }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    delegate void DebugInitFn(MonoDebugFormat format);
+
+    DebugInitFn DebugInit { get; }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public delegate void ConfigParseFn(string? configPath);
+    delegate void ConfigParseFn(string? configPath);
 
-    public ConfigParseFn ConfigParse { get; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void ThreadSetMainFn(nint thread);
-
-    public ThreadSetMainFn ThreadSetMain { get; }
+    ConfigParseFn ConfigParse { get; }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public unsafe delegate nint RuntimeInvokeFn(nint method, nint obj, void** args, ref nint ex);
+    delegate void ThreadSetMainFn(nint thread);
 
-    public RuntimeInvokeFn RuntimeInvoke { get; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void SetAssembliesPathFn(string domain);
-
-    public SetAssembliesPathFn SetAssembliesPath { get; }
+    ThreadSetMainFn ThreadSetMain { get; }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate string AssemblyGetrootdirFn();
+    unsafe delegate nint RuntimeInvokeFn(nint method, nint obj, void** args, ref nint ex);
 
-    public AssemblyGetrootdirFn AssemblyGetrootdir { get; }
+    RuntimeInvokeFn RuntimeInvoke { get; }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    delegate void SetAssembliesPathFn(string domain);
+
+    SetAssembliesPathFn SetAssembliesPath { get; }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    delegate string AssemblyGetrootdirFn();
+
+    AssemblyGetrootdirFn AssemblyGetrootdir { get; }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public delegate nint DomainAssemblyOpenFn(nint domain, string path);
+    delegate nint DomainAssemblyOpenFn(nint domain, string path);
 
-    public DomainAssemblyOpenFn DomainAssemblyOpen { get; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate nint AssemblyGetImageFn(nint assembly);
-
-    public AssemblyGetImageFn AssemblyGetImage { get; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public delegate nint ClassFromNameFn(nint image, string nameSpace, string name);
-
-    public ClassFromNameFn ClassFromName { get; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public delegate nint ClassGetMethodFromNameFn(nint clas, string name, int paramCount);
-
-    public ClassGetMethodFromNameFn ClassGetMethodFromName { get; }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public delegate void DomainSetConfigFn(nint domain, string configPath, string configFile);
-
-    public DomainSetConfigFn DomainSetConfig { get; }
+    DomainAssemblyOpenFn DomainAssemblyOpen { get; }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate bool DebugEnabledFn();
+    delegate nint AssemblyGetImageFn(nint assembly);
 
-    public DebugEnabledFn DebugEnabled { get; }
+    AssemblyGetImageFn AssemblyGetImage { get; }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+    delegate nint ClassFromNameFn(nint image, string nameSpace, string name);
+
+    ClassFromNameFn ClassFromName { get; }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+    delegate nint ClassGetMethodFromNameFn(nint clas, string name, int paramCount);
+
+    ClassGetMethodFromNameFn ClassGetMethodFromName { get; }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+    delegate void DomainSetConfigFn(nint domain, string configPath, string configFile);
+
+    DomainSetConfigFn DomainSetConfig { get; }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    delegate bool DebugEnabledFn();
+
+    DebugEnabledFn DebugEnabled { get; }
 }

@@ -7,6 +7,11 @@ using Windows.Win32.System.Console;
 
 namespace VenusRootLoader.Bootstrap.Logging;
 
+/// <summary>
+/// This service makes sure Unity isn't closing stdout and stderr on us. This can happen because Unity may want to
+/// redirect these streams to their own logs (it might even be possible for Unity to still use the console, but it can
+/// still reset the streams to different handles!). This is achieved with a CloseHandle PltHook.
+/// </summary>
 internal class StandardStreamsProtector : IHostedService
 {
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
@@ -18,7 +23,7 @@ internal class StandardStreamsProtector : IHostedService
     private readonly IPltHooksManager _pltHooksManager;
     private readonly GameExecutionContext _gameExecutionContext;
     private readonly ILogger _logger;
-    private readonly IGameLifecycleEvents _gameLifecycleEvents;
+    private readonly IMonoInitLifeCycleEvents _monoInitLifeCycleEvents;
 
     private HANDLE _outputHandle;
     private HANDLE _errorHandle;
@@ -27,13 +32,13 @@ internal class StandardStreamsProtector : IHostedService
         ILogger<StandardStreamsProtector> logger,
         IPltHooksManager pltHooksManager,
         GameExecutionContext gameExecutionContext,
-        IGameLifecycleEvents gameLifecycleEvents,
+        IMonoInitLifeCycleEvents monoInitLifeCycleEvents,
         IWin32 win32)
     {
         _pltHooksManager = pltHooksManager;
         _logger = logger;
         _gameExecutionContext = gameExecutionContext;
-        _gameLifecycleEvents = gameLifecycleEvents;
+        _monoInitLifeCycleEvents = monoInitLifeCycleEvents;
         _win32 = win32;
         _hookCloseHandleDelegate = HookCloseHandle;
     }
@@ -47,10 +52,11 @@ internal class StandardStreamsProtector : IHostedService
             _gameExecutionContext.UnityPlayerDllFileName,
             "CloseHandle",
             _hookCloseHandleDelegate);
-        _gameLifecycleEvents.Subscribe(OnGameLifecycle);
+        _monoInitLifeCycleEvents.Subscribe(OnGameLifecycle);
         return Task.CompletedTask;
     }
 
+    // By this point, we know the streams are safe so we can unhook ourselves
     private void OnGameLifecycle(object? sender, EventArgs e)
     {
         _pltHooksManager.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CloseHandle");
@@ -58,8 +64,6 @@ internal class StandardStreamsProtector : IHostedService
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
-    // Unity may attempt to close stdout and stderr in order to redirect their streams to their player logs.
-    // Since we attempt to control all logging, we want to prevent this from happening which is what this hook is for
     private BOOL HookCloseHandle(HANDLE hObject)
     {
         if (!_win32.CompareObjectHandles(hObject, _outputHandle) && !_win32.CompareObjectHandles(hObject, _errorHandle))

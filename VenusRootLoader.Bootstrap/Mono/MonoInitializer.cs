@@ -13,8 +13,15 @@ using Windows.Win32.Foundation;
 namespace VenusRootLoader.Bootstrap.Mono;
 
 /// <summary>
-/// This class initialises an instance of <see cref="MonoFunctions"/>, initialises the Mono runtime using various hooks,
-/// and transitions to the managed side using the newly initialised runtime
+/// <para>
+/// This service uses an instance of <see cref="MonoFunctions"/> to initialise the Mono runtime using various hooks,
+/// and transitions to the managed side using the newly initialised runtime.
+/// </para>
+/// <para>
+/// The hooks are done by hooking on GetProcAddress because this is how Unity discovers the symbols of Mono.
+/// We can simply detour the symbols we are interested in by returning our own version and decide whether
+/// to call the original or not
+/// </para>
 /// </summary>
 internal class MonoInitializer : IHostedService
 {
@@ -56,7 +63,7 @@ internal class MonoInitializer : IHostedService
     private readonly MonoDebuggerSettings _debuggerSettings;
     private readonly IPlayerConnectionDiscovery _playerConnectionDiscovery;
     private readonly ISdbWinePathTranslator _sdbWinePathTranslator;
-    private readonly IGameLifecycleEvents _gameLifecycleEvents;
+    private readonly IMonoInitLifeCycleEvents _monoInitLifeCycleEvents;
     private readonly IHostEnvironment _hostEnvironment;
 
     public MonoInitializer(
@@ -66,7 +73,7 @@ internal class MonoInitializer : IHostedService
         IOptions<MonoDebuggerSettings> debuggerSettings,
         IPlayerConnectionDiscovery playerConnectionDiscovery,
         ISdbWinePathTranslator sdbWinePathTranslator,
-        IGameLifecycleEvents gameLifecycleEvents,
+        IMonoInitLifeCycleEvents monoInitLifeCycleEvents,
         IHostEnvironment hostEnvironment,
         IWin32 win32,
         IFileSystem fileSystem,
@@ -75,7 +82,7 @@ internal class MonoInitializer : IHostedService
         _logger = logger;
         _pltHooksManager = pltHooksManager;
         _sdbWinePathTranslator = sdbWinePathTranslator;
-        _gameLifecycleEvents = gameLifecycleEvents;
+        _monoInitLifeCycleEvents = monoInitLifeCycleEvents;
         _hostEnvironment = hostEnvironment;
         _win32 = win32;
         _fileSystem = fileSystem;
@@ -109,9 +116,6 @@ internal class MonoInitializer : IHostedService
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
-    // Unity obtains Mono's symbols by calling GetProcAddress on them as opposed to calling them via their imports.
-    // This means we can't PltHook them directly, but we can PltHook GetProcAddress and redirect the ones we're
-    // interested in which is what this hook does. It also gives us the Mono's handle as an added bonus since we need it
     private unsafe nint HookGetProcAddress(HMODULE handle, PCSTR symbol)
     {
         var originalSymbolAddress = _win32.GetProcAddress(handle, symbol);
@@ -164,9 +168,11 @@ internal class MonoInitializer : IHostedService
         MonoJitParseOptionsDetour(0, []);
         InitialiseMonoDebuggerIfNeeded();
 
-        _logger.LogInformation("Original init jit version");
+        // Debugger means we need the player discovery service so IDEs can find this player
         if (_debuggerSettings.Enable!.Value)
         {
+            // If mono_debug_init was called, it means that this is a dev build of UnityPlayer.dll which changes how
+            // the player discovery is done (check the player discovery service documentation to learn more)
             if (_debugInitCalled)
             {
                 _playerConnectionDiscovery.StartDiscoveryWithSendToHook(
@@ -181,9 +187,18 @@ internal class MonoInitializer : IHostedService
             }
         }
 
-        _gameLifecycleEvents.Publish(this);
+        _monoInitLifeCycleEvents.Publish(this);
+
+        // At this point, we are nearing the end of the bootstrap's lifecycle so we know we won't need to hook on further
+        // Mono symbols
         _pltHooksManager.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, "GetProcAddress");
+
+        _logger.LogInformation("Original init jit version");
+        if (_debuggerSettings.Enable.Value && _debuggerSettings.SuspendOnBoot!.Value)
+            _logger.LogInformation("Waiting until a debugger is attached...");
         Domain = _monoFunctions.JitInitVersion(domainName, runtimeVersion);
+        if (_debuggerSettings.Enable.Value && _debuggerSettings.SuspendOnBoot!.Value)
+            _logger.LogInformation("Debugger attached! Resuming boot");
 
         SetMonoMainThreadToCurrentThread();
         SetupMonoConfigs();
@@ -224,6 +239,7 @@ internal class MonoInitializer : IHostedService
 
     private void InitialiseMonoDebuggerIfNeeded()
     {
+        // If this is a dev build, it's possible to get a double call which is bad so we want to prevent this
         bool debuggerAlreadyEnabled = _debugInitCalled || _monoFunctions.DebugEnabled();
         if (debuggerAlreadyEnabled || !_debuggerSettings.Enable!.Value)
             return;
@@ -232,6 +248,9 @@ internal class MonoInitializer : IHostedService
         _monoFunctions.DebugInit(IMonoFunctions.MonoDebugFormat.MonoDebugFormatMono);
     }
 
+    // This is what implements the BCL unstripping automatically without needing for any configuration.
+    // The BCL assemblies were selected from a Unity 2018.4.12f1 install, see the README in the UnityJitMonoBCL
+    // folder to learn more
     private void SetMonoAssembliesPath()
     {
         StringBuilder newAssembliesPathSb = new();

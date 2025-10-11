@@ -4,6 +4,10 @@ using Windows.Win32.Foundation;
 
 namespace VenusRootLoader.Bootstrap.Mono;
 
+/// <summary>
+/// This service is only used by the <see cref="MonoInitializer"/> and it contains facilities to call Mono functions.
+/// It MUST be initialised before use.
+/// </summary>
 public class MonoFunctions : IMonoFunctions
 {
     public void Initialize(HMODULE handle)

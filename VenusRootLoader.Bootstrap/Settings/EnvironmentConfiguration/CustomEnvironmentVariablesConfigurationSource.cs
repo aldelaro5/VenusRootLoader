@@ -2,6 +2,10 @@ using Microsoft.Extensions.Configuration;
 
 namespace VenusRootLoader.Bootstrap.Settings.EnvironmentConfiguration;
 
+/// <summary>
+/// This only exists to get a <see cref="CustomEnvironmentVariablesConfigurationProvider"/> to use
+/// for the configuration system
+/// </summary>
 public class CustomEnvironmentVariablesConfigurationSource : IConfigurationSource
 {
     public required string Prefix { get; init; }

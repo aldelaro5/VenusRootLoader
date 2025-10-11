@@ -4,13 +4,14 @@ using Windows.Win32.Networking.WinSock;
 using Windows.Win32.Security;
 using Windows.Win32.Storage.FileSystem;
 using Windows.Win32.System.Console;
-using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace VenusRootLoader.Bootstrap.Shared;
 
+/// <summary>
+/// The real implementation of <see cref="IWin32"/> that calls the real functions with PInvoke
+/// </summary>
 internal class Win32 : IWin32
 {
-    public FreeLibrarySafeHandle GetModuleHandle(string lpModuleName) => PInvoke.GetModuleHandle(lpModuleName);
     public FARPROC GetProcAddress(HMODULE hModule, PCSTR lpProcName) => PInvoke.GetProcAddress(hModule, lpProcName);
     public HANDLE GetStdHandle(STD_HANDLE nStdHandle) => PInvoke.GetStdHandle(nStdHandle);
 
@@ -55,12 +56,6 @@ internal class Win32 : IWin32
         lpOverlapped.Value);
 
     public BOOL CloseHandle(HANDLE hObject) => PInvoke.CloseHandle(hObject);
-
-    public MESSAGEBOX_RESULT MessageBox(HWND hWnd, string lpText, string lpCaption, MESSAGEBOX_STYLE uType) =>
-        PInvoke.MessageBox(hWnd, lpText, lpCaption, uType);
-
-    public BOOL ShowWindow(HWND hWnd, SHOW_WINDOW_CMD nCmdShow) => PInvoke.ShowWindow(hWnd, nCmdShow);
-    public HWND GetConsoleWindow() => PInvoke.GetConsoleWindow();
 
     public unsafe BOOL SetFilePointerEx(
         HANDLE hFile,

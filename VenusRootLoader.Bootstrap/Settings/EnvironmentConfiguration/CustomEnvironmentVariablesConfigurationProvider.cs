@@ -1,8 +1,14 @@
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.EnvironmentVariables;
 using System.Collections;
 
 namespace VenusRootLoader.Bootstrap.Settings.EnvironmentConfiguration;
 
+/// <summary>
+/// This is essentially a modified version of the <see cref="EnvironmentVariablesConfigurationProvider"/> that allows
+/// to have custom mappings between the name of the variable and its configuration key. We use it to have the variable
+/// have simpler names than the default.
+/// </summary>
 public class CustomEnvironmentVariablesConfigurationProvider : ConfigurationProvider
 {
     private readonly string _prefix;

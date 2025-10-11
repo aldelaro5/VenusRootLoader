@@ -14,7 +14,7 @@ public class StandardStreamsProtectorTests
     private readonly FakeLogger<StandardStreamsProtector> _logger = new();
     private readonly IWin32 _win32 = Substitute.For<IWin32>();
     private readonly TestPltHookManager _pltHookManager = new();
-    private readonly IGameLifecycleEvents _gameLifecycleEvents = new GameLifecycleEvents();
+    private readonly IMonoInitLifeCycleEvents _monoInitLifeCycleEvents = new MonoInitLifeCycleEvents();
 
     private readonly GameExecutionContext _gameExecutionContext = new()
     {
@@ -31,7 +31,7 @@ public class StandardStreamsProtectorTests
         _logger,
         _pltHookManager,
         _gameExecutionContext,
-        _gameLifecycleEvents,
+        _monoInitLifeCycleEvents,
         _win32);
 
     [Fact]
@@ -102,7 +102,7 @@ public class StandardStreamsProtectorTests
     {
         await _sut.StartAsync(CancellationToken.None);
 
-        _gameLifecycleEvents.Publish(this);
+        _monoInitLifeCycleEvents.Publish(this);
 
         _pltHookManager.Hooks
             .Should().NotContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(IWin32.CloseHandle)));

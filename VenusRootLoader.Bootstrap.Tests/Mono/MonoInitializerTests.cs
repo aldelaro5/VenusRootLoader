@@ -32,7 +32,7 @@ public class MonoInitializerTests
 
     private readonly ISdbWinePathTranslator _sdbWinePathTranslator = Substitute.For<ISdbWinePathTranslator>();
     private readonly IMonoFunctions _monoFunctions = Substitute.For<IMonoFunctions>();
-    private readonly IGameLifecycleEvents _gameLifecycleEvents = Substitute.For<IGameLifecycleEvents>();
+    private readonly IMonoInitLifeCycleEvents _monoInitLifeCycleEvents = Substitute.For<IMonoInitLifeCycleEvents>();
     private readonly TestPltHookManager _pltHooksManager = new();
     private readonly MockFileSystem _fileSystem = new();
 
@@ -68,7 +68,7 @@ public class MonoInitializerTests
             _debuggerSettings,
             _playerConnectionDiscovery,
             _sdbWinePathTranslator,
-            _gameLifecycleEvents,
+            _monoInitLifeCycleEvents,
             _hostEnvironment,
             _win32,
             _fileSystem,
@@ -248,7 +248,7 @@ public class MonoInitializerTests
             Arg.Any<nint>(),
             null,
             ref Arg.Any<nint>());
-        _gameLifecycleEvents.Received(1).Publish(Arg.Any<object>());
+        _monoInitLifeCycleEvents.Received(1).Publish(Arg.Any<object>());
         _pltHooksManager.Hooks.Should()
             .NotContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.GetProcAddress)));
 
@@ -382,7 +382,7 @@ public class MonoInitializerTests
         result.Should().Be(expectedReturn);
         receivedDomainNamePtr.Should().Be(domainNamePtr);
         receivedRuntimeVersionPtr.Should().Be(runtimeVersionPtr);
-        _gameLifecycleEvents.Received(1).Publish(Arg.Any<object>());
+        _monoInitLifeCycleEvents.Received(1).Publish(Arg.Any<object>());
 
         Marshal.FreeHGlobal(domainNamePtr);
         Marshal.FreeHGlobal(runtimeVersionPtr);

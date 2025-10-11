@@ -99,7 +99,7 @@ public class PlayerConnectionDiscovery : IDisposable, IPlayerConnectionDiscovery
                 portToUse);
         }
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
         var ipAddressString = addressToUse.ToString();
         // This wouldn't be used unless [Flags] has its 4th bit set (8 in decimal) so we can set both to force the IP. This
         // is used in the loopback IP case explained below

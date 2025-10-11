@@ -1,18 +1,19 @@
-using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Networking.WinSock;
 using Windows.Win32.Security;
 using Windows.Win32.Storage.FileSystem;
 using Windows.Win32.System.Console;
-using Windows.Win32.UI.WindowsAndMessaging;
 
+// ReSharper disable UnusedMethodReturnValue.Global
 // ReSharper disable InconsistentNaming
 
 namespace VenusRootLoader.Bootstrap.Shared;
 
+/// <summary>
+/// An abstracted interface of all Win32 functions we use so they can easily be mocked in unit tests
+/// </summary>
 public interface IWin32
 {
-    FreeLibrarySafeHandle GetModuleHandle(string lpModuleName);
     FARPROC GetProcAddress(HMODULE hModule, PCSTR lpProcName);
     HANDLE GetStdHandle(STD_HANDLE nStdHandle);
 
@@ -33,9 +34,6 @@ public interface IWin32
         Pointer<NativeOverlapped> lpOverlapped);
 
     BOOL CloseHandle(HANDLE hObject);
-    MESSAGEBOX_RESULT MessageBox(HWND hWnd, string lpText, string lpCaption, MESSAGEBOX_STYLE uType);
-    BOOL ShowWindow(HWND hWnd, SHOW_WINDOW_CMD nCmdShow);
-    HWND GetConsoleWindow();
 
     int sendto(SOCKET s, PCSTR buf, int len, int flags, Pointer<SOCKADDR> to, int toLen);
     uint GetModuleFileName(HMODULE hModule, PWSTR lpFilename, uint nSize);

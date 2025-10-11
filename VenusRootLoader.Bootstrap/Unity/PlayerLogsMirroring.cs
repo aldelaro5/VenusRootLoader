@@ -12,7 +12,7 @@ using Windows.Win32.System.Console;
 namespace VenusRootLoader.Bootstrap.Unity;
 
 /// <summary>
-/// This class contains all the machinery needed to fully capture and mirror stdout, stderr and Unity's player logs
+/// This service contains all the machinery needed to fully capture and mirror stdout, stderr and Unity's player logs
 /// into our logs
 /// </summary>
 internal class PlayerLogsMirroring : IHostedService
@@ -36,7 +36,7 @@ internal class PlayerLogsMirroring : IHostedService
     private readonly ILogger _logger;
     private readonly ICreateFileWSharedHooker _createFileWSharedHooker;
     private readonly GameExecutionContext _gameExecutionContext;
-    private readonly IGameLifecycleEvents _gameLifecycleEvents;
+    private readonly IMonoInitLifeCycleEvents _monoInitLifeCycleEvents;
 
     private readonly bool _disableMirroring;
 
@@ -46,19 +46,19 @@ internal class PlayerLogsMirroring : IHostedService
         ICreateFileWSharedHooker createFileWSharedHooker,
         GameExecutionContext gameExecutionContext,
         IOptions<LoggingSettings> loggingSettings,
-        IGameLifecycleEvents gameLifecycleEvents,
+        IMonoInitLifeCycleEvents monoInitLifeCycleEvents,
         IWin32 win32)
     {
         _pltHooksManager = pltHooksManager;
         _logger = loggerFactory.CreateLogger("UNITY");
         _createFileWSharedHooker = createFileWSharedHooker;
         _gameExecutionContext = gameExecutionContext;
-        _gameLifecycleEvents = gameLifecycleEvents;
+        _monoInitLifeCycleEvents = monoInitLifeCycleEvents;
         _win32 = win32;
         _disableMirroring = !loggingSettings.Value.IncludeUnityLogs!.Value;
 
         _hookWriteFileDelegate = HookWriteFile;
-        _gameLifecycleEvents.Subscribe(OnGameLifecycle);
+        _monoInitLifeCycleEvents.Subscribe(OnGameLifecycle);
     }
 
     private void OnGameLifecycle(object? sender, EventArgs e)
@@ -115,12 +115,14 @@ internal class PlayerLogsMirroring : IHostedService
         var writeToStandardHandles = _win32.CompareObjectHandles(hFile, _outputHandle) ||
                                      _win32.CompareObjectHandles(hFile, _errorHandle);
         if (!writeToPlayerLog && !writeToStandardHandles)
+        {
             return _win32.WriteFile(
                 hFile,
                 new(lpBuffer),
                 nNumberOfBytesToWrite,
                 new(lpNumberOfBytesWritten),
                 new(lpOverlapped));
+        }
 
         if (_disableMirroring)
         {

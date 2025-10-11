@@ -13,7 +13,9 @@ public interface IPltHooksManager
 }
 
 /// <summary>
-/// This class contains PInvoke abstractions for the PltHook library that's statically linked in the bootstrap
+/// This service manages hooks done using the PltHook library that's statically linked in the bootstrap. It supports
+/// tracking multiple module filenames each containing one or more hooks. In <see cref="LogLevel.Trace"/> logs, it will
+/// log all active hooks after each hook and unhook.
 /// </summary>
 public class PltHooksManager : IPltHooksManager
 {

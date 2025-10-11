@@ -5,9 +5,11 @@ namespace VenusRootLoader.Bootstrap.Settings;
 
 public class GlobalSettings
 {
-    [Required] public bool? DisableVrl { get; set; }
+    [Required]
+    public bool? DisableVrl { get; set; }
 
-    [Required] public bool? SkipUnitySplashScreen { get; set; }
+    [Required]
+    public bool? SkipUnitySplashScreen { get; set; }
 }
 
 [OptionsValidator]

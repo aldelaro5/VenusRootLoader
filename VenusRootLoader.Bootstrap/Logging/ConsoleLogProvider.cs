@@ -7,6 +7,15 @@ using Windows.Win32.System.Console;
 
 namespace VenusRootLoader.Bootstrap.Logging;
 
+/// <summary>
+/// A console log provider that uses a <see cref="ConsoleLogger"/> to log to a console window.
+/// The provider selects a rendering mode depending on the execution and configuration:
+/// - ANSI: Full 32-bit colors support when available and enabled in the configuration
+/// - Legacy colors: Only 16 colors are supported. This is only selected when colors are enabled, but ANSI isn't
+///   supported. Wine never supports ANSI, but lies that it does so on Wine, we always select legacy colors
+/// - No colors: Just text when colors are disabled in the configuration
+/// If console logging is disabled, this returns a <see cref="NullLogger"/>
+/// </summary>
 public sealed class ConsoleLogProvider : ILoggerProvider
 {
     public enum RenderingMode

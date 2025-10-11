@@ -2,6 +2,10 @@ using Microsoft.Extensions.Logging;
 
 namespace VenusRootLoader.Bootstrap.Logging;
 
+/// <summary>
+/// The logger used with the <see cref="DiskFileLoggerProvider"/>. It's a simple text logger
+/// similar to the <see cref="ConsoleLogger"/>, but without colors since it's just text
+/// </summary>
 public class DiskFileLogger : ILogger
 {
     private readonly Dictionary<LogLevel, string> _logLevelInfos = new()

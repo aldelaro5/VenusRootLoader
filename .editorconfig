@@ -221,3 +221,5 @@ csharp_max_array_initializer_elements_on_line = 1
 csharp_wrap_object_and_collection_initializer_style = chop_if_long
 csharp_wrap_array_initializer_style = chop_if_long
 csharp_wrap_after_invocation_lpar = true
+resharper_arrange_namespace_body_highlighting = none
+csharp_place_attribute_on_same_line = never

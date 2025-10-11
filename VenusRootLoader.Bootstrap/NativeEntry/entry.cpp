@@ -43,6 +43,12 @@ BOOL InstallHook()
     return TRUE;
 }
 
+// Since .NET 10, it is no longer possible to initialise the runtime under loader lock which lasts
+// during DllMain. This forces us to defer the initialisation on UnityMain which we can by installing
+// a PltHook during loader lock, but it will kick in well after exiting it.
+// This however has implications for logging: since we MUST initialise a console before exiting loader lock
+// whether we need it or not, it means that we have to assume we are going to need it later and preemptively
+// call AllocConsole. The bootstrap can later decide to hide the window and detach the console if we don't need it.
 void AllocateConsoleIfNeeded()
 {
     HWND condoleHwnd = GetConsoleWindow();
@@ -56,6 +62,9 @@ void AllocateConsoleIfNeeded()
         AllocConsole();
 }
 
+// WE ARE UNDER LOADER LOCK WHILE THIS FUNCTION RUNS!
+// It is forbidden since .NET 10 to initialise the runtime so we use a deferred PLtHook on UnityMain
+// which lets us safely initialise the runtime.
 BOOL APIENTRY DllMain(HMODULE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 {
     thisModuleHandle = hinstDLL;

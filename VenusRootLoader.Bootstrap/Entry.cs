@@ -41,6 +41,9 @@ internal class Entry
             if (globalSettings!.Value.DisableVrl!.Value)
                 return;
 
+            // Since we have to attach a new console window due to loader lock restrictions,
+            // we have to always attach one, but hide it until we find that it should be shown.
+            // In case we didn't want the console, we simply detach it so no logging can happen to it
             var loggingSettings = host.Services.GetService<IOptions<LoggingSettings>>();
             if (loggingSettings!.Value.ConsoleLoggerSettings.Enable!.Value)
                 PInvoke.ShowWindow(PInvoke.GetConsoleWindow(), SHOW_WINDOW_CMD.SW_SHOW);

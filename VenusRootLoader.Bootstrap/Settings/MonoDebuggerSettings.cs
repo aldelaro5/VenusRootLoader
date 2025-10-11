@@ -5,7 +5,8 @@ namespace VenusRootLoader.Bootstrap.Settings;
 
 public class MonoDebuggerSettings
 {
-    [Required] public bool? Enable { get; set; }
+    [Required]
+    public bool? Enable { get; set; }
 
     [Required]
     [RegularExpression(
@@ -13,9 +14,12 @@ public class MonoDebuggerSettings
         ErrorMessage = "Must be a valid IPv4 address.")]
     public required string IpAddress { get; set; }
 
-    [Required] [Range(0, ushort.MaxValue)] public int? Port { get; set; }
+    [Required]
+    [Range(0, ushort.MaxValue)]
+    public int? Port { get; set; }
 
-    [Required] public bool? SuspendOnBoot { get; set; }
+    [Required]
+    public bool? SuspendOnBoot { get; set; }
 }
 
 [OptionsValidator]

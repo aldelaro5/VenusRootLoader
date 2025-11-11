@@ -1,9 +1,9 @@
 namespace VenusRootLoader;
 
-public static class GameLoadEntry
+internal static class Entry
 {
     // private static UnityExplorer.ExplorerStandalone _explorerInstance;
-    public static void Main()
+    internal static void Main()
     {
         Console.WriteLine("Hello in the game load entry!");
 

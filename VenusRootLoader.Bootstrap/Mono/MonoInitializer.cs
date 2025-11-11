@@ -5,6 +5,7 @@ using System.IO.Abstractions;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
+using VenusRootLoader.Bootstrap.Logging;
 using VenusRootLoader.Bootstrap.Settings;
 using VenusRootLoader.Bootstrap.Shared;
 using VenusRootLoader.Bootstrap.Unity;
@@ -210,9 +211,9 @@ internal class MonoInitializer : IHostedService
                     _fileSystem.Path.Combine(
                         _hostEnvironment.ContentRootPath,
                         "VenusRootLoader",
-                        "VenusRootLoader.dll"),
-                Namespace = "VenusRootLoader",
-                ClassName = "MonoInitEntry",
+                        "VenusRootLoader.Preloader.dll"),
+                Namespace = "VenusRootLoader.Preloader",
+                ClassName = "Entry",
                 MethodName = "Main"
             });
 
@@ -330,11 +331,12 @@ internal class MonoInitializer : IHostedService
 
         var image = _monoFunctions.AssemblyGetImage(assembly);
         var interopClass = _monoFunctions.ClassFromName(image, entryPointInfo.Namespace, entryPointInfo.ClassName);
-        var initMethod = _monoFunctions.ClassGetMethodFromName(interopClass, entryPointInfo.MethodName, 0);
+        var initMethod = _monoFunctions.ClassGetMethodFromName(interopClass, entryPointInfo.MethodName, 1);
 
         nint ex = 0;
-        var initArgs = stackalloc nint*[] { };
+        nint logFunction = Marshal.GetFunctionPointerForDelegate(ManagedLogsRelay.RelayLogFunction);
+        var initArgs = stackalloc void*[] { &logFunction };
         _logger.LogInformation("Invoking entrypoint method");
-        _monoFunctions.RuntimeInvoke(initMethod, 0, (void**)initArgs, ref ex);
+        _monoFunctions.RuntimeInvoke(initMethod, 0, initArgs, ref ex);
     }
 }

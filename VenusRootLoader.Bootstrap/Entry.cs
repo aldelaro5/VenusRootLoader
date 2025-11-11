@@ -8,6 +8,7 @@ using System.IO.Abstractions;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using VenusRootLoader.Bootstrap.Logging;
 using VenusRootLoader.Bootstrap.Settings;
 using VenusRootLoader.Bootstrap.Shared;
 using Windows.Win32;
@@ -49,6 +50,8 @@ internal class Entry
                 PInvoke.ShowWindow(PInvoke.GetConsoleWindow(), SHOW_WINDOW_CMD.SW_SHOW);
             else
                 PInvoke.FreeConsole();
+
+            ManagedLogsRelay.Init(host.Services.GetRequiredService<ILoggerFactory>());
 
             logger = host.Services.GetRequiredService<ILogger<Entry>>();
             var environment = host.Services.GetRequiredService<IHostEnvironment>();

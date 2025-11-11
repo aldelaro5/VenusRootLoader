@@ -1,8 +1,11 @@
 using HarmonyLib;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using System.Reflection;
 
-namespace VenusRootLoader;
+namespace VenusRootLoader.Preloader;
 
-public static class GameLoadEntrypointInitializer
+internal class GameLoadEntrypointInitializer : IHostedService
 {
     private const string GameLoadHookAssemblyName = "UnityEngine.CoreModule";
     private const string GameLoadHookTypeName = "UnityEngine.SceneManagement.SceneManager";
@@ -11,13 +14,23 @@ public static class GameLoadEntrypointInitializer
     private static readonly Harmony Harmony = new("VenusRootLoader");
     private static bool _monoCoreStartEntrypointAlreadyCalled;
 
-    public static void Setup()
+    private readonly ILogger<GameLoadEntrypointInitializer> _logger;
+
+    public GameLoadEntrypointInitializer(ILogger<GameLoadEntrypointInitializer> logger)
     {
-        AppDomain.CurrentDomain.AssemblyLoad += OnAssemblyLoad;
+        _logger = logger;
     }
 
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        AppDomain.CurrentDomain.AssemblyLoad += OnAssemblyLoad;
+        return Task.CompletedTask;
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
     // This hook allows to have a suitable GameLoad entrypoint without actually referencing the Unity assemblies
-    private static void OnAssemblyLoad(object sender, AssemblyLoadEventArgs args)
+    private void OnAssemblyLoad(object sender, AssemblyLoadEventArgs args)
     {
         var assembly = args.LoadedAssembly;
         var assemblyName = assembly.GetName().Name;
@@ -32,11 +45,14 @@ public static class GameLoadEntrypointInitializer
             var original = AccessTools.Method(sceneManagerType, GameLoadHookMethodName);
             var harmonyMethod = new HarmonyMethod(typeof(GameLoadEntrypointInitializer), nameof(Entrypoint));
             Harmony.Patch(original, prefix: harmonyMethod);
-            Console.WriteLine($"Hooked into {original.FullDescription()}");
+            _logger.LogInformation("Hooked into {methodDescription}", original.FullDescription());
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Unexpected error occured when trying to hook into {assemblyName}: {e}");
+            _logger.LogError(
+                "Unexpected error occured when trying to hook into {AssemblyName}: {Exception}",
+                assemblyName,
+                e);
         }
     }
 
@@ -46,7 +62,10 @@ public static class GameLoadEntrypointInitializer
             return true;
         _monoCoreStartEntrypointAlreadyCalled = true;
 
-        GameLoadEntry.Main();
+        Assembly.Load("VenusRootLoader")
+            .GetType("VenusRootLoader.Entry")
+            .GetMethod("Main", AccessTools.all)!
+            .Invoke(null, []);
         return true;
     }
 }

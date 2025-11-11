@@ -82,7 +82,7 @@
   "Logging": {
     "LogLevel": {
       "Default": "Trace",
-      "HarmonyLogger": "Information",
+      "VenusRootLoader.Preloader.HarmonyLogger": "Information",
       "VenusRootLoader.Bootstrap": "Trace",
       "VenusRootLoader.Bootstrap.Unity.PlayerConnectionDiscovery": "Debug",
       "VenusRootLoader.Bootstrap.Mono.SdbWinePathTranslator": "Debug"

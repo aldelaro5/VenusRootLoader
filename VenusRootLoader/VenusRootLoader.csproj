@@ -11,7 +11,7 @@
 
     <ItemGroup>
         <PackageReference Include="HarmonyX" Version="2.15.0"/>
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0-rc.2.25502.107"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
         <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3">
             <IncludeAssets>build</IncludeAssets>
         </PackageReference>

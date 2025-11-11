@@ -24,14 +24,14 @@
 
     <ItemGroup>
         <PackageReference Include="AssetsTools.NET" Version="3.0.2"/>
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0-rc.1.25451.107"/>
-        <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.0-rc.1.25451.107"/>
-        <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="9.9.0"/>
-        <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.205">
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0-rc.2.25502.107" />
+        <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.0-rc.2.25502.107" />
+        <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="9.10.0" />
+        <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.242">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pastel" Version="7.0.0"/>
+        <PackageReference Include="Pastel" Version="7.0.1" />
         <PackageReference Include="PublishAotCrossXWin" Version="1.2.0"/>
         <PackageReference Include="TestableIO.System.IO.Abstractions.Analyzers" Version="2022.0.0">
             <PrivateAssets>all</PrivateAssets>

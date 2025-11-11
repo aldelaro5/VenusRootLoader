@@ -16,7 +16,6 @@ public class CreateFileWSharedHookerTests
 
     private readonly GameExecutionContext _gameExecutionContext = new()
     {
-        LibraryHandle = 0,
         GameDir = "",
         DataDir = "",
         UnityPlayerDllFileName = "UnityPlayer.dll",

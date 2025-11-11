@@ -32,7 +32,7 @@ internal class Entry
 
         try
         {
-            if (!ShouldResumeEntry(module, out var gameExecutionContext))
+            if (!ShouldResumeEntry(out GameExecutionContext? gameExecutionContext))
                 return;
 
             SetupWindowsConsole();
@@ -67,11 +67,8 @@ internal class Entry
         }
     }
 
-    private static bool ShouldResumeEntry(
-        IntPtr module,
-        [NotNullWhen(true)] out GameExecutionContext? gameExecutionContext)
+    private static bool ShouldResumeEntry([NotNullWhen(true)] out GameExecutionContext? gameExecutionContext)
     {
-        var libraryHandle = module;
         var fileSystem = new FileSystem();
         var exePath = Environment.ProcessPath!;
         var gameDir = fileSystem.Path.GetDirectoryName(exePath)!;
@@ -96,7 +93,6 @@ internal class Entry
 
         gameExecutionContext = new()
         {
-            LibraryHandle = libraryHandle,
             GameDir = gameDir,
             DataDir = dataDir,
             UnityPlayerDllFileName = unityPlayerDllFileName,

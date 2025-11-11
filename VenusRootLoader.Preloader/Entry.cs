@@ -10,10 +10,11 @@ namespace VenusRootLoader.Preloader;
 // ReSharper disable UnusedMember.Global
 internal class Entry
 {
-    internal static void Main(nint relayLogFunctionPtr)
+    internal static void Main(nint relayLogFunctionPtr, nint gameExecutionContextPtr)
     {
         var relayLogFunction = Marshal.GetDelegateForFunctionPointer<BootstrapFunctions.LogMsgFn>(relayLogFunctionPtr);
-        var host = Startup.BuildHost(new() { LogMsg = relayLogFunction });
+        var gameExecutionContext = Marshal.PtrToStructure<GameExecutionContext>(gameExecutionContextPtr);
+        var host = Startup.BuildHost(gameExecutionContext, new() { LogMsg = relayLogFunction });
         host.Start();
     }
 }

@@ -331,12 +331,20 @@ internal class MonoInitializer : IHostedService
 
         var image = _monoFunctions.AssemblyGetImage(assembly);
         var interopClass = _monoFunctions.ClassFromName(image, entryPointInfo.Namespace, entryPointInfo.ClassName);
-        var initMethod = _monoFunctions.ClassGetMethodFromName(interopClass, entryPointInfo.MethodName, 1);
+        var initMethod = _monoFunctions.ClassGetMethodFromName(interopClass, entryPointInfo.MethodName, 2);
 
         nint ex = 0;
-        nint logFunction = Marshal.GetFunctionPointerForDelegate(ManagedLogsRelay.RelayLogFunction);
-        var initArgs = stackalloc void*[] { &logFunction };
+        nint logFunctionPtr = Marshal.GetFunctionPointerForDelegate(ManagedLogsRelay.RelayLogFunction);
+        nint gameExecutionContextPtr = Marshal.AllocHGlobal(Marshal.SizeOf<GameExecutionContext>());
+        Marshal.StructureToPtr(_gameExecutionContext, gameExecutionContextPtr, false);
+        var initArgs = stackalloc void*[]
+        {
+            &logFunctionPtr,
+            &gameExecutionContextPtr
+        };
         _logger.LogInformation("Invoking entrypoint method");
         _monoFunctions.RuntimeInvoke(initMethod, 0, initArgs, ref ex);
+        Marshal.DestroyStructure<GameExecutionContext>(gameExecutionContextPtr);
+        Marshal.FreeHGlobal(gameExecutionContextPtr);
     }
 }

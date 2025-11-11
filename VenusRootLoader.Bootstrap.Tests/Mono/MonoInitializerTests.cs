@@ -46,7 +46,6 @@ public class MonoInitializerTests
 
     private GameExecutionContext _gameExecutionContext = new()
     {
-        LibraryHandle = 0,
         GameDir = "Game",
         DataDir = "",
         UnityPlayerDllFileName = "UnityPlayer.dll",
@@ -143,7 +142,6 @@ public class MonoInitializerTests
         _debuggerSettingsValue.Enable = true;
         _gameExecutionContext = new()
         {
-            LibraryHandle = 0,
             GameDir = "",
             DataDir = "",
             UnityPlayerDllFileName = "UnityPlayer.dll",

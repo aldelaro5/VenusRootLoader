@@ -8,7 +8,7 @@ namespace VenusRootLoader.Preloader;
 
 internal static class Startup
 {
-    internal static IHost BuildHost(BootstrapFunctions bootstrapFunctions)
+    internal static IHost BuildHost(GameExecutionContext gameExecutionContext, BootstrapFunctions bootstrapFunctions)
     {
         var builder = Host.CreateEmptyApplicationBuilder(
             new()
@@ -17,7 +17,7 @@ internal static class Startup
                 ApplicationName = "VenusRootLoader",
                 Args = [],
                 EnvironmentName = "Development",
-                // ContentRootPath = gameExecutionContext.GameDir,
+                ContentRootPath = gameExecutionContext.GameDir,
                 Configuration = new()
             });
 
@@ -25,6 +25,7 @@ internal static class Startup
 
         builder.Configuration.AddJsonFile(
             fileSystem.Path.Combine(builder.Environment.ContentRootPath, "Config", "config.jsonc"));
+        builder.Services.AddSingleton(gameExecutionContext);
         builder.Services.AddSingleton(bootstrapFunctions);
         builder.Logging.AddConfiguration(builder.Configuration.GetRequiredSection("Logging"));
         builder.Logging.Services.AddSingleton<ILoggerProvider, RelayLoggerProvider>();

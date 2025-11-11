@@ -33,7 +33,6 @@ public sealed class ConsoleLogProviderTests
             });
         var gameExecutionContext = new GameExecutionContext
         {
-            LibraryHandle = 0,
             GameDir = "",
             DataDir = "",
             UnityPlayerDllFileName = "UnityPlayer.dll",
@@ -57,7 +56,6 @@ public sealed class ConsoleLogProviderTests
             });
         var gameExecutionContext = new GameExecutionContext
         {
-            LibraryHandle = 0,
             GameDir = "",
             DataDir = "",
             UnityPlayerDllFileName = "UnityPlayer.dll",
@@ -87,7 +85,6 @@ public sealed class ConsoleLogProviderTests
             });
         var gameExecutionContext = new GameExecutionContext
         {
-            LibraryHandle = 0,
             GameDir = "",
             DataDir = "",
             UnityPlayerDllFileName = "UnityPlayer.dll",
@@ -118,7 +115,6 @@ public sealed class ConsoleLogProviderTests
             });
         var gameExecutionContext = new GameExecutionContext
         {
-            LibraryHandle = 0,
             GameDir = "",
             DataDir = "",
             UnityPlayerDllFileName = "UnityPlayer.dll",
@@ -150,7 +146,6 @@ public sealed class ConsoleLogProviderTests
             });
         var gameExecutionContext = new GameExecutionContext
         {
-            LibraryHandle = 0,
             GameDir = "",
             DataDir = "",
             UnityPlayerDllFileName = "UnityPlayer.dll",

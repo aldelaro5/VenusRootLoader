@@ -36,7 +36,6 @@ internal class MonoInitializer : IHostedService
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     private delegate nint GetProcAddressFn(HMODULE handle, PCSTR symbol);
-
     private static GetProcAddressFn _hookGetProcAddressDelegate = null!;
 
     private bool _runtimeInitialised;
@@ -66,6 +65,8 @@ internal class MonoInitializer : IHostedService
     private readonly ISdbWinePathTranslator _sdbWinePathTranslator;
     private readonly IMonoInitLifeCycleEvents _monoInitLifeCycleEvents;
     private readonly IHostEnvironment _hostEnvironment;
+    private readonly nint _logFunctionPtr;
+    private readonly nint _gameExecutionContextPtr;
 
     public MonoInitializer(
         ILogger<MonoInitializer> logger,
@@ -92,6 +93,11 @@ internal class MonoInitializer : IHostedService
         _gameExecutionContext = gameExecutionContext;
         _playerConnectionDiscovery = playerConnectionDiscovery;
         _debuggerSettings = debuggerSettings.Value;
+
+        _logFunctionPtr = Marshal.GetFunctionPointerForDelegate(ManagedLogsRelay.RelayLogFunction);
+
+        _gameExecutionContextPtr = Marshal.AllocHGlobal(Marshal.SizeOf<GameExecutionContext>());
+        Marshal.StructureToPtr(_gameExecutionContext, _gameExecutionContextPtr, false);
 
         _hookGetProcAddressDelegate = HookGetProcAddress;
         _monoInitDetourFn = MonoJitInitDetour;
@@ -334,17 +340,17 @@ internal class MonoInitializer : IHostedService
         var initMethod = _monoFunctions.ClassGetMethodFromName(interopClass, entryPointInfo.MethodName, 2);
 
         nint ex = 0;
-        nint logFunctionPtr = Marshal.GetFunctionPointerForDelegate(ManagedLogsRelay.RelayLogFunction);
-        nint gameExecutionContextPtr = Marshal.AllocHGlobal(Marshal.SizeOf<GameExecutionContext>());
-        Marshal.StructureToPtr(_gameExecutionContext, gameExecutionContextPtr, false);
-        var initArgs = stackalloc void*[]
+
+        fixed (void* logFunctionPtr = &_logFunctionPtr,
+               gameExecutionContextPtr = &_gameExecutionContextPtr)
         {
-            &logFunctionPtr,
-            &gameExecutionContextPtr
-        };
-        _logger.LogInformation("Invoking entrypoint method");
-        _monoFunctions.RuntimeInvoke(initMethod, 0, initArgs, ref ex);
-        Marshal.DestroyStructure<GameExecutionContext>(gameExecutionContextPtr);
-        Marshal.FreeHGlobal(gameExecutionContextPtr);
+            var initArgs = stackalloc void*[]
+            {
+                logFunctionPtr,
+                gameExecutionContextPtr
+            };
+            _logger.LogInformation("Invoking entrypoint method");
+            _monoFunctions.RuntimeInvoke(initMethod, 0, initArgs, ref ex);
+        }
     }
 }

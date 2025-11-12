@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 
-namespace VenusRootLoader.Preloader;
+namespace VenusRootLoader;
 
 internal class RelayLoggerProvider : ILoggerProvider
 {

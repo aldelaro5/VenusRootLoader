@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 
-namespace VenusRootLoader.Preloader;
+namespace VenusRootLoader;
 
 internal static class Startup
 {
@@ -30,7 +30,6 @@ internal static class Startup
         builder.Logging.AddConfiguration(builder.Configuration.GetRequiredSection("Logging"));
         builder.Logging.Services.AddSingleton<ILoggerProvider, RelayLoggerProvider>();
         builder.Services.AddHostedService<HarmonyLogger>();
-        builder.Services.AddHostedService<GameLoadEntrypointInitializer>();
 
         return builder.Build();
     }

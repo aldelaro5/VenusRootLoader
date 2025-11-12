@@ -1,13 +1,18 @@
+using Microsoft.Extensions.Hosting;
+using System.Runtime.InteropServices;
+
 namespace VenusRootLoader;
 
+// ReSharper disable UnusedType.Global
+// ReSharper disable UnusedMember.Global
 internal static class Entry
 {
     // private static UnityExplorer.ExplorerStandalone _explorerInstance;
-    internal static void Main()
+    internal static void Main(nint relayLogFunctionPtr, nint gameExecutionContextPtr)
     {
-        Console.WriteLine("Hello in the game load entry!");
-
-        // Console.WriteLine("Loading UnityExplorer...");
-        // _explorerInstance = UnityExplorer.ExplorerStandalone.CreateInstance();
+        var relayLogFunction = Marshal.GetDelegateForFunctionPointer<BootstrapFunctions.LogMsgFn>(relayLogFunctionPtr);
+        var gameExecutionContext = Marshal.PtrToStructure<GameExecutionContext>(gameExecutionContextPtr);
+        var host = Startup.BuildHost(gameExecutionContext, new() { LogMsg = relayLogFunction });
+        host.Start();
     }
 }

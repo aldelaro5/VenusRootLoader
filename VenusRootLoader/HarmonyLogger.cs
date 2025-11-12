@@ -2,7 +2,7 @@ using HarmonyLib.Tools;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace VenusRootLoader.Preloader;
+namespace VenusRootLoader;
 
 internal class HarmonyLogger : IHostedService
 {

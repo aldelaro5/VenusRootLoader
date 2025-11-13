@@ -22,10 +22,6 @@
         <PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.0.16"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\VenusRootLoader.Preloader\VenusRootLoader.Preloader.csproj"/>
-    </ItemGroup>
-
     <Target Name="PostBuild" AfterTargets="Build">
     </Target>
 </Project>

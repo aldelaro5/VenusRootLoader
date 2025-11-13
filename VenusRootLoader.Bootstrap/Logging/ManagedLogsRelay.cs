@@ -6,9 +6,9 @@ namespace VenusRootLoader.Bootstrap.Logging;
 public static class ManagedLogsRelay
 {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-    internal delegate void LogMsgFn(string message, string category, LogLevel logLevel);
+    internal delegate void LogFromMonoManagedFn(string message, string category, LogLevel logLevel);
 
-    internal static readonly LogMsgFn RelayLogFunction = RelayLogFromManaged;
+    internal static readonly LogFromMonoManagedFn RelayLogFunction = RelayLogFromManaged;
 
     private static ILoggerFactory _loggerFactory = null!;
 

@@ -36,7 +36,7 @@ internal class Entry
     internal delegate void BootstrapLogFn(string message, string category, LogLevel logLevel);
 
     // We want some minimal logging capabilities to monitor the booting so we use the log function directly.
-    internal static BootstrapLogFn BootstrapLogMsg = null!;
+    internal static BootstrapLogFn BootstrapLog = null!;
 
     internal static nint BootstrapLogFunctionPtr;
     internal static nint GameExecutionContextPtr;
@@ -63,7 +63,7 @@ internal class Entry
         Assembly.LoadFrom(Path.Combine(pathAssemblies, "MonoMod.Core.dll"));
 
         BootstrapLogFunctionPtr = bootstrapLogFunctionPtr;
-        BootstrapLogMsg = Marshal.GetDelegateForFunctionPointer<BootstrapLogFn>(bootstrapLogFunctionPtr);
+        BootstrapLog = Marshal.GetDelegateForFunctionPointer<BootstrapLogFn>(bootstrapLogFunctionPtr);
         GameExecutionContextPtr = gameExecutionContextPtr;
 
         AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
@@ -72,7 +72,7 @@ internal class Entry
 
     private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
-        BootstrapLogMsg($"Unhandled exception: {e.ExceptionObject}", LogCategory, LogLevel.Error);
+        BootstrapLog($"Unhandled exception: {e.ExceptionObject}", LogCategory, LogLevel.Error);
     }
 
     // This hook allows to have a suitable GameLoad entrypoint without actually referencing the Unity assemblies
@@ -102,11 +102,11 @@ internal class Entry
                     ILCursor cursor = new(il);
                     cursor.EmitCall(entryPoint);
                 });
-            BootstrapLogMsg($"Hooked into {original.Name}", LogCategory, LogLevel.Information);
+            BootstrapLog($"Hooked into {original.Name}", LogCategory, LogLevel.Information);
         }
         catch (Exception e)
         {
-            BootstrapLogMsg($"Exception when setting up the GameLoad entry: {e}", LogCategory, LogLevel.Error);
+            BootstrapLog($"Exception when setting up the GameLoad entry: {e}", LogCategory, LogLevel.Error);
         }
     }
 

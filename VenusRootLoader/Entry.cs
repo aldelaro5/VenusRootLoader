@@ -8,11 +8,11 @@ namespace VenusRootLoader;
 internal static class Entry
 {
     // private static UnityExplorer.ExplorerStandalone _explorerInstance;
-    internal static void Main(nint relayLogFunctionPtr, nint gameExecutionContextPtr)
+    internal static void Main(nint bootstrapLogFunctionPtr, nint gameExecutionContextPtr)
     {
-        var relayLogFunction = Marshal.GetDelegateForFunctionPointer<BootstrapFunctions.LogMsgFn>(relayLogFunctionPtr);
+        var relayLogFunction = Marshal.GetDelegateForFunctionPointer<BootstrapFunctions.BootstrapLogFn>(bootstrapLogFunctionPtr);
         var gameExecutionContext = Marshal.PtrToStructure<GameExecutionContext>(gameExecutionContextPtr);
-        var host = Startup.BuildHost(gameExecutionContext, new() { LogMsg = relayLogFunction });
+        var host = Startup.BuildHost(gameExecutionContext, new() { BootstrapLog = relayLogFunction });
         host.Start();
     }
 }

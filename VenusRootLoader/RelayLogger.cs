@@ -27,7 +27,7 @@ internal class RelayLogger : ILogger
         if (exception is not null)
             message += $" {exception}";
 
-        _bootstrapFunctions.LogMsg(message, _categoryName, logLevel);
+        _bootstrapFunctions.BootstrapLog(message, _categoryName, logLevel);
     }
 
     public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None;

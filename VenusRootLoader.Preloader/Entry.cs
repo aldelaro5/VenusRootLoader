@@ -52,6 +52,25 @@ internal class Entry
 
     private static ILHook _loaderEntrypointHook = null!;
 
+    // These assemblies (especially MonoMod.Core) are force loaded early because there is a known issue with
+    // Unity Mono where if some assemblies are loaded too early, it can lead to crashes.
+    // This list is similar to what BepInEx does and they are so core to the modloader that it's not a huge deal
+    // to force load them.
+    private static readonly List<string> ForceLoadAssemblies =
+    [
+        "Mono.Cecil.dll",
+        "Mono.Cecil.Mdb.dll",
+        "Mono.Cecil.Pdb.dll",
+        "Mono.Cecil.Rocks.dll",
+        "MonoMod.Core.dll",
+        "MonoMod.Iced.dll",
+        "MonoMod.ILHelpers.dll",
+        "MonoMod.RuntimeDetour.dll",
+        "MonoMod.Utils.dll",
+        "MonoMod.Backports.dll",
+        "0Harmony.dll"
+    ];
+
     /// <summary>
     /// This is the entry method called by the bootstrap. It receives 2 parameters that are meant to be forwarded to the loader.
     /// </summary>
@@ -60,7 +79,8 @@ internal class Entry
     internal static void Main(nint bootstrapLogFunctionPtr, nint gameExecutionContextPtr)
     {
         string pathAssemblies = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "VenusRootLoader");
-        Assembly.LoadFrom(Path.Combine(pathAssemblies, "MonoMod.Core.dll"));
+        foreach (string ass in ForceLoadAssemblies)
+            Assembly.LoadFrom(Path.Combine(pathAssemblies, ass));
 
         BootstrapLogFunctionPtr = bootstrapLogFunctionPtr;
         BootstrapLog = Marshal.GetDelegateForFunctionPointer<BootstrapLogFn>(bootstrapLogFunctionPtr);

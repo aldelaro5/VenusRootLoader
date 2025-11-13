@@ -94,16 +94,17 @@ public class ConsoleLoggerTests
         sut.Log(logLevel, message);
         var result = _writer.ToString();
 
-        result.Should().Contain($"[{timeStampString.Pastel(Color.LimeGreen)}]");
+        result.Should().Contain($"[{timeStampString}]");
         result.Should().Contain($"[{levelMoniker.Pastel(levelColor)}]");
-        result.Should().Contain($"[{category.Pastel(Color.White)}]");
+        result.Should().Contain($"[{category.Pastel(Color.Cyan)}]");
         result.Should().Contain($"{message.Pastel(levelColor)}");
     }
 
     public static List<object[]> LogCategoriesTestDataAnsi =>
     [
-        ["Some category", Color.White],
-        ["UNITY", Color.Cyan],
+        ["Some category", Color.Cyan],
+        ["UNITY", Color.LimeGreen],
+        ["VenusRootLoader.something", Color.CornflowerBlue],
         [typeof(ConsoleLogger).Assembly.GetName().Name!, Color.Magenta]
     ];
 
@@ -151,9 +152,9 @@ public class ConsoleLoggerTests
         sut.Log(logLevel, message);
         var result = _writer.ToString();
 
-        result.Should().Contain($"[~{nameof(ConsoleColor.Green)}~{timeStampString}~~]");
+        result.Should().Contain($"~~[{timeStampString}]");
         result.Should().Contain($"[~{levelColor.ToString()}~{levelMoniker}~~]");
-        result.Should().Contain($"[~{nameof(ConsoleColor.White)}~{category}~~]");
+        result.Should().Contain($"[~{nameof(ConsoleColor.Cyan)}~{category}~~]");
         result.Should().Contain($"~{levelColor.ToString()}~{message}");
 
         _console.ForegroundColor.Should().Be((ConsoleColor)(-1));
@@ -161,8 +162,9 @@ public class ConsoleLoggerTests
 
     public static List<object[]> LogCategoriesTestDataLegacy =>
     [
-        ["Some category", ConsoleColor.White],
-        ["UNITY", ConsoleColor.Cyan],
+        ["Some category", ConsoleColor.Cyan],
+        ["UNITY", ConsoleColor.Green],
+        ["VenusRootLoader.something", ConsoleColor.Blue],
         [typeof(ConsoleLogger).Assembly.GetName().Name!, ConsoleColor.Magenta]
     ];
 

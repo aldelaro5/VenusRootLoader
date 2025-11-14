@@ -137,7 +137,6 @@ internal class Entry
         if (_monoCoreStartEntrypointAlreadyCalled)
             return;
         _monoCoreStartEntrypointAlreadyCalled = true;
-        _loaderEntrypointHook.Dispose();
 
         MethodInfo entryMethod = Assembly.Load("VenusRootLoader")
             .GetType("VenusRootLoader.Entry")

@@ -3,7 +3,6 @@
         <TargetFramework>net472</TargetFramework>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <OutputPath>$(BuildDir)/VenusRootLoader</OutputPath>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <EnableDynamicLoading>true</EnableDynamicLoading>
         <DebugType>portable</DebugType>
         <NoWarn>CS1591</NoWarn>

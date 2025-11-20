@@ -18,6 +18,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VenusRootLoader.Bootstrap.T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VenusRootLoader", "VenusRootLoader\VenusRootLoader.csproj", "{292517F6-61DE-4D6F-AD19-CE7E5DF907E9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleMod", "SampleMod\SampleMod.csproj", "{3CE76AD9-000E-4FEE-9FB8-E3A8A464B444}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenerateModManifest", "GenerateModManifest\GenerateModManifest.csproj", "{A5F72B40-566E-4CC8-838B-690A5D51DCEB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -40,5 +44,13 @@ Global
 		{292517F6-61DE-4D6F-AD19-CE7E5DF907E9}.Debug|x64.Build.0 = Debug|Any CPU
 		{292517F6-61DE-4D6F-AD19-CE7E5DF907E9}.Release|x64.ActiveCfg = Release|Any CPU
 		{292517F6-61DE-4D6F-AD19-CE7E5DF907E9}.Release|x64.Build.0 = Release|Any CPU
+		{3CE76AD9-000E-4FEE-9FB8-E3A8A464B444}.Debug|x64.ActiveCfg = Debug|x64
+		{3CE76AD9-000E-4FEE-9FB8-E3A8A464B444}.Debug|x64.Build.0 = Debug|x64
+		{3CE76AD9-000E-4FEE-9FB8-E3A8A464B444}.Release|x64.ActiveCfg = Release|x64
+		{3CE76AD9-000E-4FEE-9FB8-E3A8A464B444}.Release|x64.Build.0 = Release|x64
+		{A5F72B40-566E-4CC8-838B-690A5D51DCEB}.Debug|x64.ActiveCfg = Debug|x64
+		{A5F72B40-566E-4CC8-838B-690A5D51DCEB}.Debug|x64.Build.0 = Debug|x64
+		{A5F72B40-566E-4CC8-838B-690A5D51DCEB}.Release|x64.ActiveCfg = Release|x64
+		{A5F72B40-566E-4CC8-838B-690A5D51DCEB}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 EndGlobal

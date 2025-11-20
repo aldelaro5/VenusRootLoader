@@ -1,0 +1,20 @@
+<Project>
+    <UsingTask TaskName="GenerateModManifest"
+               AssemblyFile="$(SolutionDir)/GenerateModManifest/bin/$(Configuration)/GenerateModManifest.dll"/>
+    <ItemGroup>
+        <ProjectReference Include="$(SolutionDir)/GenerateModManifest/GenerateModManifest.csproj"
+                          ReferenceOutputAssembly="false"/>
+    </ItemGroup>
+    <Target Name="GenerateModManifest" AfterTargets="Build">
+        <GenerateModManifest
+                AssemblyPath="$(TargetPath)"
+                ModId="$(ModId)"
+                ModName="$(ModName)"
+                ModVersion="$(ModVersion)"
+                ModAuthor="$(ModAuthor)"
+                ModHardDependency="$(ModHardDependency)"
+                ModSoftDependency="$(ModSoftDependency)"
+                ModIncompatibleWith="$(ModIncompatibleWith)"
+        />
+    </Target>
+</Project>

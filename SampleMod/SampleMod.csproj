@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net472</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <DebugType>portable</DebugType>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+        <ModId>SampleMod</ModId>
+        <ModName>A Sample Mod</ModName>
+        <ModVersion>1.0.0.0</ModVersion>
+        <ModAuthor>A mod author</ModAuthor>
+        <ModHardDependency>
+            AnotherHardMod1;
+            AnotherHardMod2
+        </ModHardDependency>
+        <ModSoftDependency>
+            AnotherSoftMod1;
+            
+        </ModSoftDependency>
+        <ModIncompatibleWith>
+            AnotherIncompatibleMod1;
+            AnotherIncompatibleMod2
+        </ModIncompatibleWith>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3">
+            <IncludeAssets>build</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="PolySharp" Version="1.15.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\VenusRootLoader\VenusRootLoader.csproj">
+          <Private>false</Private>
+          <ExcludeAssets>runtime</ExcludeAssets>
+      </ProjectReference>
+    </ItemGroup>
+
+    <Import Project="GenerateManifest.targets"/>
+</Project>

@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net472</TargetFramework>
+        <Version>0.0.0</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <OutputPath>$(BuildDir)/VenusRootLoader</OutputPath>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -9,20 +10,53 @@
         <NoWarn>CS1591</NoWarn>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <IsPackable>true</IsPackable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>VenusRootLoader</PackageId>
+        <Title>VenusRootLoader</Title>
+        <PackageDescription>A modloader for Bug Fables</PackageDescription>
+        <Authors>aldelaro5</Authors>
+        <Copyright>Copyright $([System.DateTime]::Now.ToString(yyyy)) $(Authors)</Copyright>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Product>VenusRootLoader</Product>
+        <PackageTags>BugFables;Unity;GameModding</PackageTags>
+        <PackageProjectUrl>https://github.com/aldelaro5/VenusRootLoader</PackageProjectUrl>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageOutputPath>$(SolutionDir)Packages/$(Configuration)/</PackageOutputPath>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <IncludeReferencedProjects>true</IncludeReferencedProjects>
+        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="$(Configuration) == Release">
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    </PropertyGroup>
+
     <ItemGroup>
-        <PackageReference Include="BugFables.GameLibs" Version="120.0.0" />
-        <PackageReference Include="HarmonyX" Version="2.15.0"/>
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
-        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3">
-            <IncludeAssets>build</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="PolySharp" Version="1.15.0">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.0.16"/>
+        <PackageReference Include="BugFables.GameLibs" Version="120.0.0" PrivateAssets="none"/>
+        <PackageReference Include="HarmonyX" Version="2.15.0" PrivateAssets="none"/>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" PrivateAssets="All"/>
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All"/>
+        <PackageReference Include="PolySharp" Version="1.15.0" PrivateAssets="All"/>
+        <PackageReference Include="System.ValueTuple" Version="4.6.1" PrivateAssets="All"/>
+        <PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.0.16" PrivateAssets="All"/>
     </ItemGroup>
 
-    <Target Name="PostBuild" AfterTargets="Build">
-    </Target>
+    <ItemGroup>
+        <ProjectReference Include="..\GenerateModManifest\GenerateModManifest.csproj">
+            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+        </ProjectReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="$(SolutionDir)/README.md" PackagePath="README.md" Visible="false"/>
+        <Content Include="$(MSBuildThisFileDirectory)/Build/GenerateManifest.targets" PackagePath="build/VenusRootLoader.targets"/>
+        <Content Include="$(SolutionDir)/GenerateModManifest/bin/$(Configuration)/GenerateModManifest.dll" PackagePath="build"/>
+    </ItemGroup>
+
+    <Target Name="PostBuild" AfterTargets="Build"/>
 </Project>

@@ -1,0 +1,24 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".github/workflows/dotnet-ci.yml" />
+    <File Path=".gitignore" />
+    <File Path=".gitmodules" />
+    <File Path="Directory.Build.props" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="GenerateModManifest/GenerateModManifest.csproj">
+    <Platform Project="x64" />
+  </Project>
+  <Project Path="VenusRootLoader.Bootstrap.Tests/VenusRootLoader.Bootstrap.Tests.csproj">
+    <Platform Project="x64" />
+  </Project>
+  <Project Path="VenusRootLoader.Bootstrap/VenusRootLoader.Bootstrap.csproj">
+    <Platform Project="x64" />
+  </Project>
+  <Project Path="VenusRootLoader.Preloader/VenusRootLoader.Preloader.csproj" />
+  <Project Path="VenusRootLoader/VenusRootLoader.csproj" />
+</Solution>

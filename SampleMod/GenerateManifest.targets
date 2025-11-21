@@ -5,7 +5,7 @@
         <ProjectReference Include="$(SolutionDir)/GenerateModManifest/GenerateModManifest.csproj"
                           ReferenceOutputAssembly="false"/>
     </ItemGroup>
-    <Target Name="GenerateModManifest" AfterTargets="Build">
+    <Target Name="GenerateModManifest" BeforeTargets="Build">
         <GenerateModManifest
                 AssemblyPath="$(TargetPath)"
                 ModId="$(ModId)"
@@ -15,6 +15,16 @@
                 ModHardDependency="$(ModHardDependency)"
                 ModSoftDependency="$(ModSoftDependency)"
                 ModIncompatibleWith="$(ModIncompatibleWith)"
-        />
+        >
+            <Output TaskParameter="ModManifestPath"
+                    PropertyName="ModManifestFile"/>
+        </GenerateModManifest>
+        <ItemGroup>
+            <Content Include="$(ModManifestFile)"/>
+        </ItemGroup>
+    </Target>
+
+    <Target Name="CleanModManifest" AfterTargets="Clean">
+        <Delete Files="$(TargetDir)/manifest.json"/>
     </Target>
 </Project>

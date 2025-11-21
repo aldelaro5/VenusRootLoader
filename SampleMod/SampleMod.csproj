@@ -1,4 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+    <Import Project="GenerateManifest.targets"/>
+
     <PropertyGroup>
         <TargetFramework>net472</TargetFramework>
         <LangVersion>latest</LangVersion>
@@ -44,5 +46,7 @@
       </ProjectReference>
     </ItemGroup>
 
-    <Import Project="GenerateManifest.targets"/>
+    <Target Name="stuff" AfterTargets="Build">
+        <Message Importance="high" Text="$(ModManifestFile)"/>
+    </Target>
 </Project>

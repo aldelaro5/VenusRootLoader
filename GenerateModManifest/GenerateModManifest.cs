@@ -39,8 +39,6 @@ public class GenerateModManifest : Task
 
     public override bool Execute()
     {
-        if (!File.Exists(AssemblyPath))
-            throw new FileNotFoundException($"{AssemblyPath} does not exist", AssemblyPath);
         string outputPath = Path.GetDirectoryName(AssemblyPath)!;
         if (outputPath is null)
             throw new ArgumentException($"{AssemblyPath} has no parent directory", AssemblyPath);

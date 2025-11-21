@@ -38,6 +38,7 @@
     <ItemGroup>
         <PackageReference Include="BugFables.GameLibs" Version="120.0.0" PrivateAssets="none"/>
         <PackageReference Include="HarmonyX" Version="2.15.0" PrivateAssets="none"/>
+
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" PrivateAssets="All"/>
         <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All"/>
@@ -47,7 +48,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\GenerateModManifest\GenerateModManifest.csproj">
+        <ProjectReference Include="..\VenusRootLoader.Build.Tasks\VenusRootLoader.Build.Tasks.csproj">
             <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
         </ProjectReference>
     </ItemGroup>
@@ -55,7 +56,7 @@
     <ItemGroup>
         <Content Include="$(SolutionDir)/README.md" PackagePath="README.md" Visible="false"/>
         <Content Include="$(MSBuildThisFileDirectory)/Build/GenerateManifest.targets" PackagePath="build/VenusRootLoader.targets"/>
-        <Content Include="$(SolutionDir)/GenerateModManifest/bin/$(Configuration)/GenerateModManifest.dll" PackagePath="build"/>
+        <Content Include="$(SolutionDir)/VenusRootLoader.Build.Tasks/bin/$(Configuration)/VenusRootLoader.Build.Tasks.dll" PackagePath="build"/>
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="Build"/>

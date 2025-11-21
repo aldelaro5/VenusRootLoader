@@ -1,6 +1,6 @@
 <Project>
     <UsingTask TaskName="GenerateModManifest"
-               AssemblyFile="$(MSBuildThisFileDirectory)/GenerateModManifest.dll"/>
+               AssemblyFile="$(MSBuildThisFileDirectory)/VenusRootLoader.Build.Tasks.dll"/>
 
     <Target Name="GenerateModManifest" BeforeTargets="Build">
         <GenerateModManifest

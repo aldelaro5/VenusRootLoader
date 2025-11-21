@@ -10,13 +10,13 @@
     <File Path="Directory.Build.props" />
     <File Path="README.md" />
   </Folder>
-  <Project Path="GenerateModManifest/GenerateModManifest.csproj">
-    <Platform Project="x64" />
-  </Project>
   <Project Path="VenusRootLoader.Bootstrap.Tests/VenusRootLoader.Bootstrap.Tests.csproj">
     <Platform Project="x64" />
   </Project>
   <Project Path="VenusRootLoader.Bootstrap/VenusRootLoader.Bootstrap.csproj">
+    <Platform Project="x64" />
+  </Project>
+  <Project Path="VenusRootLoader.Build.Tasks\VenusRootLoader.Build.Tasks.csproj">
     <Platform Project="x64" />
   </Project>
   <Project Path="VenusRootLoader.Preloader/VenusRootLoader.Preloader.csproj" />

@@ -1,4 +1,4 @@
-namespace GenerateModManifest;
+namespace VenusRootLoader.Build.Tasks;
 
 public class ModManifest
 {

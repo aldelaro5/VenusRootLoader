@@ -6,7 +6,7 @@ using Task = Microsoft.Build.Utilities.Task;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
-namespace GenerateModManifest;
+namespace VenusRootLoader.Build.Tasks;
 
 public class GenerateModManifest : Task
 {

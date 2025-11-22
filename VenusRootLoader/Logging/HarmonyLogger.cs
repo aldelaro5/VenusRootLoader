@@ -2,7 +2,7 @@ using HarmonyLib.Tools;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace VenusRootLoader;
+namespace VenusRootLoader.Logging;
 
 internal class HarmonyLogger : IHostedService
 {
@@ -30,8 +30,8 @@ internal class HarmonyLogger : IHostedService
         return Task.CompletedTask;
     }
 
-    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-
     private void LoggerOnMessageReceived(object sender, Logger.LogEventArgs e) =>
         _harmonyLogger.Log(LogLevelMappings[e.LogChannel], e.Message);
+
+    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 }

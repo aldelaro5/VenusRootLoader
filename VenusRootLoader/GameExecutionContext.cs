@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 namespace VenusRootLoader;
 
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-public class GameExecutionContext
+internal class GameExecutionContext
 {
     public required string GameDir { get; init; }
     public required string DataDir { get; init; }

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
+using VenusRootLoader.Logging;
 
 namespace VenusRootLoader;
 
@@ -23,12 +24,24 @@ internal static class Startup
 
         var fileSystem = new FileSystem();
 
-        builder.Configuration.AddJsonFile(
-            fileSystem.Path.Combine(builder.Environment.ContentRootPath, "Config", "config.jsonc"));
+        string configPath = fileSystem.Path.Combine(builder.Environment.ContentRootPath, "Config");
+        builder.Configuration.AddJsonFile(fileSystem.Path.Combine(configPath, "config.jsonc"));
+
         builder.Services.AddSingleton(gameExecutionContext);
         builder.Services.AddSingleton(bootstrapFunctions);
+        builder.Services.AddSingleton(
+            new VenusRootLoaderContext
+            {
+                ModsPath = fileSystem.Path.Combine(builder.Environment.ContentRootPath, "Mods"),
+                ConfigPath = configPath,
+                LoaderPath = fileSystem.Path.Combine(builder.Environment.ContentRootPath, nameof(VenusRootLoader)),
+            });
+
         builder.Logging.AddConfiguration(builder.Configuration.GetRequiredSection("Logging"));
         builder.Logging.Services.AddSingleton<ILoggerProvider, RelayLoggerProvider>();
+
+        builder.Services.AddSingleton<IFileSystem, FileSystem>();
+        builder.Services.AddHostedService<AppDomainEventsHandler>();
         builder.Services.AddHostedService<HarmonyLogger>();
 
         return builder.Build();

@@ -59,5 +59,10 @@
         <Content Include="$(SolutionDir)/VenusRootLoader.Build.Tasks/bin/$(Configuration)/VenusRootLoader.Build.Tasks.dll" PackagePath="build" Visible="false"/>
     </ItemGroup>
 
-    <Target Name="PostBuild" AfterTargets="Build"/>
+    <Target Name="PostBuild" AfterTargets="Build">
+        <RemoveDir Condition="$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))"
+                   Directories="%userprofile%\.nuget\packages"/>
+        <RemoveDir Condition="$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))"
+                   Directories="$(HOME)/.nuget/packages/venusrootloader"/>
+    </Target>
 </Project>

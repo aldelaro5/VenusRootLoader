@@ -7,7 +7,7 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <EnableDynamicLoading>true</EnableDynamicLoading>
         <DebugType>portable</DebugType>
-        <NoWarn>CS1591</NoWarn>
+        <NoWarn>CS1591;NU5104</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -36,13 +36,16 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="AsmResolver.DotNet" Version="6.0.0-beta.4"/>
         <PackageReference Include="BugFables.GameLibs" Version="120.0.0" PrivateAssets="none"/>
         <PackageReference Include="HarmonyX" Version="2.15.0" PrivateAssets="none"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" PrivateAssets="none"/>
 
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" PrivateAssets="All"/>
         <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All"/>
         <PackageReference Include="PolySharp" Version="1.15.0" PrivateAssets="All"/>
+        <PackageReference Include="System.Text.Json" Version="10.0.0"/>
         <PackageReference Include="System.ValueTuple" Version="4.6.1" PrivateAssets="All"/>
         <PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.0.16" PrivateAssets="All"/>
     </ItemGroup>

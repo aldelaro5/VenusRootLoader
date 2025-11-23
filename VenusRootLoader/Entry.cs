@@ -1,7 +1,5 @@
 using Microsoft.Extensions.Hosting;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using HarmonyLib;
 using Microsoft.Extensions.Logging;
 
 namespace VenusRootLoader;
@@ -22,11 +20,6 @@ internal static class Entry
             _gameExecutionContext = Marshal.PtrToStructure<GameExecutionContext>(gameExecutionContextPtr);
             var host = Startup.BuildHost(_gameExecutionContext, new() { BootstrapLog = _bootstrapLog });
             host.Start();
-            string modsPath = Path.Combine(_gameExecutionContext.GameDir, "Mods");
-            Assembly.LoadFrom(Path.Combine(modsPath, "UnityExplorer.Standalone.MonoBleedingEdge.dll"));
-            var type = AccessTools.TypeByName("ExplorerStandalone");
-            var method = AccessTools.Method(type, "CreateInstance");
-            method.Invoke(null, []);
         }
         catch (Exception e)
         {

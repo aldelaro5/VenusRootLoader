@@ -1,6 +1,11 @@
+using Microsoft.Extensions.Logging;
+
 namespace VenusRootLoader.ModLoading;
 
-public interface IMod
+public abstract class Mod
 {
-    void Main();
+    protected internal ILogger Logger { get; internal set; } = null!;
+    protected internal string BaseModPath { get; internal set; } = null!;
+
+    protected internal abstract void Main();
 }

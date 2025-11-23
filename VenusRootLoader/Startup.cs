@@ -43,6 +43,7 @@ internal static class Startup
         builder.Services.AddSingleton<IFileSystem, FileSystem>();
         builder.Services.AddHostedService<AppDomainEventsHandler>();
         builder.Services.AddHostedService<HarmonyLogger>();
+        builder.Services.AddHostedService<ModLoading.ModLoader>();
 
         return builder.Build();
     }

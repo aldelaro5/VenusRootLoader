@@ -7,16 +7,16 @@ namespace VenusRootLoader;
 
 internal class AppDomainEventsHandler : IHostedService
 {
-    private readonly VenusRootLoaderContext _venusRootLoaderContext;
+    private readonly ModLoaderContext _modLoaderContext;
     private readonly ILogger<AppDomainEventsHandler> _logger;
     private readonly IFileSystem _fileSystem;
 
     public AppDomainEventsHandler(
-        VenusRootLoaderContext venusRootLoaderContext,
+        ModLoaderContext modLoaderContext,
         ILogger<AppDomainEventsHandler> logger,
         IFileSystem fileSystem)
     {
-        _venusRootLoaderContext = venusRootLoaderContext;
+        _modLoaderContext = modLoaderContext;
         _logger = logger;
         _fileSystem = fileSystem;
     }
@@ -41,7 +41,7 @@ internal class AppDomainEventsHandler : IHostedService
         AssemblyName assemblyName = new(args.Name);
 
         string assemblyFileLoader = _fileSystem.Path.Combine(
-            _venusRootLoaderContext.LoaderPath,
+            _modLoaderContext.LoaderPath,
             $"{assemblyName.Name}.dll");
         if (_fileSystem.File.Exists(assemblyFileLoader))
             return Assembly.LoadFrom(assemblyFileLoader);

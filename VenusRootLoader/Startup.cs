@@ -30,7 +30,7 @@ internal static class Startup
         builder.Services.AddSingleton(gameExecutionContext);
         builder.Services.AddSingleton(bootstrapFunctions);
         builder.Services.AddSingleton(
-            new VenusRootLoaderContext
+            new ModLoaderContext
             {
                 ModsPath = fileSystem.Path.Combine(builder.Environment.ContentRootPath, "Mods"),
                 ConfigPath = configPath,

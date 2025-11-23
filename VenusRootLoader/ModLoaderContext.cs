@@ -1,6 +1,6 @@
 namespace VenusRootLoader;
 
-public class VenusRootLoaderContext
+public class ModLoaderContext
 {
     public required string ModsPath { get; init; }
     public required string ConfigPath { get; init; }

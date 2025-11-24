@@ -26,13 +26,10 @@ public class GenerateModManifest : Task
     public required string ModAuthor { get; set; }
 
     [Required]
-    public required string[] ModHardDependency { get; set; }
+    public required ITaskItem[] ModDependencies { get; set; }
 
     [Required]
-    public required string[] ModSoftDependency { get; set; }
-
-    [Required]
-    public required string[] ModIncompatibleWith { get; set; }
+    public required ITaskItem[] ModIncompatibilities { get; set; }
 
     [Output]
     public string? ModManifestPath { get; set; }
@@ -47,6 +44,17 @@ public class GenerateModManifest : Task
 
         try
         {
+            ModDependency[] dependencies = ModDependencies
+                .Select(x => new ModDependency
+                {
+                    ModId = x.ItemSpec,
+                    Optional = x.GetMetadata("Optional") == "true"
+                })
+                .ToArray();
+            ModIncompatibility[] incompatibilities = ModIncompatibilities
+                .Select(x => new ModIncompatibility { ModId = x.ItemSpec })
+                .ToArray();
+            
             ModManifest manifest = new()
             {
                 AssemblyName = Path.GetFileName(AssemblyPath),
@@ -54,9 +62,8 @@ public class GenerateModManifest : Task
                 ModName = ModName,
                 ModVersion = version,
                 ModAuthor = ModAuthor,
-                ModHardDependency = ModHardDependency,
-                ModSoftDependency = ModSoftDependency,
-                ModIncompatibleWith = ModIncompatibleWith
+                ModDependencies = dependencies,
+                ModIncompatibilities = incompatibilities
             };
             string json = JsonSerializer.Serialize(
                 manifest,

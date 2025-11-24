@@ -9,9 +9,8 @@
                 ModName="$(ModName)"
                 ModVersion="$(ModVersion)"
                 ModAuthor="$(ModAuthor)"
-                ModHardDependency="$(ModHardDependency)"
-                ModSoftDependency="$(ModSoftDependency)"
-                ModIncompatibleWith="$(ModIncompatibleWith)"
+                ModDependencies="@(ModDependency)"
+                ModIncompatibilities="@(ModIncompatibility)"
         >
             <Output TaskParameter="ModManifestPath"
                     PropertyName="ModManifestFile"/>

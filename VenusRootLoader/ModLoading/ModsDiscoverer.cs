@@ -7,20 +7,20 @@ using VenusRootLoader.Models;
 
 namespace VenusRootLoader.ModLoading;
 
-internal interface IModsDiscovery
+internal interface IModsDiscoverer
 {
-    Dictionary<string, ModInfo> DiscoverAllMods();
+    IList<ModInfo> DiscoverAllMods();
 }
 
-internal class ModsDiscovery : IModsDiscovery
+internal class ModsDiscoverer : IModsDiscoverer
 {
     private readonly IFileSystem _fileSystem;
-    private readonly ILogger<ModsDiscovery> _logger;
+    private readonly ILogger<ModsDiscoverer> _logger;
     private readonly ModLoaderContext _modLoaderContext;
 
-    public ModsDiscovery(
+    public ModsDiscoverer(
         IFileSystem fileSystem,
-        ILogger<ModsDiscovery> logger,
+        ILogger<ModsDiscoverer> logger,
         ModLoaderContext modLoaderContext)
     {
         _fileSystem = fileSystem;
@@ -28,9 +28,9 @@ internal class ModsDiscovery : IModsDiscovery
         _modLoaderContext = modLoaderContext;
     }
 
-    public Dictionary<string, ModInfo> DiscoverAllMods()
+    public IList<ModInfo> DiscoverAllMods()
     {
-        Dictionary<string, ModInfo> result = new();
+        List<ModInfo> result = new();
 
         foreach (string modDirectory in _fileSystem.Directory.EnumerateDirectories(_modLoaderContext.ModsPath))
         {
@@ -54,12 +54,15 @@ internal class ModsDiscovery : IModsDiscovery
                     throw new FileNotFoundException("The mod assembly file does not exist", modAssemblyPath);
 
                 if (TryValidateModAssembly(modAssemblyPath, out TypeDefinition? modType))
-                    result[modManifest.ModId] = new()
+                {
+                    ModInfo newMod = new()
                     {
                         ModManifest = modManifest,
                         ModAssemblyPath = modAssemblyPath,
                         ModType = modType
                     };
+                    result.Add(newMod);
+                }
             }
             catch (Exception e)
             {

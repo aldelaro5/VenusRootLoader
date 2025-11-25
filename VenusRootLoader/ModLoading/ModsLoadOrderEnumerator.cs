@@ -3,16 +3,15 @@ using VenusRootLoader.Models;
 
 namespace VenusRootLoader.ModLoading;
 
-internal interface IModsEnumerator
+internal interface IModsLoadOrderEnumerator
 {
-    IEnumerable<ModInfo> EnumerateMods(Dictionary<string, ModInfo> metadata);
-    void MarkModAsFailed(string modId);
+    IEnumerable<ModInfo> EnumerateModsWithFulfilledDependencies(IEnumerable<ModInfo> sortedMods);
+    void MarkModAsFailed(ModInfo mod);
 }
 
-internal class ModsEnumerator : IModsEnumerator
+internal class ModsLoadOrderEnumerator : IModsLoadOrderEnumerator
 {
-    private readonly IModsSorter _modsSorter;
-    private readonly ILogger<ModsEnumerator> _logger;
+    private readonly ILogger<ModsLoadOrderEnumerator> _logger;
 
     private record ModDependencyErrorInfo
     {
@@ -25,19 +24,13 @@ internal class ModsEnumerator : IModsEnumerator
     private readonly HashSet<string> _modIdsWithSatisfiedDependencies = new(StringComparer.Ordinal);
     private readonly HashSet<string> _modIdsWithUnsatisfiedRequiredDependencies = new(StringComparer.Ordinal);
 
-    public ModsEnumerator(
-        IModsSorter modsSorter,
-        ILogger<ModsEnumerator> logger)
+    public ModsLoadOrderEnumerator(ILogger<ModsLoadOrderEnumerator> logger)
     {
-        _modsSorter = modsSorter;
         _logger = logger;
     }
 
-    public IEnumerable<ModInfo> EnumerateMods(Dictionary<string, ModInfo> metadata)
+    public IEnumerable<ModInfo> EnumerateModsWithFulfilledDependencies(IEnumerable<ModInfo> sortedMods)
     {
-        IEnumerable<ModInfo> sortedMods = _modsSorter.TopologicalSort(metadata);
-        _logger.LogInformation(string.Join(" -> ", sortedMods.Select(x => x.ModManifest.ModId)));
-
         foreach (ModInfo modInfo in sortedMods)
         {
             List<ModDependencyErrorInfo> unsatisfiedDependencies =
@@ -60,7 +53,7 @@ internal class ModsEnumerator : IModsEnumerator
         }
     }
 
-    public void MarkModAsFailed(string modId) => _failedMods.Add(modId);
+    public void MarkModAsFailed(ModInfo mod) => _failedMods.Add(mod.ModManifest.ModId);
 
     private List<ModDependencyErrorInfo> GetUnsatisfiedDependencies(
         ModInfo modLoadingInfo,

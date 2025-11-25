@@ -2,21 +2,22 @@ using VenusRootLoader.Models;
 
 namespace VenusRootLoader.ModLoading;
 
-internal interface IModsSorter
+internal interface IModsDependencySorter
 {
-    IEnumerable<ModInfo> TopologicalSort(Dictionary<string, ModInfo> metadata);
+    IList<ModInfo> DetermineModsLoadOrder(IList<ModInfo> mods);
 }
 
-internal class ModsSorter : IModsSorter
+internal class ModsDependencySorter : IModsDependencySorter
 {
-    public IEnumerable<ModInfo> TopologicalSort(Dictionary<string, ModInfo> metadata)
+    public IList<ModInfo> DetermineModsLoadOrder(IList<ModInfo> mods)
     {
+        Dictionary<string, ModInfo> modsById = mods.ToDictionary(m => m.ModManifest.ModId);
         List<ModInfo> result = new();
 
         HashSet<ModInfo> arrivedBefore = new();
         HashSet<ModInfo> visited = new();
 
-        foreach (ModInfo? input in metadata.Values)
+        foreach (ModInfo? input in modsById.Values)
         {
             Stack<ModInfo> currentPath = new();
             if (Visit(input, currentPath))
@@ -38,7 +39,9 @@ internal class ModsSorter : IModsSorter
                 $"{string.Join(" ->\n", smallestCyclicPathFound)}\n");
         }
 
-        return result.Where(mod => metadata.ContainsKey(mod.ModManifest.ModId));
+        return result
+            .Where(mod => modsById.ContainsKey(mod.ModManifest.ModId))
+            .ToList();
 
         bool Visit(ModInfo node, Stack<ModInfo> currentPath)
         {
@@ -54,7 +57,7 @@ internal class ModsSorter : IModsSorter
                 return true;
             }
 
-            IEnumerable<ModInfo?> dependencies = GetModDependenciesThatArePresent(node, metadata);
+            IEnumerable<ModInfo?> dependencies = GetModDependenciesThatArePresent(node, modsById);
             if (dependencies.Any(dependencyNode => !Visit(dependencyNode!, currentPath)))
                 return false;
 
@@ -66,7 +69,9 @@ internal class ModsSorter : IModsSorter
         }
     }
 
-    private IEnumerable<ModInfo?> GetModDependenciesThatArePresent(ModInfo mod, Dictionary<string, ModInfo> metadata)
+    private static IEnumerable<ModInfo?> GetModDependenciesThatArePresent(
+        ModInfo mod,
+        Dictionary<string, ModInfo> metadata)
     {
         return mod.ModManifest.ModDependencies
             .Select(modDependency => metadata

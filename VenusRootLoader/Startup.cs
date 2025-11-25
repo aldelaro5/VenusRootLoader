@@ -45,9 +45,9 @@ internal static class Startup
         builder.Services.AddHostedService<AppDomainEventsHandler>();
         builder.Services.AddHostedService<HarmonyLogger>();
 
-        builder.Services.AddSingleton<IModsDiscovery, ModsDiscovery>();
-        builder.Services.AddSingleton<IModsSorter, ModsSorter>();
-        builder.Services.AddSingleton<IModsEnumerator, ModsEnumerator>();
+        builder.Services.AddSingleton<IModsDiscoverer, ModsDiscoverer>();
+        builder.Services.AddSingleton<IModsDependencySorter, ModsDependencySorter>();
+        builder.Services.AddSingleton<IModsLoadOrderEnumerator, ModsLoadOrderEnumerator>();
         builder.Services.AddHostedService<ModLoader>();
 
         return builder.Build();

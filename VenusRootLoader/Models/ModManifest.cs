@@ -1,4 +1,4 @@
-namespace VenusRootLoader.Build.Tasks;
+namespace VenusRootLoader.Models;
 
 internal class ModManifest
 {
@@ -11,13 +11,13 @@ internal class ModManifest
     public required ModIncompatibility[] ModIncompatibilities { get; init; }
 }
 
-internal class ModDependency
+public class ModDependency
 {
-    public required string ModId { get; init; }
-    public required bool Optional { get; init; }
+    public required string ModId { get; set; }
+    public required bool Optional { get; set; }
 }
 
-internal class ModIncompatibility
+public class ModIncompatibility
 {
-    public required string ModId { get; init; }
+    public required string ModId { get; set; }
 }

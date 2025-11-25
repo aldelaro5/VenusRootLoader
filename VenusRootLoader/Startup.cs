@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 using VenusRootLoader.Logging;
+using VenusRootLoader.ModLoading;
 
 namespace VenusRootLoader;
 
@@ -43,7 +44,11 @@ internal static class Startup
         builder.Services.AddSingleton<IFileSystem, FileSystem>();
         builder.Services.AddHostedService<AppDomainEventsHandler>();
         builder.Services.AddHostedService<HarmonyLogger>();
-        builder.Services.AddHostedService<ModLoading.ModLoader>();
+
+        builder.Services.AddSingleton<IModsDiscovery, ModsDiscovery>();
+        builder.Services.AddSingleton<IModsSorter, ModsSorter>();
+        builder.Services.AddSingleton<IModsEnumerator, ModsEnumerator>();
+        builder.Services.AddHostedService<ModLoader>();
 
         return builder.Build();
     }

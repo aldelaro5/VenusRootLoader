@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace VenusRootLoader.Logging;
 
-internal class HarmonyLogger : IHostedService
+internal sealed class HarmonyLogger : IHostedService
 {
     private static readonly Dictionary<Logger.LogChannel, LogLevel> LogLevelMappings = new()
     {

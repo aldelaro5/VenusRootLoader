@@ -9,7 +9,7 @@ internal interface IModsLoadOrderEnumerator
     void MarkModAsFailed(ModInfo mod);
 }
 
-internal class ModsLoadOrderEnumerator : IModsLoadOrderEnumerator
+internal sealed class ModsLoadOrderEnumerator : IModsLoadOrderEnumerator
 {
     private readonly ILogger<ModsLoadOrderEnumerator> _logger;
 

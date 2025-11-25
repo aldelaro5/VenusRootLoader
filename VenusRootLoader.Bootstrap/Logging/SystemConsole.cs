@@ -3,7 +3,7 @@
 /// <summary>
 /// The real implementation of <see cref="IConsole"/> that uses the <see cref="Console"/> class
 /// </summary>
-public class SystemConsole : IConsole
+public sealed class SystemConsole : IConsole
 {
     public ConsoleColor ForegroundColor { get => Console.ForegroundColor; set => Console.ForegroundColor = value; }
     public void WriteLine(string message) => Console.WriteLine(message);

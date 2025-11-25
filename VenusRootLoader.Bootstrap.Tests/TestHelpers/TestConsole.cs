@@ -2,7 +2,7 @@
 
 namespace VenusRootLoader.Bootstrap.Tests.TestHelpers
 {
-    public class TestConsole : IConsole
+    public sealed class TestConsole : IConsole
     {
         private readonly TextWriter _writer;
 

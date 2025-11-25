@@ -4,7 +4,7 @@ using VenusRootLoader.Bootstrap.Settings.LogProvider;
 
 namespace VenusRootLoader.Bootstrap.Settings;
 
-public class LoggingSettings
+public sealed class LoggingSettings
 {
     [Required]
     public bool? IncludeUnityLogs { get; set; }
@@ -19,4 +19,4 @@ public class LoggingSettings
 }
 
 [OptionsValidator]
-public partial class ValidateLoggingSettings : IValidateOptions<LoggingSettings>;
+public sealed partial class ValidateLoggingSettings : IValidateOptions<LoggingSettings>;

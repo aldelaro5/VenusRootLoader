@@ -9,7 +9,7 @@ using Windows.Win32.Storage.FileSystem;
 
 namespace VenusRootLoader.Bootstrap.Tests.Shared;
 
-public class CreateFileWSharedHookerTests
+public sealed class CreateFileWSharedHookerTests
 {
     private readonly TestPltHookManager _pltHooksManager = new();
     private readonly IWin32 _win32 = Substitute.For<IWin32>();

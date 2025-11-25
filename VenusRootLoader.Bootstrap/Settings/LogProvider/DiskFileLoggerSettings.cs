@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace VenusRootLoader.Bootstrap.Settings.LogProvider;
 
-public class DiskFileLoggerSettings : ILogProviderSettings
+public sealed class DiskFileLoggerSettings : ILogProviderSettings
 {
     [Required]
     public bool? Enable { get; set; }

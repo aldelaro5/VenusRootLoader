@@ -7,7 +7,7 @@ namespace VenusRootLoader.Bootstrap.Shared;
 /// collected on <see cref="Entry"/>
 /// </summary>
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-public class GameExecutionContext
+public sealed class GameExecutionContext
 {
     public required string GameDir { get; init; }
     public required string DataDir { get; init; }

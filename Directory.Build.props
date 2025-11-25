@@ -5,6 +5,8 @@
         <LangVersion>latest</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <WarningLevel>8</WarningLevel>
+        <AnalysisLevel>latest</AnalysisLevel>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <InvariantGlobalization>true</InvariantGlobalization>
         <BuildDir>$(SolutionDir)/Output/$(Configuration)/</BuildDir>

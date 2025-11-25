@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace VenusRootLoader;
 
-internal class BootstrapFunctions
+internal sealed class BootstrapFunctions
 {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
     internal delegate void BootstrapLogFn(string message, string category, LogLevel logLevel);

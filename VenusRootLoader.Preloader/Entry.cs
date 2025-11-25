@@ -16,7 +16,7 @@ namespace VenusRootLoader.Preloader;
 /// so this entry is done via Reflection and an AssemblyLoad AppDomain event. The preloader is designed to leave as
 /// few traces as possible once the loader entrypoint is setup.
 /// </summary>
-internal class Entry
+internal sealed class Entry
 {
     /// <summary>
     /// Copied from Microsoft.Extensions.Logging, it's only there to not have a reference to it at runtime

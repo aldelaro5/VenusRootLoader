@@ -24,7 +24,7 @@ namespace VenusRootLoader.Bootstrap.Mono;
 /// to call the original or not
 /// </para>
 /// </summary>
-internal class MonoInitializer : IHostedService
+internal sealed class MonoInitializer : IHostedService
 {
     private struct ManagedEntryPointInfo
     {

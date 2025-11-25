@@ -17,7 +17,7 @@ using Windows.Win32.System.Console;
 namespace VenusRootLoader.Bootstrap.Tests.Unity;
 
 [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]
-public class PlayerLogsMirroringTests
+public sealed class PlayerLogsMirroringTests
 {
     private readonly FakeLogger _logger = new();
     private readonly ILoggerFactory _loggerFactory = Substitute.For<ILoggerFactory>();

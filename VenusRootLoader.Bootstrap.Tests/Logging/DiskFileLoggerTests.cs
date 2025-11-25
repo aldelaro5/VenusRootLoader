@@ -6,7 +6,7 @@ using VenusRootLoader.Bootstrap.Logging;
 
 namespace VenusRootLoader.Bootstrap.Tests.Logging;
 
-public class DiskFileLoggerTests
+public sealed class DiskFileLoggerTests
 {
     private readonly FakeTimeProvider _timeProvider = new();
 

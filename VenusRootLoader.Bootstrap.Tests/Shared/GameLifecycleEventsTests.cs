@@ -3,7 +3,7 @@ using VenusRootLoader.Bootstrap.Shared;
 
 namespace VenusRootLoader.Bootstrap.Tests.Shared;
 
-public class MonoInitLifeCycleEventsTests
+public sealed class MonoInitLifeCycleEventsTests
 {
     [Fact]
     public void Publish_CallsAllSubscribers_WhenThereAreSubscribers()

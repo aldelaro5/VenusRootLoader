@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace VenusRootLoader.Bootstrap.Tests.IntegrationTests;
 
 [Collection(nameof(IntegrationTests))]
-public class IntegrationTests : IDisposable
+public sealed class IntegrationTests : IDisposable
 {
     private const string SilentPlayerArguments = "-hidewindow -nographics -batchmode -no-dialogs";
 

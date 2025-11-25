@@ -7,7 +7,7 @@ internal interface IModsDependencySorter
     IList<ModInfo> DetermineModsLoadOrder(IList<ModInfo> mods);
 }
 
-internal class ModsDependencySorter : IModsDependencySorter
+internal sealed class ModsDependencySorter : IModsDependencySorter
 {
     public IList<ModInfo> DetermineModsLoadOrder(IList<ModInfo> mods)
     {

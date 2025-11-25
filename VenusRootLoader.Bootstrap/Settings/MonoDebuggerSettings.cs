@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace VenusRootLoader.Bootstrap.Settings;
 
-public class MonoDebuggerSettings
+public sealed class MonoDebuggerSettings
 {
     [Required]
     public bool? Enable { get; set; }
@@ -23,4 +23,4 @@ public class MonoDebuggerSettings
 }
 
 [OptionsValidator]
-public partial class ValidateMonoDebuggerSettings : IValidateOptions<MonoDebuggerSettings>;
+public sealed partial class ValidateMonoDebuggerSettings : IValidateOptions<MonoDebuggerSettings>;

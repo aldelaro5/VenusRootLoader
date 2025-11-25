@@ -32,7 +32,7 @@ public interface ISdbWinePathTranslator
 /// For more information on the SDB protocol, consult its documentation available here: https://www.mono-project.com/docs/advanced/runtime/docs/soft-debugger-wire-format/
 /// </para>
 /// </summary>
-public class SdbWinePathTranslator : ISdbWinePathTranslator
+public sealed class SdbWinePathTranslator : ISdbWinePathTranslator
 {
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     private delegate int SendFn(SOCKET s, PCSTR buf, int len, SEND_RECV_FLAGS flags);

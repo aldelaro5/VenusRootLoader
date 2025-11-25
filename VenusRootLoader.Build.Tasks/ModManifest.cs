@@ -1,6 +1,6 @@
 namespace VenusRootLoader.Build.Tasks;
 
-internal class ModManifest
+internal sealed class ModManifest
 {
     public required string AssemblyName { get; init; }
     public required string ModId { get; init; }
@@ -11,13 +11,13 @@ internal class ModManifest
     public required ModIncompatibility[] ModIncompatibilities { get; init; }
 }
 
-internal class ModDependency
+internal sealed class ModDependency
 {
     public required string ModId { get; init; }
     public required bool Optional { get; init; }
 }
 
-internal class ModIncompatibility
+internal sealed class ModIncompatibility
 {
     public required string ModId { get; init; }
 }

@@ -17,7 +17,7 @@ public interface IPltHooksManager
 /// tracking multiple module filenames each containing one or more hooks. In <see cref="LogLevel.Trace"/> logs, it will
 /// log all active hooks after each hook and unhook.
 /// </summary>
-public class PltHooksManager : IPltHooksManager
+public sealed class PltHooksManager : IPltHooksManager
 {
     private readonly IFileSystem _fileSystem;
     private readonly Dictionary<string, ModulePltHook> _openedPltHooksByFilename = new();

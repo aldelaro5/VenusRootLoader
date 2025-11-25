@@ -6,7 +6,7 @@ using VenusRootLoader.Models;
 
 namespace VenusRootLoader.ModLoading;
 
-internal class ModLoader : IHostedService
+internal sealed class ModLoader : IHostedService
 {
     private readonly IModsDiscoverer _modsDiscoverer;
     private readonly IModsDependencySorter _modsDependencySorter;

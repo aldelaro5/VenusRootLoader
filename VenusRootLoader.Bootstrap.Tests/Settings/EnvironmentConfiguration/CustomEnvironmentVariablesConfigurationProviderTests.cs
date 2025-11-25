@@ -5,7 +5,7 @@ using VenusRootLoader.Bootstrap.Settings.EnvironmentConfiguration;
 
 namespace VenusRootLoader.Bootstrap.Tests.Settings.EnvironmentConfiguration;
 
-public class CustomEnvironmentVariablesConfigurationProviderTests
+public sealed class CustomEnvironmentVariablesConfigurationProviderTests
 {
     [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "get_Data")]
     private static extern IDictionary<string, string?> CustomEnvVarConfigProviderData(ConfigurationProvider provider);

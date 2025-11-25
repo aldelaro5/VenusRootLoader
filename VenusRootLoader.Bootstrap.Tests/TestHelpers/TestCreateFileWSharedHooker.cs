@@ -3,7 +3,7 @@ using Windows.Win32.Foundation;
 
 namespace VenusRootLoader.Bootstrap.Tests.TestHelpers;
 
-public class TestCreateFileWSharedHooker : ICreateFileWSharedHooker
+public sealed class TestCreateFileWSharedHooker : ICreateFileWSharedHooker
 {
     internal Dictionary<string, (Func<string, bool> Predicate, CreateFileWSharedHooker.CreateFileWHook Hook)> Hooks
     {

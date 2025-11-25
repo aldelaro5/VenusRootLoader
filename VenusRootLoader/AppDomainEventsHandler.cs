@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace VenusRootLoader;
 
-internal class AppDomainEventsHandler : IHostedService
+internal sealed class AppDomainEventsHandler : IHostedService
 {
     private readonly ModLoaderContext _modLoaderContext;
     private readonly ILogger<AppDomainEventsHandler> _logger;

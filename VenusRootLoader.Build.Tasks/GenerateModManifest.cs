@@ -8,7 +8,7 @@ using Task = Microsoft.Build.Utilities.Task;
 
 namespace VenusRootLoader.Build.Tasks;
 
-public class GenerateModManifest : Task
+public sealed class GenerateModManifest : Task
 {
     [Required]
     public required string AssemblyPath { get; set; }

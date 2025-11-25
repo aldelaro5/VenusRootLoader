@@ -9,7 +9,7 @@ using Windows.Win32.System.Console;
 
 namespace VenusRootLoader.Bootstrap.Tests.Logging;
 
-public class StandardStreamsProtectorTests
+public sealed class StandardStreamsProtectorTests
 {
     private readonly FakeLogger<StandardStreamsProtector> _logger = new();
     private readonly IWin32 _win32 = Substitute.For<IWin32>();

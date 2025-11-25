@@ -2,7 +2,7 @@ using VenusRootLoader.Bootstrap.Shared;
 
 namespace VenusRootLoader.Bootstrap.Tests.TestHelpers;
 
-public class TestPltHookManager : IPltHooksManager
+public sealed class TestPltHookManager : IPltHooksManager
 {
     internal Dictionary<(string fileName, string functionName), Delegate> Hooks { get; } = new();
 

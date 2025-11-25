@@ -11,7 +11,7 @@ public interface IMonoInitLifeCycleEvents
 /// This is a key moment in the bootstrap because it implies a lot of hooks can be cleaned up
 /// as they are no longer needed.
 /// </summary>
-public class MonoInitLifeCycleEvents : IMonoInitLifeCycleEvents
+public sealed class MonoInitLifeCycleEvents : IMonoInitLifeCycleEvents
 {
     private readonly List<EventHandler> _events = new();
 

@@ -17,7 +17,7 @@ using Windows.Win32.Storage.FileSystem;
 namespace VenusRootLoader.Bootstrap.Tests.Unity;
 
 [Collection(nameof(SplashScreenSkipperTests))]
-public class SplashScreenSkipperTests : IDisposable
+public sealed class SplashScreenSkipperTests : IDisposable
 {
     private readonly ILogger<SplashScreenSkipper> _logger = Substitute.For<ILogger<SplashScreenSkipper>>();
     private readonly IOptions<GlobalSettings> _globalSettings = Substitute.For<IOptions<GlobalSettings>>();

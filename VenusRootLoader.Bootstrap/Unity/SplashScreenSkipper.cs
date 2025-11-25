@@ -21,7 +21,7 @@ namespace VenusRootLoader.Bootstrap.Unity;
 /// inside the VenusRootLoader folder to not consume more disk space for further boots.
 /// </para>
 /// </summary>
-internal class SplashScreenSkipper : IHostedService
+internal sealed class SplashScreenSkipper : IHostedService
 {
     private readonly IFileSystem _fileSystem;
     private readonly string _modifiedGameBundlePath;

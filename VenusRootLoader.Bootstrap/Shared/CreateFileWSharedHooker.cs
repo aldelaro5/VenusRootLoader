@@ -27,7 +27,7 @@ public interface ICreateFileWSharedHooker
 /// they are interested in. Each service can register a sub hook that only runs on files whose filename matches a predicate,
 /// and they can decide to remove themselves from the hook list or change the handle returned
 /// </summary>
-public class CreateFileWSharedHooker : ICreateFileWSharedHooker
+public sealed class CreateFileWSharedHooker : ICreateFileWSharedHooker
 {
     /// <summary>
     /// A sub hook to CreateFileW

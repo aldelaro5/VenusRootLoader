@@ -17,7 +17,7 @@ public interface IPltHook
 /// <summary>
 /// The real implementation of <see cref="IPltHook"/> that calls the real functions with PInvoke
 /// </summary>
-public partial class PltHook : IPltHook
+public sealed partial class PltHook : IPltHook
 {
     [LibraryImport("*", EntryPoint = "plthook_open", StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]

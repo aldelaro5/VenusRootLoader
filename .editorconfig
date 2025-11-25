@@ -119,6 +119,9 @@ csharp_style_unused_value_expression_statement_preference = discard_variable
 # 'using' directive preferences
 csharp_using_directive_placement = outside_namespace
 
+# sealed preferences
+resharper_class_can_be_sealed_global_highlighting = warning
+
 # New line preferences
 
 #### C# Formatting Rules ####

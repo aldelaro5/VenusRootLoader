@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 
 namespace VenusRootLoader.Logging;
 
-internal class RelayLogger : ILogger
+internal sealed class RelayLogger : ILogger
 {
     private readonly BootstrapFunctions _bootstrapFunctions;
     private readonly string _categoryName;

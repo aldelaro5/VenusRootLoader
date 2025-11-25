@@ -10,7 +10,7 @@ namespace VenusRootLoader.Bootstrap.Shared;
 /// <summary>
 /// The real implementation of <see cref="IWin32"/> that calls the real functions with PInvoke
 /// </summary>
-internal class Win32 : IWin32
+internal sealed class Win32 : IWin32
 {
     public FARPROC GetProcAddress(HMODULE hModule, PCSTR lpProcName) => PInvoke.GetProcAddress(hModule, lpProcName);
     public HANDLE GetStdHandle(STD_HANDLE nStdHandle) => PInvoke.GetStdHandle(nStdHandle);

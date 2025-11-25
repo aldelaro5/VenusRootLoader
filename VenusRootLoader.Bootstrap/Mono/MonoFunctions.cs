@@ -8,7 +8,7 @@ namespace VenusRootLoader.Bootstrap.Mono;
 /// This service is only used by the <see cref="MonoInitializer"/> and it contains facilities to call Mono functions.
 /// It MUST be initialised before use.
 /// </summary>
-public class MonoFunctions : IMonoFunctions
+public sealed class MonoFunctions : IMonoFunctions
 {
     public void Initialize(HMODULE handle)
     {

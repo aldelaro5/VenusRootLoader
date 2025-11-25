@@ -12,7 +12,7 @@ using Windows.Win32.Networking.WinSock;
 
 namespace VenusRootLoader.Bootstrap.Tests.Mono;
 
-public class SdbWinePathTranslatorTests
+public sealed class SdbWinePathTranslatorTests
 {
     private readonly FakeLogger<SdbWinePathTranslator> _logger = new();
     private readonly IWin32 _win32 = Substitute.For<IWin32>();

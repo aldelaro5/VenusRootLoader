@@ -12,7 +12,7 @@ internal interface IModsDiscoverer
     IList<ModInfo> DiscoverAllMods();
 }
 
-internal class ModsDiscoverer : IModsDiscoverer
+internal sealed class ModsDiscoverer : IModsDiscoverer
 {
     private readonly IFileSystem _fileSystem;
     private readonly ILogger<ModsDiscoverer> _logger;

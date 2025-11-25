@@ -17,7 +17,7 @@ using Windows.Win32.Foundation;
 namespace VenusRootLoader.Bootstrap.Tests.Mono;
 
 [Collection(nameof(MonoInitializerTests))]
-public class MonoInitializerTests
+public sealed class MonoInitializerTests
 {
     private readonly FakeLogger<MonoInitializer> _logger = new FakeLogger<MonoInitializer>();
 

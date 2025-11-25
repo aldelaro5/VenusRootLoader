@@ -9,7 +9,7 @@ using VenusRootLoader.Bootstrap.Shared;
 
 namespace VenusRootLoader.Bootstrap.Tests.Shared;
 
-public class PltHooksManagerTests
+public sealed class PltHooksManagerTests
 {
     private readonly IPltHook _pltHookSub = Substitute.For<IPltHook>();
     private readonly FakeLogger<PltHooksManager> _loggerSub = new();

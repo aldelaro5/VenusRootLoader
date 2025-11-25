@@ -15,7 +15,7 @@ namespace VenusRootLoader.Bootstrap.Unity;
 /// This service contains all the machinery needed to fully capture and mirror stdout, stderr and Unity's player logs
 /// into our logs
 /// </summary>
-internal class PlayerLogsMirroring : IHostedService
+internal sealed class PlayerLogsMirroring : IHostedService
 {
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     private unsafe delegate int WriteFileFn(

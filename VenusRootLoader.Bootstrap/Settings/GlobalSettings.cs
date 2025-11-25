@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace VenusRootLoader.Bootstrap.Settings;
 
-public class GlobalSettings
+public sealed class GlobalSettings
 {
     [Required]
     public bool? DisableVrl { get; set; }
@@ -13,4 +13,4 @@ public class GlobalSettings
 }
 
 [OptionsValidator]
-public partial class ValidateGlobalSettings : IValidateOptions<GlobalSettings>;
+public sealed partial class ValidateGlobalSettings : IValidateOptions<GlobalSettings>;

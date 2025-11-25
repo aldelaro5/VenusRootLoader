@@ -23,7 +23,7 @@ namespace VenusRootLoader.Bootstrap;
 /// <summary>
 /// This class contains the entrypoint method from the C++ native side, and it initialises the rest of the bootstrap
 /// </summary>
-internal class Entry
+internal sealed class Entry
 {
     [UnmanagedCallersOnly(EntryPoint = "EntryPoint")]
     public static void EntryPoint(nint module)

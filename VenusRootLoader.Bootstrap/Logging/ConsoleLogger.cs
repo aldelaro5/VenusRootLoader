@@ -13,7 +13,7 @@ namespace VenusRootLoader.Bootstrap.Logging;
 /// - Unity player logs (marked with the special UNITY category) uses cyan
 /// - Every other categories renders white, but it could be possible to customise this in the future
 /// </summary>
-public class ConsoleLogger : ILogger
+public sealed class ConsoleLogger : ILogger
 {
     private struct LogLevelInfo
     {

@@ -12,7 +12,7 @@ namespace VenusRootLoader.Bootstrap.Logging;
 /// redirect these streams to their own logs (it might even be possible for Unity to still use the console, but it can
 /// still reset the streams to different handles!). This is achieved with a CloseHandle PltHook.
 /// </summary>
-internal class StandardStreamsProtector : IHostedService
+internal sealed class StandardStreamsProtector : IHostedService
 {
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     private delegate BOOL CloseHandleFn(HANDLE hObject);

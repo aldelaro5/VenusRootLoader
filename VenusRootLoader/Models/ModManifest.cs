@@ -1,6 +1,6 @@
 namespace VenusRootLoader.Models;
 
-internal class ModManifest
+internal sealed class ModManifest
 {
     public required string AssemblyName { get; init; }
     public required string ModId { get; init; }

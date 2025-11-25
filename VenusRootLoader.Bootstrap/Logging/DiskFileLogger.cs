@@ -6,7 +6,7 @@ namespace VenusRootLoader.Bootstrap.Logging;
 /// The logger used with the <see cref="DiskFileLoggerProvider"/>. It's a simple text logger
 /// similar to the <see cref="ConsoleLogger"/>, but without colors since it's just text
 /// </summary>
-public class DiskFileLogger : ILogger
+public sealed class DiskFileLogger : ILogger
 {
     private readonly Dictionary<LogLevel, string> _logLevelInfos = new()
     {

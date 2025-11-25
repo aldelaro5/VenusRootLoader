@@ -6,7 +6,7 @@ using VenusRootLoader.Bootstrap.Settings.EnvironmentConfiguration;
 
 namespace VenusRootLoader.Bootstrap.Tests.Settings.EnvironmentConfiguration;
 
-public class CustomEnvironmentVariablesConfigurationSourceTests
+public sealed class CustomEnvironmentVariablesConfigurationSourceTests
 {
     private readonly IConfigurationBuilder _configuration = Substitute.For<IConfigurationBuilder>();
 

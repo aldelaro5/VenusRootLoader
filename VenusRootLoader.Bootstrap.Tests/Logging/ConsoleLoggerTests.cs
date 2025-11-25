@@ -8,7 +8,7 @@ using VenusRootLoader.Bootstrap.Tests.TestHelpers;
 
 namespace VenusRootLoader.Bootstrap.Tests.Logging;
 
-public class ConsoleLoggerTests
+public sealed class ConsoleLoggerTests
 {
     private readonly FakeTimeProvider _timeProvider = new();
     private readonly StringWriter _writer = new();

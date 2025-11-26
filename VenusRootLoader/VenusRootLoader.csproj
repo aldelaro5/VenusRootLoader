@@ -58,7 +58,8 @@
 
     <ItemGroup>
         <Content Include="$(SolutionDir)/README.md" PackagePath="README.md" Visible="false"/>
-        <Content Include="$(MSBuildThisFileDirectory)/Build/GenerateManifest.targets" PackagePath="build/VenusRootLoader.targets"/>
+        <Content Include="Build\VenusRootLoader.props" PackagePath="build/VenusRootLoader.props"/>
+        <Content Include="Build\VenusRootLoader.targets" PackagePath="build/VenusRootLoader.targets"/>
         <Content Include="$(SolutionDir)/VenusRootLoader.Build.Tasks/bin/$(Configuration)/VenusRootLoader.Build.Tasks.dll" PackagePath="build" Visible="false"/>
     </ItemGroup>
 

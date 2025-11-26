@@ -1,0 +1,15 @@
+<Project>
+    <PropertyGroup>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <DebugType>portable</DebugType>
+    </PropertyGroup>
+
+    <ItemDefinitionGroup>
+        <ModDependency Visible="false"/>
+        <ModIncompatibility Visible="false"/>
+    </ItemDefinitionGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3"/>
+    </ItemGroup>
+</Project>

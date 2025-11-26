@@ -11,6 +11,7 @@ internal sealed class ModLoader : IHostedService
     private readonly IModsDiscoverer _modsDiscoverer;
     private readonly IModsDependencySorter _modsDependencySorter;
     private readonly IModsLoadOrderEnumerator _modsLoadOrderEnumerator;
+    private readonly IAssemblyLoader _assemblyLoader;
     private readonly IFileSystem _fileSystem;
     private readonly ILogger<ModLoader> _logger;
     private readonly ILoggerFactory _loggerFactory;
@@ -19,6 +20,7 @@ internal sealed class ModLoader : IHostedService
         IModsDiscoverer modsDiscoverer,
         IModsDependencySorter modsDependencySorter,
         IModsLoadOrderEnumerator modsLoadOrderEnumerator,
+        IAssemblyLoader assemblyLoader,
         IFileSystem fileSystem,
         ILogger<ModLoader> logger,
         ILoggerFactory loggerFactory)
@@ -26,6 +28,7 @@ internal sealed class ModLoader : IHostedService
         _modsDiscoverer = modsDiscoverer;
         _modsDependencySorter = modsDependencySorter;
         _modsLoadOrderEnumerator = modsLoadOrderEnumerator;
+        _assemblyLoader = assemblyLoader;
         _fileSystem = fileSystem;
         _logger = logger;
         _loggerFactory = loggerFactory;
@@ -33,8 +36,8 @@ internal sealed class ModLoader : IHostedService
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        IList<ModInfo> mods = DiscoverMods();
-        IEnumerable<ModInfo> sortedMods = SortModsInLoadOrder(mods);
+        IList<ModInfo> mods = FindMods();
+        IList<ModInfo> sortedMods = DetermineModsLoadOrder(mods);
 
         foreach (ModInfo modLoadingInfo in _modsLoadOrderEnumerator.EnumerateModsWithFulfilledDependencies(sortedMods))
             LoadMod(modLoadingInfo);
@@ -42,25 +45,24 @@ internal sealed class ModLoader : IHostedService
         return Task.CompletedTask;
     }
 
-    private IList<ModInfo> DiscoverMods()
+    private IList<ModInfo> FindMods()
     {
         try
         {
-            return _modsDiscoverer.DiscoverAllMods();
+            return _modsDiscoverer.DiscoverAllModsFromDisk();
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "An exception occurred while loading mods");
+            _logger.LogError(e, "An exception occurred while discovering mods");
             return [];
         }
     }
 
-    private IList<ModInfo> SortModsInLoadOrder(IList<ModInfo> mods)
+    private IList<ModInfo> DetermineModsLoadOrder(IList<ModInfo> mods)
     {
         try
         {
-            IList<ModInfo> sortedMods = _modsDependencySorter.DetermineModsLoadOrder(mods);
-            _logger.LogInformation(string.Join(" -> ", sortedMods.Select(x => x.ModManifest.ModId)));
+            IList<ModInfo> sortedMods = _modsDependencySorter.SortModsTopologicallyFromDependencyGraph(mods);
             return sortedMods;
         }
         catch (Exception e)
@@ -74,7 +76,7 @@ internal sealed class ModLoader : IHostedService
     {
         try
         {
-            Assembly assembly = Assembly.LoadFrom(modLoadingInfo.ModAssemblyPath);
+            Assembly assembly = _assemblyLoader.LoadFromPath(modLoadingInfo.ModAssemblyPath);
             Type modType = assembly.GetType(modLoadingInfo.ModType.FullName);
             Mod mod = (Mod)Activator.CreateInstance(modType);
             mod.Logger = _loggerFactory.CreateLogger(modLoadingInfo.ModManifest.ModId);
@@ -90,7 +92,7 @@ internal sealed class ModLoader : IHostedService
                 e,
                 "An exception occurred while loading the mod {modId}",
                 modLoadingInfo.ModManifest.ModId);
-            _modsLoadOrderEnumerator.MarkModAsFailed(modLoadingInfo);
+            _modsLoadOrderEnumerator.MarkModAsFailedDuringLoad(modLoadingInfo);
         }
     }
 

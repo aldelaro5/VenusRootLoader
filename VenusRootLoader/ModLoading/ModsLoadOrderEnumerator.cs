@@ -6,7 +6,7 @@ namespace VenusRootLoader.ModLoading;
 internal interface IModsLoadOrderEnumerator
 {
     IEnumerable<ModInfo> EnumerateModsWithFulfilledDependencies(IEnumerable<ModInfo> sortedMods);
-    void MarkModAsFailed(ModInfo mod);
+    void MarkModAsFailedDuringLoad(ModInfo mod);
 }
 
 internal sealed class ModsLoadOrderEnumerator : IModsLoadOrderEnumerator
@@ -20,9 +20,9 @@ internal sealed class ModsLoadOrderEnumerator : IModsLoadOrderEnumerator
         public required string Reason { get; init; }
     }
 
-    private readonly List<string> _failedMods = [];
-    private readonly HashSet<string> _modIdsWithSatisfiedDependencies = new(StringComparer.Ordinal);
-    private readonly HashSet<string> _modIdsWithUnsatisfiedRequiredDependencies = new(StringComparer.Ordinal);
+    private readonly List<string> _failedModsDuringLoad = [];
+    private readonly HashSet<string> _modIdsWithFulfilledDependencies = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _modIdsWithUnfulfilledRequiredDependencies = new(StringComparer.Ordinal);
 
     public ModsLoadOrderEnumerator(ILogger<ModsLoadOrderEnumerator> logger)
     {
@@ -33,53 +33,46 @@ internal sealed class ModsLoadOrderEnumerator : IModsLoadOrderEnumerator
     {
         foreach (ModInfo modInfo in sortedMods)
         {
-            List<ModDependencyErrorInfo> unsatisfiedDependencies =
-                GetUnsatisfiedDependencies(
-                    modInfo,
-                    _modIdsWithSatisfiedDependencies,
-                    _modIdsWithUnsatisfiedRequiredDependencies);
+            List<ModDependencyErrorInfo> dependenciesErrors = GetDependenciesErrorsForMod(modInfo);
 
-            if (unsatisfiedDependencies.Count > 0)
+            if (dependenciesErrors.Count > 0)
             {
-                if (!HandleUnsatisfiedDependencies(unsatisfiedDependencies, modInfo))
+                if (!HandleUnsatisfiedDependencies(dependenciesErrors, modInfo))
                 {
-                    _modIdsWithUnsatisfiedRequiredDependencies.Add(modInfo.ModManifest.ModId);
+                    _modIdsWithUnfulfilledRequiredDependencies.Add(modInfo.ModManifest.ModId);
                     continue;
                 }
             }
 
-            _modIdsWithSatisfiedDependencies.Add(modInfo.ModManifest.ModId);
+            _modIdsWithFulfilledDependencies.Add(modInfo.ModManifest.ModId);
             yield return modInfo;
         }
     }
 
-    public void MarkModAsFailed(ModInfo mod) => _failedMods.Add(mod.ModManifest.ModId);
+    public void MarkModAsFailedDuringLoad(ModInfo mod) => _failedModsDuringLoad.Add(mod.ModManifest.ModId);
 
-    private List<ModDependencyErrorInfo> GetUnsatisfiedDependencies(
-        ModInfo modLoadingInfo,
-        HashSet<string> modIdsWithSatisfiedDependencies,
-        HashSet<string> modIdsWithUnsatisfiedRequiredDependencies)
+    private List<ModDependencyErrorInfo> GetDependenciesErrorsForMod(ModInfo modLoadingInfo)
     {
-        List<ModDependencyErrorInfo> unsatisfiedDependencies = new();
+        List<ModDependencyErrorInfo> dependenciesErrors = new();
 
         foreach (ModDependency dependency in modLoadingInfo.ModManifest.ModDependencies)
         {
-            bool isMissing = !modIdsWithSatisfiedDependencies.Contains(dependency.ModId);
+            bool isMissing = !_modIdsWithFulfilledDependencies.Contains(dependency.ModId);
             if (isMissing)
             {
-                unsatisfiedDependencies.Add(
+                dependenciesErrors.Add(
                     new()
                     {
                         ModId = dependency.ModId,
                         Optional = dependency.Optional,
-                        Reason = modIdsWithUnsatisfiedRequiredDependencies.Contains(dependency.ModId)
+                        Reason = _modIdsWithUnfulfilledRequiredDependencies.Contains(dependency.ModId)
                             ? "This mod has unsatisfied dependencies"
                             : "This mod is missing"
                     });
             }
-            else if (_failedMods.Contains(dependency.ModId))
+            else if (_failedModsDuringLoad.Contains(dependency.ModId))
             {
-                unsatisfiedDependencies.Add(
+                dependenciesErrors.Add(
                     new()
                     {
                         ModId = dependency.ModId,
@@ -89,33 +82,33 @@ internal sealed class ModsLoadOrderEnumerator : IModsLoadOrderEnumerator
             }
         }
 
-        return unsatisfiedDependencies;
+        return dependenciesErrors;
     }
 
     private bool HandleUnsatisfiedDependencies(
-        List<ModDependencyErrorInfo> unsatisfiedDependencies,
+        List<ModDependencyErrorInfo> dependencyErrors,
         ModInfo modLoadingInfo)
     {
-        bool allOptionals = unsatisfiedDependencies.All(d => d.Optional);
-        if (allOptionals)
+        bool allDependenciesAreOptional = dependencyErrors.All(d => d.Optional);
+        if (allDependenciesAreOptional)
         {
             _logger.LogWarning(
                 "{Mod} will be loaded, but it has unsatisfied optional dependencies:\n\n{errors}",
                 modLoadingInfo.ModManifest.ModId,
-                FormatDependenciesErrors(unsatisfiedDependencies));
+                FormatDependenciesErrors(dependencyErrors));
             return true;
         }
 
         _logger.LogError(
             "{Mod} will not be loaded because it has unsatisfied dependencies of which at least 1 was not optional:\n\n{errors}",
             modLoadingInfo.ModManifest.ModId,
-            FormatDependenciesErrors(unsatisfiedDependencies));
+            FormatDependenciesErrors(dependencyErrors));
         return false;
     }
 
-    private static string FormatDependenciesErrors(List<ModDependencyErrorInfo> unsatisfiedDependencies)
+    private static string FormatDependenciesErrors(List<ModDependencyErrorInfo> dependencyErrors)
     {
-        IEnumerable<string> errors = unsatisfiedDependencies
+        IEnumerable<string> errors = dependencyErrors
             .Select(d => $"{d.ModId} - " +
                          $"{(d.Optional ? "Optional" : "Required")} - " +
                          $"{d.Reason}");

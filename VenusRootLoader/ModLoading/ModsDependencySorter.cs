@@ -1,80 +1,98 @@
+using Microsoft.Extensions.Logging;
 using VenusRootLoader.Models;
 
 namespace VenusRootLoader.ModLoading;
 
 internal interface IModsDependencySorter
 {
-    IList<ModInfo> DetermineModsLoadOrder(IList<ModInfo> mods);
+    IList<ModInfo> SortModsTopologicallyFromDependencyGraph(IList<ModInfo> mods);
 }
 
 internal sealed class ModsDependencySorter : IModsDependencySorter
 {
-    public IList<ModInfo> DetermineModsLoadOrder(IList<ModInfo> mods)
+    private readonly ILogger<ModsDependencySorter> _logger;
+
+    public ModsDependencySorter(ILogger<ModsDependencySorter> logger)
+    {
+        _logger = logger;
+    }
+
+    public IList<ModInfo> SortModsTopologicallyFromDependencyGraph(IList<ModInfo> mods)
     {
         Dictionary<string, ModInfo> modsById = mods.ToDictionary(m => m.ModManifest.ModId);
         List<ModInfo> result = new();
 
         HashSet<ModInfo> arrivedBefore = new();
-        HashSet<ModInfo> visited = new();
+        HashSet<ModInfo> visitedMods = new();
 
         foreach (ModInfo? input in modsById.Values)
         {
             Stack<ModInfo> currentPath = new();
-            if (Visit(input, currentPath))
+            if (VisitModInDependencyGraph(input, currentPath))
                 continue;
 
-            HashSet<string> uniqueNodesInCyclicPath = new(StringComparer.InvariantCulture);
-            List<string> smallestCyclicPathFound = new();
-            while (currentPath.Count > 0)
-            {
-                ModInfo nodeInCyclicPath = currentPath.Pop();
-                smallestCyclicPathFound.Add(nodeInCyclicPath.ModManifest.ModId);
-                if (!uniqueNodesInCyclicPath.Add(nodeInCyclicPath.ModManifest.ModId))
-                    break;
-            }
-
-            smallestCyclicPathFound.Reverse();
+            List<string> cyclicModIds = FindSmallestCyclicDependencies(currentPath);
             throw new Exception(
                 $"Cyclic Dependency detected, it is not possible to load any mods until this is addressed:\n\n" +
-                $"{string.Join(" ->\n", smallestCyclicPathFound)}\n");
+                $"{string.Join(" ->\n", cyclicModIds)}\n");
         }
 
-        return result
-            .Where(mod => modsById.ContainsKey(mod.ModManifest.ModId))
-            .ToList();
+        _logger.LogDebug(
+            $"No dependency cycles detected, here are the mods topologically sorted:\n\n" +
+            $"{string.Join(" -> ", result.Select(x => x.ModManifest.ModId))}");
 
-        bool Visit(ModInfo node, Stack<ModInfo> currentPath)
+        return result;
+
+        bool VisitModInDependencyGraph(ModInfo mod, Stack<ModInfo> currentPathInGraph)
         {
-            currentPath.Push(node);
+            currentPathInGraph.Push(mod);
 
-            bool beenOnThisNodeBefore = !arrivedBefore.Add(node);
+            bool beenOnThisNodeBefore = !arrivedBefore.Add(mod);
             if (beenOnThisNodeBefore)
             {
-                if (!visited.Contains(node))
+                if (!visitedMods.Contains(mod))
                     return false;
 
-                currentPath.Pop();
+                currentPathInGraph.Pop();
                 return true;
             }
 
-            IEnumerable<ModInfo?> dependencies = GetModDependenciesThatArePresent(node, modsById);
-            if (dependencies.Any(dependencyNode => !Visit(dependencyNode!, currentPath)))
+            IEnumerable<ModInfo?> dependencies = GetModDependenciesThatArePresent(mod, modsById);
+            if (dependencies.Any(dependencyNode => !VisitModInDependencyGraph(dependencyNode!, currentPathInGraph)))
                 return false;
 
-            visited.Add(node);
-            result.Add(node);
+            visitedMods.Add(mod);
+            if (modsById.ContainsKey(mod.ModManifest.ModId))
+                result.Add(mod);
 
-            currentPath.Pop();
+            currentPathInGraph.Pop();
             return true;
         }
     }
 
+    private static List<string> FindSmallestCyclicDependencies(Stack<ModInfo> fullCyclicPath)
+    {
+        HashSet<string> uniqueModsInCyclicPath = new(StringComparer.InvariantCulture);
+        List<string> smallestCyclicPathFound = new();
+
+        while (fullCyclicPath.Count > 0)
+        {
+            ModInfo modInCyclicPath = fullCyclicPath.Pop();
+            smallestCyclicPathFound.Add(modInCyclicPath.ModManifest.ModId);
+            if (!uniqueModsInCyclicPath.Add(modInCyclicPath.ModManifest.ModId))
+                break;
+        }
+
+        smallestCyclicPathFound.Reverse();
+        return smallestCyclicPathFound;
+    }
+
     private static IEnumerable<ModInfo?> GetModDependenciesThatArePresent(
         ModInfo mod,
-        Dictionary<string, ModInfo> metadata)
+        Dictionary<string, ModInfo> modsById)
     {
         return mod.ModManifest.ModDependencies
-            .Select(modDependency => metadata
+            .Select(modDependency => modsById
                 .TryGetValue(modDependency.ModId, out ModInfo? dependency)
                 ? dependency
                 : null)

@@ -11,13 +11,13 @@ internal sealed class ModManifest
     public required ModIncompatibility[] ModIncompatibilities { get; init; }
 }
 
-public class ModDependency
+internal sealed record ModDependency
 {
     public required string ModId { get; set; }
     public required bool Optional { get; set; }
 }
 
-public class ModIncompatibility
+internal sealed record ModIncompatibility
 {
     public required string ModId { get; set; }
 }

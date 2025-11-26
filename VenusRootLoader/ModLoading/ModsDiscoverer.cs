@@ -9,7 +9,7 @@ namespace VenusRootLoader.ModLoading;
 
 internal interface IModsDiscoverer
 {
-    IList<ModInfo> DiscoverAllMods();
+    IList<ModInfo> DiscoverAllModsFromDisk();
 }
 
 internal sealed class ModsDiscoverer : IModsDiscoverer
@@ -28,7 +28,7 @@ internal sealed class ModsDiscoverer : IModsDiscoverer
         _modLoaderContext = modLoaderContext;
     }
 
-    public IList<ModInfo> DiscoverAllMods()
+    public IList<ModInfo> DiscoverAllModsFromDisk()
     {
         List<ModInfo> result = new();
 
@@ -41,9 +41,7 @@ internal sealed class ModsDiscoverer : IModsDiscoverer
             try
             {
                 string manifestContent = _fileSystem.File.ReadAllText(manifestPath);
-                ModManifest? modManifest = JsonSerializer.Deserialize<ModManifest>(
-                    manifestContent,
-                    new JsonSerializerOptions());
+                ModManifest? modManifest = JsonSerializer.Deserialize<ModManifest>(manifestContent);
                 if (modManifest is null)
                     throw new JsonException("The mod manifest deserialized to null");
 
@@ -73,10 +71,14 @@ internal sealed class ModsDiscoverer : IModsDiscoverer
             }
         }
 
+        _logger.LogDebug(
+            "Discovered {modCount} mods:\n\n{mods}",
+            result.Count,
+            string.Join(", ", result.Select(m => m.ModManifest.ModId)));
         return result;
     }
 
-    private void EnsureModManifestIsValid(ModManifest modManifest)
+    private static void EnsureModManifestIsValid(ModManifest modManifest)
     {
         if (string.IsNullOrWhiteSpace(modManifest.AssemblyName))
             throw new ArgumentException($"Invalid {nameof(modManifest.AssemblyName)}: {modManifest.AssemblyName}");
@@ -109,7 +111,7 @@ internal sealed class ModsDiscoverer : IModsDiscoverer
                 case > 1:
                     throw new Exception(
                         $"There are more than 1 non abstract classes in the assembly that inherits from {nameof(Mod)} with a parameterless constructor " +
-                        $"which creates ambiguity. Here are the list of types: {string.Join(",", iMods.Select(x => x.FullName))}");
+                        $"which creates ambiguity. Here are the list of types:\n\n{string.Join("\n", iMods.Select(x => x.FullName))}");
                 default:
                     modType = iMods.Single();
                     return true;

@@ -42,12 +42,14 @@ internal static class Startup
         builder.Logging.Services.AddSingleton<ILoggerProvider, RelayLoggerProvider>();
 
         builder.Services.AddSingleton<IFileSystem, FileSystem>();
+        builder.Services.AddSingleton<IAppDomainEvents, AppDomainEvents>();
         builder.Services.AddHostedService<AppDomainEventsHandler>();
         builder.Services.AddHostedService<HarmonyLogger>();
 
         builder.Services.AddSingleton<IModsDiscoverer, ModsDiscoverer>();
         builder.Services.AddSingleton<IModsDependencySorter, ModsDependencySorter>();
         builder.Services.AddSingleton<IModsLoadOrderEnumerator, ModsLoadOrderEnumerator>();
+        builder.Services.AddSingleton<IAssemblyLoader, AssemblyLoader>();
         builder.Services.AddHostedService<ModLoader>();
 
         return builder.Build();

@@ -41,6 +41,12 @@ public sealed class GenerateModManifest : Task
             throw new ArgumentException($"{AssemblyPath} has no parent directory", AssemblyPath);
         if (!Version.TryParse(ModVersion, out Version? version))
             throw new ArgumentException($"{ModVersion} is not a valid version", nameof(ModVersion));
+        if (ModDependencies.Any(d => d.ItemSpec == ModId))
+            throw new ArgumentException("The mod cannot have a dependency with itself", nameof(ModDependencies));
+        if (ModIncompatibilities.Any(d => d.ItemSpec == ModId))
+            throw new ArgumentException(
+                "The mod cannot have an incompatibility with itself",
+                nameof(ModIncompatibilities));
 
         try
         {

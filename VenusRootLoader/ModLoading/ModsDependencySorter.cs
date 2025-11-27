@@ -5,7 +5,7 @@ namespace VenusRootLoader.ModLoading;
 
 internal interface IModsDependencySorter
 {
-    IList<ModInfo> SortModsTopologicallyFromDependencyGraph(IList<ModInfo> mods);
+    IList<ModInfo> SortModsTopologicallyFromDependencyGraph(IDictionary<string, ModInfo> modsById);
 }
 
 internal sealed class ModsDependencySorter : IModsDependencySorter
@@ -17,9 +17,8 @@ internal sealed class ModsDependencySorter : IModsDependencySorter
         _logger = logger;
     }
 
-    public IList<ModInfo> SortModsTopologicallyFromDependencyGraph(IList<ModInfo> mods)
+    public IList<ModInfo> SortModsTopologicallyFromDependencyGraph(IDictionary<string, ModInfo> modsById)
     {
-        Dictionary<string, ModInfo> modsById = mods.ToDictionary(m => m.ModManifest.ModId);
         List<ModInfo> result = new();
 
         HashSet<ModInfo> arrivedBefore = new();
@@ -89,7 +88,7 @@ internal sealed class ModsDependencySorter : IModsDependencySorter
 
     private static IEnumerable<ModInfo?> GetModDependenciesThatArePresent(
         ModInfo mod,
-        Dictionary<string, ModInfo> modsById)
+        IDictionary<string, ModInfo> modsById)
     {
         return mod.ModManifest.ModDependencies
             .Select(modDependency => modsById

@@ -9,6 +9,7 @@ namespace VenusRootLoader.ModLoading;
 internal sealed class ModLoader : IHostedService
 {
     private readonly IModsDiscoverer _modsDiscoverer;
+    private readonly IModsValidator _modsValidator;
     private readonly IModsDependencySorter _modsDependencySorter;
     private readonly IModsLoadOrderEnumerator _modsLoadOrderEnumerator;
     private readonly IAssemblyLoader _assemblyLoader;
@@ -18,6 +19,7 @@ internal sealed class ModLoader : IHostedService
     
     public ModLoader(
         IModsDiscoverer modsDiscoverer,
+        IModsValidator modsValidator,
         IModsDependencySorter modsDependencySorter,
         IModsLoadOrderEnumerator modsLoadOrderEnumerator,
         IAssemblyLoader assemblyLoader,
@@ -26,6 +28,7 @@ internal sealed class ModLoader : IHostedService
         ILoggerFactory loggerFactory)
     {
         _modsDiscoverer = modsDiscoverer;
+        _modsValidator = modsValidator;
         _modsDependencySorter = modsDependencySorter;
         _modsLoadOrderEnumerator = modsLoadOrderEnumerator;
         _assemblyLoader = assemblyLoader;
@@ -36,8 +39,9 @@ internal sealed class ModLoader : IHostedService
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        IList<ModInfo> mods = FindMods();
-        IList<ModInfo> sortedMods = DetermineModsLoadOrder(mods);
+        IList<ModInfo> mods = FindAllMods();
+        IDictionary<string, ModInfo> modsById = _modsValidator.RemoveInvalidMods(mods);
+        IList<ModInfo> sortedMods = DetermineModsLoadOrder(modsById);
 
         foreach (ModInfo modLoadingInfo in _modsLoadOrderEnumerator.EnumerateModsWithFulfilledDependencies(sortedMods))
             LoadMod(modLoadingInfo);
@@ -45,7 +49,7 @@ internal sealed class ModLoader : IHostedService
         return Task.CompletedTask;
     }
 
-    private IList<ModInfo> FindMods()
+    private IList<ModInfo> FindAllMods()
     {
         try
         {
@@ -58,7 +62,7 @@ internal sealed class ModLoader : IHostedService
         }
     }
 
-    private IList<ModInfo> DetermineModsLoadOrder(IList<ModInfo> mods)
+    private IList<ModInfo> DetermineModsLoadOrder(IDictionary<string, ModInfo> mods)
     {
         try
         {

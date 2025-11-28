@@ -10,15 +10,17 @@
     <File Path="Directory.Build.props" />
     <File Path="README.md" />
   </Folder>
-  <Project Path="VenusRootLoader.Bootstrap.Tests/VenusRootLoader.Bootstrap.Tests.csproj">
-    <Platform Project="x64" />
-  </Project>
   <Project Path="VenusRootLoader.Bootstrap/VenusRootLoader.Bootstrap.csproj">
     <Platform Project="x64" />
   </Project>
-  <Project Path="VenusRootLoader.Build.Tasks\VenusRootLoader.Build.Tasks.csproj">
-    <Platform Project="x64" />
+    <Project Path="VenusRootLoader.Bootstrap.Tests/VenusRootLoader.Bootstrap.Tests.csproj">
+        <Platform Project="x64"/>
   </Project>
-  <Project Path="VenusRootLoader.Preloader/VenusRootLoader.Preloader.csproj" />
-  <Project Path="VenusRootLoader/VenusRootLoader.csproj" />
+    <Project Path="VenusRootLoader.Preloader/VenusRootLoader.Preloader.csproj"/>
+    <Project Path="VenusRootLoader/VenusRootLoader.csproj"/>
+    <Project Path="VenusRootLoader.Build.Tasks\VenusRootLoader.Build.Tasks.csproj">
+        <Platform Project="x64"/>
+    </Project>
+    <Project Path="VenusRootLoader.Analyzers.Tests/VenusRootLoader.Analyzers.Tests.csproj"/>
+    <Project Path="VenusRootLoader.Analyzers/VenusRootLoader.Analyzers.csproj"/>
 </Solution>

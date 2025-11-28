@@ -36,9 +36,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AsmResolver.DotNet" Version="6.0.0-beta.4"/>
+        <PackageReference Include="AsmResolver.DotNet" Version="6.0.0-beta.5"/>
         <PackageReference Include="BugFables.GameLibs" Version="120.0.0" PrivateAssets="none"/>
-        <PackageReference Include="HarmonyX" Version="2.15.0" PrivateAssets="none"/>
+        <PackageReference Include="HarmonyX" Version="2.16.0" PrivateAssets="none"/>
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" PrivateAssets="none"/>
 
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
@@ -47,7 +47,7 @@
         <PackageReference Include="PolySharp" Version="1.15.0" PrivateAssets="All"/>
         <PackageReference Include="System.Text.Json" Version="10.0.0"/>
         <PackageReference Include="System.ValueTuple" Version="4.6.1" PrivateAssets="All"/>
-        <PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.0.16" PrivateAssets="All"/>
+        <PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.1.0" PrivateAssets="All"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -61,6 +61,8 @@
         <Content Include="Build\VenusRootLoader.props" PackagePath="build/VenusRootLoader.props"/>
         <Content Include="Build\VenusRootLoader.targets" PackagePath="build/VenusRootLoader.targets"/>
         <Content Include="$(SolutionDir)/VenusRootLoader.Build.Tasks/bin/$(Configuration)/VenusRootLoader.Build.Tasks.dll" PackagePath="build" Visible="false"/>
+        <Content Include="$(SolutionDir)/VenusRootLoader.Analyzers/bin/$(Configuration)/VenusRootLoader.Analyzers.dll" PackagePath="analyzers" Visible="false"/>
+        <Content Include="$(SolutionDir)/VenusRootLoader.Analyzers/bin/$(Configuration)/VenusRootLoader.Analyzers.deps.json" PackagePath="analyzers" Visible="false"/>
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="Build">

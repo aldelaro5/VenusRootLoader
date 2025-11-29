@@ -20,16 +20,13 @@ public class ModClassCodeFix : CodeFixProvider
     public override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
         SyntaxNode? root = await context.Document.GetSyntaxRootAsync(context.CancellationToken);
-        if (root is null)
-            return;
-
-        SyntaxNode node = root.FindNode(context.Span);
+        SyntaxNode? node = root?.FindNode(context.Span);
         if (node is not ClassDeclarationSyntax classDeclaration)
             return;
 
         context.RegisterCodeFix(
             CodeAction.Create(
-                "Make class sealed",
+                $"Make {classDeclaration.Identifier} sealed",
                 c => ChangeDocument(context.Document, classDeclaration, c),
                 $"{Descriptors.Vrl0003ModClassIsNotSealed.Id}CodeFix"),
             context.Diagnostics);

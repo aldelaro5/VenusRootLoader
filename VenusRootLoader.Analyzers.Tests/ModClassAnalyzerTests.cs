@@ -2,12 +2,12 @@ using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;
 using Xunit;
 using Verifier =
-    Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<VenusRootLoader.Analyzers.SampleSemanticAnalyzer,
+    Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<VenusRootLoader.Analyzers.ModClassAnalyzer,
         Microsoft.CodeAnalysis.Testing.DefaultVerifier>;
 
 namespace VenusRootLoader.Analyzers.Tests;
 
-public sealed class SampleSemanticAnalyzerTests
+public sealed class ModClassAnalyzerTests
 {
     [Fact]
     public async Task SetSpeedHugeSpeedSpecified_AlertDiagnostic()
@@ -22,7 +22,7 @@ public sealed class SampleSemanticAnalyzerTests
             }
             """;
 
-        await new CSharpAnalyzerTest<SampleSemanticAnalyzer, DefaultVerifier>
+        await new CSharpAnalyzerTest<ModClassAnalyzer, DefaultVerifier>
         {
             TestState =
             {

@@ -51,6 +51,12 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\VenusRootLoader.Analyzers\VenusRootLoader.Analyzers.csproj">
+            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+        </ProjectReference>
+        <ProjectReference Include="..\VenusRootLoader.Analyzers.CodeFixes\VenusRootLoader.Analyzers.CodeFixes.csproj">
+            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+        </ProjectReference>
         <ProjectReference Include="..\VenusRootLoader.Build.Tasks\VenusRootLoader.Build.Tasks.csproj">
             <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
         </ProjectReference>
@@ -63,6 +69,8 @@
         <Content Include="$(SolutionDir)/VenusRootLoader.Build.Tasks/bin/$(Configuration)/VenusRootLoader.Build.Tasks.dll" PackagePath="build" Visible="false"/>
         <Content Include="$(SolutionDir)/VenusRootLoader.Analyzers/bin/$(Configuration)/VenusRootLoader.Analyzers.dll" PackagePath="analyzers" Visible="false"/>
         <Content Include="$(SolutionDir)/VenusRootLoader.Analyzers/bin/$(Configuration)/VenusRootLoader.Analyzers.deps.json" PackagePath="analyzers" Visible="false"/>
+        <Content Include="$(SolutionDir)/VenusRootLoader.Analyzers.CodeFixes/bin/$(Configuration)/VenusRootLoader.Analyzers.CodeFixes.dll" PackagePath="analyzers" Visible="false"/>
+        <Content Include="$(SolutionDir)/VenusRootLoader.Analyzers.CodeFixes/bin/$(Configuration)/VenusRootLoader.Analyzers.CodeFixes.deps.json" PackagePath="analyzers" Visible="false"/>
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="Build">

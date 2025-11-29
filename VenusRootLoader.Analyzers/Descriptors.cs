@@ -1,4 +1,7 @@
 using Microsoft.CodeAnalysis;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("VenusRootLoader.Analyzers.CodeFixes")]
 
 namespace VenusRootLoader.Analyzers;
 
@@ -9,22 +12,22 @@ internal static class Descriptors
     internal static readonly DiagnosticDescriptor Vrl0001NoModClass = new(
         "VRL0001",
         "No mod classes",
-        $"There are no classes which derive from {SampleSemanticAnalyzer.ModClassName}",
+        $"There are no classes which derive from {ModClassAnalyzer.ModClassName}",
         Category,
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         customTags: WellKnownDiagnosticTags.CompilationEnd,
-        description: $"All mod assemblies must have one class derive from {SampleSemanticAnalyzer.ModClassName}.");
+        description: $"All mod assemblies must have one class derive from {ModClassAnalyzer.ModClassName}.");
 
     internal static readonly DiagnosticDescriptor Vrl0002MoreThanOneModClass = new(
         "VRL0002",
         "Multiple mod classes",
-        $"There are multiple classes which derive from {SampleSemanticAnalyzer.ModClassName}",
+        $"There are multiple classes which derive from {ModClassAnalyzer.ModClassName}",
         Category,
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         customTags: WellKnownDiagnosticTags.CompilationEnd,
-        description: $"Only one class per mod assembly can derive from {SampleSemanticAnalyzer.ModClassName}.");
+        description: $"Only one class per mod assembly can derive from {ModClassAnalyzer.ModClassName}.");
 
     internal static readonly DiagnosticDescriptor Vrl0003ModClassIsNotSealed = new(
         "VRL0003",

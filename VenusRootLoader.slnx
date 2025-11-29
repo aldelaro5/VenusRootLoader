@@ -21,6 +21,7 @@
     <Project Path="VenusRootLoader.Build.Tasks\VenusRootLoader.Build.Tasks.csproj">
         <Platform Project="x64"/>
     </Project>
+    <Project Path="VenusRootLoader.Analyzers.CodeFixes/VenusRootLoader.Analyzers.CodeFixes.csproj"/>
     <Project Path="VenusRootLoader.Analyzers.Tests/VenusRootLoader.Analyzers.Tests.csproj"/>
     <Project Path="VenusRootLoader.Analyzers/VenusRootLoader.Analyzers.csproj"/>
 </Solution>

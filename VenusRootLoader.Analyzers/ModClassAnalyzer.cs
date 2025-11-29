@@ -8,7 +8,7 @@ namespace VenusRootLoader.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class ModClassAnalyzer : DiagnosticAnalyzer
 {
-    internal static readonly string ModClassName = "VenusRootLoader.ModLoading.Mod";
+    internal const string ModClassName = "VenusRootLoader.ModLoading.Mod";
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         // ReSharper disable once UseCollectionExpression

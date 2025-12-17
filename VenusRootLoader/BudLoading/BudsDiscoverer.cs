@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 using System.Text.Json;
+using VenusRootLoader.JsonConverters;
 using VenusRootLoader.Models;
 
 namespace VenusRootLoader.BudLoading;
@@ -41,7 +42,9 @@ internal sealed class BudsDiscoverer : IBudsDiscoverer
             try
             {
                 string manifestContent = _fileSystem.File.ReadAllText(manifestPath);
-                BudManifest? budManifest = JsonSerializer.Deserialize<BudManifest>(manifestContent);
+                BudManifest? budManifest = JsonSerializer.Deserialize<BudManifest>(
+                    manifestContent,
+                    new JsonSerializerOptions { Converters = { NuGetVersionJsonConverter.Instance } });
                 if (budManifest is null)
                     throw new JsonException("The bud manifest deserialized to null");
 
@@ -88,6 +91,8 @@ internal sealed class BudsDiscoverer : IBudsDiscoverer
             throw new ArgumentException($"Invalid {nameof(budManifest.BudName)}: {budManifest.BudName}");
         if (string.IsNullOrWhiteSpace(budManifest.BudAuthor))
             throw new ArgumentException($"Invalid {nameof(budManifest.BudAuthor)}: {budManifest.BudAuthor}");
+        if (budManifest.BudVersion is null)
+            throw new ArgumentException($"{nameof(budManifest.BudVersion)} is null");
     }
 
     private bool TryValidateBudAssembly(string budAssemblyPath, [NotNullWhen(true)] out TypeDefinition? budType)

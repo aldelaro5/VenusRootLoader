@@ -1,5 +1,7 @@
 ﻿using Microsoft.Build.Framework;
+using NuGet.Versioning;
 using System.Text.Json;
+using VenusRootLoader.Build.Tasks.JsonConverters;
 using Task = Microsoft.Build.Utilities.Task;
 
 // ReSharper disable UnusedType.Global
@@ -39,7 +41,7 @@ public sealed class GenerateBudManifest : Task
         string outputPath = Path.GetDirectoryName(AssemblyPath)!;
         if (outputPath is null)
             throw new ArgumentException($"{AssemblyPath} has no parent directory", AssemblyPath);
-        if (!Version.TryParse(BudVersion, out Version? version))
+        if (!NuGetVersion.TryParse(BudVersion, out NuGetVersion? version))
             throw new ArgumentException($"{BudVersion} is not a valid version", nameof(BudVersion));
         if (BudDependencies.Any(d => d.ItemSpec == BudId))
             throw new ArgumentException("The mod cannot have a dependency with itself", nameof(BudDependencies));
@@ -76,7 +78,8 @@ public sealed class GenerateBudManifest : Task
                 new JsonSerializerOptions
                 {
                     AllowDuplicateProperties = false,
-                    WriteIndented = true
+                    WriteIndented = true,
+                    Converters = { NuGetVersionJsonConverter.Instance }
                 });
             string tentativeOutputPath = Path.Combine(outputPath, "manifest.json");
 

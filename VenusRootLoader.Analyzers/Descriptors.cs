@@ -7,35 +7,35 @@ namespace VenusRootLoader.Analyzers;
 
 internal static class Descriptors
 {
-    private const string Category = "Mod";
+    private const string Category = "Bud";
 
-    internal static readonly DiagnosticDescriptor Vrl0001NoModClass = new(
+    internal static readonly DiagnosticDescriptor Vrl0001NoBudClass = new(
         "VRL0001",
-        "No mod classes",
-        $"There are no classes which derive from {ModClassAnalyzer.ModClassName}",
+        "No bud classes",
+        $"There are no classes which derive from {BudClassAnalyzer.BudClassName}",
         Category,
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         customTags: WellKnownDiagnosticTags.CompilationEnd,
-        description: $"All mod assemblies must have one class derive from {ModClassAnalyzer.ModClassName}.");
+        description: $"All bud assemblies must have one class derive from {BudClassAnalyzer.BudClassName}.");
 
-    internal static readonly DiagnosticDescriptor Vrl0002MoreThanOneModClass = new(
+    internal static readonly DiagnosticDescriptor Vrl0002MoreThanOneBudClass = new(
         "VRL0002",
-        "Multiple mod classes",
-        $"There are multiple classes which derive from {ModClassAnalyzer.ModClassName}",
+        "Multiple bud classes",
+        $"There are multiple classes which derive from {BudClassAnalyzer.BudClassName}",
         Category,
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         customTags: WellKnownDiagnosticTags.CompilationEnd,
-        description: $"Only one class per mod assembly can derive from {ModClassAnalyzer.ModClassName}.");
+        description: $"Only one class per bud assembly can derive from {BudClassAnalyzer.BudClassName}.");
 
-    internal static readonly DiagnosticDescriptor Vrl0003ModClassIsNotSealed = new(
+    internal static readonly DiagnosticDescriptor Vrl0003BudClassIsNotSealed = new(
         "VRL0003",
-        "Mod class is not sealed",
-        "The mod class should be sealed",
+        "Bud class is not sealed",
+        "The bud class should be sealed",
         Category,
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         customTags: WellKnownDiagnosticTags.CompilationEnd,
-        description: "Deriving the mod class isn't beneficial and it is thus recommended to seal it.");
+        description: "Deriving the bud class isn't beneficial and it is thus recommended to seal it.");
 }

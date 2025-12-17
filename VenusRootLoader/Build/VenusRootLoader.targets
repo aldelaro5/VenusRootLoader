@@ -1,26 +1,26 @@
 <Project>
-    <UsingTask TaskName="GenerateModManifest"
+    <UsingTask TaskName="GenerateBudManifest"
                AssemblyFile="$(MSBuildThisFileDirectory)/VenusRootLoader.Build.Tasks.dll"/>
 
-    <Target Name="GenerateModManifest" BeforeTargets="Build">
-        <GenerateModManifest
+    <Target Name="GenerateBudManifest" BeforeTargets="Build">
+        <GenerateBudManifest
                 AssemblyPath="$(TargetPath)"
-                ModId="$(ModId)"
-                ModName="$(ModName)"
-                ModVersion="$(ModVersion)"
-                ModAuthor="$(ModAuthor)"
-                ModDependencies="@(ModDependency)"
-                ModIncompatibilities="@(ModIncompatibility)"
+                BudId="$(BudId)"
+                BudName="$(BudName)"
+                BudVersion="$(BudVersion)"
+                BudAuthor="$(BudAuthor)"
+                BudDependencies="@(BudDependency)"
+                BudIncompatibilities="@(BudIncompatibility)"
         >
-            <Output TaskParameter="ModManifestPath"
-                    PropertyName="ModManifestFile"/>
-        </GenerateModManifest>
+            <Output TaskParameter="BudManifestPath"
+                    PropertyName="BudManifestFile"/>
+        </GenerateBudManifest>
         <ItemGroup>
-            <Content Include="$(ModManifestFile)"/>
+            <Content Include="$(BudManifestFile)"/>
         </ItemGroup>
     </Target>
 
-    <Target Name="CleanModManifest" AfterTargets="Clean">
+    <Target Name="CleanBudManifest" AfterTargets="Clean">
         <Delete Files="$(TargetDir)/manifest.json"/>
     </Target>
 </Project>

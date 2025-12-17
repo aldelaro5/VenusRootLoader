@@ -5,8 +5,8 @@
     </PropertyGroup>
 
     <ItemDefinitionGroup>
-        <ModDependency Visible="false"/>
-        <ModIncompatibility Visible="false"/>
+        <BudDependency Visible="false"/>
+        <BudIncompatibility Visible="false"/>
     </ItemDefinitionGroup>
 
     <ItemGroup>

@@ -2,13 +2,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 using System.Reflection;
-using VenusRootLoader.ModLoading;
+using VenusRootLoader.BudLoading;
 
 namespace VenusRootLoader;
 
 internal sealed class AppDomainEventsHandler : IHostedService
 {
-    private readonly ModLoaderContext _modLoaderContext;
+    private readonly BudLoaderContext _budLoaderContext;
     private readonly IAssemblyLoader _assemblyLoader;
     private readonly IAppDomainEvents _appDomainEvents;
     private readonly ILogger<AppDomainEventsHandler> _logger;
@@ -17,13 +17,13 @@ internal sealed class AppDomainEventsHandler : IHostedService
     private readonly List<string> _assembliesExtensionPatterns = ["*.dll", "*.exe"];
 
     public AppDomainEventsHandler(
-        ModLoaderContext modLoaderContext,
+        BudLoaderContext budLoaderContext,
         IAssemblyLoader assemblyLoader,
         IAppDomainEvents appDomainEvents,
         ILogger<AppDomainEventsHandler> logger,
         IFileSystem fileSystem)
     {
-        _modLoaderContext = modLoaderContext;
+        _budLoaderContext = budLoaderContext;
         _assemblyLoader = assemblyLoader;
         _appDomainEvents = appDomainEvents;
         _logger = logger;
@@ -51,12 +51,12 @@ internal sealed class AppDomainEventsHandler : IHostedService
         AssemblyName assemblyName = new(args.Name);
 
         string assemblyFileLoader = _fileSystem.Path.Combine(
-            _modLoaderContext.LoaderPath,
+            _budLoaderContext.LoaderPath,
             $"{assemblyName.Name}.dll");
         if (_fileSystem.File.Exists(assemblyFileLoader))
             return _assemblyLoader.LoadFromPath(assemblyFileLoader);
 
-        foreach (string assemblyFile in EnumerateAssembliesFilesRecursivelyFromPath(_modLoaderContext.ModsPath))
+        foreach (string assemblyFile in EnumerateAssembliesFilesRecursivelyFromPath(_budLoaderContext.BudsPath))
         {
             if (_fileSystem.Path.GetFileNameWithoutExtension(assemblyFile) != assemblyName.Name)
                 continue;

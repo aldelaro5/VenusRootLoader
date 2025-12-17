@@ -9,11 +9,11 @@ using System.Composition;
 namespace VenusRootLoader.Analyzers.CodeFixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-public class ModClassCodeFix : CodeFixProvider
+public class BudClassCodeFix : CodeFixProvider
 {
     public override ImmutableArray<string> FixableDiagnosticIds { get; } =
         // ReSharper disable once UseCollectionExpression
-        ImmutableArray.Create(Descriptors.Vrl0003ModClassIsNotSealed.Id);
+        ImmutableArray.Create(Descriptors.Vrl0003BudClassIsNotSealed.Id);
 
     public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
@@ -28,7 +28,7 @@ public class ModClassCodeFix : CodeFixProvider
             CodeAction.Create(
                 $"Make {classDeclaration.Identifier} sealed",
                 c => ChangeDocument(context.Document, classDeclaration, c),
-                $"{Descriptors.Vrl0003ModClassIsNotSealed.Id}CodeFix"),
+                $"{Descriptors.Vrl0003BudClassIsNotSealed.Id}CodeFix"),
             context.Diagnostics);
     }
 

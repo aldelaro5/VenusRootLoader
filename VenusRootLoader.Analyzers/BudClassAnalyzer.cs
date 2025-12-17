@@ -6,20 +6,20 @@ using System.Collections.Concurrent;
 namespace VenusRootLoader.Analyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public class ModClassAnalyzer : DiagnosticAnalyzer
+public class BudClassAnalyzer : DiagnosticAnalyzer
 {
-    internal const string ModClassName = "VenusRootLoader.ModLoading.Mod";
+    internal const string BudClassName = "VenusRootLoader.BudLoading.Bud";
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         // ReSharper disable once UseCollectionExpression
         ImmutableArray.Create(
-            Descriptors.Vrl0001NoModClass,
-            Descriptors.Vrl0002MoreThanOneModClass,
-            Descriptors.Vrl0003ModClassIsNotSealed);
+            Descriptors.Vrl0001NoBudClass,
+            Descriptors.Vrl0002MoreThanOneBudClass,
+            Descriptors.Vrl0003BudClassIsNotSealed);
 
-    private static bool IsModClass(INamedTypeSymbol type) =>
+    private static bool IsBudClass(INamedTypeSymbol type) =>
         type is { TypeKind: TypeKind.Class, IsAbstract: false, IsStatic: false }
-        && type.BaseType?.ToDisplayString() == ModClassName;
+        && type.BaseType?.ToDisplayString() == BudClassName;
 
     public override void Initialize(AnalysisContext analysisContext)
     {
@@ -33,11 +33,11 @@ public class ModClassAnalyzer : DiagnosticAnalyzer
     private static void AnalyseSymbol(SymbolAnalysisContext context)
     {
         INamedTypeSymbol type = (INamedTypeSymbol)context.Symbol;
-        if (!IsModClass(type) || type.IsSealed)
+        if (!IsBudClass(type) || type.IsSealed)
             return;
 
         Diagnostic diagnostic = Diagnostic.Create(
-            Descriptors.Vrl0003ModClassIsNotSealed,
+            Descriptors.Vrl0003BudClassIsNotSealed,
             type.Locations[0],
             type.Locations.Skip(1));
         context.ReportDiagnostic(diagnostic);
@@ -45,7 +45,7 @@ public class ModClassAnalyzer : DiagnosticAnalyzer
 
     private static void CompilerStartAction(CompilationStartAnalysisContext startContext)
     {
-        ConcurrentBag<INamedTypeSymbol> foundModClasses = new();
+        ConcurrentBag<INamedTypeSymbol> foundBudClasses = new();
         startContext.RegisterSymbolAction(AnalyseSymbolFromCompilationStart, SymbolKind.NamedType);
         startContext.RegisterCompilationEndAction(CompilationEndAction);
         return;
@@ -53,30 +53,30 @@ public class ModClassAnalyzer : DiagnosticAnalyzer
         void AnalyseSymbolFromCompilationStart(SymbolAnalysisContext context)
         {
             INamedTypeSymbol type = (INamedTypeSymbol)context.Symbol;
-            if (!IsModClass(type))
+            if (!IsBudClass(type))
                 return;
 
-            foundModClasses.Add(type);
+            foundBudClasses.Add(type);
         }
 
         void CompilationEndAction(CompilationAnalysisContext context)
         {
-            if (foundModClasses.IsEmpty)
+            if (foundBudClasses.IsEmpty)
             {
-                context.ReportDiagnostic(Diagnostic.Create(Descriptors.Vrl0001NoModClass, Location.None));
+                context.ReportDiagnostic(Diagnostic.Create(Descriptors.Vrl0001NoBudClass, Location.None));
                 return;
             }
 
-            if (foundModClasses.Count == 1)
+            if (foundBudClasses.Count == 1)
                 return;
 
-            foreach (INamedTypeSymbol foundModClass in foundModClasses)
+            foreach (INamedTypeSymbol foundBudClass in foundBudClasses)
             {
-                Diagnostic diagnosticMoreThanOneModClass = Diagnostic.Create(
-                    Descriptors.Vrl0002MoreThanOneModClass,
-                    foundModClass.Locations[0],
-                    foundModClass.Locations.Skip(1));
-                context.ReportDiagnostic(diagnosticMoreThanOneModClass);
+                context.ReportDiagnostic(
+                    Diagnostic.Create(
+                        Descriptors.Vrl0002MoreThanOneBudClass,
+                        foundBudClass.Locations[0],
+                        foundBudClass.Locations.Skip(1)));
             }
         }
     }

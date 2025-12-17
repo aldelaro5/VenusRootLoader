@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 using VenusRootLoader.Logging;
-using VenusRootLoader.ModLoading;
+using VenusRootLoader.BudLoading;
 
 namespace VenusRootLoader;
 
@@ -31,9 +31,9 @@ internal static class Startup
         builder.Services.AddSingleton(gameExecutionContext);
         builder.Services.AddSingleton(bootstrapFunctions);
         builder.Services.AddSingleton(
-            new ModLoaderContext
+            new BudLoaderContext
             {
-                ModsPath = fileSystem.Path.Combine(builder.Environment.ContentRootPath, "Mods"),
+                BudsPath = fileSystem.Path.Combine(builder.Environment.ContentRootPath, "Buds"),
                 ConfigPath = configPath,
                 LoaderPath = fileSystem.Path.Combine(builder.Environment.ContentRootPath, nameof(VenusRootLoader)),
             });
@@ -46,12 +46,12 @@ internal static class Startup
         builder.Services.AddHostedService<AppDomainEventsHandler>();
         builder.Services.AddHostedService<HarmonyLogger>();
 
-        builder.Services.AddSingleton<IModsDiscoverer, ModsDiscoverer>();
-        builder.Services.AddSingleton<IModsValidator, ModsValidator>();
-        builder.Services.AddSingleton<IModsDependencySorter, ModsDependencySorter>();
-        builder.Services.AddSingleton<IModsLoadOrderEnumerator, ModsLoadOrderEnumerator>();
+        builder.Services.AddSingleton<IBudsDiscoverer, BudsDiscoverer>();
+        builder.Services.AddSingleton<IBudsValidator, BudsValidator>();
+        builder.Services.AddSingleton<IBudsDependencySorter, BudsDependencySorter>();
+        builder.Services.AddSingleton<IBudsLoadOrderEnumerator, BudsLoadOrderEnumerator>();
         builder.Services.AddSingleton<IAssemblyLoader, AssemblyLoader>();
-        builder.Services.AddHostedService<ModLoader>();
+        builder.Services.AddHostedService<BudLoader>();
 
         return builder.Build();
     }

@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace VenusRootLoader.ModLoading;
+namespace VenusRootLoader.BudLoading;
 
 public interface IAssemblyLoader
 {

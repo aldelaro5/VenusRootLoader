@@ -1,11 +1,11 @@
 using Microsoft.Extensions.Logging;
 
-namespace VenusRootLoader.ModLoading;
+namespace VenusRootLoader.BudLoading;
 
-public abstract class Mod
+public abstract class Bud
 {
     protected internal ILogger Logger { get; internal set; } = null!;
-    protected internal string BaseModPath { get; internal set; } = null!;
+    protected internal string BaseBudPath { get; internal set; } = null!;
 
     protected internal abstract void Main();
 }

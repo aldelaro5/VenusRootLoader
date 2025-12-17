@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Logging;
+using NuGet.Versioning;
+using System.Text;
 using VenusRootLoader.Models;
 
 namespace VenusRootLoader.BudLoading;
@@ -70,7 +72,7 @@ internal sealed class BudsValidator : IBudsValidator
         foreach (var bud in incompatibleBudsById)
         {
             IEnumerable<string> incompatibilitiesInfo = bud.incompatibilities
-                .Select(i => $"{i.BudId} version {uniqueBuds[i.BudId].BudManifest.BudVersion.ToFullString()}");
+                .Select(i => FormatIncompatibilityInfo(i, uniqueBuds[i.BudId].BudManifest.BudVersion));
             _logger.LogError(
                 "The bud {budId} will not be loaded because it is incompatible with the following buds " +
                 "which are present:\n\n{incompatibilities}",
@@ -81,6 +83,20 @@ internal sealed class BudsValidator : IBudsValidator
         }
 
         return uniqueBuds;
+    }
+
+    private static string FormatIncompatibilityInfo(BudIncompatibility incompatibility, NuGetVersion version)
+    {
+        StringBuilder sb = new();
+        sb.Append($"{incompatibility.BudId} ");
+        sb.Append($"version {version.ToFullString()} ");
+        sb.Append("which falls within the incompatible version range: ");
+        string formattedVersionRange = incompatibility.Version is null
+            ? "any version"
+            : $"{incompatibility.Version.ToNormalizedString()}";
+        sb.Append(formattedVersionRange);
+
+        return sb.ToString();
     }
 
     private static bool IsBudIncompatible(BudIncompatibility incompatibility, BudInfo incompatibleBud) =>

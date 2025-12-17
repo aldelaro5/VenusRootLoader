@@ -12,5 +12,5 @@ public sealed class NuGetVersionJsonConverter : JsonConverter<NuGetVersion>
         NuGetVersion.Parse(reader.GetString()!);
 
     public override void Write(Utf8JsonWriter writer, NuGetVersion value, JsonSerializerOptions options) =>
-        writer.WriteStringValue(value.ToString());
+        writer.WriteStringValue(value.ToFullString());
 }

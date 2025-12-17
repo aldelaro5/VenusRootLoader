@@ -17,9 +17,11 @@ internal sealed record BudDependency
 {
     public required string BudId { get; set; }
     public required bool Optional { get; set; }
+    public required VersionRange Version { get; set; }
 }
 
 internal sealed record BudIncompatibility
 {
     public required string BudId { get; set; }
+    public required VersionRange? Version { get; set; }
 }

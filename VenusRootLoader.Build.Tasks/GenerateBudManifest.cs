@@ -44,11 +44,49 @@ public sealed class GenerateBudManifest : Task
         if (!NuGetVersion.TryParse(BudVersion, out NuGetVersion? version))
             throw new ArgumentException($"{BudVersion} is not a valid version", nameof(BudVersion));
         if (BudDependencies.Any(d => d.ItemSpec == BudId))
-            throw new ArgumentException("The mod cannot have a dependency with itself", nameof(BudDependencies));
+            throw new ArgumentException("The bud cannot have a dependency with itself", nameof(BudDependencies));
         if (BudIncompatibilities.Any(d => d.ItemSpec == BudId))
             throw new ArgumentException(
-                "The mod cannot have an incompatibility with itself",
+                "The bud cannot have an incompatibility with itself",
                 nameof(BudIncompatibilities));
+
+        foreach (ITaskItem item in BudDependencies)
+        {
+            bool dependencyHasVersion = item.MetadataNames
+                .Cast<string>()
+                .Contains(nameof(BudDependency.Version));
+            if (!dependencyHasVersion)
+            {
+                throw new ArgumentException(
+                    $"The dependency {item.ItemSpec} does not have a version which is required",
+                    nameof(BudDependencies));
+            }
+
+            string dependencyVersion = item.GetMetadata(nameof(BudDependency.Version));
+            if (!VersionRange.TryParse(dependencyVersion, out VersionRange? _))
+            {
+                throw new ArgumentException(
+                    $"The dependency {item.ItemSpec} has an invalid version specified: {dependencyVersion}",
+                    nameof(BudDependencies));
+            }
+        }
+
+        foreach (ITaskItem item in BudIncompatibilities)
+        {
+            bool incompatibilityHasVersion = item.MetadataNames
+                .Cast<string>()
+                .Contains(nameof(BudIncompatibility.Version));
+            if (!incompatibilityHasVersion)
+                continue;
+
+            string incompatibilityVersion = item.GetMetadata(nameof(BudIncompatibility.Version));
+            if (!VersionRange.TryParse(incompatibilityVersion, out VersionRange? _))
+            {
+                throw new ArgumentException(
+                    $"The incompatibility {item.ItemSpec} has an invalid version specified: {incompatibilityVersion}",
+                    nameof(BudIncompatibilities));
+            }
+        }
 
         try
         {
@@ -56,11 +94,18 @@ public sealed class GenerateBudManifest : Task
                 .Select(x => new BudDependency
                 {
                     BudId = x.ItemSpec,
-                    Optional = x.GetMetadata("Optional") == "true"
+                    Optional = x.GetMetadata(nameof(BudDependency.Optional)) == "true",
+                    Version = VersionRange.Parse(x.GetMetadata(nameof(BudDependency.Version)))
                 })
                 .ToArray();
             BudIncompatibility[] incompatibilities = BudIncompatibilities
-                .Select(x => new BudIncompatibility { BudId = x.ItemSpec })
+                .Select(x => new BudIncompatibility
+                {
+                    BudId = x.ItemSpec,
+                    Version = x.MetadataNames.Cast<string>().Contains(nameof(BudIncompatibility.Version))
+                        ? VersionRange.Parse(x.GetMetadata(nameof(BudIncompatibility.Version)))
+                        : null
+                })
                 .ToArray();
 
             BudManifest manifest = new()
@@ -79,7 +124,11 @@ public sealed class GenerateBudManifest : Task
                 {
                     AllowDuplicateProperties = false,
                     WriteIndented = true,
-                    Converters = { NuGetVersionJsonConverter.Instance }
+                    Converters =
+                    {
+                        NuGetVersionJsonConverter.Instance,
+                        NuGetVersionRangeJsonConverter.Instance
+                    }
                 });
             string tentativeOutputPath = Path.Combine(outputPath, "manifest.json");
 

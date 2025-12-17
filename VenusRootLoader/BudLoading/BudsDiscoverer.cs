@@ -44,7 +44,14 @@ internal sealed class BudsDiscoverer : IBudsDiscoverer
                 string manifestContent = _fileSystem.File.ReadAllText(manifestPath);
                 BudManifest? budManifest = JsonSerializer.Deserialize<BudManifest>(
                     manifestContent,
-                    new JsonSerializerOptions { Converters = { NuGetVersionJsonConverter.Instance } });
+                    new JsonSerializerOptions
+                    {
+                        Converters =
+                        {
+                            NuGetVersionJsonConverter.Instance,
+                            NuGetVersionRangeJsonConverter.Instance
+                        }
+                    });
                 if (budManifest is null)
                     throw new JsonException("The bud manifest deserialized to null");
 
@@ -93,6 +100,15 @@ internal sealed class BudsDiscoverer : IBudsDiscoverer
             throw new ArgumentException($"Invalid {nameof(budManifest.BudAuthor)}: {budManifest.BudAuthor}");
         if (budManifest.BudVersion is null)
             throw new ArgumentException($"{nameof(budManifest.BudVersion)} is null");
+
+        foreach (BudDependency budDependency in budManifest.BudDependencies)
+        {
+            if (budDependency.Version is null)
+            {
+                throw new ArgumentException(
+                    $"The dependency {nameof(budDependency.BudId)} has a null Version which is not allowed");
+            }
+        }
     }
 
     private bool TryValidateBudAssembly(string budAssemblyPath, [NotNullWhen(true)] out TypeDefinition? budType)

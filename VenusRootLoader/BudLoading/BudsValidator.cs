@@ -59,14 +59,18 @@ internal sealed class BudsValidator : IBudsValidator
             .Select(bud => (
                 budId: bud.Key,
                 incompatibilities: bud.Value.BudManifest.BudIncompatibilities
-                    .Where(incompatibility => uniqueBuds.ContainsKey(incompatibility.BudId)))
+                    .Where(incompatibility =>
+                        uniqueBuds.TryGetValue(incompatibility.BudId, out BudInfo incompatibleBud)
+                        && IsBudIncompatible(incompatibility, incompatibleBud))
+                )
             )
             .Where(bud => bud.incompatibilities.Any())
             .ToList();
 
         foreach (var bud in incompatibleBudsById)
         {
-            IEnumerable<string> incompatibilitiesInfo = bud.incompatibilities.Select(i => i.BudId);
+            IEnumerable<string> incompatibilitiesInfo = bud.incompatibilities
+                .Select(i => $"{i.BudId} version {uniqueBuds[i.BudId].BudManifest.BudVersion.ToFullString()}");
             _logger.LogError(
                 "The bud {budId} will not be loaded because it is incompatible with the following buds " +
                 "which are present:\n\n{incompatibilities}",
@@ -78,4 +82,8 @@ internal sealed class BudsValidator : IBudsValidator
 
         return uniqueBuds;
     }
+
+    private static bool IsBudIncompatible(BudIncompatibility incompatibility, BudInfo incompatibleBud) =>
+        incompatibility.Version is null ||
+        incompatibility.Version.Satisfies(incompatibleBud.BudManifest.BudVersion);
 }

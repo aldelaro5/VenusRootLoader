@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using NuGet.Versioning;
 using VenusRootLoader.Models;
 
 namespace VenusRootLoader.BudLoading;
@@ -21,7 +22,7 @@ internal sealed class BudsLoadOrderEnumerator : IBudsLoadOrderEnumerator
     }
 
     private readonly List<string> _failedBudsDuringLoad = [];
-    private readonly HashSet<string> _budIdsWithFulfilledDependencies = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, NuGetVersion> _budIdsWithFulfilledDependencies = new(StringComparer.Ordinal);
     private readonly HashSet<string> _budIdsWithUnfulfilledRequiredDependencies = new(StringComparer.Ordinal);
 
     public BudsLoadOrderEnumerator(ILogger<BudsLoadOrderEnumerator> logger)
@@ -44,7 +45,7 @@ internal sealed class BudsLoadOrderEnumerator : IBudsLoadOrderEnumerator
                 }
             }
 
-            _budIdsWithFulfilledDependencies.Add(budInfo.BudManifest.BudId);
+            _budIdsWithFulfilledDependencies.Add(budInfo.BudManifest.BudId, budInfo.BudManifest.BudVersion);
             yield return budInfo;
         }
     }
@@ -57,7 +58,9 @@ internal sealed class BudsLoadOrderEnumerator : IBudsLoadOrderEnumerator
 
         foreach (BudDependency dependency in budLoadingInfo.BudManifest.BudDependencies)
         {
-            bool isMissing = !_budIdsWithFulfilledDependencies.Contains(dependency.BudId);
+            bool isMissing = !_budIdsWithFulfilledDependencies.TryGetValue(
+                dependency.BudId,
+                out NuGetVersion dependencyVersion);
             if (isMissing)
             {
                 dependenciesErrors.Add(
@@ -78,6 +81,18 @@ internal sealed class BudsLoadOrderEnumerator : IBudsLoadOrderEnumerator
                         BudId = dependency.BudId,
                         Optional = dependency.Optional,
                         Reason = "This bud threw an exception as it was being loaded"
+                    });
+            }
+            else if (!dependency.Version.Satisfies(dependencyVersion!))
+            {
+                dependenciesErrors.Add(
+                    new()
+                    {
+                        BudId = dependency.BudId,
+                        Optional = dependency.Optional,
+                        Reason =
+                            $"This bud loaded successfully with a version of {dependencyVersion!.ToFullString()} " +
+                            $"which does not satisfy the desired version range of {dependency.Version.ToNormalizedString()}"
                     });
             }
         }

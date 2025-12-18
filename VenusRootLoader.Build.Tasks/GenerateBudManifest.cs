@@ -40,15 +40,13 @@ public sealed class GenerateBudManifest : Task
     {
         string outputPath = Path.GetDirectoryName(AssemblyPath)!;
         if (outputPath is null)
-            throw new ArgumentException($"{AssemblyPath} has no parent directory", AssemblyPath);
+            throw new Exception($"{AssemblyPath} has no parent directory");
         if (!NuGetVersion.TryParse(BudVersion, out NuGetVersion? version))
-            throw new ArgumentException($"{BudVersion} is not a valid version", nameof(BudVersion));
+            throw new Exception($"{BudVersion} is not a valid version");
         if (BudDependencies.Any(d => d.ItemSpec == BudId))
-            throw new ArgumentException("The bud cannot have a dependency with itself", nameof(BudDependencies));
+            throw new Exception("The bud cannot have a dependency with itself");
         if (BudIncompatibilities.Any(d => d.ItemSpec == BudId))
-            throw new ArgumentException(
-                "The bud cannot have an incompatibility with itself",
-                nameof(BudIncompatibilities));
+            throw new Exception("The bud cannot have an incompatibility with itself");
 
         foreach (ITaskItem item in BudDependencies)
         {
@@ -56,18 +54,13 @@ public sealed class GenerateBudManifest : Task
                 .Cast<string>()
                 .Contains(nameof(BudDependency.Version));
             if (!dependencyHasVersion)
-            {
-                throw new ArgumentException(
-                    $"The dependency {item.ItemSpec} does not have a version which is required",
-                    nameof(BudDependencies));
-            }
+                throw new Exception($"The dependency {item.ItemSpec} does not have a version which is required");
 
             string dependencyVersion = item.GetMetadata(nameof(BudDependency.Version));
             if (!VersionRange.TryParse(dependencyVersion, out VersionRange? _))
             {
-                throw new ArgumentException(
-                    $"The dependency {item.ItemSpec} has an invalid version specified: {dependencyVersion}",
-                    nameof(BudDependencies));
+                throw new Exception(
+                    $"The dependency {item.ItemSpec} has an invalid version specified: {dependencyVersion}");
             }
         }
 
@@ -82,9 +75,8 @@ public sealed class GenerateBudManifest : Task
             string incompatibilityVersion = item.GetMetadata(nameof(BudIncompatibility.Version));
             if (!VersionRange.TryParse(incompatibilityVersion, out VersionRange? _))
             {
-                throw new ArgumentException(
-                    $"The incompatibility {item.ItemSpec} has an invalid version specified: {incompatibilityVersion}",
-                    nameof(BudIncompatibilities));
+                throw new Exception(
+                    $"The incompatibility {item.ItemSpec} has an invalid version specified: {incompatibilityVersion}");
             }
         }
 

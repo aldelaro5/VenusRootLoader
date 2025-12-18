@@ -31,7 +31,7 @@ internal sealed class BudsDiscoverer : IBudsDiscoverer
 
     public IList<BudInfo> DiscoverAllBudsFromDisk()
     {
-        List<BudInfo> result = new();
+        List<BudInfo> result = [];
 
         foreach (string budDirectory in _fileSystem.Directory.EnumerateDirectories(_budLoaderContext.BudsPath))
         {
@@ -91,22 +91,30 @@ internal sealed class BudsDiscoverer : IBudsDiscoverer
     private static void EnsureBudManifestIsValid(BudManifest budManifest)
     {
         if (string.IsNullOrWhiteSpace(budManifest.AssemblyName))
-            throw new ArgumentException($"Invalid {nameof(budManifest.AssemblyName)}: {budManifest.AssemblyName}");
+            throw new Exception($"{nameof(budManifest.AssemblyName)} is not specified");
         if (string.IsNullOrWhiteSpace(budManifest.BudId))
-            throw new ArgumentException($"Invalid {nameof(budManifest.BudId)}: {budManifest.BudId}");
+            throw new Exception($"{nameof(budManifest.BudId)} is not specified");
         if (string.IsNullOrWhiteSpace(budManifest.BudName))
-            throw new ArgumentException($"Invalid {nameof(budManifest.BudName)}: {budManifest.BudName}");
+            throw new Exception($"{nameof(budManifest.BudName)} is not specified");
         if (string.IsNullOrWhiteSpace(budManifest.BudAuthor))
-            throw new ArgumentException($"Invalid {nameof(budManifest.BudAuthor)}: {budManifest.BudAuthor}");
+            throw new Exception($"{nameof(budManifest.BudAuthor)} is not specified");
         if (budManifest.BudVersion is null)
-            throw new ArgumentException($"{nameof(budManifest.BudVersion)} is null");
+            throw new Exception($"{nameof(budManifest.BudVersion)} is null");
+        if (budManifest.BudDependencies.Any(d => string.IsNullOrWhiteSpace(d.BudId)))
+            throw new Exception("At least one dependency has an unspecified bud ID");
+        if (budManifest.BudIncompatibilities.Any(d => string.IsNullOrWhiteSpace(d.BudId)))
+            throw new Exception("At least one incompatibility has an unspecified bud ID");
+        if (budManifest.BudDependencies.Any(d => d.BudId == budManifest.BudId))
+            throw new Exception("The bud cannot have a dependency with itself");
+        if (budManifest.BudIncompatibilities.Any(d => d.BudId == budManifest.BudId))
+            throw new Exception("The bud cannot have an incompatibility with itself");
 
         foreach (BudDependency budDependency in budManifest.BudDependencies)
         {
             if (budDependency.Version is null)
             {
-                throw new ArgumentException(
-                    $"The dependency {nameof(budDependency.BudId)} has a null Version which is not allowed");
+                throw new Exception(
+                    $"The dependency {nameof(budDependency.BudId)} has a null {nameof(budDependency.Version)}");
             }
         }
     }

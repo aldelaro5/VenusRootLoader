@@ -81,10 +81,17 @@ internal sealed class BudsDiscoverer : IBudsDiscoverer
             }
         }
 
-        _logger.LogDebug(
-            "Discovered {budCount} mods:\n\n{buds}",
-            result.Count,
-            string.Join(", ", result.Select(m => m.BudManifest.BudId)));
+        if (result.Count == 0)
+        {
+            _logger.LogDebug("Discovered no buds");
+        }
+        else
+        {
+            _logger.LogDebug(
+                "Discovered {budCount} buds:\n\n{buds}",
+                result.Count,
+                string.Join(", ", result.Select(m => m.BudManifest.BudId)));
+        }
         return result;
     }
 

@@ -13,6 +13,7 @@ internal sealed class BudLoader
     private readonly IBudsDependencySorter _budsDependencySorter;
     private readonly IBudsLoadOrderEnumerator _budsLoadOrderEnumerator;
     private readonly IAssemblyLoader _assemblyLoader;
+    private readonly BudLoaderContext _budLoaderContext;
     private readonly IFileSystem _fileSystem;
     private readonly ILogger<BudLoader> _logger;
     private readonly ILoggerFactory _loggerFactory;
@@ -24,6 +25,7 @@ internal sealed class BudLoader
         IBudsDependencySorter budsDependencySorter,
         IBudsLoadOrderEnumerator budsLoadOrderEnumerator,
         IAssemblyLoader assemblyLoader,
+        BudLoaderContext budLoaderContext,
         IFileSystem fileSystem,
         ILogger<BudLoader> logger,
         ILoggerFactory loggerFactory,
@@ -34,15 +36,22 @@ internal sealed class BudLoader
         _budsDependencySorter = budsDependencySorter;
         _budsLoadOrderEnumerator = budsLoadOrderEnumerator;
         _assemblyLoader = assemblyLoader;
+        _budLoaderContext = budLoaderContext;
         _fileSystem = fileSystem;
         _logger = logger;
         _loggerFactory = loggerFactory;
         _venusFactory = venusFactory;
+
+        if (!Directory.Exists(_budLoaderContext.BudsPath))
+            Directory.CreateDirectory(_budLoaderContext.BudsPath);
     }
 
     public void LoadAllBuds()
     {
         IList<BudInfo> buds = FindAllBuds();
+        if (buds.Count == 0)
+            return;
+        
         IDictionary<string, BudInfo> budsById = _budsValidator.RemoveInvalidBuds(buds);
         IList<BudInfo> sortedBuds = DetermineBudsLoadOrder(budsById);
 

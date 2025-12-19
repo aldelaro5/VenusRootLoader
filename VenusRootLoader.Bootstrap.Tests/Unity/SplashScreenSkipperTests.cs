@@ -1,6 +1,5 @@
 using AssetsTools.NET.Extra;
 using AwesomeAssertions;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
@@ -21,7 +20,6 @@ public sealed class SplashScreenSkipperTests : IDisposable
 {
     private readonly ILogger<SplashScreenSkipper> _logger = Substitute.For<ILogger<SplashScreenSkipper>>();
     private readonly IOptions<GlobalSettings> _globalSettings = Substitute.For<IOptions<GlobalSettings>>();
-    private readonly IHostEnvironment _hostEnvironment = Substitute.For<IHostEnvironment>();
     private readonly IWin32 _win32 = Substitute.For<IWin32>();
     private readonly IFileSystem _fileSystem = new FileSystem();
     private readonly TestCreateFileWSharedHooker _createFileWSharedHooker = new();
@@ -38,19 +36,18 @@ public sealed class SplashScreenSkipperTests : IDisposable
 
     public SplashScreenSkipperTests()
     {
-        _hostEnvironment.ContentRootPath.Returns(
-            Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "TestInstall"));
+        string gameDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "TestInstall");
         _globalSettings.Value.Returns(_globalSettingsValue);
         _gameExecutionContext = new()
         {
-            GameDir = "",
-            DataDir = Path.Combine(_hostEnvironment.ContentRootPath, "VenusRootLoaderTestProject_Data"),
+            GameDir = gameDir,
+            DataDir = Path.Combine(gameDir, "VenusRootLoaderTestProject_Data"),
             UnityPlayerDllFileName = "UnityPlayer.dll",
             IsWine = false
         };
         _dataUnity3dPath = Path.Combine(_gameExecutionContext.DataDir, "data.unity3d");
         _pathModifiedBundle = Path.Combine(
-            _hostEnvironment.ContentRootPath,
+            _gameExecutionContext.GameDir,
             "VenusRootLoader",
             "data.unity3d.modified");
         DeleteRealTestFiles();
@@ -71,7 +68,6 @@ public sealed class SplashScreenSkipperTests : IDisposable
             _createFileWSharedHooker,
             _gameExecutionContext,
             _globalSettings,
-            _hostEnvironment,
             _win32,
             _fileSystem);
         sut.StartAsync(TestContext.Current.CancellationToken);
@@ -130,7 +126,7 @@ public sealed class SplashScreenSkipperTests : IDisposable
     private void AssertModifiedBundleIsCorrect()
     {
         var manager = new AssetsManager();
-        manager.LoadClassPackage(Path.Combine(_hostEnvironment.ContentRootPath, "VenusRootLoader", "classdata.tpk"));
+        manager.LoadClassPackage(Path.Combine(_gameExecutionContext.GameDir, "VenusRootLoader", "classdata.tpk"));
         var bundleInstance = manager.LoadBundleFile(_pathModifiedBundle);
         var assetsFileInstance = manager.LoadAssetsFileFromBundle(bundleInstance, 0);
         var assetFile = assetsFileInstance.file;

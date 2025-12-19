@@ -40,6 +40,7 @@ internal sealed class Entry
 
     internal static nint BootstrapLogFunctionPtr;
     internal static nint GameExecutionContextPtr;
+    internal static nint BasePathPtr;
 
     private static readonly string LogCategory = typeof(Entry).Namespace!;
 
@@ -76,7 +77,8 @@ internal sealed class Entry
     /// </summary>
     /// <param name="bootstrapLogFunctionPtr">A raw pointer to a <see cref="BootstrapLogFn"/> function for logging</param>
     /// <param name="gameExecutionContextPtr">A raw pointer to a struct containing information about the execution</param>
-    internal static void Main(nint bootstrapLogFunctionPtr, nint gameExecutionContextPtr)
+    /// <param name="basePathPtr">A raw pointer to a string containing the full path to use as the base directory</param>
+    internal static void Main(nint bootstrapLogFunctionPtr, nint gameExecutionContextPtr, nint basePathPtr)
     {
         string pathAssemblies = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "VenusRootLoader");
         foreach (string ass in ForceLoadAssemblies)
@@ -85,6 +87,7 @@ internal sealed class Entry
         BootstrapLogFunctionPtr = bootstrapLogFunctionPtr;
         BootstrapLog = Marshal.GetDelegateForFunctionPointer<BootstrapLogFn>(bootstrapLogFunctionPtr);
         GameExecutionContextPtr = gameExecutionContextPtr;
+        BasePathPtr = basePathPtr;
 
         AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
         AppDomain.CurrentDomain.AssemblyLoad += OnAssemblyLoad;
@@ -143,6 +146,6 @@ internal sealed class Entry
             .GetMethod("Main", BindingFlags.Static | BindingFlags.NonPublic)!;
         AppDomain.CurrentDomain.UnhandledException -= OnUnhandledException;
 
-        entryMethod.Invoke(null, [BootstrapLogFunctionPtr, GameExecutionContextPtr]);
+        entryMethod.Invoke(null, [BootstrapLogFunctionPtr, GameExecutionContextPtr, BasePathPtr]);
     }
 }

@@ -11,15 +11,19 @@ internal static class Entry
 {
     private static GameExecutionContext? _gameExecutionContext;
     private static BootstrapFunctions.BootstrapLogFn _bootstrapLog = null!;
-    
-    internal static void Main(nint bootstrapLogFunctionPtr, nint gameExecutionContextPtr)
+    private static string _basePath = null!;
+
+    internal static void Main(nint bootstrapLogFunctionPtr, nint gameExecutionContextPtr, nint basePathPtr)
     {
         try
         {
             _bootstrapLog =
                 Marshal.GetDelegateForFunctionPointer<BootstrapFunctions.BootstrapLogFn>(bootstrapLogFunctionPtr);
             _gameExecutionContext = Marshal.PtrToStructure<GameExecutionContext>(gameExecutionContextPtr);
+            _basePath = Marshal.PtrToStringUni(basePathPtr)!;
+            _bootstrapLog(_basePath, nameof(VenusRootLoader), LogLevel.Information);
             IServiceProvider host = Startup.BuildServiceProvider(
+                _basePath,
                 _gameExecutionContext,
                 new() { BootstrapLog = _bootstrapLog });
 

@@ -12,6 +12,7 @@ namespace VenusRootLoader;
 internal static class Startup
 {
     internal static IServiceProvider BuildServiceProvider(
+        string basePath,
         GameExecutionContext gameExecutionContext,
         BootstrapFunctions bootstrapFunctions)
     {
@@ -19,7 +20,7 @@ internal static class Startup
         IConfigurationManager configurationManager = new ConfigurationManager();
 
         FileSystem fileSystem = new();
-        string configPath = fileSystem.Path.Combine(gameExecutionContext.GameDir, "Config");
+        string configPath = fileSystem.Path.Combine(basePath, "Config");
         configurationManager.AddJsonFile(fileSystem.Path.Combine(configPath, "config.jsonc"));
 
         services.AddSingleton(gameExecutionContext);
@@ -27,7 +28,7 @@ internal static class Startup
         services.AddSingleton(
             new BudLoaderContext
             {
-                BudsPath = fileSystem.Path.Combine(gameExecutionContext.GameDir, "Buds"),
+                BudsPath = fileSystem.Path.Combine(basePath, "Buds"),
                 ConfigPath = configPath,
                 LoaderPath = fileSystem.Path.Combine(gameExecutionContext.GameDir, nameof(VenusRootLoader)),
             });

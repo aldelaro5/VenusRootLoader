@@ -19,7 +19,7 @@ namespace VenusRootLoader.Bootstrap.Tests.Mono;
 [Collection(nameof(MonoInitializerTests))]
 public sealed class MonoInitializerTests
 {
-    private readonly FakeLogger<MonoInitializer> _logger = new FakeLogger<MonoInitializer>();
+    private readonly FakeLogger<MonoInitializer> _logger = new();
 
     private readonly IOptions<MonoDebuggerSettings>
         _debuggerSettings = Substitute.For<IOptions<MonoDebuggerSettings>>();
@@ -55,7 +55,6 @@ public sealed class MonoInitializerTests
     public MonoInitializerTests()
     {
         _debuggerSettings.Value.Returns(_debuggerSettingsValue);
-        _hostEnvironment.ContentRootPath.Returns("root");
     }
 
     private void StartService()
@@ -188,7 +187,7 @@ public sealed class MonoInitializerTests
         var assemblyRootDir = "rootdir";
         var receivedMonoAssembliesPath = "";
         var expectedMonoAssembliesPath =
-            $"{Path.Combine(_hostEnvironment.ContentRootPath, "UnityJitMonoBcl")};{assemblyRootDir}";
+            $"{Path.Combine(_gameExecutionContext.GameDir, "UnityJitMonoBcl")};{assemblyRootDir}";
         var monoThreadCurrent = (nint)Random.Shared.Next();
         nint receivedMonoThreadSetMain = nint.Zero;
         (int argc, string[] argv) receivedArgs = default;

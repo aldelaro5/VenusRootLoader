@@ -64,9 +64,9 @@ internal sealed class MonoInitializer : IHostedService
     private readonly IPlayerConnectionDiscovery _playerConnectionDiscovery;
     private readonly ISdbWinePathTranslator _sdbWinePathTranslator;
     private readonly IMonoInitLifeCycleEvents _monoInitLifeCycleEvents;
-    private readonly IHostEnvironment _hostEnvironment;
     private readonly nint _logFunctionPtr;
     private readonly nint _gameExecutionContextPtr;
+    private readonly nint _basePathPtr;
 
     public MonoInitializer(
         ILogger<MonoInitializer> logger,
@@ -85,7 +85,6 @@ internal sealed class MonoInitializer : IHostedService
         _pltHooksManager = pltHooksManager;
         _sdbWinePathTranslator = sdbWinePathTranslator;
         _monoInitLifeCycleEvents = monoInitLifeCycleEvents;
-        _hostEnvironment = hostEnvironment;
         _win32 = win32;
         _fileSystem = fileSystem;
         _monoFunctions = monoFunctions;
@@ -99,6 +98,8 @@ internal sealed class MonoInitializer : IHostedService
         _gameExecutionContextPtr = Marshal.AllocHGlobal(Marshal.SizeOf<GameExecutionContext>());
         Marshal.StructureToPtr(_gameExecutionContext, _gameExecutionContextPtr, false);
 
+        _basePathPtr = Marshal.StringToHGlobalUni(hostEnvironment.ContentRootPath);
+        
         _hookGetProcAddressDelegate = HookGetProcAddress;
         _monoInitDetourFn = MonoJitInitDetour;
         _jitParseOptionsDetourFn = MonoJitParseOptionsDetour;
@@ -215,7 +216,7 @@ internal sealed class MonoInitializer : IHostedService
             {
                 AssemblyPath =
                     _fileSystem.Path.Combine(
-                        _hostEnvironment.ContentRootPath,
+                        _gameExecutionContext.GameDir,
                         "VenusRootLoader",
                         "VenusRootLoader.Preloader.dll"),
                 Namespace = "VenusRootLoader.Preloader",
@@ -261,7 +262,7 @@ internal sealed class MonoInitializer : IHostedService
     private void SetMonoAssembliesPath()
     {
         StringBuilder newAssembliesPathSb = new();
-        _additionalMonoAssembliesPath = _fileSystem.Path.Combine(_hostEnvironment.ContentRootPath, "UnityJitMonoBcl");
+        _additionalMonoAssembliesPath = _fileSystem.Path.Combine(_gameExecutionContext.GameDir, "UnityJitMonoBcl");
         newAssembliesPathSb.Append(_additionalMonoAssembliesPath);
         newAssembliesPathSb.Append(';');
         newAssembliesPathSb.Append(_monoFunctions.AssemblyGetrootdir());
@@ -337,17 +338,19 @@ internal sealed class MonoInitializer : IHostedService
 
         var image = _monoFunctions.AssemblyGetImage(assembly);
         var interopClass = _monoFunctions.ClassFromName(image, entryPointInfo.Namespace, entryPointInfo.ClassName);
-        var initMethod = _monoFunctions.ClassGetMethodFromName(interopClass, entryPointInfo.MethodName, 2);
+        var initMethod = _monoFunctions.ClassGetMethodFromName(interopClass, entryPointInfo.MethodName, 3);
 
         nint ex = 0;
 
         fixed (void* logFunctionPtr = &_logFunctionPtr,
-               gameExecutionContextPtr = &_gameExecutionContextPtr)
+               gameExecutionContextPtr = &_gameExecutionContextPtr,
+               basePathPtr = &_basePathPtr)
         {
             var initArgs = stackalloc void*[]
             {
                 logFunctionPtr,
-                gameExecutionContextPtr
+                gameExecutionContextPtr,
+                basePathPtr
             };
             _logger.LogInformation("Invoking entrypoint method");
             _monoFunctions.RuntimeInvoke(initMethod, 0, initArgs, ref ex);

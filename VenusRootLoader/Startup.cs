@@ -1,10 +1,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
-using VenusRootLoader.Logging;
 using VenusRootLoader.BudLoading;
+using VenusRootLoader.Logging;
 using VenusRootLoader.Modding;
 using VenusRootLoader.Unity;
 
@@ -12,52 +11,49 @@ namespace VenusRootLoader;
 
 internal static class Startup
 {
-    internal static IHost BuildHost(GameExecutionContext gameExecutionContext, BootstrapFunctions bootstrapFunctions)
+    internal static IServiceProvider BuildServiceProvider(
+        GameExecutionContext gameExecutionContext,
+        BootstrapFunctions bootstrapFunctions)
     {
-        HostApplicationBuilder builder = Host.CreateEmptyApplicationBuilder(
-            new()
-            {
-                DisableDefaults = true,
-                ApplicationName = "VenusRootLoader",
-                Args = [],
-                EnvironmentName = "Development",
-                ContentRootPath = gameExecutionContext.GameDir,
-                Configuration = new()
-            });
+        IServiceCollection services = new ServiceCollection();
+        IConfigurationManager configurationManager = new ConfigurationManager();
 
         FileSystem fileSystem = new();
-        string configPath = fileSystem.Path.Combine(builder.Environment.ContentRootPath, "Config");
-        builder.Configuration.AddJsonFile(fileSystem.Path.Combine(configPath, "config.jsonc"));
+        string configPath = fileSystem.Path.Combine(gameExecutionContext.GameDir, "Config");
+        configurationManager.AddJsonFile(fileSystem.Path.Combine(configPath, "config.jsonc"));
 
-        builder.Services.AddSingleton(gameExecutionContext);
-        builder.Services.AddSingleton(bootstrapFunctions);
-        builder.Services.AddSingleton(
+        services.AddSingleton(gameExecutionContext);
+        services.AddSingleton(bootstrapFunctions);
+        services.AddSingleton(
             new BudLoaderContext
             {
-                BudsPath = fileSystem.Path.Combine(builder.Environment.ContentRootPath, "Buds"),
+                BudsPath = fileSystem.Path.Combine(gameExecutionContext.GameDir, "Buds"),
                 ConfigPath = configPath,
-                LoaderPath = fileSystem.Path.Combine(builder.Environment.ContentRootPath, nameof(VenusRootLoader)),
+                LoaderPath = fileSystem.Path.Combine(gameExecutionContext.GameDir, nameof(VenusRootLoader)),
             });
 
-        builder.Logging.AddConfiguration(builder.Configuration.GetRequiredSection("Logging"));
-        builder.Logging.Services.AddSingleton<ILoggerProvider, RelayLoggerProvider>();
+        services.AddLogging(builder =>
+        {
+            builder.AddConfiguration(configurationManager.GetRequiredSection("Logging"));
+            builder.Services.AddSingleton<ILoggerProvider, RelayLoggerProvider>();
+        });
 
-        builder.Services.AddSingleton<IFileSystem, FileSystem>();
-        builder.Services.AddSingleton<IAppDomainEvents, AppDomainEvents>();
-        builder.Services.AddHostedService<AppDomainEventsHandler>();
-        builder.Services.AddSingleton<HarmonyLogger>();
-        builder.Services.AddSingleton<IHarmonyTypePatcher, HarmonyTypePatcher>();
+        services.AddSingleton<IFileSystem, FileSystem>();
+        services.AddSingleton<IAppDomainEvents, AppDomainEvents>();
+        services.AddSingleton<AppDomainEventsHandler>();
+        services.AddSingleton<HarmonyLogger>();
+        services.AddSingleton<IHarmonyTypePatcher, HarmonyTypePatcher>();
 
-        builder.Services.AddSingleton<GlobalMonoBehaviourExecution>();
+        services.AddSingleton<GlobalMonoBehaviourExecution>();
 
-        builder.Services.AddSingleton<IVenusFactory, VenusFactory>();
-        builder.Services.AddSingleton<IBudsDiscoverer, BudsDiscoverer>();
-        builder.Services.AddSingleton<IBudsValidator, BudsValidator>();
-        builder.Services.AddSingleton<IBudsDependencySorter, BudsDependencySorter>();
-        builder.Services.AddSingleton<IBudsLoadOrderEnumerator, BudsLoadOrderEnumerator>();
-        builder.Services.AddSingleton<IAssemblyLoader, AssemblyLoader>();
-        builder.Services.AddHostedService<BudLoader>();
+        services.AddSingleton<IVenusFactory, VenusFactory>();
+        services.AddSingleton<IBudsDiscoverer, BudsDiscoverer>();
+        services.AddSingleton<IBudsValidator, BudsValidator>();
+        services.AddSingleton<IBudsDependencySorter, BudsDependencySorter>();
+        services.AddSingleton<IBudsLoadOrderEnumerator, BudsLoadOrderEnumerator>();
+        services.AddSingleton<IAssemblyLoader, AssemblyLoader>();
+        services.AddSingleton<BudLoader>();
 
-        return builder.Build();
+        return services.BuildServiceProvider();
     }
 }

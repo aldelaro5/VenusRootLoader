@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 using System.Reflection;
@@ -7,7 +6,7 @@ using VenusRootLoader.Models;
 
 namespace VenusRootLoader.BudLoading;
 
-internal sealed class BudLoader : IHostedService
+internal sealed class BudLoader
 {
     private readonly IBudsDiscoverer _budsDiscoverer;
     private readonly IBudsValidator _budsValidator;
@@ -41,7 +40,7 @@ internal sealed class BudLoader : IHostedService
         _venusFactory = venusFactory;
     }
 
-    public Task StartAsync(CancellationToken cancellationToken)
+    public void LoadAllBuds()
     {
         IList<BudInfo> buds = FindAllBuds();
         IDictionary<string, BudInfo> budsById = _budsValidator.RemoveInvalidBuds(buds);
@@ -49,8 +48,6 @@ internal sealed class BudLoader : IHostedService
 
         foreach (BudInfo budLoadingInfo in _budsLoadOrderEnumerator.EnumerateBudsWithFulfilledDependencies(sortedBuds))
             LoadBud(budLoadingInfo);
-
-        return Task.CompletedTask;
     }
 
     private IList<BudInfo> FindAllBuds()
@@ -104,6 +101,4 @@ internal sealed class BudLoader : IHostedService
             _budsLoadOrderEnumerator.MarkBudAsFailedDuringLoad(budLoadingInfo);
         }
     }
-
-    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 }

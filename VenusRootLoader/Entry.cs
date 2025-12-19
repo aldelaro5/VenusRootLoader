@@ -1,6 +1,7 @@
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
+using VenusRootLoader.BudLoading;
 
 namespace VenusRootLoader;
 
@@ -18,8 +19,14 @@ internal static class Entry
             _bootstrapLog =
                 Marshal.GetDelegateForFunctionPointer<BootstrapFunctions.BootstrapLogFn>(bootstrapLogFunctionPtr);
             _gameExecutionContext = Marshal.PtrToStructure<GameExecutionContext>(gameExecutionContextPtr);
-            IHost host = Startup.BuildHost(_gameExecutionContext, new() { BootstrapLog = _bootstrapLog });
-            host.Start();
+            IServiceProvider host = Startup.BuildServiceProvider(
+                _gameExecutionContext,
+                new() { BootstrapLog = _bootstrapLog });
+
+            AppDomainEventsHandler appDomainEventsHandler = host.GetRequiredService<AppDomainEventsHandler>();
+            appDomainEventsHandler.InstallHandlers();
+            BudLoader loader = host.GetRequiredService<BudLoader>();
+            loader.LoadAllBuds();
         }
         catch (Exception e)
         {

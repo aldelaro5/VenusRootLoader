@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 using System.Reflection;
@@ -6,7 +5,7 @@ using VenusRootLoader.BudLoading;
 
 namespace VenusRootLoader;
 
-internal sealed class AppDomainEventsHandler : IHostedService
+internal sealed class AppDomainEventsHandler
 {
     private readonly BudLoaderContext _budLoaderContext;
     private readonly IAssemblyLoader _assemblyLoader;
@@ -30,12 +29,11 @@ internal sealed class AppDomainEventsHandler : IHostedService
         _fileSystem = fileSystem;
     }
 
-    public Task StartAsync(CancellationToken cancellationToken)
+    public void InstallHandlers()
     {
         _appDomainEvents.UnhandledException += OnUnhandledException;
         _appDomainEvents.AssemblyResolve += OnAssemblyResolve;
         _logger.LogDebug("Installed the unhandled exception handler and the assembly resolver");
-        return Task.CompletedTask;
     }
 
     private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -84,6 +82,4 @@ internal sealed class AppDomainEventsHandler : IHostedService
             }
         }
     }
-
-    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 }

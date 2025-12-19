@@ -18,7 +18,7 @@ internal static class Entry
             _bootstrapLog =
                 Marshal.GetDelegateForFunctionPointer<BootstrapFunctions.BootstrapLogFn>(bootstrapLogFunctionPtr);
             _gameExecutionContext = Marshal.PtrToStructure<GameExecutionContext>(gameExecutionContextPtr);
-            var host = Startup.BuildHost(_gameExecutionContext, new() { BootstrapLog = _bootstrapLog });
+            IHost host = Startup.BuildHost(_gameExecutionContext, new() { BootstrapLog = _bootstrapLog });
             host.Start();
         }
         catch (Exception e)

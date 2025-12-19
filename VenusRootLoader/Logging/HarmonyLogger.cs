@@ -1,10 +1,9 @@
 using HarmonyLib.Tools;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace VenusRootLoader.Logging;
 
-internal sealed class HarmonyLogger : IHostedService
+internal sealed class HarmonyLogger
 {
     private static readonly Dictionary<Logger.LogChannel, LogLevel> LogLevelMappings = new()
     {
@@ -18,20 +17,17 @@ internal sealed class HarmonyLogger : IHostedService
 
     private readonly ILogger<HarmonyLogger> _harmonyLogger;
 
-    public HarmonyLogger(ILogger<HarmonyLogger> bootstrapFunctions)
+    public HarmonyLogger(ILogger<HarmonyLogger> logger)
     {
-        _harmonyLogger = bootstrapFunctions;
+        _harmonyLogger = logger;
     }
 
-    public Task StartAsync(CancellationToken cancellationToken)
+    internal void InstallHarmonyLogging()
     {
         Logger.ChannelFilter = Logger.LogChannel.All;
         Logger.MessageReceived += LoggerOnMessageReceived;
-        return Task.CompletedTask;
     }
 
     private void LoggerOnMessageReceived(object sender, Logger.LogEventArgs e) =>
         _harmonyLogger.Log(LogLevelMappings[e.LogChannel], e.Message);
-
-    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 }

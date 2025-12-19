@@ -5,6 +5,8 @@ using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 using VenusRootLoader.Logging;
 using VenusRootLoader.BudLoading;
+using VenusRootLoader.Modding;
+using VenusRootLoader.Unity;
 
 namespace VenusRootLoader;
 
@@ -12,7 +14,7 @@ internal static class Startup
 {
     internal static IHost BuildHost(GameExecutionContext gameExecutionContext, BootstrapFunctions bootstrapFunctions)
     {
-        var builder = Host.CreateEmptyApplicationBuilder(
+        HostApplicationBuilder builder = Host.CreateEmptyApplicationBuilder(
             new()
             {
                 DisableDefaults = true,
@@ -23,8 +25,7 @@ internal static class Startup
                 Configuration = new()
             });
 
-        var fileSystem = new FileSystem();
-
+        FileSystem fileSystem = new();
         string configPath = fileSystem.Path.Combine(builder.Environment.ContentRootPath, "Config");
         builder.Configuration.AddJsonFile(fileSystem.Path.Combine(configPath, "config.jsonc"));
 
@@ -44,8 +45,12 @@ internal static class Startup
         builder.Services.AddSingleton<IFileSystem, FileSystem>();
         builder.Services.AddSingleton<IAppDomainEvents, AppDomainEvents>();
         builder.Services.AddHostedService<AppDomainEventsHandler>();
-        builder.Services.AddHostedService<HarmonyLogger>();
+        builder.Services.AddSingleton<HarmonyLogger>();
+        builder.Services.AddSingleton<IHarmonyTypePatcher, HarmonyTypePatcher>();
 
+        builder.Services.AddSingleton<GlobalMonoBehaviourExecution>();
+
+        builder.Services.AddSingleton<IVenusFactory, VenusFactory>();
         builder.Services.AddSingleton<IBudsDiscoverer, BudsDiscoverer>();
         builder.Services.AddSingleton<IBudsValidator, BudsValidator>();
         builder.Services.AddSingleton<IBudsDependencySorter, BudsDependencySorter>();

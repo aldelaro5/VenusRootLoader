@@ -2,6 +2,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 using System.Reflection;
+using VenusRootLoader.Modding;
 using VenusRootLoader.Models;
 
 namespace VenusRootLoader.BudLoading;
@@ -16,6 +17,7 @@ internal sealed class BudLoader : IHostedService
     private readonly IFileSystem _fileSystem;
     private readonly ILogger<BudLoader> _logger;
     private readonly ILoggerFactory _loggerFactory;
+    private readonly IVenusFactory _venusFactory;
 
     public BudLoader(
         IBudsDiscoverer budsDiscoverer,
@@ -25,7 +27,8 @@ internal sealed class BudLoader : IHostedService
         IAssemblyLoader assemblyLoader,
         IFileSystem fileSystem,
         ILogger<BudLoader> logger,
-        ILoggerFactory loggerFactory)
+        ILoggerFactory loggerFactory,
+        IVenusFactory venusFactory)
     {
         _budsDiscoverer = budsDiscoverer;
         _budsValidator = budsValidator;
@@ -35,6 +38,7 @@ internal sealed class BudLoader : IHostedService
         _fileSystem = fileSystem;
         _logger = logger;
         _loggerFactory = loggerFactory;
+        _venusFactory = venusFactory;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
@@ -85,6 +89,7 @@ internal sealed class BudLoader : IHostedService
             Bud bud = (Bud)Activator.CreateInstance(budType);
             bud.Logger = _loggerFactory.CreateLogger(budLoadingInfo.BudManifest.BudId);
             bud.BaseBudPath = _fileSystem.Path.GetDirectoryName(budLoadingInfo.BudAssemblyPath)!;
+            bud.Venus = _venusFactory.CreateVenusForBud(budLoadingInfo.BudManifest.BudId);
 
             _logger.LogDebug("Loading bud {budId}...", budLoadingInfo.BudManifest.BudId);
             bud.Main();

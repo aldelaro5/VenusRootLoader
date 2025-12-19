@@ -2,7 +2,7 @@ using NuGet.Versioning;
 
 namespace VenusRootLoader.Models;
 
-internal sealed class BudManifest
+public sealed class BudManifest
 {
     public required string AssemblyName { get; init; }
     public required string BudId { get; init; }
@@ -13,14 +13,14 @@ internal sealed class BudManifest
     public required BudIncompatibility[] BudIncompatibilities { get; init; }
 }
 
-internal sealed record BudDependency
+public sealed record BudDependency
 {
     public required string BudId { get; set; }
     public required bool Optional { get; set; }
     public required VersionRange Version { get; set; }
 }
 
-internal sealed record BudIncompatibility
+public sealed record BudIncompatibility
 {
     public required string BudId { get; set; }
     public required VersionRange? Version { get; set; }

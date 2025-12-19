@@ -94,6 +94,7 @@ internal sealed class BudLoader
             Type budType = assembly.GetType(budLoadingInfo.BudType.FullName);
             Bud bud = (Bud)Activator.CreateInstance(budType);
             bud.Logger = _loggerFactory.CreateLogger(budLoadingInfo.BudManifest.BudId);
+            bud.BudInfo = budLoadingInfo.BudManifest;
             bud.BaseBudPath = _fileSystem.Path.GetDirectoryName(budLoadingInfo.BudAssemblyPath)!;
             bud.Venus = _venusFactory.CreateVenusForBud(budLoadingInfo.BudManifest.BudId);
 

@@ -1,4 +1,5 @@
 using CommunityToolkit.Diagnostics;
+using HarmonyLib;
 using System.Globalization;
 using System.IO.Abstractions;
 using System.Reflection;
@@ -215,7 +216,7 @@ internal sealed class BudConfigManager : IBudConfigManager
                 defaultValueStr = defaultTomlValue?.SerializedValue ?? "null";
             }
 
-            string newComment = $"Type: {configValueInfo.type.Name}" +
+            string newComment = $"Type: {configValueInfo.type.FullDescription()}" +
                                 $"\nDefault value: {defaultValueStr}";
 
             string? comments = tomlEntry.Value.Comments.PrecedingComment;

@@ -10,6 +10,8 @@ public abstract class Bud
     protected internal BudManifest BudInfo { get; internal set; } = null!;
     protected internal string BaseBudPath { get; internal set; } = null!;
     protected internal Venus Venus { get; internal set; } = null!;
+    protected internal object? ConfigData { get; internal set; }
 
+    protected internal abstract Type? ConfigType { get; }
     protected internal abstract void Main();
 }

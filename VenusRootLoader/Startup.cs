@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 using VenusRootLoader.BudLoading;
+using VenusRootLoader.Config;
 using VenusRootLoader.Logging;
 using VenusRootLoader.Modding;
 using VenusRootLoader.Unity;
@@ -47,6 +48,7 @@ internal static class Startup
 
         services.AddSingleton<GlobalMonoBehaviourExecution>();
 
+        services.AddSingleton<IBudConfigManager, BudConfigManager>();
         services.AddSingleton<IVenusFactory, VenusFactory>();
         services.AddSingleton<IBudsDiscoverer, BudsDiscoverer>();
         services.AddSingleton<IBudsValidator, BudsValidator>();

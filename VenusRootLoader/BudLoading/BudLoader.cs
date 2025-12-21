@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 using System.Reflection;
+using VenusRootLoader.Config;
 using VenusRootLoader.Modding;
 using VenusRootLoader.Models;
 
@@ -18,6 +19,7 @@ internal sealed class BudLoader
     private readonly ILogger<BudLoader> _logger;
     private readonly ILoggerFactory _loggerFactory;
     private readonly IVenusFactory _venusFactory;
+    private readonly IBudConfigManager _budConfigManager;
 
     public BudLoader(
         IBudsDiscoverer budsDiscoverer,
@@ -29,7 +31,8 @@ internal sealed class BudLoader
         IFileSystem fileSystem,
         ILogger<BudLoader> logger,
         ILoggerFactory loggerFactory,
-        IVenusFactory venusFactory)
+        IVenusFactory venusFactory,
+        IBudConfigManager budConfigManager)
     {
         _budsDiscoverer = budsDiscoverer;
         _budsValidator = budsValidator;
@@ -41,6 +44,7 @@ internal sealed class BudLoader
         _logger = logger;
         _loggerFactory = loggerFactory;
         _venusFactory = venusFactory;
+        _budConfigManager = budConfigManager;
 
         if (!Directory.Exists(_budLoaderContext.BudsPath))
             Directory.CreateDirectory(_budLoaderContext.BudsPath);
@@ -93,10 +97,12 @@ internal sealed class BudLoader
             Assembly assembly = _assemblyLoader.LoadFromPath(budLoadingInfo.BudAssemblyPath);
             Type budType = assembly.GetType(budLoadingInfo.BudType.FullName);
             Bud bud = (Bud)Activator.CreateInstance(budType);
-            bud.Logger = _loggerFactory.CreateLogger(budLoadingInfo.BudManifest.BudId);
+            object? configData = UpdateConfig(bud, budLoadingInfo);
             bud.BudInfo = budLoadingInfo.BudManifest;
+            bud.Logger = _loggerFactory.CreateLogger(budLoadingInfo.BudManifest.BudId);
             bud.BaseBudPath = _fileSystem.Path.GetDirectoryName(budLoadingInfo.BudAssemblyPath)!;
             bud.Venus = _venusFactory.CreateVenusForBud(budLoadingInfo.BudManifest.BudId);
+            bud.ConfigData = configData;
 
             _logger.LogDebug("Loading bud {budId}...", budLoadingInfo.BudManifest.BudId);
             bud.Main();
@@ -110,5 +116,25 @@ internal sealed class BudLoader
                 budLoadingInfo.BudManifest.BudId);
             _budsLoadOrderEnumerator.MarkBudAsFailedDuringLoad(budLoadingInfo);
         }
+    }
+
+    private object? UpdateConfig(Bud bud, BudInfo budLoadingInfo)
+    {
+        Type? configType = bud.ConfigType;
+        if (configType is null)
+            return null;
+
+        string configPath = _budConfigManager.GetConfigPathForBud(budLoadingInfo.BudManifest.BudId);
+        object? o;
+        if (_fileSystem.File.Exists(configPath))
+        {
+            o = _budConfigManager.Load(budLoadingInfo.BudManifest.BudId, configType);
+            _budConfigManager.Save(budLoadingInfo.BudManifest.BudId, o);
+            return o;
+        }
+
+        o = Activator.CreateInstance(configType);
+        _budConfigManager.Save(budLoadingInfo.BudManifest.BudId, o);
+        return o;
     }
 }

@@ -12,6 +12,7 @@ public abstract class Bud
     protected internal Venus Venus { get; internal set; } = null!;
     protected internal object? ConfigData { get; internal set; }
 
-    protected internal abstract Type? ConfigType { get; }
+    protected internal virtual object? DefaultConfigData => null;
+
     protected internal abstract void Main();
 }

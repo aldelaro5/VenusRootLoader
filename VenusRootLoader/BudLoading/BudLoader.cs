@@ -120,21 +120,20 @@ internal sealed class BudLoader
 
     private object? UpdateConfig(Bud bud, BudInfo budLoadingInfo)
     {
-        Type? configType = bud.ConfigType;
-        if (configType is null)
+        object? defaultConfigData = bud.DefaultConfigData;
+        if (defaultConfigData is null)
             return null;
 
+        Type configType = defaultConfigData.GetType();
         string configPath = _budConfigManager.GetConfigPathForBud(budLoadingInfo.BudManifest.BudId);
-        object? o;
         if (_fileSystem.File.Exists(configPath))
         {
-            o = _budConfigManager.Load(budLoadingInfo.BudManifest.BudId, configType);
+            object o = _budConfigManager.Load(budLoadingInfo.BudManifest.BudId, configType);
             _budConfigManager.Save(budLoadingInfo.BudManifest.BudId, configType, o);
             return o;
         }
 
-        o = Activator.CreateInstance(configType);
-        _budConfigManager.Save(budLoadingInfo.BudManifest.BudId, configType, o);
-        return o;
+        _budConfigManager.Save(budLoadingInfo.BudManifest.BudId, configType, defaultConfigData);
+        return defaultConfigData;
     }
 }

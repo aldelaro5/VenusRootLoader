@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using System.Globalization;
 using System.IO.Abstractions;
+using System.Reflection;
 using Tomlet;
 using Tomlet.Models;
 using UnityEngine;
@@ -10,7 +11,7 @@ namespace VenusRootLoader.Config;
 internal interface IBudConfigManager
 {
     string GetConfigPathForBud(string budId);
-    void Save(string budId, Type configType, object configData);
+    void Save(string budId, Type configType, object configData, object defaultConfigData);
     object Load(string budId, Type configType);
 }
 
@@ -157,13 +158,89 @@ internal sealed class BudConfigManager : IBudConfigManager
     public string GetConfigPathForBud(string budId) =>
         _fileSystem.Path.Combine(_budLoaderContext.ConfigPath, $"{budId}.toml");
 
-    public void Save(string budId, Type configType, object configData)
+    public void Save(string budId, Type configType, object configData, object defaultConfigData)
     {
         string configPath = GetConfigPathForBud(budId);
-        string? toml = TomletMain.TomlStringFrom(configType, configData, _tomlSerializerOptions);
+        TomlDocument? toml = TomletMain.DocumentFrom(configType, configData, _tomlSerializerOptions);
         if (toml is null)
             ThrowHelper.ThrowFormatException("The config data serialised to a null TOML string");
-        File.WriteAllText(configPath, toml);
+
+        ProcessTomlEntries(toml.Entries, configType, defaultConfigData);
+
+        File.WriteAllText(configPath, toml.SerializedValue);
+    }
+
+    private void ProcessTomlEntries(
+        Dictionary<string, TomlValue> entries,
+        Type configType,
+        object defaultConfigData)
+    {
+        PropertyInfo[] propertyInfos = configType.GetProperties();
+        FieldInfo[] fieldInfos =
+            configType.GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+        foreach (KeyValuePair<string, TomlValue> tomlEntry in entries)
+        {
+            var configValueInfo = ObtainConfigValueInfo(
+                tomlEntry.Key,
+                propertyInfos,
+                fieldInfos,
+                defaultConfigData);
+            bool isRect = configValueInfo.type == typeof(Rect);
+            bool isDictionary = configValueInfo.type.IsGenericType &&
+                                 configValueInfo.type.GetGenericTypeDefinition() == typeof(Dictionary<,>);
+
+            if (tomlEntry.Value is TomlTable tomlTable && (!isRect && !isDictionary))
+            {
+                tomlTable.ForceNoInline = true;
+                ProcessTomlEntries(tomlTable.Entries, configValueInfo.type, configValueInfo.defaultValue);
+                continue;
+            }
+
+            TomlValue? defaultTomlValue = TomletMain.ValueFrom(
+                configValueInfo.type,
+                configValueInfo.defaultValue,
+                _tomlSerializerOptions);
+
+            string defaultValueStr;
+            if (isRect)
+            {
+                defaultValueStr = configValueInfo.defaultValue.ToString();
+            }
+            else if (defaultTomlValue is TomlArray { CanBeSerializedInline: false } tomlArray)
+            {
+                defaultValueStr = $"\n{tomlArray.SerializeTableArray(configValueInfo.name)}";
+            }
+            else
+            {
+                defaultValueStr = defaultTomlValue?.SerializedValue ?? "null";
+            }
+
+            string newComment = $"Type: {configValueInfo.type.Name}" +
+                                $"\nDefault value: {defaultValueStr}";
+
+            string? comments = tomlEntry.Value.Comments.PrecedingComment;
+            if (string.IsNullOrEmpty(comments))
+            {
+                tomlEntry.Value.Comments.PrecedingComment = newComment;
+                continue;
+            }
+
+            comments += $"\n{newComment}";
+            tomlEntry.Value.Comments.PrecedingComment = comments;
+        }
+    }
+
+    private (Type type, object defaultValue, string name) ObtainConfigValueInfo(
+        string key,
+        PropertyInfo[] propertyInfos,
+        FieldInfo[] fieldInfos,
+        object defaultConfigData)
+    {
+        PropertyInfo? prop = propertyInfos.SingleOrDefault(p => p.Name == key);
+        if (prop is not null)
+            return (prop.PropertyType, prop.GetValue(defaultConfigData, null), prop.Name);
+        FieldInfo fieldInfo = fieldInfos.Single(f => f.Name == key);
+        return (fieldInfo.FieldType, fieldInfo.GetValue(defaultConfigData), fieldInfo.Name);
     }
 
     public object Load(string budId, Type configType)

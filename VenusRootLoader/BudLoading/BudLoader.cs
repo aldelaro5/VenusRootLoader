@@ -129,11 +129,11 @@ internal sealed class BudLoader
         if (_fileSystem.File.Exists(configPath))
         {
             object o = _budConfigManager.Load(budLoadingInfo.BudManifest.BudId, configType);
-            _budConfigManager.Save(budLoadingInfo.BudManifest.BudId, configType, o);
+            _budConfigManager.Save(budLoadingInfo.BudManifest.BudId, configType, o, defaultConfigData);
             return o;
         }
 
-        _budConfigManager.Save(budLoadingInfo.BudManifest.BudId, configType, defaultConfigData);
+        _budConfigManager.Save(budLoadingInfo.BudManifest.BudId, configType, defaultConfigData, defaultConfigData);
         return defaultConfigData;
     }
 }

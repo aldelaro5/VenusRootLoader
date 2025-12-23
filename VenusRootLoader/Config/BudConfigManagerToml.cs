@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO.Abstractions;
 using System.Reflection;
 using Tomlet;
+using Tomlet.Attributes;
 using Tomlet.Models;
 using UnityEngine;
 
@@ -176,47 +177,51 @@ internal sealed class BudConfigManager : IBudConfigManager
         Type configType,
         object defaultConfigData)
     {
-        PropertyInfo[] propertyInfos = configType.GetProperties();
-        FieldInfo[] fieldInfos =
-            configType.GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+        List<MemberInfo> memberInfos = AccessTools.GetDeclaredProperties(configType)
+            .Cast<MemberInfo>()
+            .ToList();
+        memberInfos.AddRange(AccessTools.GetDeclaredFields(configType));
+        Dictionary<string, MemberInfo> membersByMappedNames = memberInfos.ToDictionary(
+            m => m.GetCustomAttribute<TomlPropertyAttribute>()?.GetMappedString() ?? m.Name,
+            m => m);
+
         foreach (KeyValuePair<string, TomlValue> tomlEntry in entries)
         {
-            var configValueInfo = ObtainConfigValueInfo(
+            (Type Type, object DefaultValue) configValueInfo = ObtainConfigValueInfo(
                 tomlEntry.Key,
-                propertyInfos,
-                fieldInfos,
+                membersByMappedNames,
                 defaultConfigData);
-            bool isRect = configValueInfo.type == typeof(Rect);
-            bool isDictionary = configValueInfo.type.IsGenericType &&
-                                 configValueInfo.type.GetGenericTypeDefinition() == typeof(Dictionary<,>);
+            bool isRect = configValueInfo.Type == typeof(Rect);
+            bool isDictionary = configValueInfo.Type.IsGenericType &&
+                                configValueInfo.Type.GetGenericTypeDefinition() == typeof(Dictionary<,>);
 
-            if (tomlEntry.Value is TomlTable tomlTable && (!isRect && !isDictionary))
+            if (tomlEntry.Value is TomlTable tomlTable && !isRect && !isDictionary)
             {
                 tomlTable.ForceNoInline = true;
-                ProcessTomlEntries(tomlTable.Entries, configValueInfo.type, configValueInfo.defaultValue);
+                ProcessTomlEntries(tomlTable.Entries, configValueInfo.Type, configValueInfo.DefaultValue);
                 continue;
             }
 
             TomlValue? defaultTomlValue = TomletMain.ValueFrom(
-                configValueInfo.type,
-                configValueInfo.defaultValue,
+                configValueInfo.Type,
+                configValueInfo.DefaultValue,
                 _tomlSerializerOptions);
 
             string defaultValueStr;
             if (isRect)
             {
-                defaultValueStr = configValueInfo.defaultValue.ToString();
+                defaultValueStr = configValueInfo.DefaultValue.ToString();
             }
             else if (defaultTomlValue is TomlArray { CanBeSerializedInline: false } tomlArray)
             {
-                defaultValueStr = $"\n{tomlArray.SerializeTableArray(configValueInfo.name)}";
+                defaultValueStr = $"\n{tomlArray.SerializeTableArray(tomlEntry.Key)}";
             }
             else
             {
                 defaultValueStr = defaultTomlValue?.SerializedValue ?? "null";
             }
 
-            string newComment = $"Type: {configValueInfo.type.FullDescription()}" +
+            string newComment = $"Type: {configValueInfo.Type.FullDescription()}" +
                                 $"\nDefault value: {defaultValueStr}";
 
             string? comments = tomlEntry.Value.Comments.PrecedingComment;
@@ -231,17 +236,16 @@ internal sealed class BudConfigManager : IBudConfigManager
         }
     }
 
-    private (Type type, object defaultValue, string name) ObtainConfigValueInfo(
+    private static (Type Type, object DefaultValue) ObtainConfigValueInfo(
         string key,
-        PropertyInfo[] propertyInfos,
-        FieldInfo[] fieldInfos,
+        Dictionary<string, MemberInfo> memberInfos,
         object defaultConfigData)
     {
-        PropertyInfo? prop = propertyInfos.SingleOrDefault(p => p.Name == key);
-        if (prop is not null)
-            return (prop.PropertyType, prop.GetValue(defaultConfigData, null), prop.Name);
-        FieldInfo fieldInfo = fieldInfos.Single(f => f.Name == key);
-        return (fieldInfo.FieldType, fieldInfo.GetValue(defaultConfigData), fieldInfo.Name);
+        MemberInfo memberInfo = memberInfos[key];
+        if (memberInfo is PropertyInfo propertyInfo)
+            return (propertyInfo.PropertyType, propertyInfo.GetGetMethod().Invoke(defaultConfigData, null));
+        FieldInfo fieldInfo = (FieldInfo)memberInfo;
+        return (fieldInfo.FieldType, fieldInfo.GetValue(defaultConfigData));
     }
 
     public object Load(string budId, Type configType)

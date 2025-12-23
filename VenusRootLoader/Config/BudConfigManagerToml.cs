@@ -1,6 +1,5 @@
 using CommunityToolkit.Diagnostics;
 using HarmonyLib;
-using System.Globalization;
 using System.IO.Abstractions;
 using System.Reflection;
 using Tomlet;
@@ -19,8 +18,17 @@ internal interface IBudConfigManager
 
 internal sealed class BudConfigManager : IBudConfigManager
 {
-    private static readonly char[] Separator = [','];
-
+    private static readonly Type[] UnityTableTypes =
+    [
+        typeof(Vector2),
+        typeof(Vector2Int),
+        typeof(Vector3),
+        typeof(Vector3Int),
+        typeof(Vector4),
+        typeof(Quaternion),
+        typeof(Rect)
+    ];
+    
     private readonly IFileSystem _fileSystem;
     private readonly BudLoaderContext _budLoaderContext;
 
@@ -37,66 +45,108 @@ internal sealed class BudConfigManager : IBudConfigManager
         _budLoaderContext = budLoaderContext;
 
         TomletMain.RegisterMapper(
-            v => new TomlString($"({v.x:G9}, {v.y:G9})"),
+            v =>
+            {
+                TomlTable table = new();
+                table.Put(nameof(Vector2.x), v.x);
+                table.Put(nameof(Vector2.y), v.y);
+                return table;
+            },
             toml =>
             {
-                string[] valuesSplit = ValidateAndExtractVectorComponents(toml, nameof(Vector2), 2);
+                TomlTable table = (TomlTable)toml;
                 return new Vector2(
-                    float.Parse(valuesSplit[0], CultureInfo.InvariantCulture),
-                    float.Parse(valuesSplit[1], CultureInfo.InvariantCulture));
+                    table.GetFloat(nameof(Vector2.x)),
+                    table.GetFloat(nameof(Vector2.y)));
             });
         TomletMain.RegisterMapper(
-            v => new TomlString($"({v.x}, {v.y})"),
+            v =>
+            {
+                TomlTable table = new();
+                table.Put(nameof(Vector2Int.x), v.x);
+                table.Put(nameof(Vector2Int.y), v.y);
+                return table;
+            },
             toml =>
             {
-                string[] valuesSplit = ValidateAndExtractVectorComponents(toml, nameof(Vector2Int), 2);
+                TomlTable table = (TomlTable)toml;
                 return new Vector2Int(
-                    int.Parse(valuesSplit[0], CultureInfo.InvariantCulture),
-                    int.Parse(valuesSplit[1], CultureInfo.InvariantCulture));
+                    table.GetInteger(nameof(Vector2Int.x)),
+                    table.GetInteger(nameof(Vector2Int.y)));
             });
 
         TomletMain.RegisterMapper(
-            v => new TomlString($"({v.x:G9}, {v.y:G9}, {v.z:G9})"),
+            v =>
+            {
+                TomlTable table = new();
+                table.Put(nameof(Vector3.x), v.x);
+                table.Put(nameof(Vector3.y), v.y);
+                table.Put(nameof(Vector3.z), v.z);
+                return table;
+            },
             toml =>
             {
-                string[] valuesSplit = ValidateAndExtractVectorComponents(toml, nameof(Vector3), 3);
+                TomlTable table = (TomlTable)toml;
                 return new Vector3(
-                    float.Parse(valuesSplit[0], CultureInfo.InvariantCulture),
-                    float.Parse(valuesSplit[1], CultureInfo.InvariantCulture),
-                    float.Parse(valuesSplit[2], CultureInfo.InvariantCulture));
+                    table.GetFloat(nameof(Vector3.x)),
+                    table.GetFloat(nameof(Vector3.y)),
+                    table.GetFloat(nameof(Vector3.z)));
             });
         TomletMain.RegisterMapper(
-            v => new TomlString($"({v.x}, {v.y}, {v.y})"),
+            v =>
+            {
+                TomlTable table = new();
+                table.Put(nameof(Vector3Int.x), v.x);
+                table.Put(nameof(Vector3Int.y), v.y);
+                table.Put(nameof(Vector3Int.z), v.z);
+                return table;
+            },
             toml =>
             {
-                string[] valuesSplit = ValidateAndExtractVectorComponents(toml, nameof(Vector3Int), 3);
+                TomlTable table = (TomlTable)toml;
                 return new Vector3Int(
-                    int.Parse(valuesSplit[0], CultureInfo.InvariantCulture),
-                    int.Parse(valuesSplit[1], CultureInfo.InvariantCulture),
-                    int.Parse(valuesSplit[2], CultureInfo.InvariantCulture));
+                    table.GetInteger(nameof(Vector3Int.x)),
+                    table.GetInteger(nameof(Vector3Int.y)),
+                    table.GetInteger(nameof(Vector3Int.z)));
             });
 
         TomletMain.RegisterMapper(
-            v => new TomlString($"({v.x:G9}, {v.y:G9}, {v.z:G9}, {v.w:G9})"),
+            v =>
+            {
+                TomlTable table = new();
+                table.Put(nameof(Vector4.x), v.x);
+                table.Put(nameof(Vector4.y), v.y);
+                table.Put(nameof(Vector4.z), v.z);
+                table.Put(nameof(Vector4.w), v.w);
+                return table;
+            },
             toml =>
             {
-                string[] valuesSplit = ValidateAndExtractVectorComponents(toml, nameof(Vector4), 4);
+                TomlTable table = (TomlTable)toml;
                 return new Vector4(
-                    float.Parse(valuesSplit[0], CultureInfo.InvariantCulture),
-                    float.Parse(valuesSplit[1], CultureInfo.InvariantCulture),
-                    float.Parse(valuesSplit[2], CultureInfo.InvariantCulture),
-                    float.Parse(valuesSplit[3], CultureInfo.InvariantCulture));
+                    table.GetFloat(nameof(Vector4.x)),
+                    table.GetFloat(nameof(Vector4.y)),
+                    table.GetFloat(nameof(Vector4.z)),
+                    table.GetFloat(nameof(Vector4.w)));
             });
         TomletMain.RegisterMapper(
-            v => new TomlString($"({v.x:G9}, {v.y:G9}, {v.z:G9}, {v.w:G9})"),
+            v =>
+            {
+                TomlTable table = new();
+                table.Put(nameof(Quaternion.x), v.x);
+                table.Put(nameof(Quaternion.y), v.y);
+                table.Put(nameof(Quaternion.z), v.z);
+                table.Put(nameof(Quaternion.w), v.w);
+                return table;
+            },
             toml =>
             {
-                string[] valuesSplit = ValidateAndExtractVectorComponents(toml, nameof(Quaternion), 4);
+                TomlTable table = (TomlTable)toml;
                 return new Quaternion(
-                    float.Parse(valuesSplit[0], CultureInfo.InvariantCulture),
-                    float.Parse(valuesSplit[1], CultureInfo.InvariantCulture),
-                    float.Parse(valuesSplit[2], CultureInfo.InvariantCulture),
-                    float.Parse(valuesSplit[3], CultureInfo.InvariantCulture));
+                    table.GetFloat(nameof(Quaternion.x)),
+                    table.GetFloat(nameof(Quaternion.y)),
+                    table.GetFloat(nameof(Quaternion.z)),
+                    table.GetFloat(nameof(Quaternion.w)));
             });
 
         TomletMain.RegisterMapper(
@@ -133,30 +183,6 @@ internal sealed class BudConfigManager : IBudConfigManager
             });
     }
 
-    private static string[] ValidateAndExtractVectorComponents(
-        TomlValue toml,
-        string typeName,
-        int expectedComponentCount)
-    {
-        ReadOnlySpan<char> bytes = toml.StringValue.AsSpan();
-        if (bytes[0] != '(' || bytes[^1] != ')')
-        {
-            ThrowHelper.ThrowFormatException<Vector2>(
-                $"A {typeName} value must begin with \"(\" and end with \")\"");
-        }
-
-        string values = bytes[1..^1].ToString();
-        string[] valuesSplit = values.Split(Separator, StringSplitOptions.RemoveEmptyEntries);
-
-        if (valuesSplit.Length != expectedComponentCount)
-        {
-            ThrowHelper.ThrowFormatException<Vector2>(
-                $"A {typeName} value must have {expectedComponentCount} components separated by commas");
-        }
-
-        return valuesSplit;
-    }
-
     public string GetConfigPathForBud(string budId) =>
         _fileSystem.Path.Combine(_budLoaderContext.ConfigPath, $"{budId}.toml");
 
@@ -191,11 +217,11 @@ internal sealed class BudConfigManager : IBudConfigManager
                 tomlEntry.Key,
                 membersByMappedNames,
                 defaultConfigData);
-            bool isRect = configValueInfo.Type == typeof(Rect);
+            bool isUnityTableType = UnityTableTypes.Contains(configValueInfo.Type);
             bool isDictionary = configValueInfo.Type.IsGenericType &&
                                 configValueInfo.Type.GetGenericTypeDefinition() == typeof(Dictionary<,>);
 
-            if (tomlEntry.Value is TomlTable tomlTable && !isRect && !isDictionary)
+            if (tomlEntry.Value is TomlTable tomlTable && !isUnityTableType && !isDictionary)
             {
                 tomlTable.ForceNoInline = true;
                 ProcessTomlEntries(tomlTable.Entries, configValueInfo.Type, configValueInfo.DefaultValue);
@@ -208,7 +234,7 @@ internal sealed class BudConfigManager : IBudConfigManager
                 _tomlSerializerOptions);
 
             string defaultValueStr;
-            if (isRect)
+            if (isUnityTableType)
             {
                 defaultValueStr = configValueInfo.DefaultValue.ToString();
             }
@@ -243,7 +269,7 @@ internal sealed class BudConfigManager : IBudConfigManager
     {
         MemberInfo memberInfo = memberInfos[key];
         if (memberInfo is PropertyInfo propertyInfo)
-            return (propertyInfo.PropertyType, propertyInfo.GetGetMethod().Invoke(defaultConfigData, null));
+            return (propertyInfo.PropertyType, propertyInfo.GetValue(defaultConfigData, null));
         FieldInfo fieldInfo = (FieldInfo)memberInfo;
         return (fieldInfo.FieldType, fieldInfo.GetValue(defaultConfigData));
     }

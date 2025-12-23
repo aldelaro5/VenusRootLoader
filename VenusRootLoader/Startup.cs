@@ -6,6 +6,7 @@ using VenusRootLoader.BudLoading;
 using VenusRootLoader.Config;
 using VenusRootLoader.Logging;
 using VenusRootLoader.Modding;
+using VenusRootLoader.Patching;
 using VenusRootLoader.Unity;
 
 namespace VenusRootLoader;
@@ -47,6 +48,7 @@ internal static class Startup
         services.AddSingleton<IHarmonyTypePatcher, HarmonyTypePatcher>();
 
         services.AddSingleton<GlobalMonoBehaviourExecution>();
+        services.AddSingleton<EnumPatcher>();
 
         services.AddSingleton<IBudConfigManager, BudConfigManager>();
         services.AddSingleton<IVenusFactory, VenusFactory>();

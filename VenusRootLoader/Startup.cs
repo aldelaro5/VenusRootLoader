@@ -4,9 +4,11 @@ using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 using VenusRootLoader.BudLoading;
 using VenusRootLoader.Config;
+using VenusRootLoader.Extensions;
 using VenusRootLoader.Logging;
 using VenusRootLoader.Modding;
 using VenusRootLoader.Patching;
+using VenusRootLoader.Patching.TextAssetData;
 using VenusRootLoader.Unity;
 
 namespace VenusRootLoader;
@@ -47,8 +49,13 @@ internal static class Startup
         services.AddSingleton<HarmonyLogger>();
         services.AddSingleton<IHarmonyTypePatcher, HarmonyTypePatcher>();
 
-        services.AddSingleton<GlobalMonoBehaviourExecution>();
         services.AddSingleton<EnumPatcher>();
+        services.AddSingleton<ResourcesPatcher>();
+        services.AddSingleton<RootTextAssetPatcher>();
+        services.AddBoundTextAssetPatcher<ItemData>("Data/ItemData");
+        services.AddBoundTextAssetPatcher<ItemLanguageData>("Data/Dialogues0/Items");
+
+        services.AddSingleton<GlobalMonoBehaviourExecution>();
 
         services.AddSingleton<IBudConfigManager, BudConfigManager>();
         services.AddSingleton<IVenusFactory, VenusFactory>();

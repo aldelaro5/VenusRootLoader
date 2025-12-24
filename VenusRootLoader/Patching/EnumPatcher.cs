@@ -1,5 +1,6 @@
 using HarmonyLib;
 using System.Reflection;
+using VenusRootLoader.Extensions;
 
 namespace VenusRootLoader.Patching;
 
@@ -34,7 +35,10 @@ internal sealed class EnumPatcher
     internal int AddCustomEnumName(Type type, string name)
     {
         if (!_customEnumNames.ContainsKey(type))
-            _customEnumNames[type] = new((ulong)Enum.GetValues(type).Cast<int>().Max() + 1);
+            _customEnumNames[type] = new((ulong)Enum.GetNextIntEnumValue(type));
+        if (_customEnumNames[type].CustomNames.Contains(name))
+            throw new ArgumentException($"The custom enum name {name} already exists in {type.FullDescription()}");
+
         _customEnumNames[type].CustomNames.Add(name);
 
         int resultId = (int)_customEnumNames[type].NextId;

@@ -5,7 +5,7 @@ using VenusRootLoader.Patching.TextAssetData;
 
 namespace VenusRootLoader.Patching;
 
-internal class TextAssetPatcher<T> : IResourcesTypePatcher<TextAsset>
+internal sealed class TextAssetPatcher<T> : IResourcesTypePatcher<TextAsset>
     where T : ITextAssetSerializable
 {
     private readonly RootTextAssetPatcher _rootTextAssetPatcher;

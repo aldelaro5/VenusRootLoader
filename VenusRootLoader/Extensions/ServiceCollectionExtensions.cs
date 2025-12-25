@@ -18,5 +18,15 @@ internal static class ServiceCollectionExtensions
                 provider.GetRequiredService<ILogger<TextAssetPatcher<T>>>()));
             return collection;
         }
+
+        internal IServiceCollection AddBoundLocalizedTextAssetPatcher<T>(string textAssetResourcesSubpath)
+            where T : ITextAssetSerializable
+        {
+            collection.AddSingleton<LocalizedTextAssetPatcher<T>>(provider => new(
+                textAssetResourcesSubpath,
+                provider.GetRequiredService<RootTextAssetPatcher>(),
+                provider.GetRequiredService<ILogger<LocalizedTextAssetPatcher<T>>>()));
+            return collection;
+        }
     }
 }

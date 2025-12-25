@@ -8,23 +8,21 @@ namespace VenusRootLoader.Patching;
 internal sealed class TextAssetPatcher<T> : IResourcesTypePatcher<TextAsset>
     where T : ITextAssetSerializable
 {
-    private readonly RootTextAssetPatcher _rootTextAssetPatcher;
     private readonly ILogger<TextAssetPatcher<T>> _logger;
 
     private readonly char[] _textAssetsSplitLineSeparator = ['\n'];
+
+    private Dictionary<int, T> TextAssetsChangedLines { get; } = new();
+    private List<T> TextAssetsCustomLines { get; } = new();
 
     public TextAssetPatcher(
         string path,
         RootTextAssetPatcher rootTextAssetPatcher,
         ILogger<TextAssetPatcher<T>> logger)
     {
-        _rootTextAssetPatcher = rootTextAssetPatcher;
         _logger = logger;
-        _rootTextAssetPatcher.RegisterTextAssetPatcher(path, this);
+        rootTextAssetPatcher.RegisterTextAssetPatcher(path, this);
     }
-
-    private Dictionary<int, T> TextAssetsChangedLines { get; } = new();
-    private List<T> TextAssetsCustomLines { get; } = new();
 
     internal void AddNewDataToTextAsset(T data)
     {

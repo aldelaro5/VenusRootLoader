@@ -53,7 +53,7 @@ internal static class Startup
         services.AddSingleton<ResourcesPatcher>();
         services.AddSingleton<RootTextAssetPatcher>();
         services.AddBoundTextAssetPatcher<ItemData>("Data/ItemData");
-        services.AddBoundTextAssetPatcher<ItemLanguageData>("Data/Dialogues0/Items");
+        services.AddBoundLocalizedTextAssetPatcher<ItemLanguageData>("Items");
 
         services.AddSingleton<GlobalMonoBehaviourExecution>();
 

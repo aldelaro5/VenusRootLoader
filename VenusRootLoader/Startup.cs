@@ -54,6 +54,7 @@ internal static class Startup
         services.AddSingleton<RootTextAssetPatcher>();
         services.AddBoundTextAssetPatcher<ItemData>("Data/ItemData");
         services.AddBoundLocalizedTextAssetPatcher<ItemLanguageData>("Items");
+        services.AddSingleton<ItemSpritePatcher>();
 
         services.AddSingleton<GlobalMonoBehaviourExecution>();
 

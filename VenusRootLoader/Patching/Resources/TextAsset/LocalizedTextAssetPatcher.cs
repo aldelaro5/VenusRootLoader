@@ -1,13 +1,11 @@
 using Microsoft.Extensions.Logging;
 using System.Text;
-using UnityEngine;
-using VenusRootLoader.Patching.TextAssetData;
 
-namespace VenusRootLoader.Patching;
+namespace VenusRootLoader.Patching.Resources.TextAsset;
 
 internal interface ILocalizedTextAssetPatcher
 {
-    TextAsset PatchResource(int languageId, string subpath, TextAsset original);
+    UnityEngine.TextAsset PatchResource(int languageId, string subpath, UnityEngine.TextAsset original);
 }
 
 internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
@@ -40,7 +38,7 @@ internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
         TextAssetsChangedLines[lineIndex] = data;
     }
 
-    public TextAsset PatchResource(int languageId, string subpath, TextAsset original)
+    public UnityEngine.TextAsset PatchResource(int languageId, string subpath, UnityEngine.TextAsset original)
     {
         List<KeyValuePair<int, Dictionary<int, T>>> changes = new();
         foreach (KeyValuePair<int, Dictionary<int, T>> l in TextAssetsChangedLines)
@@ -88,7 +86,7 @@ internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
 
         string text = sb.ToString();
         _logger.LogTrace("Patching {path} for language {language}:\n{text}", subpath, languageId, text);
-        return new TextAsset(text);
+        return new UnityEngine.TextAsset(text);
     }
 
     private static string GetLocalizedSerializedString(int languageId, Dictionary<int, T> customLineByLanguage)

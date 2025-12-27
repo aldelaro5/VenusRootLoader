@@ -1,4 +1,4 @@
-using VenusRootLoader.Patching.TextAssetData;
+using VenusRootLoader.Patching.Resources.TextAsset.SerializableData;
 using VenusRootLoader.Unity;
 
 namespace VenusRootLoader.GameContent;

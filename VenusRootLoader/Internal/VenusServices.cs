@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Logging;
-using VenusRootLoader.Binders;
-using VenusRootLoader.Registry;
+using VenusRootLoader.ContentBinding;
+using VenusRootLoader.Public;
 using VenusRootLoader.Unity;
 
-namespace VenusRootLoader.Venus;
+namespace VenusRootLoader.Internal;
 
 internal sealed class VenusServices
 {

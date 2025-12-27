@@ -1,11 +1,11 @@
 using CommunityToolkit.Diagnostics;
 using VenusRootLoader.GameContent;
-using VenusRootLoader.Leaves;
-using VenusRootLoader.Unity;
+using VenusRootLoader.Internal;
+using VenusRootLoader.Public.Leaves;
 
 // ReSharper disable UnusedMember.Global
 
-namespace VenusRootLoader.Venus;
+namespace VenusRootLoader.Public;
 
 public sealed class Venus
 {
@@ -52,11 +52,11 @@ public sealed class Venus
     {
         if (!_venusServices.GlobalContentRegistry.Items.TryGetValue(
                 namedId,
-                out (string BudId, ItemContent Content) content))
+                out (string CreatorId, ItemContent Content) content))
         {
             throw new Exception($"Item with namedId {namedId} does not exist");
         }
 
-        return new ItemLeaf(content.Content, namedId, content.BudId, _budId);
+        return new ItemLeaf(content.Content, namedId, content.CreatorId, _budId);
     }
 }

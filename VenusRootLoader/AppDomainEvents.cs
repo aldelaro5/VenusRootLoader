@@ -1,12 +1,12 @@
 namespace VenusRootLoader;
 
-public interface IAppDomainEvents
+internal interface IAppDomainEvents
 {
     event UnhandledExceptionEventHandler UnhandledException;
     event ResolveEventHandler AssemblyResolve;
 }
 
-public sealed class AppDomainEvents : IAppDomainEvents
+internal sealed class AppDomainEvents : IAppDomainEvents
 {
     public event UnhandledExceptionEventHandler? UnhandledException
     {

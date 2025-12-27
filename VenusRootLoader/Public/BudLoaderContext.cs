@@ -1,4 +1,4 @@
-namespace VenusRootLoader;
+namespace VenusRootLoader.Public;
 
 public sealed class BudLoaderContext
 {

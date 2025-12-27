@@ -8,7 +8,7 @@ namespace VenusRootLoader.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class BudClassAnalyzer : DiagnosticAnalyzer
 {
-    internal const string BudClassName = "VenusRootLoader.BudLoading.Bud";
+    internal const string BudClassName = "VenusRootLoader.Public.Bud";
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         // ReSharper disable once UseCollectionExpression

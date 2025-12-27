@@ -2,16 +2,19 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
-using VenusRootLoader.Binders;
 using VenusRootLoader.BudLoading;
 using VenusRootLoader.Config;
+using VenusRootLoader.ContentBinding;
 using VenusRootLoader.Extensions;
+using VenusRootLoader.Internal;
 using VenusRootLoader.Logging;
 using VenusRootLoader.Patching;
-using VenusRootLoader.Patching.TextAssetData;
-using VenusRootLoader.Registry;
+using VenusRootLoader.Patching.Resources;
+using VenusRootLoader.Patching.Resources.Sprite;
+using VenusRootLoader.Patching.Resources.TextAsset;
+using VenusRootLoader.Patching.Resources.TextAsset.SerializableData;
+using VenusRootLoader.Public;
 using VenusRootLoader.Unity;
-using VenusRootLoader.Venus;
 
 namespace VenusRootLoader;
 

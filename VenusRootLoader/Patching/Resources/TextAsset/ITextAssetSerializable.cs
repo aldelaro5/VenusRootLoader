@@ -1,4 +1,4 @@
-namespace VenusRootLoader.Patching.TextAssetData;
+namespace VenusRootLoader.Patching.Resources.TextAsset;
 
 internal interface ITextAssetSerializable
 {

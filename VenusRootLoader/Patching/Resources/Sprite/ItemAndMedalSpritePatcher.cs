@@ -4,7 +4,7 @@ using System.Reflection.Emit;
 using VenusRootLoader.Extensions;
 using VenusRootLoader.Unity;
 
-namespace VenusRootLoader.Patching;
+namespace VenusRootLoader.Patching.Resources.Sprite;
 
 internal sealed class ItemAndMedalSpritePatcher
 {

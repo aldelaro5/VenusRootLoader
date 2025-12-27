@@ -1,6 +1,7 @@
 using AsmResolver.DotNet;
+using VenusRootLoader.Public;
 
-namespace VenusRootLoader.Models;
+namespace VenusRootLoader.BudLoading;
 
 internal sealed record BudInfo
 {

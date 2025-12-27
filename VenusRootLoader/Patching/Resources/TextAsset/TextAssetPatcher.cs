@@ -1,11 +1,9 @@
 using Microsoft.Extensions.Logging;
 using System.Text;
-using UnityEngine;
-using VenusRootLoader.Patching.TextAssetData;
 
-namespace VenusRootLoader.Patching;
+namespace VenusRootLoader.Patching.Resources.TextAsset;
 
-internal sealed class TextAssetPatcher<T> : IResourcesTypePatcher<TextAsset>
+internal sealed class TextAssetPatcher<T> : ResourcesTypePatcher<UnityEngine.TextAsset>
     where T : ITextAssetSerializable
 {
     private readonly ILogger<TextAssetPatcher<T>> _logger;
@@ -36,7 +34,7 @@ internal sealed class TextAssetPatcher<T> : IResourcesTypePatcher<TextAsset>
         TextAssetsChangedLines[lineIndex] = data;
     }
 
-    public override TextAsset PatchResource(string path, TextAsset original)
+    public override UnityEngine.TextAsset PatchResource(string path, UnityEngine.TextAsset original)
     {
         bool changedLinesExists = TextAssetsChangedLines.Count > 0;
         bool customLinesExists = TextAssetsCustomLines.Count > 0;
@@ -65,6 +63,6 @@ internal sealed class TextAssetPatcher<T> : IResourcesTypePatcher<TextAsset>
 
         string text = sb.ToString();
         _logger.LogTrace("Patching {path}:\n{text}", path, text);
-        return new TextAsset(text);
+        return new UnityEngine.TextAsset(text);
     }
 }

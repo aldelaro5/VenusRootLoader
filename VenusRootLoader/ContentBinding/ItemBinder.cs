@@ -1,8 +1,10 @@
 using VenusRootLoader.GameContent;
 using VenusRootLoader.Patching;
-using VenusRootLoader.Patching.TextAssetData;
+using VenusRootLoader.Patching.Resources.Sprite;
+using VenusRootLoader.Patching.Resources.TextAsset;
+using VenusRootLoader.Patching.Resources.TextAsset.SerializableData;
 
-namespace VenusRootLoader.Binders;
+namespace VenusRootLoader.ContentBinding;
 
 internal sealed class ItemBinder
 {

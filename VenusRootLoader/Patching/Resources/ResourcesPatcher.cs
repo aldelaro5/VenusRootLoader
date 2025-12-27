@@ -1,8 +1,7 @@
 using HarmonyLib;
-using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace VenusRootLoader.Patching;
+namespace VenusRootLoader.Patching.Resources;
 
 internal sealed class ResourcesPatcher
 {
@@ -17,7 +16,7 @@ internal sealed class ResourcesPatcher
         ResourcesTypePatchers.Add(type, patcher);
 
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(Resources), nameof(Resources.Load), [typeof(string), typeof(Type)])]
+    [HarmonyPatch(typeof(UnityEngine.Resources), nameof(UnityEngine.Resources.Load), [typeof(string), typeof(Type)])]
     private static void PatchResources(string path, Type systemTypeInstance, ref Object __result)
     {
         if (!ResourcesTypePatchers.TryGetValue(systemTypeInstance, out IResourcesTypePatcher patcher))

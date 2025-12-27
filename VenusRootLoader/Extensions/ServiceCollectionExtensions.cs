@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using VenusRootLoader.Patching;
-using VenusRootLoader.Patching.TextAssetData;
+using VenusRootLoader.Patching.Resources.TextAsset;
 
 namespace VenusRootLoader.Extensions;
 

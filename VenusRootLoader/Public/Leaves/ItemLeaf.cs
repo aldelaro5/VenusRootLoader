@@ -1,8 +1,9 @@
 using UnityEngine;
 using VenusRootLoader.GameContent;
-using VenusRootLoader.Patching.TextAssetData;
+using VenusRootLoader.Internal;
+using VenusRootLoader.Patching.Resources.TextAsset.SerializableData;
 
-namespace VenusRootLoader.Leaves;
+namespace VenusRootLoader.Public.Leaves;
 
 public sealed class ItemLeaf : ILeaf<int>
 {

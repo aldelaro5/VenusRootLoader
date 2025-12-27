@@ -1,13 +1,8 @@
 using Object = UnityEngine.Object;
 
-namespace VenusRootLoader.Patching;
+namespace VenusRootLoader.Patching.Resources;
 
-internal interface IResourcesTypePatcher
-{
-    Object PatchResource(string path, Object original);
-}
-
-internal abstract class IResourcesTypePatcher<T> : IResourcesTypePatcher
+internal abstract class ResourcesTypePatcher<T> : IResourcesTypePatcher
     where T : Object
 {
     public Object PatchResource(string path, Object original) => PatchResource(path, (T)original);

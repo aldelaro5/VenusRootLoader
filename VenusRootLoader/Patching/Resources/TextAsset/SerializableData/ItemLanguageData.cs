@@ -1,4 +1,4 @@
-namespace VenusRootLoader.Patching.TextAssetData;
+namespace VenusRootLoader.Patching.Resources.TextAsset.SerializableData;
 
 internal sealed class ItemLanguageData : ITextAssetSerializable
 {

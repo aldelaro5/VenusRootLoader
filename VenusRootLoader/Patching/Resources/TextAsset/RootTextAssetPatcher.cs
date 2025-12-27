@@ -1,13 +1,11 @@
-using UnityEngine;
+namespace VenusRootLoader.Patching.Resources.TextAsset;
 
-namespace VenusRootLoader.Patching;
-
-internal sealed class RootTextAssetPatcher : IResourcesTypePatcher<TextAsset>
+internal sealed class RootTextAssetPatcher : ResourcesTypePatcher<UnityEngine.TextAsset>
 {
     private const string LocalizedPathPrefix = "Data/Dialogues";
     private static readonly char[] LocalisedPathSeparator = ['/'];
 
-    private readonly Dictionary<string, IResourcesTypePatcher<TextAsset>> _textAssetPatchers =
+    private readonly Dictionary<string, ResourcesTypePatcher<UnityEngine.TextAsset>> _textAssetPatchers =
         new(StringComparer.OrdinalIgnoreCase);
 
     private readonly Dictionary<string, ILocalizedTextAssetPatcher> _localizedTextAssetPatchersBySubpath =
@@ -15,18 +13,18 @@ internal sealed class RootTextAssetPatcher : IResourcesTypePatcher<TextAsset>
 
     public RootTextAssetPatcher(ResourcesPatcher resourcesPatcher)
     {
-        resourcesPatcher.RegisterResourceTypePatcher(typeof(TextAsset), this);
+        resourcesPatcher.RegisterResourceTypePatcher(typeof(UnityEngine.TextAsset), this);
     }
 
-    internal void RegisterTextAssetPatcher(string path, IResourcesTypePatcher<TextAsset> patcher) =>
+    internal void RegisterTextAssetPatcher(string path, ResourcesTypePatcher<UnityEngine.TextAsset> patcher) =>
         _textAssetPatchers.Add(path, patcher);
 
     internal void RegisterLocalizedTextAssetPatcher(string subpath, ILocalizedTextAssetPatcher patcher) =>
         _localizedTextAssetPatchersBySubpath.Add(subpath, patcher);
 
-    public override TextAsset PatchResource(string path, TextAsset original)
+    public override UnityEngine.TextAsset PatchResource(string path, UnityEngine.TextAsset original)
     {
-        if (_textAssetPatchers.TryGetValue(path, out IResourcesTypePatcher<TextAsset> patcher))
+        if (_textAssetPatchers.TryGetValue(path, out ResourcesTypePatcher<UnityEngine.TextAsset> patcher))
             return patcher.PatchResource(path, original);
 
         if (!path.StartsWith(LocalizedPathPrefix, StringComparison.OrdinalIgnoreCase))

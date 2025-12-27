@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using NuGet.Versioning;
 using System.Text;
-using VenusRootLoader.Models;
+using VenusRootLoader.Public;
 
 namespace VenusRootLoader.BudLoading;
 

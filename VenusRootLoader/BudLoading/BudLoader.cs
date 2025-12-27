@@ -2,8 +2,8 @@ using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 using System.Reflection;
 using VenusRootLoader.Config;
-using VenusRootLoader.Models;
-using VenusRootLoader.Venus;
+using VenusRootLoader.Internal;
+using VenusRootLoader.Public;
 
 namespace VenusRootLoader.BudLoading;
 
@@ -50,7 +50,7 @@ internal sealed class BudLoader
             Directory.CreateDirectory(_budLoaderContext.BudsPath);
     }
 
-    public void LoadAllBuds()
+    internal void LoadAllBuds()
     {
         IList<BudInfo> buds = FindAllBuds();
         if (buds.Count == 0)

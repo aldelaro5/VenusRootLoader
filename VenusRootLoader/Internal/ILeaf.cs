@@ -1,6 +1,6 @@
-namespace VenusRootLoader.Leaves;
+namespace VenusRootLoader.Internal;
 
-public interface ILeaf<T>
+internal interface ILeaf<T>
 {
     string CreatorId { get; }
     string OwnerId { get; }

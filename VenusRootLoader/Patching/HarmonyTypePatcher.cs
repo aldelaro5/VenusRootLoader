@@ -1,7 +1,7 @@
 using HarmonyLib;
 using VenusRootLoader.Logging;
 
-namespace VenusRootLoader;
+namespace VenusRootLoader.Patching;
 
 internal interface IHarmonyTypePatcher
 {

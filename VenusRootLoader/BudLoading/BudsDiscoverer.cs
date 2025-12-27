@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 using System.Text.Json;
 using VenusRootLoader.JsonConverters;
-using VenusRootLoader.Models;
+using VenusRootLoader.Public;
 
 namespace VenusRootLoader.BudLoading;
 

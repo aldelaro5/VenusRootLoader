@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 using System.Reflection;
 using VenusRootLoader.BudLoading;
+using VenusRootLoader.Public;
 
 namespace VenusRootLoader;
 

@@ -1,4 +1,6 @@
-namespace VenusRootLoader.ContentBinding;
+using VenusRootLoader.ContentBinding;
+
+namespace VenusRootLoader.VenusInternals;
 
 internal sealed class ContentBinder
 {

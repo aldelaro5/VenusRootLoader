@@ -2,8 +2,8 @@ using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 using System.Reflection;
 using VenusRootLoader.Config;
-using VenusRootLoader.Modding;
 using VenusRootLoader.Models;
+using VenusRootLoader.Venus;
 
 namespace VenusRootLoader.BudLoading;
 

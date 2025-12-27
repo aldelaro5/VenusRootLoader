@@ -2,15 +2,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
+using VenusRootLoader.Binders;
 using VenusRootLoader.BudLoading;
 using VenusRootLoader.Config;
 using VenusRootLoader.Extensions;
 using VenusRootLoader.Logging;
-using VenusRootLoader.Modding;
 using VenusRootLoader.Patching;
 using VenusRootLoader.Patching.TextAssetData;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Unity;
+using VenusRootLoader.Venus;
 
 namespace VenusRootLoader;
 
@@ -57,8 +58,10 @@ internal static class Startup
         services.AddBoundLocalizedTextAssetPatcher<ItemLanguageData>("Items");
         services.AddSingleton<ItemAndMedalSpritePatcher>();
 
-        services.AddSingleton<ItemRegistry>();
+        services.AddSingleton<ItemBinder>();
+        services.AddSingleton<ContentBinder>();
 
+        services.AddSingleton<GlobalContentRegistry>();
         services.AddSingleton<GlobalMonoBehaviourExecution>();
 
         services.AddSingleton<IBudConfigManager, BudConfigManager>();

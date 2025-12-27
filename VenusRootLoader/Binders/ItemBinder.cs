@@ -2,16 +2,16 @@ using VenusRootLoader.GameContent;
 using VenusRootLoader.Patching;
 using VenusRootLoader.Patching.TextAssetData;
 
-namespace VenusRootLoader.Registry;
+namespace VenusRootLoader.Binders;
 
-internal sealed class ItemRegistry
+internal sealed class ItemBinder
 {
     private readonly EnumPatcher _enumPatcher;
     private readonly ItemAndMedalSpritePatcher _itemAndMedalSpritePatcher;
     private readonly TextAssetPatcher<ItemData> _itemDataPatcher;
     private readonly LocalizedTextAssetPatcher<ItemLanguageData> _itemLanguageDataPatcher;
 
-    public ItemRegistry(
+    public ItemBinder(
         ItemAndMedalSpritePatcher itemAndMedalSpritePatcher,
         TextAssetPatcher<ItemData> itemDataPatcher,
         LocalizedTextAssetPatcher<ItemLanguageData> itemLanguageDataPatcher,
@@ -23,7 +23,7 @@ internal sealed class ItemRegistry
         _enumPatcher = enumPatcher;
     }
 
-    internal ItemContent RegisterNewItem(string namedId)
+    internal ItemContent BindNewItem(string namedId)
     {
         int newId = _enumPatcher.AddCustomEnumName(typeof(MainManager.Items), namedId);
         ItemContent content = new() { GameId = newId };
@@ -33,7 +33,7 @@ internal sealed class ItemRegistry
         return content;
     }
 
-    internal ItemContent ChangeExistingItem(int itemId)
+    internal ItemContent BindExistingItem(int itemId)
     {
         ItemContent content = new() { GameId = itemId };
         _itemDataPatcher.ChangeVanillaDataOfTextAsset(itemId, content.ItemData);

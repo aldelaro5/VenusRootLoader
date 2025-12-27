@@ -1,9 +1,11 @@
 using CommunityToolkit.Diagnostics;
+using VenusRootLoader.GameContent;
+using VenusRootLoader.Leaves;
 using VenusRootLoader.Unity;
 
 // ReSharper disable UnusedMember.Global
 
-namespace VenusRootLoader.Modding;
+namespace VenusRootLoader.Venus;
 
 public sealed class Venus
 {
@@ -34,5 +36,27 @@ public sealed class Venus
         Guard.IsNotNullOrWhiteSpace(budId);
 
         return _venusServices.GlobalMonoBehaviourExecution.GetGlobalMonoBehaviourFromGameObject(budId);
+    }
+
+    public ItemLeaf RegisterItem(string namedId)
+    {
+        if (_venusServices.GlobalContentRegistry.Items.ContainsKey(namedId))
+            throw new Exception($"Item with namedId {namedId} already exists");
+
+        ItemContent itemContent = _venusServices.ContentBinder.Items.BindNewItem(namedId);
+        _venusServices.GlobalContentRegistry.Items[namedId] = (_budId, itemContent);
+        return new ItemLeaf(itemContent, namedId, _budId, _budId);
+    }
+
+    public ItemLeaf RequestItem(string namedId)
+    {
+        if (!_venusServices.GlobalContentRegistry.Items.TryGetValue(
+                namedId,
+                out (string BudId, ItemContent Content) content))
+        {
+            throw new Exception($"Item with namedId {namedId} does not exist");
+        }
+
+        return new ItemLeaf(content.Content, namedId, content.BudId, _budId);
     }
 }

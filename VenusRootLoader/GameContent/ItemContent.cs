@@ -1,14 +1,12 @@
 using VenusRootLoader.Patching.Resources.TextAsset.SerializableData;
-using VenusRootLoader.Public;
 using VenusRootLoader.Unity;
 
 namespace VenusRootLoader.GameContent;
 
 internal sealed class ItemContent : IGameContent<int>
 {
-    public int GameId { get; internal init; }
-    internal WrappedSprite ItemSprite { get; } = new() { Sprite = SharedAssets.CreateDummyItemOrMedalSprite() };
+    public required int GameId { get; internal init; }
+    internal WrappedSprite ItemSprite { get; } = new();
     internal ItemData ItemData { get; } = new();
     internal Dictionary<int, ItemLanguageData> ItemLanguageData { get; } = new();
-    internal ItemContent() { }
 }

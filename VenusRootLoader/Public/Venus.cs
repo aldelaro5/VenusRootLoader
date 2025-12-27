@@ -45,7 +45,12 @@ public sealed class Venus
 
         ItemContent itemContent = _venusServices.ContentBinder.Items.BindNew(namedId);
         _venusServices.GlobalContentRegistry.Items[namedId] = (_budId, itemContent);
-        return new ItemLeaf(itemContent, namedId, _budId, _budId);
+        return new ItemLeaf(itemContent)
+        {
+            NamedId = namedId,
+            CreatorId = _budId,
+            OwnerId = _budId
+        };
     }
 
     public ItemLeaf RequestItem(string namedId)
@@ -57,6 +62,11 @@ public sealed class Venus
             throw new Exception($"Item with namedId {namedId} does not exist");
         }
 
-        return new ItemLeaf(content.Content, namedId, content.CreatorId, _budId);
+        return new ItemLeaf(content.Content)
+        {
+            NamedId = namedId,
+            CreatorId = content.CreatorId,
+            OwnerId = _budId
+        };
     }
 }

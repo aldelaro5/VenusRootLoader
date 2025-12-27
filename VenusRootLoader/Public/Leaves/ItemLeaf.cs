@@ -10,9 +10,7 @@ public sealed class ItemLeaf : Leaf<int>
 
     public override int GameId => _content.GameId;
 
-    internal ItemLeaf(ItemContent content, string namedId, string creatorId, string ownerId)
-        : base(namedId, creatorId, ownerId) =>
-        _content = content;
+    internal ItemLeaf(ItemContent content) => _content = content;
 
     public ItemLeaf WithBuyingPrice(int buyingPrice)
     {

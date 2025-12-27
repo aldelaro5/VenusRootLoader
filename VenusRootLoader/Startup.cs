@@ -6,6 +6,7 @@ using VenusRootLoader.BudLoading;
 using VenusRootLoader.Config;
 using VenusRootLoader.ContentBinding;
 using VenusRootLoader.Extensions;
+using VenusRootLoader.GameContent;
 using VenusRootLoader.Logging;
 using VenusRootLoader.Patching;
 using VenusRootLoader.Patching.Resources;
@@ -60,7 +61,7 @@ internal static class Startup
         services.AddBoundLocalizedTextAssetPatcher<ItemLanguageData>("Items");
         services.AddSingleton<ItemAndMedalSpritePatcher>();
 
-        services.AddSingleton<ItemBinder>();
+        services.AddSingleton<IContentBinder<ItemContent, int>, ItemBinder>();
         services.AddSingleton<ContentBinder>();
 
         services.AddSingleton<GlobalContentRegistry>();

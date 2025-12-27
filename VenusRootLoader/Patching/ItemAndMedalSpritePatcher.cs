@@ -1,8 +1,8 @@
 using HarmonyLib;
 using Microsoft.Extensions.Logging;
 using System.Reflection.Emit;
-using UnityEngine;
 using VenusRootLoader.Extensions;
+using VenusRootLoader.Unity;
 
 namespace VenusRootLoader.Patching;
 
@@ -18,8 +18,8 @@ internal sealed class ItemAndMedalSpritePatcher
 
     private readonly ILogger<ItemAndMedalSpritePatcher> _logger;
 
-    private readonly Dictionary<int, Sprite> _customItemSprites = new();
-    private readonly Dictionary<int, Sprite> _customMedalSprites = new();
+    private readonly Dictionary<int, WrappedSprite> _customItemSprites = new();
+    private readonly Dictionary<int, WrappedSprite> _customMedalSprites = new();
 
     public ItemAndMedalSpritePatcher(IHarmonyTypePatcher harmonyTypePatcher, ILogger<ItemAndMedalSpritePatcher> logger)
     {
@@ -28,8 +28,8 @@ internal sealed class ItemAndMedalSpritePatcher
         harmonyTypePatcher.PatchAll(typeof(ItemAndMedalSpritePatcher));
     }
 
-    internal void AssignItemSprite(int itemId, Sprite sprite) => _customItemSprites[itemId] = sprite;
-    internal void AssignMedalSprite(int itemId, Sprite sprite) => _customMedalSprites[itemId] = sprite;
+    internal void AssignItemSprite(int itemId, WrappedSprite sprite) => _customItemSprites[itemId] = sprite;
+    internal void AssignMedalSprite(int itemId, WrappedSprite sprite) => _customMedalSprites[itemId] = sprite;
 
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(MainManager), nameof(MainManager.LoadItemSprites))]
@@ -108,15 +108,15 @@ internal sealed class ItemAndMedalSpritePatcher
 
     private static bool PatchCustomItemOrMedalSprite(SpriteKind type, int itemId)
     {
-        Sprite? itemSprite = null;
-        Sprite? medalSprite = null;
+        WrappedSprite? itemSprite = null;
+        WrappedSprite? medalSprite = null;
 
         if (type == SpriteKind.Item && !_instance._customItemSprites.TryGetValue(itemId, out itemSprite))
             return false;
         if (type == SpriteKind.Medal && !_instance._customMedalSprites.TryGetValue(itemId, out medalSprite))
             return false;
 
-        MainManager.itemsprites[(int)type, itemId] = type == SpriteKind.Item ? itemSprite : medalSprite;
+        MainManager.itemsprites[(int)type, itemId] = type == SpriteKind.Item ? itemSprite!.Sprite : medalSprite!.Sprite;
         _instance._logger.LogTrace(itemId.ToString());
         return true;
     }

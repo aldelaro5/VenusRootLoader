@@ -2,9 +2,9 @@ namespace VenusRootLoader.Patching.TextAssetData;
 
 internal sealed class ItemData : ITextAssetSerializable
 {
-    internal required int BuyingPrice { get; set; }
-    internal required List<ItemUse> Effects { get; set; }
-    internal required BattleControl.AttackArea Target { get; set; }
+    internal int BuyingPrice { get; set; }
+    internal List<ItemUse> Effects { get; } = new();
+    internal BattleControl.AttackArea Target { get; set; }
 
     public string GetTextAssetSerializedString() =>
         $"{BuyingPrice}@" +

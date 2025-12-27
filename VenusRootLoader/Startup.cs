@@ -9,6 +9,7 @@ using VenusRootLoader.Logging;
 using VenusRootLoader.Modding;
 using VenusRootLoader.Patching;
 using VenusRootLoader.Patching.TextAssetData;
+using VenusRootLoader.Registry;
 using VenusRootLoader.Unity;
 
 namespace VenusRootLoader;
@@ -55,6 +56,8 @@ internal static class Startup
         services.AddBoundTextAssetPatcher<ItemData>("Data/ItemData");
         services.AddBoundLocalizedTextAssetPatcher<ItemLanguageData>("Items");
         services.AddSingleton<ItemAndMedalSpritePatcher>();
+
+        services.AddSingleton<ItemRegistry>();
 
         services.AddSingleton<GlobalMonoBehaviourExecution>();
 

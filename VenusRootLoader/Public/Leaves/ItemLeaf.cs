@@ -1,7 +1,7 @@
 using UnityEngine;
 using VenusRootLoader.GameContent;
-using VenusRootLoader.Internal;
 using VenusRootLoader.Patching.Resources.TextAsset.SerializableData;
+using VenusRootLoader.VenusInternals;
 
 namespace VenusRootLoader.Public.Leaves;
 

@@ -1,6 +1,6 @@
 using VenusRootLoader.GameContent;
 
-namespace VenusRootLoader.Internal;
+namespace VenusRootLoader.VenusInternals;
 
 internal sealed class GlobalContentRegistry
 {

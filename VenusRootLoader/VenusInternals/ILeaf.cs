@@ -1,4 +1,4 @@
-namespace VenusRootLoader.Internal;
+namespace VenusRootLoader.VenusInternals;
 
 internal interface ILeaf<T>
 {

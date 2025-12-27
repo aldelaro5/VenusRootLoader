@@ -6,7 +6,6 @@ using VenusRootLoader.BudLoading;
 using VenusRootLoader.Config;
 using VenusRootLoader.ContentBinding;
 using VenusRootLoader.Extensions;
-using VenusRootLoader.Internal;
 using VenusRootLoader.Logging;
 using VenusRootLoader.Patching;
 using VenusRootLoader.Patching.Resources;
@@ -14,7 +13,7 @@ using VenusRootLoader.Patching.Resources.Sprite;
 using VenusRootLoader.Patching.Resources.TextAsset;
 using VenusRootLoader.Patching.Resources.TextAsset.SerializableData;
 using VenusRootLoader.Public;
-using VenusRootLoader.Unity;
+using VenusRootLoader.VenusInternals;
 
 namespace VenusRootLoader;
 

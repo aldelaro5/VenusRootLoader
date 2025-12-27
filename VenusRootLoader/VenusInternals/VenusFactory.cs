@@ -1,9 +1,8 @@
 using Microsoft.Extensions.Logging;
 using VenusRootLoader.ContentBinding;
 using VenusRootLoader.Public;
-using VenusRootLoader.Unity;
 
-namespace VenusRootLoader.Internal;
+namespace VenusRootLoader.VenusInternals;
 
 internal interface IVenusFactory
 {

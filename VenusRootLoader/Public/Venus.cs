@@ -1,7 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using VenusRootLoader.GameContent;
-using VenusRootLoader.Internal;
 using VenusRootLoader.Public.Leaves;
+using VenusRootLoader.VenusInternals;
 
 // ReSharper disable UnusedMember.Global
 

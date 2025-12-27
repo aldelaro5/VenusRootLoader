@@ -1,26 +1,18 @@
 using UnityEngine;
 using VenusRootLoader.GameContent;
 using VenusRootLoader.Patching.Resources.TextAsset.SerializableData;
-using VenusRootLoader.VenusInternals;
 
 namespace VenusRootLoader.Public.Leaves;
 
-public sealed class ItemLeaf : ILeaf<int>
+public sealed class ItemLeaf : Leaf<int>
 {
     private readonly ItemContent _content;
 
-    public int GameId => _content.GameId;
-    public string NamedId { get; internal init; }
-    public string CreatorId { get; internal init; }
-    public string OwnerId { get; internal init; }
+    public override int GameId => _content.GameId;
 
     internal ItemLeaf(ItemContent content, string namedId, string creatorId, string ownerId)
-    {
+        : base(namedId, creatorId, ownerId) =>
         _content = content;
-        CreatorId = creatorId;
-        OwnerId = ownerId;
-        NamedId = namedId;
-    }
 
     public ItemLeaf WithBuyingPrice(int buyingPrice)
     {

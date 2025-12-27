@@ -43,7 +43,7 @@ public sealed class Venus
         if (_venusServices.GlobalContentRegistry.Items.ContainsKey(namedId))
             throw new Exception($"Item with namedId {namedId} already exists");
 
-        ItemContent itemContent = _venusServices.ContentBinder.Items.BindNewItem(namedId);
+        ItemContent itemContent = _venusServices.ContentBinder.Items.BindNew(namedId);
         _venusServices.GlobalContentRegistry.Items[namedId] = (_budId, itemContent);
         return new ItemLeaf(itemContent, namedId, _budId, _budId);
     }

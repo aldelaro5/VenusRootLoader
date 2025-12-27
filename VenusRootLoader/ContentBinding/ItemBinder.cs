@@ -6,7 +6,7 @@ using VenusRootLoader.Patching.Resources.TextAsset.SerializableData;
 
 namespace VenusRootLoader.ContentBinding;
 
-internal sealed class ItemBinder
+internal sealed class ItemBinder : IContentBinder<ItemContent, int>
 {
     private readonly EnumPatcher _enumPatcher;
     private readonly ItemAndMedalSpritePatcher _itemAndMedalSpritePatcher;
@@ -25,7 +25,7 @@ internal sealed class ItemBinder
         _enumPatcher = enumPatcher;
     }
 
-    internal ItemContent BindNewItem(string namedId)
+    public ItemContent BindNew(string namedId)
     {
         int newId = _enumPatcher.AddCustomEnumName(typeof(MainManager.Items), namedId);
         ItemContent content = new() { GameId = newId };
@@ -35,7 +35,7 @@ internal sealed class ItemBinder
         return content;
     }
 
-    internal ItemContent BindExistingItem(int itemId)
+    public ItemContent BindExisting(int itemId)
     {
         ItemContent content = new() { GameId = itemId };
         _itemDataPatcher.ChangeVanillaDataOfTextAsset(itemId, content.ItemData);

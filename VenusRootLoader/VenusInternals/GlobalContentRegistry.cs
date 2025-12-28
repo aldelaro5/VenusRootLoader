@@ -4,5 +4,5 @@ namespace VenusRootLoader.VenusInternals;
 
 internal sealed class GlobalContentRegistry
 {
-    internal Dictionary<string, (string CreatorId, ItemContent Content)> Items { get; } = new();
+    internal Dictionary<string, ItemContent> Items { get; } = new();
 }

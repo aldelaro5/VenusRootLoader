@@ -25,10 +25,15 @@ internal sealed class ItemBinder : IContentBinder<ItemContent, int>
         _enumPatcher = enumPatcher;
     }
 
-    public ItemContent BindNew(string namedId)
+    public ItemContent BindNew(string namedId, string creatorId)
     {
         int newId = _enumPatcher.AddCustomEnumName(typeof(MainManager.Items), namedId);
-        ItemContent content = new() { GameId = newId };
+        ItemContent content = new()
+        {
+            GameId = newId,
+            CreatorId = creatorId,
+            NamedId = namedId
+        };
         _itemDataPatcher.AddNewDataToTextAsset(content.ItemData);
         _itemLanguageDataPatcher.AddNewDataToTextAsset(content.ItemLanguageData);
         _itemAndMedalSpritePatcher.AssignItemSprite(newId, content.ItemSprite);
@@ -37,7 +42,12 @@ internal sealed class ItemBinder : IContentBinder<ItemContent, int>
 
     public ItemContent BindExisting(int itemId)
     {
-        ItemContent content = new() { GameId = itemId };
+        ItemContent content = new()
+        {
+            GameId = itemId,
+            NamedId = "???",
+            CreatorId = "BugFables"
+        };
         _itemDataPatcher.ChangeVanillaDataOfTextAsset(itemId, content.ItemData);
         _itemLanguageDataPatcher.ChangeVanillaDataOfTextAsset(itemId, content.ItemLanguageData);
         _itemAndMedalSpritePatcher.AssignItemSprite(itemId, content.ItemSprite);

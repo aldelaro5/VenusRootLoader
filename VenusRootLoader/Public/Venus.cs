@@ -34,7 +34,6 @@ public sealed class Venus
     public GlobalMonoBehaviour? GetGlobalMonoBehaviourFromBud(string budId)
     {
         Guard.IsNotNullOrWhiteSpace(budId);
-
         return _venusServices.GlobalMonoBehaviourExecution.GetGlobalMonoBehaviourFromGameObject(budId);
     }
 
@@ -43,30 +42,15 @@ public sealed class Venus
         if (_venusServices.GlobalContentRegistry.Items.ContainsKey(namedId))
             throw new Exception($"Item with namedId {namedId} already exists");
 
-        ItemContent itemContent = _venusServices.ContentBinder.Items.BindNew(namedId);
-        _venusServices.GlobalContentRegistry.Items[namedId] = (_budId, itemContent);
-        return new ItemLeaf(itemContent)
-        {
-            NamedId = namedId,
-            CreatorId = _budId,
-            OwnerId = _budId
-        };
+        ItemContent itemContent = _venusServices.ContentBinder.Items.BindNew(namedId, _budId);
+        _venusServices.GlobalContentRegistry.Items[namedId] = itemContent;
+        return new ItemLeaf(itemContent, _venusServices.Logger) { OwnerId = _budId };
     }
 
     public ItemLeaf RequestItem(string namedId)
     {
-        if (!_venusServices.GlobalContentRegistry.Items.TryGetValue(
-                namedId,
-                out (string CreatorId, ItemContent Content) content))
-        {
-            throw new Exception($"Item with namedId {namedId} does not exist");
-        }
-
-        return new ItemLeaf(content.Content)
-        {
-            NamedId = namedId,
-            CreatorId = content.CreatorId,
-            OwnerId = _budId
-        };
+        return !_venusServices.GlobalContentRegistry.Items.TryGetValue(namedId, out ItemContent content)
+            ? throw new Exception($"Item with namedId {namedId} does not exist")
+            : new ItemLeaf(content, _venusServices.Logger) { OwnerId = _budId };
     }
 }

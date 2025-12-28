@@ -6,14 +6,15 @@ namespace VenusRootLoader.Public;
 
 public sealed partial class Venus
 {
+    private bool _hasGlobalBehaviour;
+
     public GlobalMonoBehaviour SetGlobalMonoBehaviour<T>()
         where T : GlobalMonoBehaviour
     {
         if (_hasGlobalBehaviour)
             throw new InvalidOperationException($"Cannot call {nameof(SetGlobalMonoBehaviour)} more than once");
 
-        GlobalMonoBehaviour globalMonoBehavior =
-            _venusServices.GlobalMonoBehaviourExecution.AddGlobalMonoBehavior<T>(_budId);
+        GlobalMonoBehaviour globalMonoBehavior = _globalMonoBehaviourExecution.AddGlobalMonoBehavior<T>(_budId);
         _hasGlobalBehaviour = true;
         return globalMonoBehavior;
     }
@@ -21,6 +22,6 @@ public sealed partial class Venus
     public GlobalMonoBehaviour? GetGlobalMonoBehaviourFromBud(string budId)
     {
         Guard.IsNotNullOrWhiteSpace(budId);
-        return _venusServices.GlobalMonoBehaviourExecution.GetGlobalMonoBehaviourFromGameObject(budId);
+        return _globalMonoBehaviourExecution.GetGlobalMonoBehaviourFromGameObject(budId);
     }
 }

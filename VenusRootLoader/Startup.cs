@@ -62,9 +62,8 @@ internal static class Startup
         services.AddSingleton<ItemAndMedalSpritePatcher>();
 
         services.AddSingleton<IContentBinder<ItemContent, int>, ItemBinder>();
-        services.AddSingleton<ContentBinder>();
 
-        services.AddSingleton<GlobalContentRegistry>();
+        services.AddSingleton<ContentRegistry>();
         services.AddSingleton<GlobalMonoBehaviourExecution>();
 
         services.AddSingleton<IBudConfigManager, BudConfigManager>();

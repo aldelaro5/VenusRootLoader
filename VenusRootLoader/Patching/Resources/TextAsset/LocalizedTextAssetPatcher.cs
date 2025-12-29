@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using System.Text;
+using VenusRootLoader.BaseGameData;
 
 namespace VenusRootLoader.Patching.Resources.TextAsset;
 
@@ -53,10 +54,17 @@ internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
         if (!changedLinesExists && !customLinesExists)
             return original;
 
+        string[] lines = original.text.Split(_textAssetsSplitLineSeparator, StringSplitOptions.RemoveEmptyEntries);
+        // Workaround a game bug where not all languages has the last line about BigBerry
+        if (subpath.Equals("Items", StringComparison.OrdinalIgnoreCase) &&
+            lines.Length != BaseGameDataCollector.ItemNamedIds.Length)
+        {
+            lines = lines.Append("RESERVED@Desc@Desc@a").ToArray();
+        }
+
         StringBuilder sb = new();
         if (changedLinesExists)
         {
-            string[] lines = original.text.Split(_textAssetsSplitLineSeparator, StringSplitOptions.RemoveEmptyEntries);
             foreach (KeyValuePair<int, Dictionary<int, T>> customLine in changes)
                 lines[customLine.Key] = customLine.Value[languageId].GetTextAssetSerializedString();
             sb.Append(string.Join("\n", lines));
@@ -64,17 +72,6 @@ internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
         else
         {
             sb.Append(original.text.TrimEnd(_textAssetsSplitLineSeparator));
-        }
-
-        if (subpath.Equals("Items", StringComparison.OrdinalIgnoreCase))
-        {
-            string[] lines = original.text.Split(_textAssetsSplitLineSeparator, StringSplitOptions.RemoveEmptyEntries);
-            // TODO: This is the amount of vanilla items, we need a way to not hardcode this
-            if (lines.Length != 187)
-            {
-                sb.Append('\n');
-                sb.Append("RESERVED@Desc@Desc@a");
-            }
         }
 
         if (customLinesExists)

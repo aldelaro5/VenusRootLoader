@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
+using VenusRootLoader.BaseGameData;
 using VenusRootLoader.BudLoading;
 
 namespace VenusRootLoader;
@@ -9,6 +10,8 @@ namespace VenusRootLoader;
 // ReSharper disable UnusedMember.Global
 internal static class Entry
 {
+    private const string BaseGameId = "BaseGame";
+
     private static GameExecutionContext? _gameExecutionContext;
     private static BootstrapFunctions.BootstrapLogFn _bootstrapLog = null!;
     private static string _basePath = null!;
@@ -29,6 +32,10 @@ internal static class Entry
 
             AppDomainEventsHandler appDomainEventsHandler = host.GetRequiredService<AppDomainEventsHandler>();
             appDomainEventsHandler.InstallHandlers();
+
+            BaseGameDataCollector gameDataCollector = host.GetRequiredService<BaseGameDataCollector>();
+            gameDataCollector.CollectAndRegisterBaseGameData(BaseGameId);
+            
             BudLoader loader = host.GetRequiredService<BudLoader>();
             loader.LoadAllBuds();
         }

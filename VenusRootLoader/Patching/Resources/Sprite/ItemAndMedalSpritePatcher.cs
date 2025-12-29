@@ -1,5 +1,4 @@
 using HarmonyLib;
-using Microsoft.Extensions.Logging;
 using System.Reflection.Emit;
 using VenusRootLoader.Extensions;
 using VenusRootLoader.Unity;
@@ -16,15 +15,12 @@ internal sealed class ItemAndMedalSpritePatcher
 
     private static ItemAndMedalSpritePatcher _instance = null!;
 
-    private readonly ILogger<ItemAndMedalSpritePatcher> _logger;
-
     private readonly Dictionary<int, WrappedSprite> _customItemSprites = new();
     private readonly Dictionary<int, WrappedSprite> _customMedalSprites = new();
 
-    public ItemAndMedalSpritePatcher(IHarmonyTypePatcher harmonyTypePatcher, ILogger<ItemAndMedalSpritePatcher> logger)
+    public ItemAndMedalSpritePatcher(IHarmonyTypePatcher harmonyTypePatcher)
     {
         _instance = this;
-        _logger = logger;
         harmonyTypePatcher.PatchAll(typeof(ItemAndMedalSpritePatcher));
     }
 
@@ -117,7 +113,6 @@ internal sealed class ItemAndMedalSpritePatcher
             return false;
 
         MainManager.itemsprites[(int)type, itemId] = type == SpriteKind.Item ? itemSprite!.Sprite : medalSprite!.Sprite;
-        _instance._logger.LogTrace(itemId.ToString());
         return true;
     }
 }

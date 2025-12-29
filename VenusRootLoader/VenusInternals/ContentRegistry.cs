@@ -25,6 +25,13 @@ internal sealed class ContentRegistry
         return itemContent;
     }
 
+    internal ItemContent RegisterAndBindExistingItem(int gameId, string namedId, string creatorId)
+    {
+        ItemContent itemContent = _contentBinder.BindExisting(gameId, namedId, creatorId);
+        Items[namedId] = itemContent;
+        return itemContent;
+    }
+
     internal ItemContent RequestExistingItem(string namedId)
     {
         EnsureNamedIdIsValuedEnumName(namedId);

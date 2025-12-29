@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
+using VenusRootLoader.BaseGameData;
 using VenusRootLoader.BudLoading;
 using VenusRootLoader.Config;
 using VenusRootLoader.ContentBinding;
@@ -64,6 +65,7 @@ internal static class Startup
         services.AddSingleton<IContentBinder<ItemContent, int>, ItemBinder>();
 
         services.AddSingleton<ContentRegistry>();
+        services.AddSingleton<BaseGameDataCollector>();
         services.AddSingleton<GlobalMonoBehaviourExecution>();
 
         services.AddSingleton<IBudConfigManager, BudConfigManager>();

@@ -40,13 +40,13 @@ internal sealed class ItemBinder : IContentBinder<ItemContent, int>
         return content;
     }
 
-    public ItemContent BindExisting(int itemId)
+    public ItemContent BindExisting(int itemId, string namedId, string creatorId)
     {
         ItemContent content = new()
         {
             GameId = itemId,
-            NamedId = "???",
-            CreatorId = "BugFables"
+            NamedId = namedId,
+            CreatorId = creatorId
         };
         _itemDataPatcher.ChangeVanillaDataOfTextAsset(itemId, content.ItemData);
         _itemLanguageDataPatcher.ChangeVanillaDataOfTextAsset(itemId, content.ItemLanguageData);

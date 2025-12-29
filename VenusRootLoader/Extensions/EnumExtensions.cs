@@ -11,5 +11,11 @@ internal static class EnumExtensions
             Guard.IsTrue(enumType.IsEnum);
             return Enum.GetValues(enumType).Cast<int>().Max() + 1;
         }
+
+        public static T Parse<T>(string value)
+            where T : Enum
+        {
+            return (T)Enum.Parse(typeof(T), value);
+        }
     }
 }

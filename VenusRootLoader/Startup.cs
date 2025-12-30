@@ -54,6 +54,7 @@ internal static class Startup
         services.AddSingleton<AppDomainEventsHandler>();
         services.AddSingleton<HarmonyLogger>();
         services.AddSingleton<IHarmonyTypePatcher, HarmonyTypePatcher>();
+        services.AddSingleton<UnityLogger>();
 
         services.AddSingleton<EnumPatcher>();
         services.AddSingleton<ResourcesPatcher>();

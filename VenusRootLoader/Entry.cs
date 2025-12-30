@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using VenusRootLoader.BaseGameCollector;
 using VenusRootLoader.BudLoading;
+using VenusRootLoader.Logging;
 
 namespace VenusRootLoader;
 
@@ -32,9 +33,12 @@ internal static class Entry
             AppDomainEventsHandler appDomainEventsHandler = host.GetRequiredService<AppDomainEventsHandler>();
             appDomainEventsHandler.InstallHandlers();
 
+            UnityLogger unityLogger = host.GetRequiredService<UnityLogger>();
+            unityLogger.InstallManagedUnityLogger();
+
             BaseGameDataCollector gameDataCollector = host.GetRequiredService<BaseGameDataCollector>();
             gameDataCollector.CollectAndRegisterBaseGameData(BaseGameId);
-            
+
             BudLoader loader = host.GetRequiredService<BudLoader>();
             loader.LoadAllBuds();
         }

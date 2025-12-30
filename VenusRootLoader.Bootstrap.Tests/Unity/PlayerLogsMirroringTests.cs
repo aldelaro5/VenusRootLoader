@@ -27,8 +27,7 @@ public sealed class PlayerLogsMirroringTests
     private readonly LoggingSettings _loggingSettingsValue = new()
     {
         ConsoleLoggerSettings = new(),
-        DiskFileLoggerSettings = new(),
-        IncludeUnityLogs = true
+        DiskFileLoggerSettings = new()
     };
 
     private readonly IWin32 _win32 = Substitute.For<IWin32>();
@@ -56,7 +55,6 @@ public sealed class PlayerLogsMirroringTests
             _pltHooksManager,
             _createFileWSharedHooker,
             _gameExecutionContext,
-            _loggingSettings,
             _monoInitLifeCycleEvents,
             _win32);
         sut.StartAsync(TestContext.Current.CancellationToken);
@@ -155,7 +153,7 @@ public sealed class PlayerLogsMirroringTests
     [Fact]
     public unsafe void WriteFileHook_CallsOriginalWithoutLogging_WhenLogMirroringIsDisabledAndHandleIsPlayerLogFile()
     {
-        _loggingSettingsValue.IncludeUnityLogs = false;
+        _logger.ControlLevel(LogLevel.Trace, false);
         StartService();
         var filename = "output_log.txt";
         var fileNamePtr = (char*)Marshal.StringToHGlobalUni(filename);
@@ -272,7 +270,7 @@ public sealed class PlayerLogsMirroringTests
     public void WriteFileHook_DoesNotCallsOriginalWithoutLogging_WhenLogMirroringIsDisabledAndHandleIsStdHandle(
         STD_HANDLE stdHandle)
     {
-        _loggingSettingsValue.IncludeUnityLogs = false;
+        _logger.ControlLevel(LogLevel.Trace, false);
         var handle = (HANDLE)Random.Shared.Next();
         _win32.GetStdHandle(stdHandle).Returns(handle);
         _win32.CompareObjectHandles(

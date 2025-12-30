@@ -27,7 +27,6 @@ internal static class Startup
     {
         ["SKIP_UNITY_SPLASHSCREEN"] = $"{nameof(GlobalSettings.SkipUnitySplashScreen)}",
         ["GLOBAL_DISABLE"] = $"{nameof(GlobalSettings.DisableVrl)}",
-        ["INCLUDE_UNITY_LOGS"] = $"{nameof(LoggingSettings)}:{nameof(LoggingSettings.IncludeUnityLogs)}",
         ["ENABLE_CONSOLE_LOGS"] =
             $"{nameof(LoggingSettings)}:{nameof(ConsoleLoggerSettings)}:{nameof(ConsoleLoggerSettings.Enable)}",
         ["CONSOLE_COLORS"] =
@@ -78,8 +77,6 @@ internal static class Startup
         builder.Logging.AddConfiguration(builder.Configuration.GetRequiredSection("Logging"));
         builder.Logging.Services.AddSingleton<ILoggerProvider, ConsoleLogProvider>();
         builder.Logging.Services.AddSingleton<ILoggerProvider, DiskFileLoggerProvider>();
-        if (!builder.Configuration.GetValue<bool>("LoggingSettings:DisableUnityLogs"))
-            builder.Logging.AddFilter("UNITY", LogLevel.Trace);
 
         builder.Services.AddSingleton<IValidateOptions<LoggingSettings>, ValidateLoggingSettings>();
         builder.Services.AddOptions<LoggingSettings>()

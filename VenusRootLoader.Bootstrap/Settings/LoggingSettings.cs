@@ -6,9 +6,6 @@ namespace VenusRootLoader.Bootstrap.Settings;
 
 public sealed class LoggingSettings
 {
-    [Required]
-    public bool? IncludeUnityLogs { get; set; }
-
     [ValidateObjectMembers]
     [Required]
     public required ConsoleLoggerSettings ConsoleLoggerSettings { get; set; }

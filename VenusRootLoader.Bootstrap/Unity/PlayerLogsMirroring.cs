@@ -1,8 +1,6 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System.Runtime.InteropServices;
-using VenusRootLoader.Bootstrap.Settings;
 using VenusRootLoader.Bootstrap.Shared;
 using Windows.Win32.Foundation;
 using Windows.Win32.Security;
@@ -45,7 +43,6 @@ internal sealed class PlayerLogsMirroring : IHostedService
         IPltHooksManager pltHooksManager,
         ICreateFileWSharedHooker createFileWSharedHooker,
         GameExecutionContext gameExecutionContext,
-        IOptions<LoggingSettings> loggingSettings,
         IMonoInitLifeCycleEvents monoInitLifeCycleEvents,
         IWin32 win32)
     {
@@ -55,7 +52,7 @@ internal sealed class PlayerLogsMirroring : IHostedService
         _gameExecutionContext = gameExecutionContext;
         _monoInitLifeCycleEvents = monoInitLifeCycleEvents;
         _win32 = win32;
-        _disableMirroring = !loggingSettings.Value.IncludeUnityLogs!.Value;
+        _disableMirroring = !_logger.IsEnabled(LogLevel.Trace);
 
         _hookWriteFileDelegate = HookWriteFile;
         _monoInitLifeCycleEvents.Subscribe(OnGameLifecycle);

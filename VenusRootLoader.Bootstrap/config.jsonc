@@ -10,12 +10,6 @@
   // Argument: --skip-unity-splashscreen
   "SkipUnitySplashScreen": true,
   "LoggingSettings": {
-    // Captures the native and managed logs of the Unity player in VenusRootLoader's logs.
-    // All those logs will appear under the `UNITY` category which are rendered in cyan
-    // if the console logs and its colors are enabled
-    // Environment: VRL_INCLUDE_UNITY_LOGS
-    // Argument: --include-unity-logs
-    "IncludeUnityLogs": true,
     "ConsoleLoggerSettings": {
       // Enables and show a console window when the game starts that contains the VenusRootLoader logs
       // Environment: VRL_ENABLE_CONSOLE_LOGS
@@ -82,6 +76,10 @@
   "Logging": {
     "LogLevel": {
       "Default": "Trace",
+      // Setting this to "Trace" will capture all native and managed logs and log them as "Trace" level.
+      // Setting it to any other level won't capture the native logs, but it will capture the managed one with appropriate levels.
+      // NOTE: Native Unity logs can be very verbose and constantly spam messages. Only use "Trace" for complex diagnostics.
+      "UNITY": "Debug",
       "VenusRootLoader.AppDomainEventsHandler": "Information",
       "VenusRootLoader.Logging.HarmonyLogger": "Warning",
       "VenusRootLoader.Patching": "Information",

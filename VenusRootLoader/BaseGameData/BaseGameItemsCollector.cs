@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using UnityEngine;
-using VenusRootLoader.GameContent;
+using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Patching.Resources.TextAsset;
 using VenusRootLoader.VenusInternals;
 
 namespace VenusRootLoader.BaseGameData;
@@ -47,15 +48,16 @@ internal sealed class BaseGameItemsCollector
         for (int i = 0; i < _itemNamedIds.Length; i++)
         {
             string itemNamedId = _itemNamedIds[i];
-            ItemContent itemContent = _contentRegistry.RegisterAndBindExistingItem(i, itemNamedId, baseGameId);
-            itemContent.ItemData.FromTextAssetSerializedString(ItemsData[i]);
-            itemContent.ItemSprite.Sprite = i < ItemsSpritesAmountInItems0
+            ItemLeaf itemLeaf = _contentRegistry.RegisterAndBindExistingItem(i, itemNamedId, baseGameId);
+            ((ITextAssetSerializable)itemLeaf.ItemData).FromTextAssetSerializedString(ItemsData[i]);
+            itemLeaf.ItemSprite.Sprite = i < ItemsSpritesAmountInItems0
                 ? _items0Sprites[i]
                 : _items1Sprites[i - ItemsSpritesAmountInItems0];
             for (int j = 0; j < BaseGameDataCollector.LanguageDisplayNames.Length; j++)
             {
-                itemContent.ItemLanguageData[j] = new();
-                itemContent.ItemLanguageData[j].FromTextAssetSerializedString(ItemsLanguageData[j][i]);
+                itemLeaf.ItemLanguageData[j] = new();
+                ITextAssetSerializable itemLanguageDataSerializable = itemLeaf.ItemLanguageData[j];
+                itemLanguageDataSerializable.FromTextAssetSerializedString(ItemsLanguageData[j][i]);
             }
         }
 

@@ -1,12 +1,12 @@
-using VenusRootLoader.GameContent;
+using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Api.TextAssetData;
 using VenusRootLoader.Patching;
 using VenusRootLoader.Patching.Resources.Sprite;
 using VenusRootLoader.Patching.Resources.TextAsset;
-using VenusRootLoader.Patching.Resources.TextAsset.SerializableData;
 
 namespace VenusRootLoader.ContentBinding;
 
-internal sealed class ItemBinder : IContentBinder<ItemContent, int>
+internal sealed class ItemBinder : IContentBinder<ItemLeaf, int>
 {
     private readonly EnumPatcher _enumPatcher;
     private readonly ItemAndMedalSpritePatcher _itemAndMedalSpritePatcher;
@@ -25,32 +25,32 @@ internal sealed class ItemBinder : IContentBinder<ItemContent, int>
         _enumPatcher = enumPatcher;
     }
 
-    public ItemContent BindNew(string namedId, string creatorId)
+    public ItemLeaf BindNew(string namedId, string creatorId)
     {
         int newId = _enumPatcher.AddCustomEnumName(typeof(MainManager.Items), namedId);
-        ItemContent content = new()
+        ItemLeaf leaf = new()
         {
             GameId = newId,
             CreatorId = creatorId,
             NamedId = namedId
         };
-        _itemDataPatcher.AddNewDataToTextAsset(content.ItemData);
-        _itemLanguageDataPatcher.AddNewDataToTextAsset(content.ItemLanguageData);
-        _itemAndMedalSpritePatcher.AssignItemSprite(newId, content.ItemSprite);
-        return content;
+        _itemDataPatcher.AddNewDataToTextAsset(leaf.ItemData);
+        _itemLanguageDataPatcher.AddNewDataToTextAsset(leaf.ItemLanguageData);
+        _itemAndMedalSpritePatcher.AssignItemSprite(newId, leaf.ItemSprite);
+        return leaf;
     }
 
-    public ItemContent BindExisting(int itemId, string namedId, string creatorId)
+    public ItemLeaf BindExisting(int itemId, string namedId, string creatorId)
     {
-        ItemContent content = new()
+        ItemLeaf leaf = new()
         {
             GameId = itemId,
             NamedId = namedId,
             CreatorId = creatorId
         };
-        _itemDataPatcher.ChangeVanillaDataOfTextAsset(itemId, content.ItemData);
-        _itemLanguageDataPatcher.ChangeVanillaDataOfTextAsset(itemId, content.ItemLanguageData);
-        _itemAndMedalSpritePatcher.AssignItemSprite(itemId, content.ItemSprite);
-        return content;
+        _itemDataPatcher.ChangeVanillaDataOfTextAsset(itemId, leaf.ItemData);
+        _itemLanguageDataPatcher.ChangeVanillaDataOfTextAsset(itemId, leaf.ItemLanguageData);
+        _itemAndMedalSpritePatcher.AssignItemSprite(itemId, leaf.ItemSprite);
+        return leaf;
     }
 }

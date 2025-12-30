@@ -1,8 +1,10 @@
 using CommunityToolkit.Diagnostics;
+using VenusRootLoader.Api.Unity;
 
 // ReSharper disable CheckNamespace
+// ReSharper disable UnusedMember.Global
 
-namespace VenusRootLoader.Public;
+namespace VenusRootLoader.Api;
 
 public sealed partial class Venus
 {

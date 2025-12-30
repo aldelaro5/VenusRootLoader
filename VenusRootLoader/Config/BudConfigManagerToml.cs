@@ -6,7 +6,7 @@ using Tomlet;
 using Tomlet.Attributes;
 using Tomlet.Models;
 using UnityEngine;
-using VenusRootLoader.Public;
+using VenusRootLoader.Api;
 
 namespace VenusRootLoader.Config;
 

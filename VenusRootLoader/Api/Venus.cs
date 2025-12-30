@@ -3,7 +3,7 @@ using VenusRootLoader.VenusInternals;
 
 // ReSharper disable UnusedMember.Global
 
-namespace VenusRootLoader.Public;
+namespace VenusRootLoader.Api;
 
 public sealed partial class Venus
 {

@@ -1,6 +1,6 @@
 using NuGet.Versioning;
 
-namespace VenusRootLoader.Public;
+namespace VenusRootLoader.Api;
 
 public sealed class BudManifest
 {

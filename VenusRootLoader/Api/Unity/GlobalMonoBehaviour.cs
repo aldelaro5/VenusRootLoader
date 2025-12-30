@@ -1,5 +1,5 @@
 using UnityEngine;
 
-namespace VenusRootLoader.Public;
+namespace VenusRootLoader.Api.Unity;
 
 public abstract class GlobalMonoBehaviour : MonoBehaviour;

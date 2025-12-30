@@ -1,38 +1,38 @@
 using CommunityToolkit.Diagnostics;
 using System.Runtime.CompilerServices;
+using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.ContentBinding;
-using VenusRootLoader.GameContent;
 
 namespace VenusRootLoader.VenusInternals;
 
 internal sealed class ContentRegistry
 {
-    private readonly IContentBinder<ItemContent, int> _contentBinder;
+    private readonly IContentBinder<ItemLeaf, int> _contentBinder;
 
-    private Dictionary<string, ItemContent> Items { get; } = new();
+    private Dictionary<string, ItemLeaf> Items { get; } = new();
 
-    public ContentRegistry(IContentBinder<ItemContent, int> contentBinder)
+    public ContentRegistry(IContentBinder<ItemLeaf, int> contentBinder)
     {
         _contentBinder = contentBinder;
     }
 
-    internal ItemContent RegisterAndBindNewItem(string namedId, string creatorId)
+    internal ItemLeaf RegisterAndBindNewItem(string namedId, string creatorId)
     {
         EnsureNamedIdIsValuedEnumName(namedId);
         EnsureNamedIdIsFree(namedId, Items);
-        ItemContent itemContent = _contentBinder.BindNew(namedId, creatorId);
-        Items[namedId] = itemContent;
-        return itemContent;
+        ItemLeaf itemLeaf = _contentBinder.BindNew(namedId, creatorId);
+        Items[namedId] = itemLeaf;
+        return itemLeaf;
     }
 
-    internal ItemContent RegisterAndBindExistingItem(int gameId, string namedId, string creatorId)
+    internal ItemLeaf RegisterAndBindExistingItem(int gameId, string namedId, string creatorId)
     {
-        ItemContent itemContent = _contentBinder.BindExisting(gameId, namedId, creatorId);
-        Items[namedId] = itemContent;
-        return itemContent;
+        ItemLeaf itemLeaf = _contentBinder.BindExisting(gameId, namedId, creatorId);
+        Items[namedId] = itemLeaf;
+        return itemLeaf;
     }
 
-    internal ItemContent RequestExistingItem(string namedId)
+    internal ItemLeaf RequestExistingItem(string namedId)
     {
         EnsureNamedIdIsValuedEnumName(namedId);
         return EnsureNamedIdExists(namedId, Items);

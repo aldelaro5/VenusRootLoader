@@ -2,19 +2,19 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
+using VenusRootLoader.Api;
+using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Api.TextAssetData;
 using VenusRootLoader.BaseGameData;
 using VenusRootLoader.BudLoading;
 using VenusRootLoader.Config;
 using VenusRootLoader.ContentBinding;
 using VenusRootLoader.Extensions;
-using VenusRootLoader.GameContent;
 using VenusRootLoader.Logging;
 using VenusRootLoader.Patching;
 using VenusRootLoader.Patching.Resources;
 using VenusRootLoader.Patching.Resources.Sprite;
 using VenusRootLoader.Patching.Resources.TextAsset;
-using VenusRootLoader.Patching.Resources.TextAsset.SerializableData;
-using VenusRootLoader.Public;
 using VenusRootLoader.VenusInternals;
 
 namespace VenusRootLoader;
@@ -62,7 +62,7 @@ internal static class Startup
         services.AddBoundLocalizedTextAssetPatcher<ItemLanguageData>("Items");
         services.AddSingleton<ItemAndMedalSpritePatcher>();
 
-        services.AddSingleton<IContentBinder<ItemContent, int>, ItemBinder>();
+        services.AddSingleton<IContentBinder<ItemLeaf, int>, ItemBinder>();
 
         services.AddSingleton<ContentRegistry>();
 

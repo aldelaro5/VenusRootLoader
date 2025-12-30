@@ -1,5 +1,5 @@
 using AsmResolver.DotNet;
-using VenusRootLoader.Public;
+using VenusRootLoader.Api;
 
 namespace VenusRootLoader.BudLoading;
 

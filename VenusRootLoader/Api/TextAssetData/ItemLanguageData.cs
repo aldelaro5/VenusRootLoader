@@ -1,15 +1,16 @@
 using System.Text;
+using VenusRootLoader.Patching.Resources.TextAsset;
 
-namespace VenusRootLoader.Patching.Resources.TextAsset.SerializableData;
+namespace VenusRootLoader.Api.TextAssetData;
 
-internal sealed class ItemLanguageData : ITextAssetSerializable
+public sealed class ItemLanguageData : ITextAssetSerializable
 {
-    internal string Name { get; set; } = "<NO NAME>";
-    internal string UnusedDescription { get; set; } = "";
-    internal string Description { get; set; } = "<NO DESCRIPTION>";
-    internal string? Prepender { get; set; }
+    public string Name { get; set; } = "<NO NAME>";
+    private string UnusedDescription { get; set; } = "";
+    public string Description { get; set; } = "<NO DESCRIPTION>";
+    public string? Prepender { get; set; }
 
-    public string GetTextAssetSerializedString()
+    string ITextAssetSerializable.GetTextAssetSerializedString()
     {
         StringBuilder sb = new();
         sb.Append(Name);
@@ -26,7 +27,7 @@ internal sealed class ItemLanguageData : ITextAssetSerializable
         return sb.ToString();
     }
 
-    public void FromTextAssetSerializedString(string text)
+    void ITextAssetSerializable.FromTextAssetSerializedString(string text)
     {
         string[] fields = text.Split('@');
         Name = fields[0];

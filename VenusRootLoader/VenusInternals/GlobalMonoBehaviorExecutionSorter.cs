@@ -1,7 +1,8 @@
 using HarmonyLib;
 using UnityEngine;
+using VenusRootLoader.Api;
+using VenusRootLoader.Api.Unity;
 using VenusRootLoader.Patching;
-using VenusRootLoader.Public;
 
 namespace VenusRootLoader.VenusInternals;
 

@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using VenusRootLoader.Public;
+using Venus = VenusRootLoader.Api.Venus;
 
 namespace VenusRootLoader.VenusInternals;
 

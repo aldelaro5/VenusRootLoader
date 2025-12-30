@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 using System.Reflection;
+using VenusRootLoader.Api;
 using VenusRootLoader.Config;
-using VenusRootLoader.Public;
 using VenusRootLoader.VenusInternals;
 
 namespace VenusRootLoader.BudLoading;

@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Logging;
 
-namespace VenusRootLoader.Public;
+namespace VenusRootLoader.Api;
+
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 public abstract class Bud
 {

@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 using System.Reflection;
+using VenusRootLoader.Api;
 using VenusRootLoader.BudLoading;
-using VenusRootLoader.Public;
 
 namespace VenusRootLoader;
 
@@ -30,7 +30,7 @@ internal sealed class AppDomainEventsHandler
         _fileSystem = fileSystem;
     }
 
-    public void InstallHandlers()
+    internal void InstallHandlers()
     {
         _appDomainEvents.UnhandledException += OnUnhandledException;
         _appDomainEvents.AssemblyResolve += OnAssemblyResolve;

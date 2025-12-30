@@ -7,7 +7,6 @@ using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Api.TextAssetData;
 using VenusRootLoader.BaseGameCollector;
 using VenusRootLoader.BudLoading;
-using VenusRootLoader.Config;
 using VenusRootLoader.Extensions;
 using VenusRootLoader.LeafBinding;
 using VenusRootLoader.Logging;

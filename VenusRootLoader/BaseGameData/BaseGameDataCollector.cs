@@ -28,6 +28,11 @@ internal sealed class BaseGameDataCollector
     public BaseGameDataCollector(ContentRegistry contentRegistry)
     {
         _contentRegistry = contentRegistry;
+        InitializeItemsLanguageData();
+    }
+
+    private void InitializeItemsLanguageData()
+    {
         for (int i = 0; i < _languageDisplayNames.Length; i++)
         {
             string[] itemLanguageData = Resources.Load<TextAsset>($"Data/Dialogues{i}/Items").text
@@ -41,6 +46,11 @@ internal sealed class BaseGameDataCollector
     }
 
     internal void CollectAndRegisterBaseGameData(string baseGameId)
+    {
+        CollectAndRegisterItems(baseGameId);
+    }
+
+    private void CollectAndRegisterItems(string baseGameId)
     {
         for (int i = 0; i < _itemNamedIds.Length; i++)
         {

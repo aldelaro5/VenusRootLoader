@@ -5,7 +5,7 @@ namespace VenusRootLoader.Api.Leaves;
 
 public sealed class ItemLeaf : ILeaf<int>
 {
-    public int GameId { get; init; }
+    public required int GameId { get; init; }
     public required string NamedId { get; init; }
     public required string CreatorId { get; init; }
 

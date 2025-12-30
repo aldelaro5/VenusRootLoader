@@ -14,6 +14,7 @@ using VenusRootLoader.Patching;
 using VenusRootLoader.Patching.Resources;
 using VenusRootLoader.Patching.Resources.Sprite;
 using VenusRootLoader.Patching.Resources.TextAsset;
+using VenusRootLoader.Unity;
 using VenusRootLoader.VenusInternals;
 
 namespace VenusRootLoader;

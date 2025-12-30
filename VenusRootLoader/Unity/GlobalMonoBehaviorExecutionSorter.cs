@@ -3,7 +3,7 @@ using UnityEngine;
 using VenusRootLoader.Api.Unity;
 using VenusRootLoader.Patching;
 
-namespace VenusRootLoader.VenusInternals;
+namespace VenusRootLoader.Unity;
 
 internal sealed class GlobalMonoBehaviourExecution
 {

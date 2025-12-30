@@ -18,7 +18,7 @@ internal sealed class LeavesRegistry
 
     internal ItemLeaf RegisterAndBindNewItem(string namedId, string creatorId)
     {
-        EnsureNamedIdIsValuedEnumName(namedId);
+        EnsureNamedIdIsValidEnumName(namedId);
         EnsureNamedIdIsFree(namedId, Items);
         ItemLeaf itemLeaf = _itemLeafBinder.BindNew(namedId, creatorId);
         Items[namedId] = itemLeaf;
@@ -34,11 +34,11 @@ internal sealed class LeavesRegistry
 
     internal ItemLeaf RequestExistingItem(string namedId)
     {
-        EnsureNamedIdIsValuedEnumName(namedId);
+        EnsureNamedIdIsValidEnumName(namedId);
         return EnsureNamedIdExists(namedId, Items);
     }
 
-    private static void EnsureNamedIdIsValuedEnumName(string namedId)
+    private static void EnsureNamedIdIsValidEnumName(string namedId)
     {
         Guard.IsNotNullOrWhiteSpace(namedId);
         if (namedId.Trim() != namedId)

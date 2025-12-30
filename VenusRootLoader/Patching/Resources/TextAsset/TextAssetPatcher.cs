@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using System.Text;
+using VenusRootLoader.BaseGameData;
 
 namespace VenusRootLoader.Patching.Resources.TextAsset;
 
@@ -7,8 +8,6 @@ internal sealed class TextAssetPatcher<T> : ResourcesTypePatcher<UnityEngine.Tex
     where T : ITextAssetSerializable
 {
     private readonly ILogger<TextAssetPatcher<T>> _logger;
-
-    private readonly char[] _textAssetsSplitLineSeparator = ['\n'];
 
     private Dictionary<int, T> TextAssetsChangedLines { get; } = new();
     private List<T> TextAssetsCustomLines { get; } = new();
@@ -42,18 +41,18 @@ internal sealed class TextAssetPatcher<T> : ResourcesTypePatcher<UnityEngine.Tex
         if (!changedLinesExists && !customLinesExists)
             return original;
 
+        string[] lines = [];
+        if (path.Equals("Data/ItemData", StringComparison.OrdinalIgnoreCase))
+            lines = BaseGameDataCollector.ItemsData;
+
         StringBuilder sb = new();
         if (changedLinesExists)
         {
-            string[] lines = original.text.Split(_textAssetsSplitLineSeparator, StringSplitOptions.RemoveEmptyEntries);
             foreach (KeyValuePair<int, T> customLine in TextAssetsChangedLines)
                 lines[customLine.Key] = customLine.Value.GetTextAssetSerializedString();
-            sb.Append(string.Join("\n", lines));
         }
-        else
-        {
-            sb.Append(original.text.TrimEnd(_textAssetsSplitLineSeparator));
-        }
+
+        sb.Append(string.Join("\n", lines));
 
         if (customLinesExists)
         {

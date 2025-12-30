@@ -12,7 +12,6 @@ internal interface ILocalizedTextAssetPatcher
 internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
     where T : ITextAssetSerializable
 {
-    private readonly char[] _textAssetsSplitLineSeparator = ['\n'];
     private readonly ILogger<LocalizedTextAssetPatcher<T>> _logger;
 
     private Dictionary<int, Dictionary<int, T>> TextAssetsChangedLines { get; } = new();
@@ -54,25 +53,18 @@ internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
         if (!changedLinesExists && !customLinesExists)
             return original;
 
-        string[] lines = original.text.Split(_textAssetsSplitLineSeparator, StringSplitOptions.RemoveEmptyEntries);
-        // Workaround a game bug where not all languages has the last line about BigBerry
-        if (subpath.Equals("Items", StringComparison.OrdinalIgnoreCase) &&
-            lines.Length != BaseGameDataCollector.ItemNamedIds.Length)
-        {
-            lines = lines.Append("RESERVED@Desc@Desc@a").ToArray();
-        }
+        string[] lines = [];
+        if (subpath.Equals("Items", StringComparison.OrdinalIgnoreCase))
+            lines = BaseGameDataCollector.ItemsLanguageData[languageId];
 
         StringBuilder sb = new();
         if (changedLinesExists)
         {
             foreach (KeyValuePair<int, Dictionary<int, T>> customLine in changes)
                 lines[customLine.Key] = customLine.Value[languageId].GetTextAssetSerializedString();
-            sb.Append(string.Join("\n", lines));
         }
-        else
-        {
-            sb.Append(original.text.TrimEnd(_textAssetsSplitLineSeparator));
-        }
+
+        sb.Append(string.Join("\n", lines));
 
         if (customLinesExists)
         {

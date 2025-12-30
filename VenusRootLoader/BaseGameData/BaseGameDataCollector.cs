@@ -8,13 +8,18 @@ internal sealed class BaseGameDataCollector
 {
     private const int ItemsSpritesAmountInItems0 = 176;
 
-    internal static readonly string[] ItemNamedIds = Enum.GetNames(typeof(MainManager.Items))
+    internal static readonly string[] ItemsData = Resources.Load<TextAsset>("Data/ItemData").text
+        .Trim('\n')
+        .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
+
+    internal static readonly Dictionary<int, string[]> ItemsLanguageData = new();
+
+    private readonly string[] _languageDisplayNames = MainManager.languagenames.ToArray();
+
+    private readonly string[] _itemNamedIds = Enum.GetNames(typeof(MainManager.Items))
         .TakeWhile(v => v != nameof(MainManager.Items.None))
         .ToArray();
 
-    private readonly string[] _languageDisplayNames = MainManager.languagenames.ToArray();
-    private readonly string[] _itemsData = Resources.Load<TextAsset>("Data/ItemData").text.Trim('\n').Split('\n');
-    private readonly Dictionary<int, string[]> _itemsLanguageData = new();
     private readonly Sprite[] _items0Sprites = Resources.LoadAll<Sprite>("Sprites/Items/Items0");
     private readonly Sprite[] _items1Sprites = Resources.LoadAll<Sprite>("Sprites/Items/Items1");
 
@@ -25,29 +30,30 @@ internal sealed class BaseGameDataCollector
         _contentRegistry = contentRegistry;
         for (int i = 0; i < _languageDisplayNames.Length; i++)
         {
-            string[] itemLanguageData =
-                Resources.Load<TextAsset>($"Data/Dialogues{i}/Items").text.Trim('\n').Split('\n');
+            string[] itemLanguageData = Resources.Load<TextAsset>($"Data/Dialogues{i}/Items").text
+                .Trim('\n')
+                .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
             // Workaround a game bug where not all languages has the last line about BigBerry
-            if (itemLanguageData.Length != ItemNamedIds.Length)
+            if (itemLanguageData.Length != _itemNamedIds.Length)
                 itemLanguageData = itemLanguageData.Append("RESERVED@Desc@Desc@a").ToArray();
-            _itemsLanguageData.Add(i, itemLanguageData);
+            ItemsLanguageData.Add(i, itemLanguageData);
         }
     }
 
     internal void CollectAndRegisterBaseGameData(string baseGameId)
     {
-        for (int i = 0; i < ItemNamedIds.Length; i++)
+        for (int i = 0; i < _itemNamedIds.Length; i++)
         {
-            string itemNamedId = ItemNamedIds[i];
+            string itemNamedId = _itemNamedIds[i];
             ItemContent itemContent = _contentRegistry.RegisterAndBindExistingItem(i, itemNamedId, baseGameId);
-            itemContent.ItemData.FromTextAssetSerializedString(_itemsData[i]);
+            itemContent.ItemData.FromTextAssetSerializedString(ItemsData[i]);
             itemContent.ItemSprite.Sprite = i < ItemsSpritesAmountInItems0
                 ? _items0Sprites[i]
                 : _items1Sprites[i - ItemsSpritesAmountInItems0];
             for (int j = 0; j < _languageDisplayNames.Length; j++)
             {
                 itemContent.ItemLanguageData[j] = new();
-                itemContent.ItemLanguageData[j].FromTextAssetSerializedString(_itemsLanguageData[j][i]);
+                itemContent.ItemLanguageData[j].FromTextAssetSerializedString(ItemsLanguageData[j][i]);
             }
         }
     }

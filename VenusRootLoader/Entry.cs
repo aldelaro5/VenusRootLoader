@@ -24,7 +24,6 @@ internal static class Entry
                 Marshal.GetDelegateForFunctionPointer<BootstrapFunctions.BootstrapLogFn>(bootstrapLogFunctionPtr);
             _gameExecutionContext = Marshal.PtrToStructure<GameExecutionContext>(gameExecutionContextPtr);
             _basePath = Marshal.PtrToStringUni(basePathPtr)!;
-            _bootstrapLog(_basePath, nameof(VenusRootLoader), LogLevel.Information);
             IServiceProvider host = Startup.BuildServiceProvider(
                 _basePath,
                 _gameExecutionContext,

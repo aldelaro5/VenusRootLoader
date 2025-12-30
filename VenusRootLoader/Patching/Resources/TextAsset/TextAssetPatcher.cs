@@ -43,7 +43,7 @@ internal sealed class TextAssetPatcher<T> : ResourcesTypePatcher<UnityEngine.Tex
 
         string[] lines = [];
         if (path.Equals("Data/ItemData", StringComparison.OrdinalIgnoreCase))
-            lines = BaseGameDataCollector.ItemsData;
+            lines = BaseGameItemsCollector.ItemsData;
 
         StringBuilder sb = new();
         if (changedLinesExists)

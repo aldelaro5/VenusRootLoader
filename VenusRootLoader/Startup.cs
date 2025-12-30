@@ -65,7 +65,10 @@ internal static class Startup
         services.AddSingleton<IContentBinder<ItemContent, int>, ItemBinder>();
 
         services.AddSingleton<ContentRegistry>();
+
+        services.AddSingleton<BaseGameItemsCollector>();
         services.AddSingleton<BaseGameDataCollector>();
+        
         services.AddSingleton<GlobalMonoBehaviourExecution>();
 
         services.AddSingleton<IBudConfigManager, BudConfigManager>();

@@ -55,7 +55,7 @@ internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
 
         string[] lines = [];
         if (subpath.Equals("Items", StringComparison.OrdinalIgnoreCase))
-            lines = BaseGameDataCollector.ItemsLanguageData[languageId];
+            lines = BaseGameItemsCollector.ItemsLanguageData[languageId];
 
         StringBuilder sb = new();
         if (changedLinesExists)

@@ -1,4 +1,4 @@
-namespace VenusRootLoader.BaseGameData;
+namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class BaseGameDataCollector
 {

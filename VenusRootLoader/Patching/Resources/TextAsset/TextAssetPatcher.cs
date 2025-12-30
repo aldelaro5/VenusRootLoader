@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 using System.Text;
-using VenusRootLoader.BaseGameData;
+using VenusRootLoader.BaseGameCollector;
 
 namespace VenusRootLoader.Patching.Resources.TextAsset;
 

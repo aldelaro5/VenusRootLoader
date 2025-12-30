@@ -8,7 +8,7 @@ using Tomlet.Models;
 using UnityEngine;
 using VenusRootLoader.Api;
 
-namespace VenusRootLoader.Config;
+namespace VenusRootLoader.BudLoading;
 
 internal interface IBudConfigManager
 {

@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
-using VenusRootLoader.BaseGameData;
+using VenusRootLoader.BaseGameCollector;
 using VenusRootLoader.BudLoading;
 
 namespace VenusRootLoader;

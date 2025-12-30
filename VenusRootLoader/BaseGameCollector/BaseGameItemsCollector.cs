@@ -4,7 +4,7 @@ using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAsset;
 using VenusRootLoader.VenusInternals;
 
-namespace VenusRootLoader.BaseGameData;
+namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class BaseGameItemsCollector
 {

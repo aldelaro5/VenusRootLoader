@@ -1,33 +1,33 @@
 using CommunityToolkit.Diagnostics;
 using System.Runtime.CompilerServices;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.ContentBinding;
+using VenusRootLoader.LeafBinding;
 
 namespace VenusRootLoader.VenusInternals;
 
-internal sealed class ContentRegistry
+internal sealed class LeavesRegistry
 {
-    private readonly IContentBinder<ItemLeaf, int> _contentBinder;
+    private readonly ILeafBinder<ItemLeaf, int> _itemLeafBinder;
 
     private Dictionary<string, ItemLeaf> Items { get; } = new();
 
-    public ContentRegistry(IContentBinder<ItemLeaf, int> contentBinder)
+    public LeavesRegistry(ILeafBinder<ItemLeaf, int> itemLeafBinder)
     {
-        _contentBinder = contentBinder;
+        _itemLeafBinder = itemLeafBinder;
     }
 
     internal ItemLeaf RegisterAndBindNewItem(string namedId, string creatorId)
     {
         EnsureNamedIdIsValuedEnumName(namedId);
         EnsureNamedIdIsFree(namedId, Items);
-        ItemLeaf itemLeaf = _contentBinder.BindNew(namedId, creatorId);
+        ItemLeaf itemLeaf = _itemLeafBinder.BindNew(namedId, creatorId);
         Items[namedId] = itemLeaf;
         return itemLeaf;
     }
 
     internal ItemLeaf RegisterAndBindExistingItem(int gameId, string namedId, string creatorId)
     {
-        ItemLeaf itemLeaf = _contentBinder.BindExisting(gameId, namedId, creatorId);
+        ItemLeaf itemLeaf = _itemLeafBinder.BindExisting(gameId, namedId, creatorId);
         Items[namedId] = itemLeaf;
         return itemLeaf;
     }

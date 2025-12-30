@@ -10,23 +10,23 @@ internal interface IVenusFactory
 
 internal sealed class VenusFactory : IVenusFactory
 {
-    private readonly ContentRegistry _contentRegistry;
+    private readonly LeavesRegistry _leavesRegistry;
     private readonly GlobalMonoBehaviourExecution _globalMonoBehaviourExecution;
     private readonly ILogger<Venus> _logger;
 
     public VenusFactory(
         GlobalMonoBehaviourExecution globalMonoBehaviourExecution,
         ILogger<Venus> logger,
-        ContentRegistry contentRegistry)
+        LeavesRegistry leavesRegistry)
     {
         _globalMonoBehaviourExecution = globalMonoBehaviourExecution;
         _logger = logger;
-        _contentRegistry = contentRegistry;
+        _leavesRegistry = leavesRegistry;
     }
 
     public Venus CreateVenusForBud(string budId) => new(
         budId,
-        _contentRegistry,
+        _leavesRegistry,
         _globalMonoBehaviourExecution,
         _logger);
 }

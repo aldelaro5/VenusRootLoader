@@ -24,11 +24,11 @@ internal sealed class BaseGameItemsCollector
     private readonly Sprite[] _items1Sprites = Resources.LoadAll<Sprite>("Sprites/Items/Items1");
 
     private readonly ILogger<BaseGameItemsCollector> _logger;
-    private readonly ContentRegistry _contentRegistry;
+    private readonly LeavesRegistry _leavesRegistry;
 
-    public BaseGameItemsCollector(ContentRegistry contentRegistry, ILogger<BaseGameItemsCollector> logger)
+    public BaseGameItemsCollector(LeavesRegistry leavesRegistry, ILogger<BaseGameItemsCollector> logger)
     {
-        _contentRegistry = contentRegistry;
+        _leavesRegistry = leavesRegistry;
         _logger = logger;
 
         for (int i = 0; i < BaseGameDataCollector.LanguageDisplayNames.Length; i++)
@@ -48,7 +48,7 @@ internal sealed class BaseGameItemsCollector
         for (int i = 0; i < _itemNamedIds.Length; i++)
         {
             string itemNamedId = _itemNamedIds[i];
-            ItemLeaf itemLeaf = _contentRegistry.RegisterAndBindExistingItem(i, itemNamedId, baseGameId);
+            ItemLeaf itemLeaf = _leavesRegistry.RegisterAndBindExistingItem(i, itemNamedId, baseGameId);
             ((ITextAssetSerializable)itemLeaf.ItemData).FromTextAssetSerializedString(ItemsData[i]);
             itemLeaf.ItemSprite.Sprite = i < ItemsSpritesAmountInItems0
                 ? _items0Sprites[i]

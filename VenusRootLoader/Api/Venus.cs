@@ -8,18 +8,18 @@ namespace VenusRootLoader.Api;
 public sealed partial class Venus
 {
     private readonly string _budId;
-    private readonly ContentRegistry _contentRegistry;
+    private readonly LeavesRegistry _leavesRegistry;
     private readonly GlobalMonoBehaviourExecution _globalMonoBehaviourExecution;
     private readonly ILogger<Venus> _logger;
 
     internal Venus(
         string budId,
-        ContentRegistry contentRegistry,
+        LeavesRegistry leavesRegistry,
         GlobalMonoBehaviourExecution globalMonoBehaviourExecution,
         ILogger<Venus> logger)
     {
         _budId = budId;
-        _contentRegistry = contentRegistry;
+        _leavesRegistry = leavesRegistry;
         _globalMonoBehaviourExecution = globalMonoBehaviourExecution;
         _logger = logger;
     }

@@ -4,16 +4,16 @@ using VenusRootLoader.Patching;
 using VenusRootLoader.Patching.Resources.Sprite;
 using VenusRootLoader.Patching.Resources.TextAsset;
 
-namespace VenusRootLoader.ContentBinding;
+namespace VenusRootLoader.LeafBinding;
 
-internal sealed class ItemBinder : IContentBinder<ItemLeaf, int>
+internal sealed class ItemLeafBinder : ILeafBinder<ItemLeaf, int>
 {
     private readonly EnumPatcher _enumPatcher;
     private readonly ItemAndMedalSpritePatcher _itemAndMedalSpritePatcher;
     private readonly TextAssetPatcher<ItemData> _itemDataPatcher;
     private readonly LocalizedTextAssetPatcher<ItemLanguageData> _itemLanguageDataPatcher;
 
-    public ItemBinder(
+    public ItemLeafBinder(
         ItemAndMedalSpritePatcher itemAndMedalSpritePatcher,
         TextAssetPatcher<ItemData> itemDataPatcher,
         LocalizedTextAssetPatcher<ItemLanguageData> itemLanguageDataPatcher,

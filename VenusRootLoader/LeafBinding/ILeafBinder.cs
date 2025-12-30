@@ -1,8 +1,8 @@
 using VenusRootLoader.Api.Leaves;
 
-namespace VenusRootLoader.ContentBinding;
+namespace VenusRootLoader.LeafBinding;
 
-internal interface IContentBinder<T, U>
+internal interface ILeafBinder<T, U>
     where T : ILeaf<U>
 {
     T BindNew(string namedId, string creatorId);

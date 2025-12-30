@@ -8,8 +8,8 @@ using VenusRootLoader.Api.TextAssetData;
 using VenusRootLoader.BaseGameData;
 using VenusRootLoader.BudLoading;
 using VenusRootLoader.Config;
-using VenusRootLoader.ContentBinding;
 using VenusRootLoader.Extensions;
+using VenusRootLoader.LeafBinding;
 using VenusRootLoader.Logging;
 using VenusRootLoader.Patching;
 using VenusRootLoader.Patching.Resources;
@@ -62,9 +62,9 @@ internal static class Startup
         services.AddBoundLocalizedTextAssetPatcher<ItemLanguageData>("Items");
         services.AddSingleton<ItemAndMedalSpritePatcher>();
 
-        services.AddSingleton<IContentBinder<ItemLeaf, int>, ItemBinder>();
+        services.AddSingleton<ILeafBinder<ItemLeaf, int>, ItemLeafBinder>();
 
-        services.AddSingleton<ContentRegistry>();
+        services.AddSingleton<LeavesRegistry>();
 
         services.AddSingleton<BaseGameItemsCollector>();
         services.AddSingleton<BaseGameDataCollector>();

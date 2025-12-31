@@ -1,7 +1,8 @@
 using System.Text;
 using VenusRootLoader.Patching.Resources.TextAsset;
+using VenusRootLoader.Utility;
 
-namespace VenusRootLoader.Api.TextAssetData;
+namespace VenusRootLoader.Api.TextAssetData.Items;
 
 public sealed class ItemLanguageData : ITextAssetSerializable
 {
@@ -29,7 +30,7 @@ public sealed class ItemLanguageData : ITextAssetSerializable
 
     void ITextAssetSerializable.FromTextAssetSerializedString(string text)
     {
-        string[] fields = text.Split('@');
+        string[] fields = text.Split(StringUtils.AtSymbolSplitDelimiter);
         Name = fields[0];
         UnusedDescription = fields[1];
         Description = fields[2];

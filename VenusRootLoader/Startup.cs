@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 using VenusRootLoader.Api;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Api.TextAssetData;
+using VenusRootLoader.Api.TextAssetData.Items;
 using VenusRootLoader.BaseGameCollector;
 using VenusRootLoader.BudLoading;
 using VenusRootLoader.Extensions;

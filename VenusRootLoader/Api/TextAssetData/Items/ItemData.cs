@@ -1,8 +1,9 @@
 using System.Text;
 using VenusRootLoader.Extensions;
 using VenusRootLoader.Patching.Resources.TextAsset;
+using VenusRootLoader.Utility;
 
-namespace VenusRootLoader.Api.TextAssetData;
+namespace VenusRootLoader.Api.TextAssetData.Items;
 
 public sealed class ItemData : ITextAssetSerializable
 {
@@ -29,12 +30,12 @@ public sealed class ItemData : ITextAssetSerializable
 
     void ITextAssetSerializable.FromTextAssetSerializedString(string text)
     {
-        string[] fields = text.Split('@');
+        string[] fields = text.Split(StringUtils.AtSymbolSplitDelimiter);
         if (!string.IsNullOrWhiteSpace(fields[0]))
             BuyingPrice = int.Parse(fields[0]);
         if (!string.IsNullOrWhiteSpace(fields[1]))
         {
-            string[] effects = fields[1].Split(';');
+            string[] effects = fields[1].Split(StringUtils.SemiColonSplitDelimiter);
             Effects.Clear();
             foreach (string effect in effects)
             {

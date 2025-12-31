@@ -1,7 +1,8 @@
 using VenusRootLoader.Extensions;
 using VenusRootLoader.Patching.Resources.TextAsset;
+using VenusRootLoader.Utility;
 
-namespace VenusRootLoader.Api.TextAssetData;
+namespace VenusRootLoader.Api.TextAssetData.Items;
 
 public sealed class ItemUse : ITextAssetSerializable
 {
@@ -12,7 +13,7 @@ public sealed class ItemUse : ITextAssetSerializable
 
     void ITextAssetSerializable.FromTextAssetSerializedString(string text)
     {
-        string[] fields = text.Split(',');
+        string[] fields = text.Split(StringUtils.CommaSplitDelimiter);
         UseType = Enum.Parse<MainManager.ItemUsage>(fields[0]);
         Value = int.Parse(fields[1]);
     }

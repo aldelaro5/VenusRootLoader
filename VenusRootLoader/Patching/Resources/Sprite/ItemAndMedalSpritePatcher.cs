@@ -2,7 +2,6 @@ using HarmonyLib;
 using System.Reflection.Emit;
 using VenusRootLoader.Api.Unity;
 using VenusRootLoader.Extensions;
-using VenusRootLoader.Unity;
 
 namespace VenusRootLoader.Patching.Resources.Sprite;
 

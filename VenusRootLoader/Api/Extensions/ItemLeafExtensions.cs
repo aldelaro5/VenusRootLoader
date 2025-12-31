@@ -1,6 +1,6 @@
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Api.TextAssetData;
+using VenusRootLoader.Api.TextAssetData.Items;
 
 namespace VenusRootLoader.Api.Extensions;
 

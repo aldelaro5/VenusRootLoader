@@ -1,4 +1,4 @@
-using VenusRootLoader.Api.TextAssetData;
+using VenusRootLoader.Api.TextAssetData.Items;
 using VenusRootLoader.Api.Unity;
 
 namespace VenusRootLoader.Api.Leaves;

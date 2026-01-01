@@ -1,10 +1,10 @@
 using VenusRootLoader.Patching.Resources.TextAsset;
 
-namespace VenusRootLoader.Api.TextAssetData.Dialogues;
+namespace VenusRootLoader.Api.TextAssetData.DialoguesLines;
 
-public sealed class DialogueLine : ITextAssetSerializable
+public sealed class MenuDialogueLine : ITextAssetSerializable
 {
-    public string Text { get; set; }
+    public string Text { get; set; } = "";
 
     string ITextAssetSerializable.GetTextAssetSerializedString() => Text;
 

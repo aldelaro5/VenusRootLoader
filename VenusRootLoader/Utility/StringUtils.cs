@@ -9,4 +9,5 @@ internal static class StringUtils
     internal static readonly char[] OpeningBraceSplitDelimiter = ['{'];
     internal static readonly char[] ClosingBraceSplitDelimiter = ['}'];
     internal static readonly char[] NewlineSplitDelimiter = ['\n'];
+    internal static readonly char[] QuestionMarkSplitDelimiter = ['?'];
 }

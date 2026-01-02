@@ -1,12 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
-using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.BaseGameCollector;
 using VenusRootLoader.BudLoading;
 using VenusRootLoader.Logging;
-using VenusRootLoader.Patching.Resources.Sprite;
-using VenusRootLoader.Patching.Resources.TextAsset;
+using VenusRootLoader.Patching.Resources;
 
 namespace VenusRootLoader;
 
@@ -43,10 +41,7 @@ internal static class Entry
             gameDataCollector.CollectAndRegisterBaseGameData(BaseGameId);
 
             // TODO: Find a way to not need to do this
-            TextAssetPatcher<ItemLeaf, int> patcher = host.GetRequiredService<TextAssetPatcher<ItemLeaf, int>>();
-            LocalizedTextAssetPatcher<ItemLeaf, int> localizedPatcher =
-                host.GetRequiredService<LocalizedTextAssetPatcher<ItemLeaf, int>>();
-            ItemAndMedalSpritePatcher spritePatcher = host.GetRequiredService<ItemAndMedalSpritePatcher>();
+            ResourcesPatcher patcher = host.GetRequiredService<ResourcesPatcher>();
             
             BudLoader loader = host.GetRequiredService<BudLoader>();
             loader.LoadAllBuds();

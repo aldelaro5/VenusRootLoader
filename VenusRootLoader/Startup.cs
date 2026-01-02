@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
+using UnityEngine;
 using VenusRootLoader.Api;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.BaseGameCollector;
@@ -59,14 +60,13 @@ internal static class Startup
 
         services.AddSingleton<ILeavesRegistry<ItemLeaf, int>, ItemsRegistry>();
 
+        services.AddTextAssetPatcher<ItemLeaf, int>(["ItemData"]);
+        services.AddLocalizedTextAssetPatcher<ItemLeaf, int>(["Items"]);
+        services.AddSingleton<IResourcesTypePatcher<TextAsset>, RootTextAssetPatcher>();
         services.AddSingleton<ResourcesPatcher>();
-        services.AddSingleton<RootTextAssetPatcher>();
 
         services.AddSingleton<ITextAssetSerializable<ItemLeaf, int>, ItemDataSerializer>();
         services.AddSingleton<ILocalizedTextAssetSerializable<ItemLeaf, int>, ItemLanguageDataSerializer>();
-
-        services.AddBoundTextAssetPatcher<ItemLeaf, int>("Data/ItemData");
-        services.AddBoundLocalizedTextAssetPatcher<ItemLeaf, int>("Items");
         
         services.AddSingleton<ItemAndMedalSpritePatcher>();
 

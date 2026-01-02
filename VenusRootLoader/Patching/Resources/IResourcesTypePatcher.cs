@@ -2,7 +2,8 @@ using Object = UnityEngine.Object;
 
 namespace VenusRootLoader.Patching.Resources;
 
-internal interface IResourcesTypePatcher
+internal interface IResourcesTypePatcher<T>
+    where T : Object
 {
-    Object PatchResource(string path, Object original);
+    T PatchResource(string path, T original);
 }

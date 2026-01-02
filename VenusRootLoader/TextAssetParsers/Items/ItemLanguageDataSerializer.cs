@@ -7,7 +7,7 @@ namespace VenusRootLoader.TextAssetParsers.Items;
 
 internal sealed class ItemLanguageDataSerializer : ILocalizedTextAssetSerializable<ItemLeaf, int>
 {
-    public string GetTextAssetSerializedString(int languageId, ItemLeaf item)
+    public string GetTextAssetSerializedString(string subPath, int languageId, ItemLeaf item)
     {
         ItemLeaf.ItemLanguageData? languageData = null;
         if (item.LanguageData.Count == 0)

@@ -8,7 +8,7 @@ namespace VenusRootLoader.TextAssetParsers.Items;
 
 internal sealed class ItemDataSerializer : ITextAssetSerializable<ItemLeaf, int>
 {
-    public string GetTextAssetSerializedString(ItemLeaf item)
+    public string GetTextAssetSerializedString(string subPath, ItemLeaf item)
     {
         StringBuilder sb = new();
         sb.Append(item.BuyingPrice);

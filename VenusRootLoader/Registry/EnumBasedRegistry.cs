@@ -16,7 +16,7 @@ internal abstract class EnumBasedRegistry<TLeaf, TEnum> : ILeavesRegistry<TLeaf,
         _enumPatcher = enumPatcher;
     }
 
-    public IDictionary<string, TLeaf> Registry { get; } = new Dictionary<string, TLeaf>();
+    public IDictionary<string, TLeaf> Leaves { get; } = new Dictionary<string, TLeaf>();
 
     public TLeaf RegisterNew(string namedId, string creatorId)
     {
@@ -29,7 +29,7 @@ internal abstract class EnumBasedRegistry<TLeaf, TEnum> : ILeavesRegistry<TLeaf,
             CreatorId = creatorId,
             NamedId = namedId
         };
-        Registry[namedId] = itemLeaf;
+        Leaves[namedId] = itemLeaf;
         return itemLeaf;
     }
 
@@ -41,7 +41,7 @@ internal abstract class EnumBasedRegistry<TLeaf, TEnum> : ILeavesRegistry<TLeaf,
             NamedId = namedId,
             CreatorId = creatorId
         };
-        Registry[namedId] = itemLeaf;
+        Leaves[namedId] = itemLeaf;
         return itemLeaf;
     }
 
@@ -71,7 +71,7 @@ internal abstract class EnumBasedRegistry<TLeaf, TEnum> : ILeavesRegistry<TLeaf,
 
     private void EnsureNamedIdIsFree(string namedId)
     {
-        if (Registry.ContainsKey(namedId))
+        if (Leaves.ContainsKey(namedId))
         {
             ThrowHelper.ThrowArgumentException(
                 nameof(namedId),
@@ -82,7 +82,7 @@ internal abstract class EnumBasedRegistry<TLeaf, TEnum> : ILeavesRegistry<TLeaf,
     private TLeaf EnsureNamedIdExists(
         string namedId)
     {
-        if (!Registry.TryGetValue(namedId, out TLeaf content))
+        if (!Leaves.TryGetValue(namedId, out TLeaf content))
         {
             return ThrowHelper.ThrowArgumentException<TLeaf>(
                 nameof(namedId),

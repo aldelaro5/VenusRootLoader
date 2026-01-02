@@ -1,41 +1,48 @@
+using VenusRootLoader.Api.Leaves;
+
 namespace VenusRootLoader.Patching.Resources.TextAsset;
 
-internal sealed class RootTextAssetPatcher : ResourcesTypePatcher<UnityEngine.TextAsset>
+internal sealed class RootTextAssetPatcher : IResourcesTypePatcher<UnityEngine.TextAsset>
 {
+    private const string DataPrefix = "Data/";
     private const string LocalizedPathPrefix = "Data/Dialogues";
     private static readonly char[] LocalisedPathSeparator = ['/'];
 
-    private readonly Dictionary<string, ResourcesTypePatcher<UnityEngine.TextAsset>> _textAssetPatchers =
+    private readonly Dictionary<string, IResourcesTypePatcher<UnityEngine.TextAsset>> _textAssetPatchers =
         new(StringComparer.OrdinalIgnoreCase);
 
-    private readonly Dictionary<string, ILocalizedTextAssetPatcher> _localizedTextAssetPatchersBySubpath =
+    private readonly Dictionary<string, ILocalizedTextAssetPatcher> _localizedTextAssetPatchers =
         new(StringComparer.OrdinalIgnoreCase);
 
-    public RootTextAssetPatcher(ResourcesPatcher resourcesPatcher)
+    public RootTextAssetPatcher(
+        TextAssetPatcher<ItemLeaf, int> itemDataPatcher,
+        LocalizedTextAssetPatcher<ItemLeaf, int> localizedItemPatcher)
     {
-        resourcesPatcher.RegisterResourceTypePatcher(typeof(UnityEngine.TextAsset), this);
+        foreach (string subPath in itemDataPatcher.SubPaths)
+            _textAssetPatchers.Add(subPath, itemDataPatcher);
+        foreach (string subPath in localizedItemPatcher.SubPaths)
+            _localizedTextAssetPatchers.Add(subPath, localizedItemPatcher);
     }
 
-    internal void RegisterTextAssetPatcher(string path, ResourcesTypePatcher<UnityEngine.TextAsset> patcher) =>
-        _textAssetPatchers.Add(path, patcher);
-
-    internal void RegisterLocalizedTextAssetPatcher(string subpath, ILocalizedTextAssetPatcher patcher) =>
-        _localizedTextAssetPatchersBySubpath.Add(subpath, patcher);
-
-    public override UnityEngine.TextAsset PatchResource(string path, UnityEngine.TextAsset original)
+    public UnityEngine.TextAsset PatchResource(string path, UnityEngine.TextAsset original)
     {
-        if (_textAssetPatchers.TryGetValue(path, out ResourcesTypePatcher<UnityEngine.TextAsset> patcher))
-            return patcher.PatchResource(path, original);
-
-        if (!path.StartsWith(LocalizedPathPrefix, StringComparison.OrdinalIgnoreCase))
+        if (!path.StartsWith(DataPrefix, StringComparison.OrdinalIgnoreCase))
             return original;
 
-        string[] localizedPathParts = path[LocalizedPathPrefix.Length..].Split(LocalisedPathSeparator, 2);
-        int languageId = int.Parse(localizedPathParts[0]);
-        string subpath = localizedPathParts[1];
-        if (_localizedTextAssetPatchersBySubpath.TryGetValue(subpath, out ILocalizedTextAssetPatcher localizedPatcher))
-            return localizedPatcher.PatchResource(languageId, subpath, original);
+        if (path.StartsWith(LocalizedPathPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            string[] localizedPathParts = path[LocalizedPathPrefix.Length..].Split(LocalisedPathSeparator);
+            int languageId = int.Parse(localizedPathParts[0]);
+            string subpathLocalized = localizedPathParts[1];
+            return _localizedTextAssetPatchers.TryGetValue(subpathLocalized, out ILocalizedTextAssetPatcher patcher)
+                ? patcher.PatchResource(languageId, string.Join("/", localizedPathParts.Skip(1)), original)
+                : original;
+        }
 
+        string[] pathParts = path[DataPrefix.Length..].Split(LocalisedPathSeparator);
+        string subpath = pathParts[0];
+        if (_textAssetPatchers.TryGetValue(subpath, out IResourcesTypePatcher<UnityEngine.TextAsset> textAssetPatcher))
+            return textAssetPatcher.PatchResource(string.Join("/", pathParts.Skip(1)), original);
         return original;
     }
 }

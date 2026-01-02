@@ -5,23 +5,23 @@ namespace VenusRootLoader.Patching.Resources;
 
 internal sealed class ResourcesPatcher
 {
-    private static readonly Dictionary<Type, IResourcesTypePatcher> ResourcesTypePatchers = new();
+    private static ResourcesPatcher _instance = null!;
+    private readonly IResourcesTypePatcher<UnityEngine.TextAsset> _textAssetPatcher;
 
-    public ResourcesPatcher(IHarmonyTypePatcher harmonyTypePatcher)
+    public ResourcesPatcher(
+        IHarmonyTypePatcher harmonyTypePatcher,
+        IResourcesTypePatcher<UnityEngine.TextAsset> textAssetPatcher)
     {
+        _instance = this;
+        _textAssetPatcher = textAssetPatcher;
         harmonyTypePatcher.PatchAll(typeof(ResourcesPatcher));
     }
-
-    internal void RegisterResourceTypePatcher(Type type, IResourcesTypePatcher patcher) =>
-        ResourcesTypePatchers.Add(type, patcher);
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(UnityEngine.Resources), nameof(UnityEngine.Resources.Load), [typeof(string), typeof(Type)])]
     private static void PatchResources(string path, Type systemTypeInstance, ref Object __result)
     {
-        if (!ResourcesTypePatchers.TryGetValue(systemTypeInstance, out IResourcesTypePatcher patcher))
-            return;
-
-        __result = patcher.PatchResource(path, __result);
+        if (systemTypeInstance == typeof(UnityEngine.TextAsset))
+            __result = _instance._textAssetPatcher.PatchResource(path, (UnityEngine.TextAsset)__result);
     }
 }

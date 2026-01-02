@@ -10,9 +10,9 @@ internal interface ILocalizedTextAssetPatcher
 }
 
 internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
-    where T : ITextAssetSerializable
 {
     private readonly ILogger<LocalizedTextAssetPatcher<T>> _logger;
+    private readonly ITextAssetSerializable<T> _serializable;
 
     private Dictionary<int, Dictionary<int, T>> TextAssetsChangedLines { get; } = new();
     private List<Dictionary<int, T>> TextAssetsCustomLines { get; } = new();
@@ -20,9 +20,11 @@ internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
     public LocalizedTextAssetPatcher(
         string subpath,
         RootTextAssetPatcher rootTextAssetPatcher,
-        ILogger<LocalizedTextAssetPatcher<T>> logger)
+        ILogger<LocalizedTextAssetPatcher<T>> logger,
+        ITextAssetSerializable<T> serializable)
     {
         _logger = logger;
+        _serializable = serializable;
         rootTextAssetPatcher.RegisterLocalizedTextAssetPatcher(subpath, this);
     }
 
@@ -61,7 +63,7 @@ internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
         if (changedLinesExists)
         {
             foreach (KeyValuePair<int, Dictionary<int, T>> customLine in changes)
-                lines[customLine.Key] = customLine.Value[languageId].GetTextAssetSerializedString();
+                lines[customLine.Key] = _serializable.GetTextAssetSerializedString(customLine.Value[languageId]);
         }
 
         sb.Append(string.Join("\n", lines));
@@ -78,15 +80,15 @@ internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
         return new UnityEngine.TextAsset(text);
     }
 
-    private static string GetLocalizedSerializedString(int languageId, Dictionary<int, T> customLineByLanguage)
+    private string GetLocalizedSerializedString(int languageId, Dictionary<int, T> customLineByLanguage)
     {
         if (customLineByLanguage.Count == 0)
-            return Activator.CreateInstance<T>().GetTextAssetSerializedString();
+            return _serializable.GetTextAssetSerializedString(Activator.CreateInstance<T>());
 
         if (customLineByLanguage.TryGetValue(languageId, out T value))
-            return value.GetTextAssetSerializedString();
+            return _serializable.GetTextAssetSerializedString(value);
 
         int firstLanguage = customLineByLanguage.Keys.Min();
-        return customLineByLanguage[firstLanguage].GetTextAssetSerializedString();
+        return _serializable.GetTextAssetSerializedString(customLineByLanguage[firstLanguage]);
     }
 }

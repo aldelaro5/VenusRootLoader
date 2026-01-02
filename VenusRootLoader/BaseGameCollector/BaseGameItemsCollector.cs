@@ -24,12 +24,20 @@ internal sealed class BaseGameItemsCollector
     private readonly Sprite[] _items1Sprites = Resources.LoadAll<Sprite>("Sprites/Items/Items1");
 
     private readonly ILogger<BaseGameItemsCollector> _logger;
+    private readonly ITextAssetSerializable<ItemLeaf> _itemDataSerializer;
+    private readonly ITextAssetSerializable<ItemLeaf.ItemLanguageData> _itemLanguageDataSerializer;
     private readonly LeavesRegistry _leavesRegistry;
 
-    public BaseGameItemsCollector(LeavesRegistry leavesRegistry, ILogger<BaseGameItemsCollector> logger)
+    public BaseGameItemsCollector(
+        LeavesRegistry leavesRegistry,
+        ILogger<BaseGameItemsCollector> logger,
+        ITextAssetSerializable<ItemLeaf> itemDataSerializer,
+        ITextAssetSerializable<ItemLeaf.ItemLanguageData> itemLanguageDataSerializer)
     {
         _leavesRegistry = leavesRegistry;
         _logger = logger;
+        _itemDataSerializer = itemDataSerializer;
+        _itemLanguageDataSerializer = itemLanguageDataSerializer;
 
         for (int i = 0; i < BaseGameDataCollector.LanguageDisplayNames.Length; i++)
         {
@@ -49,15 +57,16 @@ internal sealed class BaseGameItemsCollector
         {
             string itemNamedId = _itemNamedIds[i];
             ItemLeaf itemLeaf = _leavesRegistry.RegisterAndBindExistingItem(i, itemNamedId, baseGameId);
-            ((ITextAssetSerializable)itemLeaf.ItemData).FromTextAssetSerializedString(ItemsData[i]);
-            itemLeaf.ItemSprite.Sprite = i < ItemsSpritesAmountInItems0
+            _itemDataSerializer.FromTextAssetSerializedString(ItemsData[i], itemLeaf);
+            itemLeaf.WrappedSprite.Sprite = i < ItemsSpritesAmountInItems0
                 ? _items0Sprites[i]
                 : _items1Sprites[i - ItemsSpritesAmountInItems0];
             for (int j = 0; j < BaseGameDataCollector.LanguageDisplayNames.Length; j++)
             {
-                itemLeaf.ItemLanguageData[j] = new();
-                ITextAssetSerializable itemLanguageDataSerializable = itemLeaf.ItemLanguageData[j];
-                itemLanguageDataSerializable.FromTextAssetSerializedString(ItemsLanguageData[j][i]);
+                itemLeaf.LanguageData[j] = new();
+                _itemLanguageDataSerializer.FromTextAssetSerializedString(
+                    ItemsLanguageData[j][i],
+                    itemLeaf.LanguageData[j]);
             }
         }
 

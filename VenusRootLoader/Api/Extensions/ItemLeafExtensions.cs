@@ -1,6 +1,5 @@
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.TextAssetData.Items;
 
 namespace VenusRootLoader.Api.Extensions;
 
@@ -10,13 +9,13 @@ public static class ItemLeafExtensions
     {
         public ItemLeaf WithBuyingPrice(int buyingPrice)
         {
-            leaf.ItemData.BuyingPrice = buyingPrice;
+            leaf.BuyingPrice = buyingPrice;
             return leaf;
         }
 
         public ItemLeaf WithEffect(MainManager.ItemUsage itemUsage, int value)
         {
-            leaf.ItemData.Effects.Add(
+            leaf.Effects.Add(
                 new ItemLeaf.ItemUse
                 {
                     Effect = itemUsage,
@@ -27,36 +26,36 @@ public static class ItemLeafExtensions
 
         public ItemLeaf WithTarget(BattleControl.AttackArea attackArea)
         {
-            leaf.ItemData.Target = attackArea;
+            leaf.Target = attackArea;
             return leaf;
         }
 
         public ItemLeaf WithSprite(Sprite sprite)
         {
-            leaf.ItemSprite.Sprite = sprite;
+            leaf.WrappedSprite.Sprite = sprite;
             return leaf;
         }
 
         public ItemLeaf WithName(int languageId, string name)
         {
-            ItemLanguageData itemLanguageData =
-                ItemLeaf.GetOrCreateLanguageDataForLanguage(languageId, leaf.ItemLanguageData);
+            ItemLeaf.ItemLanguageData itemLanguageData =
+                ItemLeaf.GetOrCreateLanguageDataForLanguage(languageId, leaf.LanguageData);
             itemLanguageData.Name = name;
             return leaf;
         }
 
         public ItemLeaf WithDescription(int languageId, string description)
         {
-            ItemLanguageData itemLanguageData =
-                ItemLeaf.GetOrCreateLanguageDataForLanguage(languageId, leaf.ItemLanguageData);
+            ItemLeaf.ItemLanguageData itemLanguageData =
+                ItemLeaf.GetOrCreateLanguageDataForLanguage(languageId, leaf.LanguageData);
             itemLanguageData.Description = description;
             return leaf;
         }
 
         public ItemLeaf WithPrependerString(int languageId, string prepender)
         {
-            ItemLanguageData itemLanguageData =
-                ItemLeaf.GetOrCreateLanguageDataForLanguage(languageId, leaf.ItemLanguageData);
+            ItemLeaf.ItemLanguageData itemLanguageData =
+                ItemLeaf.GetOrCreateLanguageDataForLanguage(languageId, leaf.LanguageData);
             itemLanguageData.Prepender = prepender;
             return leaf;
         }

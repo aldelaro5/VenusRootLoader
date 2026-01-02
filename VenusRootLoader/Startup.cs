@@ -59,8 +59,13 @@ internal static class Startup
         services.AddSingleton<EnumPatcher>();
         services.AddSingleton<ResourcesPatcher>();
         services.AddSingleton<RootTextAssetPatcher>();
-        services.AddBoundTextAssetPatcher<ItemData>("Data/ItemData");
-        services.AddBoundLocalizedTextAssetPatcher<ItemLanguageData>("Items");
+
+        services.AddSingleton<ITextAssetSerializable<ItemLeaf>, ItemDataSerialilizer>();
+        services.AddSingleton<ITextAssetSerializable<ItemLeaf.ItemLanguageData>, ItemLanguageDataSerializer>();
+
+        services.AddBoundTextAssetPatcher<ItemLeaf>("Data/ItemData");
+        services.AddBoundLocalizedTextAssetPatcher<ItemLeaf.ItemLanguageData>("Items");
+        
         services.AddSingleton<ItemAndMedalSpritePatcher>();
 
         services.AddSingleton<ILeafBinder<ItemLeaf, int>, ItemLeafBinder>();

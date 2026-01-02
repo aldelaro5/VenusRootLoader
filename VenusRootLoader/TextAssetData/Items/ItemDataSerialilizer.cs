@@ -6,48 +6,44 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.TextAssetData.Items;
 
-internal sealed class ItemData : ITextAssetSerializable
+internal sealed class ItemDataSerialilizer : ITextAssetSerializable<ItemLeaf>
 {
-    internal int BuyingPrice { get; set; }
-    internal List<ItemLeaf.ItemUse> Effects { get; } = new();
-    internal BattleControl.AttackArea Target { get; set; }
-
-    string ITextAssetSerializable.GetTextAssetSerializedString()
+    public string GetTextAssetSerializedString(ItemLeaf item)
     {
         StringBuilder sb = new();
-        sb.Append(BuyingPrice);
+        sb.Append(item.BuyingPrice);
         sb.Append('@');
 
-        string[] serializedEffects = Effects
+        string[] serializedEffects = item.Effects
             .Select(e => $"{e.Effect},{e.Value}")
             .ToArray();
         sb.Append(string.Join(";", serializedEffects));
 
         sb.Append('@');
-        sb.Append(Target);
+        sb.Append(item.Target);
         return sb.ToString();
     }
 
-    void ITextAssetSerializable.FromTextAssetSerializedString(string text)
+    public void FromTextAssetSerializedString(string text, ItemLeaf item)
     {
         string[] fields = text.Split(StringUtils.AtSymbolSplitDelimiter);
         if (!string.IsNullOrWhiteSpace(fields[0]))
-            BuyingPrice = int.Parse(fields[0]);
+            item.BuyingPrice = int.Parse(fields[0]);
         if (!string.IsNullOrWhiteSpace(fields[1]))
         {
             string[] effects = fields[1].Split(StringUtils.SemiColonSplitDelimiter);
-            Effects.Clear();
+            item.Effects.Clear();
             foreach (string effect in effects)
             {
                 ItemLeaf.ItemUse itemUse = new();
                 string[] effectFields = effect.Split(StringUtils.CommaSplitDelimiter);
                 itemUse.Effect = Enum.Parse<MainManager.ItemUsage>(effectFields[0]);
                 itemUse.Value = int.Parse(effectFields[1]);
-                Effects.Add(itemUse);
+                item.Effects.Add(itemUse);
             }
         }
 
         if (!string.IsNullOrWhiteSpace(fields[2]))
-            Target = Enum.Parse<BattleControl.AttackArea>(fields[2]);
+            item.Target = Enum.Parse<BattleControl.AttackArea>(fields[2]);
     }
 }

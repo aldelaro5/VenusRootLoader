@@ -82,7 +82,7 @@
       "UNITY": "Debug",
       "VenusRootLoader.AppDomainEventsHandler": "Information",
       "VenusRootLoader.Logging.HarmonyLogger": "Warning",
-      "VenusRootLoader.Patching": "Information",
+      "VenusRootLoader.Patching": "Trace",
       "VenusRootLoader.Bootstrap": "Warning"
     }
   }

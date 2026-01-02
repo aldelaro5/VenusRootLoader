@@ -1,6 +1,6 @@
 using UnityEngine;
 using VenusRootLoader.Api.Unity;
-using VenusRootLoader.TextAssetData.Items;
+using VenusRootLoader.Unity;
 
 namespace VenusRootLoader.Api.Leaves;
 
@@ -12,32 +12,23 @@ public sealed class ItemLeaf : ILeaf<int>
         public int Value { get; set; }
     }
 
+    public sealed class ItemLanguageData
+    {
+        internal string Name { get; set; } = "<NO NAME>";
+        internal string UnusedDescription { get; set; } = "";
+        internal string Description { get; set; } = "<NO DESCRIPTION>";
+        internal string? Prepender { get; set; }
+    }
+
+    internal WrappedSprite WrappedSprite = new();
+
     public required int GameId { get; init; }
     public required string NamedId { get; init; }
     public required string CreatorId { get; init; }
 
-    internal readonly WrappedSprite ItemSprite = new();
-    internal readonly ItemData ItemData = new();
-    internal Dictionary<int, ItemLanguageData> ItemLanguageData { get; } = new();
-
-    public List<ItemUse> Effects => ItemData.Effects;
-    public Dictionary<int, ItemLanguageData> LanguageData => ItemLanguageData;
-
-    public Sprite Sprite
-    {
-        get => ItemSprite.Sprite;
-        set => ItemSprite.Sprite = value;
-    }
-
-    public int BuyingPrice
-    {
-        get => ItemData.BuyingPrice;
-        set => ItemData.BuyingPrice = value;
-    }
-
-    public BattleControl.AttackArea Target
-    {
-        get => ItemData.Target;
-        set => ItemData.Target = value;
-    }
+    public List<ItemUse> Effects { get; } = new();
+    public Dictionary<int, ItemLanguageData> LanguageData { get; } = new();
+    public Sprite Sprite => WrappedSprite.Sprite;
+    public int BuyingPrice { get; set; }
+    public BattleControl.AttackArea Target { get; set; }
 }

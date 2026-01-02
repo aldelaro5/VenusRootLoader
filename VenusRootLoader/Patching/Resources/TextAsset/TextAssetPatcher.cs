@@ -1,71 +1,40 @@
 using Microsoft.Extensions.Logging;
-using System.Text;
-using VenusRootLoader.BaseGameCollector;
+using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.VenusInternals;
 
 namespace VenusRootLoader.Patching.Resources.TextAsset;
 
-internal sealed class TextAssetPatcher<T> : ResourcesTypePatcher<UnityEngine.TextAsset>
+internal sealed class TextAssetPatcher<T, U> : ResourcesTypePatcher<UnityEngine.TextAsset>
+    where T : ILeaf<U>
 {
-    private readonly ILogger<TextAssetPatcher<T>> _logger;
-    private readonly ITextAssetSerializable<T> _serializable;
-
-    private Dictionary<int, T> TextAssetsChangedLines { get; } = new();
-    private List<T> TextAssetsCustomLines { get; } = new();
+    private readonly ILeavesRegistry<T, U> _registry;
+    private readonly ILogger<TextAssetPatcher<T, U>> _logger;
+    private readonly ITextAssetSerializable<T, U> _serializable;
 
     public TextAssetPatcher(
         string path,
+        ILogger<TextAssetPatcher<T, U>> logger,
         RootTextAssetPatcher rootTextAssetPatcher,
-        ILogger<TextAssetPatcher<T>> logger,
-        ITextAssetSerializable<T> serializable)
+        ILeavesRegistry<T, U> registry,
+        ITextAssetSerializable<T, U> serializable)
     {
         _logger = logger;
         _serializable = serializable;
+        _registry = registry;
         rootTextAssetPatcher.RegisterTextAssetPatcher(path, this);
-    }
-
-    internal void AddNewDataToTextAsset(T data)
-    {
-        TextAssetsCustomLines.Add(data);
-    }
-
-    internal void ChangeVanillaDataOfTextAsset(int lineIndex, T data)
-    {
-        if (TextAssetsChangedLines.ContainsKey(lineIndex))
-            return;
-        TextAssetsChangedLines[lineIndex] = data;
     }
 
     public override UnityEngine.TextAsset PatchResource(string path, UnityEngine.TextAsset original)
     {
-        bool changedLinesExists = TextAssetsChangedLines.Count > 0;
-        bool customLinesExists = TextAssetsCustomLines.Count > 0;
-
-        if (!changedLinesExists && !customLinesExists)
+        bool registryHasData = _registry.Items.Count > 0;
+        if (!registryHasData)
             return original;
 
-        string[] lines = [];
-        if (path.Equals("Data/ItemData", StringComparison.OrdinalIgnoreCase))
-            lines = BaseGameItemsCollector.ItemsData;
+        IEnumerable<string> newLines = _registry.Items.Values
+            .OrderBy(i => i.GameId)
+            .Select(customLine => _serializable.GetTextAssetSerializedString(customLine));
 
-        StringBuilder sb = new();
-        if (changedLinesExists)
-        {
-            foreach (KeyValuePair<int, T> customLine in TextAssetsChangedLines)
-                lines[customLine.Key] = _serializable.GetTextAssetSerializedString(customLine.Value);
-        }
-
-        sb.Append(string.Join("\n", lines));
-
-        if (customLinesExists)
-        {
-            sb.Append('\n');
-            sb.Append(
-                string.Join(
-                    "\n",
-                    TextAssetsCustomLines.Select(l => _serializable.GetTextAssetSerializedString(l))));
-        }
-
-        string text = sb.ToString();
+        string text = string.Join("\n", newLines);
         _logger.LogTrace("Patching {path}:\n{text}", path, text);
         return new UnityEngine.TextAsset(text);
     }

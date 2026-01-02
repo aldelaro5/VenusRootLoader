@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Unity;
 using VenusRootLoader.VenusInternals;
 
@@ -9,13 +10,13 @@ namespace VenusRootLoader.Api;
 public sealed partial class Venus
 {
     private readonly string _budId;
-    private readonly LeavesRegistry _leavesRegistry;
+    private readonly ILeavesRegistry<ItemLeaf, int> _leavesRegistry;
     private readonly GlobalMonoBehaviourExecution _globalMonoBehaviourExecution;
     private readonly ILogger<Venus> _logger;
 
     internal Venus(
         string budId,
-        LeavesRegistry leavesRegistry,
+        ILeavesRegistry<ItemLeaf, int> leavesRegistry,
         GlobalMonoBehaviourExecution globalMonoBehaviourExecution,
         ILogger<Venus> logger)
     {

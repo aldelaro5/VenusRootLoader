@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
-using System.Text;
-using VenusRootLoader.BaseGameCollector;
+using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.VenusInternals;
 
 namespace VenusRootLoader.Patching.Resources.TextAsset;
 
@@ -9,86 +9,39 @@ internal interface ILocalizedTextAssetPatcher
     UnityEngine.TextAsset PatchResource(int languageId, string subpath, UnityEngine.TextAsset original);
 }
 
-internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
+internal sealed class LocalizedTextAssetPatcher<T, U> : ILocalizedTextAssetPatcher
+    where T : ILeaf<U>
 {
-    private readonly ILogger<LocalizedTextAssetPatcher<T>> _logger;
-    private readonly ITextAssetSerializable<T> _serializable;
-
-    private Dictionary<int, Dictionary<int, T>> TextAssetsChangedLines { get; } = new();
-    private List<Dictionary<int, T>> TextAssetsCustomLines { get; } = new();
+    private readonly ILeavesRegistry<T, U> _registry;
+    private readonly ILogger<LocalizedTextAssetPatcher<T, U>> _logger;
+    private readonly ILocalizedTextAssetSerializable<T, U> _serializable;
 
     public LocalizedTextAssetPatcher(
         string subpath,
+        ILogger<LocalizedTextAssetPatcher<T, U>> logger,
         RootTextAssetPatcher rootTextAssetPatcher,
-        ILogger<LocalizedTextAssetPatcher<T>> logger,
-        ITextAssetSerializable<T> serializable)
+        ILeavesRegistry<T, U> registry,
+        ILocalizedTextAssetSerializable<T, U> serializable)
     {
+        _registry = registry;
         _logger = logger;
         _serializable = serializable;
         rootTextAssetPatcher.RegisterLocalizedTextAssetPatcher(subpath, this);
     }
 
-    internal void AddNewDataToTextAsset(Dictionary<int, T> data)
-    {
-        TextAssetsCustomLines.Add(data);
-    }
-
-    internal void ChangeVanillaDataOfTextAsset(int lineIndex, Dictionary<int, T> data)
-    {
-        if (TextAssetsChangedLines.ContainsKey(lineIndex))
-            return;
-        TextAssetsChangedLines[lineIndex] = data;
-    }
-
     public UnityEngine.TextAsset PatchResource(int languageId, string subpath, UnityEngine.TextAsset original)
     {
-        List<KeyValuePair<int, Dictionary<int, T>>> changes = new();
-        foreach (KeyValuePair<int, Dictionary<int, T>> l in TextAssetsChangedLines)
-        {
-            if (l.Value.ContainsKey(languageId))
-                changes.Add(l);
-        }
+        bool registryHasData = _registry.Items.Count > 0;
 
-        bool changedLinesExists = changes.Count > 0;
-        bool customLinesExists = TextAssetsCustomLines.Count > 0;
-
-        if (!changedLinesExists && !customLinesExists)
+        if (!registryHasData)
             return original;
 
-        string[] lines = [];
-        if (subpath.Equals("Items", StringComparison.OrdinalIgnoreCase))
-            lines = BaseGameItemsCollector.ItemsLanguageData[languageId];
+        IEnumerable<string> newLines = _registry.Items.Values
+            .OrderBy(i => i.GameId)
+            .Select(customLine => _serializable.GetTextAssetSerializedString(languageId, customLine));
 
-        StringBuilder sb = new();
-        if (changedLinesExists)
-        {
-            foreach (KeyValuePair<int, Dictionary<int, T>> customLine in changes)
-                lines[customLine.Key] = _serializable.GetTextAssetSerializedString(customLine.Value[languageId]);
-        }
-
-        sb.Append(string.Join("\n", lines));
-
-        if (customLinesExists)
-        {
-            sb.Append('\n');
-            sb.Append(
-                string.Join("\n", TextAssetsCustomLines.Select(l => GetLocalizedSerializedString(languageId, l))));
-        }
-
-        string text = sb.ToString();
+        string text = string.Join("\n", newLines);
         _logger.LogTrace("Patching {path} for language {language}:\n{text}", subpath, languageId, text);
         return new UnityEngine.TextAsset(text);
-    }
-
-    private string GetLocalizedSerializedString(int languageId, Dictionary<int, T> customLineByLanguage)
-    {
-        if (customLineByLanguage.Count == 0)
-            return _serializable.GetTextAssetSerializedString(Activator.CreateInstance<T>());
-
-        if (customLineByLanguage.TryGetValue(languageId, out T value))
-            return _serializable.GetTextAssetSerializedString(value);
-
-        int firstLanguage = customLineByLanguage.Keys.Min();
-        return _serializable.GetTextAssetSerializedString(customLineByLanguage[firstLanguage]);
     }
 }

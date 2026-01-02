@@ -1,38 +1,49 @@
 using CommunityToolkit.Diagnostics;
 using System.Runtime.CompilerServices;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.LeafBinding;
+using VenusRootLoader.Patching;
 
 namespace VenusRootLoader.VenusInternals;
 
-internal sealed class LeavesRegistry
+internal sealed class LeavesRegistry : ILeavesRegistry<ItemLeaf, int>
 {
-    private readonly ILeafBinder<ItemLeaf, int> _itemLeafBinder;
+    private readonly EnumPatcher _enumPatcher;
 
-    private Dictionary<string, ItemLeaf> Items { get; } = new();
+    public Dictionary<string, ItemLeaf> Items { get; } = new();
 
-    public LeavesRegistry(ILeafBinder<ItemLeaf, int> itemLeafBinder)
+    public LeavesRegistry(EnumPatcher enumPatcher)
     {
-        _itemLeafBinder = itemLeafBinder;
+        _enumPatcher = enumPatcher;
     }
 
-    internal ItemLeaf RegisterAndBindNewItem(string namedId, string creatorId)
+    public ItemLeaf RegisterAndBindNewItem(string namedId, string creatorId)
     {
         EnsureNamedIdIsValidEnumName(namedId);
         EnsureNamedIdIsFree(namedId, Items);
-        ItemLeaf itemLeaf = _itemLeafBinder.BindNew(namedId, creatorId);
+        int newId = _enumPatcher.AddCustomEnumName(typeof(MainManager.Items), namedId);
+        ItemLeaf itemLeaf = new()
+        {
+            GameId = newId,
+            CreatorId = creatorId,
+            NamedId = namedId
+        };
         Items[namedId] = itemLeaf;
         return itemLeaf;
     }
 
-    internal ItemLeaf RegisterAndBindExistingItem(int gameId, string namedId, string creatorId)
+    public ItemLeaf RegisterAndBindExistingItem(int gameId, string namedId, string creatorId)
     {
-        ItemLeaf itemLeaf = _itemLeafBinder.BindExisting(gameId, namedId, creatorId);
+        ItemLeaf itemLeaf = new()
+        {
+            GameId = gameId,
+            NamedId = namedId,
+            CreatorId = creatorId
+        };
         Items[namedId] = itemLeaf;
         return itemLeaf;
     }
 
-    internal ItemLeaf RequestExistingItem(string namedId)
+    public ItemLeaf RequestExistingItem(string namedId)
     {
         EnsureNamedIdIsValidEnumName(namedId);
         return EnsureNamedIdExists(namedId, Items);

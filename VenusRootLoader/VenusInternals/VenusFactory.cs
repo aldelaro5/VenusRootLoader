@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Unity;
 using Venus = VenusRootLoader.Api.Venus;
 
@@ -11,14 +12,14 @@ internal interface IVenusFactory
 
 internal sealed class VenusFactory : IVenusFactory
 {
-    private readonly LeavesRegistry _leavesRegistry;
+    private readonly ILeavesRegistry<ItemLeaf, int> _leavesRegistry;
     private readonly GlobalMonoBehaviourExecution _globalMonoBehaviourExecution;
     private readonly ILogger<Venus> _logger;
 
     public VenusFactory(
         GlobalMonoBehaviourExecution globalMonoBehaviourExecution,
         ILogger<Venus> logger,
-        LeavesRegistry leavesRegistry)
+        ILeavesRegistry<ItemLeaf, int> leavesRegistry)
     {
         _globalMonoBehaviourExecution = globalMonoBehaviourExecution;
         _logger = logger;

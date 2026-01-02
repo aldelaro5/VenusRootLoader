@@ -24,15 +24,15 @@ internal sealed class BaseGameItemsCollector
     private readonly Sprite[] _items1Sprites = Resources.LoadAll<Sprite>("Sprites/Items/Items1");
 
     private readonly ILogger<BaseGameItemsCollector> _logger;
-    private readonly ITextAssetSerializable<ItemLeaf> _itemDataSerializer;
-    private readonly ITextAssetSerializable<ItemLeaf.ItemLanguageData> _itemLanguageDataSerializer;
-    private readonly LeavesRegistry _leavesRegistry;
+    private readonly ITextAssetSerializable<ItemLeaf, int> _itemDataSerializer;
+    private readonly ILocalizedTextAssetSerializable<ItemLeaf, int> _itemLanguageDataSerializer;
+    private readonly ILeavesRegistry<ItemLeaf, int> _leavesRegistry;
 
     public BaseGameItemsCollector(
-        LeavesRegistry leavesRegistry,
+        ILeavesRegistry<ItemLeaf, int> leavesRegistry,
         ILogger<BaseGameItemsCollector> logger,
-        ITextAssetSerializable<ItemLeaf> itemDataSerializer,
-        ITextAssetSerializable<ItemLeaf.ItemLanguageData> itemLanguageDataSerializer)
+        ITextAssetSerializable<ItemLeaf, int> itemDataSerializer,
+        ILocalizedTextAssetSerializable<ItemLeaf, int> itemLanguageDataSerializer)
     {
         _leavesRegistry = leavesRegistry;
         _logger = logger;
@@ -65,8 +65,9 @@ internal sealed class BaseGameItemsCollector
             {
                 itemLeaf.LanguageData[j] = new();
                 _itemLanguageDataSerializer.FromTextAssetSerializedString(
+                    j,
                     ItemsLanguageData[j][i],
-                    itemLeaf.LanguageData[j]);
+                    itemLeaf);
             }
         }
 

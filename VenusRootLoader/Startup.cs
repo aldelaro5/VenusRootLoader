@@ -7,7 +7,6 @@ using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.BaseGameCollector;
 using VenusRootLoader.BudLoading;
 using VenusRootLoader.Extensions;
-using VenusRootLoader.LeafBinding;
 using VenusRootLoader.Logging;
 using VenusRootLoader.Patching;
 using VenusRootLoader.Patching.Resources;
@@ -57,20 +56,18 @@ internal static class Startup
         services.AddSingleton<UnityLogger>();
 
         services.AddSingleton<EnumPatcher>();
+        services.AddSingleton<ILeavesRegistry<ItemLeaf, int>, LeavesRegistry>();
+
         services.AddSingleton<ResourcesPatcher>();
         services.AddSingleton<RootTextAssetPatcher>();
 
-        services.AddSingleton<ITextAssetSerializable<ItemLeaf>, ItemDataSerialilizer>();
-        services.AddSingleton<ITextAssetSerializable<ItemLeaf.ItemLanguageData>, ItemLanguageDataSerializer>();
+        services.AddSingleton<ITextAssetSerializable<ItemLeaf, int>, ItemDataSerializer>();
+        services.AddSingleton<ILocalizedTextAssetSerializable<ItemLeaf, int>, ItemLanguageDataSerializer>();
 
-        services.AddBoundTextAssetPatcher<ItemLeaf>("Data/ItemData");
-        services.AddBoundLocalizedTextAssetPatcher<ItemLeaf.ItemLanguageData>("Items");
+        services.AddBoundTextAssetPatcher<ItemLeaf, int>("Data/ItemData");
+        services.AddBoundLocalizedTextAssetPatcher<ItemLeaf, int>("Items");
         
         services.AddSingleton<ItemAndMedalSpritePatcher>();
-
-        services.AddSingleton<ILeafBinder<ItemLeaf, int>, ItemLeafBinder>();
-
-        services.AddSingleton<LeavesRegistry>();
 
         services.AddSingleton<BaseGameItemsCollector>();
         services.AddSingleton<BaseGameDataCollector>();

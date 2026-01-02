@@ -22,9 +22,9 @@ public sealed class ItemLeaf : ILeaf<int>
 
     internal WrappedSprite WrappedSprite = new();
 
-    public required int GameId { get; init; }
-    public required string NamedId { get; init; }
-    public required string CreatorId { get; init; }
+    public int GameId { get; init; }
+    public string NamedId { get; init; }
+    public string CreatorId { get; init; }
 
     public List<ItemUse> Effects { get; } = new();
     public Dictionary<int, ItemLanguageData> LanguageData { get; } = new();

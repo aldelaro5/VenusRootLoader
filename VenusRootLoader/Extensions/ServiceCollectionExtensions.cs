@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAsset;
-using VenusRootLoader.VenusInternals;
+using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Extensions;
 

@@ -12,9 +12,9 @@ using VenusRootLoader.Patching;
 using VenusRootLoader.Patching.Resources;
 using VenusRootLoader.Patching.Resources.Sprite;
 using VenusRootLoader.Patching.Resources.TextAsset;
-using VenusRootLoader.TextAssetData.Items;
+using VenusRootLoader.Registry;
+using VenusRootLoader.TextAssetParsers.Items;
 using VenusRootLoader.Unity;
-using VenusRootLoader.VenusInternals;
 
 namespace VenusRootLoader;
 
@@ -56,7 +56,8 @@ internal static class Startup
         services.AddSingleton<UnityLogger>();
 
         services.AddSingleton<EnumPatcher>();
-        services.AddSingleton<ILeavesRegistry<ItemLeaf, int>, LeavesRegistry>();
+
+        services.AddSingleton<ILeavesRegistry<ItemLeaf, int>, ItemsRegistry>();
 
         services.AddSingleton<ResourcesPatcher>();
         services.AddSingleton<RootTextAssetPatcher>();

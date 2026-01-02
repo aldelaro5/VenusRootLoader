@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAsset;
-using VenusRootLoader.VenusInternals;
+using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.BaseGameCollector;
 
@@ -56,7 +56,7 @@ internal sealed class BaseGameItemsCollector
         for (int i = 0; i < _itemNamedIds.Length; i++)
         {
             string itemNamedId = _itemNamedIds[i];
-            ItemLeaf itemLeaf = _leavesRegistry.RegisterAndBindExistingItem(i, itemNamedId, baseGameId);
+            ItemLeaf itemLeaf = _leavesRegistry.RegisterExisting(i, itemNamedId, baseGameId);
             _itemDataSerializer.FromTextAssetSerializedString(ItemsData[i], itemLeaf);
             itemLeaf.WrappedSprite.Sprite = i < ItemsSpritesAmountInItems0
                 ? _items0Sprites[i]

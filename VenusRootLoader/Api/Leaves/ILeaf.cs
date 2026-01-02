@@ -2,7 +2,7 @@ namespace VenusRootLoader.Api.Leaves;
 
 internal interface ILeaf<TGameId>
 {
-    TGameId GameId { get; }
-    string NamedId { get; }
-    string CreatorId { get; }
+    TGameId GameId { get; init; }
+    string NamedId { get; init; }
+    string CreatorId { get; init; }
 }

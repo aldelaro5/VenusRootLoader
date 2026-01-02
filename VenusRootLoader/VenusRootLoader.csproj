@@ -78,69 +78,25 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="TextAssetData\TermacadePrizes\**"/>
-        <Compile Remove="TextAssetData\SpyCards\**"/>
-        <Compile Remove="TextAssetData\Skills\**"/>
-        <Compile Remove="TextAssetData\Records\**"/>
-        <Compile Remove="TextAssetData\Recipes\**"/>
-        <Compile Remove="TextAssetData\RankBonuses\**"/>
-        <Compile Remove="TextAssetData\Quests\**"/>
-        <Compile Remove="TextAssetData\Musics\**"/>
-        <Compile Remove="TextAssetData\Miscellaneous\**"/>
-        <Compile Remove="TextAssetData\Medals\**"/>
-        <Compile Remove="TextAssetData\LoreBooks\**"/>
-        <Compile Remove="TextAssetData\FortuneTellerLines\**"/>
-        <Compile Remove="TextAssetData\Entities\**"/>
-        <Compile Remove="TextAssetData\Enemies\**"/>
-        <Compile Remove="TextAssetData\Discoveries\**"/>
-        <Compile Remove="TextAssetData\DialoguesLines\**"/>
-        <Compile Remove="TextAssetData\CaveOfTrials\**"/>
-        <Compile Remove="TextAssetData\Areas\**"/>
-        <Compile Remove="TextAssetData\ActionCommands\**"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <EmbeddedResource Remove="TextAssetData\TermacadePrizes\**"/>
-        <EmbeddedResource Remove="TextAssetData\SpyCards\**"/>
-        <EmbeddedResource Remove="TextAssetData\Skills\**"/>
-        <EmbeddedResource Remove="TextAssetData\Records\**"/>
-        <EmbeddedResource Remove="TextAssetData\Recipes\**"/>
-        <EmbeddedResource Remove="TextAssetData\RankBonuses\**"/>
-        <EmbeddedResource Remove="TextAssetData\Quests\**"/>
-        <EmbeddedResource Remove="TextAssetData\Musics\**"/>
-        <EmbeddedResource Remove="TextAssetData\Miscellaneous\**"/>
-        <EmbeddedResource Remove="TextAssetData\Medals\**"/>
-        <EmbeddedResource Remove="TextAssetData\LoreBooks\**"/>
-        <EmbeddedResource Remove="TextAssetData\FortuneTellerLines\**"/>
-        <EmbeddedResource Remove="TextAssetData\Entities\**"/>
-        <EmbeddedResource Remove="TextAssetData\Enemies\**"/>
-        <EmbeddedResource Remove="TextAssetData\Discoveries\**"/>
-        <EmbeddedResource Remove="TextAssetData\DialoguesLines\**"/>
-        <EmbeddedResource Remove="TextAssetData\CaveOfTrials\**"/>
-        <EmbeddedResource Remove="TextAssetData\Areas\**"/>
-        <EmbeddedResource Remove="TextAssetData\ActionCommands\**"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Remove="TextAssetData\TermacadePrizes\**"/>
-        <None Remove="TextAssetData\SpyCards\**"/>
-        <None Remove="TextAssetData\Skills\**"/>
-        <None Remove="TextAssetData\Records\**"/>
-        <None Remove="TextAssetData\Recipes\**"/>
-        <None Remove="TextAssetData\RankBonuses\**"/>
-        <None Remove="TextAssetData\Quests\**"/>
-        <None Remove="TextAssetData\Musics\**"/>
-        <None Remove="TextAssetData\Miscellaneous\**"/>
-        <None Remove="TextAssetData\Medals\**"/>
-        <None Remove="TextAssetData\LoreBooks\**"/>
-        <None Remove="TextAssetData\FortuneTellerLines\**"/>
-        <None Remove="TextAssetData\Entities\**"/>
-        <None Remove="TextAssetData\Enemies\**"/>
-        <None Remove="TextAssetData\Discoveries\**"/>
-        <None Remove="TextAssetData\DialoguesLines\**"/>
-        <None Remove="TextAssetData\CaveOfTrials\**"/>
-        <None Remove="TextAssetData\Areas\**"/>
-        <None Remove="TextAssetData\ActionCommands\**"/>
+        <Compile Remove="TextAssetParsers\TermacadePrizes\**"/>
+        <Compile Remove="TextAssetParsers\SpyCards\**"/>
+        <Compile Remove="TextAssetParsers\Skills\**"/>
+        <Compile Remove="TextAssetParsers\Records\**"/>
+        <Compile Remove="TextAssetParsers\Recipes\**"/>
+        <Compile Remove="TextAssetParsers\RankBonuses\**"/>
+        <Compile Remove="TextAssetParsers\Quests\**"/>
+        <Compile Remove="TextAssetParsers\Musics\**"/>
+        <Compile Remove="TextAssetParsers\Miscellaneous\**"/>
+        <Compile Remove="TextAssetParsers\Medals\**"/>
+        <Compile Remove="TextAssetParsers\LoreBooks\**"/>
+        <Compile Remove="TextAssetParsers\FortuneTellerLines\**"/>
+        <Compile Remove="TextAssetParsers\Entities\**"/>
+        <Compile Remove="TextAssetParsers\Enemies\**"/>
+        <Compile Remove="TextAssetParsers\Discoveries\**"/>
+        <Compile Remove="TextAssetParsers\DialoguesLines\**"/>
+        <Compile Remove="TextAssetParsers\CaveOfTrials\**"/>
+        <Compile Remove="TextAssetParsers\Areas\**"/>
+        <Compile Remove="TextAssetParsers\ActionCommands\**"/>
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="Build">

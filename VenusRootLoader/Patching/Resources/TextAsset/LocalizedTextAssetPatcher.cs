@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.VenusInternals;
+using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Resources.TextAsset;
 
@@ -31,12 +31,12 @@ internal sealed class LocalizedTextAssetPatcher<T, U> : ILocalizedTextAssetPatch
 
     public UnityEngine.TextAsset PatchResource(int languageId, string subpath, UnityEngine.TextAsset original)
     {
-        bool registryHasData = _registry.Items.Count > 0;
+        bool registryHasData = _registry.Registry.Count > 0;
 
         if (!registryHasData)
             return original;
 
-        IEnumerable<string> newLines = _registry.Items.Values
+        IEnumerable<string> newLines = _registry.Registry.Values
             .OrderBy(i => i.GameId)
             .Select(customLine => _serializable.GetTextAssetSerializedString(languageId, customLine));
 

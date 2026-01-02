@@ -1,6 +1,6 @@
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Api.TextAssetData.Items;
+using VenusRootLoader.TextAssetData.Items;
 
 namespace VenusRootLoader.Api.Extensions;
 
@@ -17,9 +17,9 @@ public static class ItemLeafExtensions
         public ItemLeaf WithEffect(MainManager.ItemUsage itemUsage, int value)
         {
             leaf.ItemData.Effects.Add(
-                new()
+                new ItemLeaf.ItemUse
                 {
-                    UseType = itemUsage,
+                    Effect = itemUsage,
                     Value = value
                 });
             return leaf;

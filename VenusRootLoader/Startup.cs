@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 using VenusRootLoader.Api;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Api.TextAssetData.Items;
 using VenusRootLoader.BaseGameCollector;
 using VenusRootLoader.BudLoading;
 using VenusRootLoader.Extensions;
@@ -14,6 +13,7 @@ using VenusRootLoader.Patching;
 using VenusRootLoader.Patching.Resources;
 using VenusRootLoader.Patching.Resources.Sprite;
 using VenusRootLoader.Patching.Resources.TextAsset;
+using VenusRootLoader.TextAssetData.Items;
 using VenusRootLoader.Unity;
 using VenusRootLoader.VenusInternals;
 

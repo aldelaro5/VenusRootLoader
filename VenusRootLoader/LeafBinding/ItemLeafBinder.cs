@@ -1,8 +1,8 @@
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Api.TextAssetData.Items;
 using VenusRootLoader.Patching;
 using VenusRootLoader.Patching.Resources.Sprite;
 using VenusRootLoader.Patching.Resources.TextAsset;
+using VenusRootLoader.TextAssetData.Items;
 
 namespace VenusRootLoader.LeafBinding;
 

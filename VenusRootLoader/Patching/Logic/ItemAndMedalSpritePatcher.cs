@@ -1,9 +1,11 @@
 using HarmonyLib;
 using System.Reflection.Emit;
-using VenusRootLoader.Api.Unity;
+using UnityEngine;
+using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Extensions;
+using VenusRootLoader.Registry;
 
-namespace VenusRootLoader.Patching.Resources.Sprite;
+namespace VenusRootLoader.Patching.Logic;
 
 internal sealed class ItemAndMedalSpritePatcher
 {
@@ -15,17 +17,20 @@ internal sealed class ItemAndMedalSpritePatcher
 
     private static ItemAndMedalSpritePatcher _instance = null!;
 
-    private readonly Dictionary<int, WrappedSprite> _customItemSprites = new();
-    private readonly Dictionary<int, WrappedSprite> _customMedalSprites = new();
+    private readonly ILeavesRegistry<ItemLeaf, int> _itemLeafRegistry;
 
-    public ItemAndMedalSpritePatcher(IHarmonyTypePatcher harmonyTypePatcher)
+    private readonly Dictionary<int, Sprite> _customMedalSprites = new();
+
+    public ItemAndMedalSpritePatcher(
+        IHarmonyTypePatcher harmonyTypePatcher,
+        ILeavesRegistry<ItemLeaf, int> itemLeafRegistry)
     {
+        _itemLeafRegistry = itemLeafRegistry;
         _instance = this;
         harmonyTypePatcher.PatchAll(typeof(ItemAndMedalSpritePatcher));
     }
 
-    internal void AssignItemSprite(int itemId, WrappedSprite sprite) => _customItemSprites[itemId] = sprite;
-    internal void AssignMedalSprite(int itemId, WrappedSprite sprite) => _customMedalSprites[itemId] = sprite;
+    internal void AssignMedalSprite(int itemId, Sprite sprite) => _customMedalSprites[itemId] = sprite;
 
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(MainManager), nameof(MainManager.LoadItemSprites))]
@@ -104,15 +109,21 @@ internal sealed class ItemAndMedalSpritePatcher
 
     private static bool PatchCustomItemOrMedalSprite(SpriteKind type, int itemId)
     {
-        WrappedSprite? itemSprite = null;
-        WrappedSprite? medalSprite = null;
+        Sprite? itemSprite = null;
+        Sprite? medalSprite = null;
 
-        if (type == SpriteKind.Item && !_instance._customItemSprites.TryGetValue(itemId, out itemSprite))
-            return false;
+        if (type == SpriteKind.Item)
+        {
+            ItemLeaf? itemLeaf = _instance._itemLeafRegistry.Leaves.Values.FirstOrDefault(l => l.GameId == itemId);
+            if (itemLeaf is null)
+                return false;
+            itemSprite = itemLeaf.Sprite;
+        }
+
         if (type == SpriteKind.Medal && !_instance._customMedalSprites.TryGetValue(itemId, out medalSprite))
             return false;
 
-        MainManager.itemsprites[(int)type, itemId] = type == SpriteKind.Item ? itemSprite!.Sprite : medalSprite!.Sprite;
+        MainManager.itemsprites[(int)type, itemId] = type == SpriteKind.Item ? itemSprite! : medalSprite!;
         return true;
     }
 }

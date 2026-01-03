@@ -22,8 +22,8 @@ public sealed class ItemLeaf : ILeaf
     internal WrappedSprite WrappedSprite = new();
 
     public int GameId { get; init; }
-    public string NamedId { get; init; }
-    public string CreatorId { get; init; }
+    public string NamedId { get; init; } = "";
+    public string CreatorId { get; init; } = "";
 
     public List<ItemUse> Effects { get; } = new();
     public Dictionary<int, ItemLanguageData> LanguageData { get; } = new();

@@ -10,12 +10,12 @@ public partial class Venus
 {
     public ItemLeaf RegisterItem(string namedId)
     {
-        ItemLeaf leaf = _leavesRegistry.RegisterNew(namedId, _budId);
+        ItemLeaf leaf = _itemsRegistry.RegisterNew(namedId, _budId);
         LogRegisterContent("Item", namedId, leaf);
         return leaf;
     }
 
-    public ItemLeaf RequestItem(string namedId) => _leavesRegistry.Get(namedId);
+    public ItemLeaf RequestItem(string namedId) => _itemsRegistry.Get(namedId);
 
     private void LogRegisterContent(string contentType, string namedId, ItemLeaf leaf)
     {

@@ -10,25 +10,32 @@ internal static class ServiceCollectionExtensions
 {
     extension(IServiceCollection collection)
     {
-        internal IServiceCollection AddTextAssetPatcher<T, U>(string[] textAssetResourcesPath)
-            where T : ILeaf<U>
+        internal IServiceCollection AddTextAssetPatcher<TLeaf, TGameId, TTextAssetParser>(
+            string[] textAssetResourcesPath)
+            where TLeaf : ILeaf<TGameId>
+            where TTextAssetParser : class, ITextAssetSerializable<TLeaf, TGameId>
         {
-            collection.AddSingleton<ITextAssetPatcher, TextAssetPatcher<T, U>>(provider => new(
+            collection.AddSingleton<ITextAssetSerializable<TLeaf, TGameId>, TTextAssetParser>();
+            collection.AddSingleton<ITextAssetPatcher, TextAssetPatcher<TLeaf, TGameId>>(provider => new(
                 textAssetResourcesPath,
-                provider.GetRequiredService<ILogger<TextAssetPatcher<T, U>>>(),
-                provider.GetRequiredService<ILeavesRegistry<T, U>>(),
-                provider.GetRequiredService<ITextAssetSerializable<T, U>>()));
+                provider.GetRequiredService<ILogger<TextAssetPatcher<TLeaf, TGameId>>>(),
+                provider.GetRequiredService<ILeavesRegistry<TLeaf, TGameId>>(),
+                provider.GetRequiredService<ITextAssetSerializable<TLeaf, TGameId>>()));
             return collection;
         }
 
-        internal IServiceCollection AddLocalizedTextAssetPatcher<T, U>(string[] textAssetResourcesSubpath)
-            where T : ILeaf<U>
+        internal IServiceCollection AddLocalizedTextAssetPatcher<TLeaf, TGameId, TTextAssetParser>(
+            string[] textAssetResourcesSubpath)
+            where TLeaf : ILeaf<TGameId>
+            where TTextAssetParser : class, ILocalizedTextAssetSerializable<TLeaf, TGameId>
         {
-            collection.AddSingleton<ILocalizedTextAssetPatcher, LocalizedTextAssetPatcher<T, U>>(provider => new(
+            collection.AddSingleton<ILocalizedTextAssetSerializable<TLeaf, TGameId>, TTextAssetParser>();
+            collection.AddSingleton<ILocalizedTextAssetPatcher, LocalizedTextAssetPatcher<TLeaf, TGameId>>(provider =>
+                new(
                 textAssetResourcesSubpath,
-                provider.GetRequiredService<ILogger<LocalizedTextAssetPatcher<T, U>>>(),
-                provider.GetRequiredService<ILeavesRegistry<T, U>>(),
-                provider.GetRequiredService<ILocalizedTextAssetSerializable<T, U>>()));
+                provider.GetRequiredService<ILogger<LocalizedTextAssetPatcher<TLeaf, TGameId>>>(),
+                provider.GetRequiredService<ILeavesRegistry<TLeaf, TGameId>>(),
+                provider.GetRequiredService<ILocalizedTextAssetSerializable<TLeaf, TGameId>>()));
             return collection;
         }
     }

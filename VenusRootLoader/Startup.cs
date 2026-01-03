@@ -69,8 +69,8 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, ItemAndMedalSpriteTopLevelPatcher>();
         services.AddSingleton<RootPatcher>();
 
-        services.AddSingleton<BaseGameItemsCollector>();
-        services.AddSingleton<BaseGameDataCollector>();
+        services.AddSingleton<IBaseGameCollector, BaseGameItemsCollector>();
+        services.AddSingleton<RootBaseGameDataCollector>();
 
         services.AddSingleton<GlobalMonoBehaviourExecution>();
 

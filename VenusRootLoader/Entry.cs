@@ -37,7 +37,7 @@ internal static class Entry
             UnityLogger unityLogger = host.GetRequiredService<UnityLogger>();
             unityLogger.InstallManagedUnityLogger();
 
-            BaseGameDataCollector gameDataCollector = host.GetRequiredService<BaseGameDataCollector>();
+            RootBaseGameDataCollector gameDataCollector = host.GetRequiredService<RootBaseGameDataCollector>();
             gameDataCollector.CollectAndRegisterBaseGameData(BaseGameId);
 
             RootPatcher patcher = host.GetRequiredService<RootPatcher>();

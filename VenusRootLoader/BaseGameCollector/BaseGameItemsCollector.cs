@@ -6,15 +6,15 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.BaseGameCollector;
 
-internal sealed class BaseGameItemsCollector
+internal sealed class BaseGameItemsCollector : IBaseGameCollector
 {
     private const int ItemsSpritesAmountInItems0 = 176;
 
-    internal static readonly string[] ItemsData = Resources.Load<TextAsset>("Data/ItemData").text
+    private static readonly string[] ItemsData = Resources.Load<TextAsset>("Data/ItemData").text
         .Trim('\n')
         .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
 
-    internal static readonly Dictionary<int, string[]> ItemsLanguageData = new();
+    private static readonly Dictionary<int, string[]> ItemsLanguageData = new();
 
     private readonly string[] _itemNamedIds = Enum.GetNames(typeof(MainManager.Items))
         .TakeWhile(v => v != nameof(MainManager.Items.None))
@@ -39,7 +39,7 @@ internal sealed class BaseGameItemsCollector
         _itemDataSerializer = itemDataSerializer;
         _itemLanguageDataSerializer = itemLanguageDataSerializer;
 
-        for (int i = 0; i < BaseGameDataCollector.LanguageDisplayNames.Length; i++)
+        for (int i = 0; i < RootBaseGameDataCollector.LanguageDisplayNames.Length; i++)
         {
             string[] itemLanguageData = Resources.Load<TextAsset>($"Data/Dialogues{i}/Items").text
                 .Trim('\n')
@@ -51,7 +51,7 @@ internal sealed class BaseGameItemsCollector
         }
     }
 
-    internal void CollectAndRegisterItems(string baseGameId)
+    public void CollectBaseGameData(string baseGameId)
     {
         for (int i = 0; i < _itemNamedIds.Length; i++)
         {
@@ -61,7 +61,7 @@ internal sealed class BaseGameItemsCollector
             itemLeaf.WrappedSprite.Sprite = i < ItemsSpritesAmountInItems0
                 ? _items0Sprites[i]
                 : _items1Sprites[i - ItemsSpritesAmountInItems0];
-            for (int j = 0; j < BaseGameDataCollector.LanguageDisplayNames.Length; j++)
+            for (int j = 0; j < RootBaseGameDataCollector.LanguageDisplayNames.Length; j++)
             {
                 itemLeaf.LanguageData[j] = new();
                 _itemLanguageDataSerializer.FromTextAssetSerializedString(
@@ -71,6 +71,6 @@ internal sealed class BaseGameItemsCollector
             }
         }
 
-        _logger.LogInformation("Registered {ItemsAmount} base game items", _itemNamedIds.Length);
+        _logger.LogInformation("Collected and registered {ItemsAmount} base game items", _itemNamedIds.Length);
     }
 }

@@ -60,19 +60,20 @@ internal static class Startup
 
         services.AddSingleton<ILeavesRegistry<ItemLeaf, int>, ItemsRegistry>();
 
+        services.AddSingleton<ITextAssetSerializable<ItemLeaf, int>, ItemDataSerializer>();
+        services.AddSingleton<ILocalizedTextAssetSerializable<ItemLeaf, int>, ItemLanguageDataSerializer>();
+
         services.AddTextAssetPatcher<ItemLeaf, int>(["ItemData"]);
         services.AddLocalizedTextAssetPatcher<ItemLeaf, int>(["Items"]);
+
         services.AddSingleton<IResourcesTypePatcher<TextAsset>, RootTextAssetPatcher>();
         services.AddSingleton<ResourcesPatcher>();
 
-        services.AddSingleton<ITextAssetSerializable<ItemLeaf, int>, ItemDataSerializer>();
-        services.AddSingleton<ILocalizedTextAssetSerializable<ItemLeaf, int>, ItemLanguageDataSerializer>();
-        
         services.AddSingleton<ItemAndMedalSpritePatcher>();
 
         services.AddSingleton<BaseGameItemsCollector>();
         services.AddSingleton<BaseGameDataCollector>();
-        
+
         services.AddSingleton<GlobalMonoBehaviourExecution>();
 
         services.AddSingleton<IBudConfigManager, BudConfigManager>();

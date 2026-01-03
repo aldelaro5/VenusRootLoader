@@ -18,10 +18,23 @@ internal sealed class RootTextAssetPatcher : IResourcesTypePatcher<UnityEngine.T
         TextAssetPatcher<ItemLeaf, int> itemDataPatcher,
         LocalizedTextAssetPatcher<ItemLeaf, int> localizedItemPatcher)
     {
-        foreach (string subPath in itemDataPatcher.SubPaths)
-            _textAssetPatchers.Add(subPath, itemDataPatcher);
+        AddTextAssetPatcher(itemDataPatcher);
+        AddLocalizedTextAssetPatcher(localizedItemPatcher);
+    }
+
+    private void AddLocalizedTextAssetPatcher<TLeaf, TGameId>(
+        LocalizedTextAssetPatcher<TLeaf, TGameId> localizedItemPatcher)
+        where TLeaf : ILeaf<TGameId>
+    {
         foreach (string subPath in localizedItemPatcher.SubPaths)
             _localizedTextAssetPatchers.Add(subPath, localizedItemPatcher);
+    }
+
+    private void AddTextAssetPatcher<TLeaf, TGameId>(TextAssetPatcher<TLeaf, TGameId> itemDataPatcher)
+        where TLeaf : ILeaf<TGameId>
+    {
+        foreach (string subPath in itemDataPatcher.SubPaths)
+            _textAssetPatchers.Add(subPath, itemDataPatcher);
     }
 
     public UnityEngine.TextAsset PatchResource(string path, UnityEngine.TextAsset original)

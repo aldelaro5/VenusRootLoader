@@ -40,8 +40,8 @@ internal static class Entry
             BaseGameDataCollector gameDataCollector = host.GetRequiredService<BaseGameDataCollector>();
             gameDataCollector.CollectAndRegisterBaseGameData(BaseGameId);
 
-            // TODO: Find a way to not need to do this
             ResourcesPatcher patcher = host.GetRequiredService<ResourcesPatcher>();
+            patcher.StartPatchingResources();
             
             BudLoader loader = host.GetRequiredService<BudLoader>();
             loader.LoadAllBuds();

@@ -6,6 +6,7 @@ namespace VenusRootLoader.Patching.Resources;
 internal sealed class ResourcesPatcher
 {
     private static ResourcesPatcher _instance = null!;
+    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly IResourcesTypePatcher<UnityEngine.TextAsset> _textAssetPatcher;
 
     public ResourcesPatcher(
@@ -13,9 +14,11 @@ internal sealed class ResourcesPatcher
         IResourcesTypePatcher<UnityEngine.TextAsset> textAssetPatcher)
     {
         _instance = this;
+        _harmonyTypePatcher = harmonyTypePatcher;
         _textAssetPatcher = textAssetPatcher;
-        harmonyTypePatcher.PatchAll(typeof(ResourcesPatcher));
     }
+
+    internal void StartPatchingResources() => _harmonyTypePatcher.PatchAll(typeof(ResourcesPatcher));
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(UnityEngine.Resources), nameof(UnityEngine.Resources.Load), [typeof(string), typeof(Type)])]

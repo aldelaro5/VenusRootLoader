@@ -6,14 +6,13 @@ namespace VenusRootLoader.Patching.Resources.TextAsset;
 
 internal interface ILocalizedTextAssetPatcher
 {
+    string[] SubPaths { get; }
     UnityEngine.TextAsset PatchResource(int languageId, string subpath, UnityEngine.TextAsset original);
 }
 
 internal sealed class LocalizedTextAssetPatcher<T, U> : ILocalizedTextAssetPatcher
     where T : ILeaf<U>
 {
-    internal string[] SubPaths { get; }
-
     private readonly ILeavesRegistry<T, U> _registry;
     private readonly ILogger<LocalizedTextAssetPatcher<T, U>> _logger;
     private readonly ILocalizedTextAssetSerializable<T, U> _serializable;
@@ -29,6 +28,8 @@ internal sealed class LocalizedTextAssetPatcher<T, U> : ILocalizedTextAssetPatch
         _logger = logger;
         _serializable = serializable;
     }
+
+    public string[] SubPaths { get; }
 
     public UnityEngine.TextAsset PatchResource(int languageId, string subpath, UnityEngine.TextAsset original)
     {

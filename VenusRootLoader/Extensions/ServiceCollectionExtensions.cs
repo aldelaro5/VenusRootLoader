@@ -13,7 +13,7 @@ internal static class ServiceCollectionExtensions
         internal IServiceCollection AddTextAssetPatcher<T, U>(string[] textAssetResourcesPath)
             where T : ILeaf<U>
         {
-            collection.AddSingleton<TextAssetPatcher<T, U>>(provider => new(
+            collection.AddSingleton<ITextAssetPatcher, TextAssetPatcher<T, U>>(provider => new(
                 textAssetResourcesPath,
                 provider.GetRequiredService<ILogger<TextAssetPatcher<T, U>>>(),
                 provider.GetRequiredService<ILeavesRegistry<T, U>>(),
@@ -24,7 +24,7 @@ internal static class ServiceCollectionExtensions
         internal IServiceCollection AddLocalizedTextAssetPatcher<T, U>(string[] textAssetResourcesSubpath)
             where T : ILeaf<U>
         {
-            collection.AddSingleton<LocalizedTextAssetPatcher<T, U>>(provider => new(
+            collection.AddSingleton<ILocalizedTextAssetPatcher, LocalizedTextAssetPatcher<T, U>>(provider => new(
                 textAssetResourcesSubpath,
                 provider.GetRequiredService<ILogger<LocalizedTextAssetPatcher<T, U>>>(),
                 provider.GetRequiredService<ILeavesRegistry<T, U>>(),

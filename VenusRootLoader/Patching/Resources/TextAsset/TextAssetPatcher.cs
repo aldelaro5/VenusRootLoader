@@ -4,11 +4,15 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Resources.TextAsset;
 
-internal sealed class TextAssetPatcher<T, U> : IResourcesTypePatcher<UnityEngine.TextAsset>
+internal interface ITextAssetPatcher
+{
+    string[] SubPaths { get; }
+    UnityEngine.TextAsset PatchResource(string path, UnityEngine.TextAsset original);
+}
+
+internal sealed class TextAssetPatcher<T, U> : ITextAssetPatcher
     where T : ILeaf<U>
 {
-    internal string[] SubPaths { get; }
-
     private readonly ILeavesRegistry<T, U> _registry;
     private readonly ILogger<TextAssetPatcher<T, U>> _logger;
     private readonly ITextAssetSerializable<T, U> _serializable;
@@ -24,6 +28,8 @@ internal sealed class TextAssetPatcher<T, U> : IResourcesTypePatcher<UnityEngine
         _serializable = serializable;
         _registry = registry;
     }
+
+    public string[] SubPaths { get; }
 
     public UnityEngine.TextAsset PatchResource(string path, UnityEngine.TextAsset original)
     {

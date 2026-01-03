@@ -10,18 +10,18 @@ internal interface ILocalizedTextAssetPatcher
     UnityEngine.TextAsset PatchResource(int languageId, string subpath, UnityEngine.TextAsset original);
 }
 
-internal sealed class LocalizedTextAssetPatcher<T, U> : ILocalizedTextAssetPatcher
-    where T : ILeaf<U>
+internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
+    where T : ILeaf
 {
-    private readonly ILeavesRegistry<T, U> _registry;
-    private readonly ILogger<LocalizedTextAssetPatcher<T, U>> _logger;
-    private readonly ILocalizedTextAssetSerializable<T, U> _serializable;
+    private readonly ILeavesRegistry<T> _registry;
+    private readonly ILogger<LocalizedTextAssetPatcher<T>> _logger;
+    private readonly ILocalizedTextAssetSerializable<T> _serializable;
 
     public LocalizedTextAssetPatcher(
         string[] subPaths,
-        ILogger<LocalizedTextAssetPatcher<T, U>> logger,
-        ILeavesRegistry<T, U> registry,
-        ILocalizedTextAssetSerializable<T, U> serializable)
+        ILogger<LocalizedTextAssetPatcher<T>> logger,
+        ILeavesRegistry<T> registry,
+        ILocalizedTextAssetSerializable<T> serializable)
     {
         SubPaths = subPaths;
         _registry = registry;

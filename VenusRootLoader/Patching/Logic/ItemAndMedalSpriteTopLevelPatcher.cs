@@ -18,13 +18,13 @@ internal sealed class ItemAndMedalSpriteTopLevelPatcher : ITopLevelPatcher
     private static ItemAndMedalSpriteTopLevelPatcher _instance = null!;
 
     private readonly IHarmonyTypePatcher _harmonyTypePatcher;
-    private readonly ILeavesRegistry<ItemLeaf, int> _itemLeafRegistry;
+    private readonly ILeavesRegistry<ItemLeaf> _itemLeafRegistry;
 
     private readonly Dictionary<int, Sprite> _customMedalSprites = new();
 
     public ItemAndMedalSpriteTopLevelPatcher(
         IHarmonyTypePatcher harmonyTypePatcher,
-        ILeavesRegistry<ItemLeaf, int> itemLeafRegistry)
+        ILeavesRegistry<ItemLeaf> itemLeafRegistry)
     {
         _instance = this;
         _harmonyTypePatcher = harmonyTypePatcher;

@@ -1,10 +1,9 @@
 using UnityEngine;
 using VenusRootLoader.Api.Unity;
-using VenusRootLoader.Unity;
 
 namespace VenusRootLoader.Api.Leaves;
 
-public sealed class ItemLeaf : ILeaf<int>
+public sealed class ItemLeaf : ILeaf
 {
     public sealed class ItemUse
     {

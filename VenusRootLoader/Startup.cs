@@ -58,10 +58,11 @@ internal static class Startup
 
         services.AddSingleton<EnumPatcher>();
 
-        services.AddSingleton<ILeavesRegistry<ItemLeaf, int>, ItemsRegistry>();
+        services.AddSingleton<ILeavesRegistry<ItemLeaf>, ItemsRegistry>();
+        services.AddSingleton<RegistryResolver>();
 
-        services.AddTextAssetPatcher<ItemLeaf, int, ItemDataSerializer>(["ItemData"]);
-        services.AddLocalizedTextAssetPatcher<ItemLeaf, int, ItemLanguageDataSerializer>(["Items"]);
+        services.AddTextAssetPatcher<ItemLeaf, ItemDataSerializer>(["ItemData"]);
+        services.AddLocalizedTextAssetPatcher<ItemLeaf, ItemLanguageDataSerializer>(["Items"]);
 
         services.AddSingleton<IResourcesTypePatcher<TextAsset>, RootTextAssetPatcher>();
 

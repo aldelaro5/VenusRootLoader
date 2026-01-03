@@ -10,18 +10,18 @@ internal interface ITextAssetPatcher
     UnityEngine.TextAsset PatchResource(string path, UnityEngine.TextAsset original);
 }
 
-internal sealed class TextAssetPatcher<T, U> : ITextAssetPatcher
-    where T : ILeaf<U>
+internal sealed class TextAssetPatcher<T> : ITextAssetPatcher
+    where T : ILeaf
 {
-    private readonly ILeavesRegistry<T, U> _registry;
-    private readonly ILogger<TextAssetPatcher<T, U>> _logger;
-    private readonly ITextAssetSerializable<T, U> _serializable;
+    private readonly ILeavesRegistry<T> _registry;
+    private readonly ILogger<TextAssetPatcher<T>> _logger;
+    private readonly ITextAssetSerializable<T> _serializable;
 
     public TextAssetPatcher(
         string[] subPaths,
-        ILogger<TextAssetPatcher<T, U>> logger,
-        ILeavesRegistry<T, U> registry,
-        ITextAssetSerializable<T, U> serializable)
+        ILogger<TextAssetPatcher<T>> logger,
+        ILeavesRegistry<T> registry,
+        ITextAssetSerializable<T> serializable)
     {
         SubPaths = subPaths;
         _logger = logger;

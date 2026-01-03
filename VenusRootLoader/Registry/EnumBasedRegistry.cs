@@ -1,57 +1,27 @@
 using CommunityToolkit.Diagnostics;
+using Microsoft.Extensions.Logging;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching;
 
 namespace VenusRootLoader.Registry;
 
-internal abstract class EnumBasedRegistry<TLeaf, TEnum> : ILeavesRegistry<TLeaf>
+internal abstract class EnumBasedRegistry<TLeaf, TEnum> : BaseRegistry<TLeaf>
     where TLeaf : ILeaf, new()
     where TEnum : Enum
 {
     private readonly EnumPatcher _enumPatcher;
-    private readonly string _registryName = typeof(TLeaf).Name;
 
-    protected EnumBasedRegistry(EnumPatcher enumPatcher)
+    protected EnumBasedRegistry(EnumPatcher enumPatcher, ILogger logger)
+        : base(logger)
     {
         _enumPatcher = enumPatcher;
     }
 
-    public IDictionary<string, TLeaf> Leaves { get; } = new Dictionary<string, TLeaf>();
-
-    public TLeaf RegisterNew(string namedId, string creatorId)
+    protected sealed override int CreateNewGameId(string namedId, string creatorId)
     {
         EnsureNamedIdIsValidEnumName(namedId);
-        EnsureNamedIdIsFree(namedId);
-        int newId = _enumPatcher.AddCustomEnumName(typeof(TEnum), namedId);
-        TLeaf itemLeaf = new()
-        {
-            GameId = newId,
-            CreatorId = creatorId,
-            NamedId = namedId
-        };
-        Leaves[namedId] = itemLeaf;
-        return itemLeaf;
+        return _enumPatcher.AddCustomEnumName(typeof(TEnum), namedId);
     }
-
-    public TLeaf RegisterExisting(int gameId, string namedId, string creatorId)
-    {
-        TLeaf itemLeaf = new()
-        {
-            GameId = gameId,
-            NamedId = namedId,
-            CreatorId = creatorId
-        };
-        Leaves[namedId] = itemLeaf;
-        return itemLeaf;
-    }
-
-    public TLeaf Get(string namedId)
-    {
-        EnsureNamedIdIsValidEnumName(namedId);
-        return EnsureNamedIdExists(namedId);
-    }
-
-    public IReadOnlyCollection<TLeaf> GetAll() => Leaves.Values.ToList().AsReadOnly();
 
     private static void EnsureNamedIdIsValidEnumName(string namedId)
     {
@@ -69,28 +39,5 @@ internal abstract class EnumBasedRegistry<TLeaf, TEnum> : ILeavesRegistry<TLeaf>
 
         if (namedId.Contains(','))
             ThrowHelper.ThrowArgumentException(nameof(namedId), $"\"{namedId}\" cannot contain any commas (\",\")");
-    }
-
-    private void EnsureNamedIdIsFree(string namedId)
-    {
-        if (Leaves.ContainsKey(namedId))
-        {
-            ThrowHelper.ThrowArgumentException(
-                nameof(namedId),
-                $"\"{namedId}\" already exists in the {_registryName} registry");
-        }
-    }
-
-    private TLeaf EnsureNamedIdExists(
-        string namedId)
-    {
-        if (!Leaves.TryGetValue(namedId, out TLeaf content))
-        {
-            return ThrowHelper.ThrowArgumentException<TLeaf>(
-                nameof(namedId),
-                $"\"{namedId}\" does not exist in the {_registryName} registry");
-        }
-
-        return content;
     }
 }

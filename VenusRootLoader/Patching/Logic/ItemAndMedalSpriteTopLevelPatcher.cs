@@ -7,7 +7,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Logic;
 
-internal sealed class ItemAndMedalSpritePatcher
+internal sealed class ItemAndMedalSpriteTopLevelPatcher : ITopLevelPatcher
 {
     private enum SpriteKind
     {
@@ -15,20 +15,23 @@ internal sealed class ItemAndMedalSpritePatcher
         Medal
     }
 
-    private static ItemAndMedalSpritePatcher _instance = null!;
+    private static ItemAndMedalSpriteTopLevelPatcher _instance = null!;
 
+    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<ItemLeaf, int> _itemLeafRegistry;
 
     private readonly Dictionary<int, Sprite> _customMedalSprites = new();
 
-    public ItemAndMedalSpritePatcher(
+    public ItemAndMedalSpriteTopLevelPatcher(
         IHarmonyTypePatcher harmonyTypePatcher,
         ILeavesRegistry<ItemLeaf, int> itemLeafRegistry)
     {
-        _itemLeafRegistry = itemLeafRegistry;
         _instance = this;
-        harmonyTypePatcher.PatchAll(typeof(ItemAndMedalSpritePatcher));
+        _harmonyTypePatcher = harmonyTypePatcher;
+        _itemLeafRegistry = itemLeafRegistry;
     }
+
+    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(ItemAndMedalSpriteTopLevelPatcher));
 
     internal void AssignMedalSprite(int itemId, Sprite sprite) => _customMedalSprites[itemId] = sprite;
 

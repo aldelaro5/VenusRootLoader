@@ -64,9 +64,10 @@ internal static class Startup
         services.AddLocalizedTextAssetPatcher<ItemLeaf, int, ItemLanguageDataSerializer>(["Items"]);
 
         services.AddSingleton<IResourcesTypePatcher<TextAsset>, RootTextAssetPatcher>();
-        services.AddSingleton<ResourcesPatcher>();
 
-        services.AddSingleton<ItemAndMedalSpritePatcher>();
+        services.AddSingleton<ITopLevelPatcher, ResourcesTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, ItemAndMedalSpriteTopLevelPatcher>();
+        services.AddSingleton<RootPatcher>();
 
         services.AddSingleton<BaseGameItemsCollector>();
         services.AddSingleton<BaseGameDataCollector>();

@@ -3,13 +3,13 @@ using Object = UnityEngine.Object;
 
 namespace VenusRootLoader.Patching.Resources;
 
-internal sealed class ResourcesPatcher
+internal sealed class ResourcesTopLevelPatcher : ITopLevelPatcher
 {
-    private static ResourcesPatcher _instance = null!;
+    private static ResourcesTopLevelPatcher _instance = null!;
     private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly IResourcesTypePatcher<UnityEngine.TextAsset> _textAssetPatcher;
 
-    public ResourcesPatcher(
+    public ResourcesTopLevelPatcher(
         IHarmonyTypePatcher harmonyTypePatcher,
         IResourcesTypePatcher<UnityEngine.TextAsset> textAssetPatcher)
     {
@@ -18,7 +18,7 @@ internal sealed class ResourcesPatcher
         _textAssetPatcher = textAssetPatcher;
     }
 
-    internal void StartPatchingResources() => _harmonyTypePatcher.PatchAll(typeof(ResourcesPatcher));
+    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(ResourcesTopLevelPatcher));
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(UnityEngine.Resources), nameof(UnityEngine.Resources.Load), [typeof(string), typeof(Type)])]

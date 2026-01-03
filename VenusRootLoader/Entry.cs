@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using VenusRootLoader.BaseGameCollector;
 using VenusRootLoader.BudLoading;
 using VenusRootLoader.Logging;
-using VenusRootLoader.Patching.Resources;
+using VenusRootLoader.Patching;
 
 namespace VenusRootLoader;
 
@@ -40,8 +40,8 @@ internal static class Entry
             BaseGameDataCollector gameDataCollector = host.GetRequiredService<BaseGameDataCollector>();
             gameDataCollector.CollectAndRegisterBaseGameData(BaseGameId);
 
-            ResourcesPatcher patcher = host.GetRequiredService<ResourcesPatcher>();
-            patcher.StartPatchingResources();
+            RootPatcher patcher = host.GetRequiredService<RootPatcher>();
+            patcher.RunAllTopLevelPatchers();
             
             BudLoader loader = host.GetRequiredService<BudLoader>();
             loader.LoadAllBuds();

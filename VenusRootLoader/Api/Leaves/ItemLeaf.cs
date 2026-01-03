@@ -1,5 +1,5 @@
 using UnityEngine;
-using VenusRootLoader.Api.Unity;
+using VenusRootLoader.Unity;
 
 namespace VenusRootLoader.Api.Leaves;
 
@@ -27,7 +27,13 @@ public sealed class ItemLeaf : ILeaf
 
     public List<ItemUse> Effects { get; } = new();
     public Dictionary<int, ItemLanguageData> LanguageData { get; } = new();
-    public Sprite Sprite => WrappedSprite.Sprite;
+
+    public Sprite Sprite
+    {
+        get => WrappedSprite.Sprite;
+        set => WrappedSprite.Sprite = value;
+    }
+
     public int BuyingPrice { get; set; }
     public BattleControl.AttackArea Target { get; set; }
 }

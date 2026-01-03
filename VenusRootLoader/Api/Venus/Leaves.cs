@@ -15,7 +15,8 @@ public partial class Venus
         return leaf;
     }
 
-    public ItemLeaf RequestItem(string namedId) => _registryResolver.Resolve<ItemLeaf>().Get(namedId);
+    public ItemLeaf GetItem(string namedId) => _registryResolver.Resolve<ItemLeaf>().Get(namedId);
+    public IReadOnlyCollection<ItemLeaf> GetAllItems() => _registryResolver.Resolve<ItemLeaf>().GetAll();
 
     private void LogRegisterContent(string contentType, string namedId, ItemLeaf leaf)
     {

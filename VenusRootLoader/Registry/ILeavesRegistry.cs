@@ -9,4 +9,5 @@ internal interface ILeavesRegistry<TLeaf>
     TLeaf RegisterNew(string namedId, string creatorId);
     TLeaf RegisterExisting(int gameId, string namedId, string creatorId);
     TLeaf Get(string namedId);
+    IReadOnlyCollection<TLeaf> GetAll();
 }

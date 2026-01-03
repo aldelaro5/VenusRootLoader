@@ -51,6 +51,8 @@ internal abstract class EnumBasedRegistry<TLeaf, TEnum> : ILeavesRegistry<TLeaf>
         return EnsureNamedIdExists(namedId);
     }
 
+    public IReadOnlyCollection<TLeaf> GetAll() => Leaves.Values.ToList().AsReadOnly();
+
     private static void EnsureNamedIdIsValidEnumName(string namedId)
     {
         Guard.IsNotNullOrWhiteSpace(namedId);

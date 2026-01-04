@@ -57,7 +57,7 @@ internal sealed class BaseGameItemsCollector : IBaseGameCollector
         {
             string itemNamedId = _itemNamedIds[i];
             ItemLeaf itemLeaf = _leavesRegistry.RegisterExisting(i, itemNamedId, baseGameId);
-            _itemDataSerializer.FromTextAssetSerializedString(ItemsData[i], itemLeaf);
+            _itemDataSerializer.FromTextAssetSerializedString("ItemData", ItemsData[i], itemLeaf);
             itemLeaf.WrappedSprite.Sprite = i < ItemsSpritesAmountInItems0
                 ? _items0Sprites[i]
                 : _items1Sprites[i - ItemsSpritesAmountInItems0];
@@ -65,6 +65,7 @@ internal sealed class BaseGameItemsCollector : IBaseGameCollector
             {
                 itemLeaf.LanguageData[j] = new();
                 _itemLanguageDataSerializer.FromTextAssetSerializedString(
+                    "Items",
                     j,
                     ItemsLanguageData[j][i],
                     itemLeaf);

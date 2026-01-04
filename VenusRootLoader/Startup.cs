@@ -14,7 +14,7 @@ using VenusRootLoader.Patching.Logic;
 using VenusRootLoader.Patching.Resources;
 using VenusRootLoader.Patching.Resources.TextAsset;
 using VenusRootLoader.Registry;
-using VenusRootLoader.TextAssetParsers.Items;
+using VenusRootLoader.TextAssetParsers;
 using VenusRootLoader.Unity;
 
 namespace VenusRootLoader;
@@ -61,8 +61,8 @@ internal static class Startup
         services.AddSingleton<ILeavesRegistry<ItemLeaf>, ItemsRegistry>();
         services.AddSingleton<RegistryResolver>();
 
-        services.AddTextAssetPatcher<ItemLeaf, ItemDataSerializer>(["ItemData"]);
-        services.AddLocalizedTextAssetPatcher<ItemLeaf, ItemLanguageDataSerializer>(["Items"]);
+        services.AddTextAssetPatcher<ItemLeaf, ItemTextAssetParser>(["ItemData"]);
+        services.AddLocalizedTextAssetPatcher<ItemLeaf, ItemLocalizedTextAssetParser>(["Items"]);
 
         services.AddSingleton<IResourcesTypePatcher<TextAsset>, RootTextAssetPatcher>();
 

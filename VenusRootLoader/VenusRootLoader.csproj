@@ -78,25 +78,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="TextAssetParsers\TermacadePrizes\**"/>
-        <Compile Remove="TextAssetParsers\SpyCards\**"/>
-        <Compile Remove="TextAssetParsers\Skills\**"/>
-        <Compile Remove="TextAssetParsers\Records\**"/>
-        <Compile Remove="TextAssetParsers\Recipes\**"/>
-        <Compile Remove="TextAssetParsers\RankBonuses\**"/>
-        <Compile Remove="TextAssetParsers\Quests\**"/>
-        <Compile Remove="TextAssetParsers\Musics\**"/>
-        <Compile Remove="TextAssetParsers\Miscellaneous\**"/>
-        <Compile Remove="TextAssetParsers\Medals\**"/>
-        <Compile Remove="TextAssetParsers\LoreBooks\**"/>
-        <Compile Remove="TextAssetParsers\FortuneTellerLines\**"/>
         <Compile Remove="TextAssetParsers\Entities\**"/>
-        <Compile Remove="TextAssetParsers\Enemies\**"/>
-        <Compile Remove="TextAssetParsers\Discoveries\**"/>
         <Compile Remove="TextAssetParsers\DialoguesLines\**"/>
-        <Compile Remove="TextAssetParsers\CaveOfTrials\**"/>
-        <Compile Remove="TextAssetParsers\Areas\**"/>
-        <Compile Remove="TextAssetParsers\ActionCommands\**"/>
+        <Compile Remove="TextAssetParsers\FortuneTellerLines\**"/>
+        <Compile Remove="TextAssetParsers\Miscellaneous\**"/>
+        <Compile Remove="TextAssetParsers\Recipes\**"/>
+        <Compile Remove="TextAssetParsers\Records\**"/>
+        <Compile Remove="TextAssetParsers\SpyCards\**"/>
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="Build">

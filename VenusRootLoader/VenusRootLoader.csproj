@@ -82,9 +82,6 @@
         <Compile Remove="TextAssetParsers\DialoguesLines\**"/>
         <Compile Remove="TextAssetParsers\FortuneTellerLines\**"/>
         <Compile Remove="TextAssetParsers\Miscellaneous\**"/>
-        <Compile Remove="TextAssetParsers\Recipes\**"/>
-        <Compile Remove="TextAssetParsers\Records\**"/>
-        <Compile Remove="TextAssetParsers\SpyCards\**"/>
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="Build">

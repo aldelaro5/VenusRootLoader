@@ -31,7 +31,7 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
         return leaf;
     }
 
-    public TLeaf RegisterExisting(int gameId, string namedId, string creatorId)
+    public virtual TLeaf RegisterExisting(int gameId, string namedId, string creatorId)
     {
         TLeaf leaf = new()
         {

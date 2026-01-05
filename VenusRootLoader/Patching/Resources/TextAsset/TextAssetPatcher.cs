@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using System.Text;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
 
@@ -41,7 +42,12 @@ internal sealed class TextAssetPatcher<T> : ITextAssetPatcher
             .OrderBy(i => i.GameId)
             .Select(customLine => _serializable.GetTextAssetSerializedString(path, customLine));
 
-        string text = string.Join("\n", newLines);
+        // Some game data relies on having a trailing LF for the parsing to work correctly
+        StringBuilder sb = new(string.Join("\n", newLines));
+        if (original.text.EndsWith("\n"))
+            sb.Append('\n');
+
+        string text = sb.ToString();
         _logger.LogTrace("Patching {path}:\n{text}", path, text);
         return new UnityEngine.TextAsset(text);
     }

@@ -15,4 +15,13 @@ public partial class Venus
 
     public IReadOnlyCollection<ItemLeaf> GetAllItems() =>
         _registryResolver.Resolve<ItemLeaf>().GetAll();
+
+    public RecipeLeaf RegisterRecipe(string namedId) =>
+        _registryResolver.Resolve<RecipeLeaf>().RegisterNew(namedId, _budId);
+
+    public RecipeLeaf GetRecipe(string namedId) =>
+        _registryResolver.Resolve<RecipeLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<RecipeLeaf> GetAllRecipes() =>
+        _registryResolver.Resolve<RecipeLeaf>().GetAll();
 }

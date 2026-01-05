@@ -59,9 +59,11 @@ internal static class Startup
         services.AddSingleton<EnumPatcher>();
 
         services.AddSingleton<ILeavesRegistry<ItemLeaf>, ItemsRegistry>();
+        services.AddSingleton<ILeavesRegistry<RecipeLeaf>, RecipesRegistry>();
         services.AddSingleton<RegistryResolver>();
 
         services.AddTextAssetPatcher<ItemLeaf, ItemTextAssetParser>(["ItemData"]);
+        services.AddTextAssetPatcher<RecipeLeaf, RecipeTextAssetParser>(["RecipeData"]);
         services.AddLocalizedTextAssetPatcher<ItemLeaf, ItemLocalizedTextAssetParser>(["Items"]);
 
         services.AddSingleton<IResourcesTypePatcher<TextAsset>, RootTextAssetPatcher>();
@@ -70,6 +72,7 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, ItemAndMedalSpriteTopLevelPatcher>();
         services.AddSingleton<RootPatcher>();
 
+        services.AddSingleton<IBaseGameCollector, BaseGameRecipesCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameItemsCollector>();
         services.AddSingleton<RootBaseGameDataCollector>();
 

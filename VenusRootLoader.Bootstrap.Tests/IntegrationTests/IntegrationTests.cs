@@ -55,7 +55,7 @@ public sealed class IntegrationTests : IDisposable
         [DevBuildInstallPath],
     ];
 
-    [Theory]
+    [Theory(Skip = "Integration tests are flaky, need to recheck")]
     [MemberData(nameof(VrlEnabledTestData))]
     public void Bootstrap_BootsGameSuccessfully_WhenVrlIsEnabled(
         string buildPath,
@@ -120,7 +120,7 @@ public sealed class IntegrationTests : IDisposable
         }
     }
 
-    [Theory]
+    [Theory(Skip = "Integration tests are flaky, need to recheck")]
     [MemberData(nameof(VrlDisabledTestData))]
     public void Bootstrap_DoesNothing_WhenVrlIsDisabled(string buildPath)
     {

@@ -3,6 +3,7 @@ using AwesomeAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
+using System.Runtime.InteropServices;
 using VenusRootLoader.Api;
 using VenusRootLoader.BudLoading;
 
@@ -10,9 +11,10 @@ namespace VenusRootLoader.Tests;
 
 public sealed class AppDomainEventsHandlerTests
 {
-    private const string BudsPath = "/Buds";
-    private const string ConfigPath = "/Config";
-    private const string LoaderPath = $"/{nameof(VenusRootLoader)}";
+    private static readonly string RootPath = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "/" : "C:\\";
+    private static readonly string BudsPath = Path.Combine(RootPath, "Buds");
+    private static readonly string ConfigPath = Path.Combine(RootPath, "Config");
+    private static readonly string LoaderPath = Path.Combine(RootPath, nameof(VenusRootLoader));
 
     private readonly IAssemblyLoader _assemblyLoader = Substitute.For<IAssemblyLoader>();
     private readonly IAppDomainEvents _appDomainEvents = Substitute.For<IAppDomainEvents>();
@@ -101,12 +103,17 @@ public sealed class AppDomainEventsHandlerTests
         _logger.LatestRecord.Message.Should().Contain(assemblyName);
     }
 
+    public static IEnumerable<object[]> AssemblyResolveTestData()
+    {
+        yield return [BudsPath, ".exe"];
+        yield return [Path.Combine(BudsPath, "nested"), ".exe"];
+        yield return [BudsPath, ".dll"];
+        yield return [Path.Combine(BudsPath, "nested"), ".dll"];
+        yield return [LoaderPath, ".dll"];
+    }
+    
     [Theory]
-    [InlineData(BudsPath, ".exe")]
-    [InlineData($"{BudsPath}/nested", ".exe")]
-    [InlineData(BudsPath, ".dll")]
-    [InlineData($"{BudsPath}/nested", ".dll")]
-    [InlineData(LoaderPath, ".dll")]
+    [MemberData(nameof(AssemblyResolveTestData))]
     public void AssemblyResolve_LoadsAssembly_WhenAssemblyExists(string basePath, string extension)
     {
         _sut.InstallHandlers();

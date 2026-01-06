@@ -289,3 +289,5 @@ __pycache__/
 # Unity TestProject
 Data/UnityTestProject/Library
 Data/UnityTestProject/Temp
+Output
+Tool

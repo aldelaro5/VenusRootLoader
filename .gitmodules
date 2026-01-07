@@ -1,3 +1,6 @@
 [submodule "plthook"]
 	path = External/plthook
 	url = https://github.com/kubo/plthook.git
+[submodule "External/BugFables.GameLibs"]
+	path = External/BugFables.GameLibs
+	url = https://github.com/aldelaro5/BugFables.GameLibs.git

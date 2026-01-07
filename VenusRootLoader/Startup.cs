@@ -60,7 +60,7 @@ internal static class Startup
 
         services.AddSingleton<ILeavesRegistry<ItemLeaf>, ItemsRegistry>();
         services.AddSingleton<ILeavesRegistry<RecipeLeaf>, RecipesRegistry>();
-        services.AddSingleton<RegistryResolver>();
+        services.AddSingleton<IRegistryResolver, RegistryResolver>();
 
         services.AddTextAssetPatcher<ItemLeaf, ItemTextAssetParser>(["ItemData"]);
         services.AddTextAssetPatcher<RecipeLeaf, RecipeTextAssetParser>(["RecipeData"]);
@@ -76,7 +76,7 @@ internal static class Startup
         services.AddSingleton<IBaseGameCollector, BaseGameItemsCollector>();
         services.AddSingleton<RootBaseGameDataCollector>();
 
-        services.AddSingleton<GlobalMonoBehaviourExecution>();
+        services.AddSingleton<IGlobalMonoBehaviourExecution, GlobalMonoBehaviourExecution>();
 
         services.AddSingleton<IBudConfigManager, BudConfigManager>();
         services.AddSingleton<IVenusFactory, VenusFactory>();

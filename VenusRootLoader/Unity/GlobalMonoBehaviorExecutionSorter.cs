@@ -5,7 +5,15 @@ using VenusRootLoader.Patching;
 
 namespace VenusRootLoader.Unity;
 
-internal sealed class GlobalMonoBehaviourExecution
+public interface IGlobalMonoBehaviourExecution
+{
+    GlobalMonoBehaviour AddGlobalMonoBehavior<T>(string gameObjectName)
+        where T : GlobalMonoBehaviour;
+
+    GlobalMonoBehaviour? GetGlobalMonoBehaviourFromGameObject(string gameObjectName);
+}
+
+internal sealed class GlobalMonoBehaviourExecution : IGlobalMonoBehaviourExecution
 {
     private const int LastAvailableExecutionOrder = -201;
 
@@ -20,7 +28,7 @@ internal sealed class GlobalMonoBehaviourExecution
         _globalGameObject.hideFlags = HideFlags.HideAndDontSave;
     }
 
-    internal GlobalMonoBehaviour AddGlobalMonoBehavior<T>(string gameObjectName)
+    public GlobalMonoBehaviour AddGlobalMonoBehavior<T>(string gameObjectName)
         where T : GlobalMonoBehaviour
     {
         CustomExecutionOrders.Add(typeof(T), _nextExecutionOrder);
@@ -34,7 +42,7 @@ internal sealed class GlobalMonoBehaviourExecution
         return gameObject.AddComponent<T>();
     }
 
-    internal GlobalMonoBehaviour? GetGlobalMonoBehaviourFromGameObject(string gameObjectName)
+    public GlobalMonoBehaviour? GetGlobalMonoBehaviourFromGameObject(string gameObjectName)
     {
         Transform? transform = _globalGameObject.transform.Find(gameObjectName);
         return transform?.GetComponent<GlobalMonoBehaviour>();

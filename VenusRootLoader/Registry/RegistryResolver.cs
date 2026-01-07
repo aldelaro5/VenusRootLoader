@@ -3,13 +3,19 @@ using VenusRootLoader.Api.Leaves;
 
 namespace VenusRootLoader.Registry;
 
-internal sealed class RegistryResolver
+internal interface IRegistryResolver
+{
+    ILeavesRegistry<T> Resolve<T>()
+        where T : ILeaf;
+}
+
+internal sealed class RegistryResolver : IRegistryResolver
 {
     private readonly IServiceProvider _serviceProvider;
 
     public RegistryResolver(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider;
 
-    internal ILeavesRegistry<T> Resolve<T>()
+    public ILeavesRegistry<T> Resolve<T>()
         where T : ILeaf
     {
         return _serviceProvider.GetRequiredService<ILeavesRegistry<T>>();

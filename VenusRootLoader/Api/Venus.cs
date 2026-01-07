@@ -8,15 +8,15 @@ namespace VenusRootLoader.Api;
 
 public sealed partial class Venus
 {
-    private readonly string _budId;
-    private readonly RegistryResolver _registryResolver;
-    private readonly GlobalMonoBehaviourExecution _globalMonoBehaviourExecution;
-    private readonly ILogger<Venus> _logger;
+    internal readonly string _budId;
+    internal readonly IRegistryResolver _registryResolver;
+    internal readonly IGlobalMonoBehaviourExecution _globalMonoBehaviourExecution;
+    internal readonly ILogger<Venus> _logger;
 
     internal Venus(
         string budId,
-        RegistryResolver registryResolver,
-        GlobalMonoBehaviourExecution globalMonoBehaviourExecution,
+        IRegistryResolver registryResolver,
+        IGlobalMonoBehaviourExecution globalMonoBehaviourExecution,
         ILogger<Venus> logger)
     {
         _budId = budId;

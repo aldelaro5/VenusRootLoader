@@ -12,14 +12,14 @@ internal interface IVenusFactory
 
 internal sealed class VenusFactory : IVenusFactory
 {
-    private readonly RegistryResolver _registryResolver;
-    private readonly GlobalMonoBehaviourExecution _globalMonoBehaviourExecution;
+    private readonly IRegistryResolver _registryResolver;
+    private readonly IGlobalMonoBehaviourExecution _globalMonoBehaviourExecution;
     private readonly ILogger<Venus> _logger;
 
     public VenusFactory(
-        GlobalMonoBehaviourExecution globalMonoBehaviourExecution,
-        ILogger<Venus> logger,
-        RegistryResolver registryResolver)
+        IGlobalMonoBehaviourExecution globalMonoBehaviourExecution,
+        IRegistryResolver registryResolver,
+        ILogger<Venus> logger)
     {
         _globalMonoBehaviourExecution = globalMonoBehaviourExecution;
         _logger = logger;

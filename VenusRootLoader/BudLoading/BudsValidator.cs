@@ -57,19 +57,21 @@ internal sealed class BudsValidator : IBudsValidator
             uniqueBuds.Add(duplicateBudGroup.Key, instanceChosenToLoad);
         }
 
-        var incompatibleBudsById = uniqueBuds
+        List<(string budId, List<BudIncompatibility> incompatibilities)> incompatibleBudsById = uniqueBuds
             .Select(bud => (
                 budId: bud.Key,
                 incompatibilities: bud.Value.BudManifest.BudIncompatibilities
                     .Where(incompatibility =>
                         uniqueBuds.TryGetValue(incompatibility.BudId, out BudInfo incompatibleBud)
                         && IsBudIncompatible(incompatibility, incompatibleBud))
+                    .ToList()
                 )
             )
             .Where(bud => bud.incompatibilities.Any())
             .ToList();
 
-        foreach (var bud in incompatibleBudsById)
+        List<string> incompatibleBudIds = new();
+        foreach ((string budId, List<BudIncompatibility> incompatibilities) bud in incompatibleBudsById)
         {
             IEnumerable<string> incompatibilitiesInfo = bud.incompatibilities
                 .Select(i => FormatIncompatibilityInfo(i, uniqueBuds[i.BudId].BudManifest.BudVersion));
@@ -79,8 +81,11 @@ internal sealed class BudsValidator : IBudsValidator
                 bud.budId,
                 string.Join("\n", incompatibilitiesInfo));
 
-            uniqueBuds.Remove(bud.budId);
+            incompatibleBudIds.Add(bud.budId);
         }
+
+        foreach (string incompatibleBudId in incompatibleBudIds)
+            uniqueBuds.Remove(incompatibleBudId);
 
         return uniqueBuds;
     }

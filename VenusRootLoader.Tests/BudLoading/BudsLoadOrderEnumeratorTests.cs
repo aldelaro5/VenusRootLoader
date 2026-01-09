@@ -225,8 +225,11 @@ public sealed class BudsLoadOrderEnumeratorTests
             $"{buds[1].BudManifest.BudDependencies[0].Version.ToNormalizedString()}*");
     }
 
-    [Fact]
-    public void EnumerateBudsWithFulfilledDependencies_ReportsBuds_WhenBudsHaveUnfulfilledRequiredDependencies()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void EnumerateBudsWithFulfilledDependencies_ReportsBuds_WhenBudsHaveUnfulfilledRequiredDependencies(
+        bool isOptional)
     {
         List<BudInfo> buds =
         [
@@ -267,7 +270,7 @@ public sealed class BudsLoadOrderEnumeratorTests
                         new()
                         {
                             BudId = "a",
-                            Optional = false,
+                            Optional = isOptional,
                             Version = new(new(1, 0, 0)),
                         }
                     ],
@@ -295,18 +298,20 @@ public sealed class BudsLoadOrderEnumeratorTests
 
         List<BudInfo> enumeratedBuds = _sut.EnumerateBudsWithFulfilledDependencies(buds).ToList();
 
-        enumeratedBuds.Should().BeEquivalentTo(buds.Skip(2));
+        enumeratedBuds.Should().BeEquivalentTo(isOptional ? buds.Skip(1) : buds.Skip(2));
 
         IReadOnlyList<FakeLogRecord> logs = _logger.Collector.GetSnapshot();
         logs.Count.Should().Be(2);
         logs[0].Level.Should().Be(LogLevel.Error);
-        logs[1].Level.Should().Be(LogLevel.Error);
         logs[0].Message.Should().MatchEquivalentOf(
             $"*{buds[0].BudManifest.BudId}*not be loaded*unsatisfied dependencies*not optional*" +
             $"{buds[0].BudManifest.BudDependencies[0].BudId} - Required - *missing*");
+
+        logs[1].Level.Should().Be(isOptional ? LogLevel.Warning : LogLevel.Error);
         logs[1].Message.Should().MatchEquivalentOf(
-            $"*{buds[1].BudManifest.BudId}*not be loaded*unsatisfied dependencies*not optional*" +
-            $"{buds[1].BudManifest.BudDependencies[0].BudId} - Required - *unsatisfied dependencies*");
+            $"*{buds[1].BudManifest.BudId}*{(isOptional ? "will" : "not")} be loaded*unsatisfied " +
+            $"{(isOptional ? "optional dependencies*" : "dependencies*not optional*")}" +
+            $"{buds[1].BudManifest.BudDependencies[0].BudId} - {(isOptional ? "Optional" : "Required")} - *unsatisfied dependencies*");
     }
 
     [Theory]

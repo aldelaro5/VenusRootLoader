@@ -1,0 +1,143 @@
+﻿# Type: int
+# Default value: 975
+FieldValue = 521
+# Type: bool
+# Default value: true
+BoolValue = false
+# Type: string
+# Default value: "stuff"
+StringValue = "more stuff"
+# Type: sbyte
+# Default value: -2
+SByteValue = -5
+# Type: byte
+# Default value: 7
+ByteValue = 58
+# Test some stuff
+# Type: short
+# Default value: -1459
+ShortValue = -2475
+# Type: ushort
+# Default value: 5154
+UShortValue = 4875
+# Type: int
+# Default value: -1025545
+IntValue = -1475545
+# Type: uint
+# Default value: 525454
+UIntValue = 527454
+# Type: long
+# Default value: -9454525154
+LongValue = -9454845154
+# Type: ulong
+# Default value: 415452124
+ULongValue = 4157485124
+# Type: float
+# Default value: 2.69400000572205
+FloatValue = 5.0
+# Type: double
+# Default value: 845.474
+DoubleValue = 800.0
+# Type: VenusRootLoader.Tests.BudLoading.BudConfigManagerTests.TestConfigData+AnEnum
+# Default value: "C"
+AnEnumValue = "D"
+# Type: DateTime
+# Default value: 2026-10-01T11:50:39.584
+DateTimeValue = 2026-10-03T11:50:39.584
+# Type: TimeSpan
+# Default value: 17:00:00
+TimeSpanValue = 21:00:00
+# Type: UnityEngine.Vector2
+# Default value: (25.1, 48.3)
+Vector2Value = { x = 25.0, y = 48.0 }
+# Type: UnityEngine.Vector2Int
+# Default value: (8, 98)
+Vector2IntValue = { x = 87, y = 47 }
+# Type: UnityEngine.Vector3
+# Default value: (58.9, 487.2, 9625.2)
+Vector3Value = { x = 58.0, y = 487.0, z = 9625.0 }
+# Type: UnityEngine.Vector3Int
+# Default value: (78, 874, 96)
+Vector3IntValue = { x = 47, y = 475, z = 961 }
+# Type: UnityEngine.KeyCode
+# Default value: "E"
+KeyCodeValue = "X"
+# Type: System.Collections.Generic.IEnumerable<int>
+# Default value: [ 515, 21, 20, ]
+IntArrayValue = [ 974, 4852, 4852, ]
+# Type: System.Collections.Generic.Dictionary<string, int>
+# Default value: { A = 1, B = 2, C = 3 }
+DictionaryValue = { F = 84 }
+[NullableFieldValue]
+# Type: int
+# Default value: null
+IntValue = 5
+[NullableFieldValue.NestedThing2]
+# Type: int
+# Default value: null
+IntValue = 0
+[NullableFieldValue.NestedThing2.NestedThing3]
+# Type: int
+# Default value: null
+IntValue = 0
+
+
+
+# Type: UnityEngine.Vector4
+# Default value: (84754.5, 48458.0, 4852.2, 8472.7)
+[Vector4Value]
+x = 84754.0
+y = 48457.0
+z = 4852.0
+w = 8472.0
+
+# Type: UnityEngine.Quaternion
+# Default value: (844854.8, 48557.5, 9615.5, 8712.5)
+["some weird names with spaces!"]
+x = 844854.0
+y = 48557.0
+z = 9615.0
+w = 8712.0
+
+# Type: UnityEngine.Rect
+# Default value: (x:48845.15, y:4845.15, width:54548.15, height:4847.54)
+[RectValue]
+x = 48845.0
+y = 4845.0
+width = 54548.0
+height = 4847.0
+
+[NestedThing]
+# Type: int
+# Default value: null
+IntValue = -98
+[NestedThing.NestedThing2]
+# Type: int
+# Default value: null
+IntValue = 147
+[NestedThing.NestedThing2.NestedThing3]
+# Type: int
+# Default value: null
+IntValue = 20
+
+
+
+# Type: System.Collections.Generic.IEnumerable<VenusRootLoader.Tests.BudLoading.BudConfigManagerTests.TestConfigData+NestedThing2>
+# Default value: 
+# [[NestedThing2ArrayValue]]
+# IntValue = 0
+# NestedThing3 = { IntValue = 0 }
+# 
+# [[NestedThing2ArrayValue]]
+# IntValue = 0
+# NestedThing3 = { IntValue = 0 }
+# 
+# 
+[[NestedThing2ArrayValue]]
+IntValue = 0
+NestedThing3 = { IntValue = 0 }
+
+[[NestedThing2ArrayValue]]
+IntValue = 85
+NestedThing3 = { IntValue = 0 }
+

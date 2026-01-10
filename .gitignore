@@ -286,6 +286,9 @@ __pycache__/
 *.odx.cs
 *.xsd.cs
 
+# Verify
+*.received.*
+
 # Unity TestProject
 Data/UnityTestProject/Library
 Data/UnityTestProject/Temp

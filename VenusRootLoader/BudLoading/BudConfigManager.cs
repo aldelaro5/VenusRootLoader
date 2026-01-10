@@ -29,7 +29,7 @@ internal sealed class BudConfigManager : IBudConfigManager
         typeof(Quaternion),
         typeof(Rect)
     ];
-    
+
     private readonly IFileSystem _fileSystem;
     private readonly BudLoaderContext _budLoaderContext;
 
@@ -195,14 +195,13 @@ internal sealed class BudConfigManager : IBudConfigManager
             ThrowHelper.ThrowFormatException("The config data serialised to a null TOML string");
 
         ProcessTomlEntries(toml.Entries, configType, defaultConfigData);
-
-        File.WriteAllText(configPath, toml.SerializedValue);
+        _fileSystem.File.WriteAllText(configPath, toml.SerializedValue);
     }
 
     private void ProcessTomlEntries(
         Dictionary<string, TomlValue> entries,
         Type configType,
-        object defaultConfigData)
+        object? defaultConfigData)
     {
         List<MemberInfo> memberInfos = AccessTools.GetDeclaredProperties(configType)
             .Cast<MemberInfo>()
@@ -214,7 +213,7 @@ internal sealed class BudConfigManager : IBudConfigManager
 
         foreach (KeyValuePair<string, TomlValue> tomlEntry in entries)
         {
-            (Type Type, object DefaultValue) configValueInfo = ObtainConfigValueInfo(
+            (Type Type, object? DefaultValue) configValueInfo = ObtainConfigValueInfo(
                 tomlEntry.Key,
                 membersByMappedNames,
                 defaultConfigData);
@@ -237,7 +236,7 @@ internal sealed class BudConfigManager : IBudConfigManager
             string defaultValueStr;
             if (isUnityTableType)
             {
-                defaultValueStr = configValueInfo.DefaultValue.ToString();
+                defaultValueStr = configValueInfo.DefaultValue!.ToString();
             }
             else if (defaultTomlValue is TomlArray { CanBeSerializedInline: false } tomlArray)
             {
@@ -263,16 +262,23 @@ internal sealed class BudConfigManager : IBudConfigManager
         }
     }
 
-    private static (Type Type, object DefaultValue) ObtainConfigValueInfo(
+    private static (Type Type, object? DefaultValue) ObtainConfigValueInfo(
         string key,
         Dictionary<string, MemberInfo> memberInfos,
-        object defaultConfigData)
+        object? defaultConfigData)
     {
         MemberInfo memberInfo = memberInfos[key];
         if (memberInfo is PropertyInfo propertyInfo)
-            return (propertyInfo.PropertyType, propertyInfo.GetValue(defaultConfigData, null));
+        {
+            return (propertyInfo.PropertyType, defaultConfigData is not null
+                ? propertyInfo.GetValue(defaultConfigData, null)
+                : null);
+        }
+
         FieldInfo fieldInfo = (FieldInfo)memberInfo;
-        return (fieldInfo.FieldType, fieldInfo.GetValue(defaultConfigData));
+        return (fieldInfo.FieldType, defaultConfigData is not null
+            ? fieldInfo.GetValue(defaultConfigData)
+            : null);
     }
 
     public object Load(string budId, Type configType)

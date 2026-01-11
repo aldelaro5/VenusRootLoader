@@ -132,7 +132,8 @@ internal sealed class BudsDiscoverer : IBudsDiscoverer
 
         try
         {
-            ModuleDefinition moduleDefinition = ModuleDefinition.FromFile(budAssemblyPath);
+            using Stream assemblyStream = _fileSystem.File.OpenRead(budAssemblyPath);
+            ModuleDefinition moduleDefinition = ModuleDefinition.FromStream(assemblyStream);
             List<TypeDefinition> iBuds = moduleDefinition.GetAllTypes()
                 .Where(x => !x.IsAbstract
                             && x.BaseType?.FullName == typeof(Bud).FullName!

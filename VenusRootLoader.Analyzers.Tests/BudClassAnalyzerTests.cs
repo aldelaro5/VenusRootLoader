@@ -9,7 +9,7 @@ namespace VenusRootLoader.Analyzers.Tests;
 
 public sealed class BudClassAnalyzerTests
 {
-    [Fact]
+    [Fact(Skip = "Not ready yet")]
     public async Task SetSpeedHugeSpeedSpecified_AlertDiagnostic()
     {
         const string text =

@@ -121,7 +121,7 @@ internal sealed class BudsDiscoverer : IBudsDiscoverer
             if (budDependency.Version is null)
             {
                 throw new Exception(
-                    $"The dependency {nameof(budDependency.BudId)} has a null {nameof(budDependency.Version)}");
+                    $"The dependency {budDependency.BudId} has a null {nameof(budDependency.Version)}");
             }
         }
     }

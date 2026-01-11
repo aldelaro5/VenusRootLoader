@@ -1,8 +1,6 @@
 using AsmResolver.DotNet;
 using AsmResolver.PE.DotNet.Metadata.Tables;
 using AwesomeAssertions;
-using AwesomeAssertions.Execution;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using NuGet.Versioning;
 using System.IO.Abstractions;
@@ -81,7 +79,7 @@ public sealed class BudsDiscovererTests
     {
         IList<BudInfo> buds = _sut.DiscoverAllBudsFromDisk();
 
-        AssertErrorLogs(0);
+        TestUtility.AssertErrorLogs(_logger, 0);
 
         buds.Should().BeEmpty();
     }
@@ -98,7 +96,7 @@ public sealed class BudsDiscovererTests
 
         IList<BudInfo> buds = _sut.DiscoverAllBudsFromDisk();
 
-        AssertErrorLogs(0);
+        TestUtility.AssertErrorLogs(_logger, 0);
 
         buds.Should().HaveCount(3);
         buds[0].BudAssemblyPath.Should().Be(Path.Combine(BudsPath, "a", "a.dll"));
@@ -122,7 +120,7 @@ public sealed class BudsDiscovererTests
 
         IList<BudInfo> buds = _sut.DiscoverAllBudsFromDisk();
 
-        AssertErrorLogs(0);
+        TestUtility.AssertErrorLogs(_logger, 0);
 
         buds.Should().ContainSingle();
         buds[0].BudAssemblyPath.Should().Be(Path.Combine(BudsPath, "b", "b.dll"));
@@ -140,7 +138,7 @@ public sealed class BudsDiscovererTests
 
         IList<BudInfo> buds = _sut.DiscoverAllBudsFromDisk();
 
-        AssertErrorLogs(1, "*deserialized*null*");
+        TestUtility.AssertErrorLogs(_logger, 1, "*deserialized*null*");
 
         buds.Should().ContainSingle();
         buds[0].BudAssemblyPath.Should().Be(Path.Combine(BudsPath, "b", "b.dll"));
@@ -158,7 +156,7 @@ public sealed class BudsDiscovererTests
 
         IList<BudInfo> buds = _sut.DiscoverAllBudsFromDisk();
 
-        AssertErrorLogs(1);
+        TestUtility.AssertErrorLogs(_logger, 1);
 
         buds.Should().ContainSingle();
         buds[0].BudAssemblyPath.Should().Be(Path.Combine(BudsPath, "b", "b.dll"));
@@ -176,7 +174,7 @@ public sealed class BudsDiscovererTests
 
         IList<BudInfo> buds = _sut.DiscoverAllBudsFromDisk();
 
-        AssertErrorLogs(1, $"{nameof(BudManifest.AssemblyName)} is not specified");
+        TestUtility.AssertErrorLogs(_logger, 1, $"{nameof(BudManifest.AssemblyName)} is not specified");
 
         buds.Should().ContainSingle();
         buds[0].BudAssemblyPath.Should().Be(Path.Combine(BudsPath, "b", "b.dll"));
@@ -194,7 +192,7 @@ public sealed class BudsDiscovererTests
 
         IList<BudInfo> buds = _sut.DiscoverAllBudsFromDisk();
 
-        AssertErrorLogs(1, $"{nameof(BudManifest.BudId)} is not specified");
+        TestUtility.AssertErrorLogs(_logger, 1, $"{nameof(BudManifest.BudId)} is not specified");
 
         buds.Should().ContainSingle();
         buds[0].BudAssemblyPath.Should().Be(Path.Combine(BudsPath, "b", "b.dll"));
@@ -212,7 +210,7 @@ public sealed class BudsDiscovererTests
 
         IList<BudInfo> buds = _sut.DiscoverAllBudsFromDisk();
 
-        AssertErrorLogs(1, $"{nameof(BudManifest.BudName)} is not specified");
+        TestUtility.AssertErrorLogs(_logger, 1, $"{nameof(BudManifest.BudName)} is not specified");
 
         buds.Should().ContainSingle();
         buds[0].BudAssemblyPath.Should().Be(Path.Combine(BudsPath, "b", "b.dll"));
@@ -230,7 +228,7 @@ public sealed class BudsDiscovererTests
 
         IList<BudInfo> buds = _sut.DiscoverAllBudsFromDisk();
 
-        AssertErrorLogs(1, $"{nameof(BudManifest.BudAuthor)} is not specified");
+        TestUtility.AssertErrorLogs(_logger, 1, $"{nameof(BudManifest.BudAuthor)} is not specified");
 
         buds.Should().ContainSingle();
         buds[0].BudAssemblyPath.Should().Be(Path.Combine(BudsPath, "b", "b.dll"));
@@ -248,7 +246,7 @@ public sealed class BudsDiscovererTests
 
         IList<BudInfo> buds = _sut.DiscoverAllBudsFromDisk();
 
-        AssertErrorLogs(1, $"{nameof(BudManifest.BudVersion)} is null");
+        TestUtility.AssertErrorLogs(_logger, 1, $"{nameof(BudManifest.BudVersion)} is null");
 
         buds.Should().ContainSingle();
         buds[0].BudAssemblyPath.Should().Be(Path.Combine(BudsPath, "b", "b.dll"));
@@ -269,7 +267,7 @@ public sealed class BudsDiscovererTests
 
         IList<BudInfo> buds = _sut.DiscoverAllBudsFromDisk();
 
-        AssertErrorLogs(1, "At least one dependency has an unspecified bud ID");
+        TestUtility.AssertErrorLogs(_logger, 1, "At least one dependency has an unspecified bud ID");
 
         buds.Should().ContainSingle();
         buds[0].BudAssemblyPath.Should().Be(Path.Combine(BudsPath, "b", "b.dll"));
@@ -290,7 +288,7 @@ public sealed class BudsDiscovererTests
 
         IList<BudInfo> buds = _sut.DiscoverAllBudsFromDisk();
 
-        AssertErrorLogs(1, "At least one incompatibility has an unspecified bud ID");
+        TestUtility.AssertErrorLogs(_logger, 1, "At least one incompatibility has an unspecified bud ID");
 
         buds.Should().ContainSingle();
         buds[0].BudAssemblyPath.Should().Be(Path.Combine(BudsPath, "b", "b.dll"));
@@ -311,7 +309,7 @@ public sealed class BudsDiscovererTests
 
         IList<BudInfo> buds = _sut.DiscoverAllBudsFromDisk();
 
-        AssertErrorLogs(1, "The bud cannot have a dependency with itself");
+        TestUtility.AssertErrorLogs(_logger, 1, "The bud cannot have a dependency with itself");
 
         buds.Should().ContainSingle();
         buds[0].BudAssemblyPath.Should().Be(Path.Combine(BudsPath, "b", "b.dll"));
@@ -332,7 +330,7 @@ public sealed class BudsDiscovererTests
 
         IList<BudInfo> buds = _sut.DiscoverAllBudsFromDisk();
 
-        AssertErrorLogs(1, "The bud cannot have an incompatibility with itself");
+        TestUtility.AssertErrorLogs(_logger, 1, "The bud cannot have an incompatibility with itself");
 
         buds.Should().ContainSingle();
         buds[0].BudAssemblyPath.Should().Be(Path.Combine(BudsPath, "b", "b.dll"));
@@ -354,7 +352,10 @@ public sealed class BudsDiscovererTests
         IList<BudInfo> buds = _sut.DiscoverAllBudsFromDisk();
 
         string dependencyBudId = buds[0].BudManifest.BudDependencies[0].BudId;
-        AssertErrorLogs(1, $"The dependency {dependencyBudId} has a null {nameof(BudDependency.Version)}");
+        TestUtility.AssertErrorLogs(
+            _logger,
+            1,
+            $"The dependency {dependencyBudId} has a null {nameof(BudDependency.Version)}");
 
         buds.Should().ContainSingle();
         buds[0].BudAssemblyPath.Should().Be(Path.Combine(BudsPath, "b", "b.dll"));
@@ -371,7 +372,7 @@ public sealed class BudsDiscovererTests
 
         IList<BudInfo> buds = _sut.DiscoverAllBudsFromDisk();
 
-        AssertErrorLogs(1, "*assembly*not exist*");
+        TestUtility.AssertErrorLogs(_logger, 1, "*assembly*not exist*");
 
         buds.Should().ContainSingle();
         buds[0].BudAssemblyPath.Should().Be(Path.Combine(BudsPath, "b", "b.dll"));
@@ -389,7 +390,7 @@ public sealed class BudsDiscovererTests
 
         IList<BudInfo> buds = _sut.DiscoverAllBudsFromDisk();
 
-        AssertErrorLogs(1);
+        TestUtility.AssertErrorLogs(_logger, 1);
 
         buds.Should().ContainSingle();
         buds[0].BudAssemblyPath.Should().Be(Path.Combine(BudsPath, "b", "b.dll"));
@@ -407,7 +408,10 @@ public sealed class BudsDiscovererTests
 
         IList<BudInfo> buds = _sut.DiscoverAllBudsFromDisk();
 
-        AssertErrorLogs(1, $"*no non abstract classes*inherits from {nameof(Bud)}*parameterless constructor*");
+        TestUtility.AssertErrorLogs(
+            _logger,
+            1,
+            $"*no non abstract classes*inherits from {nameof(Bud)}*parameterless constructor*");
 
         buds.Should().ContainSingle();
         buds[0].BudAssemblyPath.Should().Be(Path.Combine(BudsPath, "b", "b.dll"));
@@ -425,7 +429,10 @@ public sealed class BudsDiscovererTests
 
         IList<BudInfo> buds = _sut.DiscoverAllBudsFromDisk();
 
-        AssertErrorLogs(1, $"*no non abstract classes*inherits from {nameof(Bud)}*parameterless constructor*");
+        TestUtility.AssertErrorLogs(
+            _logger,
+            1,
+            $"*no non abstract classes*inherits from {nameof(Bud)}*parameterless constructor*");
 
         buds.Should().ContainSingle();
         buds[0].BudAssemblyPath.Should().Be(Path.Combine(BudsPath, "b", "b.dll"));
@@ -443,7 +450,10 @@ public sealed class BudsDiscovererTests
 
         IList<BudInfo> buds = _sut.DiscoverAllBudsFromDisk();
 
-        AssertErrorLogs(1, $"*no non abstract classes*inherits from {nameof(Bud)}*parameterless constructor*");
+        TestUtility.AssertErrorLogs(
+            _logger,
+            1,
+            $"*no non abstract classes*inherits from {nameof(Bud)}*parameterless constructor*");
 
         buds.Should().ContainSingle();
         buds[0].BudAssemblyPath.Should().Be(Path.Combine(BudsPath, "b", "b.dll"));
@@ -461,7 +471,8 @@ public sealed class BudsDiscovererTests
 
         IList<BudInfo> buds = _sut.DiscoverAllBudsFromDisk();
 
-        AssertErrorLogs(
+        TestUtility.AssertErrorLogs(
+            _logger,
             1,
             $"*more than 1*non abstract classes*inherits from {nameof(Bud)}*parameterless constructor*aType0*aType1*");
 
@@ -469,25 +480,6 @@ public sealed class BudsDiscovererTests
         buds[0].BudAssemblyPath.Should().Be(Path.Combine(BudsPath, "b", "b.dll"));
         buds[0].BudType.Name!.Value.Should().Be("bType0");
         buds[0].BudManifest.Should().BeEquivalentTo(budManifestB);
-    }
-
-    private void AssertErrorLogs(int expectedErrorLogsAmount, string expectedExceptionMessageTemplate = "*")
-    {
-        using AssertionScope scope = new();
-        List<FakeLogRecord> errorLogs = _logger.Collector.GetSnapshot().Where(l => l.Level == LogLevel.Error).ToList();
-        errorLogs.Should().HaveCount(expectedErrorLogsAmount);
-        if (!scope.HasFailures())
-            return;
-
-        foreach (FakeLogRecord log in errorLogs)
-        {
-            TestContext.Current.TestOutputHelper!.WriteLine(log.Message);
-            if (log.Exception is null)
-                continue;
-
-            log.Exception.Message.Should().MatchEquivalentOf(expectedExceptionMessageTemplate);
-            TestContext.Current.TestOutputHelper!.WriteLine(log.Exception.ToString());
-        }
     }
 
     private void CreateAssemblyForBud(

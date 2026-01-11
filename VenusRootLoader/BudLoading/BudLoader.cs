@@ -44,8 +44,8 @@ internal sealed class BudLoader
         _venusFactory = venusFactory;
         _budConfigManager = budConfigManager;
 
-        if (!Directory.Exists(_budLoaderContext.BudsPath))
-            Directory.CreateDirectory(_budLoaderContext.BudsPath);
+        if (!_fileSystem.Directory.Exists(_budLoaderContext.BudsPath))
+            _fileSystem.Directory.CreateDirectory(_budLoaderContext.BudsPath);
     }
 
     internal void LoadAllBuds()
@@ -53,9 +53,11 @@ internal sealed class BudLoader
         IList<BudInfo> buds = FindAllBuds();
         if (buds.Count == 0)
             return;
-        
+
         IDictionary<string, BudInfo> budsById = _budsValidator.RemoveInvalidBuds(buds);
         IList<BudInfo> sortedBuds = DetermineBudsLoadOrder(budsById);
+        if (sortedBuds.Count == 0)
+            return;
 
         foreach (BudInfo budLoadingInfo in _budsLoadOrderEnumerator.EnumerateBudsWithFulfilledDependencies(sortedBuds))
             LoadBud(budLoadingInfo);

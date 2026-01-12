@@ -98,9 +98,7 @@ public sealed class BudLoaderTests
 
         _sut.LoadAllBuds();
 
-        IReadOnlyList<FakeLogRecord> logs = _logger.Collector.GetSnapshot();
-        logs.Should().ContainSingle();
-        logs[0].Exception.Should().Be(exception);
+        TestUtility.AssertErrorLogs(_logger, 1, exception.Message);
 
         _budsDiscoverer.Received(1).DiscoverAllBudsFromDisk();
         _budsValidator.DidNotReceiveWithAnyArgs().RemoveInvalidBuds(null!);
@@ -121,29 +119,23 @@ public sealed class BudLoaderTests
         Exception exception = new("An exception");
         string budId = "aBudId";
         _fileSystem.Directory.CreateDirectory(Path.Combine(BudsPath, budId));
-        BudInfo[] buds =
-        [
-            CreateBud(
-                budId,
-                typeof(BudLoaderTests).GetMethod(
-                    nameof(MainExceptionThrow),
-                    BindingFlags.Static | BindingFlags.NonPublic)!)
-        ];
+        MethodInfo mainMethod = typeof(BudLoaderTests).GetMethod(
+            nameof(MainExceptionThrow),
+            BindingFlags.Static | BindingFlags.NonPublic)!;
+        BudInfo[] buds = [CreateBud(budId, mainMethod)];
 
         _budsDiscoverer.DiscoverAllBudsFromDisk().ReturnsForAnyArgs(buds);
-        _budsValidator.RemoveInvalidBuds(buds)
-            .ReturnsForAnyArgs(buds.ToDictionary(bud => bud.BudManifest.BudId, bud => bud));
+        Dictionary<string, BudInfo> validatedBuds = buds.ToDictionary(bud => bud.BudManifest.BudId, bud => bud);
+        _budsValidator.RemoveInvalidBuds(buds).ReturnsForAnyArgs(validatedBuds);
         _budsDependencySorter.SortBudsTopologicallyFromDependencyGraph(null!).ThrowsForAnyArgs(exception);
 
         _sut.LoadAllBuds();
 
-        IReadOnlyList<FakeLogRecord> logs = _logger.Collector.GetSnapshot();
-        logs.Should().ContainSingle();
-        logs[0].Exception.Should().Be(exception);
+        TestUtility.AssertErrorLogs(_logger, 1, exception.Message);
 
         _budsDiscoverer.Received(1).DiscoverAllBudsFromDisk();
         _budsValidator.Received(1).RemoveInvalidBuds(buds);
-        _budsDependencySorter.ReceivedWithAnyArgs(1).SortBudsTopologicallyFromDependencyGraph(null!);
+        _budsDependencySorter.Received(1).SortBudsTopologicallyFromDependencyGraph(validatedBuds);
         _budsLoadOrderEnumerator.DidNotReceiveWithAnyArgs().EnumerateBudsWithFulfilledDependencies(null!);
         _budsLoadOrderEnumerator.DidNotReceiveWithAnyArgs().MarkBudAsFailedDuringLoad(null!);
         _assemblyLoader.DidNotReceiveWithAnyArgs().LoadFromPath(null!);
@@ -159,34 +151,28 @@ public sealed class BudLoaderTests
     {
         Exception exception = new("An exception");
         string budId = "aBudId";
-        BudInfo[] buds =
-        [
-            CreateBud(
-                budId,
-                typeof(BudLoaderTests).GetMethod(
-                    nameof(MainExceptionThrow),
-                    BindingFlags.Static | BindingFlags.NonPublic)!)
-        ];
+        MethodInfo mainMethod = typeof(BudLoaderTests).GetMethod(
+            nameof(MainExceptionThrow),
+            BindingFlags.Static | BindingFlags.NonPublic)!;
+        BudInfo[] buds = [CreateBud(budId, mainMethod)];
 
         _budsDiscoverer.DiscoverAllBudsFromDisk().ReturnsForAnyArgs(buds);
-        _budsValidator.RemoveInvalidBuds(buds)
-            .ReturnsForAnyArgs(buds.ToDictionary(bud => bud.BudManifest.BudId, bud => bud));
+        Dictionary<string, BudInfo> validBuds = buds.ToDictionary(bud => bud.BudManifest.BudId, bud => bud);
+        _budsValidator.RemoveInvalidBuds(buds).ReturnsForAnyArgs(validBuds);
         _budsDependencySorter.SortBudsTopologicallyFromDependencyGraph(null!).ReturnsForAnyArgs(buds);
         _budsLoadOrderEnumerator.EnumerateBudsWithFulfilledDependencies(null!).ReturnsForAnyArgs(buds);
         _assemblyLoader.LoadFromPath(null!).ThrowsForAnyArgs(exception);
 
         _sut.LoadAllBuds();
 
-        IReadOnlyList<FakeLogRecord> logs = _logger.Collector.GetSnapshot();
-        logs.Should().ContainSingle();
-        logs[0].Exception.Should().Be(exception);
+        TestUtility.AssertErrorLogs(_logger, 1, exception.Message);
 
         _budsDiscoverer.Received(1).DiscoverAllBudsFromDisk();
         _budsValidator.Received(1).RemoveInvalidBuds(buds);
-        _budsDependencySorter.ReceivedWithAnyArgs(1).SortBudsTopologicallyFromDependencyGraph(null!);
-        _budsLoadOrderEnumerator.ReceivedWithAnyArgs(1).EnumerateBudsWithFulfilledDependencies(null!);
-        _budsLoadOrderEnumerator.ReceivedWithAnyArgs(1).MarkBudAsFailedDuringLoad(null!);
-        _assemblyLoader.ReceivedWithAnyArgs(1).LoadFromPath(null!);
+        _budsDependencySorter.Received(1).SortBudsTopologicallyFromDependencyGraph(validBuds);
+        _budsLoadOrderEnumerator.Received(1).EnumerateBudsWithFulfilledDependencies(buds);
+        _budsLoadOrderEnumerator.Received(1).MarkBudAsFailedDuringLoad(buds[0]);
+        _assemblyLoader.Received(1).LoadFromPath(Path.Combine(BudsPath, budId, $"{budId}.dll"));
         _loggerFactory.DidNotReceiveWithAnyArgs().CreateLogger(null!);
         _venusFactory.DidNotReceiveWithAnyArgs().CreateVenusForBud(null!);
         _budConfigManager.DidNotReceiveWithAnyArgs().GetConfigPathForBud(null!);
@@ -207,8 +193,8 @@ public sealed class BudLoaderTests
         BudInfo[] buds = [CreateBud(budId, exceptionThrowMethod)];
 
         _budsDiscoverer.DiscoverAllBudsFromDisk().ReturnsForAnyArgs(buds);
-        _budsValidator.RemoveInvalidBuds(buds)
-            .ReturnsForAnyArgs(buds.ToDictionary(bud => bud.BudManifest.BudId, bud => bud));
+        Dictionary<string, BudInfo> validBuds = buds.ToDictionary(bud => bud.BudManifest.BudId, bud => bud);
+        _budsValidator.RemoveInvalidBuds(buds).ReturnsForAnyArgs(validBuds);
         _budsDependencySorter.SortBudsTopologicallyFromDependencyGraph(null!).ReturnsForAnyArgs(buds);
         _budsLoadOrderEnumerator.EnumerateBudsWithFulfilledDependencies(null!).ReturnsForAnyArgs(buds);
         _assemblyLoader.LoadFromPath(null!).ReturnsForAnyArgs(x =>
@@ -223,12 +209,12 @@ public sealed class BudLoaderTests
 
         _budsDiscoverer.Received(1).DiscoverAllBudsFromDisk();
         _budsValidator.Received(1).RemoveInvalidBuds(buds);
-        _budsDependencySorter.ReceivedWithAnyArgs(1).SortBudsTopologicallyFromDependencyGraph(null!);
-        _budsLoadOrderEnumerator.ReceivedWithAnyArgs(1).EnumerateBudsWithFulfilledDependencies(null!);
-        _budsLoadOrderEnumerator.ReceivedWithAnyArgs(1).MarkBudAsFailedDuringLoad(null!);
-        _assemblyLoader.ReceivedWithAnyArgs(1).LoadFromPath(null!);
-        _loggerFactory.ReceivedWithAnyArgs(1).CreateLogger(null!);
-        _venusFactory.ReceivedWithAnyArgs(1).CreateVenusForBud(null!);
+        _budsDependencySorter.Received(1).SortBudsTopologicallyFromDependencyGraph(validBuds);
+        _budsLoadOrderEnumerator.Received(1).EnumerateBudsWithFulfilledDependencies(buds);
+        _budsLoadOrderEnumerator.Received(1).MarkBudAsFailedDuringLoad(buds[0]);
+        _assemblyLoader.Received(1).LoadFromPath(Path.Combine(BudsPath, budId, $"{budId}.dll"));
+        _loggerFactory.Received(1).CreateLogger(budId);
+        _venusFactory.Received(1).CreateVenusForBud(budId);
         _budConfigManager.DidNotReceiveWithAnyArgs().GetConfigPathForBud(null!);
         _budConfigManager.DidNotReceiveWithAnyArgs().Save(null!, null!, null!, null!);
         _budConfigManager.DidNotReceiveWithAnyArgs().Load(null!, null!);
@@ -247,8 +233,8 @@ public sealed class BudLoaderTests
         BudInfo[] buds = [CreateBud(budId, exceptionThrowMethod)];
 
         _budsDiscoverer.DiscoverAllBudsFromDisk().ReturnsForAnyArgs(buds);
-        _budsValidator.RemoveInvalidBuds(buds)
-            .ReturnsForAnyArgs(buds.ToDictionary(bud => bud.BudManifest.BudId, bud => bud));
+        Dictionary<string, BudInfo> validBuds = buds.ToDictionary(bud => bud.BudManifest.BudId, bud => bud);
+        _budsValidator.RemoveInvalidBuds(buds).ReturnsForAnyArgs(validBuds);
         _budsDependencySorter.SortBudsTopologicallyFromDependencyGraph(null!).ReturnsForAnyArgs(buds);
         _budsLoadOrderEnumerator.EnumerateBudsWithFulfilledDependencies(null!).ReturnsForAnyArgs(buds);
         _assemblyLoader.LoadFromPath(null!).ReturnsForAnyArgs(x =>
@@ -265,12 +251,12 @@ public sealed class BudLoaderTests
 
         _budsDiscoverer.Received(1).DiscoverAllBudsFromDisk();
         _budsValidator.Received(1).RemoveInvalidBuds(buds);
-        _budsDependencySorter.ReceivedWithAnyArgs(1).SortBudsTopologicallyFromDependencyGraph(null!);
-        _budsLoadOrderEnumerator.ReceivedWithAnyArgs(1).EnumerateBudsWithFulfilledDependencies(null!);
+        _budsDependencySorter.Received(1).SortBudsTopologicallyFromDependencyGraph(validBuds);
+        _budsLoadOrderEnumerator.Received(1).EnumerateBudsWithFulfilledDependencies(buds);
         _budsLoadOrderEnumerator.DidNotReceiveWithAnyArgs().MarkBudAsFailedDuringLoad(null!);
-        _assemblyLoader.ReceivedWithAnyArgs(1).LoadFromPath(null!);
-        _loggerFactory.ReceivedWithAnyArgs(1).CreateLogger(null!);
-        _venusFactory.ReceivedWithAnyArgs(1).CreateVenusForBud(null!);
+        _assemblyLoader.Received(1).LoadFromPath(Path.Combine(BudsPath, budId, $"{budId}.dll"));
+        _loggerFactory.Received(1).CreateLogger(budId);
+        _venusFactory.Received(1).CreateVenusForBud(budId);
         _budConfigManager.DidNotReceiveWithAnyArgs().GetConfigPathForBud(null!);
         _budConfigManager.DidNotReceiveWithAnyArgs().Save(null!, null!, null!, null!);
         _budConfigManager.DidNotReceiveWithAnyArgs().Load(null!, null!);
@@ -297,8 +283,8 @@ public sealed class BudLoaderTests
         BudInfo[] buds = [CreateBud(budId, exceptionThrowMethod, defaultConfigGetter)];
 
         _budsDiscoverer.DiscoverAllBudsFromDisk().ReturnsForAnyArgs(buds);
-        _budsValidator.RemoveInvalidBuds(buds)
-            .ReturnsForAnyArgs(buds.ToDictionary(bud => bud.BudManifest.BudId, bud => bud));
+        Dictionary<string, BudInfo> validBuds = buds.ToDictionary(bud => bud.BudManifest.BudId, bud => bud);
+        _budsValidator.RemoveInvalidBuds(buds).ReturnsForAnyArgs(validBuds);
         _budsDependencySorter.SortBudsTopologicallyFromDependencyGraph(null!).ReturnsForAnyArgs(buds);
         _budsLoadOrderEnumerator.EnumerateBudsWithFulfilledDependencies(null!).ReturnsForAnyArgs(buds);
         _assemblyLoader.LoadFromPath(null!).ReturnsForAnyArgs(x =>
@@ -316,17 +302,16 @@ public sealed class BudLoaderTests
 
         _budsDiscoverer.Received(1).DiscoverAllBudsFromDisk();
         _budsValidator.Received(1).RemoveInvalidBuds(buds);
-        _budsDependencySorter.ReceivedWithAnyArgs(1).SortBudsTopologicallyFromDependencyGraph(null!);
-        _budsLoadOrderEnumerator.ReceivedWithAnyArgs(1).EnumerateBudsWithFulfilledDependencies(null!);
+        _budsDependencySorter.Received(1).SortBudsTopologicallyFromDependencyGraph(validBuds);
+        _budsLoadOrderEnumerator.Received(1).EnumerateBudsWithFulfilledDependencies(buds);
         _budsLoadOrderEnumerator.DidNotReceiveWithAnyArgs().MarkBudAsFailedDuringLoad(null!);
-        _assemblyLoader.ReceivedWithAnyArgs(1).LoadFromPath(null!);
-        _loggerFactory.ReceivedWithAnyArgs(1).CreateLogger(null!);
-        _venusFactory.ReceivedWithAnyArgs(1).CreateVenusForBud(null!);
-        _budConfigManager.ReceivedWithAnyArgs(1).GetConfigPathForBud(null!);
-        _budConfigManager.ReceivedWithAnyArgs(1).Save(null!, null!, null!, null!);
+        _assemblyLoader.Received(1).LoadFromPath(Path.Combine(BudsPath, budId, $"{budId}.dll"));
+        _loggerFactory.Received(1).CreateLogger(budId);
+        _venusFactory.Received(1).CreateVenusForBud(budId);
+        _budConfigManager.Received(1).GetConfigPathForBud(budId);
+        _budConfigManager.Received(1).Save(budId, typeof(DefaultConfigTest), Arg.Any<object>(), Arg.Any<object>());
         _budConfigManager.DidNotReceiveWithAnyArgs().Load(null!, null!);
     }
-
 
     [Fact]
     public void LoadAllBuds_LoadBudAndLoadConfigFile_WhenBudLoadSuccessfullyAndHasConfigFile()
@@ -341,8 +326,8 @@ public sealed class BudLoaderTests
         BudInfo[] buds = [CreateBud(budId, exceptionThrowMethod, defaultConfigGetter)];
 
         _budsDiscoverer.DiscoverAllBudsFromDisk().ReturnsForAnyArgs(buds);
-        _budsValidator.RemoveInvalidBuds(buds)
-            .ReturnsForAnyArgs(buds.ToDictionary(bud => bud.BudManifest.BudId, bud => bud));
+        Dictionary<string, BudInfo> validBuds = buds.ToDictionary(bud => bud.BudManifest.BudId, bud => bud);
+        _budsValidator.RemoveInvalidBuds(buds).ReturnsForAnyArgs(validBuds);
         _budsDependencySorter.SortBudsTopologicallyFromDependencyGraph(null!).ReturnsForAnyArgs(buds);
         _budsLoadOrderEnumerator.EnumerateBudsWithFulfilledDependencies(null!).ReturnsForAnyArgs(buds);
         _assemblyLoader.LoadFromPath(null!).ReturnsForAnyArgs(x =>
@@ -361,15 +346,15 @@ public sealed class BudLoaderTests
 
         _budsDiscoverer.Received(1).DiscoverAllBudsFromDisk();
         _budsValidator.Received(1).RemoveInvalidBuds(buds);
-        _budsDependencySorter.ReceivedWithAnyArgs(1).SortBudsTopologicallyFromDependencyGraph(null!);
-        _budsLoadOrderEnumerator.ReceivedWithAnyArgs(1).EnumerateBudsWithFulfilledDependencies(null!);
+        _budsDependencySorter.Received(1).SortBudsTopologicallyFromDependencyGraph(validBuds);
+        _budsLoadOrderEnumerator.Received(1).EnumerateBudsWithFulfilledDependencies(buds);
         _budsLoadOrderEnumerator.DidNotReceiveWithAnyArgs().MarkBudAsFailedDuringLoad(null!);
-        _assemblyLoader.ReceivedWithAnyArgs(1).LoadFromPath(null!);
-        _loggerFactory.ReceivedWithAnyArgs(1).CreateLogger(null!);
-        _venusFactory.ReceivedWithAnyArgs(1).CreateVenusForBud(null!);
-        _budConfigManager.ReceivedWithAnyArgs(1).GetConfigPathForBud(null!);
-        _budConfigManager.ReceivedWithAnyArgs(1).Save(null!, null!, null!, null!);
-        _budConfigManager.ReceivedWithAnyArgs(1).Load(null!, null!);
+        _assemblyLoader.Received(1).LoadFromPath(Path.Combine(BudsPath, budId, $"{budId}.dll"));
+        _loggerFactory.Received(1).CreateLogger(budId);
+        _venusFactory.Received(1).CreateVenusForBud(budId);
+        _budConfigManager.Received(1).GetConfigPathForBud(budId);
+        _budConfigManager.Received(1).Save(budId, typeof(DefaultConfigTest), Arg.Any<object>(), Arg.Any<object>());
+        _budConfigManager.Received(1).Load(budId, typeof(DefaultConfigTest));
     }
 
     private BudInfo CreateBud(string budId, MethodInfo mainMethod, MethodInfo? defaultConfigGetter = null)

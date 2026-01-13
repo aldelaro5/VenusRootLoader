@@ -16,7 +16,7 @@ namespace VenusRootLoader.Build.Tasks;
 public sealed class GenerateBudManifest : Task
 {
     [Required]
-    public required string AssemblyPath { get; set; }
+    public required string AssemblyFile { get; set; }
 
     [Required]
     public required string BudId { get; set; }
@@ -41,9 +41,9 @@ public sealed class GenerateBudManifest : Task
 
     public override bool Execute()
     {
-        string outputPath = Path.GetDirectoryName(AssemblyPath)!;
+        string outputPath = Path.GetDirectoryName(AssemblyFile)!;
         if (outputPath is null)
-            throw new Exception($"{AssemblyPath} has no parent directory");
+            throw new Exception($"{AssemblyFile} has no parent directory");
         if (!NuGetVersion.TryParse(BudVersion, out NuGetVersion? version))
             throw new Exception($"{BudVersion} is not a valid version");
         if (BudDependencies.Any(d => d.ItemSpec == BudId))
@@ -105,7 +105,7 @@ public sealed class GenerateBudManifest : Task
 
             BudManifest manifest = new()
             {
-                AssemblyName = Path.GetFileName(AssemblyPath),
+                AssemblyFile = Path.GetFileName(AssemblyFile),
                 BudId = BudId,
                 BudName = BudName,
                 BudVersion = version,

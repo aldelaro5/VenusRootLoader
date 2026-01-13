@@ -174,7 +174,7 @@ public sealed class BudsDiscovererTests
 
         IList<BudInfo> buds = _sut.DiscoverAllBudsFromDisk();
 
-        TestUtility.AssertErrorLogs(_logger, 1, $"{nameof(BudManifest.AssemblyName)} is not specified");
+        TestUtility.AssertErrorLogs(_logger, 1, $"{nameof(BudManifest.AssemblyFile)} is not specified");
 
         buds.Should().ContainSingle();
         buds[0].BudAssemblyPath.Should().Be(Path.Combine(BudsPath, "b", "b.dll"));
@@ -541,7 +541,7 @@ public sealed class BudsDiscovererTests
 
         BudManifest budManifest = new()
         {
-            AssemblyName = emptyAssemblyFileName ? "" : $"{budId}.dll",
+            AssemblyFile = emptyAssemblyFileName ? "" : $"{budId}.dll",
             BudId = emptyBudId ? "" : budId,
             BudName = emptyBudName ? "" : $"{budId} name",
             BudVersion = nullBudVersion ? null! : new(1, 0, 0),

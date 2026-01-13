@@ -4,7 +4,7 @@ namespace VenusRootLoader.Build.Tasks;
 
 internal sealed class BudManifest
 {
-    public required string AssemblyName { get; init; }
+    public required string AssemblyFile { get; init; }
     public required string BudId { get; init; }
     public required string BudName { get; init; }
     public required NuGetVersion BudVersion { get; init; }

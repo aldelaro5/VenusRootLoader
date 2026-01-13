@@ -16,7 +16,7 @@ public sealed class GenerateBudManifestTests
     {
         GenerateBudManifest sut = new()
         {
-            AssemblyPath = Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()),
+            AssemblyFile = Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()),
             BudId = "budId",
             BudName = "bud name",
             BudVersion = "1.0.0",
@@ -28,7 +28,7 @@ public sealed class GenerateBudManifestTests
 
         Func<bool> execute = () => sut.Execute();
 
-        execute.Should().Throw<Exception>().WithMessage($"{sut.AssemblyPath} has no parent directory");
+        execute.Should().Throw<Exception>().WithMessage($"{sut.AssemblyFile} has no parent directory");
     }
 
     [Fact]
@@ -36,7 +36,7 @@ public sealed class GenerateBudManifestTests
     {
         GenerateBudManifest sut = new()
         {
-            AssemblyPath = "bud.dll",
+            AssemblyFile = "bud.dll",
             BudId = "budId",
             BudName = "bud name",
             BudVersion = "some nonsense version",
@@ -62,7 +62,7 @@ public sealed class GenerateBudManifestTests
 
         GenerateBudManifest sut = new()
         {
-            AssemblyPath = "bud.dll",
+            AssemblyFile = "bud.dll",
             BudId = "budId",
             BudName = "bud name",
             BudVersion = "1.0.0",
@@ -85,7 +85,7 @@ public sealed class GenerateBudManifestTests
 
         GenerateBudManifest sut = new()
         {
-            AssemblyPath = "bud.dll",
+            AssemblyFile = "bud.dll",
             BudId = "budId",
             BudName = "bud name",
             BudVersion = "1.0.0",
@@ -108,7 +108,7 @@ public sealed class GenerateBudManifestTests
 
         GenerateBudManifest sut = new()
         {
-            AssemblyPath = "bud.dll",
+            AssemblyFile = "bud.dll",
             BudId = "budId",
             BudName = "bud name",
             BudVersion = "1.0.0",
@@ -135,7 +135,7 @@ public sealed class GenerateBudManifestTests
 
         GenerateBudManifest sut = new()
         {
-            AssemblyPath = "bud.dll",
+            AssemblyFile = "bud.dll",
             BudId = "budId",
             BudName = "bud name",
             BudVersion = "1.0.0",
@@ -162,7 +162,7 @@ public sealed class GenerateBudManifestTests
 
         GenerateBudManifest sut = new()
         {
-            AssemblyPath = "bud.dll",
+            AssemblyFile = "bud.dll",
             BudId = "budId",
             BudName = "bud name",
             BudVersion = "1.0.0",
@@ -203,7 +203,7 @@ public sealed class GenerateBudManifestTests
         string budAssembly = Path.Combine(Path.GetTempPath(), "bud.dll");
         GenerateBudManifest sut = new()
         {
-            AssemblyPath = budAssembly,
+            AssemblyFile = budAssembly,
             BudId = "budId",
             BudName = "bud name",
             BudVersion = "1.0.0",
@@ -235,7 +235,7 @@ public sealed class GenerateBudManifestTests
         manifest.Should().NotBeNull();
 
         using AssertionScope scope = new();
-        manifest.AssemblyName.Should().Be(Path.GetFileName(sut.AssemblyPath));
+        manifest.AssemblyFile.Should().Be(Path.GetFileName(sut.AssemblyFile));
         manifest.BudId.Should().Be(sut.BudId);
         manifest.BudName.Should().Be(sut.BudName);
         manifest.BudVersion.ToNormalizedString().Should().Be("1.0.0");

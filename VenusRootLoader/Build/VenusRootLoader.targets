@@ -4,7 +4,7 @@
 
     <Target Name="GenerateBudManifest" BeforeTargets="Build">
         <GenerateBudManifest
-                AssemblyPath="$(TargetPath)"
+                AssemblyFile="$(TargetPath)"
                 BudId="$(BudId)"
                 BudName="$(BudName)"
                 BudVersion="$(BudVersion)"

@@ -57,7 +57,7 @@ internal sealed class BudsDiscoverer : IBudsDiscoverer
 
                 EnsureBudManifestIsValid(budManifest);
 
-                string budAssemblyPath = _fileSystem.Path.Combine(budDirectory, budManifest.AssemblyName);
+                string budAssemblyPath = _fileSystem.Path.Combine(budDirectory, budManifest.AssemblyFile);
                 if (!_fileSystem.File.Exists(budAssemblyPath))
                     throw new FileNotFoundException("The bud assembly file does not exist", budAssemblyPath);
 
@@ -97,8 +97,8 @@ internal sealed class BudsDiscoverer : IBudsDiscoverer
 
     private static void EnsureBudManifestIsValid(BudManifest budManifest)
     {
-        if (string.IsNullOrWhiteSpace(budManifest.AssemblyName))
-            throw new Exception($"{nameof(budManifest.AssemblyName)} is not specified");
+        if (string.IsNullOrWhiteSpace(budManifest.AssemblyFile))
+            throw new Exception($"{nameof(budManifest.AssemblyFile)} is not specified");
         if (string.IsNullOrWhiteSpace(budManifest.BudId))
             throw new Exception($"{nameof(budManifest.BudId)} is not specified");
         if (string.IsNullOrWhiteSpace(budManifest.BudName))

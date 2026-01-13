@@ -425,7 +425,7 @@ public sealed class BudLoaderTests
         {
             BudManifest = new()
             {
-                AssemblyName = assemblyName,
+                AssemblyFile = assemblyName,
                 BudId = budId,
                 BudName = $"{budId} name",
                 BudVersion = new(1, 0, 0),

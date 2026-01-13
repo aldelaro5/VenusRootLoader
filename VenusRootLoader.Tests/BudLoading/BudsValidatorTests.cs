@@ -26,7 +26,7 @@ public sealed class BudsValidatorTests
             {
                 BudManifest = new()
                 {
-                    AssemblyName = "a",
+                    AssemblyFile = "a",
                     BudId = "a",
                     BudName = "a",
                     BudVersion = new(1, 0, 0),
@@ -41,7 +41,7 @@ public sealed class BudsValidatorTests
             {
                 BudManifest = new()
                 {
-                    AssemblyName = "b",
+                    AssemblyFile = "b",
                     BudId = "b",
                     BudName = "b",
                     BudVersion = new(1, 0, 0),
@@ -56,7 +56,7 @@ public sealed class BudsValidatorTests
             {
                 BudManifest = new()
                 {
-                    AssemblyName = "c",
+                    AssemblyFile = "c",
                     BudId = "c",
                     BudName = "c",
                     BudVersion = new(1, 0, 0),
@@ -87,7 +87,7 @@ public sealed class BudsValidatorTests
             {
                 BudManifest = new()
                 {
-                    AssemblyName = "a",
+                    AssemblyFile = "a",
                     BudId = budDuplicatedId,
                     BudName = "a",
                     BudVersion = new(1, 0, 0),
@@ -102,7 +102,7 @@ public sealed class BudsValidatorTests
             {
                 BudManifest = new()
                 {
-                    AssemblyName = "b",
+                    AssemblyFile = "b",
                     BudId = budDuplicatedId,
                     BudName = "b",
                     BudVersion = new(2, 0, 0),
@@ -117,7 +117,7 @@ public sealed class BudsValidatorTests
             {
                 BudManifest = new()
                 {
-                    AssemblyName = "c",
+                    AssemblyFile = "c",
                     BudId = "DifferentId",
                     BudName = "c",
                     BudVersion = new(1, 0, 0),
@@ -153,7 +153,7 @@ public sealed class BudsValidatorTests
             {
                 BudManifest = new()
                 {
-                    AssemblyName = "a",
+                    AssemblyFile = "a",
                     BudId = "a",
                     BudName = "a",
                     BudVersion = new(1, 5, 0),
@@ -175,7 +175,7 @@ public sealed class BudsValidatorTests
             {
                 BudManifest = new()
                 {
-                    AssemblyName = "b",
+                    AssemblyFile = "b",
                     BudId = "b",
                     BudName = "b",
                     BudVersion = new(1, 5, 0),
@@ -197,7 +197,7 @@ public sealed class BudsValidatorTests
             {
                 BudManifest = new()
                 {
-                    AssemblyName = "c",
+                    AssemblyFile = "c",
                     BudId = "c",
                     BudName = "c",
                     BudVersion = new(1, 5, 0),

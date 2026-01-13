@@ -101,7 +101,7 @@ public sealed class BudsDependencySorterTests
         {
             BudManifest = new()
             {
-                AssemblyName = budId,
+                AssemblyFile = budId,
                 BudId = budId,
                 BudName = "name",
                 BudVersion = new(1, 0, 0),

@@ -1,7 +1,7 @@
 using Microsoft.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("VenusRootLoader.Analyzers.CodeFixes")]
+[assembly: InternalsVisibleTo("VenusRootLoader.Analyzers.Tests")]
 
 namespace VenusRootLoader.Analyzers;
 

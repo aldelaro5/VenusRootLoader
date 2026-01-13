@@ -4,6 +4,7 @@
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
         <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+        <NoWarn>NU1701;NU1702;MSB3277</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
@@ -25,6 +26,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\VenusRootLoader.Analyzers\VenusRootLoader.Analyzers.csproj" />
+        <ProjectReference Include="..\VenusRootLoader\VenusRootLoader.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

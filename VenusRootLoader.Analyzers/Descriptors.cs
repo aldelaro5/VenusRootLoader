@@ -28,14 +28,4 @@ internal static class Descriptors
         isEnabledByDefault: true,
         customTags: WellKnownDiagnosticTags.CompilationEnd,
         description: $"Only one class per bud assembly can derive from {BudClassAnalyzer.BudClassName}.");
-
-    internal static readonly DiagnosticDescriptor Vrl0003BudClassIsNotSealed = new(
-        "VRL0003",
-        "Bud class is not sealed",
-        "The bud class should be sealed",
-        Category,
-        DiagnosticSeverity.Warning,
-        isEnabledByDefault: true,
-        customTags: WellKnownDiagnosticTags.CompilationEnd,
-        description: "Deriving the bud class isn't beneficial and it is thus recommended to seal it.");
 }

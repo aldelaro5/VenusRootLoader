@@ -14,8 +14,7 @@ public class BudClassAnalyzer : DiagnosticAnalyzer
         // ReSharper disable once UseCollectionExpression
         ImmutableArray.Create(
             Descriptors.Vrl0001NoBudClass,
-            Descriptors.Vrl0002MoreThanOneBudClass,
-            Descriptors.Vrl0003BudClassIsNotSealed);
+            Descriptors.Vrl0002MoreThanOneBudClass);
 
     private static bool IsBudClass(INamedTypeSymbol type) =>
         type is { TypeKind: TypeKind.Class, IsAbstract: false, IsStatic: false }
@@ -26,21 +25,7 @@ public class BudClassAnalyzer : DiagnosticAnalyzer
         analysisContext.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze);
         analysisContext.EnableConcurrentExecution();
 
-        analysisContext.RegisterSymbolAction(AnalyseSymbol, SymbolKind.NamedType);
         analysisContext.RegisterCompilationStartAction(CompilerStartAction);
-    }
-
-    private static void AnalyseSymbol(SymbolAnalysisContext context)
-    {
-        INamedTypeSymbol type = (INamedTypeSymbol)context.Symbol;
-        if (!IsBudClass(type) || type.IsSealed)
-            return;
-
-        Diagnostic diagnostic = Diagnostic.Create(
-            Descriptors.Vrl0003BudClassIsNotSealed,
-            type.Locations[0],
-            type.Locations.Skip(1));
-        context.ReportDiagnostic(diagnostic);
     }
 
     private static void CompilerStartAction(CompilationStartAnalysisContext startContext)

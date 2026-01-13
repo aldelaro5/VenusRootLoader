@@ -1,8 +1,11 @@
 ﻿using Microsoft.Build.Framework;
 using NuGet.Versioning;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using VenusRootLoader.Build.Tasks.JsonConverters;
 using Task = Microsoft.Build.Utilities.Task;
+
+[assembly: InternalsVisibleTo("VenusRootLoader.Build.Tasks.Tests")]
 
 // ReSharper disable UnusedType.Global
 // ReSharper disable MemberCanBePrivate.Global

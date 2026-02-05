@@ -1,25 +1,41 @@
+using UnityEngine;
+using VenusRootLoader.Unity;
+
 namespace VenusRootLoader.Api.Leaves;
 
-internal sealed class MedalLeaf : ILeaf
+public sealed class MedalLeaf : ILeaf
 {
-    internal sealed class MedalEffect
+    public sealed class MedalEffect
     {
-        internal MainManager.BadgeEffects Effect { get; set; }
-        internal int Value { get; set; }
+        public MainManager.BadgeEffects Effect { get; set; }
+        public int Value { get; set; }
     }
+
+    public sealed class MedalLanguageData
+    {
+        public string Name { get; set; } = "<NO NAME>";
+        public string Description { get; set; } = "<NO DESCRIPTION>";
+        public string Prepender { get; set; } = "<NO PREPENDER>";
+    }
+
+    internal WrappedSprite WrappedSprite = new();
 
     public int GameId { get; init; }
     public string NamedId { get; init; } = "";
     public string CreatorId { get; init; } = "";
 
-    internal Dictionary<int, string> Name { get; set; } = new();
-    internal Dictionary<int, string> Description { get; set; } = new();
-    internal Dictionary<int, string> Prepender { get; set; } = new();
-
-    internal int MpCost { get; set; }
-    internal bool IsPartyEquip { get; set; }
-    internal List<MedalEffect> Effects { get; } = new();
-    internal int BuyingPriceRegularBerries { get; set; }
-    internal int BuyingPriceCrystalBerries { get; set; }
     internal int Items1SpriteIndex { get; set; } = -1;
+
+    public int MpCost { get; set; }
+    public bool IsPartyEquip { get; set; }
+    public List<MedalEffect> Effects { get; } = new();
+    public int BuyingPriceRegularBerries { get; set; }
+    public int BuyingPriceCrystalBerries { get; set; }
+    public Dictionary<int, MedalLanguageData> LanguageData { get; } = new();
+
+    public Sprite Sprite
+    {
+        get => WrappedSprite.Sprite;
+        set => WrappedSprite.Sprite = value;
+    }
 }

@@ -9,12 +9,25 @@ internal sealed class MedalLocalizedTextAssetParser : ILocalizedTextAssetSeriali
 {
     public string GetTextAssetSerializedString(string subPath, int languageId, MedalLeaf leaf)
     {
+        MedalLeaf.MedalLanguageData? languageData = null;
+        if (leaf.LanguageData.Count == 0)
+            languageData = Activator.CreateInstance<MedalLeaf.MedalLanguageData>();
+
+        if (leaf.LanguageData.TryGetValue(languageId, out MedalLeaf.MedalLanguageData value))
+            languageData = value;
+
+        if (languageData == null)
+        {
+            int firstLanguage = leaf.LanguageData.Keys.Min();
+            languageData = leaf.LanguageData[firstLanguage];
+        }
+        
         StringBuilder sb = new();
-        sb.Append(leaf.Name[languageId]);
+        sb.Append(languageData.Name);
         sb.Append('@');
-        sb.Append(leaf.Description[languageId]);
+        sb.Append(languageData.Description);
         sb.Append('@');
-        sb.Append(leaf.Prepender[languageId]);
+        sb.Append(languageData.Prepender);
 
         return sb.ToString();
     }
@@ -22,8 +35,11 @@ internal sealed class MedalLocalizedTextAssetParser : ILocalizedTextAssetSeriali
     public void FromTextAssetSerializedString(string subPath, int languageId, string text, MedalLeaf leaf)
     {
         string[] fields = text.Split(StringUtils.AtSymbolSplitDelimiter);
-        leaf.Name[languageId] = fields[0];
-        leaf.Description[languageId] = fields[1];
-        leaf.Prepender[languageId] = fields[2];
+        leaf.LanguageData[languageId] = new()
+        {
+            Name = fields[0],
+            Description = fields[1],
+            Prepender = fields[2]
+        };
     }
 }

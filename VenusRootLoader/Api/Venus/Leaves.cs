@@ -16,6 +16,15 @@ public partial class Venus
     public IReadOnlyCollection<ItemLeaf> GetAllItems() =>
         _registryResolver.Resolve<ItemLeaf>().GetAll();
 
+    public MedalLeaf RegisterMedal(string namedId) =>
+        _registryResolver.Resolve<MedalLeaf>().RegisterNew(namedId, _budId);
+
+    public MedalLeaf GetMedal(string namedId) =>
+        _registryResolver.Resolve<MedalLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<MedalLeaf> GetAllMedals() =>
+        _registryResolver.Resolve<MedalLeaf>().GetAll();
+
     public RecipeLeaf RegisterRecipe(string namedId) =>
         _registryResolver.Resolve<RecipeLeaf>().RegisterNew(namedId, _budId);
 

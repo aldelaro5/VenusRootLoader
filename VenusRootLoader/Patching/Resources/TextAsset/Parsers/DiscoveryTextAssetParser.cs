@@ -1,7 +1,6 @@
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Patching.Resources.TextAsset;
 
-namespace VenusRootLoader.TextAssetParsers;
+namespace VenusRootLoader.Patching.Resources.TextAsset.Parsers;
 
 // TODO: Figure out the ordering, just has "GameId,EnemyPortraitsSpriteIndex" per discovery
 internal sealed class DiscoveryTextAssetParser : ITextAssetParser<DiscoveryLeaf>

@@ -13,8 +13,8 @@ using VenusRootLoader.Patching;
 using VenusRootLoader.Patching.Logic;
 using VenusRootLoader.Patching.Resources;
 using VenusRootLoader.Patching.Resources.TextAsset;
+using VenusRootLoader.Patching.Resources.TextAsset.Parsers;
 using VenusRootLoader.Registry;
-using VenusRootLoader.TextAssetParsers;
 using VenusRootLoader.Unity;
 
 namespace VenusRootLoader;

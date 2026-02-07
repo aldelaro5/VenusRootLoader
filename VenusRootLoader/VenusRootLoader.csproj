@@ -77,10 +77,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="TextAssetParsers\Entities\**"/>
-        <Compile Remove="TextAssetParsers\DialoguesLines\**"/>
-        <Compile Remove="TextAssetParsers\FortuneTellerLines\**"/>
-        <Compile Remove="TextAssetParsers\Miscellaneous\**"/>
+        <Compile Remove="Patching\Resources\TextAsset\Parsers\DialoguesLines\**"/>
+        <Compile Remove="Patching\Resources\TextAsset\Parsers\Entities\**"/>
+        <Compile Remove="Patching\Resources\TextAsset\Parsers\FortuneTellerLines\**"/>
+        <Compile Remove="Patching\Resources\TextAsset\Parsers\Miscellaneous\**"/>
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="Build">

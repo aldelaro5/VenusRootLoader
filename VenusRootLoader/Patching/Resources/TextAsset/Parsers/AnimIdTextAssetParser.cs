@@ -1,10 +1,9 @@
 using System.Text;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Patching.Resources.TextAsset;
 using VenusRootLoader.Utility;
 
-namespace VenusRootLoader.TextAssetParsers;
+namespace VenusRootLoader.Patching.Resources.TextAsset.Parsers;
 
 internal sealed class AnimIdTextAssetParser : ITextAssetParser<AnimIdLeaf>
 {

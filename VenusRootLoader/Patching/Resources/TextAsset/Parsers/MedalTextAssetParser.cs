@@ -1,10 +1,9 @@
 using System.Text;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Extensions;
-using VenusRootLoader.Patching.Resources.TextAsset;
 using VenusRootLoader.Utility;
 
-namespace VenusRootLoader.TextAssetParsers;
+namespace VenusRootLoader.Patching.Resources.TextAsset.Parsers;
 
 // TODO: Do the ordering data, it's just game id, one per line
 internal sealed class MedalTextAssetParser : ITextAssetParser<MedalLeaf>

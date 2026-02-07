@@ -1,8 +1,7 @@
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Patching.Resources.TextAsset;
 using VenusRootLoader.Registry;
 
-namespace VenusRootLoader.TextAssetParsers;
+namespace VenusRootLoader.Patching.Resources.TextAsset.Parsers;
 
 internal sealed class MedalOrderingTextAssetParser : IOrderingTextAssetParser<MedalLeaf>
 {

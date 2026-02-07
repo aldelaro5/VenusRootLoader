@@ -1,7 +1,6 @@
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Patching.Resources.TextAsset;
 
-namespace VenusRootLoader.TextAssetParsers;
+namespace VenusRootLoader.Patching.Resources.TextAsset.Parsers;
 
 internal sealed class ActionCommandTextAssetParser : ILocalizedTextAssetParser<ActionCommandLeaf>
 {

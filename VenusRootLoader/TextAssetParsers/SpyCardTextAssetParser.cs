@@ -6,7 +6,7 @@ using VenusRootLoader.Utility;
 namespace VenusRootLoader.TextAssetParsers;
 
 // TODO: Handle ordering which is game id, one per line
-internal sealed class SpyCardTextAssetParser : ITextAssetSerializable<SpyCardLeaf>
+internal sealed class SpyCardTextAssetParser : ITextAssetParser<SpyCardLeaf>
 {
     public string GetTextAssetSerializedString(string subPath, SpyCardLeaf leaf)
     {

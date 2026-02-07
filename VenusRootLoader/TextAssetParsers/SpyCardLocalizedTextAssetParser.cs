@@ -5,7 +5,7 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.TextAssetParsers;
 
-internal sealed class SpyCardLocalizedTextAssetParser : ILocalizedTextAssetSerializable<SpyCardLeaf>
+internal sealed class SpyCardLocalizedTextAssetParser : ILocalizedTextAssetParser<SpyCardLeaf>
 {
     public string GetTextAssetSerializedString(string subPath, int languageId, SpyCardLeaf leaf)
     {

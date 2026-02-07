@@ -6,7 +6,7 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.TextAssetParsers;
 
-internal class SkillTextAssetParser : ITextAssetSerializable<SkillLeaf>
+internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
 {
     public string GetTextAssetSerializedString(string subPath, SkillLeaf leaf)
     {

@@ -5,7 +5,7 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.TextAssetParsers;
 
-internal sealed class TermacadePrizeTextAssetParser : ITextAssetSerializable<TermacadePrizeLeaf>
+internal sealed class TermacadePrizeTextAssetParser : ITextAssetParser<TermacadePrizeLeaf>
 {
     public string GetTextAssetSerializedString(string subPath, TermacadePrizeLeaf leaf)
     {

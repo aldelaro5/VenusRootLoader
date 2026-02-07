@@ -16,18 +16,18 @@ internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
 {
     private readonly ILeavesRegistry<T> _registry;
     private readonly ILogger<LocalizedTextAssetPatcher<T>> _logger;
-    private readonly ILocalizedTextAssetSerializable<T> _serializable;
+    private readonly ILocalizedTextAssetParser<T> _parser;
 
     public LocalizedTextAssetPatcher(
         string[] subPaths,
         ILogger<LocalizedTextAssetPatcher<T>> logger,
         ILeavesRegistry<T> registry,
-        ILocalizedTextAssetSerializable<T> serializable)
+        ILocalizedTextAssetParser<T> parser)
     {
         SubPaths = subPaths;
         _registry = registry;
         _logger = logger;
-        _serializable = serializable;
+        _parser = parser;
     }
 
     public string[] SubPaths { get; }
@@ -41,7 +41,7 @@ internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
 
         IEnumerable<string> newLines = _registry.Leaves.Values
             .OrderBy(i => i.GameId)
-            .Select(customLine => _serializable.GetTextAssetSerializedString(subpath, languageId, customLine));
+            .Select(customLine => _parser.GetTextAssetSerializedString(subpath, languageId, customLine));
 
         // Some game data relies on having a trailing LF for the parsing to work correctly
         StringBuilder sb = new(string.Join("\n", newLines));

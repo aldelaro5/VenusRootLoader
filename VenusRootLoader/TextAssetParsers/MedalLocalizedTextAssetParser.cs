@@ -5,7 +5,7 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.TextAssetParsers;
 
-internal sealed class MedalLocalizedTextAssetParser : ILocalizedTextAssetSerializable<MedalLeaf>
+internal sealed class MedalLocalizedTextAssetParser : ILocalizedTextAssetParser<MedalLeaf>
 {
     public string GetTextAssetSerializedString(string subPath, int languageId, MedalLeaf leaf)
     {

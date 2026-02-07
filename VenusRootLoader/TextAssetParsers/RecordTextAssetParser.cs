@@ -4,7 +4,7 @@ using VenusRootLoader.Patching.Resources.TextAsset;
 namespace VenusRootLoader.TextAssetParsers;
 
 // TODO: Figure out the ordering, just has "GameId,EnemyPortraitsSpriteIndex" per record
-internal sealed class RecordTextAssetParser : ITextAssetSerializable<RecordLeaf>
+internal sealed class RecordTextAssetParser : ITextAssetParser<RecordLeaf>
 {
     public string GetTextAssetSerializedString(string subPath, RecordLeaf leaf)
     {

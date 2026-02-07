@@ -22,15 +22,15 @@ internal sealed class BaseGameMedalsCollector : IBaseGameCollector
     private readonly Sprite[] _items1Sprites = Resources.LoadAll<Sprite>("Sprites/Items/Items1");
 
     private readonly ILogger<BaseGameMedalsCollector> _logger;
-    private readonly ITextAssetSerializable<MedalLeaf> _medalDataSerializer;
-    private readonly ILocalizedTextAssetSerializable<MedalLeaf> _medalLanguageDataSerializer;
+    private readonly ITextAssetParser<MedalLeaf> _medalDataSerializer;
+    private readonly ILocalizedTextAssetParser<MedalLeaf> _medalLanguageDataSerializer;
     private readonly ILeavesRegistry<MedalLeaf> _leavesRegistry;
 
     public BaseGameMedalsCollector(
         ILeavesRegistry<MedalLeaf> leavesRegistry,
         ILogger<BaseGameMedalsCollector> logger,
-        ITextAssetSerializable<MedalLeaf> medalDataSerializer,
-        ILocalizedTextAssetSerializable<MedalLeaf> medalLanguageDataSerializer)
+        ITextAssetParser<MedalLeaf> medalDataSerializer,
+        ILocalizedTextAssetParser<MedalLeaf> medalLanguageDataSerializer)
     {
         _leavesRegistry = leavesRegistry;
         _logger = logger;

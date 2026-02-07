@@ -4,7 +4,7 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.TextAssetParsers;
 
-internal sealed class RecipeTextAssetParser : ITextAssetSerializable<RecipeLeaf>
+internal sealed class RecipeTextAssetParser : ITextAssetParser<RecipeLeaf>
 {
     public string GetTextAssetSerializedString(string subPath, RecipeLeaf leaf)
     {

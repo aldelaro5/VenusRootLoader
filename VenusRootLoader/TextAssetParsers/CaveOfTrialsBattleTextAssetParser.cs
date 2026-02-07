@@ -4,7 +4,7 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.TextAssetParsers;
 
-internal sealed class CaveOfTrialsBattleTextAssetParser : ITextAssetSerializable<CaveOfTrialsBattleLeaf>
+internal sealed class CaveOfTrialsBattleTextAssetParser : ITextAssetParser<CaveOfTrialsBattleLeaf>
 {
     public string GetTextAssetSerializedString(string subPath, CaveOfTrialsBattleLeaf leaf)
         => string.Join(",", leaf.EnemyIdsInBattle);

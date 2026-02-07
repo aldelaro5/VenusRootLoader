@@ -6,7 +6,7 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.TextAssetParsers;
 
-internal sealed class RecipeLibraryEntryTextAssetPatcher : ITextAssetSerializable<RecipeLibraryEntryLeaf>
+internal sealed class RecipeLibraryEntryTextAssetPatcher : ITextAssetParser<RecipeLibraryEntryLeaf>
 {
     private const string CookOrderSubPath = "CookOrder";
     private const string CookLibrarySubPath = "CookLibrary";

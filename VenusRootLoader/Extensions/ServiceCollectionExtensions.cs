@@ -13,29 +13,29 @@ internal static class ServiceCollectionExtensions
         internal IServiceCollection AddTextAssetPatcher<TLeaf, TTextAssetParser>(
             string[] textAssetResourcesPath)
             where TLeaf : ILeaf
-            where TTextAssetParser : class, ITextAssetSerializable<TLeaf>
+            where TTextAssetParser : class, ITextAssetParser<TLeaf>
         {
-            collection.AddSingleton<ITextAssetSerializable<TLeaf>, TTextAssetParser>();
+            collection.AddSingleton<ITextAssetParser<TLeaf>, TTextAssetParser>();
             collection.AddSingleton<ITextAssetPatcher, TextAssetPatcher<TLeaf>>(provider => new(
                 textAssetResourcesPath,
                 provider.GetRequiredService<ILogger<TextAssetPatcher<TLeaf>>>(),
                 provider.GetRequiredService<ILeavesRegistry<TLeaf>>(),
-                provider.GetRequiredService<ITextAssetSerializable<TLeaf>>()));
+                provider.GetRequiredService<ITextAssetParser<TLeaf>>()));
             return collection;
         }
 
         internal IServiceCollection AddLocalizedTextAssetPatcher<TLeaf, TTextAssetParser>(
             string[] textAssetResourcesSubpath)
             where TLeaf : ILeaf
-            where TTextAssetParser : class, ILocalizedTextAssetSerializable<TLeaf>
+            where TTextAssetParser : class, ILocalizedTextAssetParser<TLeaf>
         {
-            collection.AddSingleton<ILocalizedTextAssetSerializable<TLeaf>, TTextAssetParser>();
+            collection.AddSingleton<ILocalizedTextAssetParser<TLeaf>, TTextAssetParser>();
             collection.AddSingleton<ILocalizedTextAssetPatcher, LocalizedTextAssetPatcher<TLeaf>>(provider =>
                 new(
                 textAssetResourcesSubpath,
                 provider.GetRequiredService<ILogger<LocalizedTextAssetPatcher<TLeaf>>>(),
                 provider.GetRequiredService<ILeavesRegistry<TLeaf>>(),
-                provider.GetRequiredService<ILocalizedTextAssetSerializable<TLeaf>>()));
+                provider.GetRequiredService<ILocalizedTextAssetParser<TLeaf>>()));
             return collection;
         }
     }

@@ -7,7 +7,7 @@ using VenusRootLoader.Utility;
 namespace VenusRootLoader.TextAssetParsers;
 
 // TODO: Handle bestiary ordering (just has the game id, one per line)
-internal sealed class EnemyTextAssetParser : ITextAssetSerializable<EnemyLeaf>
+internal sealed class EnemyTextAssetParser : ITextAssetParser<EnemyLeaf>
 {
     public string GetTextAssetSerializedString(string subPath, EnemyLeaf leaf)
     {

@@ -3,7 +3,7 @@ using VenusRootLoader.Patching.Resources.TextAsset;
 
 namespace VenusRootLoader.TextAssetParsers;
 
-internal sealed class MusicLocalizedTextAssetParser : ILocalizedTextAssetSerializable<MusicLeaf>
+internal sealed class MusicLocalizedTextAssetParser : ILocalizedTextAssetParser<MusicLeaf>
 {
     public string GetTextAssetSerializedString(string subPath, int languageId, MusicLeaf leaf)
         => leaf.Title[languageId];

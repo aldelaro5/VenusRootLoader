@@ -5,7 +5,7 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.TextAssetParsers;
 
-internal sealed class AreaTextAssetParser : ILocalizedTextAssetSerializable<AreaLeaf>
+internal sealed class AreaTextAssetParser : ILocalizedTextAssetParser<AreaLeaf>
 {
     private const string NameSubpath = "AreaNames";
     private const string DescriptionSubpath = "AreaDesc";

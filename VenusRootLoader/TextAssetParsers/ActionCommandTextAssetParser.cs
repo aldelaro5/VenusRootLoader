@@ -3,7 +3,7 @@ using VenusRootLoader.Patching.Resources.TextAsset;
 
 namespace VenusRootLoader.TextAssetParsers;
 
-internal sealed class ActionCommandTextAssetParser : ILocalizedTextAssetSerializable<ActionCommandLeaf>
+internal sealed class ActionCommandTextAssetParser : ILocalizedTextAssetParser<ActionCommandLeaf>
 {
     public string GetTextAssetSerializedString(string subPath, int languageId, ActionCommandLeaf leaf) =>
         leaf.Instructions[languageId];

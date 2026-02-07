@@ -4,7 +4,7 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.TextAssetParsers;
 
-internal sealed class RecordLocalizedTextAssetParser : ILocalizedTextAssetSerializable<RecordLeaf>
+internal sealed class RecordLocalizedTextAssetParser : ILocalizedTextAssetParser<RecordLeaf>
 {
     public string GetTextAssetSerializedString(string subPath, int languageId, RecordLeaf leaf)
         => $"{leaf.Name[languageId]}@{leaf.Description[languageId]}";

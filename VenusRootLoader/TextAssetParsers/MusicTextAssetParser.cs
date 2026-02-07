@@ -4,7 +4,7 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.TextAssetParsers;
 
-internal sealed class MusicTextAssetParser : ITextAssetSerializable<MusicLeaf>
+internal sealed class MusicTextAssetParser : ITextAssetParser<MusicLeaf>
 {
     public string GetTextAssetSerializedString(string subPath, MusicLeaf leaf)
         => $"{leaf.EndBoundaryInSeconds};{leaf.RestartBoundaryInSeconds}";

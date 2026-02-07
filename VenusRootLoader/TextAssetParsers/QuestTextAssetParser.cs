@@ -5,7 +5,7 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.TextAssetParsers;
 
-internal sealed class QuestTextAssetParser : ITextAssetSerializable<QuestLeaf>
+internal sealed class QuestTextAssetParser : ITextAssetParser<QuestLeaf>
 {
     private const string BoardDataSubPath = "BoardData";
     private const string QuestChecksSubPath = "QuestChecks";

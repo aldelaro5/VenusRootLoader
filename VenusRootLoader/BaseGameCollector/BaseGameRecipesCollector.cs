@@ -14,12 +14,12 @@ internal sealed class BaseGameRecipesCollector : IBaseGameCollector
 
     private readonly ILogger<BaseGameRecipesCollector> _logger;
     private readonly ILeavesRegistry<RecipeLeaf> _recipesRegistry;
-    private readonly ITextAssetSerializable<RecipeLeaf> _recipeTextAssetParser;
+    private readonly ITextAssetParser<RecipeLeaf> _recipeTextAssetParser;
 
     public BaseGameRecipesCollector(
         ILeavesRegistry<RecipeLeaf> recipesRegistry,
         ILogger<BaseGameRecipesCollector> logger,
-        ITextAssetSerializable<RecipeLeaf> recipeTextAssetParser)
+        ITextAssetParser<RecipeLeaf> recipeTextAssetParser)
     {
         _recipesRegistry = recipesRegistry;
         _logger = logger;

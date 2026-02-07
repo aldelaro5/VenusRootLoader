@@ -24,15 +24,15 @@ internal sealed class BaseGameItemsCollector : IBaseGameCollector
     private readonly Sprite[] _items1Sprites = Resources.LoadAll<Sprite>("Sprites/Items/Items1");
 
     private readonly ILogger<BaseGameItemsCollector> _logger;
-    private readonly ITextAssetSerializable<ItemLeaf> _itemDataSerializer;
-    private readonly ILocalizedTextAssetSerializable<ItemLeaf> _itemLanguageDataSerializer;
+    private readonly ITextAssetParser<ItemLeaf> _itemDataSerializer;
+    private readonly ILocalizedTextAssetParser<ItemLeaf> _itemLanguageDataSerializer;
     private readonly ILeavesRegistry<ItemLeaf> _leavesRegistry;
 
     public BaseGameItemsCollector(
         ILeavesRegistry<ItemLeaf> leavesRegistry,
         ILogger<BaseGameItemsCollector> logger,
-        ITextAssetSerializable<ItemLeaf> itemDataSerializer,
-        ILocalizedTextAssetSerializable<ItemLeaf> itemLanguageDataSerializer)
+        ITextAssetParser<ItemLeaf> itemDataSerializer,
+        ILocalizedTextAssetParser<ItemLeaf> itemLanguageDataSerializer)
     {
         _leavesRegistry = leavesRegistry;
         _logger = logger;

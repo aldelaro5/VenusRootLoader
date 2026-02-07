@@ -2,7 +2,7 @@ using VenusRootLoader.Api.Leaves;
 
 namespace VenusRootLoader.Patching.Resources.TextAsset;
 
-internal interface ITextAssetSerializable<in T>
+internal interface ITextAssetParser<in T>
     where T : ILeaf
 {
     string GetTextAssetSerializedString(string subPath, T leaf);

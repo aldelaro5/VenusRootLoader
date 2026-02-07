@@ -14,6 +14,9 @@ internal sealed class BaseGameMedalsCollector : IBaseGameCollector
         .Trim('\n')
         .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
 
+    private static readonly string MedalsOrderingData = Resources.Load<TextAsset>("Data/BadgeOrder").text
+        .Trim('\n');
+
     private static readonly Dictionary<int, string[]> MedalsLanguageData = new();
 
     private readonly string[] _badgeNamedIds = Enum.GetNames(typeof(MainManager.BadgeTypes)).ToArray();
@@ -22,27 +25,30 @@ internal sealed class BaseGameMedalsCollector : IBaseGameCollector
     private readonly Sprite[] _items1Sprites = Resources.LoadAll<Sprite>("Sprites/Items/Items1");
 
     private readonly ILogger<BaseGameMedalsCollector> _logger;
-    private readonly ITextAssetParser<MedalLeaf> _medalDataSerializer;
-    private readonly ILocalizedTextAssetParser<MedalLeaf> _medalLanguageDataSerializer;
     private readonly ILeavesRegistry<MedalLeaf> _leavesRegistry;
+    private readonly ITextAssetParser<MedalLeaf> _medalDataSerializer;
+    private readonly IOrderingTextAssetParser<MedalLeaf> _medalOrderingDataSerializer;
+    private readonly ILocalizedTextAssetParser<MedalLeaf> _medalLanguageDataSerializer;
 
     public BaseGameMedalsCollector(
         ILeavesRegistry<MedalLeaf> leavesRegistry,
         ILogger<BaseGameMedalsCollector> logger,
         ITextAssetParser<MedalLeaf> medalDataSerializer,
+        IOrderingTextAssetParser<MedalLeaf> medalOrderingDataSerializer,
         ILocalizedTextAssetParser<MedalLeaf> medalLanguageDataSerializer)
     {
         _leavesRegistry = leavesRegistry;
         _logger = logger;
         _medalDataSerializer = medalDataSerializer;
+        _medalOrderingDataSerializer = medalOrderingDataSerializer;
         _medalLanguageDataSerializer = medalLanguageDataSerializer;
 
         for (int i = 0; i < RootBaseGameDataCollector.LanguageDisplayNames.Length; i++)
         {
-            string[] itemLanguageData = Resources.Load<TextAsset>($"Data/Dialogues{i}/BadgeName").text
+            string[] medalLanguageData = Resources.Load<TextAsset>($"Data/Dialogues{i}/BadgeName").text
                 .Trim('\n')
                 .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
-            MedalsLanguageData.Add(i, itemLanguageData);
+            MedalsLanguageData.Add(i, medalLanguageData);
         }
     }
 
@@ -67,6 +73,7 @@ internal sealed class BaseGameMedalsCollector : IBaseGameCollector
             }
         }
 
+        _medalOrderingDataSerializer.FromTextAssetString(MedalsOrderingData, _leavesRegistry);
         _logger.LogInformation("Collected and registered {MedalsAmount} base game medals", _badgeNamedIds.Length);
     }
 }

@@ -16,8 +16,6 @@ namespace VenusRootLoader;
 // ReSharper disable UnusedMember.Global
 internal static class Entry
 {
-    private const string BaseGameId = "BaseGame";
-
     private static GameExecutionContext? _gameExecutionContext;
     private static BootstrapFunctions.BootstrapLogFn _bootstrapLog = null!;
     private static string _basePath = null!;
@@ -42,7 +40,7 @@ internal static class Entry
             unityLogger.InstallManagedUnityLogger();
 
             RootBaseGameDataCollector gameDataCollector = host.GetRequiredService<RootBaseGameDataCollector>();
-            gameDataCollector.CollectAndRegisterBaseGameData(BaseGameId);
+            gameDataCollector.CollectAndRegisterBaseGameData(Constants.BaseGameId);
 
             RootPatcher patcher = host.GetRequiredService<RootPatcher>();
             patcher.RunAllTopLevelPatchers();

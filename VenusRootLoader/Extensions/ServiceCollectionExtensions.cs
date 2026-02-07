@@ -24,6 +24,20 @@ internal static class ServiceCollectionExtensions
             return collection;
         }
 
+        internal IServiceCollection AddOrderingTextAssetPatcher<TLeaf, TTextAssetParser>(
+            string textAssetResourcesPath)
+            where TLeaf : ILeaf
+            where TTextAssetParser : class, IOrderingTextAssetParser<TLeaf>
+        {
+            collection.AddSingleton<IOrderingTextAssetParser<TLeaf>, TTextAssetParser>();
+            collection.AddSingleton<IOrderingTextAssetPatcher, OrderingTextAssetPatcher<TLeaf>>(provider => new(
+                textAssetResourcesPath,
+                provider.GetRequiredService<ILogger<OrderingTextAssetPatcher<TLeaf>>>(),
+                provider.GetRequiredService<ILeavesRegistry<TLeaf>>(),
+                provider.GetRequiredService<IOrderingTextAssetParser<TLeaf>>()));
+            return collection;
+        }
+
         internal IServiceCollection AddLocalizedTextAssetPatcher<TLeaf, TTextAssetParser>(
             string[] textAssetResourcesSubpath)
             where TLeaf : ILeaf

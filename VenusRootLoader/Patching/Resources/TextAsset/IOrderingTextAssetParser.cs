@@ -5,6 +5,6 @@ namespace VenusRootLoader.Patching.Resources.TextAsset;
 
 internal interface IOrderingTextAssetParser<TLeaf> where TLeaf : ILeaf
 {
-    string GetTextAssetString(ILeavesRegistry<TLeaf> registry);
-    void FromTextAssetString(string text, ILeavesRegistry<TLeaf> registry);
+    string GetTextAssetString(IOrderedLeavesRegistry<TLeaf> registry);
+    void FromTextAssetString(string text, IOrderedLeavesRegistry<TLeaf> registry);
 }

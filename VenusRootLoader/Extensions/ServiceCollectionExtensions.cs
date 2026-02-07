@@ -10,6 +10,15 @@ internal static class ServiceCollectionExtensions
 {
     extension(IServiceCollection collection)
     {
+        internal IServiceCollection AddOrderedLeavesRegistry<TLeaf, TRegistry>()
+            where TLeaf : ILeaf, new()
+            where TRegistry : class, ILeavesRegistry<TLeaf>
+        {
+            collection.AddSingleton<ILeavesRegistry<TLeaf>, TRegistry>();
+            collection.AddSingleton<IOrderedLeavesRegistry<TLeaf>, OrderedLeavesRegistry<TLeaf>>();
+            return collection;
+        }
+
         internal IServiceCollection AddTextAssetPatcher<TLeaf, TTextAssetParser>(
             string[] textAssetResourcesPath)
             where TLeaf : ILeaf
@@ -33,7 +42,7 @@ internal static class ServiceCollectionExtensions
             collection.AddSingleton<IOrderingTextAssetPatcher, OrderingTextAssetPatcher<TLeaf>>(provider => new(
                 textAssetResourcesPath,
                 provider.GetRequiredService<ILogger<OrderingTextAssetPatcher<TLeaf>>>(),
-                provider.GetRequiredService<ILeavesRegistry<TLeaf>>(),
+                provider.GetRequiredService<IOrderedLeavesRegistry<TLeaf>>(),
                 provider.GetRequiredService<IOrderingTextAssetParser<TLeaf>>()));
             return collection;
         }

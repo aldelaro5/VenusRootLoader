@@ -14,32 +14,32 @@ internal interface IOrderingTextAssetPatcher
 internal sealed class OrderingTextAssetPatcher<T> : IOrderingTextAssetPatcher
     where T : ILeaf
 {
-    private readonly ILeavesRegistry<T> _registry;
+    private readonly IOrderedLeavesRegistry<T> _orderedLeaves;
     private readonly ILogger<OrderingTextAssetPatcher<T>> _logger;
     private readonly IOrderingTextAssetParser<T> _parser;
 
     public OrderingTextAssetPatcher(
         string subPaths,
         ILogger<OrderingTextAssetPatcher<T>> logger,
-        ILeavesRegistry<T> registry,
+        IOrderedLeavesRegistry<T> orderedLeaves,
         IOrderingTextAssetParser<T> parser)
     {
         SubPath = subPaths;
         _logger = logger;
         _parser = parser;
-        _registry = registry;
+        _orderedLeaves = orderedLeaves;
     }
 
     public string SubPath { get; }
 
     public UnityEngine.TextAsset PatchResource(string path, UnityEngine.TextAsset original)
     {
-        bool registryHasData = _registry.Leaves.Count > 0;
+        bool registryHasData = _orderedLeaves.Registry.Leaves.Count > 0;
         if (!registryHasData)
             return original;
 
         // Some game data relies on having a trailing LF for the parsing to work correctly
-        StringBuilder sb = new(_parser.GetTextAssetString(_registry));
+        StringBuilder sb = new(_parser.GetTextAssetString(_orderedLeaves));
         if (original.text.EndsWith("\n"))
             sb.Append('\n');
 

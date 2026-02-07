@@ -25,19 +25,19 @@ internal sealed class BaseGameMedalsCollector : IBaseGameCollector
     private readonly Sprite[] _items1Sprites = Resources.LoadAll<Sprite>("Sprites/Items/Items1");
 
     private readonly ILogger<BaseGameMedalsCollector> _logger;
-    private readonly ILeavesRegistry<MedalLeaf> _leavesRegistry;
+    private readonly IOrderedLeavesRegistry<MedalLeaf> _orderedRegistry;
     private readonly ITextAssetParser<MedalLeaf> _medalDataSerializer;
     private readonly IOrderingTextAssetParser<MedalLeaf> _medalOrderingDataSerializer;
     private readonly ILocalizedTextAssetParser<MedalLeaf> _medalLanguageDataSerializer;
 
     public BaseGameMedalsCollector(
-        ILeavesRegistry<MedalLeaf> leavesRegistry,
+        IOrderedLeavesRegistry<MedalLeaf> orderedRegistry,
         ILogger<BaseGameMedalsCollector> logger,
         ITextAssetParser<MedalLeaf> medalDataSerializer,
         IOrderingTextAssetParser<MedalLeaf> medalOrderingDataSerializer,
         ILocalizedTextAssetParser<MedalLeaf> medalLanguageDataSerializer)
     {
-        _leavesRegistry = leavesRegistry;
+        _orderedRegistry = orderedRegistry;
         _logger = logger;
         _medalDataSerializer = medalDataSerializer;
         _medalOrderingDataSerializer = medalOrderingDataSerializer;
@@ -57,7 +57,7 @@ internal sealed class BaseGameMedalsCollector : IBaseGameCollector
         for (int i = 0; i < _badgeNamedIds.Length; i++)
         {
             string medalNamedId = _badgeNamedIds[i];
-            MedalLeaf medalLeaf = _leavesRegistry.RegisterExisting(i, medalNamedId, baseGameId);
+            MedalLeaf medalLeaf = _orderedRegistry.RegisterExistingWithOrdering(i, medalNamedId, baseGameId);
             _medalDataSerializer.FromTextAssetSerializedString("BadgeData", MedalsData[i], medalLeaf);
             medalLeaf.WrappedSprite.Sprite = medalLeaf.Items1SpriteIndex == -1
                 ? _items0Sprites[i + FirstMedalSpriteIndexInItems0]
@@ -73,7 +73,7 @@ internal sealed class BaseGameMedalsCollector : IBaseGameCollector
             }
         }
 
-        _medalOrderingDataSerializer.FromTextAssetString(MedalsOrderingData, _leavesRegistry);
+        _medalOrderingDataSerializer.FromTextAssetString(MedalsOrderingData, _orderedRegistry);
         _logger.LogInformation("Collected and registered {MedalsAmount} base game medals", _badgeNamedIds.Length);
     }
 }

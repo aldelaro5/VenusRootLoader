@@ -59,7 +59,7 @@ internal static class Startup
         services.AddSingleton<EnumPatcher>();
 
         services.AddSingleton<ILeavesRegistry<ItemLeaf>, ItemsRegistry>();
-        services.AddSingleton<ILeavesRegistry<MedalLeaf>, MedalsRegistry>();
+        services.AddOrderedLeavesRegistry<MedalLeaf, MedalsRegistry>();
         services.AddSingleton<ILeavesRegistry<RecipeLeaf>, RecipesRegistry>();
         services.AddSingleton<IRegistryResolver, RegistryResolver>();
 

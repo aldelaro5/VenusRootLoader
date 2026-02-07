@@ -6,13 +6,13 @@ namespace VenusRootLoader.TextAssetParsers;
 
 internal sealed class MedalOrderingTextAssetParser : IOrderingTextAssetParser<MedalLeaf>
 {
-    public string GetTextAssetString(ILeavesRegistry<MedalLeaf> registry)
+    public string GetTextAssetString(IOrderedLeavesRegistry<MedalLeaf> registry)
     {
         IReadOnlyCollection<MedalLeaf> orderedLeaves = registry.GetOrderedLeaves();
         return string.Join("\n", orderedLeaves.Select(l => l.GameId));
     }
 
-    public void FromTextAssetString(string text, ILeavesRegistry<MedalLeaf> registry)
+    public void FromTextAssetString(string text, IOrderedLeavesRegistry<MedalLeaf> registry)
     {
         int[] orderedGameIds = text
             .Split('\n')

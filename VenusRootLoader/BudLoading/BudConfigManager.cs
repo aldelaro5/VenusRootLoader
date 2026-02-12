@@ -37,7 +37,8 @@ internal sealed class BudConfigManager : IBudConfigManager
     {
         OverrideConstructorValues = false,
         IgnoreNonPublicMembers = false,
-        IgnoreInvalidEnumValues = false
+        IgnoreInvalidEnumValues = false,
+        MaxTableEntriesCountToInline = 4
     };
 
     public BudConfigManager(IFileSystem fileSystem, BudLoaderContext budLoaderContext)

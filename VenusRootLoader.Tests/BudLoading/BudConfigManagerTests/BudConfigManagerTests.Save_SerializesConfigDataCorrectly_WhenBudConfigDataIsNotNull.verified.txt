@@ -59,6 +59,15 @@ Vector3Value = { x = 58.0, y = 487.0, z = 9625.0 }
 # Type: UnityEngine.Vector3Int
 # Default value: (78, 874, 96)
 Vector3IntValue = { x = 47, y = 475, z = 961 }
+# Type: UnityEngine.Vector4
+# Default value: (84754.5, 48458.0, 4852.2, 8472.7)
+Vector4Value = { x = 84754.0, y = 48457.0, z = 4852.0, w = 8472.0 }
+# Type: UnityEngine.Quaternion
+# Default value: (844854.8, 48557.5, 9615.5, 8712.5)
+"some weird names with spaces!" = { x = 844854.0, y = 48557.0, z = 9615.0, w = 8712.0 }
+# Type: UnityEngine.Rect
+# Default value: (x:48845.15, y:4845.15, width:54548.15, height:4847.54)
+RectValue = { x = 48845.0, y = 4845.0, width = 54548.0, height = 4847.0 }
 # Type: UnityEngine.KeyCode
 # Default value: "E"
 KeyCodeValue = "X"
@@ -82,30 +91,6 @@ IntValue = 0
 IntValue = 0
 
 
-
-# Type: UnityEngine.Vector4
-# Default value: (84754.5, 48458.0, 4852.2, 8472.7)
-[Vector4Value]
-x = 84754.0
-y = 48457.0
-z = 4852.0
-w = 8472.0
-
-# Type: UnityEngine.Quaternion
-# Default value: (844854.8, 48557.5, 9615.5, 8712.5)
-["some weird names with spaces!"]
-x = 844854.0
-y = 48557.0
-z = 9615.0
-w = 8712.0
-
-# Type: UnityEngine.Rect
-# Default value: (x:48845.15, y:4845.15, width:54548.15, height:4847.54)
-[RectValue]
-x = 48845.0
-y = 4845.0
-width = 54548.0
-height = 4847.0
 
 [NestedThing]
 # Type: int

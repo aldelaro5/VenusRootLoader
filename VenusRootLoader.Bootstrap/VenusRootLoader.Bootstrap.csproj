@@ -38,6 +38,25 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.1.0" />
+
+        <PackageReference Include="Vezel.Zig.Toolsets.win-x64" Version="0.15.2.1">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+        <PackageReference Include="Vezel.Zig.Toolsets.linux-x64" Version="0.15.2.1">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+        <PackageReference Include="Vezel.Zig.Toolsets.win-x64" Version="0.15.2.1">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
     <Target Name="BuildXwinCache" BeforeTargets="Build" Condition="!Exists('$(XWinCache)splat/sdk/lib/ucrt/$(Platform)') and $([MSBuild]::IsOSPlatform('Linux'))">
@@ -50,6 +69,15 @@
         <ClangArgs Include="-O2" Visible="false"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <ZigCcArgs Include="-c" Visible="false"/>
+        <ZigCcArgs Include="-O2" Visible="false"/>
+        <ZigCcArgs Include="-target x86_64-windows-msvc" Visible="false"/>
+        <ZigCcArgs Include="-fms-extensions" Visible="false"/>
+        <!--        <ZigCcArgs Include="-fms-extensions" Visible="false"/>-->
+        <!--        <ZigCcArgs Include="-Wno-everything" Visible="false"/>-->
+    </ItemGroup>
+
     <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
         <ClangArgs Include="/external:I &quot;$(XWinCache)splat/sdk/include/um&quot;" Visible="false"/>
         <ClangArgs Include="/external:I &quot;$(XWinCache)splat/sdk/include/shared&quot;" Visible="false"/>
@@ -57,11 +85,18 @@
         <ClangArgs Include="/external:I &quot;$(XWinCache)splat/crt/include&quot;" Visible="false"/>
     </ItemGroup>
 
+    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+        <ZigCcArgs Include="-I &quot;$(XWinCache)splat/sdk/include/um&quot;" Visible="false"/>
+        <ZigCcArgs Include="-I &quot;$(XWinCache)splat/sdk/include/shared&quot;" Visible="false"/>
+        <ZigCcArgs Include="-I &quot;$(XWinCache)splat/sdk/include/ucrt&quot;" Visible="false"/>
+        <ZigCcArgs Include="-I &quot;$(XWinCache)splat/crt/include&quot;" Visible="false"/>
+    </ItemGroup>
+
     <Target Name="BuildPLtHook" BeforeTargets="Build" DependsOnTargets="BuildXwinCache">
         <Message Importance="high" Text="Building PltHook"/>
-        <Exec ContinueOnError="false" ConsoleToMsBuild="true" Command="clang-cl @(ClangArgs, ' ') -w $(SolutionDir)External/plthook/plthook_win32.c -o &quot;$(PltHookPath)&quot;"/>
+        <Exec ContinueOnError="false" ConsoleToMsBuild="true" Command="$(ZigExePath) cc @(ZigCcArgs, ' ') $(SolutionDir)External/plthook/plthook_win32.c -o &quot;$(PltHookPath)&quot;"/>
         <Message Importance="high" Text="Building NativeEntry"/>
-        <Exec ContinueOnError="false" ConsoleToMsBuild="true" Command="clang-cl @(ClangArgs, ' ') NativeEntry/entry.cpp -o &quot;$(EntryObjPath)&quot;"/>
+        <Exec ContinueOnError="false" ConsoleToMsBuild="true" Command="$(ZigExePath) c++ @(ZigCcArgs, ' ') NativeEntry/entry.cpp -o &quot;$(EntryObjPath)&quot;"/>
     </Target>
 
     <ItemGroup>

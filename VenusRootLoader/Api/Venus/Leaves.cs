@@ -64,4 +64,13 @@ public partial class Venus
 
     public IReadOnlyCollection<FlagvarLeaf> GetAllFlagvars() =>
         _registryResolver.Resolve<FlagvarLeaf>().GetAll();
+
+    public FlagstringLeaf RegisterFlagstring(string namedId) =>
+        _registryResolver.Resolve<FlagstringLeaf>().RegisterNew(namedId, _budId);
+
+    public FlagstringLeaf GetFlagstring(string namedId) =>
+        _registryResolver.Resolve<FlagstringLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<FlagstringLeaf> GetAllFlagstrings() =>
+        _registryResolver.Resolve<FlagstringLeaf>().GetAll();
 }

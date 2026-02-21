@@ -5,7 +5,6 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAsset.Parsers;
 
-// TODO: Do the ordering data, it's just game id, one per line
 internal sealed class MedalTextAssetParser : ITextAssetParser<MedalLeaf>
 {
     public string GetTextAssetSerializedString(string subPath, MedalLeaf leaf)

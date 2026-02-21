@@ -1,14 +1,20 @@
 namespace VenusRootLoader.Api.Leaves;
 
-internal sealed class TermacadePrizeLeaf : ILeaf
+public sealed class TermacadePrizeLeaf : ILeaf
 {
+    public enum TermacadePrizeType
+    {
+        StandardItem,
+        KeyItem,
+        Medal
+    }
+    
     public int GameId { get; init; }
     public string NamedId { get; init; } = "";
     public string CreatorId { get; init; } = "";
 
-    internal int Type { get; set; }
-    internal int ItemOrMedalId { get; set; }
-    internal int GameTokenCost { get; set; }
-    internal int Availability { get; set; }
-    internal int BoundPurchasedFlagId { get; set; }
+    public TermacadePrizeType PrizeType { get; set; }
+    public int ItemOrMedalGameId { get; set; }
+    public int GameTokenCost { get; set; }
+    public int? AlreadyBoughtFlagGameId { get; set; }
 }

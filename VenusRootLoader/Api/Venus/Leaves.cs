@@ -37,4 +37,13 @@ public partial class Venus
 
     public IReadOnlyCollection<RecipeLeaf> GetAllRecipes() =>
         _registryResolver.Resolve<RecipeLeaf>().GetAll();
+
+    public TermacadePrizeLeaf RegisterTermacadePrize(string namedId) =>
+        _registryResolver.Resolve<TermacadePrizeLeaf>().RegisterNew(namedId, _budId);
+
+    public TermacadePrizeLeaf GetTermacadePrize(string namedId) =>
+        _registryResolver.Resolve<TermacadePrizeLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<TermacadePrizeLeaf> GetAllTermacadePrizes() =>
+        _registryResolver.Resolve<TermacadePrizeLeaf>().GetAll();
 }

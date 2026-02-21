@@ -6,23 +6,26 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Logic;
 
-internal sealed class FlagsCapsPatcher : ITopLevelPatcher
+internal sealed class GlobalFlagsCapsPatcher : ITopLevelPatcher
 {
     private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<FlagLeaf> _flagsLeafRegistry;
+    private readonly ILeavesRegistry<FlagvarLeaf> _flagvarsLeafRegistry;
 
-    private static FlagsCapsPatcher _instance = null!;
+    private static GlobalFlagsCapsPatcher _instance = null!;
 
-    public FlagsCapsPatcher(
+    public GlobalFlagsCapsPatcher(
         IHarmonyTypePatcher harmonyTypePatcher,
-        ILeavesRegistry<FlagLeaf> flagsLeafRegistry)
+        ILeavesRegistry<FlagLeaf> flagsLeafRegistry,
+        ILeavesRegistry<FlagvarLeaf> flagvarsLeafRegistry)
     {
         _instance = this;
         _harmonyTypePatcher = harmonyTypePatcher;
         _flagsLeafRegistry = flagsLeafRegistry;
+        _flagvarsLeafRegistry = flagvarsLeafRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(FlagsCapsPatcher));
+    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(GlobalFlagsCapsPatcher));
 
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(MainManager), nameof(MainManager.SetVariables))]
@@ -33,13 +36,19 @@ internal sealed class FlagsCapsPatcher : ITopLevelPatcher
     {
         CodeMatcher matcher = new(instructions, generator);
         FieldInfo flagField = AccessTools.Field(typeof(MainManager), nameof(MainManager.flags));
+        FieldInfo flagvarField = AccessTools.Field(typeof(MainManager), nameof(MainManager.flagvar));
 
         matcher.MatchStartForward(CodeMatch.StoresField(flagField));
         matcher.MatchStartBackwards(Code.Ldc_I4);
         matcher.SetInstructionAndAdvance(Transpilers.EmitDelegate(GetNewFlagsCap));
+        matcher.Start();
+        matcher.MatchStartForward(CodeMatch.StoresField(flagvarField));
+        matcher.MatchStartBackwards(Code.Ldc_I4);
+        matcher.SetInstructionAndAdvance(Transpilers.EmitDelegate(GetNewFlagvarsCap));
 
         return matcher.Instructions();
     }
 
     private static int GetNewFlagsCap() => _instance._flagsLeafRegistry.Leaves.Count;
+    private static int GetNewFlagvarsCap() => _instance._flagvarsLeafRegistry.Leaves.Count;
 }

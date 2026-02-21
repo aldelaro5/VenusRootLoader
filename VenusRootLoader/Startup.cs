@@ -62,6 +62,7 @@ internal static class Startup
         services.AddOrderedLeavesRegistry<MedalLeaf, MedalsRegistry>();
         services.AddSingleton<ILeavesRegistry<RecipeLeaf>, RecipesRegistry>();
         services.AddSingleton<ILeavesRegistry<FlagLeaf>, FlagsRegistry>();
+        services.AddSingleton<ILeavesRegistry<FlagvarLeaf>, FlagvarsRegistry>();
         services.AddSingleton<ILeavesRegistry<TermacadePrizeLeaf>, TermacadePrizesRegistry>();
         services.AddSingleton<IRegistryResolver, RegistryResolver>();
 
@@ -79,14 +80,14 @@ internal static class Startup
         services.AddSingleton<IResourcesTypePatcher<TextAsset>, RootTextAssetPatcher>();
 
         services.AddSingleton<ITopLevelPatcher, ResourcesTopLevelPatcher>();
-        services.AddSingleton<ITopLevelPatcher, FlagsCapsPatcher>();
+        services.AddSingleton<ITopLevelPatcher, GlobalFlagsCapsPatcher>();
         services.AddSingleton<ITopLevelPatcher, ItemAndMedalSpriteTopLevelPatcher>();
         services.AddSingleton<RootPatcher>();
 
         services.AddSingleton<IBaseGameCollector, BaseGameRecipesCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameItemsCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameMedalsCollector>();
-        services.AddSingleton<IBaseGameCollector, BaseGameFlagsCollector>();
+        services.AddSingleton<IBaseGameCollector, BaseGameGlobalFlagsCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameTermacadePrizesCollector>();
         services.AddSingleton<RootBaseGameDataCollector>();
 

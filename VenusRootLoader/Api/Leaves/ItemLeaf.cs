@@ -13,10 +13,10 @@ public sealed class ItemLeaf : ILeaf
 
     public sealed class ItemLanguageData
     {
-        internal string Name { get; set; } = "<NO NAME>";
-        internal string UnusedDescription { get; set; } = "";
-        internal string Description { get; set; } = "<NO DESCRIPTION>";
-        internal string? Prepender { get; set; }
+        public string Name { get; set; } = "<NO NAME>";
+        public string UnusedDescription { get; set; } = "";
+        public string Description { get; set; } = "<NO DESCRIPTION>";
+        public string? Prepender { get; set; }
     }
 
     internal WrappedSprite WrappedSprite = new();

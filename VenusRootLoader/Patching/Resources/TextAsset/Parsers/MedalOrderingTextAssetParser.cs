@@ -1,3 +1,4 @@
+using System.Globalization;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
 
@@ -15,7 +16,7 @@ internal sealed class MedalOrderingTextAssetParser : IOrderingTextAssetParser<Me
     {
         int[] orderedGameIds = text
             .Split('\n')
-            .Select(int.Parse)
+            .Select(line => int.Parse(line, CultureInfo.InvariantCulture))
             .ToArray();
         registry.SetBaseGameOrdering(orderedGameIds);
     }

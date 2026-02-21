@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Extensions;
@@ -27,7 +28,7 @@ internal sealed class ItemTextAssetParser : ITextAssetParser<ItemLeaf>
     {
         string[] fields = text.Split(StringUtils.AtSymbolSplitDelimiter);
         if (!string.IsNullOrWhiteSpace(fields[0]))
-            leaf.BuyingPrice = int.Parse(fields[0]);
+            leaf.BuyingPrice = int.Parse(fields[0], CultureInfo.InvariantCulture);
         if (!string.IsNullOrWhiteSpace(fields[1]))
         {
             string[] effects = fields[1].Split(StringUtils.SemiColonSplitDelimiter);
@@ -37,7 +38,7 @@ internal sealed class ItemTextAssetParser : ITextAssetParser<ItemLeaf>
                 ItemLeaf.ItemUse itemUse = new();
                 string[] effectFields = effect.Split(StringUtils.CommaSplitDelimiter);
                 itemUse.Effect = Enum.Parse<MainManager.ItemUsage>(effectFields[0]);
-                itemUse.Value = int.Parse(effectFields[1]);
+                itemUse.Value = int.Parse(effectFields[1], CultureInfo.InvariantCulture);
                 leaf.Effects.Add(itemUse);
             }
         }

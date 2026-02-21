@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Extensions;
@@ -31,7 +32,7 @@ internal sealed class MedalTextAssetParser : ITextAssetParser<MedalLeaf>
     public void FromTextAssetSerializedString(string subPath, string text, MedalLeaf leaf)
     {
         string[] fields = text.Split(StringUtils.AtSymbolSplitDelimiter);
-        leaf.MpCost = int.Parse(fields[0]);
+        leaf.MpCost = int.Parse(fields[0], CultureInfo.InvariantCulture);
         leaf.IsPartyEquip = bool.Parse(fields[1]);
 
         string[] effects = fields[2].Split(StringUtils.SemiColonSplitDelimiter);
@@ -41,12 +42,12 @@ internal sealed class MedalTextAssetParser : ITextAssetParser<MedalLeaf>
             MedalLeaf.MedalEffect medalEffect = new();
             string[] effectFields = effect.Split(StringUtils.CommaSplitDelimiter);
             medalEffect.Effect = Enum.Parse<MainManager.BadgeEffects>(effectFields[0]);
-            medalEffect.Value = int.Parse(effectFields[1]);
+            medalEffect.Value = int.Parse(effectFields[1], CultureInfo.InvariantCulture);
             leaf.Effects.Add(medalEffect);
         }
 
-        leaf.BuyingPriceRegularBerries = int.Parse(fields[3]);
-        leaf.BuyingPriceCrystalBerries = int.Parse(fields[4]);
-        leaf.Items1SpriteIndex = int.Parse(fields[5]);
+        leaf.BuyingPriceRegularBerries = int.Parse(fields[3], CultureInfo.InvariantCulture);
+        leaf.BuyingPriceCrystalBerries = int.Parse(fields[4], CultureInfo.InvariantCulture);
+        leaf.Items1SpriteIndex = int.Parse(fields[5], CultureInfo.InvariantCulture);
     }
 }

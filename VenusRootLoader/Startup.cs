@@ -82,7 +82,7 @@ internal static class Startup
         services.AddSingleton<IResourcesTypePatcher<TextAsset>, RootTextAssetPatcher>();
 
         services.AddSingleton<ITopLevelPatcher, ResourcesTopLevelPatcher>();
-        services.AddSingleton<ITopLevelPatcher, GlobalFlagsCapsPatcher>();
+        services.AddSingleton<ITopLevelPatcher, GlobalFlagsCapsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, ItemAndMedalSpriteTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, PrizeMedalsTopLevelPatcher>();
         services.AddSingleton<RootPatcher>();

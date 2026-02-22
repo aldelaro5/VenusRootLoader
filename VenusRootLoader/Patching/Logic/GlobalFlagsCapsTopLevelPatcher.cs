@@ -6,16 +6,16 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Logic;
 
-internal sealed class GlobalFlagsCapsPatcher : ITopLevelPatcher
+internal sealed class GlobalFlagsCapsTopLevelPatcher : ITopLevelPatcher
 {
     private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<FlagLeaf> _flagsLeafRegistry;
     private readonly ILeavesRegistry<FlagvarLeaf> _flagvarsLeafRegistry;
     private readonly ILeavesRegistry<FlagstringLeaf> _flagstringsLeafRegistry;
 
-    private static GlobalFlagsCapsPatcher _instance = null!;
+    private static GlobalFlagsCapsTopLevelPatcher _instance = null!;
 
-    public GlobalFlagsCapsPatcher(
+    public GlobalFlagsCapsTopLevelPatcher(
         IHarmonyTypePatcher harmonyTypePatcher,
         ILeavesRegistry<FlagLeaf> flagsLeafRegistry,
         ILeavesRegistry<FlagvarLeaf> flagvarsLeafRegistry,
@@ -28,7 +28,7 @@ internal sealed class GlobalFlagsCapsPatcher : ITopLevelPatcher
         _flagstringsLeafRegistry = flagstringsLeafRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(GlobalFlagsCapsPatcher));
+    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(GlobalFlagsCapsTopLevelPatcher));
 
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(MainManager), nameof(MainManager.SetVariables))]

@@ -12,6 +12,7 @@ using VenusRootLoader.Logging;
 using VenusRootLoader.Patching;
 using VenusRootLoader.Patching.Logic;
 using VenusRootLoader.Patching.Resources;
+using VenusRootLoader.Patching.Resources.Sprites;
 using VenusRootLoader.Patching.Resources.TextAsset;
 using VenusRootLoader.Patching.Resources.TextAsset.Parsers;
 using VenusRootLoader.Registry;
@@ -65,8 +66,12 @@ internal static class Startup
         services.AddSingleton<ILeavesRegistry<FlagvarLeaf>, FlagvarsRegistry>();
         services.AddSingleton<ILeavesRegistry<FlagstringLeaf>, FlagstringsRegistry>();
         services.AddSingleton<ILeavesRegistry<PrizeMedalLeaf>, PrizeMedalsRegistry>();
+        services.AddOrderedLeavesRegistry<DiscoveryLeaf, DiscoveriesRegistry>();
         services.AddSingleton<ILeavesRegistry<TermacadePrizeLeaf>, TermacadePrizesRegistry>();
         services.AddSingleton<IRegistryResolver, RegistryResolver>();
+
+        services.AddSingleton<ISpriteArrayPatcher, EnemyPortraitsSpriteArrayPatcher>(provider =>
+            new(["Items/EnemyPortraits"], provider.GetRequiredService<ILeavesRegistry<DiscoveryLeaf>>()));
 
         services.AddTextAssetPatcher<ItemLeaf, ItemTextAssetParser>(["ItemData"]);
         services.AddLocalizedTextAssetPatcher<ItemLeaf, ItemLocalizedTextAssetParser>(["Items"]);
@@ -75,16 +80,21 @@ internal static class Startup
         services.AddOrderingTextAssetPatcher<MedalLeaf, MedalOrderingTextAssetParser>("BadgeOrder");
         services.AddLocalizedTextAssetPatcher<MedalLeaf, MedalLocalizedTextAssetParser>(["BadgeName"]);
 
+        services.AddOrderingTextAssetPatcher<DiscoveryLeaf, DiscoveryOrderingTextAssetParser>("DiscoveryOrder");
+        services.AddLocalizedTextAssetPatcher<DiscoveryLeaf, DiscoveryLocalizedTextAssetParser>(["Discoveries"]);
+        
         services.AddTextAssetPatcher<TermacadePrizeLeaf, TermacadePrizeTextAssetParser>(["Termacade"]);
         
         services.AddTextAssetPatcher<RecipeLeaf, RecipeTextAssetParser>(["RecipeData"]);
 
         services.AddSingleton<IResourcesTypePatcher<TextAsset>, RootTextAssetPatcher>();
+        services.AddSingleton<IResourcesArrayTypePatcher<Sprite>, RootSpritesArrayPatcher>();
 
         services.AddSingleton<ITopLevelPatcher, ResourcesTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, GlobalFlagsCapsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, ItemAndMedalSpriteTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, PrizeMedalsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, LibraryCapsTopLevelPatcher>();
         services.AddSingleton<RootPatcher>();
 
         services.AddSingleton<IAssemblyCSharpDataCollector, AssemblyCSharpDataCollector>();
@@ -93,6 +103,7 @@ internal static class Startup
         services.AddSingleton<IBaseGameCollector, BaseGameMedalsCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGamePrizeMedalsCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameGlobalFlagsCollector>();
+        services.AddSingleton<IBaseGameCollector, BaseGameDiscoveriessCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameTermacadePrizesCollector>();
         services.AddSingleton<RootBaseGameDataCollector>();
 

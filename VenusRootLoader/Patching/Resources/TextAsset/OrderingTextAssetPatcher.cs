@@ -8,7 +8,7 @@ namespace VenusRootLoader.Patching.Resources.TextAsset;
 internal interface IOrderingTextAssetPatcher
 {
     string SubPath { get; }
-    UnityEngine.TextAsset PatchResource(string path, UnityEngine.TextAsset original);
+    UnityEngine.TextAsset PatchTextAsset(string path, UnityEngine.TextAsset original);
 }
 
 internal sealed class OrderingTextAssetPatcher<T> : IOrderingTextAssetPatcher
@@ -32,9 +32,9 @@ internal sealed class OrderingTextAssetPatcher<T> : IOrderingTextAssetPatcher
 
     public string SubPath { get; }
 
-    public UnityEngine.TextAsset PatchResource(string path, UnityEngine.TextAsset original)
+    public UnityEngine.TextAsset PatchTextAsset(string path, UnityEngine.TextAsset original)
     {
-        bool registryHasData = _orderedLeaves.Registry.Leaves.Count > 0;
+        bool registryHasData = _orderedLeaves.Registry.LeavesByNamedIds.Count > 0;
         if (!registryHasData)
             return original;
 

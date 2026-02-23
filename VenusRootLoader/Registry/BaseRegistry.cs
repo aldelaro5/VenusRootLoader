@@ -12,7 +12,8 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
 
     protected BaseRegistry(ILogger logger) => _logger = logger;
 
-    public IDictionary<string, TLeaf> Leaves { get; } = new Dictionary<string, TLeaf>();
+    public IDictionary<string, TLeaf> LeavesByNamedIds { get; } = new Dictionary<string, TLeaf>();
+    public IDictionary<int, TLeaf> LeavesByGameIds { get; } = new Dictionary<int, TLeaf>();
 
     protected abstract int CreateNewGameId(string namedId, string creatorId);
 
@@ -26,7 +27,8 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
             CreatorId = creatorId,
             NamedId = namedId
         };
-        Leaves[namedId] = leaf;
+        LeavesByNamedIds[namedId] = leaf;
+        LeavesByGameIds[gameId] = leaf;
         LogRegisterContent(leaf);
         return leaf;
     }
@@ -39,17 +41,18 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
             NamedId = namedId,
             CreatorId = creatorId
         };
-        Leaves[namedId] = leaf;
+        LeavesByNamedIds[namedId] = leaf;
+        LeavesByGameIds[gameId] = leaf;
         LogRegisterContent(leaf);
         return leaf;
     }
 
     public TLeaf Get(string namedId) => EnsureNamedIdExists(namedId);
-    public IReadOnlyCollection<TLeaf> GetAll() => Leaves.Values.ToList().AsReadOnly();
+    public IReadOnlyCollection<TLeaf> GetAll() => LeavesByNamedIds.Values.ToList().AsReadOnly();
 
     private void EnsureNamedIdIsFree(string namedId)
     {
-        if (Leaves.ContainsKey(namedId))
+        if (LeavesByNamedIds.ContainsKey(namedId))
         {
             ThrowHelper.ThrowArgumentException(
                 nameof(namedId),
@@ -60,7 +63,7 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
     private TLeaf EnsureNamedIdExists(
         string namedId)
     {
-        if (!Leaves.TryGetValue(namedId, out TLeaf content))
+        if (!LeavesByNamedIds.TryGetValue(namedId, out TLeaf content))
         {
             return ThrowHelper.ThrowArgumentException<TLeaf>(
                 nameof(namedId),

@@ -8,12 +8,25 @@ internal sealed class DiscoveryLocalizedTextAssetParser : ILocalizedTextAssetPar
 {
     public string GetTextAssetSerializedString(string subPath, int languageId, DiscoveryLeaf leaf)
     {
-        StringBuilder sb = new();
-        sb.Append(leaf.Name[languageId]);
-        sb.Append('@');
-        for (int i = 0; i < leaf.PaginatedDescription[languageId].Count; i++)
+        DiscoveryLeaf.DiscoveryLanguageData? languageData = null;
+        if (leaf.LanguageData.Count == 0)
+            languageData = Activator.CreateInstance<DiscoveryLeaf.DiscoveryLanguageData>();
+
+        if (leaf.LanguageData.TryGetValue(languageId, out DiscoveryLeaf.DiscoveryLanguageData value))
+            languageData = value;
+
+        if (languageData == null)
         {
-            DiscoveryLeaf.DiscoveryDescriptionPage page = leaf.PaginatedDescription[languageId][i];
+            int firstLanguage = leaf.LanguageData.Keys.Min();
+            languageData = leaf.LanguageData[firstLanguage];
+        }
+        
+        StringBuilder sb = new();
+        sb.Append(languageData.Name);
+        sb.Append('@');
+        for (int i = 0; i < languageData.PaginatedDescription.Count; i++)
+        {
+            DiscoveryLeaf.DiscoveryDescriptionPage page = languageData.PaginatedDescription[i];
             if (i == 0)
             {
                 sb.Append(page.Text);
@@ -40,33 +53,34 @@ internal sealed class DiscoveryLocalizedTextAssetParser : ILocalizedTextAssetPar
     public void FromTextAssetSerializedString(string subPath, int languageId, string text, DiscoveryLeaf leaf)
     {
         string[] fields = text.Split(StringUtils.AtSymbolSplitDelimiter);
-        leaf.Name[languageId] = fields[0];
+        leaf.LanguageData[languageId].Name = fields[0];
 
-        leaf.PaginatedDescription[languageId].Clear();
+        leaf.LanguageData[languageId].PaginatedDescription.Clear();
         int? lastPageRequiredFlag = null;
         int lastDelimiter = 0;
+        string paginatedDescription = fields[1];
         while (true)
         {
-            int nextDelimiter = text.IndexOfAny(['{', '}'], lastDelimiter);
+            int nextDelimiter = paginatedDescription.IndexOfAny(['{', '}'], lastDelimiter);
             if (nextDelimiter == -1)
             {
                 DiscoveryLeaf.DiscoveryDescriptionPage descriptionPage = new()
                 {
-                    Text = text[lastDelimiter..],
+                    Text = paginatedDescription[lastDelimiter..],
                     RequiredFlagGameId = lastPageRequiredFlag
                 };
-                leaf.PaginatedDescription[languageId].Add(descriptionPage);
+                leaf.LanguageData[languageId].PaginatedDescription.Add(descriptionPage);
                 break;
             }
 
-            if (text[nextDelimiter] == '{')
+            if (paginatedDescription[nextDelimiter] == '{')
             {
                 DiscoveryLeaf.DiscoveryDescriptionPage descriptionPage = new()
                 {
-                    Text = text.Substring(lastDelimiter, nextDelimiter - lastDelimiter),
+                    Text = paginatedDescription.Substring(lastDelimiter, nextDelimiter - lastDelimiter),
                     RequiredFlagGameId = lastPageRequiredFlag
                 };
-                leaf.PaginatedDescription[languageId].Add(descriptionPage);
+                leaf.LanguageData[languageId].PaginatedDescription.Add(descriptionPage);
                 lastPageRequiredFlag = null;
                 lastDelimiter = nextDelimiter + 1;
             }
@@ -74,14 +88,15 @@ internal sealed class DiscoveryLocalizedTextAssetParser : ILocalizedTextAssetPar
             {
                 DiscoveryLeaf.DiscoveryDescriptionPage descriptionPage = new()
                 {
-                    Text = text.Substring(lastDelimiter, nextDelimiter - lastDelimiter),
+                    Text = paginatedDescription.Substring(lastDelimiter, nextDelimiter - lastDelimiter),
                     RequiredFlagGameId = lastPageRequiredFlag
                 };
-                leaf.PaginatedDescription[languageId].Add(descriptionPage);
+                leaf.LanguageData[languageId].PaginatedDescription.Add(descriptionPage);
 
                 lastDelimiter = nextDelimiter + 1;
-                int flagSlotDelimiter = text.IndexOf('}', lastDelimiter);
-                lastPageRequiredFlag = int.Parse(text.Substring(lastDelimiter, flagSlotDelimiter - lastDelimiter));
+                int flagSlotDelimiter = paginatedDescription.IndexOf('}', lastDelimiter);
+                lastPageRequiredFlag = int.Parse(
+                    paginatedDescription.Substring(lastDelimiter, flagSlotDelimiter - lastDelimiter));
                 lastDelimiter = flagSlotDelimiter + 1;
             }
         }

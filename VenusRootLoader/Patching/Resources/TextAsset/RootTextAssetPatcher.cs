@@ -49,7 +49,7 @@ internal sealed class RootTextAssetPatcher : IResourcesTypePatcher<UnityEngine.T
             int languageId = int.Parse(localizedPathParts[0]);
             string subpathLocalized = localizedPathParts[1];
             return _localizedTextAssetPatchers.TryGetValue(subpathLocalized, out ILocalizedTextAssetPatcher patcher)
-                ? patcher.PatchResource(languageId, string.Join("/", localizedPathParts.Skip(1)), original)
+                ? patcher.PatchLocalisedTextAsset(languageId, string.Join("/", localizedPathParts.Skip(1)), original)
                 : original;
         }
 
@@ -57,10 +57,10 @@ internal sealed class RootTextAssetPatcher : IResourcesTypePatcher<UnityEngine.T
         string subpath = pathParts[0];
 
         if (_orderingTextAssetPatchers.TryGetValue(subpath, out IOrderingTextAssetPatcher orderingTextAssetPatcher))
-            return orderingTextAssetPatcher.PatchResource(string.Join("/", pathParts), original);
+            return orderingTextAssetPatcher.PatchTextAsset(string.Join("/", pathParts), original);
 
         return _textAssetPatchers.TryGetValue(subpath, out ITextAssetPatcher textAssetPatcher)
-            ? textAssetPatcher.PatchResource(string.Join("/", pathParts), original)
+            ? textAssetPatcher.PatchTextAsset(string.Join("/", pathParts), original)
             : original;
     }
 }

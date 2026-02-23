@@ -8,7 +8,7 @@ namespace VenusRootLoader.Patching.Resources.TextAsset;
 internal interface ITextAssetPatcher
 {
     string[] SubPaths { get; }
-    UnityEngine.TextAsset PatchResource(string path, UnityEngine.TextAsset original);
+    UnityEngine.TextAsset PatchTextAsset(string path, UnityEngine.TextAsset original);
 }
 
 internal sealed class TextAssetPatcher<T> : ITextAssetPatcher
@@ -32,13 +32,13 @@ internal sealed class TextAssetPatcher<T> : ITextAssetPatcher
 
     public string[] SubPaths { get; }
 
-    public UnityEngine.TextAsset PatchResource(string path, UnityEngine.TextAsset original)
+    public UnityEngine.TextAsset PatchTextAsset(string path, UnityEngine.TextAsset original)
     {
-        bool registryHasData = _registry.Leaves.Count > 0;
+        bool registryHasData = _registry.LeavesByNamedIds.Count > 0;
         if (!registryHasData)
             return original;
 
-        IEnumerable<string> newLines = _registry.Leaves.Values
+        IEnumerable<string> newLines = _registry.LeavesByNamedIds.Values
             .OrderBy(i => i.GameId)
             .Select(customLine => _parser.GetTextAssetSerializedString(path, customLine));
 

@@ -8,7 +8,7 @@ namespace VenusRootLoader.Patching.Resources.TextAsset;
 internal interface ILocalizedTextAssetPatcher
 {
     string[] SubPaths { get; }
-    UnityEngine.TextAsset PatchResource(int languageId, string subpath, UnityEngine.TextAsset original);
+    UnityEngine.TextAsset PatchLocalisedTextAsset(int languageId, string subpath, UnityEngine.TextAsset original);
 }
 
 internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
@@ -32,14 +32,14 @@ internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
 
     public string[] SubPaths { get; }
 
-    public UnityEngine.TextAsset PatchResource(int languageId, string subpath, UnityEngine.TextAsset original)
+    public UnityEngine.TextAsset PatchLocalisedTextAsset(int languageId, string subpath, UnityEngine.TextAsset original)
     {
-        bool registryHasData = _registry.Leaves.Count > 0;
+        bool registryHasData = _registry.LeavesByNamedIds.Count > 0;
 
         if (!registryHasData)
             return original;
 
-        IEnumerable<string> newLines = _registry.Leaves.Values
+        IEnumerable<string> newLines = _registry.LeavesByNamedIds.Values
             .OrderBy(i => i.GameId)
             .Select(customLine => _parser.GetTextAssetSerializedString(subpath, languageId, customLine));
 

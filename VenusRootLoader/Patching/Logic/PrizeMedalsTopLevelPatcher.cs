@@ -58,11 +58,11 @@ internal sealed class PrizeMedalsTopLevelPatcher : ITopLevelPatcher
     }
 
     private static int[] GetPrizeIds() =>
-        _instance._prizeMedalsRegistry.Leaves.Values.Select(l => l.MedalGameId).ToArray();
+        _instance._prizeMedalsRegistry.LeavesByNamedIds.Values.Select(l => l.MedalGameId).ToArray();
 
     private static int[] GetPrizeFlagIds() =>
-        _instance._prizeMedalsRegistry.Leaves.Values.Select(l => l.FlagvarGameId).ToArray();
+        _instance._prizeMedalsRegistry.LeavesByNamedIds.Values.Select(l => l.FlagvarGameId).ToArray();
 
     private static int[] GetPrizeEnemyIds() =>
-        _instance._prizeMedalsRegistry.Leaves.Values.Select(l => l.DisplayedEnemyGameId).ToArray();
+        _instance._prizeMedalsRegistry.LeavesByNamedIds.Values.Select(l => l.DisplayedEnemyGameId).ToArray();
 }

@@ -82,4 +82,17 @@ public partial class Venus
 
     public IReadOnlyCollection<PrizeMedalLeaf> GetAllPrizeMedals() =>
         _registryResolver.Resolve<PrizeMedalLeaf>().GetAll();
+
+    public DiscoveryLeaf RegisterDiscovery(string namedId, int? orderAfter, int orderPriority) =>
+        _registryResolver.ResolveWithOrdering<DiscoveryLeaf>().RegisterNewWithOrdering(
+            namedId,
+            _budId,
+            orderAfter,
+            orderPriority);
+
+    public DiscoveryLeaf GetDiscovery(string namedId) =>
+        _registryResolver.Resolve<DiscoveryLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<DiscoveryLeaf> GetAllDiscoveries() =>
+        _registryResolver.Resolve<DiscoveryLeaf>().GetAll();
 }

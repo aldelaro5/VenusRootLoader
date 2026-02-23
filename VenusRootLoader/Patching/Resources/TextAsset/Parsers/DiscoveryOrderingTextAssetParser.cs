@@ -16,7 +16,7 @@ internal sealed class DiscoveryOrderingTextAssetParser : IOrderingTextAssetParse
     {
         string[][] lines = text.Split('\n')
             .Select(l => l
-                .Split(','))
+                .Split(Utility.StringUtils.CommaSplitDelimiter))
             .ToArray();
 
         Dictionary<int, int> linesData = lines

@@ -18,7 +18,12 @@ internal sealed class EnemyPortraitsSpriteArrayPatcher : ISpriteArrayPatcher
 
     public Sprite[] PatchSpriteArray(string path, Sprite[] original)
     {
-        List<Sprite> sprites = original.ToList();
+        SortedDictionary<int, Sprite> sprites = new();
+        for (int i = 0; i < original.Length; i++)
+        {
+            Sprite sprite = original[i];
+            sprites.Add(i, sprite);
+        }
 
         ICollection<DiscoveryLeaf> allDiscoveries = _discoveriesRegistry
             .LeavesByNamedIds
@@ -30,15 +35,15 @@ internal sealed class EnemyPortraitsSpriteArrayPatcher : ISpriteArrayPatcher
             .Except(discoveriesWithDefinedSpriteIndex)
             .ToList();
 
-        foreach (DiscoveryLeaf leaf in discoveriesWithDefinedSpriteIndex)
+        foreach (DiscoveryLeaf leaf in discoveriesWithDefinedSpriteIndex) 
             sprites[leaf.EnemyPortraitsSpriteIndex!.Value] = leaf.WrappedSprite.Sprite;
 
         foreach (DiscoveryLeaf leaf in discoveriesWithoutDefinedSpriteIndex)
         {
             leaf.EnemyPortraitsSpriteIndex = sprites.Count;
-            sprites.Add(leaf.WrappedSprite.Sprite);
+            sprites.Add(leaf.EnemyPortraitsSpriteIndex.Value, leaf.WrappedSprite.Sprite);
         }
 
-        return sprites.ToArray();
+        return sprites.Values.ToArray();
     }
 }

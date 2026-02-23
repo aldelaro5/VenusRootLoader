@@ -103,7 +103,7 @@ internal static class Startup
         services.AddSingleton<IBaseGameCollector, BaseGameMedalsCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGamePrizeMedalsCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameGlobalFlagsCollector>();
-        services.AddSingleton<IBaseGameCollector, BaseGameDiscoveriessCollector>();
+        services.AddSingleton<IBaseGameCollector, BaseGameDiscoveriesCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameTermacadePrizesCollector>();
         services.AddSingleton<RootBaseGameDataCollector>();
 

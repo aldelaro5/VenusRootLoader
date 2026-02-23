@@ -6,7 +6,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.BaseGameCollector;
 
-internal sealed class BaseGameDiscoveriessCollector : IBaseGameCollector
+internal sealed class BaseGameDiscoveriesCollector : IBaseGameCollector
 {
     private static readonly string DiscoveriesOrderingData = Resources.Load<TextAsset>("Data/DiscoveryOrder").text
         .Trim('\n');
@@ -15,14 +15,14 @@ internal sealed class BaseGameDiscoveriessCollector : IBaseGameCollector
 
     private readonly Sprite[] _enemyPortraitsSprites = Resources.LoadAll<Sprite>("Sprites/Items/EnemyPortraits");
 
-    private readonly ILogger<BaseGameDiscoveriessCollector> _logger;
+    private readonly ILogger<BaseGameDiscoveriesCollector> _logger;
     private readonly IOrderedLeavesRegistry<DiscoveryLeaf> _orderedRegistry;
     private readonly IOrderingTextAssetParser<DiscoveryLeaf> _discoveriesOrderingDataSerializer;
     private readonly ILocalizedTextAssetParser<DiscoveryLeaf> _discoveriesLanguageDataSerializer;
 
-    public BaseGameDiscoveriessCollector(
+    public BaseGameDiscoveriesCollector(
         IOrderedLeavesRegistry<DiscoveryLeaf> orderedRegistry,
-        ILogger<BaseGameDiscoveriessCollector> logger,
+        ILogger<BaseGameDiscoveriesCollector> logger,
         IOrderingTextAssetParser<DiscoveryLeaf> discoveriesOrderingDataSerializer,
         ILocalizedTextAssetParser<DiscoveryLeaf> discoveriesLanguageDataSerializer)
     {

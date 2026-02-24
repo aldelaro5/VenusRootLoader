@@ -3,7 +3,10 @@ using VenusRootLoader.Api.Leaves;
 
 namespace VenusRootLoader.Registry;
 
-internal sealed class FlagvarsRegistry : AutoIncrementBasedRegistry<FlagvarLeaf>
+internal sealed class FlagvarsRegistry : AutoSequentialIdBasedRegistry<FlagvarLeaf>
 {
-    public FlagvarsRegistry(ILogger<FlagvarsRegistry> logger) : base(logger) { }
+    public FlagvarsRegistry(ILogger<FlagvarsRegistry> logger)
+        : base(logger, IdSequenceDirection.Increment)
+    {
+    }
 }

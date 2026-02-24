@@ -108,4 +108,13 @@ public partial class Venus
 
     public IReadOnlyCollection<RecordLeaf> GetAllRecords() =>
         _registryResolver.Resolve<RecordLeaf>().GetAll();
+
+    public MenuTextLeaf RegisterMenuText(string namedId) =>
+        _registryResolver.Resolve<MenuTextLeaf>().RegisterNew(namedId, _budId);
+
+    public MenuTextLeaf GetMenuText(string namedId) =>
+        _registryResolver.Resolve<MenuTextLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<MenuTextLeaf> GetAllMenuTexts() =>
+        _registryResolver.Resolve<MenuTextLeaf>().GetAll();
 }

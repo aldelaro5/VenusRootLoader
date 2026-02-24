@@ -3,7 +3,10 @@ using VenusRootLoader.Api.Leaves;
 
 namespace VenusRootLoader.Registry;
 
-internal sealed class RecipesRegistry : AutoIncrementBasedRegistry<RecipeLeaf>
+internal sealed class RecipesRegistry : AutoSequentialIdBasedRegistry<RecipeLeaf>
 {
-    public RecipesRegistry(ILogger<RecipesRegistry> logger) : base(logger) { }
+    public RecipesRegistry(ILogger<RecipesRegistry> logger)
+        : base(logger, IdSequenceDirection.Increment)
+    {
+    }
 }

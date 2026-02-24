@@ -3,9 +3,9 @@ using VenusRootLoader.Api.Leaves;
 
 namespace VenusRootLoader.Registry;
 
-internal sealed class FlagstringsRegistry : AutoSequentialIdBasedRegistry<FlagstringLeaf>
+internal sealed class MenuTextsRegistry : AutoSequentialIdBasedRegistry<MenuTextLeaf>
 {
-    public FlagstringsRegistry(ILogger<FlagstringsRegistry> logger)
+    public MenuTextsRegistry(ILogger<MenuTextsRegistry> logger)
         : base(logger, IdSequenceDirection.Increment)
     {
     }

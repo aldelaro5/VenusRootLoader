@@ -3,7 +3,10 @@ using VenusRootLoader.Api.Leaves;
 
 namespace VenusRootLoader.Registry;
 
-internal sealed class TermacadePrizesRegistry : AutoIncrementBasedRegistry<TermacadePrizeLeaf>
+internal sealed class TermacadePrizesRegistry : AutoSequentialIdBasedRegistry<TermacadePrizeLeaf>
 {
-    public TermacadePrizesRegistry(ILogger<TermacadePrizesRegistry> logger) : base(logger) { }
+    public TermacadePrizesRegistry(ILogger<TermacadePrizesRegistry> logger)
+        : base(logger, IdSequenceDirection.Increment)
+    {
+    }
 }

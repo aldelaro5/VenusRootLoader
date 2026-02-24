@@ -10,16 +10,19 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
 {
     private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<DiscoveryLeaf> _discoveriesRegistry;
+    private readonly ILeavesRegistry<RecordLeaf> _recordsRegistry;
 
     private static LibraryCapsTopLevelPatcher _instance = null!;
 
     public LibraryCapsTopLevelPatcher(
         IHarmonyTypePatcher harmonyTypePatcher,
-        ILeavesRegistry<DiscoveryLeaf> discoveriesRegistry)
+        ILeavesRegistry<DiscoveryLeaf> discoveriesRegistry,
+        ILeavesRegistry<RecordLeaf> recordsRegistry)
     {
         _instance = this;
         _harmonyTypePatcher = harmonyTypePatcher;
         _discoveriesRegistry = discoveriesRegistry;
+        _recordsRegistry = recordsRegistry;
     }
 
     public void Patch() => _harmonyTypePatcher.PatchAll(typeof(LibraryCapsTopLevelPatcher));
@@ -58,13 +61,20 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
     [HarmonyPatch(typeof(MainManager), MethodType.Constructor)]
     internal static bool PatchLibraryLimit()
     {
-        MainManager.librarylimit[0] = _instance._discoveriesRegistry.LeavesByNamedIds.Count;
+        MainManager.librarylimit[(int)MainManager.Library.Discovery] =
+            _instance._discoveriesRegistry.LeavesByNamedIds.Count;
+        MainManager.librarylimit[(int)MainManager.Library.Logbook] =
+            _instance._recordsRegistry.LeavesByNamedIds.Count;
         return true;
     }
 
     private static int GetNewLibraryStuffCap(int baseGameCap)
     {
-        int newCap = _instance._discoveriesRegistry.LeavesByNamedIds.Count;
+        int newCap = Enumerable.Max(
+        [
+            _instance._discoveriesRegistry.LeavesByNamedIds.Count,
+            _instance._recordsRegistry.LeavesByNamedIds.Count
+        ]);
         return baseGameCap < newCap ? newCap : baseGameCap;
     }
 }

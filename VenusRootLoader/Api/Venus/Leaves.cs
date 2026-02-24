@@ -95,4 +95,17 @@ public partial class Venus
 
     public IReadOnlyCollection<DiscoveryLeaf> GetAllDiscoveries() =>
         _registryResolver.Resolve<DiscoveryLeaf>().GetAll();
+
+    public RecordLeaf RegisterRecord(string namedId, int? orderAfter, int orderPriority) =>
+        _registryResolver.ResolveWithOrdering<RecordLeaf>().RegisterNewWithOrdering(
+            namedId,
+            _budId,
+            orderAfter,
+            orderPriority);
+
+    public RecordLeaf GetRecord(string namedId) =>
+        _registryResolver.Resolve<RecordLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<RecordLeaf> GetAllRecords() =>
+        _registryResolver.Resolve<RecordLeaf>().GetAll();
 }

@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Patching.Resources.TextAsset;
 using VenusRootLoader.Registry;
 
@@ -61,7 +62,11 @@ internal sealed class BaseGameDiscoveriesCollector : IBaseGameCollector
 
         _discoveriesOrderingDataSerializer.FromTextAssetString(DiscoveriesOrderingData, _orderedRegistry);
         foreach (DiscoveryLeaf leaf in _orderedRegistry.Registry.LeavesByGameIds.Values)
-            leaf.WrappedSprite.Sprite = _enemyPortraitsSprites[leaf.EnemyPortraitsSpriteIndex!.Value];
+        {
+            IEnemyPortraitSprite enemyPortraitSprite = leaf;
+            enemyPortraitSprite.WrappedSprite.Sprite =
+                _enemyPortraitsSprites[enemyPortraitSprite.EnemyPortraitsSpriteIndex!.Value];
+        }
 
         _logger.LogInformation(
             "Collected and registered {DiscoveriesAmount} base game discoveries",

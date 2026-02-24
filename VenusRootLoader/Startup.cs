@@ -67,11 +67,15 @@ internal static class Startup
         services.AddSingleton<ILeavesRegistry<FlagstringLeaf>, FlagstringsRegistry>();
         services.AddSingleton<ILeavesRegistry<PrizeMedalLeaf>, PrizeMedalsRegistry>();
         services.AddOrderedLeavesRegistry<DiscoveryLeaf, DiscoveriesRegistry>();
+        services.AddOrderedLeavesRegistry<RecordLeaf, RecordsRegistry>();
         services.AddSingleton<ILeavesRegistry<TermacadePrizeLeaf>, TermacadePrizesRegistry>();
         services.AddSingleton<IRegistryResolver, RegistryResolver>();
 
         services.AddSingleton<ISpriteArrayPatcher, EnemyPortraitsSpriteArrayPatcher>(provider =>
-            new(["Items/EnemyPortraits"], provider.GetRequiredService<ILeavesRegistry<DiscoveryLeaf>>()));
+            new(
+                ["Items/EnemyPortraits"],
+                provider.GetRequiredService<ILeavesRegistry<DiscoveryLeaf>>(),
+                provider.GetRequiredService<ILeavesRegistry<RecordLeaf>>()));
 
         services.AddTextAssetPatcher<ItemLeaf, ItemTextAssetParser>(["ItemData"]);
         services.AddLocalizedTextAssetPatcher<ItemLeaf, ItemLocalizedTextAssetParser>(["Items"]);
@@ -82,6 +86,9 @@ internal static class Startup
 
         services.AddOrderingTextAssetPatcher<DiscoveryLeaf, DiscoveryOrderingTextAssetParser>("DiscoveryOrder");
         services.AddLocalizedTextAssetPatcher<DiscoveryLeaf, DiscoveryLocalizedTextAssetParser>(["Discoveries"]);
+
+        services.AddOrderingTextAssetPatcher<RecordLeaf, RecordOrderingTextAssetParser>("SynopsisOrder");
+        services.AddLocalizedTextAssetPatcher<RecordLeaf, RecordLocalizedTextAssetParser>(["Synopsis"]);
         
         services.AddTextAssetPatcher<TermacadePrizeLeaf, TermacadePrizeTextAssetParser>(["Termacade"]);
         
@@ -104,6 +111,7 @@ internal static class Startup
         services.AddSingleton<IBaseGameCollector, BaseGamePrizeMedalsCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameGlobalFlagsCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameDiscoveriesCollector>();
+        services.AddSingleton<IBaseGameCollector, BaseGameRecordsCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameTermacadePrizesCollector>();
         services.AddSingleton<RootBaseGameDataCollector>();
 

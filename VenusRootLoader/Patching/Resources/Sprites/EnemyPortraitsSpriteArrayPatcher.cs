@@ -1,5 +1,6 @@
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Resources.Sprites;
@@ -7,11 +8,16 @@ namespace VenusRootLoader.Patching.Resources.Sprites;
 internal sealed class EnemyPortraitsSpriteArrayPatcher : ISpriteArrayPatcher
 {
     private readonly ILeavesRegistry<DiscoveryLeaf> _discoveriesRegistry;
+    private readonly ILeavesRegistry<RecordLeaf> _recordsRegistry;
 
-    public EnemyPortraitsSpriteArrayPatcher(string[] subPaths, ILeavesRegistry<DiscoveryLeaf> discoveriesRegistry)
+    public EnemyPortraitsSpriteArrayPatcher(
+        string[] subPaths,
+        ILeavesRegistry<DiscoveryLeaf> discoveriesRegistry,
+        ILeavesRegistry<RecordLeaf> recordsRegistry)
     {
         SubPaths = subPaths;
         _discoveriesRegistry = discoveriesRegistry;
+        _recordsRegistry = recordsRegistry;
     }
 
     public string[] SubPaths { get; }
@@ -25,25 +31,32 @@ internal sealed class EnemyPortraitsSpriteArrayPatcher : ISpriteArrayPatcher
             sprites.Add(i, sprite);
         }
 
-        ICollection<DiscoveryLeaf> allDiscoveries = _discoveriesRegistry
+        PatchSpritesFromRegistry(sprites, _discoveriesRegistry);
+        PatchSpritesFromRegistry(sprites, _recordsRegistry);
+
+        return sprites.Values.ToArray();
+    }
+
+    private void PatchSpritesFromRegistry<T>(SortedDictionary<int, Sprite> sprites, ILeavesRegistry<T> registry)
+        where T : class, ILeaf, IEnemyPortraitSprite
+    {
+        ICollection<T> allDiscoveries = registry
             .LeavesByNamedIds
             .Values;
-        List<DiscoveryLeaf> discoveriesWithDefinedSpriteIndex = allDiscoveries
+        List<T> discoveriesWithDefinedSpriteIndex = allDiscoveries
             .Where(l => l.EnemyPortraitsSpriteIndex is not null)
             .ToList();
-        List<DiscoveryLeaf> discoveriesWithoutDefinedSpriteIndex = allDiscoveries
+        List<T> discoveriesWithoutDefinedSpriteIndex = allDiscoveries
             .Except(discoveriesWithDefinedSpriteIndex)
             .ToList();
 
-        foreach (DiscoveryLeaf leaf in discoveriesWithDefinedSpriteIndex) 
+        foreach (T leaf in discoveriesWithDefinedSpriteIndex)
             sprites[leaf.EnemyPortraitsSpriteIndex!.Value] = leaf.WrappedSprite.Sprite;
 
-        foreach (DiscoveryLeaf leaf in discoveriesWithoutDefinedSpriteIndex)
+        foreach (T leaf in discoveriesWithoutDefinedSpriteIndex)
         {
             leaf.EnemyPortraitsSpriteIndex = sprites.Count;
             sprites.Add(leaf.EnemyPortraitsSpriteIndex.Value, leaf.WrappedSprite.Sprite);
         }
-
-        return sprites.Values.ToArray();
     }
 }

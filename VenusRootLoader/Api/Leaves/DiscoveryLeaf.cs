@@ -1,9 +1,10 @@
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Unity;
 
 namespace VenusRootLoader.Api.Leaves;
 
-public sealed class DiscoveryLeaf : ILeaf
+public sealed class DiscoveryLeaf : ILeaf, IEnemyPortraitSprite
 {
     public sealed class DiscoveryLanguageData
     {
@@ -17,19 +18,18 @@ public sealed class DiscoveryLeaf : ILeaf
         public int? RequiredFlagGameId { get; set; }
     }
 
-    internal WrappedSprite WrappedSprite = new();
-
     public int GameId { get; init; }
     public string NamedId { get; init; } = "";
     public string CreatorId { get; init; } = "";
 
-    internal int? EnemyPortraitsSpriteIndex { get; set; }
+    int? IEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }
+    WrappedSprite IEnemyPortraitSprite.WrappedSprite { get; set; } = new();
 
     public Dictionary<int, DiscoveryLanguageData> LanguageData { get; } = new();
 
     public Sprite PortraitSprite
     {
-        get => WrappedSprite.Sprite;
-        set => WrappedSprite.Sprite = value;
+        get => ((IEnemyPortraitSprite)this).WrappedSprite.Sprite;
+        set => ((IEnemyPortraitSprite)this).WrappedSprite.Sprite = value;
     }
 }

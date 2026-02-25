@@ -49,7 +49,7 @@ internal sealed class BaseGameMenuTextsCollector : IBaseGameCollector
         }
 
         _logger.LogInformation(
-            "Collected and registered {MenuTextsAmount} base game menu text",
+            "Collected and registered {MenuTextsAmount} base game MenuText",
             menuTextsAmount);
     }
 }

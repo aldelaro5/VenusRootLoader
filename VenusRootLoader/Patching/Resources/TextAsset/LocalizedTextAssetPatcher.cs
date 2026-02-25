@@ -39,8 +39,11 @@ internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
         if (!registryHasData)
             return original;
 
+        // TODO: Should we extract an internal interface to handle the common dialogues case?
         IEnumerable<string> newLines = _registry.LeavesByNamedIds.Values
-            .OrderBy(i => i.GameId)
+            .OrderBy(i => i is CommonDialogueLeaf commonDialogueLeaf
+                ? commonDialogueLeaf.InternalGameIndex
+                : i.GameId)
             .Select(customLine => _parser.GetTextAssetSerializedString(subpath, languageId, customLine));
 
         // Some game data relies on having a trailing LF for the parsing to work correctly

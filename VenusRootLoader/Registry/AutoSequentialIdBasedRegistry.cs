@@ -16,9 +16,13 @@ internal abstract class AutoSequentialIdBasedRegistry<TLeaf> : BaseRegistry<TLea
     private readonly IdSequenceDirection _idSequenceDirection;
     private int _nextAutoIncrementId;
 
-    protected AutoSequentialIdBasedRegistry(ILogger logger, IdSequenceDirection idSequenceDirection) : base(logger)
+    protected AutoSequentialIdBasedRegistry(
+        ILogger logger,
+        IdSequenceDirection idSequenceDirection,
+        int firstGameId = 0) : base(logger)
     {
         _idSequenceDirection = idSequenceDirection;
+        _nextAutoIncrementId = firstGameId;
     }
 
     protected sealed override int CreateNewGameId(string namedId, string creatorId)

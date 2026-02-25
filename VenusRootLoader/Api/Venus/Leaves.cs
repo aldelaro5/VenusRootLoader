@@ -117,4 +117,13 @@ public partial class Venus
 
     public IReadOnlyCollection<MenuTextLeaf> GetAllMenuTexts() =>
         _registryResolver.Resolve<MenuTextLeaf>().GetAll();
+
+    public CommonDialogueLeaf RegisterCommonDialogue(string namedId) =>
+        _registryResolver.Resolve<CommonDialogueLeaf>().RegisterNew(namedId, _budId);
+
+    public CommonDialogueLeaf GetCommonDialogue(string namedId) =>
+        _registryResolver.Resolve<CommonDialogueLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<CommonDialogueLeaf> GetAllMCommonDialogues() =>
+        _registryResolver.Resolve<CommonDialogueLeaf>().GetAll();
 }

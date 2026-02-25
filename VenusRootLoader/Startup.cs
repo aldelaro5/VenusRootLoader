@@ -65,6 +65,7 @@ internal static class Startup
         services.AddSingleton<ILeavesRegistry<FlagLeaf>, FlagsRegistry>();
         services.AddSingleton<ILeavesRegistry<FlagvarLeaf>, FlagvarsRegistry>();
         services.AddSingleton<ILeavesRegistry<FlagstringLeaf>, FlagstringsRegistry>();
+        services.AddSingleton<ILeavesRegistry<CommonDialogueLeaf>, CommonDialoguesRegistry>();
         services.AddSingleton<ILeavesRegistry<MenuTextLeaf>, MenuTextsRegistry>();
         services.AddSingleton<ILeavesRegistry<PrizeMedalLeaf>, PrizeMedalsRegistry>();
         services.AddOrderedLeavesRegistry<DiscoveryLeaf, DiscoveriesRegistry>();
@@ -84,6 +85,9 @@ internal static class Startup
         services.AddTextAssetPatcher<MedalLeaf, MedalTextAssetParser>(["BadgeData"]);
         services.AddOrderingTextAssetPatcher<MedalLeaf, MedalOrderingTextAssetParser>("BadgeOrder");
         services.AddLocalizedTextAssetPatcher<MedalLeaf, MedalLocalizedTextAssetParser>(["BadgeName"]);
+
+        services.AddLocalizedTextAssetPatcher<CommonDialogueLeaf, CommonDialoguelLocalizedTextAssetParser>(
+            ["CommonDialogue"]);
 
         services.AddLocalizedTextAssetPatcher<MenuTextLeaf, MenuTextlLocalizedTextAssetParser>(["MenuText"]);
         
@@ -113,6 +117,7 @@ internal static class Startup
         services.AddSingleton<IBaseGameCollector, BaseGameMedalsCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGamePrizeMedalsCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameGlobalFlagsCollector>();
+        services.AddSingleton<IBaseGameCollector, BaseGameCommonDialoguesCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameMenuTextsCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameDiscoveriesCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameRecordsCollector>();

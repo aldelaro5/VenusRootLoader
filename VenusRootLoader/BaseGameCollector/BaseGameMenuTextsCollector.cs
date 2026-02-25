@@ -25,10 +25,10 @@ internal sealed class BaseGameMenuTextsCollector : IBaseGameCollector
 
         for (int i = 0; i < RootBaseGameDataCollector.LanguageDisplayNames.Length; i++)
         {
-            string[] medalLanguageData = Resources.Load<TextAsset>($"Data/Dialogues{i}/MenuText").text
+            string[] menuTexts = Resources.Load<TextAsset>($"Data/Dialogues{i}/MenuText").text
                 .Trim(Utility.StringUtils.NewlineSplitDelimiter)
                 .Split(Utility.StringUtils.NewlineSplitDelimiter);
-            MenuTextsLanguageData.Add(i, medalLanguageData);
+            MenuTextsLanguageData.Add(i, menuTexts);
         }
     }
 

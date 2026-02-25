@@ -89,7 +89,7 @@ internal static class Startup
         services.AddLocalizedTextAssetPatcher<CommonDialogueLeaf, CommonDialoguelLocalizedTextAssetParser>(
             ["CommonDialogue"]);
 
-        services.AddLocalizedTextAssetPatcher<MenuTextLeaf, MenuTextlLocalizedTextAssetParser>(["MenuText"]);
+        services.AddLocalizedTextAssetPatcher<MenuTextLeaf, MenuTextLocalizedTextAssetParser>(["MenuText"]);
         
         services.AddOrderingTextAssetPatcher<DiscoveryLeaf, DiscoveryOrderingTextAssetParser>("DiscoveryOrder");
         services.AddLocalizedTextAssetPatcher<DiscoveryLeaf, DiscoveryLocalizedTextAssetParser>(["Discoveries"]);

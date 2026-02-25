@@ -124,6 +124,6 @@ public partial class Venus
     public CommonDialogueLeaf GetCommonDialogue(string namedId) =>
         _registryResolver.Resolve<CommonDialogueLeaf>().Get(namedId);
 
-    public IReadOnlyCollection<CommonDialogueLeaf> GetAllMCommonDialogues() =>
+    public IReadOnlyCollection<CommonDialogueLeaf> GetAllCommonDialogues() =>
         _registryResolver.Resolve<CommonDialogueLeaf>().GetAll();
 }

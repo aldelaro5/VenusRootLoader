@@ -65,6 +65,7 @@ internal static class Startup
         services.AddSingleton<ILeavesRegistry<FlagLeaf>, FlagsRegistry>();
         services.AddSingleton<ILeavesRegistry<FlagvarLeaf>, FlagvarsRegistry>();
         services.AddSingleton<ILeavesRegistry<FlagstringLeaf>, FlagstringsRegistry>();
+        services.AddSingleton<ILeavesRegistry<CrystalBerryLeaf>, CrystalBerriesRegistry>();
         services.AddSingleton<ILeavesRegistry<CommonDialogueLeaf>, CommonDialoguesRegistry>();
         services.AddSingleton<ILeavesRegistry<MenuTextLeaf>, MenuTextsRegistry>();
         services.AddSingleton<ILeavesRegistry<PrizeMedalLeaf>, PrizeMedalsRegistry>();
@@ -86,6 +87,9 @@ internal static class Startup
         services.AddOrderingTextAssetPatcher<MedalLeaf, MedalOrderingTextAssetParser>("BadgeOrder");
         services.AddLocalizedTextAssetPatcher<MedalLeaf, MedalLocalizedTextAssetParser>(["BadgeName"]);
 
+        services.AddLocalizedTextAssetPatcher<CrystalBerryLeaf, CrystalBerryLocalizedTextAssetParser>(
+            ["FortuneTeller0"]);
+        
         services.AddLocalizedTextAssetPatcher<CommonDialogueLeaf, CommonDialoguelLocalizedTextAssetParser>(
             ["CommonDialogue"]);
 
@@ -106,6 +110,7 @@ internal static class Startup
 
         services.AddSingleton<ITopLevelPatcher, ResourcesTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, GlobalFlagsCapsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, CrystalBerriesAmountTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, ItemAndMedalSpriteTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, PrizeMedalsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, LibraryCapsTopLevelPatcher>();
@@ -117,6 +122,7 @@ internal static class Startup
         services.AddSingleton<IBaseGameCollector, BaseGameMedalsCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGamePrizeMedalsCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameGlobalFlagsCollector>();
+        services.AddSingleton<IBaseGameCollector, BaseGameCrystalBerriesCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameCommonDialoguesCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameMenuTextsCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameDiscoveriesCollector>();

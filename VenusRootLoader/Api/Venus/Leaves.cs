@@ -126,4 +126,13 @@ public partial class Venus
 
     public IReadOnlyCollection<CommonDialogueLeaf> GetAllCommonDialogues() =>
         _registryResolver.Resolve<CommonDialogueLeaf>().GetAll();
+
+    public CrystalBerryLeaf RegisterCrystalBerry(string namedId) =>
+        _registryResolver.Resolve<CrystalBerryLeaf>().RegisterNew(namedId, _budId);
+
+    public CrystalBerryLeaf GetCrystalBerry(string namedId) =>
+        _registryResolver.Resolve<CrystalBerryLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<CrystalBerryLeaf> GetAllCrystalBerries() =>
+        _registryResolver.Resolve<CrystalBerryLeaf>().GetAll();
 }

@@ -91,7 +91,8 @@ internal static class Startup
             ["FortuneTeller0"]);
         
         services.AddLocalizedTextAssetPatcher<CommonDialogueLeaf, CommonDialoguelLocalizedTextAssetParser>(
-            ["CommonDialogue"]);
+            ["CommonDialogue"],
+            r => r.LeavesByNamedIds.Values.OrderBy(l => l.InternalGameIndex));
 
         services.AddLocalizedTextAssetPatcher<MenuTextLeaf, MenuTextLocalizedTextAssetParser>(["MenuText"]);
         

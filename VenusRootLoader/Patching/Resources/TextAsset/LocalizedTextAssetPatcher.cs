@@ -14,17 +14,20 @@ internal interface ILocalizedTextAssetPatcher
 internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
     where T : ILeaf
 {
+    private readonly Func<ILeavesRegistry<T>, IOrderedEnumerable<T>>? _leavesSorter;
     private readonly ILeavesRegistry<T> _registry;
     private readonly ILogger<LocalizedTextAssetPatcher<T>> _logger;
     private readonly ILocalizedTextAssetParser<T> _parser;
 
     public LocalizedTextAssetPatcher(
         string[] subPaths,
+        Func<ILeavesRegistry<T>, IOrderedEnumerable<T>>? leavesSorter,
         ILogger<LocalizedTextAssetPatcher<T>> logger,
         ILeavesRegistry<T> registry,
         ILocalizedTextAssetParser<T> parser)
     {
         SubPaths = subPaths;
+        _leavesSorter = leavesSorter;
         _registry = registry;
         _logger = logger;
         _parser = parser;
@@ -39,11 +42,10 @@ internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
         if (!registryHasData)
             return original;
 
-        // TODO: Should we extract an internal interface to handle the common dialogues case?
-        IEnumerable<string> newLines = _registry.LeavesByNamedIds.Values
-            .OrderBy(i => i is CommonDialogueLeaf commonDialogueLeaf
-                ? commonDialogueLeaf.InternalGameIndex
-                : i.GameId)
+        IOrderedEnumerable<T> sortedLeaves = _leavesSorter is null
+            ? _registry.LeavesByGameIds.Values.OrderBy(l => l.GameId)
+            : _leavesSorter(_registry);
+        IEnumerable<string> newLines = sortedLeaves
             .Select(customLine => _parser.GetTextAssetSerializedString(subpath, languageId, customLine));
 
         // Some game data relies on having a trailing LF for the parsing to work correctly

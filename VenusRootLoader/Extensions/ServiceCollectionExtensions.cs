@@ -48,7 +48,8 @@ internal static class ServiceCollectionExtensions
         }
 
         internal IServiceCollection AddLocalizedTextAssetPatcher<TLeaf, TTextAssetParser>(
-            string[] textAssetResourcesSubpath)
+            string[] textAssetResourcesSubpath,
+            Func<ILeavesRegistry<TLeaf>, IOrderedEnumerable<TLeaf>>? leavesSorter = null)
             where TLeaf : ILeaf
             where TTextAssetParser : class, ILocalizedTextAssetParser<TLeaf>
         {
@@ -56,6 +57,7 @@ internal static class ServiceCollectionExtensions
             collection.AddSingleton<ILocalizedTextAssetPatcher, LocalizedTextAssetPatcher<TLeaf>>(provider =>
                 new(
                 textAssetResourcesSubpath,
+                leavesSorter,
                 provider.GetRequiredService<ILogger<LocalizedTextAssetPatcher<TLeaf>>>(),
                 provider.GetRequiredService<ILeavesRegistry<TLeaf>>(),
                 provider.GetRequiredService<ILocalizedTextAssetParser<TLeaf>>()));

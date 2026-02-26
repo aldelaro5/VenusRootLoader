@@ -14,14 +14,14 @@ internal interface ILocalizedTextAssetPatcher
 internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
     where T : ILeaf
 {
-    private readonly Func<ILeavesRegistry<T>, IOrderedEnumerable<T>>? _leavesSorter;
+    private readonly Func<ILeavesRegistry<T>, IEnumerable<T>>? _leavesSorter;
     private readonly ILeavesRegistry<T> _registry;
     private readonly ILogger<LocalizedTextAssetPatcher<T>> _logger;
     private readonly ILocalizedTextAssetParser<T> _parser;
 
     public LocalizedTextAssetPatcher(
         string[] subPaths,
-        Func<ILeavesRegistry<T>, IOrderedEnumerable<T>>? leavesSorter,
+        Func<ILeavesRegistry<T>, IEnumerable<T>>? leavesSorter,
         ILogger<LocalizedTextAssetPatcher<T>> logger,
         ILeavesRegistry<T> registry,
         ILocalizedTextAssetParser<T> parser)
@@ -42,7 +42,7 @@ internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
         if (!registryHasData)
             return original;
 
-        IOrderedEnumerable<T> sortedLeaves = _leavesSorter is null
+        IEnumerable<T> sortedLeaves = _leavesSorter is null
             ? _registry.LeavesByGameIds.Values.OrderBy(l => l.GameId)
             : _leavesSorter(_registry);
         IEnumerable<string> newLines = sortedLeaves

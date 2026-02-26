@@ -15,13 +15,13 @@ internal sealed class TextAssetPatcher<T> : ITextAssetPatcher
     where T : ILeaf
 {
     private readonly ILeavesRegistry<T> _registry;
-    private readonly Func<ILeavesRegistry<T>, IOrderedEnumerable<T>>? _leavesSorter;
+    private readonly Func<ILeavesRegistry<T>, IEnumerable<T>>? _leavesSorter;
     private readonly ILogger<TextAssetPatcher<T>> _logger;
     private readonly ITextAssetParser<T> _parser;
 
     public TextAssetPatcher(
         string[] subPaths,
-        Func<ILeavesRegistry<T>, IOrderedEnumerable<T>>? leavesSorter,
+        Func<ILeavesRegistry<T>, IEnumerable<T>>? leavesSorter,
         ILogger<TextAssetPatcher<T>> logger,
         ILeavesRegistry<T> registry,
         ITextAssetParser<T> parser)
@@ -41,7 +41,7 @@ internal sealed class TextAssetPatcher<T> : ITextAssetPatcher
         if (!registryHasData)
             return original;
 
-        IOrderedEnumerable<T> sortedLeaves = _leavesSorter is null
+        IEnumerable<T> sortedLeaves = _leavesSorter is null
             ? _registry.LeavesByGameIds.Values.OrderBy(l => l.GameId)
             : _leavesSorter(_registry);
         IEnumerable<string> newLines = sortedLeaves

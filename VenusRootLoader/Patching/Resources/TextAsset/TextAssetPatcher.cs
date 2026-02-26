@@ -15,16 +15,19 @@ internal sealed class TextAssetPatcher<T> : ITextAssetPatcher
     where T : ILeaf
 {
     private readonly ILeavesRegistry<T> _registry;
+    private readonly Func<ILeavesRegistry<T>, IOrderedEnumerable<T>>? _leavesSorter;
     private readonly ILogger<TextAssetPatcher<T>> _logger;
     private readonly ITextAssetParser<T> _parser;
 
     public TextAssetPatcher(
         string[] subPaths,
+        Func<ILeavesRegistry<T>, IOrderedEnumerable<T>>? leavesSorter,
         ILogger<TextAssetPatcher<T>> logger,
         ILeavesRegistry<T> registry,
         ITextAssetParser<T> parser)
     {
         SubPaths = subPaths;
+        _leavesSorter = leavesSorter;
         _logger = logger;
         _parser = parser;
         _registry = registry;
@@ -38,8 +41,10 @@ internal sealed class TextAssetPatcher<T> : ITextAssetPatcher
         if (!registryHasData)
             return original;
 
-        IEnumerable<string> newLines = _registry.LeavesByNamedIds.Values
-            .OrderBy(i => i.GameId)
+        IOrderedEnumerable<T> sortedLeaves = _leavesSorter is null
+            ? _registry.LeavesByGameIds.Values.OrderBy(l => l.GameId)
+            : _leavesSorter(_registry);
+        IEnumerable<string> newLines = sortedLeaves
             .Select(customLine => _parser.GetTextAssetSerializedString(path, customLine));
 
         // Some game data relies on having a trailing LF for the parsing to work correctly

@@ -12,6 +12,7 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
     private readonly ILeavesRegistry<DiscoveryLeaf> _discoveriesRegistry;
     private readonly ILeavesRegistry<RecipeLibraryEntryLeaf> _recipeLibraryEntriesRegistry;
     private readonly ILeavesRegistry<RecordLeaf> _recordsRegistry;
+    private readonly ILeavesRegistry<AreaLeaf> _areasRegistry;
 
     private static LibraryCapsTopLevelPatcher _instance = null!;
 
@@ -19,12 +20,14 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
         IHarmonyTypePatcher harmonyTypePatcher,
         ILeavesRegistry<DiscoveryLeaf> discoveriesRegistry,
         ILeavesRegistry<RecipeLibraryEntryLeaf> recipeLibraryEntriesRegistry,
-        ILeavesRegistry<RecordLeaf> recordsRegistry)
+        ILeavesRegistry<RecordLeaf> recordsRegistry,
+        ILeavesRegistry<AreaLeaf> areasRegistry)
     {
         _instance = this;
         _harmonyTypePatcher = harmonyTypePatcher;
         _discoveriesRegistry = discoveriesRegistry;
         _recordsRegistry = recordsRegistry;
+        _areasRegistry = areasRegistry;
         _recipeLibraryEntriesRegistry = recipeLibraryEntriesRegistry;
     }
 
@@ -64,12 +67,14 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
     [HarmonyPatch(typeof(MainManager), MethodType.Constructor)]
     internal static bool PatchLibraryLimit()
     {
-        MainManager.librarylimit[(int)MainManager.Library.Discovery] =
-            _instance._discoveriesRegistry.LeavesByNamedIds.Count;
-        MainManager.librarylimit[(int)MainManager.Library.Recipes] =
-            _instance._recipeLibraryEntriesRegistry.LeavesByNamedIds.Count;
-        MainManager.librarylimit[(int)MainManager.Library.Logbook] =
-            _instance._recordsRegistry.LeavesByNamedIds.Count;
+        int[] original = new int[Enum.GetValues(typeof(MainManager.Library)).Length];
+        MainManager.librarylimit.CopyTo(original);
+
+        AssignNewLibraryLimitByPage(MainManager.Library.Discovery, _instance._discoveriesRegistry, original);
+        AssignNewLibraryLimitByPage(MainManager.Library.Recipes, _instance._recipeLibraryEntriesRegistry, original);
+        AssignNewLibraryLimitByPage(MainManager.Library.Logbook, _instance._recordsRegistry, original);
+        AssignNewLibraryLimitByPage(MainManager.Library.Map, _instance._areasRegistry, original);
+
         return true;
     }
 
@@ -79,8 +84,18 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
         [
             _instance._discoveriesRegistry.LeavesByNamedIds.Count,
             _instance._recipeLibraryEntriesRegistry.LeavesByNamedIds.Count,
-            _instance._recordsRegistry.LeavesByNamedIds.Count
+            _instance._recordsRegistry.LeavesByNamedIds.Count,
+            _instance._areasRegistry.LeavesByNamedIds.Count
         ]);
         return baseGameCap < newCap ? newCap : baseGameCap;
+    }
+
+    private static void AssignNewLibraryLimitByPage<T>(
+        MainManager.Library page,
+        ILeavesRegistry<T> registry,
+        int[] original)
+        where T : Leaf
+    {
+        MainManager.librarylimit[(int)page] = Math.Max(registry.LeavesByNamedIds.Count, original[(int)page]);
     }
 }

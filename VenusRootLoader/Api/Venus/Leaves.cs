@@ -144,4 +144,13 @@ public partial class Venus
 
     public IReadOnlyCollection<RecipeLibraryEntryLeaf> GetAllRecipeLibraryEntries() =>
         _registryResolver.Resolve<RecipeLibraryEntryLeaf>().GetAll();
+
+    public AreaLeaf RegisterArea(string namedId) =>
+        _registryResolver.Resolve<AreaLeaf>().RegisterNew(namedId, _budId);
+
+    public AreaLeaf GetArea(string namedId) =>
+        _registryResolver.Resolve<AreaLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<AreaLeaf> GetAllAreas() =>
+        _registryResolver.Resolve<AreaLeaf>().GetAll();
 }

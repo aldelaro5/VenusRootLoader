@@ -1,7 +1,16 @@
+using UnityEngine;
+
 namespace VenusRootLoader.Api.Leaves;
 
-internal sealed class AreaLeaf : Leaf
+public sealed class AreaLeaf : Leaf
 {
-    internal Dictionary<int, string> Name { get; } = new();
-    internal Dictionary<int, List<string>> PaginatedDescription { get; } = new();
+    public class AreaLanguageData
+    {
+        public string Name { get; set; } = "";
+        public List<string> PaginatedDescription { get; } = new();
+    }
+
+    internal Vector3 MapPosition { get; set; }
+
+    public Dictionary<int, AreaLanguageData> LanguageData { get; } = new();
 }

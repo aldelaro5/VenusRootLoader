@@ -2,12 +2,8 @@ using UnityEngine;
 
 namespace VenusRootLoader.Api.Leaves;
 
-internal sealed class EnemyLeaf : ILeaf
+internal sealed class EnemyLeaf : Leaf
 {
-    public int GameId { get; init; }
-    public string NamedId { get; init; } = "";
-    public string CreatorId { get; init; } = "";
-
     internal Dictionary<int, string> Name { get; } = new();
     internal Dictionary<int, string> Biography { get; } = new();
     internal Dictionary<int, string> BeeSpyDialogue { get; } = new();

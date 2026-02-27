@@ -12,7 +12,7 @@ internal interface ITextAssetPatcher
 }
 
 internal sealed class TextAssetPatcher<T> : ITextAssetPatcher
-    where T : ILeaf
+    where T : Leaf
 {
     private readonly ILeavesRegistry<T> _registry;
     private readonly Func<ILeavesRegistry<T>, IEnumerable<T>>? _leavesSorter;

@@ -12,7 +12,7 @@ internal interface ILocalizedTextAssetPatcher
 }
 
 internal sealed class LocalizedTextAssetPatcher<T> : ILocalizedTextAssetPatcher
-    where T : ILeaf
+    where T : Leaf
 {
     private readonly Func<ILeavesRegistry<T>, IEnumerable<T>>? _leavesSorter;
     private readonly ILeavesRegistry<T> _registry;

@@ -6,7 +6,7 @@ using VenusRootLoader.Patching;
 namespace VenusRootLoader.Registry;
 
 internal abstract class EnumBasedRegistry<TLeaf, TEnum> : BaseRegistry<TLeaf>
-    where TLeaf : ILeaf, new()
+    where TLeaf : Leaf, new()
     where TEnum : Enum
 {
     private readonly EnumPatcher _enumPatcher;

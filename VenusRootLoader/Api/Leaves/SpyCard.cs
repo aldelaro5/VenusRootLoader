@@ -1,6 +1,6 @@
 namespace VenusRootLoader.Api.Leaves;
 
-internal sealed class SpyCardLeaf : ILeaf
+internal sealed class SpyCardLeaf : Leaf
 {
     internal sealed class SpyCardEffect
     {
@@ -8,10 +8,6 @@ internal sealed class SpyCardLeaf : ILeaf
         internal int FirstValue { get; set; }
         internal int SecondValue { get; set; }
     }
-
-    public int GameId { get; init; }
-    public string NamedId { get; init; } = "";
-    public string CreatorId { get; init; } = "";
 
     internal Dictionary<int, string> Description { get; } = new();
     internal Dictionary<int, float> HorizontalNameSize { get; } = new();

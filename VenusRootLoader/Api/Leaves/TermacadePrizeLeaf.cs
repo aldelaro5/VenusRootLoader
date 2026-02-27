@@ -1,6 +1,6 @@
 namespace VenusRootLoader.Api.Leaves;
 
-public sealed class TermacadePrizeLeaf : ILeaf
+public sealed class TermacadePrizeLeaf : Leaf
 {
     public enum TermacadePrizeType
     {
@@ -8,10 +8,6 @@ public sealed class TermacadePrizeLeaf : ILeaf
         KeyItem,
         Medal
     }
-    
-    public int GameId { get; init; }
-    public string NamedId { get; init; } = "";
-    public string CreatorId { get; init; } = "";
 
     public TermacadePrizeType PrizeType { get; set; }
     public int ItemOrMedalGameId { get; set; }

@@ -11,7 +11,7 @@ internal static class ServiceCollectionExtensions
     extension(IServiceCollection collection)
     {
         internal IServiceCollection AddOrderedLeavesRegistry<TLeaf, TRegistry>()
-            where TLeaf : ILeaf, new()
+            where TLeaf : Leaf, new()
             where TRegistry : class, ILeavesRegistry<TLeaf>
         {
             collection.AddSingleton<ILeavesRegistry<TLeaf>, TRegistry>();
@@ -22,7 +22,7 @@ internal static class ServiceCollectionExtensions
         internal IServiceCollection AddTextAssetPatcher<TLeaf, TTextAssetParser>(
             string[] textAssetResourcesPath,
             Func<ILeavesRegistry<TLeaf>, IEnumerable<TLeaf>>? leavesSorter = null)
-            where TLeaf : ILeaf
+            where TLeaf : Leaf
             where TTextAssetParser : class, ITextAssetParser<TLeaf>
         {
             collection.AddSingleton<ITextAssetParser<TLeaf>, TTextAssetParser>();
@@ -37,7 +37,7 @@ internal static class ServiceCollectionExtensions
 
         internal IServiceCollection AddOrderingTextAssetPatcher<TLeaf, TTextAssetParser>(
             string textAssetResourcesPath)
-            where TLeaf : ILeaf
+            where TLeaf : Leaf
             where TTextAssetParser : class, IOrderingTextAssetParser<TLeaf>
         {
             collection.AddSingleton<IOrderingTextAssetParser<TLeaf>, TTextAssetParser>();
@@ -52,7 +52,7 @@ internal static class ServiceCollectionExtensions
         internal IServiceCollection AddLocalizedTextAssetPatcher<TLeaf, TTextAssetParser>(
             string[] textAssetResourcesSubpath,
             Func<ILeavesRegistry<TLeaf>, IEnumerable<TLeaf>>? leavesSorter = null)
-            where TLeaf : ILeaf
+            where TLeaf : Leaf
             where TTextAssetParser : class, ILocalizedTextAssetParser<TLeaf>
         {
             collection.AddSingleton<ILocalizedTextAssetParser<TLeaf>, TTextAssetParser>();

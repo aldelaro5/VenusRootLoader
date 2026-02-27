@@ -1,11 +1,7 @@
 namespace VenusRootLoader.Api.Leaves;
 
-internal sealed class SkillLeaf : ILeaf
+internal sealed class SkillLeaf : Leaf
 {
-    public int GameId { get; init; }
-    public string NamedId { get; init; } = "";
-    public string CreatorId { get; init; } = "";
-
     internal Dictionary<int, string> Name { get; set; } = new();
     internal Dictionary<int, string> Description { get; set; } = new();
 

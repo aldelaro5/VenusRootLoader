@@ -3,7 +3,7 @@ using VenusRootLoader.Api.Leaves;
 namespace VenusRootLoader.Registry;
 
 internal interface ILeavesRegistry<TLeaf>
-    where TLeaf : ILeaf
+    where TLeaf : Leaf
 {
     IDictionary<string, TLeaf> LeavesByNamedIds { get; }
     IDictionary<int, TLeaf> LeavesByGameIds { get; }

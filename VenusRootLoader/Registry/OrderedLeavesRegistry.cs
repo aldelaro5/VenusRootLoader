@@ -3,7 +3,7 @@ using VenusRootLoader.Api.Leaves;
 namespace VenusRootLoader.Registry;
 
 internal sealed class OrderedLeavesRegistry<TLeaf> : IOrderedLeavesRegistry<TLeaf>
-    where TLeaf : ILeaf, new()
+    where TLeaf : Leaf, new()
 {
     private class LeafOrdering
     {

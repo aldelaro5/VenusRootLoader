@@ -4,7 +4,7 @@ using VenusRootLoader.Unity;
 
 namespace VenusRootLoader.Api.Leaves;
 
-public sealed class DiscoveryLeaf : ILeaf, IEnemyPortraitSprite
+public sealed class DiscoveryLeaf : Leaf, IEnemyPortraitSprite
 {
     public sealed class DiscoveryLanguageData
     {
@@ -17,10 +17,6 @@ public sealed class DiscoveryLeaf : ILeaf, IEnemyPortraitSprite
         public string Text { get; set; } = "<NO CONTENT>";
         public int? RequiredFlagGameId { get; set; }
     }
-
-    public int GameId { get; init; }
-    public string NamedId { get; init; } = "";
-    public string CreatorId { get; init; } = "";
 
     int? IEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }
     WrappedSprite IEnemyPortraitSprite.WrappedSprite { get; set; } = new();

@@ -5,7 +5,7 @@ using VenusRootLoader.Api.Leaves;
 namespace VenusRootLoader.Registry;
 
 internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
-    where TLeaf : ILeaf, new()
+    where TLeaf : Leaf, new()
 {
     private readonly ILogger _logger;
     private readonly string _registryName = typeof(TLeaf).Name;

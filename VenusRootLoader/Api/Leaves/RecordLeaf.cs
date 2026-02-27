@@ -4,17 +4,13 @@ using VenusRootLoader.Unity;
 
 namespace VenusRootLoader.Api.Leaves;
 
-public sealed class RecordLeaf : ILeaf, IEnemyPortraitSprite
+public sealed class RecordLeaf : Leaf, IEnemyPortraitSprite
 {
     public sealed class RecordLanguageData
     {
         public string Name { get; set; } = "";
         public string Description { get; set; } = "";
     }
-
-    public int GameId { get; init; }
-    public string NamedId { get; init; } = "";
-    public string CreatorId { get; init; } = "";
 
     int? IEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }
     WrappedSprite IEnemyPortraitSprite.WrappedSprite { get; set; } = new();

@@ -6,10 +6,10 @@ namespace VenusRootLoader.Registry;
 internal interface IRegistryResolver
 {
     ILeavesRegistry<T> Resolve<T>()
-        where T : ILeaf;
+        where T : Leaf;
 
     IOrderedLeavesRegistry<T> ResolveWithOrdering<T>()
-        where T : ILeaf;
+        where T : Leaf;
 }
 
 internal sealed class RegistryResolver : IRegistryResolver
@@ -19,12 +19,12 @@ internal sealed class RegistryResolver : IRegistryResolver
     public RegistryResolver(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider;
 
     public ILeavesRegistry<T> Resolve<T>()
-        where T : ILeaf
+        where T : Leaf
     {
         return _serviceProvider.GetRequiredService<ILeavesRegistry<T>>();
     }
 
-    public IOrderedLeavesRegistry<T> ResolveWithOrdering<T>() where T : ILeaf
+    public IOrderedLeavesRegistry<T> ResolveWithOrdering<T>() where T : Leaf
     {
         return _serviceProvider.GetRequiredService<IOrderedLeavesRegistry<T>>();
     }

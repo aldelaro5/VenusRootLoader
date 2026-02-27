@@ -38,7 +38,7 @@ internal sealed class EnemyPortraitsSpriteArrayPatcher : ISpriteArrayPatcher
     }
 
     private void PatchSpritesFromRegistry<T>(SortedDictionary<int, Sprite> sprites, ILeavesRegistry<T> registry)
-        where T : class, ILeaf, IEnemyPortraitSprite
+        where T : Leaf, IEnemyPortraitSprite
     {
         ICollection<T> allDiscoveries = registry
             .LeavesByNamedIds

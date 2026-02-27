@@ -5,7 +5,7 @@ using VenusRootLoader.Api.Leaves;
 namespace VenusRootLoader.Registry;
 
 internal abstract class AutoSequentialIdBasedRegistry<TLeaf> : BaseRegistry<TLeaf>
-    where TLeaf : ILeaf, new()
+    where TLeaf : Leaf, new()
 {
     internal enum IdSequenceDirection
     {

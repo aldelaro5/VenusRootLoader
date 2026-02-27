@@ -12,7 +12,7 @@ internal interface IOrderingTextAssetPatcher
 }
 
 internal sealed class OrderingTextAssetPatcher<T> : IOrderingTextAssetPatcher
-    where T : ILeaf
+    where T : Leaf
 {
     private readonly IOrderedLeavesRegistry<T> _orderedLeaves;
     private readonly ILogger<OrderingTextAssetPatcher<T>> _logger;

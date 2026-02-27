@@ -3,7 +3,7 @@ using VenusRootLoader.Api.Leaves;
 namespace VenusRootLoader.Registry;
 
 internal interface IOrderedLeavesRegistry<TLeaf>
-    where TLeaf : ILeaf
+    where TLeaf : Leaf
 {
     ILeavesRegistry<TLeaf> Registry { get; }
     TLeaf RegisterNewWithOrdering(string namedId, string creatorId, int? orderAfterBaseGameId, int orderPriority);

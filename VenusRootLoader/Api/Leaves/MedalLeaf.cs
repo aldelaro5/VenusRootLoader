@@ -3,7 +3,7 @@ using VenusRootLoader.Unity;
 
 namespace VenusRootLoader.Api.Leaves;
 
-public sealed class MedalLeaf : ILeaf
+public sealed class MedalLeaf : Leaf
 {
     public sealed class MedalEffect
     {
@@ -19,10 +19,6 @@ public sealed class MedalLeaf : ILeaf
     }
 
     internal WrappedSprite WrappedSprite = new();
-
-    public int GameId { get; init; }
-    public string NamedId { get; init; } = "";
-    public string CreatorId { get; init; } = "";
 
     internal int Items1SpriteIndex { get; set; } = -1;
 

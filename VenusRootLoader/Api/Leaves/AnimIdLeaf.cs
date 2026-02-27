@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace VenusRootLoader.Api.Leaves;
 
-internal sealed class AnimIdLeaf : ILeaf
+internal sealed class AnimIdLeaf : Leaf
 {
     internal sealed class AnimIdResourcePreload
     {
@@ -10,10 +10,6 @@ internal sealed class AnimIdLeaf : ILeaf
         internal bool PreloadOnlyDuringBattles { get; set; }
         internal bool IsSprite { get; set; }
     }
-
-    public int GameId { get; init; }
-    public string NamedId { get; init; } = "";
-    public string CreatorId { get; init; } = "";
 
     internal float ShadowSize { get; set; } = 1.0f;
     internal Vector3 StartScale { get; set; } = Vector3.one;

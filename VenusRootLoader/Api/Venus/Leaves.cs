@@ -29,15 +29,6 @@ public partial class Venus
     public IReadOnlyCollection<MedalLeaf> GetAllMedals() =>
         _registryResolver.Resolve<MedalLeaf>().GetAll();
 
-    public RecipeLeaf RegisterRecipe(string namedId) =>
-        _registryResolver.Resolve<RecipeLeaf>().RegisterNew(namedId, _budId);
-
-    public RecipeLeaf GetRecipe(string namedId) =>
-        _registryResolver.Resolve<RecipeLeaf>().Get(namedId);
-
-    public IReadOnlyCollection<RecipeLeaf> GetAllRecipes() =>
-        _registryResolver.Resolve<RecipeLeaf>().GetAll();
-
     public TermacadePrizeLeaf RegisterTermacadePrize(string namedId) =>
         _registryResolver.Resolve<TermacadePrizeLeaf>().RegisterNew(namedId, _budId);
 
@@ -135,4 +126,22 @@ public partial class Venus
 
     public IReadOnlyCollection<CrystalBerryLeaf> GetAllCrystalBerries() =>
         _registryResolver.Resolve<CrystalBerryLeaf>().GetAll();
+
+    public RecipeLeaf RegisterRecipe(string namedId) =>
+        _registryResolver.Resolve<RecipeLeaf>().RegisterNew(namedId, _budId);
+
+    public RecipeLeaf GetRecipe(string namedId) =>
+        _registryResolver.Resolve<RecipeLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<RecipeLeaf> GetAllRecipes() =>
+        _registryResolver.Resolve<RecipeLeaf>().GetAll();
+
+    public RecipeLibraryEntryLeaf RegisterRecipeLibraryEntry(string namedId) =>
+        _registryResolver.Resolve<RecipeLibraryEntryLeaf>().RegisterNew(namedId, _budId);
+
+    public RecipeLibraryEntryLeaf GetRecipeLibraryEntry(string namedId) =>
+        _registryResolver.Resolve<RecipeLibraryEntryLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<RecipeLibraryEntryLeaf> GetAllRecipeLibraryEntries() =>
+        _registryResolver.Resolve<RecipeLibraryEntryLeaf>().GetAll();
 }

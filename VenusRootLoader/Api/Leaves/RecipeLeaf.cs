@@ -1,12 +1,8 @@
 namespace VenusRootLoader.Api.Leaves;
 
-public sealed class RecipeLeaf : ILeaf
+public sealed class RecipeLeaf : Leaf
 {
-    public int GameId { get; init; }
-    public string NamedId { get; init; } = "";
-    public string CreatorId { get; init; } = "";
-
-    public int FirstItemGameId { get; set; }
-    public int? SecondItemGameId { get; set; }
-    public int ResultItemGameId { get; set; }
+    public Branch<ItemLeaf>? FirstItem { get; set; }
+    public Branch<ItemLeaf>? SecondItem { get; set; }
+    public Branch<ItemLeaf> ResultItem { get; set; }
 }

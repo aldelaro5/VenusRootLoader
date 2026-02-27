@@ -62,6 +62,7 @@ internal static class Startup
         services.AddSingleton<ILeavesRegistry<ItemLeaf>, ItemsRegistry>();
         services.AddOrderedLeavesRegistry<MedalLeaf, MedalsRegistry>();
         services.AddSingleton<ILeavesRegistry<RecipeLeaf>, RecipesRegistry>();
+        services.AddSingleton<ILeavesRegistry<RecipeLibraryEntryLeaf>, RecipeLibraryEntriesRegistry>();
         services.AddSingleton<ILeavesRegistry<FlagLeaf>, FlagsRegistry>();
         services.AddSingleton<ILeavesRegistry<FlagvarLeaf>, FlagvarsRegistry>();
         services.AddSingleton<ILeavesRegistry<FlagstringLeaf>, FlagstringsRegistry>();
@@ -105,6 +106,8 @@ internal static class Startup
         services.AddTextAssetPatcher<TermacadePrizeLeaf, TermacadePrizeTextAssetParser>(["Termacade"]);
         
         services.AddTextAssetPatcher<RecipeLeaf, RecipeTextAssetParser>(["RecipeData"]);
+        services.AddTextAssetPatcher<RecipeLibraryEntryLeaf, RecipeLibraryEntryTextAssetParser>(
+            ["CookOrder", "CookLibrary"]);
 
         services.AddSingleton<IResourcesTypePatcher<TextAsset>, RootTextAssetPatcher>();
         services.AddSingleton<IResourcesArrayTypePatcher<Sprite>, RootSpritesArrayPatcher>();
@@ -118,8 +121,9 @@ internal static class Startup
         services.AddSingleton<RootPatcher>();
 
         services.AddSingleton<IAssemblyCSharpDataCollector, AssemblyCSharpDataCollector>();
-        services.AddSingleton<IBaseGameCollector, BaseGameRecipesCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameItemsCollector>();
+        services.AddSingleton<IBaseGameCollector, BaseGameRecipesCollector>();
+        services.AddSingleton<IBaseGameCollector, BaseGameRecipeLibraryEntriesCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameMedalsCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGamePrizeMedalsCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameGlobalFlagsCollector>();

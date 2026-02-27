@@ -10,6 +10,7 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
 {
     private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<DiscoveryLeaf> _discoveriesRegistry;
+    private readonly ILeavesRegistry<RecipeLibraryEntryLeaf> _recipeLibraryEntriesRegistry;
     private readonly ILeavesRegistry<RecordLeaf> _recordsRegistry;
 
     private static LibraryCapsTopLevelPatcher _instance = null!;
@@ -17,12 +18,14 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
     public LibraryCapsTopLevelPatcher(
         IHarmonyTypePatcher harmonyTypePatcher,
         ILeavesRegistry<DiscoveryLeaf> discoveriesRegistry,
+        ILeavesRegistry<RecipeLibraryEntryLeaf> recipeLibraryEntriesRegistry,
         ILeavesRegistry<RecordLeaf> recordsRegistry)
     {
         _instance = this;
         _harmonyTypePatcher = harmonyTypePatcher;
         _discoveriesRegistry = discoveriesRegistry;
         _recordsRegistry = recordsRegistry;
+        _recipeLibraryEntriesRegistry = recipeLibraryEntriesRegistry;
     }
 
     public void Patch() => _harmonyTypePatcher.PatchAll(typeof(LibraryCapsTopLevelPatcher));
@@ -63,6 +66,8 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
     {
         MainManager.librarylimit[(int)MainManager.Library.Discovery] =
             _instance._discoveriesRegistry.LeavesByNamedIds.Count;
+        MainManager.librarylimit[(int)MainManager.Library.Recipes] =
+            _instance._recipeLibraryEntriesRegistry.LeavesByNamedIds.Count;
         MainManager.librarylimit[(int)MainManager.Library.Logbook] =
             _instance._recordsRegistry.LeavesByNamedIds.Count;
         return true;
@@ -73,6 +78,7 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
         int newCap = Enumerable.Max(
         [
             _instance._discoveriesRegistry.LeavesByNamedIds.Count,
+            _instance._recipeLibraryEntriesRegistry.LeavesByNamedIds.Count,
             _instance._recordsRegistry.LeavesByNamedIds.Count
         ]);
         return baseGameCap < newCap ? newCap : baseGameCap;

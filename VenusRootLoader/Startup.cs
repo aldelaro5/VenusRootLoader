@@ -122,6 +122,7 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, ItemAndMedalSpriteTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, PrizeMedalsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, LibraryCapsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, AreaMapPositionsTopLevelPatcher>();
         services.AddSingleton<RootPatcher>();
 
         services.AddSingleton<IAssemblyCSharpDataCollector, AssemblyCSharpDataCollector>();

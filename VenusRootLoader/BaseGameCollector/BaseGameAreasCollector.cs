@@ -1,4 +1,9 @@
+using HarmonyLib;
 using Microsoft.Extensions.Logging;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
+using MonoMod.Utils;
+using System.Reflection;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAsset;
@@ -58,6 +63,28 @@ internal sealed class BaseGameAreasCollector : IBaseGameCollector
                     AreaDescriptionsData[j][i],
                     areaLeaf);
             }
+        }
+
+        MethodInfo setVariableMethod =
+            AccessTools.DeclaredMethod(typeof(PauseMenu), nameof(PauseMenu.MapSetup))!;
+        using DynamicMethodDefinition dmd = new(setVariableMethod);
+        ILContext context = new(dmd.Definition);
+        ILCursor cursor = new(context);
+
+        cursor.GotoNext(i => i.Match(OpCodes.Switch));
+        Instruction[] switchArmInstructions = (Instruction[])cursor.Instrs[cursor.Index].Operand;
+
+        for (int i = 0; i < switchArmInstructions.Length; i++)
+        {
+            Instruction switchArmInstruction = switchArmInstructions[i];
+            cursor.Goto(switchArmInstruction);
+            float x = 0f;
+            float z = 0f;
+            cursor.GotoNext(inst => inst.MatchLdcR4(out x));
+            cursor.GotoNext(inst => inst.MatchLdcR4(out _));
+            cursor.GotoNext(inst => inst.MatchLdcR4(out z));
+
+            _areasRegistry.LeavesByGameIds[i].MapPosition = new(-x, -z);
         }
 
         _logger.LogInformation(

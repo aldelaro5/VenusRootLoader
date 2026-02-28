@@ -10,7 +10,7 @@ public sealed class AreaLeaf : Leaf
         public List<string> PaginatedDescription { get; } = new();
     }
 
-    internal Vector3 MapPosition { get; set; }
+    public Vector2 MapPosition { get; set; }
 
     public Dictionary<int, AreaLanguageData> LanguageData { get; } = new();
 }

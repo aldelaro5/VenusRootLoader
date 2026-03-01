@@ -80,6 +80,8 @@
       // Setting it to any other level won't capture the native logs, but it will capture the managed one with appropriate levels.
       // NOTE: Native Unity logs can be very verbose and constantly spam messages. Only use "Trace" for complex diagnostics.
       "UNITY": "Debug",
+      "VenusRootLoader.Bootstrap": "Warning",
+      "VenusRootLoader.Bootstrap.Mono": "Information",
       "VenusRootLoader.AppDomainEventsHandler": "Information",
       "VenusRootLoader.Logging.HarmonyLogger": "Warning",
       "VenusRootLoader.Patching": "Trace",

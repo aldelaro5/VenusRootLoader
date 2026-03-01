@@ -63,7 +63,7 @@ internal sealed class BaseGameItemsCollector : IBaseGameCollector
                 : _items1Sprites[i - ItemsSpritesAmountInItems0];
             for (int j = 0; j < RootBaseGameDataCollector.LanguageDisplayNames.Length; j++)
             {
-                itemLeaf.LanguageData[j] = new();
+                itemLeaf.LocalizedData[j] = new();
                 _itemLanguageDataSerializer.FromTextAssetSerializedString(
                     "Items",
                     j,

@@ -51,7 +51,7 @@ internal sealed class BaseGameDiscoveriesCollector : IBaseGameCollector
             DiscoveryLeaf discoveryLeaf = _orderedRegistry.RegisterExistingWithOrdering(i, i.ToString(), baseGameId);
             for (int j = 0; j < RootBaseGameDataCollector.LanguageDisplayNames.Length; j++)
             {
-                discoveryLeaf.LanguageData[j] = new();
+                discoveryLeaf.LocalizedData[j] = new();
                 _discoveriesLanguageDataSerializer.FromTextAssetSerializedString(
                     "Discoveries",
                     j,

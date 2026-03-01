@@ -8,29 +8,16 @@ internal sealed class EnemyLocalizedTextAssetParser : ILocalizedTextAssetParser<
 {
     public string GetTextAssetSerializedString(string subPath, int languageId, EnemyLeaf leaf)
     {
-        EnemyLeaf.EnemyLanguageData? languageData = null;
-        if (leaf.LanguageData.Count == 0)
-            languageData = Activator.CreateInstance<EnemyLeaf.EnemyLanguageData>();
-
-        if (leaf.LanguageData.TryGetValue(languageId, out EnemyLeaf.EnemyLanguageData value))
-            languageData = value;
-
-        if (languageData == null)
-        {
-            int firstLanguage = leaf.LanguageData.Keys.Min();
-            languageData = leaf.LanguageData[firstLanguage];
-        }
-        
         StringBuilder sb = new();
-        sb.Append(languageData.Name);
+        sb.Append(leaf.LocalizedData[languageId].Name);
         sb.Append('@');
-        sb.Append(string.Join("{", languageData.PaginatedBiography));
+        sb.Append(string.Join("{", leaf.LocalizedData[languageId].PaginatedBiography));
         sb.Append('@');
-        sb.Append(languageData.BeeSpyDialogue);
+        sb.Append(leaf.LocalizedData[languageId].BeeSpyDialogue);
         sb.Append('@');
-        sb.Append(languageData.BeetleSpyDialogue);
+        sb.Append(leaf.LocalizedData[languageId].BeetleSpyDialogue);
         sb.Append('@');
-        sb.Append(languageData.MothSpyDialogue);
+        sb.Append(leaf.LocalizedData[languageId].MothSpyDialogue);
 
         return sb.ToString();
     }
@@ -38,7 +25,7 @@ internal sealed class EnemyLocalizedTextAssetParser : ILocalizedTextAssetParser<
     public void FromTextAssetSerializedString(string subPath, int languageId, string text, EnemyLeaf leaf)
     {
         string[] fields = text.Split(StringUtils.AtSymbolSplitDelimiter);
-        leaf.LanguageData[languageId] = new()
+        leaf.LocalizedData[languageId] = new()
         {
             Name = fields[0],
             PaginatedBiography = fields[1].Split(StringUtils.OpeningBraceSplitDelimiter).ToList(),

@@ -51,7 +51,7 @@ internal sealed class BaseGameRecordsCollector : IBaseGameCollector
             RecordLeaf recordLeaf = _orderedRegistry.RegisterExistingWithOrdering(i, i.ToString(), baseGameId);
             for (int j = 0; j < RootBaseGameDataCollector.LanguageDisplayNames.Length; j++)
             {
-                recordLeaf.LanguageData[j] = new();
+                recordLeaf.LocalizedData[j] = new();
                 _recordsLanguageDataSerializer.FromTextAssetSerializedString(
                     "Synopsis",
                     j,

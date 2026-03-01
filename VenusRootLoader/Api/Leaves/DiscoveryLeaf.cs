@@ -21,7 +21,7 @@ public sealed class DiscoveryLeaf : Leaf, IEnemyPortraitSprite
     int? IEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }
     WrappedSprite IEnemyPortraitSprite.WrappedSprite { get; set; } = new();
 
-    public Dictionary<int, DiscoveryLanguageData> LanguageData { get; } = new();
+    public LocalizedData<DiscoveryLanguageData> LocalizedData { get; } = new();
 
     public Sprite PortraitSprite
     {

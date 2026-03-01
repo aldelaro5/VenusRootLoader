@@ -8,29 +8,16 @@ internal sealed class ItemLocalizedTextAssetParser : ILocalizedTextAssetParser<I
 {
     public string GetTextAssetSerializedString(string subPath, int languageId, ItemLeaf leaf)
     {
-        ItemLeaf.ItemLanguageData? languageData = null;
-        if (leaf.LanguageData.Count == 0)
-            languageData = Activator.CreateInstance<ItemLeaf.ItemLanguageData>();
-
-        if (leaf.LanguageData.TryGetValue(languageId, out ItemLeaf.ItemLanguageData value))
-            languageData = value;
-
-        if (languageData == null)
-        {
-            int firstLanguage = leaf.LanguageData.Keys.Min();
-            languageData = leaf.LanguageData[firstLanguage];
-        }
-        
         StringBuilder sb = new();
-        sb.Append(languageData.Name);
+        sb.Append(leaf.LocalizedData[languageId].Name);
         sb.Append('@');
-        sb.Append(languageData.UnusedDescription);
+        sb.Append(leaf.LocalizedData[languageId].UnusedDescription);
         sb.Append('@');
-        sb.Append(languageData.Description);
-        if (languageData.Prepender != null)
+        sb.Append(leaf.LocalizedData[languageId].Description);
+        if (leaf.LocalizedData[languageId].Prepender != null)
         {
             sb.Append('@');
-            sb.Append(languageData.Prepender);
+            sb.Append(leaf.LocalizedData[languageId].Prepender);
         }
 
         return sb.ToString();
@@ -39,11 +26,11 @@ internal sealed class ItemLocalizedTextAssetParser : ILocalizedTextAssetParser<I
     public void FromTextAssetSerializedString(string subPath, int languageId, string text, ItemLeaf leaf)
     {
         string[] fields = text.Split(StringUtils.AtSymbolSplitDelimiter);
-        leaf.LanguageData[languageId] = new();
-        leaf.LanguageData[languageId].Name = fields[0];
-        leaf.LanguageData[languageId].UnusedDescription = fields[1];
-        leaf.LanguageData[languageId].Description = fields[2];
+        leaf.LocalizedData[languageId] = new();
+        leaf.LocalizedData[languageId].Name = fields[0];
+        leaf.LocalizedData[languageId].UnusedDescription = fields[1];
+        leaf.LocalizedData[languageId].Description = fields[2];
         if (fields.Length > 3)
-            leaf.LanguageData[languageId].Prepender = fields[3];
+            leaf.LocalizedData[languageId].Prepender = fields[3];
     }
 }

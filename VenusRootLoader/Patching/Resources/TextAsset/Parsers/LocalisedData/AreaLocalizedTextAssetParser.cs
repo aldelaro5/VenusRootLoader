@@ -11,41 +11,28 @@ internal sealed class AreaLocalizedTextAssetParser : ILocalizedTextAssetParser<A
 
     public string GetTextAssetSerializedString(string subPath, int languageId, AreaLeaf leaf)
     {
-        AreaLeaf.AreaLanguageData? languageData = null;
-        if (leaf.LanguageData.Count == 0)
-            languageData = Activator.CreateInstance<AreaLeaf.AreaLanguageData>();
-
-        if (leaf.LanguageData.TryGetValue(languageId, out AreaLeaf.AreaLanguageData value))
-            languageData = value;
-
-        if (languageData == null)
-        {
-            int firstLanguage = leaf.LanguageData.Keys.Min();
-            languageData = leaf.LanguageData[firstLanguage];
-        }
-        
         if (subPath.Equals(NameSubpath, StringComparison.InvariantCultureIgnoreCase))
-            return languageData.Name;
+            return leaf.LocalizedData[languageId].Name;
 
         return subPath.Equals(DescriptionSubpath, StringComparison.InvariantCultureIgnoreCase)
-            ? string.Join("{", languageData.PaginatedDescription)
+            ? string.Join("{", leaf.LocalizedData[languageId].PaginatedDescription)
             : ThrowHelper.ThrowInvalidOperationException<string>($"This parser doesn't support the subPath {subPath}");
     }
 
     public void FromTextAssetSerializedString(string subPath, int languageId, string text, AreaLeaf leaf)
     {
-        if (!leaf.LanguageData.ContainsKey(languageId))
-            leaf.LanguageData[languageId] = new();
+        if (!leaf.LocalizedData.ContainsKey(languageId))
+            leaf.LocalizedData[languageId] = new();
 
         if (subPath.Equals(NameSubpath, StringComparison.InvariantCultureIgnoreCase))
         {
-            leaf.LanguageData[languageId].Name = text;
+            leaf.LocalizedData[languageId].Name = text;
         }
         else if (subPath.Equals(DescriptionSubpath, StringComparison.InvariantCultureIgnoreCase))
         {
             string[] pages = text.Split(StringUtils.OpeningBraceSplitDelimiter);
             foreach (string page in pages)
-                leaf.LanguageData[languageId].PaginatedDescription.Add(page);
+                leaf.LocalizedData[languageId].PaginatedDescription.Add(page);
         }
         else
         {

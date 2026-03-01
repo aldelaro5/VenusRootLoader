@@ -40,7 +40,7 @@ public sealed class EnemyLeaf : Leaf, IEnemyPortraitSprite
         public string MothSpyDialogue { get; set; } = "mothtattle";
     }
 
-    public Dictionary<int, EnemyLanguageData> LanguageData { get; } = new();
+    public LocalizedData<EnemyLanguageData> LocalizedData { get; } = new();
 
     int? IEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }
     WrappedSprite IEnemyPortraitSprite.WrappedSprite { get; set; } = new();

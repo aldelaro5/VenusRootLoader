@@ -27,7 +27,7 @@ public sealed class MedalLeaf : Leaf
     public List<MedalEffect> Effects { get; } = new();
     public int BuyingPriceRegularBerries { get; set; }
     public int BuyingPriceCrystalBerries { get; set; }
-    public Dictionary<int, MedalLanguageData> LanguageData { get; } = new();
+    public LocalizedData<MedalLanguageData> LocalizedData { get; } = new();
 
     public Sprite Sprite
     {

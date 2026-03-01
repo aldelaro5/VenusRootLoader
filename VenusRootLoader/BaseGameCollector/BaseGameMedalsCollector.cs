@@ -64,7 +64,7 @@ internal sealed class BaseGameMedalsCollector : IBaseGameCollector
                 : _items1Sprites[medalLeaf.Items1SpriteIndex];
             for (int j = 0; j < RootBaseGameDataCollector.LanguageDisplayNames.Length; j++)
             {
-                medalLeaf.LanguageData[j] = new();
+                medalLeaf.LocalizedData[j] = new();
                 _medalLanguageDataSerializer.FromTextAssetSerializedString(
                     "BadgeName",
                     j,

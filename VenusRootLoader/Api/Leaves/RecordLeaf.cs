@@ -15,7 +15,7 @@ public sealed class RecordLeaf : Leaf, IEnemyPortraitSprite
     int? IEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }
     WrappedSprite IEnemyPortraitSprite.WrappedSprite { get; set; } = new();
 
-    public Dictionary<int, RecordLanguageData> LanguageData { get; } = new();
+    public LocalizedData<RecordLanguageData> LocalizedData { get; } = new();
 
     public Sprite PortraitSprite
     {

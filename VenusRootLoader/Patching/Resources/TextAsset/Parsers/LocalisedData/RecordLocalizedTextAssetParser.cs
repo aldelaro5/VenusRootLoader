@@ -8,23 +8,10 @@ internal sealed class RecordLocalizedTextAssetParser : ILocalizedTextAssetParser
 {
     public string GetTextAssetSerializedString(string subPath, int languageId, RecordLeaf leaf)
     {
-        RecordLeaf.RecordLanguageData? languageData = null;
-        if (leaf.LanguageData.Count == 0)
-            languageData = Activator.CreateInstance<RecordLeaf.RecordLanguageData>();
-
-        if (leaf.LanguageData.TryGetValue(languageId, out RecordLeaf.RecordLanguageData value))
-            languageData = value;
-
-        if (languageData == null)
-        {
-            int firstLanguage = leaf.LanguageData.Keys.Min();
-            languageData = leaf.LanguageData[firstLanguage];
-        }
-
         StringBuilder sb = new();
-        sb.Append(languageData.Name);
+        sb.Append(leaf.LocalizedData[languageId].Name);
         sb.Append('@');
-        sb.Append(languageData.Description);
+        sb.Append(leaf.LocalizedData[languageId].Description);
 
         return sb.ToString();
     }
@@ -32,7 +19,7 @@ internal sealed class RecordLocalizedTextAssetParser : ILocalizedTextAssetParser
     public void FromTextAssetSerializedString(string subPath, int languageId, string text, RecordLeaf leaf)
     {
         string[] fields = text.Split(StringUtils.AtSymbolSplitDelimiter);
-        leaf.LanguageData[languageId] = new()
+        leaf.LocalizedData[languageId] = new()
         {
             Name = fields[0],
             Description = fields[1]

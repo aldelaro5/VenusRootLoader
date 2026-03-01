@@ -132,7 +132,7 @@ internal sealed class BaseGameEnemiesCollector : IBaseGameCollector
             _enemyTextAssetParser.FromTextAssetSerializedString("EnemyData", EnemiesData[i], enemyLeaf);
             for (int j = 0; j < RootBaseGameDataCollector.LanguageDisplayNames.Length; j++)
             {
-                enemyLeaf.LanguageData[j] = new();
+                enemyLeaf.LocalizedData[j] = new();
                 _enemyLocalizedTextAssetParser.FromTextAssetSerializedString(
                     "EnemyTattle",
                     j,

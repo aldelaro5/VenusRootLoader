@@ -22,7 +22,7 @@ public sealed class ItemLeaf : Leaf
     internal WrappedSprite WrappedSprite = new();
 
     public List<ItemUse> Effects { get; } = new();
-    public Dictionary<int, ItemLanguageData> LanguageData { get; } = new();
+    public LocalizedData<ItemLanguageData> LocalizedData { get; } = new();
 
     public Sprite Sprite
     {

@@ -2,6 +2,7 @@ using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
+using Object = UnityEngine.Object;
 
 namespace VenusRootLoader.Patching.Resources.Sprites;
 
@@ -34,11 +35,41 @@ internal sealed class EnemyPortraitsSpriteArrayPatcher : ISpriteArrayPatcher
             sprites.Add(i, sprite);
         }
 
+        CloneSpriteDuplicates();
         PatchSpritesFromRegistry(sprites, _discoveriesRegistry);
         PatchSpritesFromRegistry(sprites, _enemiesRegistry);
         PatchSpritesFromRegistry(sprites, _recordsRegistry);
 
         return sprites.Values.ToArray();
+    }
+
+    private void CloneSpriteDuplicates()
+    {
+        IEnumerable<IEnemyPortraitSprite> discoveryLeaves = _discoveriesRegistry
+            .LeavesByNamedIds
+            .Values;
+        IEnumerable<IEnemyPortraitSprite> enemiesLeaves = _enemiesRegistry
+            .LeavesByNamedIds
+            .Values;
+        IEnumerable<IEnemyPortraitSprite> recordsLeaves = _recordsRegistry
+            .LeavesByNamedIds
+            .Values;
+        List<IEnemyPortraitSprite> allLeavesWithPortraitSprite = discoveryLeaves
+            .Concat(enemiesLeaves)
+            .Concat(recordsLeaves)
+            .Where(l => l.EnemyPortraitsSpriteIndex is not null)
+            .ToList();
+
+        HashSet<int> uniqueSpriteIndexes = new();
+        foreach (IEnemyPortraitSprite? leaf in allLeavesWithPortraitSprite)
+        {
+            bool isUniqueSpriteIndex = uniqueSpriteIndexes.Add(leaf.EnemyPortraitsSpriteIndex!.Value);
+            if (isUniqueSpriteIndex)
+                continue;
+
+            leaf.WrappedSprite.Sprite = Object.Instantiate(leaf.WrappedSprite.Sprite);
+            leaf.EnemyPortraitsSpriteIndex = null;
+        }
     }
 
     private void PatchSpritesFromRegistry<T>(SortedDictionary<int, Sprite> sprites, ILeavesRegistry<T> registry)

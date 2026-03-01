@@ -15,6 +15,9 @@ using VenusRootLoader.Patching.Resources;
 using VenusRootLoader.Patching.Resources.Sprites;
 using VenusRootLoader.Patching.Resources.TextAsset;
 using VenusRootLoader.Patching.Resources.TextAsset.Parsers;
+using VenusRootLoader.Patching.Resources.TextAsset.Parsers.GlobalData;
+using VenusRootLoader.Patching.Resources.TextAsset.Parsers.LocalisedData;
+using VenusRootLoader.Patching.Resources.TextAsset.Parsers.OrderingData;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Unity;
 

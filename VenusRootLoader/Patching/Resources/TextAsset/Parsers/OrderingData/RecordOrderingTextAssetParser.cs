@@ -1,0 +1,37 @@
+using System.Globalization;
+using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.LeavesInternals;
+using VenusRootLoader.Registry;
+
+namespace VenusRootLoader.Patching.Resources.TextAsset.Parsers.OrderingData;
+
+internal sealed class RecordOrderingTextAssetParser : IOrderingTextAssetParser<RecordLeaf>
+{
+    public string GetTextAssetString(IOrderedLeavesRegistry<RecordLeaf> orderedRegistry)
+    {
+        IReadOnlyCollection<RecordLeaf> orderedLeaves = orderedRegistry.GetOrderedLeaves();
+        return string.Join(
+            "\n",
+            orderedLeaves.Select(l => $"{l.GameId},{((IEnemyPortraitSprite)l).EnemyPortraitsSpriteIndex!.Value}"));
+    }
+
+    public void FromTextAssetString(string text, IOrderedLeavesRegistry<RecordLeaf> orderedRegistry)
+    {
+        string[][] lines = text.Split('\n')
+            .Select(l => l
+                .Split(Utility.StringUtils.CommaSplitDelimiter))
+            .ToArray();
+
+        Dictionary<int, int> linesData = lines
+            .Select(l => (GameId: int.Parse(l[0], CultureInfo.InvariantCulture),
+                EnemyPortraitIndex: int.Parse(l[1], CultureInfo.InvariantCulture)))
+            .ToDictionary(data => data.GameId, data => data.EnemyPortraitIndex);
+        for (int i = 0; i < linesData.Count; i++)
+        {
+            ((IEnemyPortraitSprite)orderedRegistry.Registry.LeavesByGameIds[i]).EnemyPortraitsSpriteIndex =
+                linesData[i];
+        }
+
+        orderedRegistry.SetBaseGameOrdering(linesData.Keys.ToArray());
+    }
+}

@@ -61,6 +61,7 @@ internal static class Startup
 
         services.AddSingleton<ILeavesRegistry<ItemLeaf>, ItemsRegistry>();
         services.AddOrderedLeavesRegistry<MedalLeaf, MedalsRegistry>();
+        services.AddOrderedLeavesRegistry<EnemyLeaf, EnemiesRegistry>();
         services.AddSingleton<ILeavesRegistry<RecipeLeaf>, RecipesRegistry>();
         services.AddSingleton<ILeavesRegistry<RecipeLibraryEntryLeaf>, RecipeLibraryEntriesRegistry>();
         services.AddSingleton<ILeavesRegistry<AreaLeaf>, AreasRegistry>();
@@ -80,6 +81,7 @@ internal static class Startup
             new(
                 ["Items/EnemyPortraits"],
                 provider.GetRequiredService<ILeavesRegistry<DiscoveryLeaf>>(),
+                provider.GetRequiredService<ILeavesRegistry<EnemyLeaf>>(),
                 provider.GetRequiredService<ILeavesRegistry<RecordLeaf>>()));
 
         services.AddTextAssetPatcher<ItemLeaf, ItemTextAssetParser>(["ItemData"]);
@@ -101,6 +103,10 @@ internal static class Startup
         services.AddOrderingTextAssetPatcher<DiscoveryLeaf, DiscoveryOrderingTextAssetParser>("DiscoveryOrder");
         services.AddLocalizedTextAssetPatcher<DiscoveryLeaf, DiscoveryLocalizedTextAssetParser>(["Discoveries"]);
 
+        services.AddOrderingTextAssetPatcher<EnemyLeaf, EnemyOrderingTextAssetParser>("TattleList");
+        services.AddLocalizedTextAssetPatcher<EnemyLeaf, EnemyLocalizedTextAssetParser>(["EnemyTattle"]);
+        services.AddTextAssetPatcher<EnemyLeaf, EnemyTextAssetParser>(["EnemyData"]);
+        
         services.AddOrderingTextAssetPatcher<RecordLeaf, RecordOrderingTextAssetParser>("SynopsisOrder");
         services.AddLocalizedTextAssetPatcher<RecordLeaf, RecordLocalizedTextAssetParser>(["Synopsis"]);
         
@@ -122,11 +128,16 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, ItemAndMedalSpriteTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, PrizeMedalsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, LibraryCapsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, EnemyEncounterCapTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, EventControlExcludeIdsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, CaveOfTrialsRandomModeExclusionTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, RareSpyDataTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, AreaMapPositionsTopLevelPatcher>();
         services.AddSingleton<RootPatcher>();
 
         services.AddSingleton<IAssemblyCSharpDataCollector, AssemblyCSharpDataCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameItemsCollector>();
+        services.AddSingleton<IBaseGameCollector, BaseGameEnemiesCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameRecipesCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameRecipeLibraryEntriesCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameAreasCollector>();

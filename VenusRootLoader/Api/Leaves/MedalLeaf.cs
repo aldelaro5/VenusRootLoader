@@ -31,7 +31,7 @@ public sealed class MedalLeaf : Leaf
 
     public Sprite Sprite
     {
-        get => WrappedSprite.Sprite;
+        get => WrappedSprite.Sprite!;
         set => WrappedSprite.Sprite = value;
     }
 }

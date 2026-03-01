@@ -26,7 +26,7 @@ public sealed class ItemLeaf : Leaf
 
     public Sprite Sprite
     {
-        get => WrappedSprite.Sprite;
+        get => WrappedSprite.Sprite!;
         set => WrappedSprite.Sprite = value;
     }
 

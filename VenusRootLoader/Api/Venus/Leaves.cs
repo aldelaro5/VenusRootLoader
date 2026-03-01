@@ -153,4 +153,31 @@ public partial class Venus
 
     public IReadOnlyCollection<AreaLeaf> GetAllAreas() =>
         _registryResolver.Resolve<AreaLeaf>().GetAll();
+
+    public EnemyLeaf RegisterSpyableEnemy(
+        string namedId,
+        MainManager.Enemies? orderAfterInBestiary,
+        int orderPriorityInBestiary)
+    {
+        EnemyLeaf enemyLeaf = _registryResolver.ResolveWithOrdering<EnemyLeaf>().RegisterNewWithOrdering(
+            namedId,
+            _budId,
+            (int?)orderAfterInBestiary,
+            orderPriorityInBestiary);
+        enemyLeaf.CanBeSpied = true;
+        return enemyLeaf;
+    }
+
+    public EnemyLeaf RegisterNonSpyableEnemy(string namedId)
+    {
+        EnemyLeaf enemyLeaf = _registryResolver.Resolve<EnemyLeaf>().RegisterNew(namedId, _budId);
+        enemyLeaf.CanBeSpied = false;
+        return enemyLeaf;
+    }
+
+    public EnemyLeaf GetEnemy(string namedId) =>
+        _registryResolver.Resolve<EnemyLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<EnemyLeaf> GetAllEnemies() =>
+        _registryResolver.Resolve<EnemyLeaf>().GetAll();
 }

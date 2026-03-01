@@ -19,7 +19,7 @@ public sealed class RecordLeaf : Leaf, IEnemyPortraitSprite
 
     public Sprite PortraitSprite
     {
-        get => ((IEnemyPortraitSprite)this).WrappedSprite.Sprite;
+        get => ((IEnemyPortraitSprite)this).WrappedSprite.Sprite!;
         set => ((IEnemyPortraitSprite)this).WrappedSprite.Sprite = value;
     }
 }

@@ -8,16 +8,29 @@ internal sealed class EnemyLocalizedTextAssetParser : ILocalizedTextAssetParser<
 {
     public string GetTextAssetSerializedString(string subPath, int languageId, EnemyLeaf leaf)
     {
+        EnemyLeaf.EnemyLanguageData? languageData = null;
+        if (leaf.LanguageData.Count == 0)
+            languageData = Activator.CreateInstance<EnemyLeaf.EnemyLanguageData>();
+
+        if (leaf.LanguageData.TryGetValue(languageId, out EnemyLeaf.EnemyLanguageData value))
+            languageData = value;
+
+        if (languageData == null)
+        {
+            int firstLanguage = leaf.LanguageData.Keys.Min();
+            languageData = leaf.LanguageData[firstLanguage];
+        }
+        
         StringBuilder sb = new();
-        sb.Append(leaf.Name[languageId]);
+        sb.Append(languageData.Name);
         sb.Append('@');
-        sb.Append(leaf.Biography[languageId]);
+        sb.Append(languageData.Biography);
         sb.Append('@');
-        sb.Append(leaf.BeeSpyDialogue[languageId]);
+        sb.Append(languageData.BeeSpyDialogue);
         sb.Append('@');
-        sb.Append(leaf.BeetleSpyDialogue[languageId]);
+        sb.Append(languageData.BeetleSpyDialogue);
         sb.Append('@');
-        sb.Append(leaf.MothSpyDialogue[languageId]);
+        sb.Append(languageData.MothSpyDialogue);
 
         return sb.ToString();
     }
@@ -25,11 +38,13 @@ internal sealed class EnemyLocalizedTextAssetParser : ILocalizedTextAssetParser<
     public void FromTextAssetSerializedString(string subPath, int languageId, string text, EnemyLeaf leaf)
     {
         string[] fields = text.Split(StringUtils.AtSymbolSplitDelimiter);
-
-        leaf.Name[languageId] = fields[0];
-        leaf.Biography[languageId] = fields[1];
-        leaf.BeeSpyDialogue[languageId] = fields[2];
-        leaf.BeetleSpyDialogue[languageId] = fields[3];
-        leaf.MothSpyDialogue[languageId] = fields[4];
+        leaf.LanguageData[languageId] = new()
+        {
+            Name = fields[0],
+            Biography = fields[1],
+            BeeSpyDialogue = fields[2],
+            BeetleSpyDialogue = fields[3],
+            MothSpyDialogue = fields[4]
+        };
     }
 }

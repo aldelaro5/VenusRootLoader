@@ -14,11 +14,11 @@ internal sealed class OrderedLeavesRegistry<TLeaf> : IOrderedLeavesRegistry<TLea
 
     private int _nextCreatorIdPriority;
 
-    private Dictionary<int, int> BaseGameIdsToOrderingIndex { get; } = new();
     private List<LeafOrdering> LeavesOrderingData { get; } = new();
     private Dictionary<string, int> CreatorOrderingPriorities { get; } = new();
 
     public ILeavesRegistry<TLeaf> Registry { get; }
+    public Dictionary<int, int> BaseGameIdsToOrderingIndex { get; } = new();
 
     public OrderedLeavesRegistry(ILeavesRegistry<TLeaf> registry)
     {

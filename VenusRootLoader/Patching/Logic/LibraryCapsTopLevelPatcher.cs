@@ -10,6 +10,7 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
 {
     private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<DiscoveryLeaf> _discoveriesRegistry;
+    private readonly IOrderedLeavesRegistry<EnemyLeaf> _orderedEnemiesRegistry;
     private readonly ILeavesRegistry<RecipeLibraryEntryLeaf> _recipeLibraryEntriesRegistry;
     private readonly ILeavesRegistry<RecordLeaf> _recordsRegistry;
     private readonly ILeavesRegistry<AreaLeaf> _areasRegistry;
@@ -19,6 +20,7 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
     public LibraryCapsTopLevelPatcher(
         IHarmonyTypePatcher harmonyTypePatcher,
         ILeavesRegistry<DiscoveryLeaf> discoveriesRegistry,
+        IOrderedLeavesRegistry<EnemyLeaf> orderedEnemiesRegistry,
         ILeavesRegistry<RecipeLibraryEntryLeaf> recipeLibraryEntriesRegistry,
         ILeavesRegistry<RecordLeaf> recordsRegistry,
         ILeavesRegistry<AreaLeaf> areasRegistry)
@@ -26,9 +28,10 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
         _instance = this;
         _harmonyTypePatcher = harmonyTypePatcher;
         _discoveriesRegistry = discoveriesRegistry;
+        _orderedEnemiesRegistry = orderedEnemiesRegistry;
+        _recipeLibraryEntriesRegistry = recipeLibraryEntriesRegistry;
         _recordsRegistry = recordsRegistry;
         _areasRegistry = areasRegistry;
-        _recipeLibraryEntriesRegistry = recipeLibraryEntriesRegistry;
     }
 
     public void Patch() => _harmonyTypePatcher.PatchAll(typeof(LibraryCapsTopLevelPatcher));
@@ -71,6 +74,10 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
         MainManager.librarylimit.CopyTo(original);
 
         AssignNewLibraryLimitByPage(MainManager.Library.Discovery, _instance._discoveriesRegistry, original);
+        int amountEnemiesInBestiary = _instance._orderedEnemiesRegistry.GetOrderedLeaves().Count;
+        MainManager.librarylimit[(int)MainManager.LibraryPages.Bestiary] = Math.Max(
+            amountEnemiesInBestiary,
+            original[(int)MainManager.LibraryPages.Bestiary]);
         AssignNewLibraryLimitByPage(MainManager.Library.Recipes, _instance._recipeLibraryEntriesRegistry, original);
         AssignNewLibraryLimitByPage(MainManager.Library.Logbook, _instance._recordsRegistry, original);
         AssignNewLibraryLimitByPage(MainManager.Library.Map, _instance._areasRegistry, original);
@@ -83,6 +90,7 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
         int newCap = Enumerable.Max(
         [
             _instance._discoveriesRegistry.LeavesByNamedIds.Count,
+            _instance._orderedEnemiesRegistry.Registry.LeavesByNamedIds.Count,
             _instance._recipeLibraryEntriesRegistry.LeavesByNamedIds.Count,
             _instance._recordsRegistry.LeavesByNamedIds.Count,
             _instance._areasRegistry.LeavesByNamedIds.Count

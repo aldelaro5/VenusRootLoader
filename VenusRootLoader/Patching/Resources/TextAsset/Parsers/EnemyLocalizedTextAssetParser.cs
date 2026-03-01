@@ -24,7 +24,7 @@ internal sealed class EnemyLocalizedTextAssetParser : ILocalizedTextAssetParser<
         StringBuilder sb = new();
         sb.Append(languageData.Name);
         sb.Append('@');
-        sb.Append(languageData.Biography);
+        sb.Append(string.Join("{", languageData.PaginatedBiography));
         sb.Append('@');
         sb.Append(languageData.BeeSpyDialogue);
         sb.Append('@');
@@ -41,7 +41,7 @@ internal sealed class EnemyLocalizedTextAssetParser : ILocalizedTextAssetParser<
         leaf.LanguageData[languageId] = new()
         {
             Name = fields[0],
-            Biography = fields[1],
+            PaginatedBiography = fields[1].Split(StringUtils.OpeningBraceSplitDelimiter).ToList(),
             BeeSpyDialogue = fields[2],
             BeetleSpyDialogue = fields[3],
             MothSpyDialogue = fields[4]

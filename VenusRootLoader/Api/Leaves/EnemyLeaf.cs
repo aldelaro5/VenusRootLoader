@@ -34,7 +34,7 @@ public sealed class EnemyLeaf : Leaf, IEnemyPortraitSprite
     public sealed class EnemyLanguageData
     {
         public string Name { get; set; } = "";
-        public string Biography { get; set; } = "biotattle";
+        public List<string> PaginatedBiography { get; init; } = new();
         public string BeeSpyDialogue { get; set; } = "beetattle";
         public string BeetleSpyDialogue { get; set; } = "beetletattle";
         public string MothSpyDialogue { get; set; } = "mothtattle";

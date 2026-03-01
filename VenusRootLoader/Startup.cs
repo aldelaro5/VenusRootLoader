@@ -132,6 +132,7 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, EventControlExcludeIdsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, CaveOfTrialsRandomModeExclusionTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, RareSpyDataTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, SpyDialoguePauseMenuTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, AreaMapPositionsTopLevelPatcher>();
         services.AddSingleton<RootPatcher>();
 

@@ -14,7 +14,6 @@ using VenusRootLoader.Patching.Logic;
 using VenusRootLoader.Patching.Resources;
 using VenusRootLoader.Patching.Resources.Sprites;
 using VenusRootLoader.Patching.Resources.TextAsset;
-using VenusRootLoader.Patching.Resources.TextAsset.Parsers;
 using VenusRootLoader.Patching.Resources.TextAsset.Parsers.GlobalData;
 using VenusRootLoader.Patching.Resources.TextAsset.Parsers.LocalisedData;
 using VenusRootLoader.Patching.Resources.TextAsset.Parsers.OrderingData;
@@ -72,6 +71,7 @@ internal static class Startup
         services.AddSingleton<ILeavesRegistry<FlagvarLeaf>, FlagvarsRegistry>();
         services.AddSingleton<ILeavesRegistry<FlagstringLeaf>, FlagstringsRegistry>();
         services.AddSingleton<ILeavesRegistry<CrystalBerryLeaf>, CrystalBerriesRegistry>();
+        services.AddSingleton<ILeavesRegistry<MedalFortuneTellerHintLeaf>, MedalFortuneTellerHintsRegistry>();
         services.AddSingleton<ILeavesRegistry<CommonDialogueLeaf>, CommonDialoguesRegistry>();
         services.AddSingleton<ILeavesRegistry<MenuTextLeaf>, MenuTextsRegistry>();
         services.AddSingleton<ILeavesRegistry<PrizeMedalLeaf>, PrizeMedalsRegistry>();
@@ -96,6 +96,9 @@ internal static class Startup
 
         services.AddLocalizedTextAssetPatcher<CrystalBerryLeaf, CrystalBerryLocalizedTextAssetParser>(
             ["FortuneTeller0"]);
+        services
+            .AddLocalizedTextAssetPatcher<MedalFortuneTellerHintLeaf, MedalFortuneTellerHintLocalizedTextAssetParser>(
+                ["FortuneTeller2"]);
         
         services.AddLocalizedTextAssetPatcher<CommonDialogueLeaf, CommonDialoguelLocalizedTextAssetParser>(
             ["CommonDialogue"],
@@ -134,6 +137,7 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, EnemyEncounterCapTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, EventControlExcludeIdsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, CaveOfTrialsRandomModeExclusionTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, FortuneTellerHintFlagsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, RareSpyDataTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, SpyDialoguePauseMenuTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, AreaMapPositionsTopLevelPatcher>();
@@ -150,6 +154,7 @@ internal static class Startup
         services.AddSingleton<IBaseGameCollector, BaseGameGlobalFlagsCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameCrystalBerriesCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameCommonDialoguesCollector>();
+        services.AddSingleton<IBaseGameCollector, BaseGameMedalFortuneTellerHintCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameMenuTextsCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameDiscoveriesCollector>();
         services.AddSingleton<IBaseGameCollector, BaseGameRecordsCollector>();

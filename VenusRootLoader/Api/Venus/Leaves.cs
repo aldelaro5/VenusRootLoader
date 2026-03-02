@@ -180,4 +180,13 @@ public partial class Venus
 
     public IReadOnlyCollection<EnemyLeaf> GetAllEnemies() =>
         _registryResolver.Resolve<EnemyLeaf>().GetAll();
+
+    public MedalFortuneTellerHintLeaf RegisterMedalFortuneTellerHint(string namedId) =>
+        _registryResolver.Resolve<MedalFortuneTellerHintLeaf>().RegisterNew(namedId, _budId);
+
+    public MedalFortuneTellerHintLeaf GetMedalFortuneTellerHint(string namedId) =>
+        _registryResolver.Resolve<MedalFortuneTellerHintLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<MedalFortuneTellerHintLeaf> GetAllMedalFortuneTellerHints() =>
+        _registryResolver.Resolve<MedalFortuneTellerHintLeaf>().GetAll();
 }

@@ -85,7 +85,7 @@
       "VenusRootLoader.AppDomainEventsHandler": "Information",
       "VenusRootLoader.Logging.HarmonyLogger": "Warning",
       "VenusRootLoader.Patching": "Trace",
-      "VenusRootLoader.Bootstrap": "Warning"
+      "VenusRootLoader.Registry": "Warning"
     }
   }
 }

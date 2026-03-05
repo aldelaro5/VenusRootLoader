@@ -16,7 +16,7 @@ public sealed partial class Venus
         if (_hasGlobalBehaviour)
             throw new InvalidOperationException($"Cannot call {nameof(SetGlobalMonoBehaviour)} more than once");
 
-        GlobalMonoBehaviour globalMonoBehavior = _globalMonoBehaviourExecution.AddGlobalMonoBehavior<T>(_budId);
+        GlobalMonoBehaviour globalMonoBehavior = GlobalMonoBehaviourExecution.AddGlobalMonoBehavior<T>(BudId);
         _hasGlobalBehaviour = true;
         return globalMonoBehavior;
     }
@@ -24,6 +24,6 @@ public sealed partial class Venus
     public GlobalMonoBehaviour? GetGlobalMonoBehaviourFromBud(string budId)
     {
         Guard.IsNotNullOrWhiteSpace(budId);
-        return _globalMonoBehaviourExecution.GetGlobalMonoBehaviourFromGameObject(budId);
+        return GlobalMonoBehaviourExecution.GetGlobalMonoBehaviourFromGameObject(budId);
     }
 }

@@ -19,6 +19,7 @@ using VenusRootLoader.Patching.Resources.TextAsset.Parsers.LocalisedData;
 using VenusRootLoader.Patching.Resources.TextAsset.Parsers.OrderingData;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Unity;
+using VenusRootLoader.Unity.CustomAudioClip;
 
 namespace VenusRootLoader;
 
@@ -162,6 +163,7 @@ internal static class Startup
         services.AddSingleton<RootBaseGameDataCollector>();
 
         services.AddSingleton<IGlobalMonoBehaviourExecution, GlobalMonoBehaviourExecution>();
+        services.AddSingleton<ICustomAudioClipProvider, CustomAudioClipProvider>();
 
         services.AddSingleton<IBudConfigManager, BudConfigManager>();
         services.AddSingleton<IVenusFactory, VenusFactory>();

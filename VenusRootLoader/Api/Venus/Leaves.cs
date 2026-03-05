@@ -8,160 +8,160 @@ namespace VenusRootLoader.Api;
 public partial class Venus
 {
     public ItemLeaf RegisterItem(string namedId) =>
-        _registryResolver.Resolve<ItemLeaf>().RegisterNew(namedId, _budId);
+        RegistryResolver.Resolve<ItemLeaf>().RegisterNew(namedId, BudId);
 
     public ItemLeaf GetItem(string namedId) =>
-        _registryResolver.Resolve<ItemLeaf>().Get(namedId);
+        RegistryResolver.Resolve<ItemLeaf>().Get(namedId);
 
     public IReadOnlyCollection<ItemLeaf> GetAllItems() =>
-        _registryResolver.Resolve<ItemLeaf>().GetAll();
+        RegistryResolver.Resolve<ItemLeaf>().GetAll();
 
     public MedalLeaf RegisterMedal(string namedId, MainManager.BadgeTypes? orderAfter, int orderPriority) =>
-        _registryResolver.ResolveWithOrdering<MedalLeaf>().RegisterNewWithOrdering(
+        RegistryResolver.ResolveWithOrdering<MedalLeaf>().RegisterNewWithOrdering(
             namedId,
-            _budId,
+            BudId,
             (int?)orderAfter,
             orderPriority);
 
     public MedalLeaf GetMedal(string namedId) =>
-        _registryResolver.Resolve<MedalLeaf>().Get(namedId);
+        RegistryResolver.Resolve<MedalLeaf>().Get(namedId);
 
     public IReadOnlyCollection<MedalLeaf> GetAllMedals() =>
-        _registryResolver.Resolve<MedalLeaf>().GetAll();
+        RegistryResolver.Resolve<MedalLeaf>().GetAll();
 
     public TermacadePrizeLeaf RegisterTermacadePrize(string namedId) =>
-        _registryResolver.Resolve<TermacadePrizeLeaf>().RegisterNew(namedId, _budId);
+        RegistryResolver.Resolve<TermacadePrizeLeaf>().RegisterNew(namedId, BudId);
 
     public TermacadePrizeLeaf GetTermacadePrize(string namedId) =>
-        _registryResolver.Resolve<TermacadePrizeLeaf>().Get(namedId);
+        RegistryResolver.Resolve<TermacadePrizeLeaf>().Get(namedId);
 
     public IReadOnlyCollection<TermacadePrizeLeaf> GetAllTermacadePrizes() =>
-        _registryResolver.Resolve<TermacadePrizeLeaf>().GetAll();
+        RegistryResolver.Resolve<TermacadePrizeLeaf>().GetAll();
 
     public FlagLeaf RegisterFlag(string namedId) =>
-        _registryResolver.Resolve<FlagLeaf>().RegisterNew(namedId, _budId);
+        RegistryResolver.Resolve<FlagLeaf>().RegisterNew(namedId, BudId);
 
     public FlagLeaf GetFlag(string namedId) =>
-        _registryResolver.Resolve<FlagLeaf>().Get(namedId);
+        RegistryResolver.Resolve<FlagLeaf>().Get(namedId);
 
     public IReadOnlyCollection<FlagLeaf> GetAllFlags() =>
-        _registryResolver.Resolve<FlagLeaf>().GetAll();
+        RegistryResolver.Resolve<FlagLeaf>().GetAll();
 
     public FlagvarLeaf RegisterFlagvar(string namedId) =>
-        _registryResolver.Resolve<FlagvarLeaf>().RegisterNew(namedId, _budId);
+        RegistryResolver.Resolve<FlagvarLeaf>().RegisterNew(namedId, BudId);
 
     public FlagvarLeaf GetFlagvar(string namedId) =>
-        _registryResolver.Resolve<FlagvarLeaf>().Get(namedId);
+        RegistryResolver.Resolve<FlagvarLeaf>().Get(namedId);
 
     public IReadOnlyCollection<FlagvarLeaf> GetAllFlagvars() =>
-        _registryResolver.Resolve<FlagvarLeaf>().GetAll();
+        RegistryResolver.Resolve<FlagvarLeaf>().GetAll();
 
     public FlagstringLeaf RegisterFlagstring(string namedId) =>
-        _registryResolver.Resolve<FlagstringLeaf>().RegisterNew(namedId, _budId);
+        RegistryResolver.Resolve<FlagstringLeaf>().RegisterNew(namedId, BudId);
 
     public FlagstringLeaf GetFlagstring(string namedId) =>
-        _registryResolver.Resolve<FlagstringLeaf>().Get(namedId);
+        RegistryResolver.Resolve<FlagstringLeaf>().Get(namedId);
 
     public IReadOnlyCollection<FlagstringLeaf> GetAllFlagstrings() =>
-        _registryResolver.Resolve<FlagstringLeaf>().GetAll();
+        RegistryResolver.Resolve<FlagstringLeaf>().GetAll();
 
     public PrizeMedalLeaf RegisterPrizeMedal(string namedId) =>
-        _registryResolver.Resolve<PrizeMedalLeaf>().RegisterNew(namedId, _budId);
+        RegistryResolver.Resolve<PrizeMedalLeaf>().RegisterNew(namedId, BudId);
 
     public PrizeMedalLeaf GetPrizeMedal(string namedId) =>
-        _registryResolver.Resolve<PrizeMedalLeaf>().Get(namedId);
+        RegistryResolver.Resolve<PrizeMedalLeaf>().Get(namedId);
 
     public IReadOnlyCollection<PrizeMedalLeaf> GetAllPrizeMedals() =>
-        _registryResolver.Resolve<PrizeMedalLeaf>().GetAll();
+        RegistryResolver.Resolve<PrizeMedalLeaf>().GetAll();
 
     public DiscoveryLeaf RegisterDiscovery(string namedId, int? orderAfter, int orderPriority) =>
-        _registryResolver.ResolveWithOrdering<DiscoveryLeaf>().RegisterNewWithOrdering(
+        RegistryResolver.ResolveWithOrdering<DiscoveryLeaf>().RegisterNewWithOrdering(
             namedId,
-            _budId,
+            BudId,
             orderAfter,
             orderPriority);
 
     public DiscoveryLeaf GetDiscovery(string namedId) =>
-        _registryResolver.Resolve<DiscoveryLeaf>().Get(namedId);
+        RegistryResolver.Resolve<DiscoveryLeaf>().Get(namedId);
 
     public IReadOnlyCollection<DiscoveryLeaf> GetAllDiscoveries() =>
-        _registryResolver.Resolve<DiscoveryLeaf>().GetAll();
+        RegistryResolver.Resolve<DiscoveryLeaf>().GetAll();
 
     public RecordLeaf RegisterRecord(string namedId, int? orderAfter, int orderPriority) =>
-        _registryResolver.ResolveWithOrdering<RecordLeaf>().RegisterNewWithOrdering(
+        RegistryResolver.ResolveWithOrdering<RecordLeaf>().RegisterNewWithOrdering(
             namedId,
-            _budId,
+            BudId,
             orderAfter,
             orderPriority);
 
     public RecordLeaf GetRecord(string namedId) =>
-        _registryResolver.Resolve<RecordLeaf>().Get(namedId);
+        RegistryResolver.Resolve<RecordLeaf>().Get(namedId);
 
     public IReadOnlyCollection<RecordLeaf> GetAllRecords() =>
-        _registryResolver.Resolve<RecordLeaf>().GetAll();
+        RegistryResolver.Resolve<RecordLeaf>().GetAll();
 
     public MenuTextLeaf RegisterMenuText(string namedId) =>
-        _registryResolver.Resolve<MenuTextLeaf>().RegisterNew(namedId, _budId);
+        RegistryResolver.Resolve<MenuTextLeaf>().RegisterNew(namedId, BudId);
 
     public MenuTextLeaf GetMenuText(string namedId) =>
-        _registryResolver.Resolve<MenuTextLeaf>().Get(namedId);
+        RegistryResolver.Resolve<MenuTextLeaf>().Get(namedId);
 
     public IReadOnlyCollection<MenuTextLeaf> GetAllMenuTexts() =>
-        _registryResolver.Resolve<MenuTextLeaf>().GetAll();
+        RegistryResolver.Resolve<MenuTextLeaf>().GetAll();
 
     public CommonDialogueLeaf RegisterCommonDialogue(string namedId) =>
-        _registryResolver.Resolve<CommonDialogueLeaf>().RegisterNew(namedId, _budId);
+        RegistryResolver.Resolve<CommonDialogueLeaf>().RegisterNew(namedId, BudId);
 
     public CommonDialogueLeaf GetCommonDialogue(string namedId) =>
-        _registryResolver.Resolve<CommonDialogueLeaf>().Get(namedId);
+        RegistryResolver.Resolve<CommonDialogueLeaf>().Get(namedId);
 
     public IReadOnlyCollection<CommonDialogueLeaf> GetAllCommonDialogues() =>
-        _registryResolver.Resolve<CommonDialogueLeaf>().GetAll();
+        RegistryResolver.Resolve<CommonDialogueLeaf>().GetAll();
 
     public CrystalBerryLeaf RegisterCrystalBerry(string namedId) =>
-        _registryResolver.Resolve<CrystalBerryLeaf>().RegisterNew(namedId, _budId);
+        RegistryResolver.Resolve<CrystalBerryLeaf>().RegisterNew(namedId, BudId);
 
     public CrystalBerryLeaf GetCrystalBerry(string namedId) =>
-        _registryResolver.Resolve<CrystalBerryLeaf>().Get(namedId);
+        RegistryResolver.Resolve<CrystalBerryLeaf>().Get(namedId);
 
     public IReadOnlyCollection<CrystalBerryLeaf> GetAllCrystalBerries() =>
-        _registryResolver.Resolve<CrystalBerryLeaf>().GetAll();
+        RegistryResolver.Resolve<CrystalBerryLeaf>().GetAll();
 
     public RecipeLeaf RegisterRecipe(string namedId) =>
-        _registryResolver.Resolve<RecipeLeaf>().RegisterNew(namedId, _budId);
+        RegistryResolver.Resolve<RecipeLeaf>().RegisterNew(namedId, BudId);
 
     public RecipeLeaf GetRecipe(string namedId) =>
-        _registryResolver.Resolve<RecipeLeaf>().Get(namedId);
+        RegistryResolver.Resolve<RecipeLeaf>().Get(namedId);
 
     public IReadOnlyCollection<RecipeLeaf> GetAllRecipes() =>
-        _registryResolver.Resolve<RecipeLeaf>().GetAll();
+        RegistryResolver.Resolve<RecipeLeaf>().GetAll();
 
     public RecipeLibraryEntryLeaf RegisterRecipeLibraryEntry(string namedId) =>
-        _registryResolver.Resolve<RecipeLibraryEntryLeaf>().RegisterNew(namedId, _budId);
+        RegistryResolver.Resolve<RecipeLibraryEntryLeaf>().RegisterNew(namedId, BudId);
 
     public RecipeLibraryEntryLeaf GetRecipeLibraryEntry(string namedId) =>
-        _registryResolver.Resolve<RecipeLibraryEntryLeaf>().Get(namedId);
+        RegistryResolver.Resolve<RecipeLibraryEntryLeaf>().Get(namedId);
 
     public IReadOnlyCollection<RecipeLibraryEntryLeaf> GetAllRecipeLibraryEntries() =>
-        _registryResolver.Resolve<RecipeLibraryEntryLeaf>().GetAll();
+        RegistryResolver.Resolve<RecipeLibraryEntryLeaf>().GetAll();
 
     public AreaLeaf RegisterArea(string namedId) =>
-        _registryResolver.Resolve<AreaLeaf>().RegisterNew(namedId, _budId);
+        RegistryResolver.Resolve<AreaLeaf>().RegisterNew(namedId, BudId);
 
     public AreaLeaf GetArea(string namedId) =>
-        _registryResolver.Resolve<AreaLeaf>().Get(namedId);
+        RegistryResolver.Resolve<AreaLeaf>().Get(namedId);
 
     public IReadOnlyCollection<AreaLeaf> GetAllAreas() =>
-        _registryResolver.Resolve<AreaLeaf>().GetAll();
+        RegistryResolver.Resolve<AreaLeaf>().GetAll();
 
     public EnemyLeaf RegisterSpyableEnemy(
         string namedId,
         MainManager.Enemies? orderAfterInBestiary,
         int orderPriorityInBestiary)
     {
-        EnemyLeaf enemyLeaf = _registryResolver.ResolveWithOrdering<EnemyLeaf>().RegisterNewWithOrdering(
+        EnemyLeaf enemyLeaf = RegistryResolver.ResolveWithOrdering<EnemyLeaf>().RegisterNewWithOrdering(
             namedId,
-            _budId,
+            BudId,
             (int?)orderAfterInBestiary,
             orderPriorityInBestiary);
         enemyLeaf.CanBeSpied = true;
@@ -170,23 +170,23 @@ public partial class Venus
 
     public EnemyLeaf RegisterNonSpyableEnemy(string namedId)
     {
-        EnemyLeaf enemyLeaf = _registryResolver.Resolve<EnemyLeaf>().RegisterNew(namedId, _budId);
+        EnemyLeaf enemyLeaf = RegistryResolver.Resolve<EnemyLeaf>().RegisterNew(namedId, BudId);
         enemyLeaf.CanBeSpied = false;
         return enemyLeaf;
     }
 
     public EnemyLeaf GetEnemy(string namedId) =>
-        _registryResolver.Resolve<EnemyLeaf>().Get(namedId);
+        RegistryResolver.Resolve<EnemyLeaf>().Get(namedId);
 
     public IReadOnlyCollection<EnemyLeaf> GetAllEnemies() =>
-        _registryResolver.Resolve<EnemyLeaf>().GetAll();
+        RegistryResolver.Resolve<EnemyLeaf>().GetAll();
 
     public MedalFortuneTellerHintLeaf RegisterMedalFortuneTellerHint(string namedId) =>
-        _registryResolver.Resolve<MedalFortuneTellerHintLeaf>().RegisterNew(namedId, _budId);
+        RegistryResolver.Resolve<MedalFortuneTellerHintLeaf>().RegisterNew(namedId, BudId);
 
     public MedalFortuneTellerHintLeaf GetMedalFortuneTellerHint(string namedId) =>
-        _registryResolver.Resolve<MedalFortuneTellerHintLeaf>().Get(namedId);
+        RegistryResolver.Resolve<MedalFortuneTellerHintLeaf>().Get(namedId);
 
     public IReadOnlyCollection<MedalFortuneTellerHintLeaf> GetAllMedalFortuneTellerHints() =>
-        _registryResolver.Resolve<MedalFortuneTellerHintLeaf>().GetAll();
+        RegistryResolver.Resolve<MedalFortuneTellerHintLeaf>().GetAll();
 }

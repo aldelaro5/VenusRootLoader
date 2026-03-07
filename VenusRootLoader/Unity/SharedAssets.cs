@@ -19,4 +19,6 @@ internal static class SharedAssets
         new Rect(0, 0, 64, 64),
         new Vector2(0.5f, 0.5f),
         60f);
+
+    internal static AudioClip CreateDummyAudioClip() => AudioClip.Create("", 1, 2, 48000, false);
 }

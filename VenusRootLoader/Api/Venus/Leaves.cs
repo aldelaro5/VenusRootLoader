@@ -189,4 +189,13 @@ public partial class Venus
 
     public IReadOnlyCollection<MedalFortuneTellerHintLeaf> GetAllMedalFortuneTellerHints() =>
         RegistryResolver.Resolve<MedalFortuneTellerHintLeaf>().GetAll();
+
+    public DialogueBleepLeaf RegisterDialogueBleep(string namedId) =>
+        RegistryResolver.Resolve<DialogueBleepLeaf>().RegisterNew(namedId, BudId);
+
+    public DialogueBleepLeaf GetDialogueBleep(string namedId) =>
+        RegistryResolver.Resolve<DialogueBleepLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<DialogueBleepLeaf> GetAllDialogueBleeps() =>
+        RegistryResolver.Resolve<DialogueBleepLeaf>().GetAll();
 }

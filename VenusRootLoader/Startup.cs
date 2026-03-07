@@ -12,6 +12,7 @@ using VenusRootLoader.Logging;
 using VenusRootLoader.Patching;
 using VenusRootLoader.Patching.Logic;
 using VenusRootLoader.Patching.Resources;
+using VenusRootLoader.Patching.Resources.AudioClip;
 using VenusRootLoader.Patching.Resources.Sprites;
 using VenusRootLoader.Patching.Resources.TextAsset;
 using VenusRootLoader.Patching.Resources.TextAsset.Parsers.GlobalData;
@@ -79,6 +80,7 @@ internal static class Startup
         services.AddAutoSequentialIdBasedLeavesRegistryWithOrdering<DiscoveryLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistryWithOrdering<RecordLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<TermacadePrizeLeaf>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<DialogueBleepLeaf>();
         services.AddSingleton<IRegistryResolver, RegistryResolver>();
 
         services.AddSingleton<ISpriteArrayPatcher, EnemyPortraitsSpriteArrayPatcher>(provider =>
@@ -87,6 +89,11 @@ internal static class Startup
                 provider.GetRequiredService<ILeavesRegistry<DiscoveryLeaf>>(),
                 provider.GetRequiredService<ILeavesRegistry<EnemyLeaf>>(),
                 provider.GetRequiredService<ILeavesRegistry<RecordLeaf>>()));
+
+        services.AddSingleton<IAudioClipPatcher, SoundDialoguesAudioClipPatcher>(provider =>
+            new(["Sounds/Dialogue"], provider.GetRequiredService<ILeavesRegistry<DialogueBleepLeaf>>()));
+        services.AddSingleton<IAudioClipArrayPatcher, SoundDialoguesAudioClipArrayPatcher>(provider =>
+            new(["Sounds/Dialogue"], provider.GetRequiredService<ILeavesRegistry<DialogueBleepLeaf>>()));
 
         services.AddTextAssetPatcher<ItemLeaf, ItemTextAssetParser>(["ItemData"]);
         services.AddLocalizedTextAssetPatcher<ItemLeaf, ItemLocalizedTextAssetParser>(["Items"]);
@@ -127,7 +134,9 @@ internal static class Startup
             ["AreaNames", "AreaDesc"]);
 
         services.AddSingleton<IResourcesTypePatcher<TextAsset>, RootTextAssetPatcher>();
+        services.AddSingleton<IResourcesTypePatcher<AudioClip>, RootAudioClipPatcher>();
         services.AddSingleton<IResourcesArrayTypePatcher<Sprite>, RootSpritesArrayPatcher>();
+        services.AddSingleton<IResourcesArrayTypePatcher<AudioClip>, RootAudioClipsArrayPatcher>();
 
         services.AddSingleton<ITopLevelPatcher, ResourcesTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, GlobalFlagsCapsTopLevelPatcher>();
@@ -160,6 +169,7 @@ internal static class Startup
         services.AddSingleton<IBaseGameCollector, DiscoveriesCollector>();
         services.AddSingleton<IBaseGameCollector, RecordsCollector>();
         services.AddSingleton<IBaseGameCollector, TermacadePrizesCollector>();
+        services.AddSingleton<IBaseGameCollector, DialogueBleepCollector>();
         services.AddSingleton<RootCollector>();
 
         services.AddSingleton<IGlobalMonoBehaviourExecution, GlobalMonoBehaviourExecution>();

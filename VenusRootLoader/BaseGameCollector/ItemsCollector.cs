@@ -6,7 +6,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.BaseGameCollector;
 
-internal sealed class BaseGameItemsCollector : IBaseGameCollector
+internal sealed class ItemsCollector : IBaseGameCollector
 {
     private const int ItemsSpritesAmountInItems0 = 176;
 
@@ -23,14 +23,14 @@ internal sealed class BaseGameItemsCollector : IBaseGameCollector
     private readonly Sprite[] _items0Sprites = Resources.LoadAll<Sprite>("Sprites/Items/Items0");
     private readonly Sprite[] _items1Sprites = Resources.LoadAll<Sprite>("Sprites/Items/Items1");
 
-    private readonly ILogger<BaseGameItemsCollector> _logger;
+    private readonly ILogger<ItemsCollector> _logger;
     private readonly ITextAssetParser<ItemLeaf> _itemDataSerializer;
     private readonly ILocalizedTextAssetParser<ItemLeaf> _itemLanguageDataSerializer;
     private readonly ILeavesRegistry<ItemLeaf> _leavesRegistry;
 
-    public BaseGameItemsCollector(
+    public ItemsCollector(
         ILeavesRegistry<ItemLeaf> leavesRegistry,
-        ILogger<BaseGameItemsCollector> logger,
+        ILogger<ItemsCollector> logger,
         ITextAssetParser<ItemLeaf> itemDataSerializer,
         ILocalizedTextAssetParser<ItemLeaf> itemLanguageDataSerializer)
     {
@@ -39,7 +39,7 @@ internal sealed class BaseGameItemsCollector : IBaseGameCollector
         _itemDataSerializer = itemDataSerializer;
         _itemLanguageDataSerializer = itemLanguageDataSerializer;
 
-        for (int i = 0; i < RootBaseGameDataCollector.LanguageDisplayNames.Length; i++)
+        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
             string[] itemLanguageData = Resources.Load<TextAsset>($"Data/Dialogues{i}/Items").text
                 .Trim('\n')
@@ -61,7 +61,7 @@ internal sealed class BaseGameItemsCollector : IBaseGameCollector
             itemLeaf.WrappedSprite.Sprite = i < ItemsSpritesAmountInItems0
                 ? _items0Sprites[i]
                 : _items1Sprites[i - ItemsSpritesAmountInItems0];
-            for (int j = 0; j < RootBaseGameDataCollector.LanguageDisplayNames.Length; j++)
+            for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 itemLeaf.LocalizedData[j] = new();
                 _itemLanguageDataSerializer.FromTextAssetSerializedString(

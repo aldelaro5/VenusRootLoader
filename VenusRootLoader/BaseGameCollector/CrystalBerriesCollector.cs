@@ -10,16 +10,16 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.BaseGameCollector;
 
-internal sealed class BaseGameCrystalBerriesCollector : IBaseGameCollector
+internal sealed class CrystalBerriesCollector : IBaseGameCollector
 {
     private static readonly Dictionary<int, string[]> FortuneTeller0LanguageData = new();
 
-    private readonly ILogger<BaseGameCrystalBerriesCollector> _logger;
+    private readonly ILogger<CrystalBerriesCollector> _logger;
     private readonly ILeavesRegistry<CrystalBerryLeaf> _crystalBerriesRegistry;
     private readonly ILocalizedTextAssetParser<CrystalBerryLeaf> _crystalBerryLanguageDataSerializer;
 
-    public BaseGameCrystalBerriesCollector(
-        ILogger<BaseGameCrystalBerriesCollector> logger,
+    public CrystalBerriesCollector(
+        ILogger<CrystalBerriesCollector> logger,
         ILocalizedTextAssetParser<CrystalBerryLeaf> crystalBerryLanguageDataSerializer,
         ILeavesRegistry<CrystalBerryLeaf> crystalBerriesRegistry)
     {
@@ -27,7 +27,7 @@ internal sealed class BaseGameCrystalBerriesCollector : IBaseGameCollector
         _crystalBerryLanguageDataSerializer = crystalBerryLanguageDataSerializer;
         _crystalBerriesRegistry = crystalBerriesRegistry;
 
-        for (int i = 0; i < RootBaseGameDataCollector.LanguageDisplayNames.Length; i++)
+        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
             string[] fortuneTeller0Hints = Resources.Load<TextAsset>($"Data/Dialogues{i}/FortuneTeller0").text
                 .Trim(Utility.StringUtils.NewlineSplitDelimiter)
@@ -53,7 +53,7 @@ internal sealed class BaseGameCrystalBerriesCollector : IBaseGameCollector
         for (int i = 0; i < crystalBerriesAmount; i++)
         {
             CrystalBerryLeaf crystalBerryLeaf = _crystalBerriesRegistry.RegisterExisting(i, i.ToString(), baseGameId);
-            for (int j = 0; j < RootBaseGameDataCollector.LanguageDisplayNames.Length; j++)
+            for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _crystalBerryLanguageDataSerializer.FromTextAssetSerializedString(
                     "FortuneTeller0",

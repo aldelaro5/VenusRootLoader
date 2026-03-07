@@ -6,16 +6,16 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.BaseGameCollector;
 
-internal sealed class BaseGameCommonDialoguesCollector : IBaseGameCollector
+internal sealed class CommonDialoguesCollector : IBaseGameCollector
 {
     private static readonly Dictionary<int, string[]> CommonDialoguesLanguageData = new();
 
-    private readonly ILogger<BaseGameCommonDialoguesCollector> _logger;
+    private readonly ILogger<CommonDialoguesCollector> _logger;
     private readonly ILeavesRegistry<CommonDialogueLeaf> _commonDialoguesRegistry;
     private readonly ILocalizedTextAssetParser<CommonDialogueLeaf> _commonDialogueLanguageDataSerializer;
 
-    public BaseGameCommonDialoguesCollector(
-        ILogger<BaseGameCommonDialoguesCollector> logger,
+    public CommonDialoguesCollector(
+        ILogger<CommonDialoguesCollector> logger,
         ILocalizedTextAssetParser<CommonDialogueLeaf> commonDialogueLanguageDataSerializer,
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry)
     {
@@ -23,7 +23,7 @@ internal sealed class BaseGameCommonDialoguesCollector : IBaseGameCollector
         _commonDialogueLanguageDataSerializer = commonDialogueLanguageDataSerializer;
         _commonDialoguesRegistry = commonDialoguesRegistry;
 
-        for (int i = 0; i < RootBaseGameDataCollector.LanguageDisplayNames.Length; i++)
+        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
             string[] commonDialogues = Resources.Load<TextAsset>($"Data/Dialogues{i}/CommonDialogue").text
                 .Trim(Utility.StringUtils.NewlineSplitDelimiter)
@@ -39,7 +39,7 @@ internal sealed class BaseGameCommonDialoguesCollector : IBaseGameCollector
         {
             CommonDialogueLeaf commonDialogueLeaf =
                 _commonDialoguesRegistry.RegisterExisting(-i - 1, i.ToString(), baseGameId);
-            for (int j = 0; j < RootBaseGameDataCollector.LanguageDisplayNames.Length; j++)
+            for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _commonDialogueLanguageDataSerializer.FromTextAssetSerializedString(
                     "CommonDialogue",

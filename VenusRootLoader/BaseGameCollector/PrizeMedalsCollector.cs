@@ -10,14 +10,14 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.BaseGameCollector;
 
-internal sealed class BaseGamePrizeMedalsCollector : IBaseGameCollector
+internal sealed class PrizeMedalsCollector : IBaseGameCollector
 {
-    private readonly ILogger<BaseGamePrizeMedalsCollector> _logger;
+    private readonly ILogger<PrizeMedalsCollector> _logger;
     private readonly ILeavesRegistry<PrizeMedalLeaf> _prizeMedalsRegistry;
     private readonly IAssemblyCSharpDataCollector _assemblyCSharpDataCollector;
 
-    public BaseGamePrizeMedalsCollector(
-        ILogger<BaseGamePrizeMedalsCollector> logger,
+    public PrizeMedalsCollector(
+        ILogger<PrizeMedalsCollector> logger,
         ILeavesRegistry<PrizeMedalLeaf> prizeMedalsRegistry,
         IAssemblyCSharpDataCollector assemblyCSharpDataCollector)
     {

@@ -6,19 +6,19 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.BaseGameCollector;
 
-internal sealed class BaseGameTermacadePrizesCollector : IBaseGameCollector
+internal sealed class TermacadePrizesCollector : IBaseGameCollector
 {
     private static readonly string[] TermacadePrizesData = Resources.Load<TextAsset>("Data/Termacade").text
         .Trim('\n')
         .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
 
-    private readonly ILogger<BaseGameTermacadePrizesCollector> _logger;
+    private readonly ILogger<TermacadePrizesCollector> _logger;
     private readonly ILeavesRegistry<TermacadePrizeLeaf> _termacadePrizesRegistry;
     private readonly ITextAssetParser<TermacadePrizeLeaf> _termacadePrizesTextAssetParser;
 
-    public BaseGameTermacadePrizesCollector(
+    public TermacadePrizesCollector(
         ILeavesRegistry<TermacadePrizeLeaf> termacadePrizesRegistry,
-        ILogger<BaseGameTermacadePrizesCollector> logger,
+        ILogger<TermacadePrizesCollector> logger,
         ITextAssetParser<TermacadePrizeLeaf> termacadePrizesTextAssetParser)
     {
         _termacadePrizesRegistry = termacadePrizesRegistry;

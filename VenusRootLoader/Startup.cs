@@ -145,22 +145,22 @@ internal static class Startup
         services.AddSingleton<RootPatcher>();
 
         services.AddSingleton<IAssemblyCSharpDataCollector, AssemblyCSharpDataCollector>();
-        services.AddSingleton<IBaseGameCollector, BaseGameItemsCollector>();
-        services.AddSingleton<IBaseGameCollector, BaseGameEnemiesCollector>();
-        services.AddSingleton<IBaseGameCollector, BaseGameRecipesCollector>();
-        services.AddSingleton<IBaseGameCollector, BaseGameRecipeLibraryEntriesCollector>();
-        services.AddSingleton<IBaseGameCollector, BaseGameAreasCollector>();
-        services.AddSingleton<IBaseGameCollector, BaseGameMedalsCollector>();
-        services.AddSingleton<IBaseGameCollector, BaseGamePrizeMedalsCollector>();
-        services.AddSingleton<IBaseGameCollector, BaseGameGlobalFlagsCollector>();
-        services.AddSingleton<IBaseGameCollector, BaseGameCrystalBerriesCollector>();
-        services.AddSingleton<IBaseGameCollector, BaseGameCommonDialoguesCollector>();
-        services.AddSingleton<IBaseGameCollector, BaseGameMedalFortuneTellerHintCollector>();
-        services.AddSingleton<IBaseGameCollector, BaseGameMenuTextsCollector>();
-        services.AddSingleton<IBaseGameCollector, BaseGameDiscoveriesCollector>();
-        services.AddSingleton<IBaseGameCollector, BaseGameRecordsCollector>();
-        services.AddSingleton<IBaseGameCollector, BaseGameTermacadePrizesCollector>();
-        services.AddSingleton<RootBaseGameDataCollector>();
+        services.AddSingleton<IBaseGameCollector, ItemsCollector>();
+        services.AddSingleton<IBaseGameCollector, EnemiesCollector>();
+        services.AddSingleton<IBaseGameCollector, RecipesCollector>();
+        services.AddSingleton<IBaseGameCollector, RecipeLibraryEntriesCollector>();
+        services.AddSingleton<IBaseGameCollector, AreasCollector>();
+        services.AddSingleton<IBaseGameCollector, MedalsCollector>();
+        services.AddSingleton<IBaseGameCollector, PrizeMedalsCollector>();
+        services.AddSingleton<IBaseGameCollector, GlobalFlagsCollector>();
+        services.AddSingleton<IBaseGameCollector, CrystalBerriesCollector>();
+        services.AddSingleton<IBaseGameCollector, CommonDialoguesCollector>();
+        services.AddSingleton<IBaseGameCollector, MedalFortuneTellerHintCollector>();
+        services.AddSingleton<IBaseGameCollector, MenuTextsCollector>();
+        services.AddSingleton<IBaseGameCollector, DiscoveriesCollector>();
+        services.AddSingleton<IBaseGameCollector, RecordsCollector>();
+        services.AddSingleton<IBaseGameCollector, TermacadePrizesCollector>();
+        services.AddSingleton<RootCollector>();
 
         services.AddSingleton<IGlobalMonoBehaviourExecution, GlobalMonoBehaviourExecution>();
         services.AddSingleton<ICustomAudioClipProvider, CustomAudioClipProvider>();

@@ -6,19 +6,19 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.BaseGameCollector;
 
-internal sealed class BaseGameRecipesCollector : IBaseGameCollector
+internal sealed class RecipesCollector : IBaseGameCollector
 {
     private static readonly string[] RecipesData = Resources.Load<TextAsset>("Data/RecipeData").text
         .Trim('\n')
         .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
 
-    private readonly ILogger<BaseGameRecipesCollector> _logger;
+    private readonly ILogger<RecipesCollector> _logger;
     private readonly ILeavesRegistry<RecipeLeaf> _recipesRegistry;
     private readonly ITextAssetParser<RecipeLeaf> _recipeTextAssetParser;
 
-    public BaseGameRecipesCollector(
+    public RecipesCollector(
         ILeavesRegistry<RecipeLeaf> recipesRegistry,
-        ILogger<BaseGameRecipesCollector> logger,
+        ILogger<RecipesCollector> logger,
         ITextAssetParser<RecipeLeaf> recipeTextAssetParser)
     {
         _recipesRegistry = recipesRegistry;

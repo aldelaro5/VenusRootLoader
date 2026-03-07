@@ -7,7 +7,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.BaseGameCollector;
 
-internal sealed class BaseGameDiscoveriesCollector : IBaseGameCollector
+internal sealed class DiscoveriesCollector : IBaseGameCollector
 {
     private static readonly string DiscoveriesOrderingData = Resources.Load<TextAsset>("Data/DiscoveryOrder").text
         .Trim('\n');
@@ -16,14 +16,14 @@ internal sealed class BaseGameDiscoveriesCollector : IBaseGameCollector
 
     private readonly Sprite[] _enemyPortraitsSprites = Resources.LoadAll<Sprite>("Sprites/Items/EnemyPortraits");
 
-    private readonly ILogger<BaseGameDiscoveriesCollector> _logger;
+    private readonly ILogger<DiscoveriesCollector> _logger;
     private readonly IOrderedLeavesRegistry<DiscoveryLeaf> _orderedRegistry;
     private readonly IOrderingTextAssetParser<DiscoveryLeaf> _discoveriesOrderingDataSerializer;
     private readonly ILocalizedTextAssetParser<DiscoveryLeaf> _discoveriesLanguageDataSerializer;
 
-    public BaseGameDiscoveriesCollector(
+    public DiscoveriesCollector(
         IOrderedLeavesRegistry<DiscoveryLeaf> orderedRegistry,
-        ILogger<BaseGameDiscoveriesCollector> logger,
+        ILogger<DiscoveriesCollector> logger,
         IOrderingTextAssetParser<DiscoveryLeaf> discoveriesOrderingDataSerializer,
         ILocalizedTextAssetParser<DiscoveryLeaf> discoveriesLanguageDataSerializer)
     {
@@ -32,7 +32,7 @@ internal sealed class BaseGameDiscoveriesCollector : IBaseGameCollector
         _discoveriesOrderingDataSerializer = discoveriesOrderingDataSerializer;
         _discoveriesLanguageDataSerializer = discoveriesLanguageDataSerializer;
 
-        for (int i = 0; i < RootBaseGameDataCollector.LanguageDisplayNames.Length; i++)
+        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
             string[] discoveryLanguageData = Resources.Load<TextAsset>($"Data/Dialogues{i}/Discoveries").text
                 .Trim('\n')
@@ -49,7 +49,7 @@ internal sealed class BaseGameDiscoveriesCollector : IBaseGameCollector
         for (int i = 0; i < discoveriesAmount; i++)
         {
             DiscoveryLeaf discoveryLeaf = _orderedRegistry.RegisterExistingWithOrdering(i, i.ToString(), baseGameId);
-            for (int j = 0; j < RootBaseGameDataCollector.LanguageDisplayNames.Length; j++)
+            for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 discoveryLeaf.LocalizedData[j] = new();
                 _discoveriesLanguageDataSerializer.FromTextAssetSerializedString(

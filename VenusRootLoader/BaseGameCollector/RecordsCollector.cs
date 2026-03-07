@@ -7,7 +7,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.BaseGameCollector;
 
-internal sealed class BaseGameRecordsCollector : IBaseGameCollector
+internal sealed class RecordsCollector : IBaseGameCollector
 {
     private static readonly string RecordsOrderingData = Resources.Load<TextAsset>("Data/SynopsisOrder").text
         .Trim('\n');
@@ -16,13 +16,13 @@ internal sealed class BaseGameRecordsCollector : IBaseGameCollector
 
     private readonly Sprite[] _enemyPortraitsSprites = Resources.LoadAll<Sprite>("Sprites/Items/EnemyPortraits");
 
-    private readonly ILogger<BaseGameRecordsCollector> _logger;
+    private readonly ILogger<RecordsCollector> _logger;
     private readonly IOrderedLeavesRegistry<RecordLeaf> _orderedRegistry;
     private readonly IOrderingTextAssetParser<RecordLeaf> _recordsOrderingDataSerializer;
     private readonly ILocalizedTextAssetParser<RecordLeaf> _recordsLanguageDataSerializer;
 
-    public BaseGameRecordsCollector(
-        ILogger<BaseGameRecordsCollector> logger,
+    public RecordsCollector(
+        ILogger<RecordsCollector> logger,
         IOrderedLeavesRegistry<RecordLeaf> orderedRegistry,
         IOrderingTextAssetParser<RecordLeaf> recordsOrderingDataSerializer,
         ILocalizedTextAssetParser<RecordLeaf> recordsLanguageDataSerializer)
@@ -32,7 +32,7 @@ internal sealed class BaseGameRecordsCollector : IBaseGameCollector
         _recordsOrderingDataSerializer = recordsOrderingDataSerializer;
         _recordsLanguageDataSerializer = recordsLanguageDataSerializer;
 
-        for (int i = 0; i < RootBaseGameDataCollector.LanguageDisplayNames.Length; i++)
+        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
             string[] recordsLanguageData = Resources.Load<TextAsset>($"Data/Dialogues{i}/Synopsis").text
                 .Trim('\n')
@@ -49,7 +49,7 @@ internal sealed class BaseGameRecordsCollector : IBaseGameCollector
         for (int i = 0; i < recordsAmount; i++)
         {
             RecordLeaf recordLeaf = _orderedRegistry.RegisterExistingWithOrdering(i, i.ToString(), baseGameId);
-            for (int j = 0; j < RootBaseGameDataCollector.LanguageDisplayNames.Length; j++)
+            for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 recordLeaf.LocalizedData[j] = new();
                 _recordsLanguageDataSerializer.FromTextAssetSerializedString(

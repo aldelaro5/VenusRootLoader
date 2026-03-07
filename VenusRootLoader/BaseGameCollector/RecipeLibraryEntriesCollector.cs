@@ -6,7 +6,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.BaseGameCollector;
 
-internal sealed class BaseGameRecipeLibraryEntriesCollector : IBaseGameCollector
+internal sealed class RecipeLibraryEntriesCollector : IBaseGameCollector
 {
     private static readonly string[] CookOrderData = Resources.Load<TextAsset>("Data/CookOrder").text
         .Trim('\n')
@@ -16,13 +16,13 @@ internal sealed class BaseGameRecipeLibraryEntriesCollector : IBaseGameCollector
         .Trim('\n')
         .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
 
-    private readonly ILogger<BaseGameRecipeLibraryEntriesCollector> _logger;
+    private readonly ILogger<RecipeLibraryEntriesCollector> _logger;
     private readonly ILeavesRegistry<RecipeLeaf> _recipesRegistry;
     private readonly ILeavesRegistry<RecipeLibraryEntryLeaf> _recipeLibraryEntriesRegistry;
     private readonly ITextAssetParser<RecipeLibraryEntryLeaf> _recipeTextAssetParser;
 
-    public BaseGameRecipeLibraryEntriesCollector(
-        ILogger<BaseGameRecipeLibraryEntriesCollector> logger,
+    public RecipeLibraryEntriesCollector(
+        ILogger<RecipeLibraryEntriesCollector> logger,
         ILeavesRegistry<RecipeLeaf> recipesRegistry,
         ILeavesRegistry<RecipeLibraryEntryLeaf> recipeLibraryEntriesRegistry,
         ITextAssetParser<RecipeLibraryEntryLeaf> recipeTextAssetParser)

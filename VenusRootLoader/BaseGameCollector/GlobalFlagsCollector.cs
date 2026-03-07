@@ -8,15 +8,15 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.BaseGameCollector;
 
-internal sealed class BaseGameGlobalFlagsCollector : IBaseGameCollector
+internal sealed class GlobalFlagsCollector : IBaseGameCollector
 {
-    private readonly ILogger<BaseGameGlobalFlagsCollector> _logger;
+    private readonly ILogger<GlobalFlagsCollector> _logger;
     private readonly ILeavesRegistry<FlagLeaf> _flagsRegistry;
     private readonly ILeavesRegistry<FlagvarLeaf> _flagvarsRegistry;
     private readonly ILeavesRegistry<FlagstringLeaf> _flagstringsRegistry;
 
-    public BaseGameGlobalFlagsCollector(
-        ILogger<BaseGameGlobalFlagsCollector> logger,
+    public GlobalFlagsCollector(
+        ILogger<GlobalFlagsCollector> logger,
         ILeavesRegistry<FlagLeaf> flagsRegistry,
         ILeavesRegistry<FlagvarLeaf> flagvarsRegistry,
         ILeavesRegistry<FlagstringLeaf> flagstringsRegistry)

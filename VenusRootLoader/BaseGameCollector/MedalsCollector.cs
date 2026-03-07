@@ -6,7 +6,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.BaseGameCollector;
 
-internal sealed class BaseGameMedalsCollector : IBaseGameCollector
+internal sealed class MedalsCollector : IBaseGameCollector
 {
     private const int FirstMedalSpriteIndexInItems0 = 176;
 
@@ -24,15 +24,15 @@ internal sealed class BaseGameMedalsCollector : IBaseGameCollector
     private readonly Sprite[] _items0Sprites = Resources.LoadAll<Sprite>("Sprites/Items/Items0");
     private readonly Sprite[] _items1Sprites = Resources.LoadAll<Sprite>("Sprites/Items/Items1");
 
-    private readonly ILogger<BaseGameMedalsCollector> _logger;
+    private readonly ILogger<MedalsCollector> _logger;
     private readonly IOrderedLeavesRegistry<MedalLeaf> _orderedRegistry;
     private readonly ITextAssetParser<MedalLeaf> _medalDataSerializer;
     private readonly IOrderingTextAssetParser<MedalLeaf> _medalOrderingDataSerializer;
     private readonly ILocalizedTextAssetParser<MedalLeaf> _medalLanguageDataSerializer;
 
-    public BaseGameMedalsCollector(
+    public MedalsCollector(
         IOrderedLeavesRegistry<MedalLeaf> orderedRegistry,
-        ILogger<BaseGameMedalsCollector> logger,
+        ILogger<MedalsCollector> logger,
         ITextAssetParser<MedalLeaf> medalDataSerializer,
         IOrderingTextAssetParser<MedalLeaf> medalOrderingDataSerializer,
         ILocalizedTextAssetParser<MedalLeaf> medalLanguageDataSerializer)
@@ -43,7 +43,7 @@ internal sealed class BaseGameMedalsCollector : IBaseGameCollector
         _medalOrderingDataSerializer = medalOrderingDataSerializer;
         _medalLanguageDataSerializer = medalLanguageDataSerializer;
 
-        for (int i = 0; i < RootBaseGameDataCollector.LanguageDisplayNames.Length; i++)
+        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
             string[] medalLanguageData = Resources.Load<TextAsset>($"Data/Dialogues{i}/BadgeName").text
                 .Trim('\n')
@@ -62,7 +62,7 @@ internal sealed class BaseGameMedalsCollector : IBaseGameCollector
             medalLeaf.WrappedSprite.Sprite = medalLeaf.Items1SpriteIndex == -1
                 ? _items0Sprites[i + FirstMedalSpriteIndexInItems0]
                 : _items1Sprites[medalLeaf.Items1SpriteIndex];
-            for (int j = 0; j < RootBaseGameDataCollector.LanguageDisplayNames.Length; j++)
+            for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 medalLeaf.LocalizedData[j] = new();
                 _medalLanguageDataSerializer.FromTextAssetSerializedString(

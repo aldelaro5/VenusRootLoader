@@ -6,16 +6,16 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.BaseGameCollector;
 
-internal sealed class BaseGameMenuTextsCollector : IBaseGameCollector
+internal sealed class MenuTextsCollector : IBaseGameCollector
 {
     private static readonly Dictionary<int, string[]> MenuTextsLanguageData = new();
 
-    private readonly ILogger<BaseGameMenuTextsCollector> _logger;
+    private readonly ILogger<MenuTextsCollector> _logger;
     private readonly ILeavesRegistry<MenuTextLeaf> _menuTextsRegistry;
     private readonly ILocalizedTextAssetParser<MenuTextLeaf> _menuTextLanguageDataSerializer;
 
-    public BaseGameMenuTextsCollector(
-        ILogger<BaseGameMenuTextsCollector> logger,
+    public MenuTextsCollector(
+        ILogger<MenuTextsCollector> logger,
         ILocalizedTextAssetParser<MenuTextLeaf> menuTextLanguageDataSerializer,
         ILeavesRegistry<MenuTextLeaf> menuTextsRegistry)
     {
@@ -23,7 +23,7 @@ internal sealed class BaseGameMenuTextsCollector : IBaseGameCollector
         _menuTextLanguageDataSerializer = menuTextLanguageDataSerializer;
         _menuTextsRegistry = menuTextsRegistry;
 
-        for (int i = 0; i < RootBaseGameDataCollector.LanguageDisplayNames.Length; i++)
+        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
             string[] menuTexts = Resources.Load<TextAsset>($"Data/Dialogues{i}/MenuText").text
                 .Trim(Utility.StringUtils.NewlineSplitDelimiter)
@@ -38,7 +38,7 @@ internal sealed class BaseGameMenuTextsCollector : IBaseGameCollector
         for (int i = 0; i < menuTextsAmount; i++)
         {
             MenuTextLeaf menuTextLeaf = _menuTextsRegistry.RegisterExisting(i, i.ToString(), baseGameId);
-            for (int j = 0; j < RootBaseGameDataCollector.LanguageDisplayNames.Length; j++)
+            for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _menuTextLanguageDataSerializer.FromTextAssetSerializedString(
                     "MenuText",

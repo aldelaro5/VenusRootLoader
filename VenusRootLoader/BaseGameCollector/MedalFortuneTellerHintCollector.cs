@@ -12,18 +12,18 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.BaseGameCollector;
 
-internal sealed class BaseGameMedalFortuneTellerHintCollector : IBaseGameCollector
+internal sealed class MedalFortuneTellerHintCollector : IBaseGameCollector
 {
     private static readonly Dictionary<int, string[]> MedalFortuneTellerHintsLanguageData = new();
 
-    private readonly ILogger<BaseGameMedalFortuneTellerHintCollector> _logger;
+    private readonly ILogger<MedalFortuneTellerHintCollector> _logger;
     private readonly IAssemblyCSharpDataCollector _assemblyCSharpDataCollector;
     private readonly ILocalizedTextAssetParser<MedalFortuneTellerHintLeaf> _localizedTextAssetParser;
     private readonly ILeavesRegistry<MedalFortuneTellerHintLeaf> _medalFortuneTellerHintsRegistry;
     private readonly ILeavesRegistry<FlagLeaf> _flagsRegistry;
 
-    public BaseGameMedalFortuneTellerHintCollector(
-        ILogger<BaseGameMedalFortuneTellerHintCollector> logger,
+    public MedalFortuneTellerHintCollector(
+        ILogger<MedalFortuneTellerHintCollector> logger,
         IAssemblyCSharpDataCollector assemblyCSharpDataCollector,
         ILocalizedTextAssetParser<MedalFortuneTellerHintLeaf> localizedTextAssetParser,
         ILeavesRegistry<MedalFortuneTellerHintLeaf> medalFortuneTellerHintsRegistry,
@@ -35,7 +35,7 @@ internal sealed class BaseGameMedalFortuneTellerHintCollector : IBaseGameCollect
         _medalFortuneTellerHintsRegistry = medalFortuneTellerHintsRegistry;
         _flagsRegistry = flagsRegistry;
 
-        for (int i = 0; i < RootBaseGameDataCollector.LanguageDisplayNames.Length; i++)
+        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
             string[] medalFortuneTellerHints = Resources.Load<TextAsset>($"Data/Dialogues{i}/FortuneTeller2").text
                 .Trim(Utility.StringUtils.NewlineSplitDelimiter)
@@ -76,7 +76,7 @@ internal sealed class BaseGameMedalFortuneTellerHintCollector : IBaseGameCollect
             MedalFortuneTellerHintLeaf medalFortuneTellerHintLeaf =
                 _medalFortuneTellerHintsRegistry.RegisterExisting(i, i.ToString(), baseGameId);
             medalFortuneTellerHintLeaf.MedalObtainedFlag = new(_flagsRegistry.LeavesByGameIds[flags[i]]);
-            for (int j = 0; j < RootBaseGameDataCollector.LanguageDisplayNames.Length; j++)
+            for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _localizedTextAssetParser.FromTextAssetSerializedString(
                     "FortuneTeller2",

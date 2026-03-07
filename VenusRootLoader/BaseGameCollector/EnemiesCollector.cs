@@ -12,7 +12,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.BaseGameCollector;
 
-internal sealed class BaseGameEnemiesCollector : IBaseGameCollector
+internal sealed class EnemiesCollector : IBaseGameCollector
 {
     private static readonly string[] EnemiesData = Resources.Load<TextAsset>("Data/EnemyData").text
         .Trim('\n')
@@ -27,15 +27,15 @@ internal sealed class BaseGameEnemiesCollector : IBaseGameCollector
 
     private readonly Sprite[] _enemyPortraitsSprites = Resources.LoadAll<Sprite>("Sprites/Items/EnemyPortraits");
 
-    private readonly ILogger<BaseGameEnemiesCollector> _logger;
+    private readonly ILogger<EnemiesCollector> _logger;
     private readonly IAssemblyCSharpDataCollector _assemblyCSharpDataCollector;
     private readonly ITextAssetParser<EnemyLeaf> _enemyTextAssetParser;
     private readonly IOrderedLeavesRegistry<EnemyLeaf> _orderedRegistry;
     private readonly IOrderingTextAssetParser<EnemyLeaf> _enemyOrderingTextAssetParser;
     private readonly ILocalizedTextAssetParser<EnemyLeaf> _enemyLocalizedTextAssetParser;
 
-    public BaseGameEnemiesCollector(
-        ILogger<BaseGameEnemiesCollector> logger,
+    public EnemiesCollector(
+        ILogger<EnemiesCollector> logger,
         IAssemblyCSharpDataCollector assemblyCSharpDataCollector,
         ITextAssetParser<EnemyLeaf> enemyTextAssetParser,
         IOrderedLeavesRegistry<EnemyLeaf> orderedRegistry,
@@ -49,7 +49,7 @@ internal sealed class BaseGameEnemiesCollector : IBaseGameCollector
         _enemyOrderingTextAssetParser = enemyOrderingTextAssetParser;
         _enemyLocalizedTextAssetParser = enemyLocalizedTextAssetParser;
 
-        for (int i = 0; i < RootBaseGameDataCollector.LanguageDisplayNames.Length; i++)
+        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
             string[] enemyLanguageData = Resources.Load<TextAsset>($"Data/Dialogues{i}/EnemyTattle").text
                 .Trim('\n')
@@ -130,7 +130,7 @@ internal sealed class BaseGameEnemiesCollector : IBaseGameCollector
         {
             EnemyLeaf enemyLeaf = _orderedRegistry.Registry.LeavesByGameIds[i];
             _enemyTextAssetParser.FromTextAssetSerializedString("EnemyData", EnemiesData[i], enemyLeaf);
-            for (int j = 0; j < RootBaseGameDataCollector.LanguageDisplayNames.Length; j++)
+            for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 enemyLeaf.LocalizedData[j] = new();
                 _enemyLocalizedTextAssetParser.FromTextAssetSerializedString(

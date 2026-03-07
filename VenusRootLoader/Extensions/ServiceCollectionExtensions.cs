@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Patching;
 using VenusRootLoader.Patching.Resources.TextAsset;
 using VenusRootLoader.Registry;
 
@@ -10,11 +11,50 @@ internal static class ServiceCollectionExtensions
 {
     extension(IServiceCollection collection)
     {
-        internal IServiceCollection AddOrderedLeavesRegistry<TLeaf, TRegistry>()
+        internal IServiceCollection AddEnumBasedLeavesRegistry<TLeaf, TEnum>()
             where TLeaf : Leaf, new()
-            where TRegistry : class, ILeavesRegistry<TLeaf>
+            where TEnum : Enum
         {
-            collection.AddSingleton<ILeavesRegistry<TLeaf>, TRegistry>();
+            collection.AddSingleton<ILeavesRegistry<TLeaf>, EnumBasedRegistry<TLeaf, TEnum>>(provider =>
+                new(
+                    provider.GetRequiredService<EnumPatcher>(),
+                    provider.GetRequiredService<ILoggerFactory>().CreateLogger(
+                        IServiceCollection.GenerateRegistryLogCategoryName<TLeaf>())));
+            return collection;
+        }
+
+        internal IServiceCollection AddEnumBasedLeavesRegistryWithOrdering<TLeaf, TEnum>()
+            where TLeaf : Leaf, new()
+            where TEnum : Enum
+        {
+            collection.AddEnumBasedLeavesRegistry<TLeaf, TEnum>();
+            collection.AddSingleton<IOrderedLeavesRegistry<TLeaf>, OrderedLeavesRegistry<TLeaf>>();
+            return collection;
+        }
+
+        internal IServiceCollection AddAutoSequentialIdBasedLeavesRegistry<TLeaf>(
+            IdSequenceDirection sequenceDirection = IdSequenceDirection.Increment,
+            int firstGameId = 0)
+            where TLeaf : Leaf, new()
+        {
+            collection.AddSingleton<ILeavesRegistry<TLeaf>, AutoSequentialIdBasedRegistry<TLeaf>>(provider =>
+                new AutoSequentialIdBasedRegistry<TLeaf>(
+                    provider.GetRequiredService<ILoggerFactory>()
+                        .CreateLogger(IServiceCollection.GenerateRegistryLogCategoryName<TLeaf>()),
+                    sequenceDirection,
+                    firstGameId));
+            return collection;
+        }
+
+        private static string GenerateRegistryLogCategoryName<TLeaf>() where TLeaf : Leaf, new() =>
+            $"{nameof(VenusRootLoader)}.{nameof(Registry)}.{typeof(TLeaf).Name}Registry";
+
+        internal IServiceCollection AddAutoSequentialIdBasedLeavesRegistryWithOrdering<TLeaf>(
+            IdSequenceDirection sequenceDirection = IdSequenceDirection.Increment,
+            int firstGameId = 0)
+            where TLeaf : Leaf, new()
+        {
+            collection.AddAutoSequentialIdBasedLeavesRegistry<TLeaf>(sequenceDirection, firstGameId);
             collection.AddSingleton<IOrderedLeavesRegistry<TLeaf>, OrderedLeavesRegistry<TLeaf>>();
             return collection;
         }

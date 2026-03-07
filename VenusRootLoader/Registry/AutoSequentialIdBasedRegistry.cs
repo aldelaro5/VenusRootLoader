@@ -4,19 +4,13 @@ using VenusRootLoader.Api.Leaves;
 
 namespace VenusRootLoader.Registry;
 
-internal abstract class AutoSequentialIdBasedRegistry<TLeaf> : BaseRegistry<TLeaf>
+internal class AutoSequentialIdBasedRegistry<TLeaf> : BaseRegistry<TLeaf>
     where TLeaf : Leaf, new()
 {
-    internal enum IdSequenceDirection
-    {
-        Increment,
-        Decrement
-    }
-
     private readonly IdSequenceDirection _idSequenceDirection;
     private int _nextAutoIncrementId;
 
-    protected AutoSequentialIdBasedRegistry(
+    public AutoSequentialIdBasedRegistry(
         ILogger logger,
         IdSequenceDirection idSequenceDirection,
         int firstGameId = 0) : base(logger)

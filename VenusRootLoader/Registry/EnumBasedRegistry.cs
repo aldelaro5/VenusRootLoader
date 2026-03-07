@@ -5,13 +5,13 @@ using VenusRootLoader.Patching;
 
 namespace VenusRootLoader.Registry;
 
-internal abstract class EnumBasedRegistry<TLeaf, TEnum> : BaseRegistry<TLeaf>
+internal class EnumBasedRegistry<TLeaf, TEnum> : BaseRegistry<TLeaf>
     where TLeaf : Leaf, new()
     where TEnum : Enum
 {
     private readonly EnumPatcher _enumPatcher;
 
-    protected EnumBasedRegistry(EnumPatcher enumPatcher, ILogger logger)
+    public EnumBasedRegistry(EnumPatcher enumPatcher, ILogger logger)
         : base(logger)
     {
         _enumPatcher = enumPatcher;

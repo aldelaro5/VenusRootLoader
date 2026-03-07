@@ -62,23 +62,23 @@ internal static class Startup
 
         services.AddSingleton<EnumPatcher>();
 
-        services.AddSingleton<ILeavesRegistry<ItemLeaf>, ItemsRegistry>();
-        services.AddOrderedLeavesRegistry<MedalLeaf, MedalsRegistry>();
-        services.AddOrderedLeavesRegistry<EnemyLeaf, EnemiesRegistry>();
-        services.AddSingleton<ILeavesRegistry<RecipeLeaf>, RecipesRegistry>();
-        services.AddSingleton<ILeavesRegistry<RecipeLibraryEntryLeaf>, RecipeLibraryEntriesRegistry>();
-        services.AddSingleton<ILeavesRegistry<AreaLeaf>, AreasRegistry>();
-        services.AddSingleton<ILeavesRegistry<FlagLeaf>, FlagsRegistry>();
-        services.AddSingleton<ILeavesRegistry<FlagvarLeaf>, FlagvarsRegistry>();
-        services.AddSingleton<ILeavesRegistry<FlagstringLeaf>, FlagstringsRegistry>();
-        services.AddSingleton<ILeavesRegistry<CrystalBerryLeaf>, CrystalBerriesRegistry>();
-        services.AddSingleton<ILeavesRegistry<MedalFortuneTellerHintLeaf>, MedalFortuneTellerHintsRegistry>();
-        services.AddSingleton<ILeavesRegistry<CommonDialogueLeaf>, CommonDialoguesRegistry>();
-        services.AddSingleton<ILeavesRegistry<MenuTextLeaf>, MenuTextsRegistry>();
-        services.AddSingleton<ILeavesRegistry<PrizeMedalLeaf>, PrizeMedalsRegistry>();
-        services.AddOrderedLeavesRegistry<DiscoveryLeaf, DiscoveriesRegistry>();
-        services.AddOrderedLeavesRegistry<RecordLeaf, RecordsRegistry>();
-        services.AddSingleton<ILeavesRegistry<TermacadePrizeLeaf>, TermacadePrizesRegistry>();
+        services.AddEnumBasedLeavesRegistry<ItemLeaf, MainManager.Items>();
+        services.AddEnumBasedLeavesRegistryWithOrdering<MedalLeaf, MainManager.BadgeTypes>();
+        services.AddEnumBasedLeavesRegistryWithOrdering<EnemyLeaf, MainManager.Enemies>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<RecipeLeaf>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<RecipeLibraryEntryLeaf>();
+        services.AddEnumBasedLeavesRegistry<AreaLeaf, MainManager.Areas>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<FlagLeaf>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<FlagvarLeaf>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<FlagstringLeaf>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<CrystalBerryLeaf>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<MedalFortuneTellerHintLeaf>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<CommonDialogueLeaf>(IdSequenceDirection.Decrement, -1);
+        services.AddAutoSequentialIdBasedLeavesRegistry<MenuTextLeaf>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<PrizeMedalLeaf>();
+        services.AddAutoSequentialIdBasedLeavesRegistryWithOrdering<DiscoveryLeaf>();
+        services.AddAutoSequentialIdBasedLeavesRegistryWithOrdering<RecordLeaf>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<TermacadePrizeLeaf>();
         services.AddSingleton<IRegistryResolver, RegistryResolver>();
 
         services.AddSingleton<ISpriteArrayPatcher, EnemyPortraitsSpriteArrayPatcher>(provider =>

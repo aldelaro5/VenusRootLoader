@@ -198,4 +198,13 @@ public partial class Venus
 
     public IReadOnlyCollection<DialogueBleepLeaf> GetAllDialogueBleeps() =>
         RegistryResolver.Resolve<DialogueBleepLeaf>().GetAll();
+
+    public MusicLeaf RegisterMusic(string namedId) =>
+        RegistryResolver.Resolve<MusicLeaf>().RegisterNew(namedId, BudId);
+
+    public MusicLeaf GetMusic(string namedId) =>
+        RegistryResolver.Resolve<MusicLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<MusicLeaf> GetAllMusics() =>
+        RegistryResolver.Resolve<MusicLeaf>().GetAll();
 }

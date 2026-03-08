@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Utility;
 
@@ -6,13 +7,15 @@ namespace VenusRootLoader.Patching.Resources.TextAsset.Parsers.GlobalData;
 internal sealed class MusicTextAssetParser : ITextAssetParser<MusicLeaf>
 {
     public string GetTextAssetSerializedString(string subPath, MusicLeaf leaf)
-        => $"{leaf.EndBoundaryInSeconds};{leaf.RestartBoundaryInSeconds}";
+        => $"{leaf.LoopEndTimestampInSeconds ?? float.MaxValue};{leaf.LoopStartTimestampInSeconds ?? float.MaxValue}";
 
     public void FromTextAssetSerializedString(string subPath, string text, MusicLeaf leaf)
     {
         string[] fields = text.Split(StringUtils.SemiColonSplitDelimiter);
 
-        leaf.EndBoundaryInSeconds = float.Parse(fields[0]);
-        leaf.RestartBoundaryInSeconds = float.Parse(fields[1]);
+        float loopEnd = float.Parse(fields[0]);
+        float loopStart = float.Parse(fields[1]);
+        leaf.LoopEndTimestampInSeconds = Mathf.Approximately(loopEnd, 999f) ? null : loopEnd;
+        leaf.LoopStartTimestampInSeconds = Mathf.Approximately(loopStart, 999f) ? null : loopStart;
     }
 }

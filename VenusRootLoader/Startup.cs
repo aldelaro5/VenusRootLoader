@@ -81,6 +81,7 @@ internal static class Startup
         services.AddAutoSequentialIdBasedLeavesRegistryWithOrdering<RecordLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<TermacadePrizeLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<DialogueBleepLeaf>();
+        services.AddEnumBasedLeavesRegistry<MusicLeaf, MainManager.Musics>();
         services.AddSingleton<IRegistryResolver, RegistryResolver>();
 
         services.AddSingleton<ISpriteArrayPatcher, EnemyPortraitsSpriteArrayPatcher>(provider =>
@@ -94,6 +95,9 @@ internal static class Startup
             new(["Sounds/Dialogue"], provider.GetRequiredService<ILeavesRegistry<DialogueBleepLeaf>>()));
         services.AddSingleton<IAudioClipArrayPatcher, SoundDialoguesAudioClipArrayPatcher>(provider =>
             new(["Sounds/Dialogue"], provider.GetRequiredService<ILeavesRegistry<DialogueBleepLeaf>>()));
+
+        services.AddSingleton<IAudioClipPatcher, MusicAudioClipPatcher>(provider =>
+            new(["Music"], provider.GetRequiredService<ILeavesRegistry<MusicLeaf>>()));
 
         services.AddTextAssetPatcher<ItemLeaf, ItemTextAssetParser>(["ItemData"]);
         services.AddLocalizedTextAssetPatcher<ItemLeaf, ItemLocalizedTextAssetParser>(["Items"]);
@@ -133,6 +137,9 @@ internal static class Startup
         services.AddLocalizedTextAssetPatcher<AreaLeaf, AreaLocalizedTextAssetParser>(
             ["AreaNames", "AreaDesc"]);
 
+        services.AddTextAssetPatcher<MusicLeaf, MusicTextAssetParser>(["LoopPoints"]);
+        services.AddLocalizedTextAssetPatcher<MusicLeaf, MusicLocalizedTextAssetParser>(["MusicList"]);
+
         services.AddSingleton<IResourcesTypePatcher<TextAsset>, RootTextAssetPatcher>();
         services.AddSingleton<IResourcesTypePatcher<AudioClip>, RootAudioClipPatcher>();
         services.AddSingleton<IResourcesArrayTypePatcher<Sprite>, RootSpritesArrayPatcher>();
@@ -151,6 +158,8 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, RareSpyDataTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, SpyDialoguePauseMenuTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, AreaMapPositionsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, NonPurchasableMusicsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, PrefabAudioClipTopLevelPatcher>();
         services.AddSingleton<RootPatcher>();
 
         services.AddSingleton<IAssemblyCSharpDataCollector, AssemblyCSharpDataCollector>();
@@ -170,6 +179,7 @@ internal static class Startup
         services.AddSingleton<IBaseGameCollector, RecordsCollector>();
         services.AddSingleton<IBaseGameCollector, TermacadePrizesCollector>();
         services.AddSingleton<IBaseGameCollector, DialogueBleepCollector>();
+        services.AddSingleton<IBaseGameCollector, MusicsCollector>();
         services.AddSingleton<RootCollector>();
 
         services.AddSingleton<IGlobalMonoBehaviourExecution, GlobalMonoBehaviourExecution>();

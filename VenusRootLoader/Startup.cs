@@ -82,6 +82,7 @@ internal static class Startup
         services.AddAutoSequentialIdBasedLeavesRegistry<TermacadePrizeLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<DialogueBleepLeaf>();
         services.AddEnumBasedLeavesRegistry<MusicLeaf, MainManager.Musics>();
+        services.AddEnumBasedLeavesRegistry<QuestLeaf, MainManager.BoardQuests>();
         services.AddSingleton<IRegistryResolver, RegistryResolver>();
 
         services.AddSingleton<ISpriteArrayPatcher, EnemyPortraitsSpriteArrayPatcher>(provider =>
@@ -89,7 +90,8 @@ internal static class Startup
                 ["Items/EnemyPortraits"],
                 provider.GetRequiredService<ILeavesRegistry<DiscoveryLeaf>>(),
                 provider.GetRequiredService<ILeavesRegistry<EnemyLeaf>>(),
-                provider.GetRequiredService<ILeavesRegistry<RecordLeaf>>()));
+                provider.GetRequiredService<ILeavesRegistry<RecordLeaf>>(),
+                provider.GetRequiredService<ILeavesRegistry<QuestLeaf>>()));
 
         services.AddSingleton<IAudioClipPatcher, SoundDialoguesAudioClipPatcher>(provider =>
             new(["Sounds/Dialogue"], provider.GetRequiredService<ILeavesRegistry<DialogueBleepLeaf>>()));
@@ -140,6 +142,9 @@ internal static class Startup
         services.AddTextAssetPatcher<MusicLeaf, MusicTextAssetParser>(["LoopPoints"]);
         services.AddLocalizedTextAssetPatcher<MusicLeaf, MusicLocalizedTextAssetParser>(["MusicList"]);
 
+        services.AddTextAssetPatcher<QuestLeaf, QuestTextAssetParser>(["BoardData", "QuestChecks"]);
+        services.AddLocalizedTextAssetPatcher<QuestLeaf, QuestLocalizedTextAssetParser>(["BoardQuests"]);
+
         services.AddSingleton<IResourcesTypePatcher<TextAsset>, RootTextAssetPatcher>();
         services.AddSingleton<IResourcesTypePatcher<AudioClip>, RootAudioClipPatcher>();
         services.AddSingleton<IResourcesArrayTypePatcher<Sprite>, RootSpritesArrayPatcher>();
@@ -160,6 +165,7 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, AreaMapPositionsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, NonPurchasableMusicsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, PrefabAudioClipTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, UndergroundBarQuestsTopLevelPatcher>();
         services.AddSingleton<RootPatcher>();
 
         services.AddSingleton<IAssemblyCSharpDataCollector, AssemblyCSharpDataCollector>();
@@ -180,6 +186,7 @@ internal static class Startup
         services.AddSingleton<IBaseGameCollector, TermacadePrizesCollector>();
         services.AddSingleton<IBaseGameCollector, DialogueBleepCollector>();
         services.AddSingleton<IBaseGameCollector, MusicsCollector>();
+        services.AddSingleton<IBaseGameCollector, QuestsCollector>();
         services.AddSingleton<RootCollector>();
 
         services.AddSingleton<IGlobalMonoBehaviourExecution, GlobalMonoBehaviourExecution>();

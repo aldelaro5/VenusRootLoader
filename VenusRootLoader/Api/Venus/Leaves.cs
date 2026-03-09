@@ -207,4 +207,13 @@ public partial class Venus
 
     public IReadOnlyCollection<MusicLeaf> GetAllMusics() =>
         RegistryResolver.Resolve<MusicLeaf>().GetAll();
+
+    public QuestLeaf RegisterQuest(string namedId) =>
+        RegistryResolver.Resolve<QuestLeaf>().RegisterNew(namedId, BudId);
+
+    public QuestLeaf GetQuest(string namedId) =>
+        RegistryResolver.Resolve<QuestLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<QuestLeaf> GetAllQuests() =>
+        RegistryResolver.Resolve<QuestLeaf>().GetAll();
 }

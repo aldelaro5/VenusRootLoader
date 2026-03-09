@@ -11,17 +11,20 @@ internal sealed class EnemyPortraitsSpriteArrayPatcher : ISpriteArrayPatcher
     private readonly ILeavesRegistry<DiscoveryLeaf> _discoveriesRegistry;
     private readonly ILeavesRegistry<EnemyLeaf> _enemiesRegistry;
     private readonly ILeavesRegistry<RecordLeaf> _recordsRegistry;
+    private readonly ILeavesRegistry<QuestLeaf> _questsRegistry;
 
     public EnemyPortraitsSpriteArrayPatcher(
         string[] subPaths,
         ILeavesRegistry<DiscoveryLeaf> discoveriesRegistry,
         ILeavesRegistry<EnemyLeaf> enemiesRegistry,
-        ILeavesRegistry<RecordLeaf> recordsRegistry)
+        ILeavesRegistry<RecordLeaf> recordsRegistry,
+        ILeavesRegistry<QuestLeaf> questsRegistry)
     {
         SubPaths = subPaths;
         _discoveriesRegistry = discoveriesRegistry;
         _enemiesRegistry = enemiesRegistry;
         _recordsRegistry = recordsRegistry;
+        _questsRegistry = questsRegistry;
     }
 
     public string[] SubPaths { get; }
@@ -39,6 +42,7 @@ internal sealed class EnemyPortraitsSpriteArrayPatcher : ISpriteArrayPatcher
         PatchSpritesFromRegistry(sprites, _discoveriesRegistry);
         PatchSpritesFromRegistry(sprites, _enemiesRegistry);
         PatchSpritesFromRegistry(sprites, _recordsRegistry);
+        PatchSpritesFromRegistry(sprites, _questsRegistry);
 
         return sprites.Values.ToArray();
     }
@@ -54,9 +58,14 @@ internal sealed class EnemyPortraitsSpriteArrayPatcher : ISpriteArrayPatcher
         IEnumerable<IEnemyPortraitSprite> recordsLeaves = _recordsRegistry
             .LeavesByNamedIds
             .Values;
-        List<IEnemyPortraitSprite> allLeavesWithPortraitSprite = discoveryLeaves
+        IEnumerable<IEnemyPortraitSprite> questsLeaves = _questsRegistry
+            .LeavesByNamedIds
+            .Values;
+        List<IEnemyPortraitSprite> allLeavesWithPortraitSprite =
+            discoveryLeaves
             .Concat(enemiesLeaves)
             .Concat(recordsLeaves)
+            .Concat(questsLeaves)
             .Where(l => l.EnemyPortraitsSpriteIndex is not null)
             .ToList();
 

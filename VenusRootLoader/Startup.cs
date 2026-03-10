@@ -84,6 +84,7 @@ internal static class Startup
         services.AddEnumBasedLeavesRegistry<MusicLeaf, MainManager.Musics>();
         services.AddEnumBasedLeavesRegistry<QuestLeaf, MainManager.BoardQuests>();
         services.AddAutoSequentialIdBasedLeavesRegistry<RankBonusLeaf>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<LoreBookLeaf>();
         services.AddSingleton<IRegistryResolver, RegistryResolver>();
 
         services.AddSingleton<ISpriteArrayPatcher, EnemyPortraitsSpriteArrayPatcher>(provider =>
@@ -148,6 +149,9 @@ internal static class Startup
 
         services.AddTextAssetPatcher<RankBonusLeaf, RankBonusTextAssetParser>(["LevelData"]);
 
+        services.AddLocalizedTextAssetPatcher<LoreBookLeaf, LoreBookLocalizedTextAssetParser>(
+            ["LoreText", "FortuneTeller1"]);
+
         services.AddSingleton<IResourcesTypePatcher<TextAsset>, RootTextAssetPatcher>();
         services.AddSingleton<IResourcesTypePatcher<AudioClip>, RootAudioClipPatcher>();
         services.AddSingleton<IResourcesArrayTypePatcher<Sprite>, RootSpritesArrayPatcher>();
@@ -191,6 +195,7 @@ internal static class Startup
         services.AddSingleton<IBaseGameCollector, MusicsCollector>();
         services.AddSingleton<IBaseGameCollector, QuestsCollector>();
         services.AddSingleton<IBaseGameCollector, RankBonusesCollector>();
+        services.AddSingleton<IBaseGameCollector, LoreBooksCollector>();
         services.AddSingleton<RootCollector>();
 
         services.AddSingleton<IGlobalMonoBehaviourExecution, GlobalMonoBehaviourExecution>();

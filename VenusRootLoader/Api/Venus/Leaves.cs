@@ -225,4 +225,13 @@ public partial class Venus
 
     public IReadOnlyCollection<RankBonusLeaf> GetAllRankBonuses() =>
         RegistryResolver.Resolve<RankBonusLeaf>().GetAll();
+
+    public LoreBookLeaf RegisterLoreBook(string namedId) =>
+        RegistryResolver.Resolve<LoreBookLeaf>().RegisterNew(namedId, BudId);
+
+    public LoreBookLeaf GetLoreBook(string namedId) =>
+        RegistryResolver.Resolve<LoreBookLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<LoreBookLeaf> GetAllLoreBooks() =>
+        RegistryResolver.Resolve<LoreBookLeaf>().GetAll();
 }

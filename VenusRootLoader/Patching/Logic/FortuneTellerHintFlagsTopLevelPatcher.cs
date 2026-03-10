@@ -12,14 +12,17 @@ internal sealed class FortuneTellerHintFlagsTopLevelPatcher : ITopLevelPatcher
     private static FortuneTellerHintFlagsTopLevelPatcher _instance = null!;
 
     private readonly IHarmonyTypePatcher _harmonyTypePatcher;
+    private readonly ILeavesRegistry<LoreBookLeaf> _loreBooksRegistry;
     private readonly ILeavesRegistry<MedalFortuneTellerHintLeaf> _medalFortuneTellerHintsRegistry;
 
     public FortuneTellerHintFlagsTopLevelPatcher(
         IHarmonyTypePatcher harmonyTypePatcher,
+        ILeavesRegistry<LoreBookLeaf> loreBooksRegistry,
         ILeavesRegistry<MedalFortuneTellerHintLeaf> medalFortuneTellerHintsRegistry)
     {
         _instance = this;
         _harmonyTypePatcher = harmonyTypePatcher;
+        _loreBooksRegistry = loreBooksRegistry;
         _medalFortuneTellerHintsRegistry = medalFortuneTellerHintsRegistry;
     }
 
@@ -49,8 +52,10 @@ internal sealed class FortuneTellerHintFlagsTopLevelPatcher : ITopLevelPatcher
 
     private static int[][] GetNewFortuneTallerHintFlagsArray(int[][] original) =>
     [
-        original[0],
-        _instance._medalFortuneTellerHintsRegistry.LeavesByNamedIds.Values
+        _instance._loreBooksRegistry.LeavesByGameIds.Values
+            .Select(l => l.LoreBookObtainedFlag.GameId)
+            .ToArray(),
+        _instance._medalFortuneTellerHintsRegistry.LeavesByGameIds.Values
             .Select(l => l.MedalObtainedFlag.GameId)
             .ToArray()
     ];

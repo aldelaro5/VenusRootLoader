@@ -83,6 +83,7 @@ internal static class Startup
         services.AddAutoSequentialIdBasedLeavesRegistry<DialogueBleepLeaf>();
         services.AddEnumBasedLeavesRegistry<MusicLeaf, MainManager.Musics>();
         services.AddEnumBasedLeavesRegistry<QuestLeaf, MainManager.BoardQuests>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<RankBonusLeaf>();
         services.AddSingleton<IRegistryResolver, RegistryResolver>();
 
         services.AddSingleton<ISpriteArrayPatcher, EnemyPortraitsSpriteArrayPatcher>(provider =>
@@ -145,6 +146,8 @@ internal static class Startup
         services.AddTextAssetPatcher<QuestLeaf, QuestTextAssetParser>(["BoardData", "QuestChecks"]);
         services.AddLocalizedTextAssetPatcher<QuestLeaf, QuestLocalizedTextAssetParser>(["BoardQuests"]);
 
+        services.AddTextAssetPatcher<RankBonusLeaf, RankBonusTextAssetParser>(["LevelData"]);
+
         services.AddSingleton<IResourcesTypePatcher<TextAsset>, RootTextAssetPatcher>();
         services.AddSingleton<IResourcesTypePatcher<AudioClip>, RootAudioClipPatcher>();
         services.AddSingleton<IResourcesArrayTypePatcher<Sprite>, RootSpritesArrayPatcher>();
@@ -187,6 +190,7 @@ internal static class Startup
         services.AddSingleton<IBaseGameCollector, DialogueBleepCollector>();
         services.AddSingleton<IBaseGameCollector, MusicsCollector>();
         services.AddSingleton<IBaseGameCollector, QuestsCollector>();
+        services.AddSingleton<IBaseGameCollector, RankBonusesCollector>();
         services.AddSingleton<RootCollector>();
 
         services.AddSingleton<IGlobalMonoBehaviourExecution, GlobalMonoBehaviourExecution>();

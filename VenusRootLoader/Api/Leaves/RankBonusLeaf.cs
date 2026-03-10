@@ -1,10 +1,19 @@
 namespace VenusRootLoader.Api.Leaves;
 
-internal sealed class RankBonusLeaf : Leaf
+// TODO: We need to make this API easier instead of having 3 parameter values, add the Venus APIs when this is done
+public sealed class RankBonusLeaf : Leaf
 {
-    internal int Rank { get; set; }
-    internal int BonusType { get; set; }
-    internal int FirstParameterValue { get; set; }
-    internal int SecondParameterValue { get; set; }
-    internal int ThirdParameterValue { get; set; }
+    public enum RankBonusType
+    {
+        GrantSkill,
+        GrantStatToPartyMember,
+        GrantStatToWholeParty,
+        GrantInventoryCapacity
+    }
+
+    public int RankNeeded { get; set; }
+    public RankBonusType BonusType { get; set; }
+    public int FirstParameter { get; set; }
+    public int SecondParameter { get; set; }
+    public int ThirdParameter { get; set; }
 }

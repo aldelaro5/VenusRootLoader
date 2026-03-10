@@ -10,15 +10,15 @@ internal sealed class RankBonusTextAssetParser : ITextAssetParser<RankBonusLeaf>
     {
         StringBuilder sb = new();
 
-        sb.Append(leaf.Rank);
+        sb.Append(leaf.RankNeeded);
         sb.Append(',');
-        sb.Append(leaf.BonusType);
+        sb.Append((int)leaf.BonusType);
         sb.Append(',');
-        sb.Append(leaf.FirstParameterValue);
+        sb.Append(leaf.FirstParameter);
         sb.Append(',');
-        sb.Append(leaf.SecondParameterValue);
+        sb.Append(leaf.SecondParameter);
         sb.Append(',');
-        sb.Append(leaf.ThirdParameterValue);
+        sb.Append(leaf.ThirdParameter);
 
         return sb.ToString();
     }
@@ -27,10 +27,10 @@ internal sealed class RankBonusTextAssetParser : ITextAssetParser<RankBonusLeaf>
     {
         string[] split = text.Split(StringUtils.CommaSplitDelimiter);
 
-        leaf.Rank = int.Parse(split[0]);
-        leaf.BonusType = int.Parse(split[1]);
-        leaf.FirstParameterValue = int.Parse(split[2]);
-        leaf.SecondParameterValue = int.Parse(split[3]);
-        leaf.ThirdParameterValue = int.Parse(split[4]);
+        leaf.RankNeeded = int.Parse(split[0]);
+        leaf.BonusType = (RankBonusLeaf.RankBonusType)int.Parse(split[1]);
+        leaf.FirstParameter = int.Parse(split[2]);
+        leaf.SecondParameter = int.Parse(split[3]);
+        leaf.ThirdParameter = int.Parse(split[4]);
     }
 }

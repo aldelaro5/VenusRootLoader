@@ -217,21 +217,21 @@ public partial class Venus
     public IReadOnlyCollection<QuestLeaf> GetAllQuests() =>
         RegistryResolver.Resolve<QuestLeaf>().GetAll();
 
-    public RankBonusLeaf RegisterRankBonus(string namedId) =>
+    internal RankBonusLeaf RegisterRankBonus(string namedId) =>
         RegistryResolver.Resolve<RankBonusLeaf>().RegisterNew(namedId, BudId);
 
-    public RankBonusLeaf GetRankBonus(string namedId) =>
+    internal RankBonusLeaf GetRankBonus(string namedId) =>
         RegistryResolver.Resolve<RankBonusLeaf>().Get(namedId);
 
-    public IReadOnlyCollection<RankBonusLeaf> GetAllRankBonuses() =>
+    internal IReadOnlyCollection<RankBonusLeaf> GetAllRankBonuses() =>
         RegistryResolver.Resolve<RankBonusLeaf>().GetAll();
 
-    public LoreBookLeaf RegisterLoreBook(string namedId) =>
+    internal LoreBookLeaf RegisterLoreBook(string namedId) =>
         RegistryResolver.Resolve<LoreBookLeaf>().RegisterNew(namedId, BudId);
 
-    public LoreBookLeaf GetLoreBook(string namedId) =>
+    internal LoreBookLeaf GetLoreBook(string namedId) =>
         RegistryResolver.Resolve<LoreBookLeaf>().Get(namedId);
 
-    public IReadOnlyCollection<LoreBookLeaf> GetAllLoreBooks() =>
+    internal IReadOnlyCollection<LoreBookLeaf> GetAllLoreBooks() =>
         RegistryResolver.Resolve<LoreBookLeaf>().GetAll();
 }

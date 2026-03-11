@@ -243,4 +243,13 @@ public partial class Venus
 
     internal IReadOnlyCollection<SkillLeaf> GetAllSkills() =>
         RegistryResolver.Resolve<SkillLeaf>().GetAll();
+
+    internal ActionCommandHelpTextLeaf RegisterActionCommandHelpText(string namedId) =>
+        RegistryResolver.Resolve<ActionCommandHelpTextLeaf>().RegisterNew(namedId, BudId);
+
+    internal ActionCommandHelpTextLeaf GetActionCommandHelpText(string namedId) =>
+        RegistryResolver.Resolve<ActionCommandHelpTextLeaf>().Get(namedId);
+
+    internal IReadOnlyCollection<ActionCommandHelpTextLeaf> GetAllActionCommandHelpTexts() =>
+        RegistryResolver.Resolve<ActionCommandHelpTextLeaf>().GetAll();
 }

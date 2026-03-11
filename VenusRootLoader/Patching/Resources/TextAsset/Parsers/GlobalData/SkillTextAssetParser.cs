@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using System.Text;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Extensions;
+using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 using static BattleControl;
 using static VenusRootLoader.Api.Leaves.SkillLeaf;
@@ -13,6 +14,13 @@ namespace VenusRootLoader.Patching.Resources.TextAsset.Parsers.GlobalData;
 
 internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
 {
+    private readonly ILeavesRegistry<ActionCommandHelpTextLeaf> _actionCommandHelpTextsRegistry;
+
+    public SkillTextAssetParser(ILeavesRegistry<ActionCommandHelpTextLeaf> actionCommandHelpTextsRegistry)
+    {
+        _actionCommandHelpTextsRegistry = actionCommandHelpTextsRegistry;
+    }
+
     public string GetTextAssetSerializedString(string subPath, SkillLeaf leaf)
     {
         RawTargetingParameters targetingParameters = leaf.Target switch
@@ -65,7 +73,7 @@ internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
         sb.Append('@');
         sb.Append(targetingParameters.onlyFrontEnemy);
         sb.Append('@');
-        sb.Append(leaf.HelpTextActionCommandGameId);
+        sb.Append(leaf.ActionCommandHelpText?.GameId ?? -1);
         sb.Append('@');
         sb.Append(targetingParameters.onlyPlayersAlive);
         sb.Append('@');
@@ -88,7 +96,10 @@ internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
         int cost = int.Parse(fields[0]);
         leaf.CostResource = cost >= 0 ? SkillCostResource.Tp : SkillCostResource.Hp;
         leaf.Cost = Math.Abs(cost);
-        leaf.HelpTextActionCommandGameId = int.Parse(fields[7]);
+        int actionCommandHelpTextGameId = int.Parse(fields[7]);
+        leaf.ActionCommandHelpText = actionCommandHelpTextGameId > -1
+            ? new(_actionCommandHelpTextsRegistry.LeavesByGameIds[actionCommandHelpTextGameId])
+            : null;
 
         leaf.Target = targetParameters switch
         {

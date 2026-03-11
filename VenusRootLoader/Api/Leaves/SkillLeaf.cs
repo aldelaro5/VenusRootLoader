@@ -50,5 +50,5 @@ internal sealed class SkillLeaf : Leaf
     internal int Cost { get; set; }
     internal SkillTarget Target { get; set; }
     internal SkillUsability UsableBy { get; set; }
-    internal int HelpTextActionCommandGameId { get; set; } = -1;
+    internal Branch<ActionCommandHelpTextLeaf>? ActionCommandHelpText { get; set; }
 }

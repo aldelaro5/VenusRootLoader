@@ -85,6 +85,7 @@ internal static class Startup
         services.AddEnumBasedLeavesRegistry<QuestLeaf, MainManager.BoardQuests>();
         services.AddAutoSequentialIdBasedLeavesRegistry<RankBonusLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<LoreBookLeaf>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<ActionCommandHelpTextLeaf>();
         services.AddEnumBasedLeavesRegistry<SkillLeaf, MainManager.Skills>();
         services.AddSingleton<IRegistryResolver, RegistryResolver>();
 
@@ -153,6 +154,9 @@ internal static class Startup
         services.AddLocalizedTextAssetPatcher<LoreBookLeaf, LoreBookLocalizedTextAssetParser>(
             ["LoreText", "FortuneTeller1"]);
 
+        services.AddLocalizedTextAssetPatcher<ActionCommandHelpTextLeaf, ActionCommandHelpTextLocalizedTextAssetParser>(
+            ["ActionCommands"]);
+
         services.AddTextAssetPatcher<SkillLeaf, SkillTextAssetParser>(["SkillData"]);
         services.AddLocalizedTextAssetPatcher<SkillLeaf, SkillLocalizedTextAssetParser>(["Skills"]);
 
@@ -200,6 +204,7 @@ internal static class Startup
         services.AddSingleton<IBaseGameCollector, QuestsCollector>();
         services.AddSingleton<IBaseGameCollector, RankBonusesCollector>();
         services.AddSingleton<IBaseGameCollector, LoreBooksCollector>();
+        services.AddSingleton<IBaseGameCollector, ActionCommandHelpTextsCollector>();
         services.AddSingleton<IBaseGameCollector, SkillsCollector>();
         services.AddSingleton<RootCollector>();
 

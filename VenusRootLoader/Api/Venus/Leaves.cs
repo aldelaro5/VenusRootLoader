@@ -234,4 +234,13 @@ public partial class Venus
 
     internal IReadOnlyCollection<LoreBookLeaf> GetAllLoreBooks() =>
         RegistryResolver.Resolve<LoreBookLeaf>().GetAll();
+
+    internal SkillLeaf RegisterSkill(string namedId) =>
+        RegistryResolver.Resolve<SkillLeaf>().RegisterNew(namedId, BudId);
+
+    internal SkillLeaf GetSkill(string namedId) =>
+        RegistryResolver.Resolve<SkillLeaf>().Get(namedId);
+
+    internal IReadOnlyCollection<SkillLeaf> GetAllSkills() =>
+        RegistryResolver.Resolve<SkillLeaf>().GetAll();
 }

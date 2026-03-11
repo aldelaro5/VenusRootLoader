@@ -6,13 +6,12 @@ namespace VenusRootLoader.Patching.Resources.TextAsset.Parsers.LocalisedData;
 internal sealed class SkillLocalizedTextAssetParser : ILocalizedTextAssetParser<SkillLeaf>
 {
     public string GetTextAssetSerializedString(string subPath, int languageId, SkillLeaf leaf)
-        => $"{leaf.Name[languageId]}@{leaf.Description[languageId]}";
+        => $"{leaf.LocalizedData[languageId].Name}@{leaf.LocalizedData[languageId].Description}";
 
     public void FromTextAssetSerializedString(string subPath, int languageId, string text, SkillLeaf leaf)
     {
         string[] fields = text.Split(StringUtils.AtSymbolSplitDelimiter);
-
-        leaf.Name[languageId] = fields[0];
-        leaf.Description[languageId] = fields[1];
+        leaf.LocalizedData[languageId].Name = fields[0];
+        leaf.LocalizedData[languageId].Description = fields[1];
     }
 }

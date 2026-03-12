@@ -87,6 +87,7 @@ internal static class Startup
         services.AddAutoSequentialIdBasedLeavesRegistry<LoreBookLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<ActionCommandHelpTextLeaf>();
         services.AddEnumBasedLeavesRegistry<SkillLeaf, MainManager.Skills>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<FishingTextLeaf>();
         services.AddSingleton<IRegistryResolver, RegistryResolver>();
 
         services.AddSingleton<ISpriteArrayPatcher, EnemyPortraitsSpriteArrayPatcher>(provider =>
@@ -160,6 +161,9 @@ internal static class Startup
         services.AddTextAssetPatcher<SkillLeaf, SkillTextAssetParser>(["SkillData"]);
         services.AddLocalizedTextAssetPatcher<SkillLeaf, SkillLocalizedTextAssetParser>(["Skills"]);
 
+        services.AddLocalizedTextAssetPatcher<FishingTextLeaf, FishingTextLocalizedTextAssetParser>(
+            ["Fishing"]);
+
         services.AddSingleton<IResourcesTypePatcher<TextAsset>, RootTextAssetPatcher>();
         services.AddSingleton<IResourcesTypePatcher<AudioClip>, RootAudioClipPatcher>();
         services.AddSingleton<IResourcesArrayTypePatcher<Sprite>, RootSpritesArrayPatcher>();
@@ -206,6 +210,7 @@ internal static class Startup
         services.AddSingleton<IBaseGameCollector, LoreBooksCollector>();
         services.AddSingleton<IBaseGameCollector, ActionCommandHelpTextsCollector>();
         services.AddSingleton<IBaseGameCollector, SkillsCollector>();
+        services.AddSingleton<IBaseGameCollector, FishingTextsCollector>();
         services.AddSingleton<RootCollector>();
 
         services.AddSingleton<IGlobalMonoBehaviourExecution, GlobalMonoBehaviourExecution>();

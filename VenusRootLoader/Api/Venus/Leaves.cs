@@ -252,4 +252,13 @@ public partial class Venus
 
     internal IReadOnlyCollection<ActionCommandHelpTextLeaf> GetAllActionCommandHelpTexts() =>
         RegistryResolver.Resolve<ActionCommandHelpTextLeaf>().GetAll();
+
+    public FishingTextLeaf RegisterFishingText(string namedId) =>
+        RegistryResolver.Resolve<FishingTextLeaf>().RegisterNew(namedId, BudId);
+
+    public FishingTextLeaf GetFishingText(string namedId) =>
+        RegistryResolver.Resolve<FishingTextLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<FishingTextLeaf> GetAllFishingTexts() =>
+        RegistryResolver.Resolve<FishingTextLeaf>().GetAll();
 }

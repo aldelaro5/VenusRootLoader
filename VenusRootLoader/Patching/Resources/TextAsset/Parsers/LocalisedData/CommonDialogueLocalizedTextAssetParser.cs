@@ -2,7 +2,7 @@ using VenusRootLoader.Api.Leaves;
 
 namespace VenusRootLoader.Patching.Resources.TextAsset.Parsers.LocalisedData;
 
-internal sealed class CommonDialoguelLocalizedTextAssetParser : ILocalizedTextAssetParser<CommonDialogueLeaf>
+internal sealed class CommonDialogueLocalizedTextAssetParser : ILocalizedTextAssetParser<CommonDialogueLeaf>
 {
     public string GetTextAssetSerializedString(string subPath, int languageId, CommonDialogueLeaf leaf) =>
         leaf.LocalizedText[languageId];

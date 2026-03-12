@@ -117,8 +117,8 @@ internal static class Startup
         services
             .AddLocalizedTextAssetPatcher<MedalFortuneTellerHintLeaf, MedalFortuneTellerHintLocalizedTextAssetParser>(
                 ["FortuneTeller2"]);
-        
-        services.AddLocalizedTextAssetPatcher<CommonDialogueLeaf, CommonDialoguelLocalizedTextAssetParser>(
+
+        services.AddLocalizedTextAssetPatcher<CommonDialogueLeaf, CommonDialogueLocalizedTextAssetParser>(
             ["CommonDialogue"],
             r => r.LeavesByNamedIds.Values.OrderBy(l => l.InternalGameIndex));
 

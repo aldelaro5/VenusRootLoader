@@ -89,6 +89,7 @@ internal static class Startup
         services.AddEnumBasedLeavesRegistry<SkillLeaf, MainManager.Skills>();
         services.AddAutoSequentialIdBasedLeavesRegistry<FishingTextLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<TestRoomTextLeaf>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<SpyCardsTextLeaf>();
         services.AddSingleton<IRegistryResolver, RegistryResolver>();
 
         services.AddSingleton<ISpriteArrayPatcher, EnemyPortraitsSpriteArrayPatcher>(provider =>
@@ -167,6 +168,9 @@ internal static class Startup
 
         services.AddTextAssetPatcher<TestRoomTextLeaf, TestRoomTextTextAssetParser>(["TestRoom"]);
 
+        services.AddLocalizedTextAssetPatcher<SpyCardsTextLeaf, SpyCardsTextLocalizedTextAssetParser>(
+            ["CardDialogue"]);
+
         services.AddSingleton<IResourcesTypePatcher<TextAsset>, RootTextAssetPatcher>();
         services.AddSingleton<IResourcesTypePatcher<AudioClip>, RootAudioClipPatcher>();
         services.AddSingleton<IResourcesArrayTypePatcher<Sprite>, RootSpritesArrayPatcher>();
@@ -215,6 +219,7 @@ internal static class Startup
         services.AddSingleton<IBaseGameCollector, SkillsCollector>();
         services.AddSingleton<IBaseGameCollector, FishingTextsCollector>();
         services.AddSingleton<IBaseGameCollector, TestRoomTextsCollector>();
+        services.AddSingleton<IBaseGameCollector, SpyCardsTextsCollector>();
         services.AddSingleton<RootCollector>();
 
         services.AddSingleton<IGlobalMonoBehaviourExecution, GlobalMonoBehaviourExecution>();

@@ -22,6 +22,7 @@ using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.OrderingData;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Unity;
 using VenusRootLoader.Unity.CustomAudioClip;
+using Object = UnityEngine.Object;
 
 namespace VenusRootLoader;
 
@@ -93,6 +94,9 @@ internal static class Startup
         services.AddAutoSequentialIdBasedLeavesRegistry<SpyCardsTextLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistryWithOrdering<SpyCardLeaf>();
         services.AddSingleton<IRegistryResolver, RegistryResolver>();
+
+        services.AddSingleton<IPrefabPatcher, MapPatcher>(provider =>
+            new(["Maps"], provider.GetRequiredService<ILeavesRegistry<MusicLeaf>>()));
 
         services.AddSingleton<ISpriteArrayPatcher, EnemyPortraitsSpriteArrayPatcher>(provider =>
             new(
@@ -179,6 +183,7 @@ internal static class Startup
 
         services.AddSingleton<IResourcesTypePatcher<TextAsset>, RootTextAssetPatcher>();
         services.AddSingleton<IResourcesTypePatcher<AudioClip>, RootAudioClipPatcher>();
+        services.AddSingleton<IResourcesTypePatcher<Object>, RootPrefabPatcher>();
         services.AddSingleton<IResourcesArrayTypePatcher<Sprite>, RootSpritesArrayPatcher>();
         services.AddSingleton<IResourcesArrayTypePatcher<AudioClip>, RootAudioClipsArrayPatcher>();
 
@@ -196,7 +201,6 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, SpyDialoguePauseMenuTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, AreaMapPositionsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, NonPurchasableMusicsTopLevelPatcher>();
-        services.AddSingleton<ITopLevelPatcher, PrefabAudioClipTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, UndergroundBarQuestsTopLevelPatcher>();
         services.AddSingleton<RootPatcher>();
 

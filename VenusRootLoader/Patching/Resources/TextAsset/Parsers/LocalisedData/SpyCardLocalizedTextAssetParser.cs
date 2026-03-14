@@ -9,9 +9,9 @@ internal sealed class SpyCardLocalizedTextAssetParser : ILocalizedTextAssetParse
     public string GetTextAssetSerializedString(string subPath, int languageId, SpyCardLeaf leaf)
     {
         StringBuilder sb = new();
-        sb.Append(leaf.Description[languageId]);
+        sb.Append(leaf.LocalizedData[languageId].Description);
         sb.Append('@');
-        sb.Append(leaf.HorizontalNameSize[languageId]);
+        sb.Append(leaf.LocalizedData[languageId].HorizontalNameSize);
 
         return sb.ToString();
     }
@@ -19,7 +19,8 @@ internal sealed class SpyCardLocalizedTextAssetParser : ILocalizedTextAssetParse
     public void FromTextAssetSerializedString(string subPath, int languageId, string text, SpyCardLeaf leaf)
     {
         string[] fields = text.Split(StringUtils.AtSymbolSplitDelimiter);
-        leaf.Description[languageId] = fields[0];
-        leaf.HorizontalNameSize[languageId] = float.Parse(fields[1]);
+        leaf.LocalizedData[languageId].Description = fields[0];
+        if (fields.Length > 1)
+            leaf.LocalizedData[languageId].HorizontalNameSize = float.Parse(fields[1]);
     }
 }

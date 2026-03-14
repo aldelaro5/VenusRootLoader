@@ -1,4 +1,5 @@
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Registry;
 
 // ReSharper disable CheckNamespace
 // ReSharper disable UnusedMember.Global
@@ -279,4 +280,32 @@ public partial class Venus
 
     public IReadOnlyCollection<SpyCardsTextLeaf> GetAllSpyCardTexts() =>
         RegistryResolver.Resolve<SpyCardsTextLeaf>().GetAll();
+
+    public SpyCardLeaf RegisterSpyCard(string namedId, MainManager.Enemies? orderAfter, int orderPriority)
+    {
+        IOrderedLeavesRegistry<SpyCardLeaf> orderedLeavesRegistry = RegistryResolver.ResolveWithOrdering<SpyCardLeaf>();
+        int? gameIdOrderAfter;
+        if (orderAfter is not null)
+        {
+            gameIdOrderAfter = orderedLeavesRegistry.Registry.LeavesByGameIds.Values
+                .OrderBy(l => l.GameId)
+                .First(l => l.Enemy.GameId == (int)orderAfter).GameId;
+        }
+        else
+        {
+            gameIdOrderAfter = null;
+        }
+
+        return orderedLeavesRegistry.RegisterNewWithOrdering(
+            namedId,
+            BudId,
+            gameIdOrderAfter,
+            orderPriority);
+    }
+
+    public SpyCardLeaf GetSpyCard(string namedId) =>
+        RegistryResolver.Resolve<SpyCardLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<SpyCardLeaf> GetAllSpyCards() =>
+        RegistryResolver.Resolve<SpyCardLeaf>().GetAll();
 }

@@ -1,12 +1,19 @@
 using System.Text;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAsset.Parsers.GlobalData;
 
-// TODO: Handle ordering which is game id, one per line
 internal sealed class SpyCardTextAssetParser : ITextAssetParser<SpyCardLeaf>
 {
+    private readonly ILeavesRegistry<EnemyLeaf> _enemiesRegistry;
+
+    public SpyCardTextAssetParser(ILeavesRegistry<EnemyLeaf> enemiesRegistry)
+    {
+        _enemiesRegistry = enemiesRegistry;
+    }
+
     public string GetTextAssetSerializedString(string subPath, SpyCardLeaf leaf)
     {
         StringBuilder sb = new();
@@ -14,7 +21,7 @@ internal sealed class SpyCardTextAssetParser : ITextAssetParser<SpyCardLeaf>
         sb.Append(',');
         sb.Append(leaf.Attack);
         sb.Append(',');
-        sb.Append(leaf.EnemyGameId);
+        sb.Append(leaf.Enemy.GameId);
         sb.Append(',');
         sb.Append(leaf.UnusedHorizontalNameSize);
         sb.Append(',');
@@ -36,7 +43,7 @@ internal sealed class SpyCardTextAssetParser : ITextAssetParser<SpyCardLeaf>
         string[] fields = text.Split(StringUtils.CommaSplitDelimiter);
         leaf.TpCost = int.Parse(fields[0]);
         leaf.Attack = int.Parse(fields[1]);
-        leaf.EnemyGameId = int.Parse(fields[2]);
+        leaf.Enemy = new(_enemiesRegistry.LeavesByGameIds[int.Parse(fields[2])]);
         leaf.UnusedHorizontalNameSize = float.Parse(fields[3]);
         leaf.Type = (CardGame.Type)int.Parse(fields[4]);
 
@@ -46,6 +53,8 @@ internal sealed class SpyCardTextAssetParser : ITextAssetParser<SpyCardLeaf>
         {
             SpyCardLeaf.SpyCardEffect cardEffect = new();
             string[] fieldsEffect = effect.Split(StringUtils.NumberSignSplitDelimiter);
+            if (string.IsNullOrWhiteSpace(fieldsEffect[0]))
+                continue;
             cardEffect.Effect = (CardGame.Effects)int.Parse(fieldsEffect[0]);
             cardEffect.FirstValue = int.Parse(fieldsEffect[1]);
             cardEffect.SecondValue = int.Parse(fieldsEffect[2]);

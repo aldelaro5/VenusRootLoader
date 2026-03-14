@@ -80,10 +80,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="Patching\Resources\TextAsset\Parsers\DialoguesLines\**"/>
-        <Compile Remove="Patching\Resources\TextAsset\Parsers\Entities\**"/>
-        <Compile Remove="Patching\Resources\TextAsset\Parsers\FortuneTellerLines\**"/>
-        <Compile Remove="Patching\Resources\TextAsset\Parsers\Miscellaneous\**"/>
+        <Compile Remove="Patching\Resources\TextAssetPatchers\Parsers\Entities\**"/>
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="Build">

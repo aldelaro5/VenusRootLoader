@@ -60,8 +60,7 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
         }
     }
 
-    private TLeaf EnsureNamedIdExists(
-        string namedId)
+    private TLeaf EnsureNamedIdExists(string namedId)
     {
         if (!LeavesByNamedIds.TryGetValue(namedId, out TLeaf content))
         {

@@ -11,12 +11,13 @@ internal static class ServiceCollectionExtensions
 {
     extension(IServiceCollection collection)
     {
-        internal IServiceCollection AddEnumBasedLeavesRegistry<TLeaf, TEnum>()
+        internal IServiceCollection AddEnumBasedLeavesRegistry<TLeaf, TEnum>(int offsetEnumValueToGameId = 0)
             where TLeaf : Leaf, new()
             where TEnum : Enum
         {
             collection.AddSingleton<ILeavesRegistry<TLeaf>, EnumBasedRegistry<TLeaf, TEnum>>(provider =>
                 new(
+                    offsetEnumValueToGameId,
                     provider.GetRequiredService<EnumPatcher>(),
                     provider.GetRequiredService<ILoggerFactory>().CreateLogger(
                         IServiceCollection.GenerateRegistryLogCategoryName<TLeaf>())));

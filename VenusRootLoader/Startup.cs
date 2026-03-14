@@ -65,6 +65,8 @@ internal static class Startup
 
         services.AddSingleton<EnumPatcher>();
 
+        services.AddAutoSequentialIdBasedLeavesRegistry<DialogueBleepLeaf>();
+        services.AddEnumBasedLeavesRegistry<AnimIdLeaf, MainManager.AnimIDs>(-1);
         services.AddEnumBasedLeavesRegistry<ItemLeaf, MainManager.Items>();
         services.AddEnumBasedLeavesRegistryWithOrdering<MedalLeaf, MainManager.BadgeTypes>();
         services.AddEnumBasedLeavesRegistryWithOrdering<EnemyLeaf, MainManager.Enemies>();
@@ -82,7 +84,6 @@ internal static class Startup
         services.AddAutoSequentialIdBasedLeavesRegistryWithOrdering<DiscoveryLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistryWithOrdering<RecordLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<TermacadePrizeLeaf>();
-        services.AddAutoSequentialIdBasedLeavesRegistry<DialogueBleepLeaf>();
         services.AddEnumBasedLeavesRegistry<MusicLeaf, MainManager.Musics>();
         services.AddEnumBasedLeavesRegistry<QuestLeaf, MainManager.BoardQuests>();
         services.AddAutoSequentialIdBasedLeavesRegistry<RankBonusLeaf>();
@@ -113,6 +114,8 @@ internal static class Startup
 
         services.AddSingleton<IAudioClipPatcher, MusicAudioClipPatcher>(provider =>
             new(["Music"], provider.GetRequiredService<ILeavesRegistry<MusicLeaf>>()));
+
+        services.AddTextAssetPatcher<AnimIdLeaf, AnimIdTextAssetParser>(["EntityValues"]);
 
         services.AddTextAssetPatcher<ItemLeaf, ItemTextAssetParser>(["ItemData"]);
         services.AddLocalizedTextAssetPatcher<ItemLeaf, ItemLocalizedTextAssetParser>(["Items"]);
@@ -205,6 +208,8 @@ internal static class Startup
         services.AddSingleton<RootPatcher>();
 
         services.AddSingleton<IAssemblyCSharpDataCollector, AssemblyCSharpDataCollector>();
+        services.AddSingleton<IBaseGameCollector, DialogueBleepCollector>();
+        services.AddSingleton<IBaseGameCollector, AnimIdsCollector>();
         services.AddSingleton<IBaseGameCollector, ItemsCollector>();
         services.AddSingleton<IBaseGameCollector, EnemiesCollector>();
         services.AddSingleton<IBaseGameCollector, RecipesCollector>();
@@ -220,7 +225,6 @@ internal static class Startup
         services.AddSingleton<IBaseGameCollector, DiscoveriesCollector>();
         services.AddSingleton<IBaseGameCollector, RecordsCollector>();
         services.AddSingleton<IBaseGameCollector, TermacadePrizesCollector>();
-        services.AddSingleton<IBaseGameCollector, DialogueBleepCollector>();
         services.AddSingleton<IBaseGameCollector, MusicsCollector>();
         services.AddSingleton<IBaseGameCollector, QuestsCollector>();
         services.AddSingleton<IBaseGameCollector, RankBonusesCollector>();

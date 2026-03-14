@@ -308,4 +308,13 @@ public partial class Venus
 
     public IReadOnlyCollection<SpyCardLeaf> GetAllSpyCards() =>
         RegistryResolver.Resolve<SpyCardLeaf>().GetAll();
+
+    public AnimIdLeaf RegisterAnimId(string namedId) =>
+        RegistryResolver.Resolve<AnimIdLeaf>().RegisterNew(namedId, BudId);
+
+    public AnimIdLeaf GetAnimId(string namedId) =>
+        RegistryResolver.Resolve<AnimIdLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<AnimIdLeaf> GetAllAnimIds() =>
+        RegistryResolver.Resolve<AnimIdLeaf>().GetAll();
 }

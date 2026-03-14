@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace VenusRootLoader.Api.Leaves;
 
-internal sealed class AnimIdLeaf : Leaf
+public sealed class AnimIdLeaf : Leaf
 {
     internal sealed class AnimIdResourcePreload
     {
@@ -11,31 +11,31 @@ internal sealed class AnimIdLeaf : Leaf
         internal bool IsSprite { get; set; }
     }
 
-    internal float ShadowSize { get; set; } = 1.0f;
-    internal Vector3 StartScale { get; set; } = Vector3.one;
-    internal float BleepPitch { get; set; } = 1.0f;
-    internal int BleepId { get; set; }
-    internal bool IsModelEntity { get; set; }
-    internal Vector3 ModelScale { get; set; }
-    internal Vector3 ModelOffset { get; set; }
-    internal Vector3 FreezeSize { get; set; }
-    internal Vector3 FreezeOffset { get; set; }
-    internal Vector3 FreezeFlipOffset { get; set; }
+    public float ShadowSize { get; set; } = 1.0f;
+    public Vector3 StartingScale { get; set; } = Vector3.one;
+    public float BleepPitch { get; set; } = 1.0f;
+    public Branch<DialogueBleepLeaf> BleepId { get; set; }
+    public bool IsModelEntity { get; set; }
+    public Vector3 ModelScale { get; set; }
+    public Vector3 ModelOffset { get; set; }
+    public Vector3 FreezeSize { get; set; }
+    public Vector3 FreezeOffset { get; set; }
+    public Vector3 FreezeFlipOffset { get; set; }
     internal List<AnimIdResourcePreload> PreloadResources { get; } = new();
-    internal bool ShakeOnDrop { get; set; }
-    internal bool HasDigAnimation { get; set; }
-    internal bool DoNotOverrideJump { get; set; }
-    internal bool DontFreezeWhenFalling { get; set; }
-    internal bool HasNoShadows { get; set; }
-    internal EntityControl.WalkType WalkType { get; set; }
-    internal int UnusedBaseState { get; set; }
-    internal int UnusedBaseWalk { get; set; }
-    internal float MinimumHeight { get; set; }
+    public bool ShakeOnDrop { get; set; }
+    public bool HasDigAnimation { get; set; }
+    public bool HasJumpAnimationOverride { get; set; } = true;
+    public bool FallsWhenFrozen { get; set; } = true;
+    public bool HasShadow { get; set; } = true;
+    public EntityControl.WalkType WalkType { get; set; }
+    internal int UnusedBaseIdleAnimState { get; set; }
+    internal int UnusedBaseWalkAnimState { get; set; }
+    public float MinimumHeight { get; set; }
     internal float UnusedStartingHeight { get; set; }
-    internal float StartingBobSpeed { get; set; }
-    internal float StartingBobRange { get; set; }
-    internal bool HasIceAnimation { get; set; }
-    internal bool HasNoFlyAnimation { get; set; }
-    internal bool ForcesShadow { get; set; }
-    internal bool Object { get; set; }
+    public float StartingBobSpeed { get; set; }
+    public float StartingBobFrequency { get; set; }
+    public bool HasIceAnimation { get; set; }
+    public bool HasFlyingAnimationOverride { get; set; }
+    public bool ForcesShadow { get; set; }
+    public bool Object { get; set; }
 }

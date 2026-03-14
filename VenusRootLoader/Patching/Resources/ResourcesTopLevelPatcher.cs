@@ -9,22 +9,25 @@ internal sealed class ResourcesTopLevelPatcher : ITopLevelPatcher
 {
     private static ResourcesTopLevelPatcher _instance = null!;
     private readonly IHarmonyTypePatcher _harmonyTypePatcher;
-    private readonly IResourcesTypePatcher<UnityEngine.TextAsset> _textAssetPatcher;
-    private readonly IResourcesTypePatcher<UnityEngine.AudioClip> _audioClipPatcher;
+    private readonly IResourcesTypePatcher<TextAsset> _textAssetPatcher;
+    private readonly IResourcesTypePatcher<AudioClip> _audioClipPatcher;
+    private readonly IResourcesTypePatcher<Object> _prefabPatcher;
     private readonly IResourcesArrayTypePatcher<Sprite> _spriteArrayPatcher;
-    private readonly IResourcesArrayTypePatcher<UnityEngine.AudioClip> _audioClipArrayPatcher;
+    private readonly IResourcesArrayTypePatcher<AudioClip> _audioClipArrayPatcher;
 
     public ResourcesTopLevelPatcher(
         IHarmonyTypePatcher harmonyTypePatcher,
-        IResourcesTypePatcher<UnityEngine.TextAsset> textAssetPatcher,
-        IResourcesTypePatcher<UnityEngine.AudioClip> audioClipPatcher,
+        IResourcesTypePatcher<TextAsset> textAssetPatcher,
+        IResourcesTypePatcher<AudioClip> audioClipPatcher,
+        IResourcesTypePatcher<Object> prefabPatcher,
         IResourcesArrayTypePatcher<Sprite> spriteArrayPatcher,
-        IResourcesArrayTypePatcher<UnityEngine.AudioClip> audioClipArrayPatcher)
+        IResourcesArrayTypePatcher<AudioClip> audioClipArrayPatcher)
     {
         _instance = this;
         _harmonyTypePatcher = harmonyTypePatcher;
         _textAssetPatcher = textAssetPatcher;
         _spriteArrayPatcher = spriteArrayPatcher;
+        _prefabPatcher = prefabPatcher;
         _audioClipPatcher = audioClipPatcher;
         _audioClipArrayPatcher = audioClipArrayPatcher;
     }
@@ -35,10 +38,12 @@ internal sealed class ResourcesTopLevelPatcher : ITopLevelPatcher
     [HarmonyPatch(typeof(UnityEngine.Resources), nameof(UnityEngine.Resources.Load), [typeof(string), typeof(Type)])]
     private static void PatchResources(string path, Type systemTypeInstance, ref Object __result)
     {
-        if (systemTypeInstance == typeof(UnityEngine.TextAsset))
-            __result = _instance._textAssetPatcher.PatchResource(path, (UnityEngine.TextAsset)__result);
-        if (systemTypeInstance == typeof(UnityEngine.AudioClip))
-            __result = _instance._audioClipPatcher.PatchResource(path, (UnityEngine.AudioClip)__result);
+        if (systemTypeInstance == typeof(TextAsset))
+            __result = _instance._textAssetPatcher.PatchResource(path, (TextAsset)__result);
+        if (systemTypeInstance == typeof(AudioClip))
+            __result = _instance._audioClipPatcher.PatchResource(path, (AudioClip)__result);
+        if (systemTypeInstance == typeof(Object))
+            __result = _instance._prefabPatcher.PatchResource(path, (GameObject)__result);
     }
 
     [HarmonyPostfix]
@@ -51,11 +56,11 @@ internal sealed class ResourcesTopLevelPatcher : ITopLevelPatcher
             __result = _instance._spriteArrayPatcher.PatchResources(path, __result.Cast<Sprite>().ToArray());
         }
 
-        if (systemTypeInstance == typeof(UnityEngine.AudioClip))
+        if (systemTypeInstance == typeof(AudioClip))
         {
             __result = _instance._audioClipArrayPatcher.PatchResources(
                 path,
-                __result.Cast<UnityEngine.AudioClip>().ToArray());
+                __result.Cast<AudioClip>().ToArray());
         }
     }
 }

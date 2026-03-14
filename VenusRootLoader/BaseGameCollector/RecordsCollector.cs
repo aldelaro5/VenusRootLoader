@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.LeavesInternals;
-using VenusRootLoader.Patching.Resources.TextAsset;
+using VenusRootLoader.Patching.Resources.TextAssetPatchers;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.BaseGameCollector;

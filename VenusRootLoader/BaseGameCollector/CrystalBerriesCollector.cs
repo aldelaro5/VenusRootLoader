@@ -5,7 +5,7 @@ using MonoMod.Utils;
 using System.Reflection;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Patching.Resources.TextAsset;
+using VenusRootLoader.Patching.Resources.TextAssetPatchers;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.BaseGameCollector;

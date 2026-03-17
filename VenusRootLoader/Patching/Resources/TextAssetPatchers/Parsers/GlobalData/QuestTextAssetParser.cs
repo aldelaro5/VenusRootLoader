@@ -20,33 +20,33 @@ internal sealed class QuestTextAssetParser : ITextAssetParser<QuestLeaf>
         _areasRegistry = areasRegistry;
     }
 
-    public string GetTextAssetSerializedString(string subPath, QuestLeaf leaf)
+    public string GetTextAssetSerializedString(string subPath, QuestLeaf value)
     {
         if (subPath.Equals(BoardDataSubPath, StringComparison.OrdinalIgnoreCase))
         {
-            int enemyPortraitsSpriteIndex = ((IEnemyPortraitSprite)leaf).EnemyPortraitsSpriteIndex!.Value;
-            return $"{leaf.TakenFlag?.GameId ?? -1}@{enemyPortraitsSpriteIndex}@{leaf.Difficulty}";
+            int enemyPortraitsSpriteIndex = ((IEnemyPortraitSprite)value).EnemyPortraitsSpriteIndex!.Value;
+            return $"{value.TakenFlag?.GameId ?? -1}@{enemyPortraitsSpriteIndex}@{value.Difficulty}";
         }
 
         if (!subPath.Equals(QuestChecksSubPath, StringComparison.OrdinalIgnoreCase))
             return ThrowHelper.ThrowInvalidDataException<string>($"This parser doesn't support the subPath {subPath}");
 
-        IEnumerable<string> requiredFlags = leaf.RequiredFlags.Select(b => b.GameId.ToString());
-        IEnumerable<string> requiredSeenAreas = leaf.RequiredSeenAreas.Select(b => (-b.GameId).ToString());
+        IEnumerable<string> requiredFlags = value.RequiredFlags.Select(b => b.GameId.ToString());
+        IEnumerable<string> requiredSeenAreas = value.RequiredSeenAreas.Select(b => (-b.GameId).ToString());
         List<string> allRequirements = requiredFlags.Concat(requiredSeenAreas).ToList();
         return string.Join("@", allRequirements.Count == 0 ? ["0"] : allRequirements);
     }
 
-    public void FromTextAssetSerializedString(string subPath, string text, QuestLeaf leaf)
+    public void FromTextAssetSerializedString(string subPath, string text, QuestLeaf value)
     {
         if (subPath.Equals(BoardDataSubPath, StringComparison.OrdinalIgnoreCase))
         {
             string[] fieldsBoardData = text.Split(StringUtils.AtSymbolSplitDelimiter);
 
             int takenFlag = int.Parse(fieldsBoardData[0]);
-            leaf.TakenFlag = takenFlag <= -1 ? null : new(_flagsRegistry.LeavesByGameIds[takenFlag]);
-            ((IEnemyPortraitSprite)leaf).EnemyPortraitsSpriteIndex = int.Parse(fieldsBoardData[1]);
-            leaf.Difficulty = int.Parse(fieldsBoardData[2]);
+            value.TakenFlag = takenFlag <= -1 ? null : new(_flagsRegistry.LeavesByGameIds[takenFlag]);
+            ((IEnemyPortraitSprite)value).EnemyPortraitsSpriteIndex = int.Parse(fieldsBoardData[1]);
+            value.Difficulty = int.Parse(fieldsBoardData[2]);
             return;
         }
 
@@ -58,8 +58,8 @@ internal sealed class QuestTextAssetParser : ITextAssetParser<QuestLeaf>
 
         string[] fieldsChecks = text.Split(StringUtils.AtSymbolSplitDelimiter);
 
-        leaf.RequiredFlags.Clear();
-        leaf.RequiredSeenAreas.Clear();
+        value.RequiredFlags.Clear();
+        value.RequiredSeenAreas.Clear();
         for (int i = 0; i < fieldsChecks.Length; i++)
         {
             int check = int.Parse(fieldsChecks[i]);
@@ -67,9 +67,9 @@ internal sealed class QuestTextAssetParser : ITextAssetParser<QuestLeaf>
                 break;
 
             if (check > 0)
-                leaf.RequiredFlags.Add(new(_flagsRegistry.LeavesByGameIds[check]));
+                value.RequiredFlags.Add(new(_flagsRegistry.LeavesByGameIds[check]));
             else
-                leaf.RequiredSeenAreas.Add(new(_areasRegistry.LeavesByGameIds[Math.Abs(check)]));
+                value.RequiredSeenAreas.Add(new(_areasRegistry.LeavesByGameIds[Math.Abs(check)]));
         }
     }
 }

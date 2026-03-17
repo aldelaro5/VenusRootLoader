@@ -12,36 +12,36 @@ internal sealed class TermacadePrizeTextAssetParser : ITextAssetParser<Termacade
         AlwaysAvailable,
         SingleTimePurchase
     }
-    
-    public string GetTextAssetSerializedString(string subPath, TermacadePrizeLeaf leaf)
+
+    public string GetTextAssetSerializedString(string subPath, TermacadePrizeLeaf value)
     {
         StringBuilder sb = new();
 
-        sb.Append((int)leaf.PrizeType);
+        sb.Append((int)value.PrizeType);
         sb.Append(',');
-        sb.Append(leaf.ItemOrMedalGameId);
+        sb.Append(value.ItemOrMedalGameId);
         sb.Append(',');
-        sb.Append(leaf.GameTokenCost);
+        sb.Append(value.GameTokenCost);
         sb.Append(',');
         sb.Append(
-            (int)(leaf.AlreadyBoughtFlagGameId is null
+            (int)(value.AlreadyBoughtFlagGameId is null
                 ? PrizeAvailability.AlwaysAvailable
                 : PrizeAvailability.SingleTimePurchase));
         sb.Append(',');
-        sb.Append(leaf.AlreadyBoughtFlagGameId ?? 0);
+        sb.Append(value.AlreadyBoughtFlagGameId ?? 0);
 
         return sb.ToString();
     }
 
-    public void FromTextAssetSerializedString(string subPath, string text, TermacadePrizeLeaf leaf)
+    public void FromTextAssetSerializedString(string subPath, string text, TermacadePrizeLeaf value)
     {
         string[] fields = text.Split(StringUtils.CommaSplitDelimiter);
 
-        leaf.PrizeType = (TermacadePrizeLeaf.TermacadePrizeType)int.Parse(fields[0], CultureInfo.InvariantCulture);
-        leaf.ItemOrMedalGameId = int.Parse(fields[1], CultureInfo.InvariantCulture);
-        leaf.GameTokenCost = int.Parse(fields[2], CultureInfo.InvariantCulture);
+        value.PrizeType = (TermacadePrizeLeaf.TermacadePrizeType)int.Parse(fields[0], CultureInfo.InvariantCulture);
+        value.ItemOrMedalGameId = int.Parse(fields[1], CultureInfo.InvariantCulture);
+        value.GameTokenCost = int.Parse(fields[2], CultureInfo.InvariantCulture);
         int availability = int.Parse(fields[3], CultureInfo.InvariantCulture);
-        leaf.AlreadyBoughtFlagGameId = availability != (int)PrizeAvailability.SingleTimePurchase
+        value.AlreadyBoughtFlagGameId = availability != (int)PrizeAvailability.SingleTimePurchase
             ? null
             : int.Parse(fields[4], CultureInfo.InvariantCulture);
     }

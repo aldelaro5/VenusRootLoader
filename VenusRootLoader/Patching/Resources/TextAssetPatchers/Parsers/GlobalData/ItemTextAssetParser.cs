@@ -8,42 +8,42 @@ namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalDat
 
 internal sealed class ItemTextAssetParser : ITextAssetParser<ItemLeaf>
 {
-    public string GetTextAssetSerializedString(string subPath, ItemLeaf leaf)
+    public string GetTextAssetSerializedString(string subPath, ItemLeaf value)
     {
         StringBuilder sb = new();
-        sb.Append(leaf.BuyingPrice);
+        sb.Append(value.BuyingPrice);
         sb.Append('@');
 
-        string[] serializedEffects = leaf.Effects
+        string[] serializedEffects = value.Effects
             .Select(e => $"{e.Effect},{e.Value}")
             .ToArray();
         sb.Append(string.Join(";", serializedEffects));
 
         sb.Append('@');
-        sb.Append(leaf.Target);
+        sb.Append(value.Target);
         return sb.ToString();
     }
 
-    public void FromTextAssetSerializedString(string subPath, string text, ItemLeaf leaf)
+    public void FromTextAssetSerializedString(string subPath, string text, ItemLeaf value)
     {
         string[] fields = text.Split(StringUtils.AtSymbolSplitDelimiter);
         if (!string.IsNullOrWhiteSpace(fields[0]))
-            leaf.BuyingPrice = int.Parse(fields[0], CultureInfo.InvariantCulture);
+            value.BuyingPrice = int.Parse(fields[0], CultureInfo.InvariantCulture);
         if (!string.IsNullOrWhiteSpace(fields[1]))
         {
             string[] effects = fields[1].Split(StringUtils.SemiColonSplitDelimiter);
-            leaf.Effects.Clear();
+            value.Effects.Clear();
             foreach (string effect in effects)
             {
                 ItemLeaf.ItemUse itemUse = new();
                 string[] effectFields = effect.Split(StringUtils.CommaSplitDelimiter);
                 itemUse.Effect = Enum.Parse<MainManager.ItemUsage>(effectFields[0]);
                 itemUse.Value = int.Parse(effectFields[1], CultureInfo.InvariantCulture);
-                leaf.Effects.Add(itemUse);
+                value.Effects.Add(itemUse);
             }
         }
 
         if (!string.IsNullOrWhiteSpace(fields[2]))
-            leaf.Target = Enum.Parse<BattleControl.AttackArea>(fields[2]);
+            value.Target = Enum.Parse<BattleControl.AttackArea>(fields[2]);
     }
 }

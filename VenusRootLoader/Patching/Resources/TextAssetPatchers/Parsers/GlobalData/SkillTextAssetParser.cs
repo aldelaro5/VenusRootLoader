@@ -21,9 +21,9 @@ internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
         _actionCommandHelpTextsRegistry = actionCommandHelpTextsRegistry;
     }
 
-    public string GetTextAssetSerializedString(string subPath, SkillLeaf leaf)
+    public string GetTextAssetSerializedString(string subPath, SkillLeaf value)
     {
-        RawTargetingParameters targetingParameters = leaf.Target switch
+        RawTargetingParameters targetingParameters = value.Target switch
         {
             SkillTarget.SingleEnemy => (AttackArea.SingleEnemy, false, false, false, false, false),
             SkillTarget.SingleEnemyGround => (AttackArea.SingleEnemy, true, false, false, false, false),
@@ -40,10 +40,10 @@ internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
             SkillTarget.None => (AttackArea.None, false, false, false, false, false),
             SkillTarget.User => (AttackArea.User, false, false, false, false, false),
             _ => ThrowHelper.ThrowNotSupportedException<(AttackArea, bool, bool, bool, bool, bool)>(
-                $"Invalid {nameof(SkillTarget)}: {leaf.Target}")
+                $"Invalid {nameof(SkillTarget)}: {value.Target}")
         };
 
-        RawUsabilityParameters usability = leaf.UsableBy switch
+        RawUsabilityParameters usability = value.UsableBy switch
         {
             SkillUsability.AnyBug => (false, false, false),
             SkillUsability.Moth => (false, false, true),
@@ -54,12 +54,12 @@ internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
             SkillUsability.BeeAndBeetle => (true, true, false),
             SkillUsability.AnyBugWithAtLeastOneValidEnemyTarget => (true, true, true),
             _ => ThrowHelper.ThrowNotSupportedException<(bool, bool, bool)>(
-                $"Invalid {nameof(SkillUsability)}: {leaf.UsableBy}")
+                $"Invalid {nameof(SkillUsability)}: {value.UsableBy}")
         };
 
         StringBuilder sb = new();
 
-        sb.Append(leaf.Cost * (leaf.CostResource == SkillCostResource.Tp ? 1 : -1));
+        sb.Append(value.Cost * (value.CostResource == SkillCostResource.Tp ? 1 : -1));
         sb.Append('@');
         sb.Append(targetingParameters.attackAtrea.ToString());
         sb.Append('@');
@@ -73,7 +73,7 @@ internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
         sb.Append('@');
         sb.Append(targetingParameters.onlyFrontEnemy);
         sb.Append('@');
-        sb.Append(leaf.ActionCommandHelpText?.GameId ?? -1);
+        sb.Append(value.ActionCommandHelpText?.GameId ?? -1);
         sb.Append('@');
         sb.Append(targetingParameters.onlyPlayersAlive);
         sb.Append('@');
@@ -84,7 +84,7 @@ internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
         return sb.ToString();
     }
 
-    public void FromTextAssetSerializedString(string subPath, string text, SkillLeaf leaf)
+    public void FromTextAssetSerializedString(string subPath, string text, SkillLeaf value)
     {
         string[] fields = text.Split(StringUtils.AtSymbolSplitDelimiter);
         RawUsabilityParameters usabilityParameters =
@@ -94,14 +94,14 @@ internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
             bool.Parse(fields[9]), bool.Parse(fields[10]));
 
         int cost = int.Parse(fields[0]);
-        leaf.CostResource = cost >= 0 ? SkillCostResource.Tp : SkillCostResource.Hp;
-        leaf.Cost = Math.Abs(cost);
+        value.CostResource = cost >= 0 ? SkillCostResource.Tp : SkillCostResource.Hp;
+        value.Cost = Math.Abs(cost);
         int actionCommandHelpTextGameId = int.Parse(fields[7]);
-        leaf.ActionCommandHelpText = actionCommandHelpTextGameId > -1
+        value.ActionCommandHelpText = actionCommandHelpTextGameId > -1
             ? new(_actionCommandHelpTextsRegistry.LeavesByGameIds[actionCommandHelpTextGameId])
             : null;
 
-        leaf.Target = targetParameters switch
+        value.Target = targetParameters switch
         {
             (AttackArea.SingleEnemy, false, false, false, false, false) => SkillTarget.SingleEnemy,
             (AttackArea.SingleEnemy, true, false, false, false, false) => SkillTarget.SingleEnemyGround,
@@ -127,7 +127,7 @@ internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
                 $"Invalid {nameof(RawTargetingParameters)}: {targetParameters}")
         };
 
-        leaf.UsableBy = usabilityParameters switch
+        value.UsableBy = usabilityParameters switch
         {
             (false, false, false) => SkillUsability.AnyBug,
             (false, false, true) => SkillUsability.Moth,

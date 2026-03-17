@@ -13,18 +13,18 @@ internal sealed class RecipeTextAssetParser : ITextAssetParser<RecipeLeaf>
         _itemsRegistry = itemsRegistry;
     }
 
-    public string GetTextAssetSerializedString(string subPath, RecipeLeaf leaf)
+    public string GetTextAssetSerializedString(string subPath, RecipeLeaf value)
     {
-        int secondItem = leaf.SecondItem?.GameId ?? -1;
-        return $"{leaf.FirstItem!.Value.GameId},{secondItem},{leaf.ResultItem.GameId}";
+        int secondItem = value.SecondItem?.GameId ?? -1;
+        return $"{value.FirstItem!.Value.GameId},{secondItem},{value.ResultItem.GameId}";
     }
 
-    public void FromTextAssetSerializedString(string subPath, string text, RecipeLeaf leaf)
+    public void FromTextAssetSerializedString(string subPath, string text, RecipeLeaf value)
     {
         string[] fields = text.Split(StringUtils.CommaSplitDelimiter);
-        leaf.FirstItem = new(_itemsRegistry.LeavesByGameIds[int.Parse(fields[0])]);
+        value.FirstItem = new(_itemsRegistry.LeavesByGameIds[int.Parse(fields[0])]);
         int secondItem = int.Parse(fields[1]);
-        leaf.SecondItem = secondItem == -1 ? null : new(_itemsRegistry.LeavesByGameIds[secondItem]);
-        leaf.ResultItem = new(_itemsRegistry.LeavesByGameIds[int.Parse(fields[2])]);
+        value.SecondItem = secondItem == -1 ? null : new(_itemsRegistry.LeavesByGameIds[secondItem]);
+        value.ResultItem = new(_itemsRegistry.LeavesByGameIds[int.Parse(fields[2])]);
     }
 }

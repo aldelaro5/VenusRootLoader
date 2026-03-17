@@ -3,7 +3,9 @@ namespace VenusRootLoader.Patching.Resources.TextAssetPatchers;
 internal sealed class RootTextAssetPatcher : IResourcesTypePatcher<UnityEngine.TextAsset>
 {
     private const string DataPrefix = "Data/";
+    private const string MapEntityDataPrefix = "Data/EntityData";
     private const string LocalizedPathPrefix = "Data/Dialogues";
+    private const string LocalizedMapDialoguesSubpathPrefix = "Maps";
     private static readonly char[] TextAssetPathSeparator = ['/'];
 
     private readonly Dictionary<string, ITextAssetPatcher> _textAssetPatchers =
@@ -15,11 +17,19 @@ internal sealed class RootTextAssetPatcher : IResourcesTypePatcher<UnityEngine.T
     private readonly Dictionary<string, ILocalizedTextAssetPatcher> _localizedTextAssetPatchers =
         new(StringComparer.OrdinalIgnoreCase);
 
+    private readonly IMapEntityTextAssetPatcher _mapEntityTextAssetPatcher;
+    private readonly IMapDialoguesTextAssetPatcher _mapDialoguesTextAssetPatcher;
+
     public RootTextAssetPatcher(
         IEnumerable<ITextAssetPatcher> textAssetPatchers,
         IEnumerable<IOrderingTextAssetPatcher> orderingTextAssetPatchers,
-        IEnumerable<ILocalizedTextAssetPatcher> localizedTextAssetPatchers)
+        IEnumerable<ILocalizedTextAssetPatcher> localizedTextAssetPatchers,
+        IMapEntityTextAssetPatcher mapEntityTextAssetPatcher,
+        IMapDialoguesTextAssetPatcher mapDialoguesTextAssetPatcher)
     {
+        _mapEntityTextAssetPatcher = mapEntityTextAssetPatcher;
+        _mapDialoguesTextAssetPatcher = mapDialoguesTextAssetPatcher;
+
         foreach (ITextAssetPatcher textAssetPatcher in textAssetPatchers)
         {
             foreach (string subPath in textAssetPatcher.SubPaths)
@@ -43,11 +53,18 @@ internal sealed class RootTextAssetPatcher : IResourcesTypePatcher<UnityEngine.T
         if (!path.StartsWith(DataPrefix, StringComparison.OrdinalIgnoreCase))
             return original;
 
+        if (path.StartsWith(MapEntityDataPrefix, StringComparison.OrdinalIgnoreCase))
+            return _mapEntityTextAssetPatcher.PatchMapEntityTextAsset(path, original);
+
         if (path.StartsWith(LocalizedPathPrefix, StringComparison.OrdinalIgnoreCase))
         {
             string[] localizedPathParts = path[LocalizedPathPrefix.Length..].Split(TextAssetPathSeparator);
             int languageId = int.Parse(localizedPathParts[0]);
             string subpathLocalized = localizedPathParts[1];
+
+            if (subpathLocalized.StartsWith(LocalizedMapDialoguesSubpathPrefix, StringComparison.OrdinalIgnoreCase))
+                return _mapDialoguesTextAssetPatcher.PatchMapDialoguesTextAsset(path, languageId, original);
+
             return _localizedTextAssetPatchers.TryGetValue(subpathLocalized, out ILocalizedTextAssetPatcher patcher)
                 ? patcher.PatchLocalisedTextAsset(languageId, string.Join("/", localizedPathParts.Skip(1)), original)
                 : original;

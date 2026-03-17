@@ -94,6 +94,7 @@ internal static class Startup
         services.AddAutoSequentialIdBasedLeavesRegistry<TestRoomTextLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<SpyCardsTextLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistryWithOrdering<SpyCardLeaf>();
+        services.AddEnumBasedLeavesRegistry<MapLeaf, MainManager.Maps>();
         services.AddSingleton<IRegistryResolver, RegistryResolver>();
 
         services.AddSingleton<IPrefabPatcher, MapPatcher>(provider =>
@@ -184,6 +185,10 @@ internal static class Startup
         services.AddTextAssetPatcher<SpyCardLeaf, SpyCardTextAssetParser>(["CardData"]);
         services.AddLocalizedTextAssetPatcher<SpyCardLeaf, SpyCardLocalizedTextAssetParser>(["CardText"]);
 
+        services.AddSingleton<ITextAssetParser<MapLeaf.MapEntity>, MapEntityTextAssetParser>();
+        services.AddSingleton<IMapEntityTextAssetPatcher, MapEntitiesTextAssetPatcher>();
+        services.AddSingleton<IMapDialoguesTextAssetPatcher, MapDialoguesTextAssetPatcher>();
+
         services.AddSingleton<IResourcesTypePatcher<TextAsset>, RootTextAssetPatcher>();
         services.AddSingleton<IResourcesTypePatcher<AudioClip>, RootAudioClipPatcher>();
         services.AddSingleton<IResourcesTypePatcher<Object>, RootPrefabPatcher>();
@@ -235,6 +240,7 @@ internal static class Startup
         services.AddSingleton<IBaseGameCollector, TestRoomTextsCollector>();
         services.AddSingleton<IBaseGameCollector, SpyCardsTextsCollector>();
         services.AddSingleton<IBaseGameCollector, SpyCardsCollector>();
+        services.AddSingleton<IBaseGameCollector, MapsCollector>();
         services.AddSingleton<RootCollector>();
 
         services.AddSingleton<IGlobalMonoBehaviourExecution, GlobalMonoBehaviourExecution>();

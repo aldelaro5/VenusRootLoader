@@ -317,4 +317,13 @@ public partial class Venus
 
     public IReadOnlyCollection<AnimIdLeaf> GetAllAnimIds() =>
         RegistryResolver.Resolve<AnimIdLeaf>().GetAll();
+
+    internal MapLeaf RegisterMap(string namedId) =>
+        RegistryResolver.Resolve<MapLeaf>().RegisterNew(namedId, BudId);
+
+    internal MapLeaf GetMap(string namedId) =>
+        RegistryResolver.Resolve<MapLeaf>().Get(namedId);
+
+    internal IReadOnlyCollection<MapLeaf> GetAllMaps() =>
+        RegistryResolver.Resolve<MapLeaf>().GetAll();
 }

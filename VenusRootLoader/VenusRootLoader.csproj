@@ -79,10 +79,6 @@
         <Content Include="$(SolutionDir)/VenusRootLoader.Analyzers/bin/$(Configuration)/VenusRootLoader.Analyzers.deps.json" PackagePath="analyzers" Visible="false"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <Compile Remove="Patching\Resources\TextAssetPatchers\Parsers\Entities\**"/>
-    </ItemGroup>
-
     <Target Name="PostBuild" AfterTargets="Build">
         <RemoveDir Condition="$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))"
                    Directories="%userprofile%\.nuget\packages"/>

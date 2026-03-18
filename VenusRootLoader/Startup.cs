@@ -210,6 +210,7 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, AreaMapPositionsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, NonPurchasableMusicsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, UndergroundBarQuestsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, MapEntitiesArraysLengthTopLevelPatcher>();
         services.AddSingleton<RootPatcher>();
 
         services.AddSingleton<IAssemblyCSharpDataCollector, AssemblyCSharpDataCollector>();

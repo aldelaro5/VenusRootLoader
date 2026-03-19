@@ -26,7 +26,7 @@ internal sealed class MapEntitiesArraysLengthTopLevelPatcher : ITopLevelPatcher
 
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(MapControl), nameof(MapControl.CreateEntities))]
-    internal static IEnumerable<CodeInstruction> RemoveCrystalBerriesHardCap(
+    internal static IEnumerable<CodeInstruction> RemoveMapEntitiesArraysLengthHardCap(
         IEnumerable<CodeInstruction> instructions,
         ILGenerator generator)
     {
@@ -80,8 +80,13 @@ internal sealed class MapEntitiesArraysLengthTopLevelPatcher : ITopLevelPatcher
         matcher.MatchStartBackwards(new CodeMatch(i => i.IsStloc(mapEntityDataFieldIndexLocal)));
         matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
         matcher.Advance(1);
-        matcher.Insert(mapEntityIdLdLoc, mapIdLdLoc, Transpilers.EmitDelegate(PatchNewVectorDataLength));
+        matcher.Insert(mapEntityIdLdLoc, mapIdLdLoc, Transpilers.EmitDelegate(PatchNewVectorDataFieldsLength));
 
+        matcher.MatchStartForward(CodeMatch.StoresField(npcControlDialoguesField));
+        matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
+        matcher.Advance(1);
+        matcher.Insert(mapEntityIdLdLoc, mapIdLdLoc, Transpilers.EmitDelegate(PatchNewDialoguesLength));
+        
         matcher.MatchStartForward(CodeMatch.StoresField(npcControlDialoguesField));
         matcher.Advance(1);
         matcher.MatchStartForward(CodeMatch.StoresField(npcControlDialoguesField));
@@ -91,7 +96,7 @@ internal sealed class MapEntitiesArraysLengthTopLevelPatcher : ITopLevelPatcher
         matcher.MatchStartBackwards(new CodeMatch(i => i.IsStloc(mapEntityDataFieldIndexLocal)));
         matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
         matcher.Advance(1);
-        matcher.Insert(mapEntityIdLdLoc, mapIdLdLoc, Transpilers.EmitDelegate(PatchNewDialoguesLength));
+        matcher.Insert(mapEntityIdLdLoc, mapIdLdLoc, Transpilers.EmitDelegate(PatchNewDialoguesFieldsLength));
 
         matcher.MatchStartForward(CodeMatch.StoresField(npcControlBattleIdsField));
         matcher.Advance(1);
@@ -109,6 +114,24 @@ internal sealed class MapEntitiesArraysLengthTopLevelPatcher : ITopLevelPatcher
         matcher.MatchStartForward(CodeMatch.LoadsConstant());
         matcher.Advance(1);
         matcher.Insert(mapEntityIdLdLoc, mapIdLdLoc, Transpilers.EmitDelegate(PatchNewEmoticonFlagsLength));
+
+        return matcher.Instructions();
+    }
+
+    [HarmonyTranspiler]
+    [HarmonyPatch(typeof(NPCControl), nameof(NPCControl.SetBadgeShop))]
+    internal static IEnumerable<CodeInstruction> FixSetBadgeShopPoolMedalsLength(
+        IEnumerable<CodeInstruction> instructions,
+        ILGenerator generator)
+    {
+        CodeMatcher matcher = new(instructions, generator);
+        FieldInfo npcControlDataField = AccessTools.Field(typeof(NPCControl), nameof(NPCControl.data));
+        FieldInfo npcControlVectorDataField = AccessTools.Field(typeof(NPCControl), nameof(NPCControl.vectordata));
+
+        matcher.MatchStartForward(CodeMatch.LoadsField(npcControlDataField));
+        matcher.Instruction.operand = npcControlVectorDataField;
+        matcher.MatchStartForward(CodeMatch.LoadsField(npcControlDataField));
+        matcher.Instruction.operand = npcControlVectorDataField;
 
         return matcher.Instructions();
     }
@@ -131,13 +154,19 @@ internal sealed class MapEntitiesArraysLengthTopLevelPatcher : ITopLevelPatcher
         return Math.Max(originalLength, mapLeaf.Entities[mapEntityId].Data.Length);
     }
 
-    private static int PatchNewVectorDataLength(int originalLength, int mapEntityId, int mapGameId)
+    private static int PatchNewVectorDataFieldsLength(int originalLength, int mapEntityId, int mapGameId)
     {
         MapLeaf mapLeaf = _instance._mapsLeafRegistry.LeavesByGameIds[mapGameId];
         return Math.Max(originalLength, mapLeaf.Entities[mapEntityId].VectorData.Length * 3);
     }
 
     private static int PatchNewDialoguesLength(int originalLength, int mapEntityId, int mapGameId)
+    {
+        MapLeaf mapLeaf = _instance._mapsLeafRegistry.LeavesByGameIds[mapGameId];
+        return Math.Max(originalLength, mapLeaf.Entities[mapEntityId].Dialogues.Length);
+    }
+
+    private static int PatchNewDialoguesFieldsLength(int originalLength, int mapEntityId, int mapGameId)
     {
         MapLeaf mapLeaf = _instance._mapsLeafRegistry.LeavesByGameIds[mapGameId];
         return Math.Max(originalLength, mapLeaf.Entities[mapEntityId].Dialogues.Length * 3);

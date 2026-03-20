@@ -62,12 +62,12 @@ internal sealed class MapsCollector : IBaseGameCollector
                 string mapEntityName = mapEntityData.Names[j];
                 MapLeaf.MapEntity mapEntity = mapLeaf.Entities.CreateNew();
                 _rankBonusTextAssetParser.FromTextAssetSerializedString(
-                    $"EntityData/{i}",
-                    mapEntityText,
-                    mapEntity);
-                _rankBonusTextAssetParser.FromTextAssetSerializedString(
                     $"EntityData/Names/{i}Names",
                     mapEntityName,
+                    mapEntity);
+                _rankBonusTextAssetParser.FromTextAssetSerializedString(
+                    $"EntityData/{i}",
+                    mapEntityText,
                     mapEntity);
             }
 

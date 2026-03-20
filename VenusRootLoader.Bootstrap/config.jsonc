@@ -84,6 +84,7 @@
       "VenusRootLoader.Bootstrap.Mono": "Information",
       "VenusRootLoader.AppDomainEventsHandler": "Information",
       "VenusRootLoader.Logging.HarmonyLogger": "Warning",
+      "VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalData.MapEntityTextAssetParser": "Trace",
       "VenusRootLoader.Patching": "Trace",
       "VenusRootLoader.Registry": "Warning"
     }

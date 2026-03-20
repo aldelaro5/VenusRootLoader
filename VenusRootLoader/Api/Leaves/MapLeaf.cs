@@ -38,23 +38,24 @@ public sealed class MapLeaf : Leaf
         public Vector3 FreezeSize { get; set; } = Vector3.one;
         public Vector3 FreezeOffset { get; set; } = Vector3.zero;
         public int EventId { get; set; }
-        internal int RequiresLength { get; set; }
-        public int[] Requires { get; } = new int[10];
-        internal int LimitsLength { get; set; }
-        public int[] Limit { get; } = new int[10];
-        internal int DataLength { get; set; }
-        public int[] Data { get; } = new int[10];
-        internal int VectorDataLength { get; set; }
-        public Vector3[] VectorData { get; } = new Vector3[10];
-        internal int DialoguesLength { get; set; }
-        public Vector3[] Dialogues { get; } = new Vector3[20];
+        internal int[] OriginalRequires { get; } = new int[10];
+        public List<int> Requires { get; } = new();
+        internal int[] OriginalLimits { get; } = new int[10];
+        public List<int> Limit { get; } = new();
+        internal int[] OriginalData { get; } = new int[10];
+        public List<int> Data { get; } = new();
+        internal Vector3[] OriginalVectorData { get; } = new Vector3[10];
+        public List<Vector3> VectorData { get; } = new();
+        internal Vector3[] OriginalDialogues { get; } = new Vector3[20];
+        public List<Vector3> Dialogues { get; } = new();
         public Vector3 EulerAngles { get; set; }
-        internal int BattleEnemyIdsLength { get; set; }
-        public int[] BattleEnemyIds { get; } = new int[4];
+        internal int[] OriginalBattleEnemyIds { get; } = new int[4];
+        public List<int> BattleEnemyIds { get; } = new();
         public Color TagColor { get; set; }
         public Vector3 EmoticonOffset { get; set; } = Vector3.zero;
         public int InsideId { get; set; }
-        public Vector2[] EmoticonFlags { get; } = new Vector2[10];
+        internal Vector2[] OriginalEmoticonFlags { get; } = new Vector2[10];
+        public List<Vector2> EmoticonFlags { get; } = new();
         public int SpyDialogueMapId { get; set; }
         public int RegionalFlagId { get; set; }
         public float InitialHeight { get; set; }

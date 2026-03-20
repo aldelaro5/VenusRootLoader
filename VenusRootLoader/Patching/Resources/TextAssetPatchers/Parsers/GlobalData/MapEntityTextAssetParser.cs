@@ -1,5 +1,7 @@
+using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Text;
+using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Extensions;
 using VenusRootLoader.Utility;
@@ -8,6 +10,13 @@ namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalDat
 
 internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapLeaf.MapEntity>
 {
+    private readonly ILogger<MapEntityTextAssetParser> _logger;
+
+    public MapEntityTextAssetParser(ILogger<MapEntityTextAssetParser> logger)
+    {
+        _logger = logger;
+    }
+
     public string GetTextAssetSerializedString(string subPath, MapLeaf.MapEntity value)
     {
         if (subPath.EndsWith("names", StringComparison.OrdinalIgnoreCase))
@@ -92,51 +101,61 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapLeaf.MapEnt
         sb.Append(value.EventId);
         sb.Append('}');
 
-        sb.Append(value.RequiresLength);
+        sb.Append(value.Requires.Count);
         sb.Append('}');
-        for (int i = 0; i < 10; i++)
+
+        List<int> allRequires = GetListPaddedWithOriginalArray(value.Requires, value.OriginalRequires);
+        foreach (int require in allRequires)
         {
-            sb.Append(value.Requires[i]);
+            sb.Append(require);
             sb.Append('}');
         }
 
-        sb.Append(value.LimitsLength);
+        sb.Append(value.Limit.Count);
         sb.Append('}');
-        for (int i = 0; i < 10; i++)
+
+        List<int> allLimits = GetListPaddedWithOriginalArray(value.Limit, value.OriginalLimits);
+        foreach (int limit in allLimits)
         {
-            sb.Append(value.Limit[i]);
+            sb.Append(limit);
             sb.Append('}');
         }
 
-        sb.Append(value.DataLength);
+        sb.Append(value.Data.Count);
         sb.Append('}');
-        for (int i = 0; i < 10; i++)
+
+        List<int> allData = GetListPaddedWithOriginalArray(value.Data, value.OriginalData);
+        foreach (int data in allData)
         {
-            sb.Append(value.Data[i]);
+            sb.Append(data);
             sb.Append('}');
         }
 
-        sb.Append(value.VectorDataLength);
+        sb.Append(value.VectorData.Count);
         sb.Append('}');
-        for (int i = 0; i < 10; i++)
+
+        List<Vector3> allVectorData = GetListPaddedWithOriginalArray(value.VectorData, value.OriginalVectorData);
+        foreach (Vector3 vectorData in allVectorData)
         {
-            sb.Append(value.VectorData[i].x);
+            sb.Append(vectorData.x);
             sb.Append('}');
-            sb.Append(value.VectorData[i].y);
+            sb.Append(vectorData.y);
             sb.Append('}');
-            sb.Append(value.VectorData[i].z);
+            sb.Append(vectorData.z);
             sb.Append('}');
         }
 
-        sb.Append(value.DialoguesLength);
+        sb.Append(value.Dialogues.Count);
         sb.Append('}');
-        for (int i = 0; i < 20; i++)
+
+        List<Vector3> allDialogues = GetListPaddedWithOriginalArray(value.Dialogues, value.OriginalDialogues);
+        foreach (Vector3 dialogue in allDialogues)
         {
-            sb.Append(value.Dialogues[i].x);
+            sb.Append(dialogue.x);
             sb.Append('}');
-            sb.Append(value.Dialogues[i].y);
+            sb.Append(dialogue.y);
             sb.Append('}');
-            sb.Append(value.Dialogues[i].z);
+            sb.Append(dialogue.z);
             sb.Append('}');
         }
 
@@ -147,11 +166,14 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapLeaf.MapEnt
         sb.Append(value.EulerAngles.z);
         sb.Append('}');
 
-        sb.Append(value.BattleEnemyIdsLength);
+        sb.Append(value.BattleEnemyIds.Count);
         sb.Append('}');
-        for (int i = 0; i < 4; i++)
+
+        List<int> allBattleEnemyIds =
+            GetListPaddedWithOriginalArray(value.BattleEnemyIds, value.OriginalBattleEnemyIds);
+        foreach (int battleEnemyId in allBattleEnemyIds)
         {
-            sb.Append(value.BattleEnemyIds[i]);
+            sb.Append(battleEnemyId);
             sb.Append('}');
         }
 
@@ -172,11 +194,13 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapLeaf.MapEnt
         sb.Append(value.InsideId);
         sb.Append('}');
 
-        for (int i = 0; i < 10; i++)
+        List<Vector2> allEmoticonFlags =
+            GetListPaddedWithOriginalArray(value.EmoticonFlags, value.OriginalEmoticonFlags);
+        foreach (Vector2 emoticonFlag in allEmoticonFlags)
         {
-            sb.Append(value.EmoticonFlags[i].x);
+            sb.Append(emoticonFlag.x);
             sb.Append(',');
-            sb.Append(value.EmoticonFlags[i].y);
+            sb.Append(emoticonFlag.y);
             sb.Append('}');
         }
 
@@ -254,41 +278,109 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapLeaf.MapEnt
         value.FreezeOffset = new(float.Parse(fields[34]), float.Parse(fields[35]), float.Parse(fields[36]));
         value.EventId = int.Parse(fields[37]);
 
-        value.RequiresLength = int.Parse(fields[38]);
+        int requiresLength = int.Parse(fields[38]);
         for (int i = 0; i < 10; i++)
-            value.Requires[i] = int.Parse(fields[39 + i]);
+            value.OriginalRequires[i] = int.Parse(fields[39 + i]);
+        for (int i = 0; i < requiresLength; i++)
+            value.Requires.Add(value.OriginalRequires[i]);
 
-        value.LimitsLength = int.Parse(fields[49]);
+        if (_logger.IsEnabled(LogLevel.Trace))
+        {
+            LogIfListHasUnreadableData(
+                value.Name,
+                nameof(MapLeaf.MapEntity.Requires),
+                requiresLength,
+                value.OriginalRequires);
+        }
+
+        int limitsLength = int.Parse(fields[49]);
         for (int i = 0; i < 10; i++)
-            value.Limit[i] = int.Parse(fields[50 + i]);
+            value.OriginalLimits[i] = int.Parse(fields[50 + i]);
+        for (int i = 0; i < limitsLength; i++)
+            value.Limit.Add(value.OriginalLimits[i]);
 
-        value.DataLength = int.Parse(fields[60]);
+        if (_logger.IsEnabled(LogLevel.Trace))
+        {
+            LogIfListHasUnreadableData(
+                value.Name,
+                nameof(MapLeaf.MapEntity.Limit),
+                limitsLength,
+                value.OriginalLimits);
+        }
+
+        int dataLength = int.Parse(fields[60]);
         for (int i = 0; i < 10; i++)
-            value.Data[i] = int.Parse(fields[61 + i]);
+            value.OriginalData[i] = int.Parse(fields[61 + i]);
+        for (int i = 0; i < dataLength; i++)
+            value.Data.Add(value.OriginalData[i]);
 
-        value.VectorDataLength = int.Parse(fields[71]);
+        if (_logger.IsEnabled(LogLevel.Trace))
+        {
+            LogIfListHasUnreadableData(
+                value.Name,
+                nameof(MapLeaf.MapEntity.Data),
+                dataLength,
+                value.OriginalData);
+        }
+
+        int vectorDataLength = int.Parse(fields[71]);
         for (int i = 0; i < 10; i++)
         {
-            value.VectorData[i] = new(
+            value.OriginalVectorData[i] = new(
                 float.Parse(fields[72 + (i * 3)]),
                 float.Parse(fields[72 + (i * 3) + 1]),
                 float.Parse(fields[72 + (i * 3) + 2]));
         }
 
-        value.DialoguesLength = int.Parse(fields[102]);
+        for (int i = 0; i < vectorDataLength; i++)
+            value.VectorData.Add(value.OriginalVectorData[i]);
+
+        if (_logger.IsEnabled(LogLevel.Trace))
+        {
+            LogIfListHasUnreadableData(
+                value.Name,
+                nameof(MapLeaf.MapEntity.VectorData),
+                vectorDataLength,
+                value.OriginalVectorData);
+        }
+
+        int dialoguesLength = int.Parse(fields[102]);
         for (int i = 0; i < 20; i++)
         {
-            value.Dialogues[i] = new(
-                    float.Parse(fields[103 + (i * 3)]),
-                    float.Parse(fields[103 + (i * 3) + 1]),
-                    float.Parse(fields[103 + (i * 3) + 2]));
+            value.OriginalDialogues[i] = new(
+                float.Parse(fields[103 + (i * 3)]),
+                float.Parse(fields[103 + (i * 3) + 1]),
+                float.Parse(fields[103 + (i * 3) + 2]));
+        }
+
+        for (int i = 0; i < dialoguesLength; i++)
+            value.Dialogues.Add(value.OriginalDialogues[i]);
+
+        if (_logger.IsEnabled(LogLevel.Trace))
+        {
+            LogIfListHasUnreadableData(
+                value.Name,
+                nameof(MapLeaf.MapEntity.Dialogues),
+                dialoguesLength,
+                value.OriginalDialogues);
         }
 
         value.EulerAngles = new(float.Parse(fields[163]), float.Parse(fields[164]), float.Parse(fields[165]));
 
-        value.BattleEnemyIdsLength = int.Parse(fields[166]);
+        int battleEnemyIdsLength = int.Parse(fields[166]);
         for (int i = 0; i < 4; i++)
-            value.BattleEnemyIds[i] = int.Parse(fields[167 + i]);
+            value.OriginalBattleEnemyIds[i] = int.Parse(fields[167 + i]);
+        for (int i = 0; i < battleEnemyIdsLength; i++)
+            value.BattleEnemyIds.Add(value.OriginalBattleEnemyIds[i]);
+
+        if (_logger.IsEnabled(LogLevel.Trace))
+        {
+            LogIfListHasUnreadableData(
+                value.Name,
+                nameof(MapLeaf.MapEntity.BattleEnemyIds),
+                battleEnemyIdsLength,
+                value.OriginalBattleEnemyIds);
+        }
 
         value.TagColor = new(
             float.Parse(fields[171]),
@@ -298,10 +390,23 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapLeaf.MapEnt
         value.EmoticonOffset = new(float.Parse(fields[175]), float.Parse(fields[176]), float.Parse(fields[177]));
         value.InsideId = int.Parse(fields[178]);
 
+        bool continueAddingIntoList = true;
         for (int i = 0; i < 10; i++)
         {
             string[] components = fields[179 + i].Split(StringUtils.CommaSplitDelimiter);
-            value.EmoticonFlags[i] = new(float.Parse(components[0]), float.Parse(components[1]));
+            value.OriginalEmoticonFlags[i] = new(float.Parse(components[0]), float.Parse(components[1]));
+
+            if (!continueAddingIntoList)
+                continue;
+            if (i > 0 && (int)value.OriginalEmoticonFlags[i].x < 0)
+            {
+                continueAddingIntoList = false;
+                if (value.EmoticonFlags.Count == 1)
+                    value.EmoticonFlags.Clear();
+                continue;
+            }
+
+            value.EmoticonFlags.Add(value.OriginalEmoticonFlags[i]);
         }
 
         value.SpyDialogueMapId = int.Parse(fields[189]);
@@ -319,5 +424,48 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapLeaf.MapEnt
 
         if (fields.Length > 196)
             value.UnusedOverflowData = string.Join("}", fields.Skip(196));
+    }
+
+    private void LogIfListHasUnreadableData(string entityName, string listName, int expectedLength, int[] array)
+    {
+        if (array.All(x => x == 0))
+            return;
+
+        int lastNonZeroIndex = array.Select((x, i) => (x, i)).Last(x => x.x != 0).i;
+        if (lastNonZeroIndex > expectedLength - 1)
+        {
+            _logger.LogTrace(
+                "{EntityName}.{listName} has unreadable non 0 data: declared length: {length}, full data: {data}",
+                entityName,
+                listName,
+                expectedLength,
+                string.Join(" | ", array));
+        }
+    }
+
+    private void LogIfListHasUnreadableData(string entityName, string listName, int expectedLength, Vector3[] array)
+    {
+        if (array.All(x => x == default))
+            return;
+
+        int lastNonDefaultIndex = array.Select((x, i) => (x, i)).Last(x => x.x != default).i;
+        if (lastNonDefaultIndex > expectedLength - 1)
+        {
+            _logger.LogTrace(
+                "{EntityName}.{listName} has unreadable non default data: declared length: {length}, full data: {data}",
+                entityName,
+                listName,
+                expectedLength,
+                string.Join(" | ", array));
+        }
+    }
+
+    private static List<T> GetListPaddedWithOriginalArray<T>(List<T> newList, T[] originalArray)
+    {
+        return newList.Concat(
+                originalArray
+                    .Skip(newList.Count)
+                    .Take(originalArray.Length - newList.Count))
+            .ToList();
     }
 }

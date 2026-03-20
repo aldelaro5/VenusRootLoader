@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using System.Text;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Api.MapEntities;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers;
@@ -15,12 +16,12 @@ internal sealed class MapEntitiesTextAssetPatcher : IMapEntityTextAssetPatcher
 {
     private readonly ILogger<MapEntitiesTextAssetPatcher> _logger;
     private readonly ILeavesRegistry<MapLeaf> _mapsRegistry;
-    private readonly ITextAssetParser<MapLeaf.MapEntity> _parser;
+    private readonly ITextAssetParser<MapEntity> _parser;
 
     public MapEntitiesTextAssetPatcher(
         ILogger<MapEntitiesTextAssetPatcher> logger,
         ILeavesRegistry<MapLeaf> mapsRegistry,
-        ITextAssetParser<MapLeaf.MapEntity> parser)
+        ITextAssetParser<MapEntity> parser)
     {
         _logger = logger;
         _parser = parser;

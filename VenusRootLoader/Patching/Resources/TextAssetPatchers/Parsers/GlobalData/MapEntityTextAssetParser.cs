@@ -2,13 +2,13 @@ using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Text;
 using UnityEngine;
-using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Api.MapEntities;
 using VenusRootLoader.Extensions;
 using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalData;
 
-internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapLeaf.MapEntity>
+internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapEntity>
 {
     private readonly ILogger<MapEntityTextAssetParser> _logger;
 
@@ -17,7 +17,7 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapLeaf.MapEnt
         _logger = logger;
     }
 
-    public string GetTextAssetSerializedString(string subPath, MapLeaf.MapEntity value)
+    public string GetTextAssetSerializedString(string subPath, MapEntity value)
     {
         if (subPath.EndsWith("names", StringComparison.OrdinalIgnoreCase))
             return value.Name;
@@ -239,7 +239,7 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapLeaf.MapEnt
         return sb.ToString();
     }
 
-    public void FromTextAssetSerializedString(string subPath, string text, MapLeaf.MapEntity value)
+    public void FromTextAssetSerializedString(string subPath, string text, MapEntity value)
     {
         if (subPath.EndsWith("names", StringComparison.OrdinalIgnoreCase))
         {
@@ -288,7 +288,7 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapLeaf.MapEnt
         {
             LogIfListHasUnreadableData(
                 value.Name,
-                nameof(MapLeaf.MapEntity.Requires),
+                nameof(MapEntity.Requires),
                 requiresLength,
                 value.OriginalRequires);
         }
@@ -303,7 +303,7 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapLeaf.MapEnt
         {
             LogIfListHasUnreadableData(
                 value.Name,
-                nameof(MapLeaf.MapEntity.Limit),
+                nameof(MapEntity.Limit),
                 limitsLength,
                 value.OriginalLimits);
         }
@@ -318,7 +318,7 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapLeaf.MapEnt
         {
             LogIfListHasUnreadableData(
                 value.Name,
-                nameof(MapLeaf.MapEntity.Data),
+                nameof(MapEntity.Data),
                 dataLength,
                 value.OriginalData);
         }
@@ -339,7 +339,7 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapLeaf.MapEnt
         {
             LogIfListHasUnreadableData(
                 value.Name,
-                nameof(MapLeaf.MapEntity.VectorData),
+                nameof(MapEntity.VectorData),
                 vectorDataLength,
                 value.OriginalVectorData);
         }
@@ -360,7 +360,7 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapLeaf.MapEnt
         {
             LogIfListHasUnreadableData(
                 value.Name,
-                nameof(MapLeaf.MapEntity.Dialogues),
+                nameof(MapEntity.Dialogues),
                 dialoguesLength,
                 value.OriginalDialogues);
         }
@@ -377,7 +377,7 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapLeaf.MapEnt
         {
             LogIfListHasUnreadableData(
                 value.Name,
-                nameof(MapLeaf.MapEntity.BattleEnemyIds),
+                nameof(MapEntity.BattleEnemyIds),
                 battleEnemyIdsLength,
                 value.OriginalBattleEnemyIds);
         }

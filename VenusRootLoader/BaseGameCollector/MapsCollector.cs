@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Api.MapEntities;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
@@ -24,12 +25,12 @@ internal sealed class MapsCollector : IBaseGameCollector
 
     private readonly ILogger<MapsCollector> _logger;
     private readonly ILeavesRegistry<MapLeaf> _rankBonusesRegistry;
-    private readonly ITextAssetParser<MapLeaf.MapEntity> _rankBonusTextAssetParser;
+    private readonly ITextAssetParser<MapEntity> _rankBonusTextAssetParser;
 
     public MapsCollector(
         ILogger<MapsCollector> logger,
         ILeavesRegistry<MapLeaf> rankBonusesRegistry,
-        ITextAssetParser<MapLeaf.MapEntity> rankBonusTextAssetParser)
+        ITextAssetParser<MapEntity> rankBonusTextAssetParser)
     {
         _logger = logger;
         _rankBonusesRegistry = rankBonusesRegistry;
@@ -60,7 +61,7 @@ internal sealed class MapsCollector : IBaseGameCollector
             {
                 string mapEntityText = mapEntityData.Data[j];
                 string mapEntityName = mapEntityData.Names[j];
-                MapLeaf.MapEntity mapEntity = mapLeaf.Entities.CreateNew();
+                MapEntity mapEntity = mapLeaf.Entities.CreateNew();
                 _rankBonusTextAssetParser.FromTextAssetSerializedString(
                     $"EntityData/Names/{i}Names",
                     mapEntityName,

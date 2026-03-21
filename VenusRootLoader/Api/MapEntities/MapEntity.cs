@@ -1,6 +1,7 @@
 using UnityEngine;
 using VenusRootLoader.Api.Common;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.MapEntities;
 
@@ -67,4 +68,5 @@ public abstract class MapEntity
     internal string UnusedOverflowData { get; set; } = "";
 
     internal abstract void InitializeFromNew();
+    internal abstract void InitializeFromExisting(IRegistryResolver registryResolver);
 }

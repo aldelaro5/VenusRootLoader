@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Reflection;
 using VenusRootLoader.Api.MapEntities;
 
 namespace VenusRootLoader.Api.Leaves;
@@ -19,13 +20,19 @@ public sealed class MapLeaf : Leaf
 
     public LocalizedData<List<string>> Dialogues { get; } = new();
 
-    public BeetleGrassMapEntity ReserveNewBeetleGrassEntity(string name)
+    public T ReserveNewMapEntity<T>(string name)
+        where T : MapEntity
     {
-        BeetleGrassMapEntity newEntity = new()
-        {
-            Id = InternalEntities.Count,
-            Name = name
-        };
+        T newEntity = (T)Activator.CreateInstance(
+            typeof(T),
+            BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
+            null,
+            null,
+            null,
+            null);
+
+        newEntity.Id = InternalEntities.Count;
+        newEntity.Name = name;
         newEntity.InitializeFromNew();
         InternalEntities.Add(newEntity);
         return newEntity;

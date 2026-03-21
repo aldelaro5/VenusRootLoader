@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.MapEntities;
 
@@ -48,6 +49,26 @@ public sealed class BeetleGrassMapEntity : MapEntity
         InternalBoxColIsTrigger = false;
         InternalBoxColCenter = new(0f, 10f, 0f);
         InternalBoxColSize = new(1.5f, 20f, 0.75f);
+    }
+
+    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    {
+        ILeavesRegistry<CrystalBerryLeaf> crystalBerriesRegistry = registryResolver.Resolve<CrystalBerryLeaf>();
+        ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
+        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+
+        if (InternalData[1] >= 0)
+            CrystalBerryDroppedWhenCut = new(crystalBerriesRegistry.LeavesByGameIds[InternalData[1]]);
+
+        List<Branch<ItemLeaf>?> itemsWhenCut = InternalVectorData
+            .Select(v => v.x < 0
+                ? (Branch<ItemLeaf>?)null
+                : new Branch<ItemLeaf>(itemsRegistry.LeavesByGameIds[(int)v.x]))
+            .ToList();
+        ChangeItemsDroppedWhenCut(itemsWhenCut);
+
+        if (InternalActivationFlagId >= 0)
+            ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
     }
 
     public void ChangeItemsDroppedWhenCut(List<Branch<ItemLeaf>?> items)

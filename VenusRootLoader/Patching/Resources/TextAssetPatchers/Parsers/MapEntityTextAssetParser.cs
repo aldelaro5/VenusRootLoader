@@ -14,19 +14,16 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
 {
     private readonly ILogger<MapEntityTextAssetParser> _logger;
     private readonly ILeavesRegistry<FlagLeaf> _flagsRegistry;
-    private readonly ILeavesRegistry<CrystalBerryLeaf> _crystalBerriesRegistry;
-    private readonly ILeavesRegistry<ItemLeaf> _itemsRegistry;
+    private readonly IRegistryResolver _registryResolver;
 
     public MapEntityTextAssetParser(
         ILogger<MapEntityTextAssetParser> logger,
         ILeavesRegistry<FlagLeaf> flagsRegistry,
-        ILeavesRegistry<CrystalBerryLeaf> crystalBerriesRegistry,
-        ILeavesRegistry<ItemLeaf> itemsRegistry)
+        IRegistryResolver registryResolver)
     {
         _logger = logger;
+        _registryResolver = registryResolver;
         _flagsRegistry = flagsRegistry;
-        _crystalBerriesRegistry = crystalBerriesRegistry;
-        _itemsRegistry = itemsRegistry;
     }
 
     public string GetTextAssetSerializedString(string subPath, MapEntity value)
@@ -455,7 +452,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         if (fields.Length > 196)
             value.UnusedOverflowData = string.Join("}", fields.Skip(196));
 
-        InitDerivedMapEntity(value);
+        value.InitializeFromExisting(_registryResolver);
         return value;
     }
 
@@ -465,35 +462,6 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BeetleGrass) => new BeetleGrassMapEntity(),
             _ => new BlankMapEntity()
         };
-
-    private void InitDerivedMapEntity(MapEntity mapEntity)
-    {
-        switch (mapEntity)
-        {
-            case BeetleGrassMapEntity beetleGrass:
-                if (beetleGrass.InternalData[1] >= 0)
-                {
-                    beetleGrass.CrystalBerryDroppedWhenCut = new(
-                        _crystalBerriesRegistry.LeavesByGameIds[beetleGrass.InternalData[1]]);
-                }
-
-                List<Branch<ItemLeaf>?> itemsWhenCut = beetleGrass.InternalVectorData
-                    .Select(v =>
-                        v.x < 0
-                            ? (Branch<ItemLeaf>?)null
-                            : new Branch<ItemLeaf>(_itemsRegistry.LeavesByGameIds[(int)v.x]))
-                    .ToList();
-                beetleGrass.ChangeItemsDroppedWhenCut(itemsWhenCut);
-
-                if (beetleGrass.InternalActivationFlagId >= 0)
-                {
-                    beetleGrass.ActivationFlag =
-                        new(_flagsRegistry.LeavesByGameIds[beetleGrass.InternalActivationFlagId]);
-                }
-
-                break;
-        }
-    }
 
     private void LogIfListHasUnreadableData(string entityName, string listName, int expectedLength, int[] array)
     {

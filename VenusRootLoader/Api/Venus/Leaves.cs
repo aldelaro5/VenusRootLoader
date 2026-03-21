@@ -321,9 +321,9 @@ public partial class Venus
     internal MapLeaf RegisterMap(string namedId) =>
         RegistryResolver.Resolve<MapLeaf>().RegisterNew(namedId, BudId);
 
-    internal MapLeaf GetMap(string namedId) =>
+    public MapLeaf GetMap(string namedId) =>
         RegistryResolver.Resolve<MapLeaf>().Get(namedId);
 
-    internal IReadOnlyCollection<MapLeaf> GetAllMaps() =>
+    public IReadOnlyCollection<MapLeaf> GetAllMaps() =>
         RegistryResolver.Resolve<MapLeaf>().GetAll();
 }

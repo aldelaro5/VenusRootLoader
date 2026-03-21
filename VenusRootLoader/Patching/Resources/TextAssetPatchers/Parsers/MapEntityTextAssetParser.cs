@@ -2,19 +2,31 @@ using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Text;
 using UnityEngine;
+using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Api.MapEntities;
 using VenusRootLoader.Extensions;
+using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
-namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalData;
+namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 
-internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapEntity>
+internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
 {
     private readonly ILogger<MapEntityTextAssetParser> _logger;
+    private readonly ILeavesRegistry<FlagLeaf> _flagsRegistry;
+    private readonly ILeavesRegistry<CrystalBerryLeaf> _crystalBerriesRegistry;
+    private readonly ILeavesRegistry<ItemLeaf> _itemsRegistry;
 
-    public MapEntityTextAssetParser(ILogger<MapEntityTextAssetParser> logger)
+    public MapEntityTextAssetParser(
+        ILogger<MapEntityTextAssetParser> logger,
+        ILeavesRegistry<FlagLeaf> flagsRegistry,
+        ILeavesRegistry<CrystalBerryLeaf> crystalBerriesRegistry,
+        ILeavesRegistry<ItemLeaf> itemsRegistry)
     {
         _logger = logger;
+        _flagsRegistry = flagsRegistry;
+        _crystalBerriesRegistry = crystalBerriesRegistry;
+        _itemsRegistry = itemsRegistry;
     }
 
     public string GetTextAssetSerializedString(string subPath, MapEntity value)
@@ -28,13 +40,13 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapEntity>
         sb.Append('}');
         sb.Append(value.ObjectType.ToString());
         sb.Append('}');
-        sb.Append(value.PrimaryBehavior.ToString());
+        sb.Append(value.InternalPrimaryBehavior.ToString());
         sb.Append('}');
-        sb.Append(value.SecondaryBehavior.ToString());
+        sb.Append(value.InternalSecondaryBehavior.ToString());
         sb.Append('}');
-        sb.Append(value.NpcInteraction.ToString());
+        sb.Append(value.InternalNpcInteraction.ToString());
         sb.Append('}');
-        sb.Append(value.DeathType.ToString());
+        sb.Append(value.InternalDeathType.ToString());
         sb.Append('}');
         sb.Append(value.StartingPosition.x);
         sb.Append('}');
@@ -42,69 +54,71 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapEntity>
         sb.Append('}');
         sb.Append(value.StartingPosition.z);
         sb.Append('}');
-        sb.Append(value.AnimIdOrItemId);
+        sb.Append(value.InternalAnimIdOrItemId);
         sb.Append('}');
-        sb.Append(value.IsFlipped);
+        sb.Append(value.InternalIsFlipped);
         sb.Append('}');
-        sb.Append(value.CcolHeight);
+        sb.Append(value.InternalCcolHeight);
         sb.Append('}');
-        sb.Append(value.CcolRadius);
+        sb.Append(value.InternalCcolRadius);
         sb.Append('}');
-        sb.Append(value.Radius);
+        sb.Append(value.InternalRadius);
         sb.Append('}');
-        sb.Append(value.Timer);
+        sb.Append(value.InternalTimer);
         sb.Append('}');
-        sb.Append(value.Speed);
+        sb.Append(value.InternalSpeed);
         sb.Append('}');
-        sb.Append(value.PrimaryActionFrequency);
+        sb.Append(value.InternalPrimaryActionFrequency);
         sb.Append('}');
-        sb.Append(value.SecondaryActionFrequency);
+        sb.Append(value.InternalSecondaryActionFrequency);
         sb.Append('}');
-        sb.Append(value.SpeedMultiplier);
+        sb.Append(value.InternalSpeedMultiplier);
         sb.Append('}');
-        sb.Append(value.RadiusLimit);
+        sb.Append(value.InternalRadiusLimit);
         sb.Append('}');
-        sb.Append(value.WanderRadius);
+        sb.Append(value.InternalWanderRadius);
         sb.Append('}');
-        sb.Append(value.TeleportRadius);
+        sb.Append(value.InternalTeleportRadius);
         sb.Append('}');
-        sb.Append(value.HaxBoxCol);
+        sb.Append(value.InternalHaxBoxCol);
         sb.Append('}');
-        sb.Append(value.BoxColIsTrigger);
+        sb.Append(value.InternalBoxColIsTrigger);
         sb.Append('}');
-        sb.Append(value.BoxColSize.x);
+        sb.Append(value.InternalBoxColSize.x);
         sb.Append('}');
-        sb.Append(value.BoxColSize.y);
+        sb.Append(value.InternalBoxColSize.y);
         sb.Append('}');
-        sb.Append(value.BoxColSize.z);
+        sb.Append(value.InternalBoxColSize.z);
         sb.Append('}');
-        sb.Append(value.BoxColCenter.x);
+        sb.Append(value.InternalBoxColCenter.x);
         sb.Append('}');
-        sb.Append(value.BoxColCenter.y);
+        sb.Append(value.InternalBoxColCenter.y);
         sb.Append('}');
-        sb.Append(value.BoxColCenter.z);
+        sb.Append(value.InternalBoxColCenter.z);
         sb.Append('}');
-        sb.Append(value.FreezeTime);
+        sb.Append(value.InternalFreezeTime);
         sb.Append('}');
-        sb.Append(value.FreezeSize.x);
+        sb.Append(value.InternalFreezeSize.x);
         sb.Append('}');
-        sb.Append(value.FreezeSize.y);
+        sb.Append(value.InternalFreezeSize.y);
         sb.Append('}');
-        sb.Append(value.FreezeSize.z);
+        sb.Append(value.InternalFreezeSize.z);
         sb.Append('}');
-        sb.Append(value.FreezeOffset.x);
+        sb.Append(value.InternalFreezeOffset.x);
         sb.Append('}');
-        sb.Append(value.FreezeOffset.y);
+        sb.Append(value.InternalFreezeOffset.y);
         sb.Append('}');
-        sb.Append(value.FreezeOffset.z);
+        sb.Append(value.InternalFreezeOffset.z);
         sb.Append('}');
-        sb.Append(value.EventId);
+        sb.Append(value.InternalEventId);
         sb.Append('}');
 
         sb.Append(value.Requires.Count);
         sb.Append('}');
 
-        List<int> allRequires = GetListPaddedWithOriginalArray(value.Requires, value.OriginalRequires);
+        List<int> allRequires = GetListPaddedWithOriginalArray(
+            value.Requires.Select(r => r.GameId).ToList(),
+            value.OriginalRequires);
         foreach (int require in allRequires)
         {
             sb.Append(require);
@@ -114,27 +128,30 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapEntity>
         sb.Append(value.Limit.Count);
         sb.Append('}');
 
-        List<int> allLimits = GetListPaddedWithOriginalArray(value.Limit, value.OriginalLimits);
+        List<int> allLimits = GetListPaddedWithOriginalArray(
+            value.Limit.Select(l => l.Flag.GameId).ToList(),
+            value.OriginalLimits);
         foreach (int limit in allLimits)
         {
             sb.Append(limit);
             sb.Append('}');
         }
 
-        sb.Append(value.Data.Count);
+        sb.Append(value.InternalData.Count);
         sb.Append('}');
 
-        List<int> allData = GetListPaddedWithOriginalArray(value.Data, value.OriginalData);
+        List<int> allData = GetListPaddedWithOriginalArray(value.InternalData, value.OriginalData);
         foreach (int data in allData)
         {
             sb.Append(data);
             sb.Append('}');
         }
 
-        sb.Append(value.VectorData.Count);
+        sb.Append(value.InternalVectorData.Count);
         sb.Append('}');
 
-        List<Vector3> allVectorData = GetListPaddedWithOriginalArray(value.VectorData, value.OriginalVectorData);
+        List<Vector3> allVectorData =
+            GetListPaddedWithOriginalArray(value.InternalVectorData, value.OriginalVectorData);
         foreach (Vector3 vectorData in allVectorData)
         {
             sb.Append(vectorData.x);
@@ -145,10 +162,10 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapEntity>
             sb.Append('}');
         }
 
-        sb.Append(value.Dialogues.Count);
+        sb.Append(value.InternalDialogues.Count);
         sb.Append('}');
 
-        List<Vector3> allDialogues = GetListPaddedWithOriginalArray(value.Dialogues, value.OriginalDialogues);
+        List<Vector3> allDialogues = GetListPaddedWithOriginalArray(value.InternalDialogues, value.OriginalDialogues);
         foreach (Vector3 dialogue in allDialogues)
         {
             sb.Append(dialogue.x);
@@ -166,11 +183,11 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapEntity>
         sb.Append(value.EulerAngles.z);
         sb.Append('}');
 
-        sb.Append(value.BattleEnemyIds.Count);
+        sb.Append(value.InternalBattleEnemyIds.Count);
         sb.Append('}');
 
         List<int> allBattleEnemyIds =
-            GetListPaddedWithOriginalArray(value.BattleEnemyIds, value.OriginalBattleEnemyIds);
+            GetListPaddedWithOriginalArray(value.InternalBattleEnemyIds, value.OriginalBattleEnemyIds);
         foreach (int battleEnemyId in allBattleEnemyIds)
         {
             sb.Append(battleEnemyId);
@@ -185,17 +202,17 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapEntity>
         sb.Append('}');
         sb.Append(value.TagColor.a);
         sb.Append('}');
-        sb.Append(value.EmoticonOffset.x);
+        sb.Append(value.InternalEmoticonOffset.x);
         sb.Append('}');
-        sb.Append(value.EmoticonOffset.y);
+        sb.Append(value.InternalEmoticonOffset.y);
         sb.Append('}');
-        sb.Append(value.EmoticonOffset.z);
+        sb.Append(value.InternalEmoticonOffset.z);
         sb.Append('}');
         sb.Append(value.InsideId);
         sb.Append('}');
 
         List<Vector2> allEmoticonFlags =
-            GetListPaddedWithOriginalArray(value.EmoticonFlags, value.OriginalEmoticonFlags);
+            GetListPaddedWithOriginalArray(value.InternalEmoticonFlags, value.OriginalEmoticonFlags);
         foreach (Vector2 emoticonFlag in allEmoticonFlags)
         {
             sb.Append(emoticonFlag.x);
@@ -204,17 +221,17 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapEntity>
             sb.Append('}');
         }
 
-        sb.Append(value.SpyDialogueMapId);
+        sb.Append(value.InternalSpyDialogueMapId);
         sb.Append('}');
-        sb.Append(value.RegionalFlagId);
+        sb.Append(value.InternalRegionalFlagId);
         sb.Append('}');
         sb.Append(value.InitialHeight);
         sb.Append('}');
-        sb.Append(value.BobRange);
+        sb.Append(value.InternalBobRange);
         sb.Append('}');
-        sb.Append(value.BobSpeed);
+        sb.Append(value.InternalBobSpeed);
         sb.Append('}');
-        sb.Append(value.ActivationFlagId);
+        sb.Append(value.InternalActivationFlagId);
         sb.Append('}');
 
         string valueReturnToHeightString;
@@ -239,50 +256,46 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapEntity>
         return sb.ToString();
     }
 
-    public void FromTextAssetSerializedString(string subPath, string text, MapEntity value)
+    public MapEntity FromTextAssetSerializedString(int id, string name, string text)
     {
-        if (subPath.EndsWith("names", StringComparison.OrdinalIgnoreCase))
-        {
-            value.Name = text;
-            return;
-        }
-
         string[] fields = text.Split(StringUtils.ClosingBraceSplitDelimiter);
 
-        value.Type = Enum.Parse<NPCControl.NPCType>(fields[0]);
-        value.ObjectType = Enum.Parse<NPCControl.ObjectTypes>(fields[1]);
-        value.PrimaryBehavior = Enum.Parse<NPCControl.ActionBehaviors>(fields[2]);
-        value.SecondaryBehavior = Enum.Parse<NPCControl.ActionBehaviors>(fields[3]);
-        value.NpcInteraction = Enum.Parse<NPCControl.Interaction>(fields[4]);
-        value.DeathType = Enum.Parse<NPCControl.DeathType>(fields[5]);
+        NPCControl.NPCType type = Enum.Parse<NPCControl.NPCType>(fields[0]);
+        NPCControl.ObjectTypes objectType = Enum.Parse<NPCControl.ObjectTypes>(fields[1]);
+        MapEntity value = GetTypedMapEntity(type, objectType, id, name);
+
+        value.InternalPrimaryBehavior = Enum.Parse<NPCControl.ActionBehaviors>(fields[2]);
+        value.InternalSecondaryBehavior = Enum.Parse<NPCControl.ActionBehaviors>(fields[3]);
+        value.InternalNpcInteraction = Enum.Parse<NPCControl.Interaction>(fields[4]);
+        value.InternalDeathType = Enum.Parse<NPCControl.DeathType>(fields[5]);
         value.StartingPosition = new(float.Parse(fields[6]), float.Parse(fields[7]), float.Parse(fields[8]));
-        value.AnimIdOrItemId = int.Parse(fields[9]);
-        value.IsFlipped = bool.Parse(fields[10]);
-        value.CcolHeight = float.Parse(fields[11]);
-        value.CcolRadius = float.Parse(fields[12]);
-        value.Radius = float.Parse(fields[13]);
-        value.Timer = float.Parse(fields[14]);
-        value.Speed = float.Parse(fields[15]);
-        value.PrimaryActionFrequency = float.Parse(fields[16]);
-        value.SecondaryActionFrequency = float.Parse(fields[17]);
-        value.SpeedMultiplier = float.Parse(fields[18]);
-        value.RadiusLimit = float.Parse(fields[19]);
-        value.WanderRadius = float.Parse(fields[20]);
-        value.TeleportRadius = float.Parse(fields[21]);
-        value.HaxBoxCol = bool.Parse(fields[22]);
-        value.BoxColIsTrigger = bool.Parse(fields[23]);
-        value.BoxColSize = new(float.Parse(fields[24]), float.Parse(fields[25]), float.Parse(fields[26]));
-        value.BoxColCenter = new(float.Parse(fields[27]), float.Parse(fields[28]), float.Parse(fields[29]));
-        value.FreezeTime = float.Parse(fields[30]);
-        value.FreezeSize = new(float.Parse(fields[31]), float.Parse(fields[32]), float.Parse(fields[33]));
-        value.FreezeOffset = new(float.Parse(fields[34]), float.Parse(fields[35]), float.Parse(fields[36]));
-        value.EventId = int.Parse(fields[37]);
+        value.InternalAnimIdOrItemId = int.Parse(fields[9]);
+        value.InternalIsFlipped = bool.Parse(fields[10]);
+        value.InternalCcolHeight = float.Parse(fields[11]);
+        value.InternalCcolRadius = float.Parse(fields[12]);
+        value.InternalRadius = float.Parse(fields[13]);
+        value.InternalTimer = float.Parse(fields[14]);
+        value.InternalSpeed = float.Parse(fields[15]);
+        value.InternalPrimaryActionFrequency = float.Parse(fields[16]);
+        value.InternalSecondaryActionFrequency = float.Parse(fields[17]);
+        value.InternalSpeedMultiplier = float.Parse(fields[18]);
+        value.InternalRadiusLimit = float.Parse(fields[19]);
+        value.InternalWanderRadius = float.Parse(fields[20]);
+        value.InternalTeleportRadius = float.Parse(fields[21]);
+        value.InternalHaxBoxCol = bool.Parse(fields[22]);
+        value.InternalBoxColIsTrigger = bool.Parse(fields[23]);
+        value.InternalBoxColSize = new(float.Parse(fields[24]), float.Parse(fields[25]), float.Parse(fields[26]));
+        value.InternalBoxColCenter = new(float.Parse(fields[27]), float.Parse(fields[28]), float.Parse(fields[29]));
+        value.InternalFreezeTime = float.Parse(fields[30]);
+        value.InternalFreezeSize = new(float.Parse(fields[31]), float.Parse(fields[32]), float.Parse(fields[33]));
+        value.InternalFreezeOffset = new(float.Parse(fields[34]), float.Parse(fields[35]), float.Parse(fields[36]));
+        value.InternalEventId = int.Parse(fields[37]);
 
         int requiresLength = int.Parse(fields[38]);
         for (int i = 0; i < 10; i++)
             value.OriginalRequires[i] = int.Parse(fields[39 + i]);
         for (int i = 0; i < requiresLength; i++)
-            value.Requires.Add(value.OriginalRequires[i]);
+            value.Requires.Add(new(_flagsRegistry.LeavesByGameIds[value.OriginalRequires[i]]));
 
         if (_logger.IsEnabled(LogLevel.Trace))
         {
@@ -297,7 +310,14 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapEntity>
         for (int i = 0; i < 10; i++)
             value.OriginalLimits[i] = int.Parse(fields[50 + i]);
         for (int i = 0; i < limitsLength; i++)
-            value.Limit.Add(value.OriginalLimits[i]);
+        {
+            value.Limit.Add(
+                new()
+                {
+                    Flag = new(_flagsRegistry.LeavesByGameIds[Math.Abs(value.OriginalLimits[i])]),
+                    FailsWholeConditionWhenFlagIsTrue = value.OriginalLimits[i] < 0
+                });
+        }
 
         if (_logger.IsEnabled(LogLevel.Trace))
         {
@@ -312,13 +332,13 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapEntity>
         for (int i = 0; i < 10; i++)
             value.OriginalData[i] = int.Parse(fields[61 + i]);
         for (int i = 0; i < dataLength; i++)
-            value.Data.Add(value.OriginalData[i]);
+            value.InternalData.Add(value.OriginalData[i]);
 
         if (_logger.IsEnabled(LogLevel.Trace))
         {
             LogIfListHasUnreadableData(
                 value.Name,
-                nameof(MapEntity.Data),
+                nameof(MapEntity.InternalData),
                 dataLength,
                 value.OriginalData);
         }
@@ -333,13 +353,13 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapEntity>
         }
 
         for (int i = 0; i < vectorDataLength; i++)
-            value.VectorData.Add(value.OriginalVectorData[i]);
+            value.InternalVectorData.Add(value.OriginalVectorData[i]);
 
         if (_logger.IsEnabled(LogLevel.Trace))
         {
             LogIfListHasUnreadableData(
                 value.Name,
-                nameof(MapEntity.VectorData),
+                nameof(MapEntity.InternalVectorData),
                 vectorDataLength,
                 value.OriginalVectorData);
         }
@@ -354,13 +374,13 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapEntity>
         }
 
         for (int i = 0; i < dialoguesLength; i++)
-            value.Dialogues.Add(value.OriginalDialogues[i]);
+            value.InternalDialogues.Add(value.OriginalDialogues[i]);
 
         if (_logger.IsEnabled(LogLevel.Trace))
         {
             LogIfListHasUnreadableData(
                 value.Name,
-                nameof(MapEntity.Dialogues),
+                nameof(MapEntity.InternalDialogues),
                 dialoguesLength,
                 value.OriginalDialogues);
         }
@@ -371,13 +391,13 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapEntity>
         for (int i = 0; i < 4; i++)
             value.OriginalBattleEnemyIds[i] = int.Parse(fields[167 + i]);
         for (int i = 0; i < battleEnemyIdsLength; i++)
-            value.BattleEnemyIds.Add(value.OriginalBattleEnemyIds[i]);
+            value.InternalBattleEnemyIds.Add(value.OriginalBattleEnemyIds[i]);
 
         if (_logger.IsEnabled(LogLevel.Trace))
         {
             LogIfListHasUnreadableData(
                 value.Name,
-                nameof(MapEntity.BattleEnemyIds),
+                nameof(MapEntity.InternalBattleEnemyIds),
                 battleEnemyIdsLength,
                 value.OriginalBattleEnemyIds);
         }
@@ -387,7 +407,10 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapEntity>
             float.Parse(fields[172]),
             float.Parse(fields[173]),
             float.Parse(fields[174]));
-        value.EmoticonOffset = new(float.Parse(fields[175]), float.Parse(fields[176]), float.Parse(fields[177]));
+        value.InternalEmoticonOffset = new(
+            float.Parse(fields[175]),
+            float.Parse(fields[176]),
+            float.Parse(fields[177]));
         value.InsideId = int.Parse(fields[178]);
 
         bool continueAddingIntoList = true;
@@ -401,20 +424,20 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapEntity>
             if (i > 0 && (int)value.OriginalEmoticonFlags[i].x < 0)
             {
                 continueAddingIntoList = false;
-                if (value.EmoticonFlags.Count == 1)
-                    value.EmoticonFlags.Clear();
+                if (value.InternalEmoticonFlags.Count == 1)
+                    value.InternalEmoticonFlags.Clear();
                 continue;
             }
 
-            value.EmoticonFlags.Add(value.OriginalEmoticonFlags[i]);
+            value.InternalEmoticonFlags.Add(value.OriginalEmoticonFlags[i]);
         }
 
-        value.SpyDialogueMapId = int.Parse(fields[189]);
-        value.RegionalFlagId = int.Parse(fields[190]);
+        value.InternalSpyDialogueMapId = int.Parse(fields[189]);
+        value.InternalRegionalFlagId = int.Parse(fields[190]);
         value.InitialHeight = float.Parse(fields[191]);
-        value.BobRange = float.Parse(fields[192]);
-        value.BobSpeed = float.Parse(fields[193]);
-        value.ActivationFlagId = int.Parse(fields[194]);
+        value.InternalBobRange = float.Parse(fields[192]);
+        value.InternalBobSpeed = float.Parse(fields[193]);
+        value.InternalActivationFlagId = int.Parse(fields[194]);
 
         value.IsReturnToHeightOriginallyInt = fields[195].Length == 1;
         if (value.IsReturnToHeightOriginallyInt)
@@ -424,6 +447,57 @@ internal sealed class MapEntityTextAssetParser : ITextAssetParser<MapEntity>
 
         if (fields.Length > 196)
             value.UnusedOverflowData = string.Join("}", fields.Skip(196));
+
+        InitDerivedMapEntity(value);
+        return value;
+    }
+
+    private MapEntity GetTypedMapEntity(NPCControl.NPCType type, NPCControl.ObjectTypes objectType, int id, string name)
+    {
+        switch (type, objectType)
+        {
+            case (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BeetleGrass):
+                return new BeetleGrassMapEntity
+                {
+                    Id = id,
+                    Name = name
+                };
+            default:
+                return new MapEntity
+                {
+                    Id = id,
+                    Name = name
+                };
+        }
+    }
+
+    private void InitDerivedMapEntity(MapEntity mapEntity)
+    {
+        switch (mapEntity)
+        {
+            case BeetleGrassMapEntity beetleGrass:
+                if (beetleGrass.InternalData[1] >= 0)
+                {
+                    beetleGrass.CrystalBerryDroppedWhenCut = new(
+                        _crystalBerriesRegistry.LeavesByGameIds[beetleGrass.InternalData[1]]);
+                }
+
+                List<Branch<ItemLeaf>?> itemsWhenCut = beetleGrass.InternalVectorData
+                    .Select(v =>
+                        v.x < 0
+                            ? (Branch<ItemLeaf>?)null
+                            : new Branch<ItemLeaf>(_itemsRegistry.LeavesByGameIds[(int)v.x]))
+                    .ToList();
+                beetleGrass.ChangeItemsDroppedWhenCut(itemsWhenCut);
+
+                if (beetleGrass.InternalActivationFlagId >= 0)
+                {
+                    beetleGrass.ActivationFlag =
+                        new(_flagsRegistry.LeavesByGameIds[beetleGrass.InternalActivationFlagId]);
+                }
+
+                break;
+        }
     }
 
     private void LogIfListHasUnreadableData(string entityName, string listName, int expectedLength, int[] array)

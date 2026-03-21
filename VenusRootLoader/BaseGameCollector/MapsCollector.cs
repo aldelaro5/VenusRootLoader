@@ -1,8 +1,9 @@
 using Microsoft.Extensions.Logging;
+using System.Collections.ObjectModel;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Api.MapEntities;
-using VenusRootLoader.Patching.Resources.TextAssetPatchers;
+using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
@@ -24,18 +25,17 @@ internal sealed class MapsCollector : IBaseGameCollector
     private static readonly Dictionary<int, Dictionary<string, string[]>> MapsDialogues = new();
 
     private readonly ILogger<MapsCollector> _logger;
-    private readonly ILeavesRegistry<MapLeaf> _rankBonusesRegistry;
-    private readonly ITextAssetParser<MapEntity> _rankBonusTextAssetParser;
+    private readonly ILeavesRegistry<MapLeaf> _mapsRegistry;
+    private readonly IMapEntityTextAssetParser _mapEntityTextAssetParser;
 
     public MapsCollector(
         ILogger<MapsCollector> logger,
-        ILeavesRegistry<MapLeaf> rankBonusesRegistry,
-        ITextAssetParser<MapEntity> rankBonusTextAssetParser)
+        ILeavesRegistry<MapLeaf> mapsRegistry,
+        IMapEntityTextAssetParser mapEntityTextAssetParser)
     {
         _logger = logger;
-        _rankBonusesRegistry = rankBonusesRegistry;
-        _rankBonusTextAssetParser = rankBonusTextAssetParser;
-
+        _mapsRegistry = mapsRegistry;
+        _mapEntityTextAssetParser = mapEntityTextAssetParser;
 
         for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
@@ -55,21 +55,18 @@ internal sealed class MapsCollector : IBaseGameCollector
         {
             (string[] Names, string[] Data) mapEntityData = MapsEntityData[i];
             MapLeaf mapLeaf =
-                _rankBonusesRegistry.RegisterExisting(i, MapNamedIds[i], baseGameId);
+                _mapsRegistry.RegisterExisting(i, MapNamedIds[i], baseGameId);
+            mapLeaf.Entities = new ReadOnlyCollection<MapEntity>(mapLeaf.InternalEntities);
 
             for (int j = 0; j < mapEntityData.Data.Length; j++)
             {
                 string mapEntityText = mapEntityData.Data[j];
                 string mapEntityName = mapEntityData.Names[j];
-                MapEntity mapEntity = mapLeaf.Entities.CreateNew();
-                _rankBonusTextAssetParser.FromTextAssetSerializedString(
-                    $"EntityData/Names/{i}Names",
+                MapEntity mapEntity = _mapEntityTextAssetParser.FromTextAssetSerializedString(
+                    mapLeaf.InternalEntities.Count,
                     mapEntityName,
-                    mapEntity);
-                _rankBonusTextAssetParser.FromTextAssetSerializedString(
-                    $"EntityData/{i}",
-                    mapEntityText,
-                    mapEntity);
+                    mapEntityText);
+                mapLeaf.InternalEntities.Add(mapEntity);
             }
 
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)

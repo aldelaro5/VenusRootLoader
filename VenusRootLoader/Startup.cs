@@ -5,7 +5,6 @@ using System.IO.Abstractions;
 using UnityEngine;
 using VenusRootLoader.Api;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Api.MapEntities;
 using VenusRootLoader.BaseGameCollector;
 using VenusRootLoader.BudLoading;
 using VenusRootLoader.Extensions;
@@ -17,6 +16,7 @@ using VenusRootLoader.Patching.Resources.AudioClipPatchers;
 using VenusRootLoader.Patching.Resources.PrefabPatchers;
 using VenusRootLoader.Patching.Resources.SpritesPatchers;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers;
+using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalData;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.LocalisedData;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.OrderingData;
@@ -186,7 +186,7 @@ internal static class Startup
         services.AddTextAssetPatcher<SpyCardLeaf, SpyCardTextAssetParser>(["CardData"]);
         services.AddLocalizedTextAssetPatcher<SpyCardLeaf, SpyCardLocalizedTextAssetParser>(["CardText"]);
 
-        services.AddSingleton<ITextAssetParser<MapEntity>, MapEntityTextAssetParser>();
+        services.AddSingleton<IMapEntityTextAssetParser, MapEntityTextAssetParser>();
         services.AddSingleton<IMapEntityTextAssetPatcher, MapEntitiesTextAssetPatcher>();
         services.AddSingleton<IMapDialoguesTextAssetPatcher, MapDialoguesTextAssetPatcher>();
 

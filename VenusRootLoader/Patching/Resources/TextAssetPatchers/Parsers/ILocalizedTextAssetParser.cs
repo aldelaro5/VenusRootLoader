@@ -1,6 +1,6 @@
 using VenusRootLoader.Api.Leaves;
 
-namespace VenusRootLoader.Patching.Resources.TextAssetPatchers;
+namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 
 internal interface ILocalizedTextAssetParser<in T>
     where T : Leaf

@@ -1,7 +1,7 @@
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
 
-namespace VenusRootLoader.Patching.Resources.TextAssetPatchers;
+namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 
 internal interface IOrderingTextAssetParser<TLeaf> where TLeaf : Leaf
 {

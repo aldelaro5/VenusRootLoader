@@ -1,4 +1,4 @@
-namespace VenusRootLoader.Patching.Resources.TextAssetPatchers;
+namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 
 internal interface ITextAssetParser<in T>
 {

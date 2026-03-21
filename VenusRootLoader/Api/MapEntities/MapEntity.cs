@@ -6,10 +6,10 @@ namespace VenusRootLoader.Api.MapEntities;
 
 public class MapEntity
 {
-    public int Id { get; internal init; }
-    public string Name { get; internal init; } = "";
-    protected internal virtual NPCControl.NPCType Type { get; internal set; }
-    protected internal virtual NPCControl.ObjectTypes ObjectType { get; internal set; }
+    public int Id { get; internal set; }
+    public string Name { get; internal set; } = "";
+    internal NPCControl.NPCType Type { get; set; }
+    internal NPCControl.ObjectTypes ObjectType { get; set; }
     public Vector3 StartingPosition { get; set; }
     public Vector3 EulerAngles { get; set; }
     internal bool IsReturnToHeightOriginallyInt { get; set; }

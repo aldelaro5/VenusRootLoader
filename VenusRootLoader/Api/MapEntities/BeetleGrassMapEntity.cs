@@ -6,9 +6,6 @@ namespace VenusRootLoader.Api.MapEntities;
 
 public sealed class BeetleGrassMapEntity : MapEntity
 {
-    protected internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
-    protected internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.BeetleGrass;
-
     public Vector3 BoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
     public Vector3 BoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
 
@@ -39,8 +36,12 @@ public sealed class BeetleGrassMapEntity : MapEntity
         }
     }
 
-    internal BeetleGrassMapEntity()
+    internal BeetleGrassMapEntity(bool fromExisting)
     {
+        // TODO: Figure out a better way to deal with this
+        if (fromExisting)
+            return;
+        
         InternalData.AddRange([0, -1]);
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = false;
@@ -51,7 +52,14 @@ public sealed class BeetleGrassMapEntity : MapEntity
     public void ChangeItemsDroppedWhenCut(List<Branch<ItemLeaf>?> items)
     {
         InternalVectorData.Clear();
-        InternalVectorData.AddRange(items.Select(x => new Vector3(x?.GameId ?? -1.0f, 0, 0)));
+        for (int i = 0; i < items.Count; i++)
+        {
+            int x = items[i]?.GameId ?? -1;
+            if (i < OriginalVectorData.Length)
+                InternalVectorData.Add(new(x, OriginalVectorData[i].y, OriginalVectorData[i].z));
+            else
+                InternalVectorData.Add(new(x, 0f, 0f));
+        }
         ItemsDroppedWhenCut = items.AsReadOnly();
     }
 }

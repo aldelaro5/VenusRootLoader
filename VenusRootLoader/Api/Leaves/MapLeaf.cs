@@ -21,7 +21,7 @@ public sealed class MapLeaf : Leaf
 
     public BeetleGrassMapEntity ReserveNewBeetleGrassEntity(string name)
     {
-        BeetleGrassMapEntity newEntity = new()
+        BeetleGrassMapEntity newEntity = new(false)
         {
             Id = InternalEntities.Count,
             Name = name

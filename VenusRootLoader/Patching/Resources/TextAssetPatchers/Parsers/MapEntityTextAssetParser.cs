@@ -128,9 +128,12 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         sb.Append(value.Limit.Count);
         sb.Append('}');
 
-        List<int> allLimits = GetListPaddedWithOriginalArray(
-            value.Limit.Select(l => l.Flag.GameId).ToList(),
-            value.OriginalLimits);
+        List<int> allLimitsValues = value.Limit
+            .Select(l => l.FailsWholeConditionWhenFlagIsTrue
+                ? -l.Flag.GameId
+                : l.Flag.GameId)
+            .ToList();
+        List<int> allLimits = GetListPaddedWithOriginalArray(allLimitsValues, value.OriginalLimits);
         foreach (int limit in allLimits)
         {
             sb.Append(limit);
@@ -262,8 +265,12 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
 
         NPCControl.NPCType type = Enum.Parse<NPCControl.NPCType>(fields[0]);
         NPCControl.ObjectTypes objectType = Enum.Parse<NPCControl.ObjectTypes>(fields[1]);
-        MapEntity value = GetTypedMapEntity(type, objectType, id, name);
+        MapEntity value = GetTypedMapEntity(type, objectType);
 
+        value.Id = id;
+        value.Name = name;
+        value.Type = type;
+        value.ObjectType = objectType;
         value.InternalPrimaryBehavior = Enum.Parse<NPCControl.ActionBehaviors>(fields[2]);
         value.InternalSecondaryBehavior = Enum.Parse<NPCControl.ActionBehaviors>(fields[3]);
         value.InternalNpcInteraction = Enum.Parse<NPCControl.Interaction>(fields[4]);
@@ -452,24 +459,12 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         return value;
     }
 
-    private MapEntity GetTypedMapEntity(NPCControl.NPCType type, NPCControl.ObjectTypes objectType, int id, string name)
-    {
-        switch (type, objectType)
+    private MapEntity GetTypedMapEntity(NPCControl.NPCType type, NPCControl.ObjectTypes objectType) =>
+        (type, objectType) switch
         {
-            case (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BeetleGrass):
-                return new BeetleGrassMapEntity
-                {
-                    Id = id,
-                    Name = name
-                };
-            default:
-                return new MapEntity
-                {
-                    Id = id,
-                    Name = name
-                };
-        }
-    }
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BeetleGrass) => new BeetleGrassMapEntity(true),
+            _ => new MapEntity()
+        };
 
     private void InitDerivedMapEntity(MapEntity mapEntity)
     {

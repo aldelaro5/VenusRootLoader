@@ -17,18 +17,15 @@ internal sealed class RecipeLibraryEntriesCollector : IBaseGameCollector
         .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
 
     private readonly ILogger<RecipeLibraryEntriesCollector> _logger;
-    private readonly ILeavesRegistry<RecipeLeaf> _recipesRegistry;
     private readonly ILeavesRegistry<RecipeLibraryEntryLeaf> _recipeLibraryEntriesRegistry;
     private readonly ITextAssetParser<RecipeLibraryEntryLeaf> _recipeTextAssetParser;
 
     public RecipeLibraryEntriesCollector(
         ILogger<RecipeLibraryEntriesCollector> logger,
-        ILeavesRegistry<RecipeLeaf> recipesRegistry,
         ILeavesRegistry<RecipeLibraryEntryLeaf> recipeLibraryEntriesRegistry,
         ITextAssetParser<RecipeLibraryEntryLeaf> recipeTextAssetParser)
     {
         _logger = logger;
-        _recipesRegistry = recipesRegistry;
         _recipeLibraryEntriesRegistry = recipeLibraryEntriesRegistry;
         _recipeTextAssetParser = recipeTextAssetParser;
     }
@@ -39,39 +36,13 @@ internal sealed class RecipeLibraryEntriesCollector : IBaseGameCollector
         {
             string cookLibraryLine = CookLibraryData[i];
             string cookOrderLine = CookOrderData[i];
-            // TODO: Find a way to fix this mess
-            RecipeLibraryEntryLeaf recipeData = new(-1, "", "");
-            recipeData.Recipe = new Branch<RecipeLeaf>(new(-1, "", ""));
-            _recipeTextAssetParser.FromTextAssetSerializedString("CookOrder", cookOrderLine, recipeData);
+            RecipeLibraryEntryLeaf recipeLibraryEntryLeaf =
+                _recipeLibraryEntriesRegistry.RegisterExisting(i, i.ToString(), baseGameId);
+            _recipeTextAssetParser.FromTextAssetSerializedString("CookOrder", cookOrderLine, recipeLibraryEntryLeaf);
             _recipeTextAssetParser.FromTextAssetSerializedString(
                 "CookLibrary",
                 cookLibraryLine,
-                recipeData);
-
-            RecipeLeaf foundRecipe;
-            if (recipeData.Recipe.Leaf.FirstItem == null &&
-                recipeData.Recipe.Leaf.SecondItem == null)
-            {
-                foundRecipe = new(-1, "INCOMPATIBLE", baseGameId)
-                {
-                    FirstItem = null,
-                    SecondItem = null,
-                    ResultItem = recipeData.Recipe.Leaf.ResultItem
-                };
-            }
-            else
-            {
-                foundRecipe = _recipesRegistry.LeavesByNamedIds.Values
-                    .First(r => r.ResultItem == recipeData.Recipe.Leaf.ResultItem &&
-                                ((r.FirstItem == recipeData.Recipe.Leaf.FirstItem &&
-                                  r.SecondItem == recipeData.Recipe.Leaf.SecondItem) ||
-                                 (r.FirstItem == recipeData.Recipe.Leaf.SecondItem &&
-                                  r.SecondItem == recipeData.Recipe.Leaf.FirstItem)));
-            }
-
-            RecipeLibraryEntryLeaf recipeLibraryEntryLeaf =
-                _recipeLibraryEntriesRegistry.RegisterExisting(i, i.ToString(), baseGameId);
-            recipeLibraryEntryLeaf.Recipe = new(foundRecipe);
+                recipeLibraryEntryLeaf);
         }
 
         _logger.LogInformation(

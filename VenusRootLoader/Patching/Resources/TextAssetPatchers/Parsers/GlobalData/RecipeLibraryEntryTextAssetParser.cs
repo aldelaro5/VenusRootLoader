@@ -12,10 +12,14 @@ internal sealed class RecipeLibraryEntryTextAssetParser : ITextAssetParser<Recip
     private const string CookLibrarySubPath = "CookLibrary";
 
     private readonly ILeavesRegistry<ItemLeaf> _itemsRegistry;
+    private readonly ILeavesRegistry<RecipeLeaf> _recipesRegistry;
 
-    public RecipeLibraryEntryTextAssetParser(ILeavesRegistry<ItemLeaf> itemsRegistry)
+    public RecipeLibraryEntryTextAssetParser(
+        ILeavesRegistry<ItemLeaf> itemsRegistry,
+        ILeavesRegistry<RecipeLeaf> recipesRegistry)
     {
         _itemsRegistry = itemsRegistry;
+        _recipesRegistry = recipesRegistry;
     }
 
     public string GetTextAssetSerializedString(string subPath, RecipeLibraryEntryLeaf value)
@@ -48,25 +52,39 @@ internal sealed class RecipeLibraryEntryTextAssetParser : ITextAssetParser<Recip
     public void FromTextAssetSerializedString(string subPath, string text, RecipeLibraryEntryLeaf value)
     {
         if (subPath.Equals(CookOrderSubPath, StringComparison.OrdinalIgnoreCase))
+        {
+            value.Recipe = new(new(-1, "", ""));
             value.Recipe.Leaf.ResultItem = new(_itemsRegistry.LeavesByGameIds[int.Parse(text)]);
-        else if (subPath.Equals(CookLibrarySubPath, StringComparison.OrdinalIgnoreCase))
-        {
-            string[] fields = text.Replace("@", "").Split(StringUtils.CommaSplitDelimiter);
-            int firstItem = int.Parse(fields[0]);
-            if (firstItem == -1)
-            {
-                value.Recipe.Leaf.FirstItem = null;
-                value.Recipe.Leaf.SecondItem = null;
-                return;
-            }
+            return;
+        }
 
-            value.Recipe.Leaf.FirstItem = new(_itemsRegistry.LeavesByGameIds[firstItem]);
-            if (fields.Length > 1)
-                value.Recipe.Leaf.SecondItem = new(_itemsRegistry.LeavesByGameIds[int.Parse(fields[1])]);
-        }
-        else
-        {
+        if (!subPath.Equals(CookLibrarySubPath, StringComparison.OrdinalIgnoreCase))
             ThrowHelper.ThrowInvalidDataException($"This parser doesn't support the subPath {subPath}");
+
+        string[] fields = text.Replace("@", "").Split(StringUtils.CommaSplitDelimiter);
+        int firstItem = int.Parse(fields[0]);
+        if (firstItem == -1)
+        {
+            RecipeLeaf incompatibleRecipeLeaf = new(-1, "INCOMPATIBLE", value.CreatorId)
+            {
+                FirstItem = null,
+                SecondItem = null,
+                ResultItem = value.Recipe.Leaf.ResultItem
+            };
+            value.Recipe = new(incompatibleRecipeLeaf);
+            return;
         }
+
+        value.Recipe.Leaf.FirstItem = new(_itemsRegistry.LeavesByGameIds[firstItem]);
+        if (fields.Length > 1)
+            value.Recipe.Leaf.SecondItem = new(_itemsRegistry.LeavesByGameIds[int.Parse(fields[1])]);
+
+        RecipeLeaf foundRecipe = _recipesRegistry.LeavesByNamedIds.Values
+            .First(r => r.ResultItem == value.Recipe.Leaf.ResultItem &&
+                        ((r.FirstItem == value.Recipe.Leaf.FirstItem &&
+                          r.SecondItem == value.Recipe.Leaf.SecondItem) ||
+                         (r.FirstItem == value.Recipe.Leaf.SecondItem &&
+                          r.SecondItem == value.Recipe.Leaf.FirstItem)));
+        value.Recipe = new(foundRecipe);
     }
 }

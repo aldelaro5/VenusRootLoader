@@ -6,7 +6,7 @@ using VenusRootLoader.Patching;
 namespace VenusRootLoader.Registry;
 
 internal class EnumBasedRegistry<TLeaf, TEnum> : BaseRegistry<TLeaf>
-    where TLeaf : Leaf, new()
+    where TLeaf : Leaf
     where TEnum : Enum
 {
     private readonly int _offsetEnumValueToGameId;

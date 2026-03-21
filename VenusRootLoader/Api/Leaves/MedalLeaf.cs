@@ -20,6 +20,10 @@ public sealed class MedalLeaf : Leaf
 
     internal WrappedSprite WrappedSprite = new();
 
+    internal MedalLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal int Items1SpriteIndex { get; set; } = -1;
 
     public int MpCost { get; set; }

@@ -18,6 +18,8 @@ public sealed class DiscoveryLeaf : Leaf, IEnemyPortraitSprite
         public int? RequiredFlagGameId { get; set; }
     }
 
+    internal DiscoveryLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId) { }
+
     int? IEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }
     WrappedSprite IEnemyPortraitSprite.WrappedSprite { get; set; } = new();
 

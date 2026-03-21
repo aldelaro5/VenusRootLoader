@@ -12,7 +12,7 @@ internal static class ServiceCollectionExtensions
     extension(IServiceCollection collection)
     {
         internal IServiceCollection AddEnumBasedLeavesRegistry<TLeaf, TEnum>(int offsetEnumValueToGameId = 0)
-            where TLeaf : Leaf, new()
+            where TLeaf : Leaf
             where TEnum : Enum
         {
             collection.AddSingleton<ILeavesRegistry<TLeaf>, EnumBasedRegistry<TLeaf, TEnum>>(provider =>
@@ -25,7 +25,7 @@ internal static class ServiceCollectionExtensions
         }
 
         internal IServiceCollection AddEnumBasedLeavesRegistryWithOrdering<TLeaf, TEnum>()
-            where TLeaf : Leaf, new()
+            where TLeaf : Leaf
             where TEnum : Enum
         {
             collection.AddEnumBasedLeavesRegistry<TLeaf, TEnum>();
@@ -36,7 +36,7 @@ internal static class ServiceCollectionExtensions
         internal IServiceCollection AddAutoSequentialIdBasedLeavesRegistry<TLeaf>(
             IdSequenceDirection sequenceDirection = IdSequenceDirection.Increment,
             int firstGameId = 0)
-            where TLeaf : Leaf, new()
+            where TLeaf : Leaf
         {
             collection.AddSingleton<ILeavesRegistry<TLeaf>, AutoSequentialIdBasedRegistry<TLeaf>>(provider =>
                 new AutoSequentialIdBasedRegistry<TLeaf>(
@@ -47,13 +47,13 @@ internal static class ServiceCollectionExtensions
             return collection;
         }
 
-        private static string GenerateRegistryLogCategoryName<TLeaf>() where TLeaf : Leaf, new() =>
+        private static string GenerateRegistryLogCategoryName<TLeaf>() where TLeaf : Leaf =>
             $"{nameof(VenusRootLoader)}.{nameof(Registry)}.{typeof(TLeaf).Name}Registry";
 
         internal IServiceCollection AddAutoSequentialIdBasedLeavesRegistryWithOrdering<TLeaf>(
             IdSequenceDirection sequenceDirection = IdSequenceDirection.Increment,
             int firstGameId = 0)
-            where TLeaf : Leaf, new()
+            where TLeaf : Leaf
         {
             collection.AddAutoSequentialIdBasedLeavesRegistry<TLeaf>(sequenceDirection, firstGameId);
             collection.AddSingleton<IOrderedLeavesRegistry<TLeaf>, OrderedLeavesRegistry<TLeaf>>();

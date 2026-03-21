@@ -10,6 +10,8 @@ public sealed class AreaLeaf : Leaf
         public List<string> PaginatedDescription { get; } = new();
     }
 
+    internal AreaLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId) { }
+
     public Vector2 MapPosition { get; set; }
 
     public LocalizedData<AreaLanguageData> LocalizedData { get; } = new();

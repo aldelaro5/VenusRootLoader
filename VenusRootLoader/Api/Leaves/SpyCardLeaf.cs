@@ -16,6 +16,10 @@ public sealed class SpyCardLeaf : Leaf
         public float HorizontalNameSize { get; set; } = 1;
     }
 
+    internal SpyCardLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    {
+    }
+
     public LocalizedData<SpyCardLanguageData> LocalizedData { get; } = new();
 
     public int TpCost { get; set; }

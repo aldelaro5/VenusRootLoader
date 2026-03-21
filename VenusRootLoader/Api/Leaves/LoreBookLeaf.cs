@@ -12,6 +12,10 @@ internal sealed class LoreBookLeaf : Leaf
         internal string FortuneTellerHint { get; set; } = "";
     }
 
+    internal LoreBookLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal LocalizedData<LoreBookLanguageData> LocalizedData { get; } = new();
     internal Branch<FlagLeaf> LoreBookObtainedFlag { get; set; }
 }

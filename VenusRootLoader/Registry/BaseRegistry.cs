@@ -1,11 +1,12 @@
 using CommunityToolkit.Diagnostics;
 using Microsoft.Extensions.Logging;
+using System.Reflection;
 using VenusRootLoader.Api.Leaves;
 
 namespace VenusRootLoader.Registry;
 
 internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
-    where TLeaf : Leaf, new()
+    where TLeaf : Leaf
 {
     private readonly ILogger _logger;
     private readonly string _registryName = typeof(TLeaf).Name;
@@ -21,12 +22,7 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
     {
         EnsureNamedIdIsFree(namedId);
         int gameId = CreateNewGameId(namedId, creatorId);
-        TLeaf leaf = new()
-        {
-            GameId = gameId,
-            CreatorId = creatorId,
-            NamedId = namedId
-        };
+        TLeaf leaf = CreateLeafInstance(gameId, namedId, creatorId);
         LeavesByNamedIds[namedId] = leaf;
         LeavesByGameIds[gameId] = leaf;
         LogRegisterContent(leaf);
@@ -35,16 +31,26 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
 
     public virtual TLeaf RegisterExisting(int gameId, string namedId, string creatorId)
     {
-        TLeaf leaf = new()
-        {
-            GameId = gameId,
-            NamedId = namedId,
-            CreatorId = creatorId
-        };
+        TLeaf leaf = CreateLeafInstance(gameId, namedId, creatorId);
         LeavesByNamedIds[namedId] = leaf;
         LeavesByGameIds[gameId] = leaf;
         LogRegisterContent(leaf);
         return leaf;
+    }
+
+    private static TLeaf CreateLeafInstance(int gameId, string namedId, string creatorId)
+    {
+        return (TLeaf)Activator.CreateInstance(
+            typeof(TLeaf),
+            BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
+            null,
+            [
+                gameId,
+                namedId,
+                creatorId
+            ],
+            null,
+            null);
     }
 
     public TLeaf Get(string namedId) => EnsureNamedIdExists(namedId);

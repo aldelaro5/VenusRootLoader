@@ -56,7 +56,6 @@ internal sealed class MapsCollector : IBaseGameCollector
             (string[] Names, string[] Data) mapEntityData = MapsEntityData[i];
             MapLeaf mapLeaf =
                 _mapsRegistry.RegisterExisting(i, MapNamedIds[i], baseGameId);
-            mapLeaf.Entities = new ReadOnlyCollection<MapEntity>(mapLeaf.InternalEntities);
 
             for (int j = 0; j < mapEntityData.Data.Length; j++)
             {

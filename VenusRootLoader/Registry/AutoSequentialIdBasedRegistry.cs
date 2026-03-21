@@ -4,8 +4,8 @@ using VenusRootLoader.Api.Leaves;
 
 namespace VenusRootLoader.Registry;
 
-internal class AutoSequentialIdBasedRegistry<TLeaf> : BaseRegistry<TLeaf>
-    where TLeaf : Leaf, new()
+internal sealed class AutoSequentialIdBasedRegistry<TLeaf> : BaseRegistry<TLeaf>
+    where TLeaf : Leaf
 {
     private readonly IdSequenceDirection _idSequenceDirection;
     private int _nextAutoIncrementId;
@@ -19,7 +19,7 @@ internal class AutoSequentialIdBasedRegistry<TLeaf> : BaseRegistry<TLeaf>
         _nextAutoIncrementId = firstGameId;
     }
 
-    protected sealed override int CreateNewGameId(string namedId, string creatorId)
+    protected override int CreateNewGameId(string namedId, string creatorId)
     {
         int newGameId = _nextAutoIncrementId;
         _nextAutoIncrementId = _idSequenceDirection switch
@@ -31,7 +31,7 @@ internal class AutoSequentialIdBasedRegistry<TLeaf> : BaseRegistry<TLeaf>
         return newGameId;
     }
 
-    public sealed override TLeaf RegisterExisting(int gameId, string namedId, string creatorId)
+    public override TLeaf RegisterExisting(int gameId, string namedId, string creatorId)
     {
         TLeaf leaf = base.RegisterExisting(gameId, namedId, creatorId);
         _nextAutoIncrementId = _idSequenceDirection switch

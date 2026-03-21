@@ -21,6 +21,10 @@ public sealed class ItemLeaf : Leaf
 
     internal WrappedSprite WrappedSprite = new();
 
+    internal ItemLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    {
+    }
+
     public List<ItemUse> Effects { get; } = new();
     public LocalizedData<ItemLanguageData> LocalizedData { get; } = new();
 

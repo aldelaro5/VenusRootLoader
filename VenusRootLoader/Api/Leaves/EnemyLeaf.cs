@@ -40,6 +40,8 @@ public sealed class EnemyLeaf : Leaf, IEnemyPortraitSprite
         public string MothSpyDialogue { get; set; } = "mothtattle";
     }
 
+    internal EnemyLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId) { }
+    
     public LocalizedData<EnemyLanguageData> LocalizedData { get; } = new();
 
     int? IEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }

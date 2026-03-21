@@ -1,7 +1,7 @@
 namespace VenusRootLoader.Api.Leaves;
 
 public readonly struct Branch<TLeaf> : ILeafIdentifier, IEquatable<Branch<TLeaf>>
-    where TLeaf : Leaf, new()
+    where TLeaf : Leaf
 {
     public int GameId => Leaf.GameId;
     public string NamedId => Leaf.NamedId;

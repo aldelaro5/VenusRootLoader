@@ -12,6 +12,10 @@ public sealed class RecordLeaf : Leaf, IEnemyPortraitSprite
         public string Description { get; set; } = "";
     }
 
+    internal RecordLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    {
+    }
+
     int? IEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }
     WrappedSprite IEnemyPortraitSprite.WrappedSprite { get; set; } = new();
 

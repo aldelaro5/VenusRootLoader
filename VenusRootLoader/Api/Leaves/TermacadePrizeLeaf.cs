@@ -9,6 +9,10 @@ public sealed class TermacadePrizeLeaf : Leaf
         Medal
     }
 
+    internal TermacadePrizeLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    {
+    }
+
     public TermacadePrizeType PrizeType { get; set; }
     public int ItemOrMedalGameId { get; set; }
     public int GameTokenCost { get; set; }

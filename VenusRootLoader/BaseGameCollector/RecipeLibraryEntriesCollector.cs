@@ -39,8 +39,9 @@ internal sealed class RecipeLibraryEntriesCollector : IBaseGameCollector
         {
             string cookLibraryLine = CookLibraryData[i];
             string cookOrderLine = CookOrderData[i];
-            RecipeLibraryEntryLeaf recipeData = new();
-            recipeData.Recipe = new Branch<RecipeLeaf>(new());
+            // TODO: Find a way to fix this mess
+            RecipeLibraryEntryLeaf recipeData = new(-1, "", "");
+            recipeData.Recipe = new Branch<RecipeLeaf>(new(-1, "", ""));
             _recipeTextAssetParser.FromTextAssetSerializedString("CookOrder", cookOrderLine, recipeData);
             _recipeTextAssetParser.FromTextAssetSerializedString(
                 "CookLibrary",
@@ -51,11 +52,8 @@ internal sealed class RecipeLibraryEntriesCollector : IBaseGameCollector
             if (recipeData.Recipe.Leaf.FirstItem == null &&
                 recipeData.Recipe.Leaf.SecondItem == null)
             {
-                foundRecipe = new()
+                foundRecipe = new(-1, "INCOMPATIBLE", baseGameId)
                 {
-                    GameId = -1,
-                    NamedId = "INCOMPATIBLE",
-                    CreatorId = baseGameId,
                     FirstItem = null,
                     SecondItem = null,
                     ResultItem = recipeData.Recipe.Leaf.ResultItem

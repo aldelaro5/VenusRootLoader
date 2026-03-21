@@ -45,6 +45,10 @@ internal sealed class SkillLeaf : Leaf
         internal string Description { get; set; } = "";
     }
 
+    internal SkillLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal LocalizedData<SkillLanguageData> LocalizedData { get; } = new();
     internal SkillCostResource CostResource { get; set; }
     internal int Cost { get; set; }

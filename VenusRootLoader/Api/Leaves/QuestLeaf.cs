@@ -19,6 +19,10 @@ public sealed class QuestLeaf : Leaf, IEnemyPortraitSprite
         public int? RequiredFlagGameId { get; set; }
     }
 
+    internal QuestLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    {
+    }
+
     int? IEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }
     WrappedSprite IEnemyPortraitSprite.WrappedSprite { get; set; } = new();
 

@@ -21,11 +21,12 @@ public sealed class MapLeaf : Leaf
 
     public BeetleGrassMapEntity ReserveNewBeetleGrassEntity(string name)
     {
-        BeetleGrassMapEntity newEntity = new(false)
+        BeetleGrassMapEntity newEntity = new()
         {
             Id = InternalEntities.Count,
             Name = name
         };
+        newEntity.InitializeFromNew();
         InternalEntities.Add(newEntity);
         return newEntity;
     }

@@ -269,8 +269,8 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
 
         value.Id = id;
         value.Name = name;
-        value.Type = type;
-        value.ObjectType = objectType;
+        value.OriginalType = type;
+        value.OriginalObjectType = objectType;
         value.InternalPrimaryBehavior = Enum.Parse<NPCControl.ActionBehaviors>(fields[2]);
         value.InternalSecondaryBehavior = Enum.Parse<NPCControl.ActionBehaviors>(fields[3]);
         value.InternalNpcInteraction = Enum.Parse<NPCControl.Interaction>(fields[4]);
@@ -462,8 +462,8 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
     private MapEntity GetTypedMapEntity(NPCControl.NPCType type, NPCControl.ObjectTypes objectType) =>
         (type, objectType) switch
         {
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BeetleGrass) => new BeetleGrassMapEntity(true),
-            _ => new MapEntity()
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BeetleGrass) => new BeetleGrassMapEntity(),
+            _ => new BlankMapEntity()
         };
 
     private void InitDerivedMapEntity(MapEntity mapEntity)

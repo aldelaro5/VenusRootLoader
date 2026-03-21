@@ -6,6 +6,9 @@ namespace VenusRootLoader.Api.MapEntities;
 
 public sealed class BeetleGrassMapEntity : MapEntity
 {
+    internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
+    internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.BeetleGrass;
+
     public Vector3 BoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
     public Vector3 BoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
 
@@ -36,12 +39,10 @@ public sealed class BeetleGrassMapEntity : MapEntity
         }
     }
 
-    internal BeetleGrassMapEntity(bool fromExisting)
+    internal BeetleGrassMapEntity() { }
+
+    protected internal override void InitializeFromNew()
     {
-        // TODO: Figure out a better way to deal with this
-        if (fromExisting)
-            return;
-        
         InternalData.AddRange([0, -1]);
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = false;

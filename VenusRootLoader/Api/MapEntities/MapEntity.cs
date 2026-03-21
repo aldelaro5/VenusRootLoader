@@ -4,12 +4,14 @@ using VenusRootLoader.Api.Leaves;
 
 namespace VenusRootLoader.Api.MapEntities;
 
-public class MapEntity
+public abstract class MapEntity
 {
     public int Id { get; internal set; }
     public string Name { get; internal set; } = "";
-    internal NPCControl.NPCType Type { get; set; }
-    internal NPCControl.ObjectTypes ObjectType { get; set; }
+    protected internal NPCControl.NPCType OriginalType { get; internal set; }
+    internal abstract NPCControl.NPCType Type { get; }
+    protected internal NPCControl.ObjectTypes OriginalObjectType { get; internal set; }
+    internal abstract NPCControl.ObjectTypes ObjectType { get; }
     public Vector3 StartingPosition { get; set; }
     public Vector3 EulerAngles { get; set; }
     internal bool IsReturnToHeightOriginallyInt { get; set; }
@@ -64,5 +66,5 @@ public class MapEntity
     public int InternalActivationFlagId { get; set; } = -1;
     internal string UnusedOverflowData { get; set; } = "";
 
-    internal MapEntity() { }
+    protected internal abstract void InitializeFromNew();
 }

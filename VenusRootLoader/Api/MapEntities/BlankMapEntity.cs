@@ -6,7 +6,7 @@ public sealed class BlankMapEntity : MapEntity
     internal override NPCControl.NPCType Type => OriginalType;
     internal override NPCControl.ObjectTypes ObjectType => OriginalObjectType;
 
-    protected internal override void InitializeFromNew() { }
+    internal override void InitializeFromNew() { }
 
     internal BlankMapEntity() { }
 }

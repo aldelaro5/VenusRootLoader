@@ -41,7 +41,7 @@ public sealed class BeetleGrassMapEntity : MapEntity
 
     internal BeetleGrassMapEntity() { }
 
-    protected internal override void InitializeFromNew()
+    internal override void InitializeFromNew()
     {
         InternalData.AddRange([0, -1]);
         InternalHaxBoxCol = true;

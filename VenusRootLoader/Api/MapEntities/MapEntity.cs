@@ -66,5 +66,5 @@ public abstract class MapEntity
     public int InternalActivationFlagId { get; set; } = -1;
     internal string UnusedOverflowData { get; set; } = "";
 
-    protected internal abstract void InitializeFromNew();
+    internal abstract void InitializeFromNew();
 }

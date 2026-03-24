@@ -23,6 +23,7 @@ using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.OrderingData;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Unity;
 using VenusRootLoader.Unity.CustomAudioClip;
+using VenusRootLoader.Utility;
 using Object = UnityEngine.Object;
 
 namespace VenusRootLoader;
@@ -99,92 +100,120 @@ internal static class Startup
         services.AddSingleton<IRegistryResolver, RegistryResolver>();
 
         services.AddSingleton<IPrefabPatcher, MapPatcher>(provider =>
-            new(["Maps"], provider.GetRequiredService<ILeavesRegistry<MusicLeaf>>()));
+            new([TextAssetPaths.PrefabsMapsDirectory], provider.GetRequiredService<ILeavesRegistry<MusicLeaf>>()));
 
         services.AddSingleton<ISpriteArrayPatcher, EnemyPortraitsSpriteArrayPatcher>(provider =>
             new(
-                ["Items/EnemyPortraits"],
+                [TextAssetPaths.SpritesEnemyPortraitsPath],
                 provider.GetRequiredService<ILeavesRegistry<DiscoveryLeaf>>(),
                 provider.GetRequiredService<ILeavesRegistry<EnemyLeaf>>(),
                 provider.GetRequiredService<ILeavesRegistry<RecordLeaf>>(),
                 provider.GetRequiredService<ILeavesRegistry<QuestLeaf>>()));
 
         services.AddSingleton<IAudioClipPatcher, SoundDialoguesAudioClipPatcher>(provider =>
-            new(["Sounds/Dialogue"], provider.GetRequiredService<ILeavesRegistry<DialogueBleepLeaf>>()));
+            new(
+                [TextAssetPaths.AudioSoundsDialogueDirectory],
+                provider.GetRequiredService<ILeavesRegistry<DialogueBleepLeaf>>()));
         services.AddSingleton<IAudioClipArrayPatcher, SoundDialoguesAudioClipArrayPatcher>(provider =>
-            new(["Sounds/Dialogue"], provider.GetRequiredService<ILeavesRegistry<DialogueBleepLeaf>>()));
+            new(
+                [TextAssetPaths.AudioSoundsDialogueDirectory],
+                provider.GetRequiredService<ILeavesRegistry<DialogueBleepLeaf>>()));
 
         services.AddSingleton<IAudioClipPatcher, MusicAudioClipPatcher>(provider =>
-            new(["Music"], provider.GetRequiredService<ILeavesRegistry<MusicLeaf>>()));
+            new([TextAssetPaths.AudioMusicDirectory], provider.GetRequiredService<ILeavesRegistry<MusicLeaf>>()));
 
-        services.AddTextAssetPatcher<AnimIdLeaf, AnimIdTextAssetParser>(["EntityValues"]);
+        services.AddTextAssetPatcher<AnimIdLeaf, AnimIdTextAssetParser>([TextAssetPaths.DataAnimIdsPath]);
 
-        services.AddTextAssetPatcher<ItemLeaf, ItemTextAssetParser>(["ItemData"]);
-        services.AddLocalizedTextAssetPatcher<ItemLeaf, ItemLocalizedTextAssetParser>(["Items"]);
+        services.AddTextAssetPatcher<ItemLeaf, ItemTextAssetParser>([TextAssetPaths.DataItemsPath]);
+        services.AddLocalizedTextAssetPatcher<ItemLeaf, ItemLocalizedTextAssetParser>(
+            [TextAssetPaths.DataLocalizedItemsPathSuffix]);
 
-        services.AddTextAssetPatcher<MedalLeaf, MedalTextAssetParser>(["BadgeData"]);
-        services.AddOrderingTextAssetPatcher<MedalLeaf, MedalOrderingTextAssetParser>("BadgeOrder");
-        services.AddLocalizedTextAssetPatcher<MedalLeaf, MedalLocalizedTextAssetParser>(["BadgeName"]);
+        services.AddTextAssetPatcher<MedalLeaf, MedalTextAssetParser>([TextAssetPaths.DataMedalsPath]);
+        services.AddOrderingTextAssetPatcher<MedalLeaf, MedalOrderingTextAssetParser>(
+            TextAssetPaths.DataMedalsOrderingPath);
+        services.AddLocalizedTextAssetPatcher<MedalLeaf, MedalLocalizedTextAssetParser>(
+            [TextAssetPaths.DataLocalizedMedalPathSuffix]);
 
         services.AddLocalizedTextAssetPatcher<CrystalBerryLeaf, CrystalBerryLocalizedTextAssetParser>(
-            ["FortuneTeller0"]);
+            [TextAssetPaths.DataLocalizedCrystalBerryFortuneTellerHintsPathSuffix]);
         services
             .AddLocalizedTextAssetPatcher<MedalFortuneTellerHintLeaf, MedalFortuneTellerHintLocalizedTextAssetParser>(
-                ["FortuneTeller2"]);
+                [TextAssetPaths.DataLocalizedMedalFortuneTellerHintsPathSuffix]);
 
         services.AddLocalizedTextAssetPatcher<CommonDialogueLeaf, CommonDialogueLocalizedTextAssetParser>(
-            ["CommonDialogue"],
+            [TextAssetPaths.DataLocalizedCommonDialoguesPathSuffix],
             r => r.LeavesByNamedIds.Values.OrderBy(l => l.InternalGameIndex));
 
-        services.AddLocalizedTextAssetPatcher<MenuTextLeaf, MenuTextLocalizedTextAssetParser>(["MenuText"]);
-        
-        services.AddOrderingTextAssetPatcher<DiscoveryLeaf, DiscoveryOrderingTextAssetParser>("DiscoveryOrder");
-        services.AddLocalizedTextAssetPatcher<DiscoveryLeaf, DiscoveryLocalizedTextAssetParser>(["Discoveries"]);
+        services.AddLocalizedTextAssetPatcher<MenuTextLeaf, MenuTextLocalizedTextAssetParser>(
+            [TextAssetPaths.DataLocalizedMenuTextsPathSuffix]);
 
-        services.AddOrderingTextAssetPatcher<EnemyLeaf, EnemyOrderingTextAssetParser>("TattleList");
-        services.AddLocalizedTextAssetPatcher<EnemyLeaf, EnemyLocalizedTextAssetParser>(["EnemyTattle"]);
-        services.AddTextAssetPatcher<EnemyLeaf, EnemyTextAssetParser>(["EnemyData"]);
-        
-        services.AddOrderingTextAssetPatcher<RecordLeaf, RecordOrderingTextAssetParser>("SynopsisOrder");
-        services.AddLocalizedTextAssetPatcher<RecordLeaf, RecordLocalizedTextAssetParser>(["Synopsis"]);
-        
-        services.AddTextAssetPatcher<TermacadePrizeLeaf, TermacadePrizeTextAssetParser>(["Termacade"]);
-        
-        services.AddTextAssetPatcher<RecipeLeaf, RecipeTextAssetParser>(["RecipeData"]);
+        services.AddOrderingTextAssetPatcher<DiscoveryLeaf, DiscoveryOrderingTextAssetParser>(
+            TextAssetPaths.DataDiscoveriesOrderingPath);
+        services.AddLocalizedTextAssetPatcher<DiscoveryLeaf, DiscoveryLocalizedTextAssetParser>(
+            [TextAssetPaths.DataLocalizedDiscoveriesPathSuffix]);
+
+        services.AddOrderingTextAssetPatcher<EnemyLeaf, EnemyOrderingTextAssetParser>(
+            TextAssetPaths.DataBestiaryEntriesOrderingPath);
+        services.AddLocalizedTextAssetPatcher<EnemyLeaf, EnemyLocalizedTextAssetParser>(
+            [TextAssetPaths.DataLocalizedBestiaryEntriesPathSuffix]);
+        services.AddTextAssetPatcher<EnemyLeaf, EnemyTextAssetParser>([TextAssetPaths.DataEnemiesPath]);
+
+        services.AddOrderingTextAssetPatcher<RecordLeaf, RecordOrderingTextAssetParser>(
+            TextAssetPaths.DataRecordsOrderingPath);
+        services.AddLocalizedTextAssetPatcher<RecordLeaf, RecordLocalizedTextAssetParser>(
+            [TextAssetPaths.DataLocalizedRecordsPathSuffix]);
+
+        services.AddTextAssetPatcher<TermacadePrizeLeaf, TermacadePrizeTextAssetParser>(
+            [TextAssetPaths.DataTermacadePrizesPath]);
+
+        services.AddTextAssetPatcher<RecipeLeaf, RecipeTextAssetParser>([TextAssetPaths.DataRecipesPath]);
         services.AddTextAssetPatcher<RecipeLibraryEntryLeaf, RecipeLibraryEntryTextAssetParser>(
-            ["CookOrder", "CookLibrary"]);
+        [
+            TextAssetPaths.DataRecipesLibraryEntriesResultItemsPath,
+            TextAssetPaths.DataRecipesLibraryEntriesInputItemsPath
+        ]);
 
         services.AddLocalizedTextAssetPatcher<AreaLeaf, AreaLocalizedTextAssetParser>(
-            ["AreaNames", "AreaDesc"]);
+            [TextAssetPaths.DataLocalizedAreaNamesPathSuffix, TextAssetPaths.DataLocalizedAreaDescriptionsPathSuffix]);
 
-        services.AddTextAssetPatcher<MusicLeaf, MusicTextAssetParser>(["LoopPoints"]);
-        services.AddLocalizedTextAssetPatcher<MusicLeaf, MusicLocalizedTextAssetParser>(["MusicList"]);
+        services.AddTextAssetPatcher<MusicLeaf, MusicTextAssetParser>([TextAssetPaths.DataMusicLoopPointsPath]);
+        services.AddLocalizedTextAssetPatcher<MusicLeaf, MusicLocalizedTextAssetParser>(
+            [TextAssetPaths.DataLocalizedMusicNamesPathSuffix]);
 
-        services.AddTextAssetPatcher<QuestLeaf, QuestTextAssetParser>(["BoardData", "QuestChecks"]);
-        services.AddLocalizedTextAssetPatcher<QuestLeaf, QuestLocalizedTextAssetParser>(["BoardQuests"]);
+        services.AddTextAssetPatcher<QuestLeaf, QuestTextAssetParser>(
+            [TextAssetPaths.DataQuestsPath, TextAssetPaths.DataQuestsRequirementsPath]);
+        services.AddLocalizedTextAssetPatcher<QuestLeaf, QuestLocalizedTextAssetParser>(
+            [TextAssetPaths.DataLocalizedQuestsPathSuffix]);
 
-        services.AddTextAssetPatcher<RankBonusLeaf, RankBonusTextAssetParser>(["LevelData"]);
+        services.AddTextAssetPatcher<RankBonusLeaf, RankBonusTextAssetParser>([TextAssetPaths.DataRankBonusesPath]);
 
         services.AddLocalizedTextAssetPatcher<LoreBookLeaf, LoreBookLocalizedTextAssetParser>(
-            ["LoreText", "FortuneTeller1"]);
+        [
+            TextAssetPaths.DataLocalizedLoreBooksPathSuffix,
+            TextAssetPaths.DataLocalizedLoreBookFortuneTellerHintsPathSuffix
+        ]);
 
         services.AddLocalizedTextAssetPatcher<ActionCommandHelpTextLeaf, ActionCommandHelpTextLocalizedTextAssetParser>(
-            ["ActionCommands"]);
+            [TextAssetPaths.DataLocalizedActionCommandHelpTextsPathSuffix]);
 
-        services.AddTextAssetPatcher<SkillLeaf, SkillTextAssetParser>(["SkillData"]);
-        services.AddLocalizedTextAssetPatcher<SkillLeaf, SkillLocalizedTextAssetParser>(["Skills"]);
+        services.AddTextAssetPatcher<SkillLeaf, SkillTextAssetParser>([TextAssetPaths.DataSkillsPath]);
+        services.AddLocalizedTextAssetPatcher<SkillLeaf, SkillLocalizedTextAssetParser>(
+            [TextAssetPaths.DataLocalizedSkillsPathSuffix]);
 
         services.AddLocalizedTextAssetPatcher<FishingTextLeaf, FishingTextLocalizedTextAssetParser>(
-            ["Fishing"]);
+            [TextAssetPaths.DataLocalizedFishingTextsPathSuffix]);
 
-        services.AddTextAssetPatcher<TestRoomTextLeaf, TestRoomTextTextAssetParser>(["TestRoom"]);
+        services.AddTextAssetPatcher<TestRoomTextLeaf, TestRoomTextTextAssetParser>(
+            [TextAssetPaths.DataTestRoomMapDialoguesPath]);
 
         services.AddLocalizedTextAssetPatcher<SpyCardsTextLeaf, SpyCardsTextLocalizedTextAssetParser>(
-            ["CardDialogue"]);
+            [TextAssetPaths.DataLocalizedSpyCardsTextsPathSuffix]);
 
-        services.AddOrderingTextAssetPatcher<SpyCardLeaf, SpyCardOrderingTextAssetParser>("CardOrder");
-        services.AddTextAssetPatcher<SpyCardLeaf, SpyCardTextAssetParser>(["CardData"]);
-        services.AddLocalizedTextAssetPatcher<SpyCardLeaf, SpyCardLocalizedTextAssetParser>(["CardText"]);
+        services.AddOrderingTextAssetPatcher<SpyCardLeaf, SpyCardOrderingTextAssetParser>(
+            TextAssetPaths.DataSpyCardsOrderingPath);
+        services.AddTextAssetPatcher<SpyCardLeaf, SpyCardTextAssetParser>([TextAssetPaths.DataSpyCardsPath]);
+        services.AddLocalizedTextAssetPatcher<SpyCardLeaf, SpyCardLocalizedTextAssetParser>(
+            [TextAssetPaths.DataLocalizedSpyCardsPathSuffix]);
 
         services.AddSingleton<IMapEntityTextAssetParser, MapEntityTextAssetParser>();
         services.AddSingleton<IMapEntityTextAssetPatcher, MapEntitiesTextAssetPatcher>();

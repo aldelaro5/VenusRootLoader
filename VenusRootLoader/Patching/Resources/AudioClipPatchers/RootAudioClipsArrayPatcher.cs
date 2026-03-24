@@ -1,11 +1,10 @@
 using UnityEngine;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.AudioClipPatchers;
 
 internal sealed class RootAudioClipsArrayPatcher : IResourcesArrayTypePatcher<AudioClip>
 {
-    private const string AudioClipsPrefix = "Audio/";
-
     private readonly Dictionary<string, IAudioClipArrayPatcher> _audioClipArrayPatchers =
         new(StringComparer.OrdinalIgnoreCase);
 
@@ -20,10 +19,10 @@ internal sealed class RootAudioClipsArrayPatcher : IResourcesArrayTypePatcher<Au
 
     public AudioClip[] PatchResources(string path, AudioClip[] original)
     {
-        if (!path.StartsWith(AudioClipsPrefix, StringComparison.OrdinalIgnoreCase))
+        if (!path.StartsWith(TextAssetPaths.RootAudioPathPrefix, StringComparison.OrdinalIgnoreCase))
             return original;
 
-        string subpath = path[AudioClipsPrefix.Length..];
+        string subpath = path[TextAssetPaths.RootAudioPathPrefix.Length..];
         return _audioClipArrayPatchers.TryGetValue(subpath, out IAudioClipArrayPatcher audioClipArrayPatcher)
             ? audioClipArrayPatcher.PatchAudioClipArray(subpath, original)
             : original;

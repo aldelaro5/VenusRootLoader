@@ -1,6 +1,7 @@
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.AudioClipPatchers;
 
@@ -23,7 +24,7 @@ internal sealed class SoundDialoguesAudioClipPatcher : IAudioClipPatcher
         if (!char.IsDigit(path[^1]))
             return original;
 
-        int gameId = int.Parse(path.Replace("Sounds/Dialogue/Dialogue", string.Empty));
+        int gameId = int.Parse(path.Replace($"{TextAssetPaths.AudioSoundsDialogueDirectory}/Dialogue", string.Empty));
         AudioClip bleepSound = _dialogueBleepsRegistry.LeavesByGameIds[gameId].BleepSound;
         bleepSound.name = $"Dialogue{gameId}";
         return bleepSound;

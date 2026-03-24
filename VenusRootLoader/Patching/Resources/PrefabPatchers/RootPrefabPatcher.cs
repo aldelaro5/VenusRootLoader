@@ -1,12 +1,10 @@
+using VenusRootLoader.Utility;
 using Object = UnityEngine.Object;
 
 namespace VenusRootLoader.Patching.Resources.PrefabPatchers;
 
 internal sealed class RootPrefabPatcher : IResourcesTypePatcher<Object>
 {
-    private const string PrefabsPrefix = "Prefabs/";
-    private static readonly char[] PathSeparator = ['/'];
-
     private readonly Dictionary<string, IPrefabPatcher> _textAssetPatchers =
         new(StringComparer.OrdinalIgnoreCase);
 
@@ -21,14 +19,21 @@ internal sealed class RootPrefabPatcher : IResourcesTypePatcher<Object>
 
     public Object PatchResource(string path, Object original)
     {
-        if (!path.StartsWith(PrefabsPrefix, StringComparison.OrdinalIgnoreCase))
+        if (!path.StartsWith(TextAssetPaths.RootPrefabsPathPrefix, StringComparison.OrdinalIgnoreCase))
             return original;
 
-        string[] pathParts = path[PrefabsPrefix.Length..].Split(PathSeparator);
-        string subpath = pathParts[0];
+        string prefabSubpath = path[TextAssetPaths.RootPrefabsPathPrefix.Length..];
+        if (_textAssetPatchers.TryGetValue(prefabSubpath, out IPrefabPatcher specificPrefabPatcher))
+            return specificPrefabPatcher.PatchPrefab(prefabSubpath, original);
 
-        return _textAssetPatchers.TryGetValue(subpath, out IPrefabPatcher textAssetPatcher)
-            ? textAssetPatcher.PatchPrefab(string.Join("/", pathParts), original)
-            : original;
+        int lastIndexSlash = prefabSubpath.LastIndexOf('/');
+        if (lastIndexSlash == -1)
+            return original;
+
+        string subpath = prefabSubpath[..lastIndexSlash];
+        if (_textAssetPatchers.TryGetValue(subpath, out IPrefabPatcher prefabPatcher))
+            return prefabPatcher.PatchPrefab(prefabSubpath, original);
+
+        return original;
     }
 }

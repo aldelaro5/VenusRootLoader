@@ -1,13 +1,10 @@
+using UnityEngine;
+using VenusRootLoader.Utility;
+
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers;
 
-internal sealed class RootTextAssetPatcher : IResourcesTypePatcher<UnityEngine.TextAsset>
+internal sealed class RootTextAssetPatcher : IResourcesTypePatcher<TextAsset>
 {
-    private const string DataPrefix = "Data/";
-    private const string MapEntityDataPrefix = "Data/EntityData";
-    private const string LocalizedPathPrefix = "Data/Dialogues";
-    private const string LocalizedMapDialoguesSubpathPrefix = "Maps";
-    private static readonly char[] TextAssetPathSeparator = ['/'];
-
     private readonly Dictionary<string, ITextAssetPatcher> _textAssetPatchers =
         new(StringComparer.OrdinalIgnoreCase);
 
@@ -48,36 +45,49 @@ internal sealed class RootTextAssetPatcher : IResourcesTypePatcher<UnityEngine.T
         }
     }
 
-    public UnityEngine.TextAsset PatchResource(string path, UnityEngine.TextAsset original)
+    public TextAsset PatchResource(string path, TextAsset original)
     {
-        if (!path.StartsWith(DataPrefix, StringComparison.OrdinalIgnoreCase))
+        if (!path.StartsWith(TextAssetPaths.RootDataPathPrefix, StringComparison.OrdinalIgnoreCase))
             return original;
 
-        if (path.StartsWith(MapEntityDataPrefix, StringComparison.OrdinalIgnoreCase))
-            return _mapEntityTextAssetPatcher.PatchMapEntityTextAsset(path, original);
+        string textAssetSubpath = path[TextAssetPaths.RootDataPathPrefix.Length..];
+        if (textAssetSubpath.StartsWith(TextAssetPaths.DataMapEntitiesDirectory, StringComparison.OrdinalIgnoreCase))
+            return _mapEntityTextAssetPatcher.PatchMapEntityTextAsset(textAssetSubpath, original);
 
-        if (path.StartsWith(LocalizedPathPrefix, StringComparison.OrdinalIgnoreCase))
+        if (textAssetSubpath.StartsWith(
+                TextAssetPaths.DataLocalizedDialoguesDirectoryPrefix,
+                StringComparison.OrdinalIgnoreCase))
         {
-            string[] localizedPathParts = path[LocalizedPathPrefix.Length..].Split(TextAssetPathSeparator);
-            int languageId = int.Parse(localizedPathParts[0]);
-            string subpathLocalized = localizedPathParts[1];
-
-            if (subpathLocalized.StartsWith(LocalizedMapDialoguesSubpathPrefix, StringComparison.OrdinalIgnoreCase))
-                return _mapDialoguesTextAssetPatcher.PatchMapDialoguesTextAsset(path, languageId, original);
-
-            return _localizedTextAssetPatchers.TryGetValue(subpathLocalized, out ILocalizedTextAssetPatcher patcher)
-                ? patcher.PatchLocalisedTextAsset(languageId, string.Join("/", localizedPathParts.Skip(1)), original)
-                : original;
+            return PatchLocalizedTextAsset(original, textAssetSubpath);
         }
 
-        string[] pathParts = path[DataPrefix.Length..].Split(TextAssetPathSeparator);
-        string subpath = pathParts[0];
+        if (_textAssetPatchers.TryGetValue(textAssetSubpath, out ITextAssetPatcher specificPrefabPatcher))
+            return specificPrefabPatcher.PatchTextAsset(textAssetSubpath, original);
+        if (_orderingTextAssetPatchers.TryGetValue(textAssetSubpath, out IOrderingTextAssetPatcher orderingPatcher))
+            return orderingPatcher.PatchTextAsset(textAssetSubpath, original);
 
-        if (_orderingTextAssetPatchers.TryGetValue(subpath, out IOrderingTextAssetPatcher orderingTextAssetPatcher))
-            return orderingTextAssetPatcher.PatchTextAsset(string.Join("/", pathParts), original);
+        int lastIndexSlash = textAssetSubpath.LastIndexOf('/');
+        if (lastIndexSlash == -1)
+            return original;
 
+        string subpath = textAssetSubpath[..lastIndexSlash];
         return _textAssetPatchers.TryGetValue(subpath, out ITextAssetPatcher textAssetPatcher)
-            ? textAssetPatcher.PatchTextAsset(string.Join("/", pathParts), original)
+            ? textAssetPatcher.PatchTextAsset(textAssetSubpath, original)
+            : original;
+    }
+
+    private TextAsset PatchLocalizedTextAsset(TextAsset original, string textAssetSubpath)
+    {
+        string localizedSubPath = textAssetSubpath[TextAssetPaths.DataLocalizedDialoguesDirectoryPrefix.Length..];
+        int firstSlash = localizedSubPath.IndexOf('/');
+        int languageId = int.Parse(localizedSubPath[..firstSlash]);
+        string subPath = localizedSubPath[(firstSlash + 1)..];
+
+        if (subPath.StartsWith(TextAssetPaths.DataDialoguesLocalizedMapsDirectory, StringComparison.OrdinalIgnoreCase))
+            return _mapDialoguesTextAssetPatcher.PatchMapDialoguesTextAsset(languageId, subPath, original);
+
+        return _localizedTextAssetPatchers.TryGetValue(subPath, out ILocalizedTextAssetPatcher patcher)
+            ? patcher.PatchLocalisedTextAsset(languageId, subPath, original)
             : original;
     }
 }

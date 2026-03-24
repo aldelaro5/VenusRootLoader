@@ -1,11 +1,10 @@
 using UnityEngine;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.SpritesPatchers;
 
 internal sealed class RootSpritesArrayPatcher : IResourcesArrayTypePatcher<Sprite>
 {
-    private const string SpritesPrefix = "Sprites/";
-
     private readonly Dictionary<string, ISpriteArrayPatcher> _spriteArrayPatchers =
         new(StringComparer.OrdinalIgnoreCase);
 
@@ -21,12 +20,20 @@ internal sealed class RootSpritesArrayPatcher : IResourcesArrayTypePatcher<Sprit
 
     public Sprite[] PatchResources(string path, Sprite[] original)
     {
-        if (!path.StartsWith(SpritesPrefix, StringComparison.OrdinalIgnoreCase))
+        if (!path.StartsWith(TextAssetPaths.RootSpritesPathPrefix, StringComparison.OrdinalIgnoreCase))
             return original;
 
-        string subpath = path[SpritesPrefix.Length..];
-        return _spriteArrayPatchers.TryGetValue(subpath, out ISpriteArrayPatcher textAssetPatcher)
-            ? textAssetPatcher.PatchSpriteArray(subpath, original)
+        string spritesSubpath = path[TextAssetPaths.RootSpritesPathPrefix.Length..];
+        if (_spriteArrayPatchers.TryGetValue(spritesSubpath, out ISpriteArrayPatcher specificSpriteArrayPatcher))
+            return specificSpriteArrayPatcher.PatchSpriteArray(spritesSubpath, original);
+
+        int lastIndexSlash = spritesSubpath.LastIndexOf('/');
+        if (lastIndexSlash == -1)
+            return original;
+
+        string subpath = spritesSubpath[..lastIndexSlash];
+        return _spriteArrayPatchers.TryGetValue(subpath, out ISpriteArrayPatcher spriteArrayPatcher)
+            ? spriteArrayPatcher.PatchSpriteArray(spritesSubpath, original)
             : original;
     }
 }

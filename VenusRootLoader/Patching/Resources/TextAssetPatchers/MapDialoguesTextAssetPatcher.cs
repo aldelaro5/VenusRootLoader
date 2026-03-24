@@ -7,7 +7,7 @@ namespace VenusRootLoader.Patching.Resources.TextAssetPatchers;
 
 internal interface IMapDialoguesTextAssetPatcher
 {
-    TextAsset PatchMapDialoguesTextAsset(string path, int languageId, TextAsset original);
+    TextAsset PatchMapDialoguesTextAsset(int languageId, string path, TextAsset original);
 }
 
 internal sealed class MapDialoguesTextAssetPatcher : IMapDialoguesTextAssetPatcher
@@ -23,7 +23,7 @@ internal sealed class MapDialoguesTextAssetPatcher : IMapDialoguesTextAssetPatch
         _mapsRegistry = mapsRegistry;
     }
 
-    public TextAsset PatchMapDialoguesTextAsset(string path, int languageId, TextAsset original)
+    public TextAsset PatchMapDialoguesTextAsset(int languageId, string path, TextAsset original)
     {
         bool registryHasData = _mapsRegistry.LeavesByNamedIds.Count > 0;
         if (!registryHasData)

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using System.Text;
+using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
@@ -9,34 +10,37 @@ namespace VenusRootLoader.Patching.Resources.TextAssetPatchers;
 internal interface ITextAssetPatcher
 {
     string[] SubPaths { get; }
-    UnityEngine.TextAsset PatchTextAsset(string path, UnityEngine.TextAsset original);
+    TextAsset PatchTextAsset(string path, TextAsset original);
 }
 
 internal sealed class TextAssetPatcher<T> : ITextAssetPatcher
     where T : Leaf
 {
-    private readonly ILeavesRegistry<T> _registry;
-    private readonly Func<ILeavesRegistry<T>, IEnumerable<T>>? _leavesSorter;
     private readonly ILogger<TextAssetPatcher<T>> _logger;
+    private readonly ITextAssetDumper _textAssetDumper;
+    private readonly ILeavesRegistry<T> _registry;
     private readonly ITextAssetParser<T> _parser;
+    private readonly Func<ILeavesRegistry<T>, IEnumerable<T>>? _leavesSorter;
 
     public TextAssetPatcher(
         string[] subPaths,
-        Func<ILeavesRegistry<T>, IEnumerable<T>>? leavesSorter,
         ILogger<TextAssetPatcher<T>> logger,
+        ITextAssetDumper textAssetDumper,
         ILeavesRegistry<T> registry,
-        ITextAssetParser<T> parser)
+        ITextAssetParser<T> parser,
+        Func<ILeavesRegistry<T>, IEnumerable<T>>? leavesSorter)
     {
         SubPaths = subPaths;
         _leavesSorter = leavesSorter;
         _logger = logger;
         _parser = parser;
+        _textAssetDumper = textAssetDumper;
         _registry = registry;
     }
 
     public string[] SubPaths { get; }
 
-    public UnityEngine.TextAsset PatchTextAsset(string path, UnityEngine.TextAsset original)
+    public TextAsset PatchTextAsset(string path, TextAsset original)
     {
         bool registryHasData = _registry.LeavesByNamedIds.Count > 0;
         if (!registryHasData)
@@ -54,7 +58,9 @@ internal sealed class TextAssetPatcher<T> : ITextAssetPatcher
             sb.Append('\n');
 
         string text = sb.ToString();
-        _logger.LogTrace("Patching {path}:\n{text}", path, text);
-        return new UnityEngine.TextAsset(text);
+        if (_logger.IsEnabled(LogLevel.Trace))
+            _textAssetDumper.DumpTextAssetContent(path, text);
+
+        return new TextAsset(text);
     }
 }

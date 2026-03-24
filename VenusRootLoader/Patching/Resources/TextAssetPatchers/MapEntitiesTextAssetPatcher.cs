@@ -15,16 +15,19 @@ internal interface IMapEntityTextAssetPatcher
 internal sealed class MapEntitiesTextAssetPatcher : IMapEntityTextAssetPatcher
 {
     private readonly ILogger<MapEntitiesTextAssetPatcher> _logger;
+    private readonly ITextAssetDumper _textAssetDumper;
     private readonly ILeavesRegistry<MapLeaf> _mapsRegistry;
     private readonly IMapEntityTextAssetParser _parser;
 
     public MapEntitiesTextAssetPatcher(
         ILogger<MapEntitiesTextAssetPatcher> logger,
+        ITextAssetDumper textAssetDumper,
         ILeavesRegistry<MapLeaf> mapsRegistry,
         IMapEntityTextAssetParser parser)
     {
         _logger = logger;
         _parser = parser;
+        _textAssetDumper = textAssetDumper;
         _mapsRegistry = mapsRegistry;
     }
 
@@ -57,17 +60,8 @@ internal sealed class MapEntitiesTextAssetPatcher : IMapEntityTextAssetPatcher
 
         string text = sb.ToString();
         if (_logger.IsEnabled(LogLevel.Trace))
-#pragma warning disable IO0002
-#pragma warning disable IO0006
-#pragma warning disable IO0003
-        {
-            string dumpPath = Path.Combine(Directory.GetCurrentDirectory(), path.ToLower() + ".txt");
-            Directory.CreateDirectory(Path.GetDirectoryName(dumpPath));
-            File.WriteAllText(dumpPath, text);
-        }
-#pragma warning restore IO0003
-#pragma warning restore IO0006
-#pragma warning restore IO0002
+            _textAssetDumper.DumpTextAssetContent(path, text);
+
         return new TextAsset(text);
     }
 }

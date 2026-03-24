@@ -8,6 +8,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Extensions;
 
+// ReSharper disable UnusedMethodReturnValue.Global
 internal static class ServiceCollectionExtensions
 {
     extension(IServiceCollection collection)
@@ -70,10 +71,11 @@ internal static class ServiceCollectionExtensions
             collection.AddSingleton<ITextAssetParser<TLeaf>, TTextAssetParser>();
             collection.AddSingleton<ITextAssetPatcher, TextAssetPatcher<TLeaf>>(provider => new(
                 textAssetResourcesPath,
-                leavesSorter,
                 provider.GetRequiredService<ILogger<TextAssetPatcher<TLeaf>>>(),
+                provider.GetRequiredService<ITextAssetDumper>(),
                 provider.GetRequiredService<ILeavesRegistry<TLeaf>>(),
-                provider.GetRequiredService<ITextAssetParser<TLeaf>>()));
+                provider.GetRequiredService<ITextAssetParser<TLeaf>>(),
+                leavesSorter));
             return collection;
         }
 
@@ -86,6 +88,7 @@ internal static class ServiceCollectionExtensions
             collection.AddSingleton<IOrderingTextAssetPatcher, OrderingTextAssetPatcher<TLeaf>>(provider => new(
                 textAssetResourcesPath,
                 provider.GetRequiredService<ILogger<OrderingTextAssetPatcher<TLeaf>>>(),
+                provider.GetRequiredService<ITextAssetDumper>(),
                 provider.GetRequiredService<IOrderedLeavesRegistry<TLeaf>>(),
                 provider.GetRequiredService<IOrderingTextAssetParser<TLeaf>>()));
             return collection;
@@ -101,10 +104,11 @@ internal static class ServiceCollectionExtensions
             collection.AddSingleton<ILocalizedTextAssetPatcher, LocalizedTextAssetPatcher<TLeaf>>(provider =>
                 new(
                 textAssetResourcesSubpath,
-                leavesSorter,
                 provider.GetRequiredService<ILogger<LocalizedTextAssetPatcher<TLeaf>>>(),
+                provider.GetRequiredService<ITextAssetDumper>(),
                 provider.GetRequiredService<ILeavesRegistry<TLeaf>>(),
-                provider.GetRequiredService<ILocalizedTextAssetParser<TLeaf>>()));
+                provider.GetRequiredService<ILocalizedTextAssetParser<TLeaf>>(),
+                leavesSorter));
             return collection;
         }
     }

@@ -13,14 +13,17 @@ internal interface IMapDialoguesTextAssetPatcher
 internal sealed class MapDialoguesTextAssetPatcher : IMapDialoguesTextAssetPatcher
 {
     private readonly ILogger<MapDialoguesTextAssetPatcher> _logger;
+    private readonly ITextAssetDumper _textAssetDumper;
     private readonly ILeavesRegistry<MapLeaf> _mapsRegistry;
 
     public MapDialoguesTextAssetPatcher(
         ILogger<MapDialoguesTextAssetPatcher> logger,
+        ITextAssetDumper textAssetDumper,
         ILeavesRegistry<MapLeaf> mapsRegistry)
     {
         _logger = logger;
         _mapsRegistry = mapsRegistry;
+        _textAssetDumper = textAssetDumper;
     }
 
     public TextAsset PatchMapDialoguesTextAsset(int languageId, string path, TextAsset original)
@@ -37,17 +40,8 @@ internal sealed class MapDialoguesTextAssetPatcher : IMapDialoguesTextAssetPatch
 
         string text = string.Join("\n", newLines);
         if (_logger.IsEnabled(LogLevel.Trace))
-#pragma warning disable IO0002
-#pragma warning disable IO0006
-#pragma warning disable IO0003
-        {
-            string dumpPath = Path.Combine(Directory.GetCurrentDirectory(), path.ToLower() + ".txt");
-            Directory.CreateDirectory(Path.GetDirectoryName(dumpPath));
-            File.WriteAllText(dumpPath, text);
-        }
-#pragma warning restore IO0003
-#pragma warning restore IO0006
-#pragma warning restore IO0002
+            _textAssetDumper.DumpTextAssetContent(path, text);
+
         return new TextAsset(text);
     }
 }

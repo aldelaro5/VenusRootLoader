@@ -58,7 +58,7 @@ internal sealed class RootTextAssetPatcher : IResourcesTypePatcher<TextAsset>
                 TextAssetPaths.DataLocalizedDialoguesDirectoryPrefix,
                 StringComparison.OrdinalIgnoreCase))
         {
-            return PatchLocalizedTextAsset(original, textAssetSubpath);
+            return PatchLocalizedTextAsset(textAssetSubpath, original);
         }
 
         if (_textAssetPatchers.TryGetValue(textAssetSubpath, out ITextAssetPatcher specificPrefabPatcher))
@@ -76,7 +76,7 @@ internal sealed class RootTextAssetPatcher : IResourcesTypePatcher<TextAsset>
             : original;
     }
 
-    private TextAsset PatchLocalizedTextAsset(TextAsset original, string textAssetSubpath)
+    private TextAsset PatchLocalizedTextAsset(string textAssetSubpath, TextAsset original)
     {
         string localizedSubPath = textAssetSubpath[TextAssetPaths.DataLocalizedDialoguesDirectoryPrefix.Length..];
         int firstSlash = localizedSubPath.IndexOf('/');
@@ -84,10 +84,10 @@ internal sealed class RootTextAssetPatcher : IResourcesTypePatcher<TextAsset>
         string subPath = localizedSubPath[(firstSlash + 1)..];
 
         if (subPath.StartsWith(TextAssetPaths.DataDialoguesLocalizedMapsDirectory, StringComparison.OrdinalIgnoreCase))
-            return _mapDialoguesTextAssetPatcher.PatchMapDialoguesTextAsset(languageId, subPath, original);
+            return _mapDialoguesTextAssetPatcher.PatchMapDialoguesTextAsset(languageId, textAssetSubpath, original);
 
         return _localizedTextAssetPatchers.TryGetValue(subPath, out ILocalizedTextAssetPatcher patcher)
-            ? patcher.PatchLocalisedTextAsset(languageId, subPath, original)
+            ? patcher.PatchLocalisedTextAsset(languageId, textAssetSubpath, original)
             : original;
     }
 }

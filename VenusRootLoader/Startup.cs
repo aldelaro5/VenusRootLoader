@@ -122,6 +122,8 @@ internal static class Startup
         services.AddSingleton<IAudioClipPatcher, MusicAudioClipPatcher>(provider =>
             new([TextAssetPaths.AudioMusicDirectory], provider.GetRequiredService<ILeavesRegistry<MusicLeaf>>()));
 
+        services.AddSingleton<ITextAssetDumper, TextAssetDumper>();
+        
         services.AddTextAssetPatcher<AnimIdLeaf, AnimIdTextAssetParser>([TextAssetPaths.DataAnimIdsPath]);
 
         services.AddTextAssetPatcher<ItemLeaf, ItemTextAssetParser>([TextAssetPaths.DataItemsPath]);

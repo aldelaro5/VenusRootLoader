@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using System.Text;
+using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
@@ -9,7 +10,7 @@ namespace VenusRootLoader.Patching.Resources.TextAssetPatchers;
 internal interface IOrderingTextAssetPatcher
 {
     string SubPath { get; }
-    UnityEngine.TextAsset PatchTextAsset(string path, UnityEngine.TextAsset original);
+    TextAsset PatchTextAsset(string path, TextAsset original);
 }
 
 internal sealed class OrderingTextAssetPatcher<T> : IOrderingTextAssetPatcher
@@ -17,23 +18,26 @@ internal sealed class OrderingTextAssetPatcher<T> : IOrderingTextAssetPatcher
 {
     private readonly IOrderedLeavesRegistry<T> _orderedLeaves;
     private readonly ILogger<OrderingTextAssetPatcher<T>> _logger;
+    private readonly ITextAssetDumper _textAssetDumper;
     private readonly IOrderingTextAssetParser<T> _parser;
 
     public OrderingTextAssetPatcher(
         string subPaths,
         ILogger<OrderingTextAssetPatcher<T>> logger,
+        ITextAssetDumper textAssetDumper,
         IOrderedLeavesRegistry<T> orderedLeaves,
         IOrderingTextAssetParser<T> parser)
     {
         SubPath = subPaths;
         _logger = logger;
         _parser = parser;
+        _textAssetDumper = textAssetDumper;
         _orderedLeaves = orderedLeaves;
     }
 
     public string SubPath { get; }
 
-    public UnityEngine.TextAsset PatchTextAsset(string path, UnityEngine.TextAsset original)
+    public TextAsset PatchTextAsset(string path, TextAsset original)
     {
         bool registryHasData = _orderedLeaves.Registry.LeavesByNamedIds.Count > 0;
         if (!registryHasData)
@@ -45,7 +49,9 @@ internal sealed class OrderingTextAssetPatcher<T> : IOrderingTextAssetPatcher
             sb.Append('\n');
 
         string text = sb.ToString();
-        _logger.LogTrace("Patching {path}:\n{text}", path, text);
-        return new UnityEngine.TextAsset(text);
+        if (_logger.IsEnabled(LogLevel.Trace))
+            _textAssetDumper.DumpTextAssetContent(path, text);
+
+        return new TextAsset(text);
     }
 }

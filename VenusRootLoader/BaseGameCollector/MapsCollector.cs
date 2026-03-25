@@ -16,9 +16,9 @@ internal sealed class MapsCollector : IBaseGameCollector
         Enumerable.Range(0, MapNamedIds.Length)
             .ToDictionary(
                 x => x,
-                x => (Resources.Load<TextAsset>($"Data/EntityData/Names/{x}Names").text.Trim('\n')
+                x => (Resources.Load<TextAsset>($"{TextAssetPaths.DataSlashEntityData}/Names/{x}Names").text.Trim('\n')
                         .Split(['\n'], StringSplitOptions.RemoveEmptyEntries),
-                    Resources.Load<TextAsset>($"Data/EntityData/{x}").text.Trim('\n')
+                    Resources.Load<TextAsset>($"{TextAssetPaths.DataSlashEntityData}/{x}").text.Trim('\n')
                         .Split(['\n'], StringSplitOptions.RemoveEmptyEntries)));
 
     private static readonly Dictionary<int, Dictionary<string, string[]>> MapsDialogues = new();
@@ -41,7 +41,10 @@ internal sealed class MapsCollector : IBaseGameCollector
             MapsDialogues[i] = new();
             foreach (string mapName in MapNamedIds)
             {
-                string[] itemLanguageData = Resources.Load<TextAsset>($"Data/Dialogues{i}/Maps/{mapName}").text
+                string[] itemLanguageData = Resources
+                    .Load<TextAsset>(
+                        $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataDialoguesLocalizedMapsDirectory}/{mapName}")
+                    .text
                     .Split(StringUtils.NewlineSplitDelimiter);
                 MapsDialogues[i].Add(mapName, itemLanguageData);
             }

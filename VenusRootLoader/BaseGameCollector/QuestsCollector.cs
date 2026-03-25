@@ -6,23 +6,27 @@ using System.Reflection;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.LeavesInternals;
-using VenusRootLoader.Patching.Resources.TextAssetPatchers;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class QuestsCollector : IBaseGameCollector
 {
-    private static readonly string[] BoardData = Resources.Load<TextAsset>("Data/BoardData").text
+    private static readonly string[] BoardData = Resources
+        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataQuestsPath}").text
         .Trim('\n')
         .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
 
-    private static readonly string[] ChecksData = Resources.Load<TextAsset>("Data/QuestChecks").text
+    private static readonly string[] ChecksData = Resources
+        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataQuestsRequirementsPath}")
+        .text
         .Trim('\n')
         .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
 
-    private readonly Sprite[] _enemyPortraitsSprites = Resources.LoadAll<Sprite>("Sprites/Items/EnemyPortraits");
+    private readonly Sprite[] _enemyPortraitsSprites = Resources.LoadAll<Sprite>(
+        $"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesEnemyPortraitsPath}");
 
     private static readonly Dictionary<int, string[]> QuestsLanguageData = new();
 
@@ -46,7 +50,8 @@ internal sealed class QuestsCollector : IBaseGameCollector
 
         for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
-            string[] questLanguageData = Resources.Load<TextAsset>($"Data/Dialogues{i}/BoardQuests").text
+            string[] questLanguageData = Resources.Load<TextAsset>(
+                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedQuestsPathSuffix}").text
                 .Trim('\n')
                 .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
             QuestsLanguageData.Add(i, questLanguageData);
@@ -81,8 +86,11 @@ internal sealed class QuestsCollector : IBaseGameCollector
         for (int i = 0; i < _questNamedIds.Length; i++)
         {
             QuestLeaf questLeaf = _questsRegistry.RegisterExisting(i, _questNamedIds[i], baseGameId);
-            _questTextAssetParser.FromTextAssetSerializedString("BoardData", BoardData[i], questLeaf);
-            _questTextAssetParser.FromTextAssetSerializedString("QuestChecks", ChecksData[i], questLeaf);
+            _questTextAssetParser.FromTextAssetSerializedString(TextAssetPaths.DataQuestsPath, BoardData[i], questLeaf);
+            _questTextAssetParser.FromTextAssetSerializedString(
+                TextAssetPaths.DataQuestsRequirementsPath,
+                ChecksData[i],
+                questLeaf);
             IEnemyPortraitSprite enemyPortraitSprite = questLeaf;
             questLeaf.CanOnlyBeTakenAtUndergroundBar = bountyQuestsGameIds.Contains(i);
             enemyPortraitSprite.WrappedSprite.Sprite =
@@ -90,7 +98,7 @@ internal sealed class QuestsCollector : IBaseGameCollector
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _questLocalizedTextAssetParser.FromTextAssetSerializedString(
-                    "BoardQuests",
+                    TextAssetPaths.DataLocalizedQuestsPathSuffix,
                     j,
                     QuestsLanguageData[j][i],
                     questLeaf);

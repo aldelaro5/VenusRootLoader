@@ -1,15 +1,16 @@
 using Microsoft.Extensions.Logging;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Patching.Resources.TextAssetPatchers;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class AnimIdsCollector : IBaseGameCollector
 {
-    private static readonly string[] AnimIdsData = Resources.Load<TextAsset>("Data/EntityValues").text
+    private static readonly string[] AnimIdsData = Resources
+        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataAnimIdsPath}").text
         .Trim('\n')
         .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
 
@@ -35,7 +36,10 @@ internal sealed class AnimIdsCollector : IBaseGameCollector
         {
             string itemNamedId = _animIdNamedIds[i];
             AnimIdLeaf animIdLeaf = _animIdsRegistry.RegisterExisting(i, itemNamedId, baseGameId);
-            _animIdTextAssetParser.FromTextAssetSerializedString("EntityValues", AnimIdsData[i], animIdLeaf);
+            _animIdTextAssetParser.FromTextAssetSerializedString(
+                TextAssetPaths.DataAnimIdsPath,
+                AnimIdsData[i],
+                animIdLeaf);
         }
 
         _logger.LogInformation("Collected and registered {AnimIdsAmount} base game items", _animIdNamedIds.Length);

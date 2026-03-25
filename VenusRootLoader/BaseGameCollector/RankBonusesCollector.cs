@@ -1,15 +1,16 @@
 using Microsoft.Extensions.Logging;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Patching.Resources.TextAssetPatchers;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class RankBonusesCollector : IBaseGameCollector
 {
-    private static readonly string[] RankBonusesData = Resources.Load<TextAsset>("Data/LevelData").text
+    private static readonly string[] RankBonusesData = Resources
+        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataRankBonusesPath}").text
         .Trim('\n')
         .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
 
@@ -35,7 +36,7 @@ internal sealed class RankBonusesCollector : IBaseGameCollector
             RankBonusLeaf rankBonusLeaf =
                 _rankBonusesRegistry.RegisterExisting(i, i.ToString(), baseGameId);
             _rankBonusTextAssetParser.FromTextAssetSerializedString(
-                "LevelData",
+                TextAssetPaths.DataRankBonusesPath,
                 rankBonusString,
                 rankBonusLeaf);
         }

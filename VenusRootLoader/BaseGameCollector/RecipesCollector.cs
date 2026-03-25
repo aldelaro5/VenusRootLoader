@@ -1,15 +1,16 @@
 using Microsoft.Extensions.Logging;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Patching.Resources.TextAssetPatchers;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class RecipesCollector : IBaseGameCollector
 {
-    private static readonly string[] RecipesData = Resources.Load<TextAsset>("Data/RecipeData").text
+    private static readonly string[] RecipesData = Resources
+        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataRecipesPath}").text
         .Trim('\n')
         .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
 
@@ -33,7 +34,7 @@ internal sealed class RecipesCollector : IBaseGameCollector
         {
             string recipe = RecipesData[i];
             RecipeLeaf recipeLeaf = _recipesRegistry.RegisterExisting(i, i.ToString(), baseGameId);
-            _recipeTextAssetParser.FromTextAssetSerializedString("RecipeData", recipe, recipeLeaf);
+            _recipeTextAssetParser.FromTextAssetSerializedString(TextAssetPaths.DataRecipesPath, recipe, recipeLeaf);
         }
 
         _logger.LogInformation("Collected and registered {RecipesAmount} base game recipes", RecipesData.Length);

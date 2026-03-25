@@ -6,20 +6,21 @@ using MonoMod.Utils;
 using System.Reflection;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Patching.Resources.TextAssetPatchers;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class MusicsCollector : IBaseGameCollector
 {
-    private static readonly string[] LoopPointsData = Resources.Load<TextAsset>("Data/LoopPoints").text
+    private static readonly string[] LoopPointsData = Resources
+        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataMusicLoopPointsPath}").text
         .Trim('\n')
         .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
 
     private static readonly Dictionary<string, AudioClip> MusicAudioClipsByName = Resources
-        .LoadAll<AudioClip>("Audio/Music")
+        .LoadAll<AudioClip>($"{TextAssetPaths.RootAudioPathPrefix}{TextAssetPaths.AudioMusicDirectory}")
         .ToDictionary(a => a.name, a => a);
 
     private static readonly Dictionary<int, string[]> MusicsLanguageData = new();
@@ -44,7 +45,8 @@ internal sealed class MusicsCollector : IBaseGameCollector
 
         for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
-            string[] musicLanguageData = Resources.Load<TextAsset>($"Data/Dialogues{i}/MusicList").text
+            string[] musicLanguageData = Resources.Load<TextAsset>(
+                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedMusicNamesPathSuffix}").text
                 .Trim('\n')
                 .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
             MusicsLanguageData.Add(i, musicLanguageData);
@@ -69,11 +71,14 @@ internal sealed class MusicsCollector : IBaseGameCollector
         for (int i = 0; i < _musicNamedIds.Length; i++)
         {
             MusicLeaf musicLeaf = _musicRegistry.RegisterExisting(i, _musicNamedIds[i], baseGameId);
-            _musicTextAssetParser.FromTextAssetSerializedString("LoopPoints", LoopPointsData[i], musicLeaf);
+            _musicTextAssetParser.FromTextAssetSerializedString(
+                TextAssetPaths.DataMusicLoopPointsPath,
+                LoopPointsData[i],
+                musicLeaf);
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _musicLocalizedTextAssetParser.FromTextAssetSerializedString(
-                    "MusicList",
+                    TextAssetPaths.DataLocalizedMusicNamesPathSuffix,
                     j,
                     MusicsLanguageData[j][i],
                     musicLeaf);

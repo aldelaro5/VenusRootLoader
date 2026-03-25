@@ -2,20 +2,22 @@ using Microsoft.Extensions.Logging;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.LeavesInternals;
-using VenusRootLoader.Patching.Resources.TextAssetPatchers;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class DiscoveriesCollector : IBaseGameCollector
 {
-    private static readonly string DiscoveriesOrderingData = Resources.Load<TextAsset>("Data/DiscoveryOrder").text
+    private static readonly string DiscoveriesOrderingData = Resources
+        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataDiscoveriesOrderingPath}").text
         .Trim('\n');
 
     private static readonly Dictionary<int, string[]> DiscoveriesLanguageData = new();
 
-    private readonly Sprite[] _enemyPortraitsSprites = Resources.LoadAll<Sprite>("Sprites/Items/EnemyPortraits");
+    private readonly Sprite[] _enemyPortraitsSprites = Resources.LoadAll<Sprite>(
+        $"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesEnemyPortraitsPath}");
 
     private readonly ILogger<DiscoveriesCollector> _logger;
     private readonly IOrderedLeavesRegistry<DiscoveryLeaf> _orderedRegistry;
@@ -35,7 +37,9 @@ internal sealed class DiscoveriesCollector : IBaseGameCollector
 
         for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
-            string[] discoveryLanguageData = Resources.Load<TextAsset>($"Data/Dialogues{i}/Discoveries").text
+            string[] discoveryLanguageData = Resources
+                .Load<TextAsset>(
+                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedDiscoveriesPathSuffix}").text
                 .Trim('\n')
                 .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
             DiscoveriesLanguageData.Add(i, discoveryLanguageData);
@@ -54,7 +58,7 @@ internal sealed class DiscoveriesCollector : IBaseGameCollector
             {
                 discoveryLeaf.LocalizedData[j] = new();
                 _discoveriesLanguageDataSerializer.FromTextAssetSerializedString(
-                    "Discoveries",
+                    TextAssetPaths.DataLocalizedDiscoveriesPathSuffix,
                     j,
                     DiscoveriesLanguageData[j][i],
                     discoveryLeaf);

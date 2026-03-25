@@ -3,16 +3,21 @@ using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class RecipeLibraryEntriesCollector : IBaseGameCollector
 {
-    private static readonly string[] CookOrderData = Resources.Load<TextAsset>("Data/CookOrder").text
+    private static readonly string[] CookOrderData = Resources
+        .Load<TextAsset>(
+            $"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataRecipesLibraryEntriesResultItemsPath}").text
         .Trim('\n')
         .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
 
-    private static readonly string[] CookLibraryData = Resources.Load<TextAsset>("Data/CookLibrary").text
+    private static readonly string[] CookLibraryData = Resources
+        .Load<TextAsset>(
+            $"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataRecipesLibraryEntriesInputItemsPath}").text
         .Trim('\n')
         .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
 
@@ -38,9 +43,12 @@ internal sealed class RecipeLibraryEntriesCollector : IBaseGameCollector
             string cookOrderLine = CookOrderData[i];
             RecipeLibraryEntryLeaf recipeLibraryEntryLeaf =
                 _recipeLibraryEntriesRegistry.RegisterExisting(i, i.ToString(), baseGameId);
-            _recipeTextAssetParser.FromTextAssetSerializedString("CookOrder", cookOrderLine, recipeLibraryEntryLeaf);
             _recipeTextAssetParser.FromTextAssetSerializedString(
-                "CookLibrary",
+                TextAssetPaths.DataRecipesLibraryEntriesResultItemsPath,
+                cookOrderLine,
+                recipeLibraryEntryLeaf);
+            _recipeTextAssetParser.FromTextAssetSerializedString(
+                TextAssetPaths.DataRecipesLibraryEntriesInputItemsPath,
                 cookLibraryLine,
                 recipeLibraryEntryLeaf);
         }

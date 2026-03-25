@@ -1,15 +1,16 @@
 using Microsoft.Extensions.Logging;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Patching.Resources.TextAssetPatchers;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class SkillsCollector : IBaseGameCollector
 {
-    private static readonly string[] SkillsData = Resources.Load<TextAsset>("Data/SkillData").text
+    private static readonly string[] SkillsData = Resources
+        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataSkillsPath}").text
         .Trim('\n')
         .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
 
@@ -35,9 +36,10 @@ internal sealed class SkillsCollector : IBaseGameCollector
 
         for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
-            string[] skillLanguageData = Resources.Load<TextAsset>($"Data/Dialogues{i}/Skills").text
-                .Trim(Utility.StringUtils.NewlineSplitDelimiter)
-                .Split(Utility.StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
+            string[] skillLanguageData = Resources.Load<TextAsset>(
+                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedSkillsPathSuffix}").text
+                .Trim(StringUtils.NewlineSplitDelimiter)
+                .Split(StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
             SkillsLanguageData.Add(i, skillLanguageData);
         }
     }
@@ -48,12 +50,15 @@ internal sealed class SkillsCollector : IBaseGameCollector
         for (int i = 0; i < skillsAmount; i++)
         {
             SkillLeaf skillLeaf = _skillsRegistry.RegisterExisting(i, _skillNamedIds[i], baseGameId);
-            _skillTextAssetParser.FromTextAssetSerializedString("SkillData", SkillsData[i], skillLeaf);
+            _skillTextAssetParser.FromTextAssetSerializedString(
+                TextAssetPaths.DataSkillsPath,
+                SkillsData[i],
+                skillLeaf);
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 skillLeaf.LocalizedData[j] = new();
                 _skillLocalizedTextAssetParser.FromTextAssetSerializedString(
-                    "Skills",
+                    TextAssetPaths.DataLocalizedSkillsPathSuffix,
                     j,
                     SkillsLanguageData[j][i],
                     skillLeaf);

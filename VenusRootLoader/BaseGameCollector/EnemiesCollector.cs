@@ -7,26 +7,29 @@ using System.Reflection;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.LeavesInternals;
-using VenusRootLoader.Patching.Resources.TextAssetPatchers;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class EnemiesCollector : IBaseGameCollector
 {
-    private static readonly string[] EnemiesData = Resources.Load<TextAsset>("Data/EnemyData").text
+    private static readonly string[] EnemiesData = Resources
+        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataEnemiesPath}").text
         .Trim('\n')
         .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
 
-    private static readonly string EnemiesOrderingData = Resources.Load<TextAsset>("Data/TattleList").text
+    private static readonly string EnemiesOrderingData = Resources
+        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataBestiaryEntriesOrderingPath}").text
         .Trim('\n');
 
     private static readonly Dictionary<int, string[]> EnemiesLanguageData = new();
 
     private readonly string[] _enemyNamedIds = Enum.GetNames(typeof(MainManager.Enemies)).ToArray();
 
-    private readonly Sprite[] _enemyPortraitsSprites = Resources.LoadAll<Sprite>("Sprites/Items/EnemyPortraits");
+    private readonly Sprite[] _enemyPortraitsSprites = Resources.LoadAll<Sprite>(
+        $"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesEnemyPortraitsPath}");
 
     private readonly ILogger<EnemiesCollector> _logger;
     private readonly IAssemblyCSharpDataCollector _assemblyCSharpDataCollector;
@@ -52,7 +55,10 @@ internal sealed class EnemiesCollector : IBaseGameCollector
 
         for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
-            string[] enemyLanguageData = Resources.Load<TextAsset>($"Data/Dialogues{i}/EnemyTattle").text
+            string[] enemyLanguageData = Resources
+                .Load<TextAsset>(
+                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedBestiaryEntriesPathSuffix}")
+                .text
                 .Trim('\n')
                 .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
             EnemiesLanguageData.Add(i, enemyLanguageData);
@@ -130,12 +136,15 @@ internal sealed class EnemiesCollector : IBaseGameCollector
         for (int i = 0; i < _enemyNamedIds.Length; i++)
         {
             EnemyLeaf enemyLeaf = _orderedRegistry.Registry.LeavesByGameIds[i];
-            _enemyTextAssetParser.FromTextAssetSerializedString("EnemyData", EnemiesData[i], enemyLeaf);
+            _enemyTextAssetParser.FromTextAssetSerializedString(
+                TextAssetPaths.DataEnemiesPath,
+                EnemiesData[i],
+                enemyLeaf);
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 enemyLeaf.LocalizedData[j] = new();
                 _enemyLocalizedTextAssetParser.FromTextAssetSerializedString(
-                    "EnemyTattle",
+                    TextAssetPaths.DataLocalizedBestiaryEntriesPathSuffix,
                     j,
                     EnemiesLanguageData[j][i],
                     enemyLeaf);

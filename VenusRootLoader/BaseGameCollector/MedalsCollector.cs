@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Logging;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Patching.Resources.TextAssetPatchers;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
@@ -11,19 +11,24 @@ internal sealed class MedalsCollector : IBaseGameCollector
 {
     private const int FirstMedalSpriteIndexInItems0 = 176;
 
-    private static readonly string[] MedalsData = Resources.Load<TextAsset>("Data/BadgeData").text
+    private static readonly string[] MedalsData = Resources
+        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataMedalsPath}").text
         .Trim('\n')
         .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
 
-    private static readonly string MedalsOrderingData = Resources.Load<TextAsset>("Data/BadgeOrder").text
+    private static readonly string MedalsOrderingData = Resources
+        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataMedalsOrderingPath}").text
         .Trim('\n');
 
     private static readonly Dictionary<int, string[]> MedalsLanguageData = new();
 
     private readonly string[] _badgeNamedIds = Enum.GetNames(typeof(MainManager.BadgeTypes)).ToArray();
 
-    private readonly Sprite[] _items0Sprites = Resources.LoadAll<Sprite>("Sprites/Items/Items0");
-    private readonly Sprite[] _items1Sprites = Resources.LoadAll<Sprite>("Sprites/Items/Items1");
+    private readonly Sprite[] _items0Sprites =
+        Resources.LoadAll<Sprite>($"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesItems0Path}");
+
+    private readonly Sprite[] _items1Sprites =
+        Resources.LoadAll<Sprite>($"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesItems1Path}");
 
     private readonly ILogger<MedalsCollector> _logger;
     private readonly IOrderedLeavesRegistry<MedalLeaf> _orderedRegistry;
@@ -46,7 +51,8 @@ internal sealed class MedalsCollector : IBaseGameCollector
 
         for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
-            string[] medalLanguageData = Resources.Load<TextAsset>($"Data/Dialogues{i}/BadgeName").text
+            string[] medalLanguageData = Resources.Load<TextAsset>(
+                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedMedalPathSuffix}").text
                 .Trim('\n')
                 .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
             MedalsLanguageData.Add(i, medalLanguageData);
@@ -59,7 +65,7 @@ internal sealed class MedalsCollector : IBaseGameCollector
         {
             string medalNamedId = _badgeNamedIds[i];
             MedalLeaf medalLeaf = _orderedRegistry.RegisterExistingWithOrdering(i, medalNamedId, baseGameId);
-            _medalDataSerializer.FromTextAssetSerializedString("BadgeData", MedalsData[i], medalLeaf);
+            _medalDataSerializer.FromTextAssetSerializedString(TextAssetPaths.DataMedalsPath, MedalsData[i], medalLeaf);
             medalLeaf.WrappedSprite.Sprite = medalLeaf.Items1SpriteIndex == -1
                 ? _items0Sprites[i + FirstMedalSpriteIndexInItems0]
                 : _items1Sprites[medalLeaf.Items1SpriteIndex];
@@ -67,7 +73,7 @@ internal sealed class MedalsCollector : IBaseGameCollector
             {
                 medalLeaf.LocalizedData[j] = new();
                 _medalLanguageDataSerializer.FromTextAssetSerializedString(
-                    "BadgeName",
+                    TextAssetPaths.DataLocalizedMedalPathSuffix,
                     j,
                     MedalsLanguageData[j][i],
                     medalLeaf);

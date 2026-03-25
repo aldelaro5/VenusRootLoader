@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Logging;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Patching.Resources.TextAssetPatchers;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
@@ -26,9 +26,10 @@ internal sealed class MenuTextsCollector : IBaseGameCollector
 
         for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
-            string[] menuTexts = Resources.Load<TextAsset>($"Data/Dialogues{i}/MenuText").text
-                .Trim(Utility.StringUtils.NewlineSplitDelimiter)
-                .Split(Utility.StringUtils.NewlineSplitDelimiter);
+            string[] menuTexts = Resources.Load<TextAsset>(
+                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedMenuTextsPathSuffix}").text
+                .Trim(StringUtils.NewlineSplitDelimiter)
+                .Split(StringUtils.NewlineSplitDelimiter);
             MenuTextsLanguageData.Add(i, menuTexts);
         }
     }
@@ -42,7 +43,7 @@ internal sealed class MenuTextsCollector : IBaseGameCollector
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _menuTextLanguageDataSerializer.FromTextAssetSerializedString(
-                    "MenuText",
+                    TextAssetPaths.DataLocalizedMenuTextsPathSuffix,
                     j,
                     MenuTextsLanguageData[j][i],
                     menuTextLeaf);

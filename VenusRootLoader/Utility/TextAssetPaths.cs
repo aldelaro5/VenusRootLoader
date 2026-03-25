@@ -16,7 +16,9 @@ public static class TextAssetPaths
     internal const string AudioSoundsDialogueDirectory = $"{AudioSoundsDirectory}/Dialogue";
 
     internal const string DataLocalizedDialoguesDirectoryPrefix = "Dialogues";
+    internal const string DataSlashDialogues = $"{RootDataPathPrefix}Dialogues";
     internal const string DataMapEntitiesDirectory = "EntityData";
+    internal const string DataSlashEntityData = $"{RootDataPathPrefix}EntityData";
     internal const string DataFishingItemsPath = "FishingItems";
     internal const string DataFishingFishesDirectory = "Fishing/Fish";
     internal const string DataMedalsPath = "BadgeData";

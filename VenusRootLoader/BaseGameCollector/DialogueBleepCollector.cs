@@ -2,12 +2,14 @@ using Microsoft.Extensions.Logging;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class DialogueBleepCollector : IBaseGameCollector
 {
-    private readonly AudioClip[] _dialogueBleeps = Resources.LoadAll<AudioClip>("Audio/Sounds/Dialogue");
+    private readonly AudioClip[] _dialogueBleeps = Resources.LoadAll<AudioClip>(
+        $"{TextAssetPaths.RootAudioPathPrefix}{TextAssetPaths.AudioSoundsDialogueDirectory}");
 
     private readonly ILogger<DialogueBleepCollector> _logger;
     private readonly ILeavesRegistry<DialogueBleepLeaf> _dialogueBleepsRegistry;

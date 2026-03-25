@@ -3,6 +3,7 @@ using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
@@ -27,9 +28,12 @@ internal sealed class ActionCommandHelpTextsCollector : IBaseGameCollector
 
         for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
-            string[] actionCommandHelpText = Resources.Load<TextAsset>($"Data/Dialogues{i}/ActionCommands").text
-                .Trim(Utility.StringUtils.NewlineSplitDelimiter)
-                .Split(Utility.StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
+            string[] actionCommandHelpText = Resources
+                .Load<TextAsset>(
+                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedActionCommandHelpTextsPathSuffix}")
+                .text
+                .Trim(StringUtils.NewlineSplitDelimiter)
+                .Split(StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
             ActionCommandHelpTextsLanguageData.Add(i, actionCommandHelpText);
         }
     }
@@ -44,7 +48,7 @@ internal sealed class ActionCommandHelpTextsCollector : IBaseGameCollector
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _actionCommandHelpTextLocalizedTextAssetParser.FromTextAssetSerializedString(
-                    "ActionCommands",
+                    TextAssetPaths.DataLocalizedActionCommandHelpTextsPathSuffix,
                     j,
                     ActionCommandHelpTextsLanguageData[j][i],
                     actionCommandHelpTextLeaf);

@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Logging;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Patching.Resources.TextAssetPatchers;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
@@ -26,9 +26,11 @@ internal sealed class SpyCardsTextsCollector : IBaseGameCollector
 
         for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
-            string[] spyCardsText = Resources.Load<TextAsset>($"Data/Dialogues{i}/CardDialogue").text
-                .Trim(Utility.StringUtils.NewlineSplitDelimiter)
-                .Split(Utility.StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
+            string[] spyCardsText = Resources.Load<TextAsset>(
+                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedSpyCardsTextsPathSuffix}")
+                .text
+                .Trim(StringUtils.NewlineSplitDelimiter)
+                .Split(StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
             SpyCardsTextsLanguageData.Add(i, spyCardsText);
         }
     }
@@ -42,7 +44,7 @@ internal sealed class SpyCardsTextsCollector : IBaseGameCollector
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _spyCardsTextLocalizedTextAssetParser.FromTextAssetSerializedString(
-                    "CardDialogue",
+                    TextAssetPaths.DataLocalizedSpyCardsTextsPathSuffix,
                     j,
                     SpyCardsTextsLanguageData[j][i],
                     spyCardsTextLeaf);

@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Logging;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Patching.Resources.TextAssetPatchers;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
@@ -26,9 +26,10 @@ internal sealed class FishingTextsCollector : IBaseGameCollector
 
         for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
-            string[] fishingText = Resources.Load<TextAsset>($"Data/Dialogues{i}/Fishing").text
-                .Trim(Utility.StringUtils.NewlineSplitDelimiter)
-                .Split(Utility.StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
+            string[] fishingText = Resources.Load<TextAsset>(
+                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedFishingTextsPathSuffix}").text
+                .Trim(StringUtils.NewlineSplitDelimiter)
+                .Split(StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
             FishingTextsLanguageData.Add(i, fishingText);
         }
     }
@@ -42,7 +43,7 @@ internal sealed class FishingTextsCollector : IBaseGameCollector
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _fishingTextLocalizedTextAssetParser.FromTextAssetSerializedString(
-                    "Fishing",
+                    TextAssetPaths.DataLocalizedFishingTextsPathSuffix,
                     j,
                     FishingTextsLanguageData[j][i],
                     fishingTextLeaf);

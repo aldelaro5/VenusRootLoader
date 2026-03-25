@@ -7,9 +7,9 @@ using System.Collections;
 using System.Reflection;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Patching.Resources.TextAssetPatchers;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
@@ -39,13 +39,16 @@ internal sealed class LoreBooksCollector : IBaseGameCollector
 
         for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
-            string[] fortuneTellerHints = Resources.Load<TextAsset>($"Data/Dialogues{i}/FortuneTeller1").text
-                .Trim(Utility.StringUtils.NewlineSplitDelimiter)
-                .Split(Utility.StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
+            string[] fortuneTellerHints = Resources.Load<TextAsset>(
+                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedLoreBookFortuneTellerHintsPathSuffix}")
+                .text
+                .Trim(StringUtils.NewlineSplitDelimiter)
+                .Split(StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
             FortuneTellerHintsLanguageData.Add(i, fortuneTellerHints);
-            string[] loreBookTexts = Resources.Load<TextAsset>($"Data/Dialogues{i}/LoreText").text
-                .Trim(Utility.StringUtils.NewlineSplitDelimiter)
-                .Split(Utility.StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
+            string[] loreBookTexts = Resources.Load<TextAsset>(
+                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedLoreBooksPathSuffix}").text
+                .Trim(StringUtils.NewlineSplitDelimiter)
+                .Split(StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
             LoreTextsLanguageData.Add(i, loreBookTexts);
         }
     }
@@ -87,12 +90,12 @@ internal sealed class LoreBooksCollector : IBaseGameCollector
             {
                 loreBookLeaf.LocalizedData[j] = new();
                 _loreBookLocalizedTextAssetParser.FromTextAssetSerializedString(
-                    "FortuneTeller1",
+                    TextAssetPaths.DataLocalizedLoreBookFortuneTellerHintsPathSuffix,
                     j,
                     FortuneTellerHintsLanguageData[j][i],
                     loreBookLeaf);
                 _loreBookLocalizedTextAssetParser.FromTextAssetSerializedString(
-                    "LoreText",
+                    TextAssetPaths.DataLocalizedLoreBooksPathSuffix,
                     j,
                     LoreTextsLanguageData[j][i],
                     loreBookLeaf);

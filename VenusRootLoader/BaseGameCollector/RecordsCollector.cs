@@ -2,20 +2,23 @@ using Microsoft.Extensions.Logging;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.LeavesInternals;
-using VenusRootLoader.Patching.Resources.TextAssetPatchers;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class RecordsCollector : IBaseGameCollector
 {
-    private static readonly string RecordsOrderingData = Resources.Load<TextAsset>("Data/SynopsisOrder").text
+    private static readonly string RecordsOrderingData = Resources
+        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataRecordsOrderingPath}")
+        .text
         .Trim('\n');
 
     private static readonly Dictionary<int, string[]> RecordsLanguageData = new();
 
-    private readonly Sprite[] _enemyPortraitsSprites = Resources.LoadAll<Sprite>("Sprites/Items/EnemyPortraits");
+    private readonly Sprite[] _enemyPortraitsSprites = Resources.LoadAll<Sprite>(
+        $"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesEnemyPortraitsPath}");
 
     private readonly ILogger<RecordsCollector> _logger;
     private readonly IOrderedLeavesRegistry<RecordLeaf> _orderedRegistry;
@@ -35,7 +38,9 @@ internal sealed class RecordsCollector : IBaseGameCollector
 
         for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
-            string[] recordsLanguageData = Resources.Load<TextAsset>($"Data/Dialogues{i}/Synopsis").text
+            string[] recordsLanguageData = Resources.Load<TextAsset>(
+                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedRecordsPathSuffix}")
+                .text
                 .Trim('\n')
                 .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
             RecordsLanguageData.Add(i, recordsLanguageData);
@@ -54,7 +59,7 @@ internal sealed class RecordsCollector : IBaseGameCollector
             {
                 recordLeaf.LocalizedData[j] = new();
                 _recordsLanguageDataSerializer.FromTextAssetSerializedString(
-                    "Synopsis",
+                    TextAssetPaths.DataLocalizedRecordsPathSuffix,
                     j,
                     RecordsLanguageData[j][i],
                     recordLeaf);

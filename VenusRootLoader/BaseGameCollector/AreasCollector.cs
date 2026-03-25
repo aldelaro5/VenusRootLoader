@@ -6,9 +6,9 @@ using MonoMod.Utils;
 using System.Reflection;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Patching.Resources.TextAssetPatchers;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
@@ -34,13 +34,17 @@ internal sealed class AreasCollector : IBaseGameCollector
 
         for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
-            string[] areaNames = Resources.Load<TextAsset>($"Data/Dialogues{i}/AreaNames").text
-                .Trim(Utility.StringUtils.NewlineSplitDelimiter)
-                .Split(Utility.StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
+            string[] areaNames = Resources.Load<TextAsset>(
+                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedAreaNamesPathSuffix}")
+                .text
+                .Trim(StringUtils.NewlineSplitDelimiter)
+                .Split(StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
             AreaNamesData.Add(i, areaNames);
-            string[] areaDescriptions = Resources.Load<TextAsset>($"Data/Dialogues{i}/AreaDesc").text
-                .Trim(Utility.StringUtils.NewlineSplitDelimiter)
-                .Split(Utility.StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
+            string[] areaDescriptions = Resources.Load<TextAsset>(
+                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedAreaDescriptionsPathSuffix}")
+                .text
+                .Trim(StringUtils.NewlineSplitDelimiter)
+                .Split(StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
             AreaDescriptionsData.Add(i, areaDescriptions);
         }
     }
@@ -54,12 +58,12 @@ internal sealed class AreasCollector : IBaseGameCollector
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _areaLocalizedTextAssetParser.FromTextAssetSerializedString(
-                    "AreaNames",
+                    TextAssetPaths.DataLocalizedAreaNamesPathSuffix,
                     j,
                     AreaNamesData[j][i],
                     areaLeaf);
                 _areaLocalizedTextAssetParser.FromTextAssetSerializedString(
-                    "AreaDesc",
+                    TextAssetPaths.DataLocalizedAreaDescriptionsPathSuffix,
                     j,
                     AreaDescriptionsData[j][i],
                     areaLeaf);

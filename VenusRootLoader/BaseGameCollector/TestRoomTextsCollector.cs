@@ -1,15 +1,16 @@
 using Microsoft.Extensions.Logging;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Patching.Resources.TextAssetPatchers;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class TestRoomTextsCollector : IBaseGameCollector
 {
-    private static readonly string[] TestRoomTextsData = Resources.Load<TextAsset>("Data/TestRoom").text
+    private static readonly string[] TestRoomTextsData = Resources
+        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataTestRoomMapDialoguesPath}").text
         .Trim('\n')
         .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
 
@@ -34,7 +35,7 @@ internal sealed class TestRoomTextsCollector : IBaseGameCollector
         {
             TestRoomTextLeaf testRoomTextLeaf = _testRoomTextsRegistry.RegisterExisting(i, i.ToString(), baseGameId);
             _testRoomTextTextAssetParser.FromTextAssetSerializedString(
-                "TestRoom",
+                TextAssetPaths.DataTestRoomMapDialoguesPath,
                 TestRoomTextsData[i],
                 testRoomTextLeaf);
         }

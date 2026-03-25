@@ -7,9 +7,9 @@ using System.Collections;
 using System.Reflection;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Patching.Resources.TextAssetPatchers;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
@@ -38,9 +38,12 @@ internal sealed class MedalFortuneTellerHintCollector : IBaseGameCollector
 
         for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
-            string[] medalFortuneTellerHints = Resources.Load<TextAsset>($"Data/Dialogues{i}/FortuneTeller2").text
-                .Trim(Utility.StringUtils.NewlineSplitDelimiter)
-                .Split(Utility.StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
+            string[] medalFortuneTellerHints = Resources
+                .Load<TextAsset>(
+                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedMedalFortuneTellerHintsPathSuffix}")
+                .text
+                .Trim(StringUtils.NewlineSplitDelimiter)
+                .Split(StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
             MedalFortuneTellerHintsLanguageData.Add(i, medalFortuneTellerHints);
         }
     }
@@ -80,7 +83,7 @@ internal sealed class MedalFortuneTellerHintCollector : IBaseGameCollector
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _localizedTextAssetParser.FromTextAssetSerializedString(
-                    "FortuneTeller2",
+                    TextAssetPaths.DataLocalizedMedalFortuneTellerHintsPathSuffix,
                     j,
                     MedalFortuneTellerHintsLanguageData[j][i],
                     medalFortuneTellerHintLeaf);

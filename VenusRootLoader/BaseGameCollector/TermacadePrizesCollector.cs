@@ -1,15 +1,16 @@
 using Microsoft.Extensions.Logging;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Patching.Resources.TextAssetPatchers;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class TermacadePrizesCollector : IBaseGameCollector
 {
-    private static readonly string[] TermacadePrizesData = Resources.Load<TextAsset>("Data/Termacade").text
+    private static readonly string[] TermacadePrizesData = Resources
+        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataTermacadePrizesPath}").text
         .Trim('\n')
         .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
 
@@ -35,7 +36,7 @@ internal sealed class TermacadePrizesCollector : IBaseGameCollector
             TermacadePrizeLeaf termacadePrizeLeaf =
                 _termacadePrizesRegistry.RegisterExisting(i, i.ToString(), baseGameId);
             _termacadePrizesTextAssetParser.FromTextAssetSerializedString(
-                "Termacade",
+                TextAssetPaths.DataTermacadePrizesPath,
                 termacadePrizeString,
                 termacadePrizeLeaf);
         }

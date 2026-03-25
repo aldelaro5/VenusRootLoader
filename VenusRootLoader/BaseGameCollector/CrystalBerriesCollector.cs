@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using MonoMod.Cil;
 using MonoMod.Utils;
 using System.Reflection;
-using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
@@ -13,7 +12,9 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class CrystalBerriesCollector : IBaseGameCollector
 {
-    private static readonly Dictionary<int, string[]> FortuneTeller0LanguageData = new();
+    private static readonly Dictionary<int, string[]> FortuneTeller0LanguageData =
+        RootCollector.ReadLocalizedTestAssetLines(
+            TextAssetPaths.DataLocalizedCrystalBerryFortuneTellerHintsPathSuffix);
 
     private readonly ILogger<CrystalBerriesCollector> _logger;
     private readonly ILeavesRegistry<CrystalBerryLeaf> _crystalBerriesRegistry;
@@ -27,17 +28,6 @@ internal sealed class CrystalBerriesCollector : IBaseGameCollector
         _logger = logger;
         _crystalBerryLanguageDataSerializer = crystalBerryLanguageDataSerializer;
         _crystalBerriesRegistry = crystalBerriesRegistry;
-
-        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
-        {
-            string[] fortuneTeller0Hints = Resources
-                .Load<TextAsset>(
-                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedCrystalBerryFortuneTellerHintsPathSuffix}")
-                .text
-                .Trim(StringUtils.NewlineSplitDelimiter)
-                .Split(StringUtils.NewlineSplitDelimiter);
-            FortuneTeller0LanguageData.Add(i, fortuneTeller0Hints);
-        }
     }
 
     public void CollectBaseGameData(string baseGameId)

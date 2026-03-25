@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
@@ -9,7 +8,8 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class CommonDialoguesCollector : IBaseGameCollector
 {
-    private static readonly Dictionary<int, string[]> CommonDialoguesLanguageData = new();
+    private static readonly Dictionary<int, string[]> CommonDialoguesLanguageData =
+        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedCommonDialoguesPathSuffix);
 
     private readonly ILogger<CommonDialoguesCollector> _logger;
     private readonly ILeavesRegistry<CommonDialogueLeaf> _commonDialoguesRegistry;
@@ -23,16 +23,6 @@ internal sealed class CommonDialoguesCollector : IBaseGameCollector
         _logger = logger;
         _commonDialogueLanguageDataSerializer = commonDialogueLanguageDataSerializer;
         _commonDialoguesRegistry = commonDialoguesRegistry;
-
-        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
-        {
-            string[] commonDialogues = Resources.Load<TextAsset>(
-                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedCommonDialoguesPathSuffix}")
-                .text
-                .Trim(StringUtils.NewlineSplitDelimiter)
-                .Split(StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
-            CommonDialoguesLanguageData.Add(i, commonDialogues);
-        }
     }
 
     public void CollectBaseGameData(string baseGameId)

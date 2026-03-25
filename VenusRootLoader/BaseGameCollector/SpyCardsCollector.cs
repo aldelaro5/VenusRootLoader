@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
@@ -9,16 +8,13 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class SpyCardsCollector : IBaseGameCollector
 {
-    private static readonly string[] SpyCardsData = Resources
-        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataSpyCardsPath}").text
-        .Trim('\n')
-        .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
+    private static readonly string[] SpyCardsData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataSpyCardsPath);
 
-    private static readonly string SpyCardsOrderingData = Resources
-        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataSpyCardsOrderingPath}").text
-        .Trim('\n');
+    private static readonly string SpyCardsOrderingData =
+        RootCollector.ReadWholeTextAsset(TextAssetPaths.DataSpyCardsOrderingPath);
 
-    private static readonly Dictionary<int, string[]> SpyCardsLanguageData = new();
+    private static readonly Dictionary<int, string[]> SpyCardsLanguageData =
+        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedSpyCardsPathSuffix);
 
     private readonly ILogger<SpyCardsCollector> _logger;
     private readonly IOrderedLeavesRegistry<SpyCardLeaf> _orderedRegistry;
@@ -38,15 +34,6 @@ internal sealed class SpyCardsCollector : IBaseGameCollector
         _spyCardOrderingTextAssetParser = spyCardOrderingTextAssetParser;
         _spyCardTextAssetParser = spyCardTextAssetParser;
         _spyCardLocalizedTextAssetParser = spyCardLocalizedTextAssetParser;
-
-        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
-        {
-            string[] spyCardLanguageData = Resources.Load<TextAsset>(
-                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedSpyCardsPathSuffix}").text
-                .Trim('\n')
-                .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
-            SpyCardsLanguageData.Add(i, spyCardLanguageData);
-        }
     }
 
     public void CollectBaseGameData(string baseGameId)

@@ -10,12 +10,11 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class RecordsCollector : IBaseGameCollector
 {
-    private static readonly string RecordsOrderingData = Resources
-        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataRecordsOrderingPath}")
-        .text
-        .Trim('\n');
+    private static readonly string RecordsOrderingData =
+        RootCollector.ReadWholeTextAsset(TextAssetPaths.DataRecordsOrderingPath);
 
-    private static readonly Dictionary<int, string[]> RecordsLanguageData = new();
+    private static readonly Dictionary<int, string[]> RecordsLanguageData =
+        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedRecordsPathSuffix);
 
     private readonly Sprite[] _enemyPortraitsSprites = Resources.LoadAll<Sprite>(
         $"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesEnemyPortraitsPath}");
@@ -35,16 +34,6 @@ internal sealed class RecordsCollector : IBaseGameCollector
         _orderedRegistry = orderedRegistry;
         _recordsOrderingDataSerializer = recordsOrderingDataSerializer;
         _recordsLanguageDataSerializer = recordsLanguageDataSerializer;
-
-        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
-        {
-            string[] recordsLanguageData = Resources.Load<TextAsset>(
-                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedRecordsPathSuffix}")
-                .text
-                .Trim('\n')
-                .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
-            RecordsLanguageData.Add(i, recordsLanguageData);
-        }
     }
 
     public void CollectBaseGameData(string baseGameId)

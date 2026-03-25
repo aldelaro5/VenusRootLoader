@@ -14,16 +14,15 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class MusicsCollector : IBaseGameCollector
 {
-    private static readonly string[] LoopPointsData = Resources
-        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataMusicLoopPointsPath}").text
-        .Trim('\n')
-        .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
+    private static readonly string[] LoopPointsData =
+        RootCollector.ReadTextAssetLines(TextAssetPaths.DataMusicLoopPointsPath);
 
     private static readonly Dictionary<string, AudioClip> MusicAudioClipsByName = Resources
         .LoadAll<AudioClip>($"{TextAssetPaths.RootAudioPathPrefix}{TextAssetPaths.AudioMusicDirectory}")
         .ToDictionary(a => a.name, a => a);
 
-    private static readonly Dictionary<int, string[]> MusicsLanguageData = new();
+    private static readonly Dictionary<int, string[]> MusicsLanguageData =
+        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedMusicNamesPathSuffix);
 
     private readonly string[] _musicNamedIds = Enum.GetNames(typeof(MainManager.Musics)).ToArray();
 
@@ -42,15 +41,6 @@ internal sealed class MusicsCollector : IBaseGameCollector
         _musicRegistry = musicRegistry;
         _musicTextAssetParser = musicTextAssetParser;
         _musicLocalizedTextAssetParser = musicLocalizedTextAssetParser;
-
-        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
-        {
-            string[] musicLanguageData = Resources.Load<TextAsset>(
-                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedMusicNamesPathSuffix}").text
-                .Trim('\n')
-                .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
-            MusicsLanguageData.Add(i, musicLanguageData);
-        }
     }
 
     public void CollectBaseGameData(string baseGameId)

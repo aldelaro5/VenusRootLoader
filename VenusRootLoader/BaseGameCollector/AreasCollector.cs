@@ -4,7 +4,6 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.Utils;
 using System.Reflection;
-using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
@@ -14,8 +13,11 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class AreasCollector : IBaseGameCollector
 {
-    private static readonly Dictionary<int, string[]> AreaNamesData = new();
-    private static readonly Dictionary<int, string[]> AreaDescriptionsData = new();
+    private static readonly Dictionary<int, string[]> AreaNamesData =
+        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedAreaNamesPathSuffix);
+
+    private static readonly Dictionary<int, string[]> AreaDescriptionsData =
+        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedAreaDescriptionsPathSuffix);
 
     private readonly string[] _areasNamedIds = Enum.GetNames(typeof(MainManager.Areas)).ToArray();
 
@@ -31,22 +33,6 @@ internal sealed class AreasCollector : IBaseGameCollector
         _logger = logger;
         _areaLocalizedTextAssetParser = areaLocalizedTextAssetParser;
         _areasRegistry = areasRegistry;
-
-        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
-        {
-            string[] areaNames = Resources.Load<TextAsset>(
-                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedAreaNamesPathSuffix}")
-                .text
-                .Trim(StringUtils.NewlineSplitDelimiter)
-                .Split(StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
-            AreaNamesData.Add(i, areaNames);
-            string[] areaDescriptions = Resources.Load<TextAsset>(
-                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedAreaDescriptionsPathSuffix}")
-                .text
-                .Trim(StringUtils.NewlineSplitDelimiter)
-                .Split(StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
-            AreaDescriptionsData.Add(i, areaDescriptions);
-        }
     }
 
     public void CollectBaseGameData(string baseGameId)

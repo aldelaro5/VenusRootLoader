@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
@@ -9,10 +8,7 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class RecipesCollector : IBaseGameCollector
 {
-    private static readonly string[] RecipesData = Resources
-        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataRecipesPath}").text
-        .Trim('\n')
-        .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
+    private static readonly string[] RecipesData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataRecipesPath);
 
     private readonly ILogger<RecipesCollector> _logger;
     private readonly ILeavesRegistry<RecipeLeaf> _recipesRegistry;

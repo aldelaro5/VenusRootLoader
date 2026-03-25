@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
@@ -9,7 +8,8 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class ActionCommandHelpTextsCollector : IBaseGameCollector
 {
-    private static readonly Dictionary<int, string[]> ActionCommandHelpTextsLanguageData = new();
+    private static readonly Dictionary<int, string[]> ActionCommandHelpTextsLanguageData =
+        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedActionCommandHelpTextsPathSuffix);
 
     private readonly ILogger<ActionCommandHelpTextsCollector> _logger;
     private readonly ILeavesRegistry<ActionCommandHelpTextLeaf> _actionCommandHelpTextsRegistry;
@@ -25,17 +25,6 @@ internal sealed class ActionCommandHelpTextsCollector : IBaseGameCollector
         _logger = logger;
         _actionCommandHelpTextLocalizedTextAssetParser = actionCommandHelpTextLocalizedTextAssetParser;
         _actionCommandHelpTextsRegistry = actionCommandHelpTextsRegistry;
-
-        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
-        {
-            string[] actionCommandHelpText = Resources
-                .Load<TextAsset>(
-                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedActionCommandHelpTextsPathSuffix}")
-                .text
-                .Trim(StringUtils.NewlineSplitDelimiter)
-                .Split(StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
-            ActionCommandHelpTextsLanguageData.Add(i, actionCommandHelpText);
-        }
     }
 
     public void CollectBaseGameData(string baseGameId)

@@ -11,16 +11,13 @@ internal sealed class MedalsCollector : IBaseGameCollector
 {
     private const int FirstMedalSpriteIndexInItems0 = 176;
 
-    private static readonly string[] MedalsData = Resources
-        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataMedalsPath}").text
-        .Trim('\n')
-        .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
+    private static readonly string[] MedalsData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataMedalsPath);
 
-    private static readonly string MedalsOrderingData = Resources
-        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataMedalsOrderingPath}").text
-        .Trim('\n');
+    private static readonly string MedalsOrderingData =
+        RootCollector.ReadWholeTextAsset(TextAssetPaths.DataMedalsOrderingPath);
 
-    private static readonly Dictionary<int, string[]> MedalsLanguageData = new();
+    private static readonly Dictionary<int, string[]> MedalsLanguageData =
+        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedMedalPathSuffix);
 
     private readonly string[] _badgeNamedIds = Enum.GetNames(typeof(MainManager.BadgeTypes)).ToArray();
 
@@ -48,15 +45,6 @@ internal sealed class MedalsCollector : IBaseGameCollector
         _medalDataSerializer = medalDataSerializer;
         _medalOrderingDataSerializer = medalOrderingDataSerializer;
         _medalLanguageDataSerializer = medalLanguageDataSerializer;
-
-        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
-        {
-            string[] medalLanguageData = Resources.Load<TextAsset>(
-                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedMedalPathSuffix}").text
-                .Trim('\n')
-                .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
-            MedalsLanguageData.Add(i, medalLanguageData);
-        }
     }
 
     public void CollectBaseGameData(string baseGameId)

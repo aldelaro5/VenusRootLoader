@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
@@ -9,7 +8,8 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class FishingTextsCollector : IBaseGameCollector
 {
-    private static readonly Dictionary<int, string[]> FishingTextsLanguageData = new();
+    private static readonly Dictionary<int, string[]> FishingTextsLanguageData =
+        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedFishingTextsPathSuffix);
 
     private readonly ILogger<FishingTextsCollector> _logger;
     private readonly ILeavesRegistry<FishingTextLeaf> _fishingTextsRegistry;
@@ -23,15 +23,6 @@ internal sealed class FishingTextsCollector : IBaseGameCollector
         _logger = logger;
         _fishingTextLocalizedTextAssetParser = fishingTextLocalizedTextAssetParser;
         _fishingTextsRegistry = fishingTextsRegistry;
-
-        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
-        {
-            string[] fishingText = Resources.Load<TextAsset>(
-                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedFishingTextsPathSuffix}").text
-                .Trim(StringUtils.NewlineSplitDelimiter)
-                .Split(StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
-            FishingTextsLanguageData.Add(i, fishingText);
-        }
     }
 
     public void CollectBaseGameData(string baseGameId)

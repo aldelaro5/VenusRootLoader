@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
@@ -9,10 +8,8 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class TestRoomTextsCollector : IBaseGameCollector
 {
-    private static readonly string[] TestRoomTextsData = Resources
-        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataTestRoomMapDialoguesPath}").text
-        .Trim('\n')
-        .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
+    private static readonly string[] TestRoomTextsData =
+        RootCollector.ReadTextAssetLines(TextAssetPaths.DataTestRoomMapDialoguesPath);
 
     private readonly ILogger<TestRoomTextsCollector> _logger;
     private readonly ILeavesRegistry<TestRoomTextLeaf> _testRoomTextsRegistry;

@@ -15,16 +15,13 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class EnemiesCollector : IBaseGameCollector
 {
-    private static readonly string[] EnemiesData = Resources
-        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataEnemiesPath}").text
-        .Trim('\n')
-        .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
+    private static readonly string[] EnemiesData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataEnemiesPath);
 
-    private static readonly string EnemiesOrderingData = Resources
-        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataBestiaryEntriesOrderingPath}").text
-        .Trim('\n');
+    private static readonly string EnemiesOrderingData =
+        RootCollector.ReadWholeTextAsset(TextAssetPaths.DataBestiaryEntriesOrderingPath);
 
-    private static readonly Dictionary<int, string[]> EnemiesLanguageData = new();
+    private static readonly Dictionary<int, string[]> EnemiesLanguageData =
+        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedBestiaryEntriesPathSuffix);
 
     private readonly string[] _enemyNamedIds = Enum.GetNames(typeof(MainManager.Enemies)).ToArray();
 
@@ -52,17 +49,6 @@ internal sealed class EnemiesCollector : IBaseGameCollector
         _enemyTextAssetParser = enemyTextAssetParser;
         _enemyOrderingTextAssetParser = enemyOrderingTextAssetParser;
         _enemyLocalizedTextAssetParser = enemyLocalizedTextAssetParser;
-
-        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
-        {
-            string[] enemyLanguageData = Resources
-                .Load<TextAsset>(
-                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedBestiaryEntriesPathSuffix}")
-                .text
-                .Trim('\n')
-                .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
-            EnemiesLanguageData.Add(i, enemyLanguageData);
-        }
     }
 
     public void CollectBaseGameData(string baseGameId)

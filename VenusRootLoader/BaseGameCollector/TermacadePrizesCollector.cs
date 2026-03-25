@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
@@ -9,10 +8,8 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class TermacadePrizesCollector : IBaseGameCollector
 {
-    private static readonly string[] TermacadePrizesData = Resources
-        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataTermacadePrizesPath}").text
-        .Trim('\n')
-        .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
+    private static readonly string[] TermacadePrizesData =
+        RootCollector.ReadTextAssetLines(TextAssetPaths.DataTermacadePrizesPath);
 
     private readonly ILogger<TermacadePrizesCollector> _logger;
     private readonly ILeavesRegistry<TermacadePrizeLeaf> _termacadePrizesRegistry;

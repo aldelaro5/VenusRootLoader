@@ -10,11 +10,11 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class DiscoveriesCollector : IBaseGameCollector
 {
-    private static readonly string DiscoveriesOrderingData = Resources
-        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataDiscoveriesOrderingPath}").text
-        .Trim('\n');
+    private static readonly string DiscoveriesOrderingData =
+        RootCollector.ReadWholeTextAsset(TextAssetPaths.DataDiscoveriesOrderingPath);
 
-    private static readonly Dictionary<int, string[]> DiscoveriesLanguageData = new();
+    private static readonly Dictionary<int, string[]> DiscoveriesLanguageData =
+        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedDiscoveriesPathSuffix);
 
     private readonly Sprite[] _enemyPortraitsSprites = Resources.LoadAll<Sprite>(
         $"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesEnemyPortraitsPath}");
@@ -34,16 +34,6 @@ internal sealed class DiscoveriesCollector : IBaseGameCollector
         _logger = logger;
         _discoveriesOrderingDataSerializer = discoveriesOrderingDataSerializer;
         _discoveriesLanguageDataSerializer = discoveriesLanguageDataSerializer;
-
-        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
-        {
-            string[] discoveryLanguageData = Resources
-                .Load<TextAsset>(
-                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedDiscoveriesPathSuffix}").text
-                .Trim('\n')
-                .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
-            DiscoveriesLanguageData.Add(i, discoveryLanguageData);
-        }
     }
 
     public void CollectBaseGameData(string baseGameId)

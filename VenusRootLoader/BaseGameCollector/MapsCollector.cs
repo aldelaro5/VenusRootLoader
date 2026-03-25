@@ -16,10 +16,8 @@ internal sealed class MapsCollector : IBaseGameCollector
         Enumerable.Range(0, MapNamedIds.Length)
             .ToDictionary(
                 x => x,
-                x => (Resources.Load<TextAsset>($"{TextAssetPaths.DataSlashEntityData}/Names/{x}Names").text.Trim('\n')
-                        .Split(['\n'], StringSplitOptions.RemoveEmptyEntries),
-                    Resources.Load<TextAsset>($"{TextAssetPaths.DataSlashEntityData}/{x}").text.Trim('\n')
-                        .Split(['\n'], StringSplitOptions.RemoveEmptyEntries)));
+                x => (RootCollector.ReadTextAssetLines($"{TextAssetPaths.DataMapEntitiesDirectory}/Names/{x}Names"),
+                    RootCollector.ReadTextAssetLines($"{TextAssetPaths.DataMapEntitiesDirectory}/{x}")));
 
     private static readonly Dictionary<int, Dictionary<string, string[]>> MapsDialogues = new();
 

@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
@@ -9,12 +8,10 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class SkillsCollector : IBaseGameCollector
 {
-    private static readonly string[] SkillsData = Resources
-        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataSkillsPath}").text
-        .Trim('\n')
-        .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
+    private static readonly string[] SkillsData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataSkillsPath);
 
-    private static readonly Dictionary<int, string[]> SkillsLanguageData = new();
+    private static readonly Dictionary<int, string[]> SkillsLanguageData =
+        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedSkillsPathSuffix);
 
     private readonly string[] _skillNamedIds = Enum.GetNames(typeof(MainManager.Skills)).ToArray();
 
@@ -33,15 +30,6 @@ internal sealed class SkillsCollector : IBaseGameCollector
         _skillTextAssetParser = skillTextAssetParser;
         _skillLocalizedTextAssetParser = skillLocalizedTextAssetParser;
         _skillsRegistry = skillsRegistry;
-
-        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
-        {
-            string[] skillLanguageData = Resources.Load<TextAsset>(
-                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedSkillsPathSuffix}").text
-                .Trim(StringUtils.NewlineSplitDelimiter)
-                .Split(StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
-            SkillsLanguageData.Add(i, skillLanguageData);
-        }
     }
 
     public void CollectBaseGameData(string baseGameId)

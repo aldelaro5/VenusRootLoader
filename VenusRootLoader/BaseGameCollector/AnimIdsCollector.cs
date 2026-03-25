@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
@@ -9,10 +8,7 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class AnimIdsCollector : IBaseGameCollector
 {
-    private static readonly string[] AnimIdsData = Resources
-        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataAnimIdsPath}").text
-        .Trim('\n')
-        .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
+    private static readonly string[] AnimIdsData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataAnimIdsPath);
 
     private readonly string[] _animIdNamedIds = Enum.GetNames(typeof(MainManager.AnimIDs)).ToArray();
 

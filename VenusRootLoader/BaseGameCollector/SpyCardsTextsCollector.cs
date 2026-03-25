@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
@@ -9,7 +8,8 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class SpyCardsTextsCollector : IBaseGameCollector
 {
-    private static readonly Dictionary<int, string[]> SpyCardsTextsLanguageData = new();
+    private static readonly Dictionary<int, string[]> SpyCardsTextsLanguageData =
+        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedSpyCardsTextsPathSuffix);
 
     private readonly ILogger<SpyCardsTextsCollector> _logger;
     private readonly ILeavesRegistry<SpyCardsTextLeaf> _spyCardsTextsRegistry;
@@ -23,16 +23,6 @@ internal sealed class SpyCardsTextsCollector : IBaseGameCollector
         _logger = logger;
         _spyCardsTextLocalizedTextAssetParser = spyCardsTextLocalizedTextAssetParser;
         _spyCardsTextsRegistry = spyCardsTextsRegistry;
-
-        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
-        {
-            string[] spyCardsText = Resources.Load<TextAsset>(
-                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedSpyCardsTextsPathSuffix}")
-                .text
-                .Trim(StringUtils.NewlineSplitDelimiter)
-                .Split(StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
-            SpyCardsTextsLanguageData.Add(i, spyCardsText);
-        }
     }
 
     public void CollectBaseGameData(string baseGameId)

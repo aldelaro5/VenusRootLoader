@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
@@ -9,10 +8,8 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class RankBonusesCollector : IBaseGameCollector
 {
-    private static readonly string[] RankBonusesData = Resources
-        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataRankBonusesPath}").text
-        .Trim('\n')
-        .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
+    private static readonly string[] RankBonusesData =
+        RootCollector.ReadTextAssetLines(TextAssetPaths.DataRankBonusesPath);
 
     private readonly ILogger<RankBonusesCollector> _logger;
     private readonly ILeavesRegistry<RankBonusLeaf> _rankBonusesRegistry;

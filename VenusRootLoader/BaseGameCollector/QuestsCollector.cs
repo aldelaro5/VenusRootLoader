@@ -14,21 +14,16 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class QuestsCollector : IBaseGameCollector
 {
-    private static readonly string[] BoardData = Resources
-        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataQuestsPath}").text
-        .Trim('\n')
-        .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
+    private static readonly string[] BoardData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataQuestsPath);
 
-    private static readonly string[] ChecksData = Resources
-        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataQuestsRequirementsPath}")
-        .text
-        .Trim('\n')
-        .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
+    private static readonly string[] ChecksData =
+        RootCollector.ReadTextAssetLines(TextAssetPaths.DataQuestsRequirementsPath);
 
     private readonly Sprite[] _enemyPortraitsSprites = Resources.LoadAll<Sprite>(
         $"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesEnemyPortraitsPath}");
 
-    private static readonly Dictionary<int, string[]> QuestsLanguageData = new();
+    private static readonly Dictionary<int, string[]> QuestsLanguageData =
+        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedQuestsPathSuffix);
 
     private readonly string[] _questNamedIds = Enum.GetNames(typeof(MainManager.BoardQuests)).ToArray();
 
@@ -47,15 +42,6 @@ internal sealed class QuestsCollector : IBaseGameCollector
         _questsRegistry = questsRegistry;
         _questTextAssetParser = questTextAssetParser;
         _questLocalizedTextAssetParser = questLocalizedTextAssetParser;
-
-        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
-        {
-            string[] questLanguageData = Resources.Load<TextAsset>(
-                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedQuestsPathSuffix}").text
-                .Trim('\n')
-                .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
-            QuestsLanguageData.Add(i, questLanguageData);
-        }
     }
 
     public void CollectBaseGameData(string baseGameId)

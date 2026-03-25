@@ -11,12 +11,10 @@ internal sealed class ItemsCollector : IBaseGameCollector
 {
     private const int ItemsSpritesAmountInItems0 = 176;
 
-    private static readonly string[] ItemsData = Resources
-        .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{TextAssetPaths.DataItemsPath}").text
-        .Trim('\n')
-        .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
+    private static readonly string[] ItemsData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataItemsPath);
 
-    private static readonly Dictionary<int, string[]> ItemsLanguageData = new();
+    private static readonly Dictionary<int, string[]> ItemsLanguageData =
+        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedItemsPathSuffix);
 
     private readonly string[] _itemNamedIds = Enum.GetNames(typeof(MainManager.Items))
         .TakeWhile(v => v != nameof(MainManager.Items.None))
@@ -44,16 +42,13 @@ internal sealed class ItemsCollector : IBaseGameCollector
         _itemDataSerializer = itemDataSerializer;
         _itemLanguageDataSerializer = itemLanguageDataSerializer;
 
-        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
+        // Workaround a game bug where not all languages has the last line about BigBerry
+        for (int i = 0; i < ItemsLanguageData.Count; i++)
         {
-            string[] itemLanguageData = Resources.Load<TextAsset>(
-                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedItemsPathSuffix}").text
-                .Trim('\n')
-                .Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
-            // Workaround a game bug where not all languages has the last line about BigBerry
+            string[] itemLanguageData = ItemsLanguageData[i];
             if (itemLanguageData.Length != _itemNamedIds.Length)
                 itemLanguageData = itemLanguageData.Append("RESERVED@Desc@Desc@a").ToArray();
-            ItemsLanguageData.Add(i, itemLanguageData);
+            ItemsLanguageData[i] = itemLanguageData;
         }
     }
 

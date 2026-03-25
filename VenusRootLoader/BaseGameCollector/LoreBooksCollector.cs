@@ -15,8 +15,11 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class LoreBooksCollector : IBaseGameCollector
 {
-    private static readonly Dictionary<int, string[]> FortuneTellerHintsLanguageData = new();
-    private static readonly Dictionary<int, string[]> LoreTextsLanguageData = new();
+    private static readonly Dictionary<int, string[]> FortuneTellerHintsLanguageData =
+        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedLoreBookFortuneTellerHintsPathSuffix);
+
+    private static readonly Dictionary<int, string[]> LoreTextsLanguageData =
+        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedLoreBooksPathSuffix);
 
     private readonly ILogger<LoreBooksCollector> _logger;
     private readonly IAssemblyCSharpDataCollector _assemblyCSharpDataCollector;
@@ -36,21 +39,6 @@ internal sealed class LoreBooksCollector : IBaseGameCollector
         _loreBookLocalizedTextAssetParser = loreBookLocalizedTextAssetParser;
         _loreBooksRegistry = loreBooksRegistry;
         _flagsRegistry = flagsRegistry;
-
-        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
-        {
-            string[] fortuneTellerHints = Resources.Load<TextAsset>(
-                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedLoreBookFortuneTellerHintsPathSuffix}")
-                .text
-                .Trim(StringUtils.NewlineSplitDelimiter)
-                .Split(StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
-            FortuneTellerHintsLanguageData.Add(i, fortuneTellerHints);
-            string[] loreBookTexts = Resources.Load<TextAsset>(
-                    $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataLocalizedLoreBooksPathSuffix}").text
-                .Trim(StringUtils.NewlineSplitDelimiter)
-                .Split(StringUtils.NewlineSplitDelimiter, StringSplitOptions.RemoveEmptyEntries);
-            LoreTextsLanguageData.Add(i, loreBookTexts);
-        }
     }
 
     public void CollectBaseGameData(string baseGameId)

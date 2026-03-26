@@ -12,7 +12,7 @@
         <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3">
             <IncludeAssets>build</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.3"/>
+        <PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.4" />
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="Build">

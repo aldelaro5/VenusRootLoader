@@ -57,29 +57,40 @@ internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
                 $"Invalid {nameof(SkillUsability)}: {value.UsableBy}")
         };
 
+        switch (value.NamedId)
+        {
+            case nameof(MainManager.Skills.RevivalMassage) when value.Target == SkillTarget.SingleAlly:
+                targetingParameters.onlyGroundedEnemies = true;
+                break;
+            case nameof(MainManager.Skills.FrigidCoffin) when value.Target == SkillTarget.SingleEnemyGround:
+            case nameof(MainManager.Skills.ChargeUpPlus) when value.Target == SkillTarget.AllParty:
+                targetingParameters.onlyPlayersAlive = true;
+                break;
+        }
+
         StringBuilder sb = new();
 
         sb.Append(value.Cost * (value.CostResource == SkillCostResource.Tp ? 1 : -1));
         sb.Append('@');
         sb.Append(targetingParameters.attackAtrea.ToString());
         sb.Append('@');
-        sb.Append(usability.usableByBee);
+        sb.Append(CamelCaseBoolIfNeeded(usability.usableByBee, value.OriginalBoolCasing, false));
         sb.Append('@');
-        sb.Append(usability.usableByBeetle);
+        sb.Append(CamelCaseBoolIfNeeded(usability.usableByBeetle, value.OriginalBoolCasing, false));
         sb.Append('@');
-        sb.Append(usability.usableByMoth);
+        sb.Append(CamelCaseBoolIfNeeded(usability.usableByMoth, value.OriginalBoolCasing, false));
         sb.Append('@');
-        sb.Append(targetingParameters.onlyGroundedEnemies);
+        sb.Append(CamelCaseBoolIfNeeded(targetingParameters.onlyGroundedEnemies, value.OriginalBoolCasing, false));
         sb.Append('@');
-        sb.Append(targetingParameters.onlyFrontEnemy);
+        sb.Append(CamelCaseBoolIfNeeded(targetingParameters.onlyFrontEnemy, value.OriginalBoolCasing, false));
         sb.Append('@');
         sb.Append(value.ActionCommandHelpText?.GameId ?? -1);
         sb.Append('@');
-        sb.Append(targetingParameters.onlyPlayersAlive);
+        sb.Append(CamelCaseBoolIfNeeded(targetingParameters.onlyPlayersAlive, value.OriginalBoolCasing, false));
         sb.Append('@');
-        sb.Append(targetingParameters.excludeSelf);
+        sb.Append(CamelCaseBoolIfNeeded(targetingParameters.excludeSelf, value.OriginalBoolCasing, true));
         sb.Append('@');
-        sb.Append(targetingParameters.onlyPlayersFainted);
+        sb.Append(CamelCaseBoolIfNeeded(targetingParameters.onlyPlayersFainted, value.OriginalBoolCasing, true));
 
         return sb.ToString();
     }
@@ -87,6 +98,19 @@ internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
     public void FromTextAssetSerializedString(string subPath, string text, SkillLeaf value)
     {
         string[] fields = text.Split(StringUtils.AtSymbolSplitDelimiter);
+        string usableByBeeString = fields[2];
+        if (char.IsLower(usableByBeeString[0]))
+        {
+            value.OriginalBoolCasing = BoolCasing.AllCamelCase;
+        }
+        else
+        {
+            string onlyPlayersFaintedString = fields[10];
+            value.OriginalBoolCasing = char.IsLower(onlyPlayersFaintedString[0])
+                ? BoolCasing.PascalCaseWithLastTwoCamelCase
+                : BoolCasing.AllPascalCase;
+        }
+
         RawUsabilityParameters usabilityParameters =
             (bool.Parse(fields[2]), bool.Parse(fields[3]), bool.Parse(fields[4]));
         RawTargetingParameters targetParameters = (Enum.Parse<AttackArea>(fields[1]), bool.Parse(fields[5]),
@@ -139,4 +163,15 @@ internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
             (true, true, true) => SkillUsability.AnyBugWithAtLeastOneValidEnemyTarget,
         };
     }
+
+    private static string CamelCaseBoolIfNeeded(bool value, BoolCasing casing, bool isAmongLastTwo) =>
+        casing switch
+        {
+            BoolCasing.AllPascalCase => value.ToString(),
+            BoolCasing.AllCamelCase => value.ToString().ToLowerInvariant(),
+            BoolCasing.PascalCaseWithLastTwoCamelCase => isAmongLastTwo
+                ? value.ToString().ToLowerInvariant()
+                : value.ToString(),
+            _ => ThrowHelper.ThrowArgumentNullException<string>(nameof(casing))
+        };
 }

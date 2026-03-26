@@ -3,6 +3,13 @@ namespace VenusRootLoader.Api.Leaves;
 // TODO: Need to patch RefreshSkills which requires additional conditions support and linking with RankBonus leaves
 internal sealed class SkillLeaf : Leaf
 {
+    internal enum BoolCasing
+    {
+        AllPascalCase,
+        AllCamelCase,
+        PascalCaseWithLastTwoCamelCase
+    }
+    
     internal enum SkillCostResource
     {
         Tp,
@@ -48,6 +55,8 @@ internal sealed class SkillLeaf : Leaf
     internal SkillLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
     {
     }
+
+    internal BoolCasing OriginalBoolCasing { get; set; }
 
     internal LocalizedData<SkillLanguageData> LocalizedData { get; } = new();
     internal SkillCostResource CostResource { get; set; }

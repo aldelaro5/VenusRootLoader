@@ -38,14 +38,25 @@ internal sealed class RecipeLibraryEntryTextAssetParser : ITextAssetParser<Recip
             return sb.ToString();
         }
 
-        sb.Append(value.Recipe.Leaf.FirstItem!.Value.GameId);
-        if (value.Recipe.Leaf.SecondItem is not null)
+        if (value.Recipe.Leaf.FirstItem is not null && value.Recipe.Leaf.SecondItem is not null)
         {
+            sb.Append(
+                value.OriginalItemsHaveInvertedOrder
+                    ? value.Recipe.Leaf.SecondItem.Value.GameId
+                    : value.Recipe.Leaf.FirstItem.Value.GameId);
             sb.Append(',');
-            sb.Append(value.Recipe.Leaf.SecondItem.Value.GameId);
+            sb.Append(
+                value.OriginalItemsHaveInvertedOrder
+                    ? value.Recipe.Leaf.FirstItem.Value.GameId
+                    : value.Recipe.Leaf.SecondItem.Value.GameId);
+        }
+        else
+        {
+            sb.Append(value.Recipe.Leaf.FirstItem!.Value.GameId);
         }
 
-        sb.Append('@');
+        if (value.OriginalEndsWithAtSymbol)
+            sb.Append('@');
         return sb.ToString();
     }
 
@@ -61,6 +72,7 @@ internal sealed class RecipeLibraryEntryTextAssetParser : ITextAssetParser<Recip
         if (!subPath.Equals(CookLibrarySubPath, StringComparison.OrdinalIgnoreCase))
             ThrowHelper.ThrowInvalidDataException($"This parser doesn't support the subPath {subPath}");
 
+        value.OriginalEndsWithAtSymbol = text.EndsWith("@");
         string[] fields = text.Replace("@", "").Split(StringUtils.CommaSplitDelimiter);
         int firstItem = int.Parse(fields[0]);
         if (firstItem == -1)
@@ -85,6 +97,8 @@ internal sealed class RecipeLibraryEntryTextAssetParser : ITextAssetParser<Recip
                           r.SecondItem == value.Recipe.Leaf.SecondItem) ||
                          (r.FirstItem == value.Recipe.Leaf.SecondItem &&
                           r.SecondItem == value.Recipe.Leaf.FirstItem)));
+        value.OriginalItemsHaveInvertedOrder = foundRecipe.FirstItem == value.Recipe.Leaf.SecondItem &&
+                                               foundRecipe.SecondItem == value.Recipe.Leaf.FirstItem;
         value.Recipe = new(foundRecipe);
     }
 }

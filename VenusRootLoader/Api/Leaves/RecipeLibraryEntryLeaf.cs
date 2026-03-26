@@ -6,5 +6,7 @@ public sealed class RecipeLibraryEntryLeaf : Leaf
     {
     }
 
+    internal bool OriginalEndsWithAtSymbol { get; set; }
+    internal bool OriginalItemsHaveInvertedOrder { get; set; }
     public Branch<RecipeLeaf> Recipe { get; set; }
 }

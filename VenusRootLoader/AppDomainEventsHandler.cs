@@ -6,6 +6,15 @@ using VenusRootLoader.BudLoading;
 
 namespace VenusRootLoader;
 
+/// <summary>
+/// This service installs handlers to specific AppDomain events that affects the modding environment at a global level:
+/// <list type="bullet">
+/// <item><see cref="AppDomain.UnhandledException"/> Provides a way to log unhandled exceptions.
+/// to the <c>Critical</c> logging level</item>
+/// <item><see cref="AppDomain.AssemblyResolve"/> Provides a basic resolvers for buds so their assemblies
+/// can be resolved if they reside anywhere under their bud directory.</item>
+/// </list>
+/// </summary>
 internal sealed class AppDomainEventsHandler
 {
     private readonly BudLoaderContext _budLoaderContext;

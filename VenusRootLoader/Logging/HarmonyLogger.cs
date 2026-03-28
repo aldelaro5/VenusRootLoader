@@ -3,6 +3,9 @@ using Microsoft.Extensions.Logging;
 
 namespace VenusRootLoader.Logging;
 
+/// <summary>
+/// Handles <see cref="HarmonyLib.Tools.Logger"/> logging messages so they are logged with the correct logging level.
+/// </summary>
 internal sealed class HarmonyLogger
 {
     private static readonly Dictionary<Logger.LogChannel, LogLevel> LogLevelMappings = new()

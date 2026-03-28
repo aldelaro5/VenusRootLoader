@@ -2,6 +2,7 @@ using VenusRootLoader.Api.Leaves;
 
 namespace VenusRootLoader.Registry;
 
+/// <inheritdoc/>
 internal sealed class OrderedLeavesRegistry<TLeaf> : IOrderedLeavesRegistry<TLeaf>
     where TLeaf : Leaf
 {

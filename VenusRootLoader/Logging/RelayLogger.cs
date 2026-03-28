@@ -2,6 +2,10 @@ using Microsoft.Extensions.Logging;
 
 namespace VenusRootLoader.Logging;
 
+/// <summary>
+/// An <see cref="ILogger"/> that allows the bootstrap to handle every logging from the managed side so both sides uses the same
+/// logging system.
+/// </summary>
 internal sealed class RelayLogger : ILogger
 {
     private readonly BootstrapFunctions _bootstrapFunctions;

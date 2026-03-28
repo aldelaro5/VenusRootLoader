@@ -7,6 +7,10 @@ using VenusRootLoader.Unity.CustomAudioClip;
 
 namespace VenusRootLoader.Api;
 
+/// <summary>
+/// A class that allows each <see cref="Bud"/> to access key <see cref="VenusRootLoader"/> APIs. Each instance is tailored
+/// to each specific bud for tracking purposes.
+/// </summary>
 public sealed partial class Venus
 {
     internal readonly string BudId;

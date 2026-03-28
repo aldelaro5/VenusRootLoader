@@ -5,6 +5,16 @@ using VenusRootLoader.Api;
 
 namespace VenusRootLoader.BudLoading;
 
+/// <summary>
+/// The service that oversees every phase of the bud loading process. It consists of the following phases in order:
+/// <list type="number">
+/// <item><see cref="IBudsDiscoverer"/>: Discovers all buds from the buds directory on disk.</item>
+/// <item><see cref="IBudsValidator"/>: Removes all buds that aren't semantically valid from this point such as duplicates or incompatible buds.</item>
+/// <item><see cref="IBudsDependencySorter"/>: Sorts all buds topologically given their depencencies.</item>
+/// <item><see cref="IBudsLoadOrderEnumerator"/>: Enumerate all buds whose loading conditions have all been fulfilled.</item>
+/// </list>
+/// All the buds enumerated from the last phase gets loaded after handling their configuration file.
+/// </summary>
 internal sealed class BudLoader
 {
     private readonly IBudsDiscoverer _budsDiscoverer;

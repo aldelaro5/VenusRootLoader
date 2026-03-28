@@ -5,11 +5,21 @@ using VenusRootLoader.Api;
 
 namespace VenusRootLoader.BudLoading;
 
+/// <summary>
+/// A service that handles the second phase of the <see cref="BudLoader"/> to remove all semantically invalid that were
+/// discovered by the <see cref="IBudsDiscoverer"/>.
+/// </summary>
 internal interface IBudsValidator
 {
+    /// <summary>
+    /// Removes all duplicates and incompatible buds from the buds list.
+    /// </summary>
+    /// <param name="buds">The list of <see cref="BudInfo"/> discovered by the <see cref="IBudsDiscoverer"/>.</param>
+    /// <returns>An unordered list of <see cref="BudInfo"/> indexed by their bud id.</returns>
     IDictionary<string, BudInfo> RemoveInvalidBuds(IList<BudInfo> buds);
 }
 
+/// <inheritdoc/>
 internal sealed class BudsValidator : IBudsValidator
 {
     private readonly ILogger<BudsValidator> _logger;

@@ -5,7 +5,13 @@ using VenusRootLoader.Patching;
 
 namespace VenusRootLoader.Registry;
 
-internal class EnumBasedRegistry<TLeaf, TEnum> : BaseRegistry<TLeaf>
+/// <summary>
+/// A registry whose <see cref="Leaf"/>'s <see cref="Leaf.GameId"/> matches a specific <see cref="Enum"/> value and whose
+/// <see cref="Leaf.NamedId"/> matches the name of this value.
+/// </summary>
+/// <typeparam name="TLeaf"><inheritdoc/></typeparam>
+/// <typeparam name="TEnum">The <see cref="Enum"/> type that can identify every leaf in this registry.</typeparam>
+internal sealed class EnumBasedRegistry<TLeaf, TEnum> : BaseRegistry<TLeaf>
     where TLeaf : Leaf
     where TEnum : Enum
 {
@@ -19,10 +25,10 @@ internal class EnumBasedRegistry<TLeaf, TEnum> : BaseRegistry<TLeaf>
         _enumPatcher = enumPatcher;
     }
 
-    public sealed override TLeaf RegisterExisting(int gameId, string namedId, string creatorId) =>
+    public override TLeaf RegisterExisting(int gameId, string namedId, string creatorId) =>
         base.RegisterExisting(gameId + _offsetEnumValueToGameId, namedId, creatorId);
 
-    protected sealed override int CreateNewGameId(string namedId, string creatorId)
+    protected override int CreateNewGameId(string namedId, string creatorId)
     {
         EnsureNamedIdIsValidEnumName(namedId);
         int enumValue = _enumPatcher.AddCustomEnumName(typeof(TEnum), namedId);

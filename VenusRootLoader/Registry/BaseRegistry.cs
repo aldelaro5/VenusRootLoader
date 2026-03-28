@@ -5,6 +5,7 @@ using VenusRootLoader.Api.Leaves;
 
 namespace VenusRootLoader.Registry;
 
+/// <inheritdoc/>
 internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
     where TLeaf : Leaf
 {
@@ -40,6 +41,9 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
 
     private static TLeaf CreateLeafInstance(int gameId, string namedId, string creatorId)
     {
+        // We have to use the Activator here because it's not possible to use a generics constraint that does what we want.
+        // The closest is new(), but this requires the constructor to be public which we don't want on any leaves since
+        // the registry should be the only one allowed to create new leaves from buds
         return (TLeaf)Activator.CreateInstance(
             typeof(TLeaf),
             BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,

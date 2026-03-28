@@ -1,9 +1,13 @@
 using NuGet.Versioning;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using VenusRootLoader.Api;
 
 namespace VenusRootLoader.JsonConverters;
 
+/// <summary>
+/// A <see cref="JsonConverter"/> for a NuGet's <see cref="NuGetVersion"/> used in <see cref="Bud"/>'s manifests.
+/// </summary>
 public sealed class NuGetVersionJsonConverter : JsonConverter<NuGetVersion>
 {
     public static NuGetVersionJsonConverter Instance { get; } = new();

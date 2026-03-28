@@ -5,11 +5,31 @@ using UnityEngine;
 
 namespace VenusRootLoader.Unity.CustomAudioClip;
 
+/// <summary>
+/// A service provided to buds that allows them to obtain an <see cref="AudioClip"/> from an external audio file.
+/// It supports a wide variety of common audio file formats and the ability to stream the file or load it fully.
+/// The implementation uses a mix of <see cref="UnityEngine.Networking.UnityWebRequestMultimedia"/> and
+/// <see cref="NAudio.Wave.WaveStream"/> depending on the file format (the former is prefered since it's faster, but it
+/// doesn't support Mp3 and Flac while the latter supports them).
+/// </summary>
 internal interface ICustomAudioClipProvider
 {
+    /// <summary>
+    /// Obtains an <see cref="AudioClip"/> from an external audio file.
+    /// </summary>
+    /// <param name="filePath">The full path of the audio file.</param>
+    /// <param name="isStreamed">Tells if the <see cref="AudioClip"/> should be streamed or loaded fully.</param>
+    /// <param name="audioFileFormat">The format to use for loading the audio file.</param>
+    /// <returns>The newly created <see cref="AudioClip"/></returns>
+    /// <remarks>If <paramref name="audioFileFormat"/> is a tracker format, it will be loaded fully regardless of the
+    /// value of <paramref name="isStreamed"/></remarks>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="audioFileFormat"/> is
+    /// <see cref="AudioFileFormat.AutoDetect"/> and the file format couldn't be determined from the
+    /// <paramref name="filePath"/>'s extension.</exception>
     AudioClip GetAudioClipFromFile(string filePath, bool isStreamed, AudioFileFormat audioFileFormat);
 }
 
+/// <inheritdoc/>
 internal sealed class CustomAudioClipProvider : ICustomAudioClipProvider
 {
     private readonly IFileSystem _fileSystem;

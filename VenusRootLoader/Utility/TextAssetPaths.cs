@@ -1,5 +1,9 @@
 namespace VenusRootLoader.Utility;
 
+/// <summary>
+/// Contains important resources paths from the game that other services can refer to.
+/// These are case-insensitive because Unity treats them as such.
+/// </summary>
 public static class TextAssetPaths
 {
     internal const string RootAnimatorControllerdPathPrefix = "AnimationControllers/";

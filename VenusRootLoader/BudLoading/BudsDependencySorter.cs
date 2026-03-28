@@ -2,8 +2,18 @@ using Microsoft.Extensions.Logging;
 
 namespace VenusRootLoader.BudLoading;
 
+/// <summary>
+/// A service that handles the third phase of the <see cref="BudLoader"/> to sort all buds topologically given their dependencies.
+/// </summary>
 internal interface IBudsDependencySorter
 {
+    /// <summary>
+    /// Sorts all buds topologically given the dependency graph that is formed from all the buds' dependencies.
+    /// If a bud doesn't have its dependencies fulfilled, it will still be present in the returned list.
+    /// </summary>
+    /// <param name="budsById">The <see cref="BudInfo"/> indexed by their bud id which is returned by the <see cref="IBudsValidator"/>.</param>
+    /// <returns>An ordered list of <see cref="BudInfo"/>.</returns>
+    /// <exception cref="Exception">Thrown if a dependency cycle is detected.</exception>
     IList<BudInfo> SortBudsTopologicallyFromDependencyGraph(IDictionary<string, BudInfo> budsById);
 }
 

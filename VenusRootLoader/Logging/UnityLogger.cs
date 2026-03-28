@@ -6,6 +6,11 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace VenusRootLoader.Logging;
 
+/// <summary>
+/// A service to logs Unity's managed logs using the correct logging level.
+/// This service is disabled when the <c>UNITY</c> logging category is set to Trace since the bootstrap
+/// will handle them in that case, but without any regards to the logging level.
+/// </summary>
 internal sealed class UnityLogger
 {
     private readonly ILoggerFactory _loggerFactory;

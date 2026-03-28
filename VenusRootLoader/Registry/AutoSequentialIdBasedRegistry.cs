@@ -4,6 +4,17 @@ using VenusRootLoader.Api.Leaves;
 
 namespace VenusRootLoader.Registry;
 
+internal enum IdSequenceDirection
+{
+    Increment,
+    Decrement
+}
+
+/// <summary>
+/// A registry whose <see cref="Leaf"/>'s <see cref="Leaf.GameId"/> changes in a sequential manner from a starting point
+/// (ascending or descending) as leaves gets registered to it.
+/// </summary>
+/// <typeparam name="TLeaf"><inheritdoc/></typeparam>
 internal sealed class AutoSequentialIdBasedRegistry<TLeaf> : BaseRegistry<TLeaf>
     where TLeaf : Leaf
 {

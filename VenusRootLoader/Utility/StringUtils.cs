@@ -1,5 +1,9 @@
 namespace VenusRootLoader.Utility;
 
+/// <summary>
+/// Contains static instances of common char arrays
+/// used with the <see cref="string.Split(char[], int)"/> method to avoid unecessary allocations.
+/// </summary>
 internal static class StringUtils
 {
     internal static readonly char[] CommaSplitDelimiter = [','];

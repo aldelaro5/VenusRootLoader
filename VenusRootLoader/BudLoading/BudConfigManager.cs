@@ -10,13 +10,37 @@ using VenusRootLoader.Api;
 
 namespace VenusRootLoader.BudLoading;
 
+/// <summary>
+/// A service that handles buds' configuration files
+/// </summary>
 internal interface IBudConfigManager
 {
+    /// <summary>
+    /// Obtains the full path of the configuration file for a <see cref="Bud"/>.
+    /// </summary>
+    /// <param name="budId">The bud's unique id.</param>
+    /// <returns>A string containing the full file path of the configuration file.</returns>
     string GetConfigPathForBud(string budId);
+
+    /// <summary>
+    /// Saves the object data to the <see cref="Bud"/>'s configuration file.
+    /// </summary>
+    /// <param name="budId">The bud's unique id.</param>
+    /// <param name="configType">The type of object to save.</param>
+    /// <param name="configData">The data to save, must be of type <paramref name="configType"/>.</param>
+    /// <param name="defaultConfigData">The default data to use, must be of type <paramref name="configType"/>.</param>
     void Save(string budId, Type configType, object configData, object defaultConfigData);
+
+    /// <summary>
+    /// Loads the data from a <see cref="Bud"/>'s configuration file.
+    /// </summary>
+    /// <param name="budId">The bud's unique id.</param>
+    /// <param name="configType">The type of object to load.</param>
+    /// <returns>An instance of <paramref name="configType"/> containing the loaded data.</returns>
     object Load(string budId, Type configType);
 }
 
+/// <inheritdoc/>
 internal sealed class BudConfigManager : IBudConfigManager
 {
     private static readonly Type[] UnityTableTypes =

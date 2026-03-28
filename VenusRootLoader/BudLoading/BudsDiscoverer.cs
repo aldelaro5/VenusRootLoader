@@ -8,11 +8,19 @@ using VenusRootLoader.JsonConverters;
 
 namespace VenusRootLoader.BudLoading;
 
+/// <summary>
+/// A service that handles the first phase of the <see cref="BudLoader"/> to discover all buds from the disk.
+/// </summary>
 internal interface IBudsDiscoverer
 {
+    /// <summary>
+    /// Discovers all well-formed buds from the disk under the buds' directory.
+    /// </summary>
+    /// <returns>An unordered list of <see cref="BudInfo"/> that was found to be well-formed.</returns>
     IList<BudInfo> DiscoverAllBudsFromDisk();
 }
 
+/// <inheritdoc/>
 internal sealed class BudsDiscoverer : IBudsDiscoverer
 {
     private readonly IFileSystem _fileSystem;

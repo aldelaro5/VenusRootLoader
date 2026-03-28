@@ -4,12 +4,28 @@ using VenusRootLoader.Api;
 
 namespace VenusRootLoader.BudLoading;
 
+/// <summary>
+/// A service that handles the last phase of the <see cref="BudLoader"/> to enumerate in order all the buds that will
+/// actually get loaded. Only the buds that have all their loading conditions fulfilled will get enumerated.
+/// </summary>
 internal interface IBudsLoadOrderEnumerator
 {
+    /// <summary>
+    /// Enumerate in order all the buds that should get loaded. Only the buds whose loading conditions are all fulfilled
+    /// which takes into account all buds that were maked as failed during their loading.
+    /// </summary>
+    /// <param name="sortedBuds">The list of sorted buds obtained from the <see cref="IBudsDependencySorter"/></param>
+    /// <returns>An enumeration of all ordered buds to load.</returns>
     IEnumerable<BudInfo> EnumerateBudsWithFulfilledDependencies(IEnumerable<BudInfo> sortedBuds);
+
+    /// <summary>
+    /// Mark a bud that was attempted to be loaded as failed so its dependants can take this failure into account during the enumeration.
+    /// </summary>
+    /// <param name="bud">The bud to mark as failed.</param>
     void MarkBudAsFailedDuringLoad(BudInfo bud);
 }
 
+/// <inheritdoc/>
 internal sealed class BudsLoadOrderEnumerator : IBudsLoadOrderEnumerator
 {
     private readonly ILogger<BudsLoadOrderEnumerator> _logger;

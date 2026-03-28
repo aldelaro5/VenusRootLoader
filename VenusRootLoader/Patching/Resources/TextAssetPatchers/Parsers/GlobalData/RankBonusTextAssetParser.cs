@@ -6,31 +6,31 @@ namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalDat
 
 internal sealed class RankBonusTextAssetParser : ITextAssetParser<RankBonusLeaf>
 {
-    public string GetTextAssetSerializedString(string subPath, RankBonusLeaf value)
+    public string GetTextAssetSerializedString(string subPath, RankBonusLeaf leaf)
     {
         StringBuilder sb = new();
 
-        sb.Append(value.RankNeeded);
+        sb.Append(leaf.RankNeeded);
         sb.Append(',');
-        sb.Append((int)value.BonusType);
+        sb.Append((int)leaf.BonusType);
         sb.Append(',');
-        sb.Append(value.FirstParameter);
+        sb.Append(leaf.FirstParameter);
         sb.Append(',');
-        sb.Append(value.SecondParameter);
+        sb.Append(leaf.SecondParameter);
         sb.Append(',');
-        sb.Append(value.ThirdParameter);
+        sb.Append(leaf.ThirdParameter);
 
         return sb.ToString();
     }
 
-    public void FromTextAssetSerializedString(string subPath, string text, RankBonusLeaf value)
+    public void FromTextAssetSerializedString(string subPath, string text, RankBonusLeaf leaf)
     {
         string[] split = text.Split(StringUtils.CommaSplitDelimiter);
 
-        value.RankNeeded = int.Parse(split[0]);
-        value.BonusType = (RankBonusLeaf.RankBonusType)int.Parse(split[1]);
-        value.FirstParameter = int.Parse(split[2]);
-        value.SecondParameter = int.Parse(split[3]);
-        value.ThirdParameter = int.Parse(split[4]);
+        leaf.RankNeeded = int.Parse(split[0]);
+        leaf.BonusType = (RankBonusLeaf.RankBonusType)int.Parse(split[1]);
+        leaf.FirstParameter = int.Parse(split[2]);
+        leaf.SecondParameter = int.Parse(split[3]);
+        leaf.ThirdParameter = int.Parse(split[4]);
     }
 }

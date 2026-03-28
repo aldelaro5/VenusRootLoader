@@ -7,28 +7,49 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers;
 
+/// <summary>
+/// A patcher that handles patching global line based <see cref="TextAsset"/> given that the resources path
+/// starts with any strings among a list.
+/// </summary>
 internal interface ITextAssetPatcher
 {
+    /// <summary>
+    /// The list of subpaths that this patcher handles. Any resources path excluding <c>Data/</c> that starts with any
+    /// element of this array will be processed by this patcher.
+    /// </summary>
     string[] SubPaths { get; }
+
+    /// <summary>
+    /// Patches the original <see cref="TextAsset"/> given that the game requested to load it using the resources path
+    /// <paramref name="path"/> excluding the <c>Data/</c> prefix.
+    /// </summary>
+    /// <param name="path">The resources path the game requested to load excluding the <c>Data/</c> prefix.</param>
+    /// <param name="original">The original <see cref="TextAsset"/> that would be returned if the patcher wasn't present.</param>
+    /// <returns>The patched <see cref="TextAsset"/>.</returns>
     TextAsset PatchTextAsset(string path, TextAsset original);
 }
 
-internal sealed class TextAssetPatcher<T> : ITextAssetPatcher
-    where T : Leaf
+/// <summary>
+/// An <see cref="ITextAssetPatcher"/> whose <see cref="TextAsset"/> represents <see cref="Leaf"/> data.
+/// It relies on a <see cref="ITextAssetParser{T}"/> to do the actual conversion from <see cref="Leaf"/> to string.
+/// </summary>
+/// <typeparam name="TLeaf">The <see cref="Leaf"/> type</typeparam>
+internal sealed class TextAssetPatcher<TLeaf> : ITextAssetPatcher
+    where TLeaf : Leaf
 {
-    private readonly ILogger<TextAssetPatcher<T>> _logger;
+    private readonly ILogger<TextAssetPatcher<TLeaf>> _logger;
     private readonly ITextAssetDumper _textAssetDumper;
-    private readonly ILeavesRegistry<T> _registry;
-    private readonly ITextAssetParser<T> _parser;
-    private readonly Func<ILeavesRegistry<T>, IEnumerable<T>>? _leavesSorter;
+    private readonly ILeavesRegistry<TLeaf> _registry;
+    private readonly ITextAssetParser<TLeaf> _parser;
+    private readonly Func<ILeavesRegistry<TLeaf>, IEnumerable<TLeaf>>? _leavesSorter;
 
     public TextAssetPatcher(
         string[] subPaths,
-        ILogger<TextAssetPatcher<T>> logger,
+        ILogger<TextAssetPatcher<TLeaf>> logger,
         ITextAssetDumper textAssetDumper,
-        ILeavesRegistry<T> registry,
-        ITextAssetParser<T> parser,
-        Func<ILeavesRegistry<T>, IEnumerable<T>>? leavesSorter)
+        ILeavesRegistry<TLeaf> registry,
+        ITextAssetParser<TLeaf> parser,
+        Func<ILeavesRegistry<TLeaf>, IEnumerable<TLeaf>>? leavesSorter)
     {
         SubPaths = subPaths;
         _leavesSorter = leavesSorter;
@@ -46,7 +67,7 @@ internal sealed class TextAssetPatcher<T> : ITextAssetPatcher
         if (!registryHasData)
             return original;
 
-        IEnumerable<T> sortedLeaves = _leavesSorter is null
+        IEnumerable<TLeaf> sortedLeaves = _leavesSorter is null
             ? _registry.LeavesByGameIds.Values.OrderBy(l => l.GameId)
             : _leavesSorter(_registry);
         IEnumerable<string> newLines = sortedLeaves

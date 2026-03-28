@@ -4,9 +4,9 @@ namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalDat
 
 internal sealed class TestRoomTextTextAssetParser : ITextAssetParser<TestRoomTextLeaf>
 {
-    public string GetTextAssetSerializedString(string subPath, TestRoomTextLeaf value) =>
-        value.Text;
+    public string GetTextAssetSerializedString(string subPath, TestRoomTextLeaf leaf) =>
+        leaf.Text;
 
-    public void FromTextAssetSerializedString(string subPath, string text, TestRoomTextLeaf value) =>
-        value.Text = text;
+    public void FromTextAssetSerializedString(string subPath, string text, TestRoomTextLeaf leaf) =>
+        leaf.Text = text;
 }

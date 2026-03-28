@@ -3,6 +3,11 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers;
 
+/// <summary>
+/// An <see cref="IResourcesTypePatcher{TObject}"/> that patches <see cref="TextAsset"/> assets.
+/// It mainly dispatches the actual patching to any concerned TextAsset patchers depending on the resource path.
+/// It handles all the variety of TextAssrt patchers.
+/// </summary>
 internal sealed class RootTextAssetPatcher : IResourcesTypePatcher<TextAsset>
 {
     private readonly Dictionary<string, ITextAssetPatcher> _textAssetPatchers =

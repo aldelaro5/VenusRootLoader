@@ -13,20 +13,26 @@ internal interface IOrderingTextAssetPatcher
     TextAsset PatchTextAsset(string path, TextAsset original);
 }
 
-internal sealed class OrderingTextAssetPatcher<T> : IOrderingTextAssetPatcher
-    where T : Leaf
+/// <summary>
+/// An <see cref="IOrderingTextAssetPatcher"/> whose <see cref="TextAsset"/> represents
+/// <see cref="IOrderedLeavesRegistry{TLeaf}"/> ordering data. It relies on a <see cref="IOrderingTextAssetParser{T}"/>
+/// to do the actual conversion from all the <see cref="Leaf"/> to string.
+/// </summary>
+/// <typeparam name="TLeaf">The <see cref="Leaf"/> type</typeparam>
+internal sealed class OrderingTextAssetPatcher<TLeaf> : IOrderingTextAssetPatcher
+    where TLeaf : Leaf
 {
-    private readonly IOrderedLeavesRegistry<T> _orderedLeaves;
-    private readonly ILogger<OrderingTextAssetPatcher<T>> _logger;
+    private readonly IOrderedLeavesRegistry<TLeaf> _orderedLeaves;
+    private readonly ILogger<OrderingTextAssetPatcher<TLeaf>> _logger;
     private readonly ITextAssetDumper _textAssetDumper;
-    private readonly IOrderingTextAssetParser<T> _parser;
+    private readonly IOrderingTextAssetParser<TLeaf> _parser;
 
     public OrderingTextAssetPatcher(
         string subPaths,
-        ILogger<OrderingTextAssetPatcher<T>> logger,
+        ILogger<OrderingTextAssetPatcher<TLeaf>> logger,
         ITextAssetDumper textAssetDumper,
-        IOrderedLeavesRegistry<T> orderedLeaves,
-        IOrderingTextAssetParser<T> parser)
+        IOrderedLeavesRegistry<TLeaf> orderedLeaves,
+        IOrderingTextAssetParser<TLeaf> parser)
     {
         SubPath = subPaths;
         _logger = logger;

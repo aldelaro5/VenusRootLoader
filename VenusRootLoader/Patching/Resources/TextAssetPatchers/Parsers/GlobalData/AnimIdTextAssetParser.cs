@@ -16,67 +16,67 @@ internal sealed class AnimIdTextAssetParser : ITextAssetParser<AnimIdLeaf>
         _bleepsRegistry = bleepsRegistry;
     }
 
-    public string GetTextAssetSerializedString(string subPath, AnimIdLeaf value)
+    public string GetTextAssetSerializedString(string subPath, AnimIdLeaf leaf)
     {
         StringBuilder sb = new();
 
-        sb.Append(value.ShadowSize);
+        sb.Append(leaf.ShadowSize);
         sb.Append(',');
-        AppendVector3ToStringBuilder(sb, value.StartingScale);
+        AppendVector3ToStringBuilder(sb, leaf.StartingScale);
         sb.Append(',');
-        sb.Append(value.BleepPitch);
+        sb.Append(leaf.BleepPitch);
         sb.Append(',');
-        sb.Append(value.BleepId.GameId);
+        sb.Append(leaf.BleepId.GameId);
         sb.Append(',');
-        sb.Append(value.IsModelEntity);
+        sb.Append(leaf.IsModelEntity);
         sb.Append(',');
-        AppendVector3ToStringBuilder(sb, value.ModelScale);
+        AppendVector3ToStringBuilder(sb, leaf.ModelScale);
         sb.Append(',');
-        AppendVector3ToStringBuilder(sb, value.ModelOffset);
+        AppendVector3ToStringBuilder(sb, leaf.ModelOffset);
         sb.Append(',');
-        AppendVector3ToStringBuilder(sb, value.FreezeSize);
+        AppendVector3ToStringBuilder(sb, leaf.FreezeSize);
         sb.Append(',');
-        AppendVector3ToStringBuilder(sb, value.FreezeOffset);
+        AppendVector3ToStringBuilder(sb, leaf.FreezeOffset);
         sb.Append(',');
-        AppendVector3ToStringBuilder(sb, value.FreezeFlipOffset);
+        AppendVector3ToStringBuilder(sb, leaf.FreezeFlipOffset);
         sb.Append(',');
 
-        IEnumerable<string> preloadResourcesStrings = value.PreloadResources
+        IEnumerable<string> preloadResourcesStrings = leaf.PreloadResources
             .Select(FormatResourcePreload);
         sb.Append(string.Join("?", preloadResourcesStrings));
 
         sb.Append(',');
-        sb.Append(value.ShakeOnDrop);
+        sb.Append(leaf.ShakeOnDrop);
         sb.Append(',');
-        sb.Append(value.HasDigAnimation);
+        sb.Append(leaf.HasDigAnimation);
         sb.Append(',');
-        sb.Append(!value.HasJumpAnimationOverride);
+        sb.Append(!leaf.HasJumpAnimationOverride);
         sb.Append(',');
-        sb.Append(!value.FallsWhenFrozen);
+        sb.Append(!leaf.FallsWhenFrozen);
         sb.Append(',');
-        sb.Append(!value.HasShadow);
+        sb.Append(!leaf.HasShadow);
         sb.Append(',');
-        sb.Append((int)value.WalkType);
+        sb.Append((int)leaf.WalkType);
         sb.Append(',');
-        sb.Append(value.UnusedBaseIdleAnimState);
+        sb.Append(leaf.UnusedBaseIdleAnimState);
         sb.Append(',');
-        sb.Append(value.UnusedBaseWalkAnimState);
+        sb.Append(leaf.UnusedBaseWalkAnimState);
         sb.Append(',');
-        sb.Append(value.MinimumHeight);
+        sb.Append(leaf.MinimumHeight);
         sb.Append(',');
-        sb.Append(value.UnusedStartingHeight);
+        sb.Append(leaf.UnusedStartingHeight);
         sb.Append(',');
-        sb.Append(value.StartingBobSpeed);
+        sb.Append(leaf.StartingBobSpeed);
         sb.Append(',');
-        sb.Append(value.StartingBobFrequency);
+        sb.Append(leaf.StartingBobFrequency);
         sb.Append(',');
-        sb.Append(value.HasIceAnimation);
+        sb.Append(leaf.HasIceAnimation);
         sb.Append(',');
-        sb.Append(value.HasFlyingAnimationOverride);
+        sb.Append(leaf.HasFlyingAnimationOverride);
         sb.Append(',');
-        sb.Append(value.ForcesShadow);
+        sb.Append(leaf.ForcesShadow);
         sb.Append(',');
-        sb.Append(value.Object);
+        sb.Append(leaf.Object);
 
         return sb.ToString();
     }
@@ -92,22 +92,22 @@ internal sealed class AnimIdTextAssetParser : ITextAssetParser<AnimIdLeaf>
         return sbPreloadResource.ToString();
     }
 
-    public void FromTextAssetSerializedString(string subPath, string text, AnimIdLeaf value)
+    public void FromTextAssetSerializedString(string subPath, string text, AnimIdLeaf leaf)
     {
         string[] fields = text.Split(StringUtils.CommaSplitDelimiter);
 
-        value.ShadowSize = float.Parse(fields[0], CultureInfo.InvariantCulture);
-        value.StartingScale = ParseVector3(fields[1], fields[2], fields[3]);
-        value.BleepPitch = float.Parse(fields[4], CultureInfo.InvariantCulture);
-        value.BleepId = new(_bleepsRegistry.LeavesByGameIds[int.Parse(fields[5], CultureInfo.InvariantCulture)]);
-        value.IsModelEntity = bool.Parse(fields[6]);
-        value.ModelScale = ParseVector3(fields[7], fields[8], fields[9]);
-        value.ModelOffset = ParseVector3(fields[10], fields[11], fields[12]);
-        value.FreezeSize = ParseVector3(fields[13], fields[14], fields[15]);
-        value.FreezeOffset = ParseVector3(fields[16], fields[17], fields[18]);
-        value.FreezeFlipOffset = ParseVector3(fields[19], fields[20], fields[21]);
+        leaf.ShadowSize = float.Parse(fields[0], CultureInfo.InvariantCulture);
+        leaf.StartingScale = ParseVector3(fields[1], fields[2], fields[3]);
+        leaf.BleepPitch = float.Parse(fields[4], CultureInfo.InvariantCulture);
+        leaf.BleepId = new(_bleepsRegistry.LeavesByGameIds[int.Parse(fields[5], CultureInfo.InvariantCulture)]);
+        leaf.IsModelEntity = bool.Parse(fields[6]);
+        leaf.ModelScale = ParseVector3(fields[7], fields[8], fields[9]);
+        leaf.ModelOffset = ParseVector3(fields[10], fields[11], fields[12]);
+        leaf.FreezeSize = ParseVector3(fields[13], fields[14], fields[15]);
+        leaf.FreezeOffset = ParseVector3(fields[16], fields[17], fields[18]);
+        leaf.FreezeFlipOffset = ParseVector3(fields[19], fields[20], fields[21]);
 
-        value.PreloadResources.Clear();
+        leaf.PreloadResources.Clear();
         string[] preloadResources = fields[22].Split(StringUtils.QuestionMarkSplitDelimiter);
         foreach (string resource in preloadResources)
         {
@@ -127,25 +127,25 @@ internal sealed class AnimIdTextAssetParser : ITextAssetParser<AnimIdLeaf>
             }
 
             resourcePreload.ResourcePath = sb.ToString();
-            value.PreloadResources.Add(resourcePreload);
+            leaf.PreloadResources.Add(resourcePreload);
         }
 
-        value.ShakeOnDrop = bool.Parse(fields[23]);
-        value.HasDigAnimation = bool.Parse(fields[24]);
-        value.HasJumpAnimationOverride = !bool.Parse(fields[25]);
-        value.FallsWhenFrozen = !bool.Parse(fields[26]);
-        value.HasShadow = !bool.Parse(fields[27]);
-        value.WalkType = (EntityControl.WalkType)int.Parse(fields[28], CultureInfo.InvariantCulture);
-        value.UnusedBaseIdleAnimState = int.Parse(fields[29], CultureInfo.InvariantCulture);
-        value.UnusedBaseWalkAnimState = int.Parse(fields[30], CultureInfo.InvariantCulture);
-        value.MinimumHeight = float.Parse(fields[31], CultureInfo.InvariantCulture);
-        value.UnusedStartingHeight = float.Parse(fields[32], CultureInfo.InvariantCulture);
-        value.StartingBobSpeed = float.Parse(fields[33], CultureInfo.InvariantCulture);
-        value.StartingBobFrequency = float.Parse(fields[34], CultureInfo.InvariantCulture);
-        value.HasIceAnimation = bool.Parse(fields[35]);
-        value.HasFlyingAnimationOverride = bool.Parse(fields[36]);
-        value.ForcesShadow = bool.Parse(fields[37]);
-        value.Object = bool.Parse(fields[38]);
+        leaf.ShakeOnDrop = bool.Parse(fields[23]);
+        leaf.HasDigAnimation = bool.Parse(fields[24]);
+        leaf.HasJumpAnimationOverride = !bool.Parse(fields[25]);
+        leaf.FallsWhenFrozen = !bool.Parse(fields[26]);
+        leaf.HasShadow = !bool.Parse(fields[27]);
+        leaf.WalkType = (EntityControl.WalkType)int.Parse(fields[28], CultureInfo.InvariantCulture);
+        leaf.UnusedBaseIdleAnimState = int.Parse(fields[29], CultureInfo.InvariantCulture);
+        leaf.UnusedBaseWalkAnimState = int.Parse(fields[30], CultureInfo.InvariantCulture);
+        leaf.MinimumHeight = float.Parse(fields[31], CultureInfo.InvariantCulture);
+        leaf.UnusedStartingHeight = float.Parse(fields[32], CultureInfo.InvariantCulture);
+        leaf.StartingBobSpeed = float.Parse(fields[33], CultureInfo.InvariantCulture);
+        leaf.StartingBobFrequency = float.Parse(fields[34], CultureInfo.InvariantCulture);
+        leaf.HasIceAnimation = bool.Parse(fields[35]);
+        leaf.HasFlyingAnimationOverride = bool.Parse(fields[36]);
+        leaf.ForcesShadow = bool.Parse(fields[37]);
+        leaf.Object = bool.Parse(fields[38]);
     }
 
     private static void AppendVector3ToStringBuilder(StringBuilder sb, Vector3 vector)

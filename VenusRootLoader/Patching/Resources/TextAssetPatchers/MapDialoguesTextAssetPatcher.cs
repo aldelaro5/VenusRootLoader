@@ -5,11 +5,27 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers;
 
+/// <summary>
+/// A patcher that handles patching localized line based <see cref="TextAsset"/> given that the resources path after
+/// the Dialogues directory starts with Maps. Maps dialogues aren't <see cref="Leaf"/> because there's multiple lines per
+/// <see cref="MapLeaf"/> and they belong to each map rather than exist independently. It assumes the specific naming
+/// structure of the maps dialogues <see cref="TextAsset"/>.
+/// </summary>
 internal interface IMapDialoguesTextAssetPatcher
 {
+    /// <summary>
+    /// Patches the original <see cref="TextAsset"/> given that the game requested to load it using the resources path
+    /// <paramref name="path"/> excluding the <c>Data/DialoguesX/</c> prefix where X is <paramref name="languageId"/>.
+    /// It is assumed that all <see cref="TextAsset"/> are assets within the Maps subdirectory in the DialgouesX directory.
+    /// </summary>
+    /// <param name="languageId">The language game id the localized <see cref="TextAsset"/> is associated with.</param>
+    /// <param name="path">The resources path the game requested to load excluding the <c>Data/DialoguesX/</c> prefix.</param>
+    /// <param name="original">The original <see cref="TextAsset"/> that would be returned if the patcher wasn't present.</param>
+    /// <returns>The patched <see cref="TextAsset"/>.</returns>
     TextAsset PatchMapDialoguesTextAsset(int languageId, string path, TextAsset original);
 }
 
+/// <inheritdoc/>
 internal sealed class MapDialoguesTextAssetPatcher : IMapDialoguesTextAssetPatcher
 {
     private readonly ILogger<MapDialoguesTextAssetPatcher> _logger;

@@ -21,9 +21,9 @@ internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
         _actionCommandHelpTextsRegistry = actionCommandHelpTextsRegistry;
     }
 
-    public string GetTextAssetSerializedString(string subPath, SkillLeaf value)
+    public string GetTextAssetSerializedString(string subPath, SkillLeaf leaf)
     {
-        RawTargetingParameters targetingParameters = value.Target switch
+        RawTargetingParameters targetingParameters = leaf.Target switch
         {
             SkillTarget.SingleEnemy => (AttackArea.SingleEnemy, false, false, false, false, false),
             SkillTarget.SingleEnemyGround => (AttackArea.SingleEnemy, true, false, false, false, false),
@@ -40,10 +40,10 @@ internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
             SkillTarget.None => (AttackArea.None, false, false, false, false, false),
             SkillTarget.User => (AttackArea.User, false, false, false, false, false),
             _ => ThrowHelper.ThrowNotSupportedException<(AttackArea, bool, bool, bool, bool, bool)>(
-                $"Invalid {nameof(SkillTarget)}: {value.Target}")
+                $"Invalid {nameof(SkillTarget)}: {leaf.Target}")
         };
 
-        RawUsabilityParameters usability = value.UsableBy switch
+        RawUsabilityParameters usability = leaf.UsableBy switch
         {
             SkillUsability.AnyBug => (false, false, false),
             SkillUsability.Moth => (false, false, true),
@@ -54,59 +54,59 @@ internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
             SkillUsability.BeeAndBeetle => (true, true, false),
             SkillUsability.AnyBugWithAtLeastOneValidEnemyTarget => (true, true, true),
             _ => ThrowHelper.ThrowNotSupportedException<(bool, bool, bool)>(
-                $"Invalid {nameof(SkillUsability)}: {value.UsableBy}")
+                $"Invalid {nameof(SkillUsability)}: {leaf.UsableBy}")
         };
 
-        switch (value.NamedId)
+        switch (leaf.NamedId)
         {
-            case nameof(MainManager.Skills.RevivalMassage) when value.Target == SkillTarget.SingleAlly:
+            case nameof(MainManager.Skills.RevivalMassage) when leaf.Target == SkillTarget.SingleAlly:
                 targetingParameters.onlyGroundedEnemies = true;
                 break;
-            case nameof(MainManager.Skills.FrigidCoffin) when value.Target == SkillTarget.SingleEnemyGround:
-            case nameof(MainManager.Skills.ChargeUpPlus) when value.Target == SkillTarget.AllParty:
+            case nameof(MainManager.Skills.FrigidCoffin) when leaf.Target == SkillTarget.SingleEnemyGround:
+            case nameof(MainManager.Skills.ChargeUpPlus) when leaf.Target == SkillTarget.AllParty:
                 targetingParameters.onlyPlayersAlive = true;
                 break;
         }
 
         StringBuilder sb = new();
 
-        sb.Append(value.Cost * (value.CostResource == SkillCostResource.Tp ? 1 : -1));
+        sb.Append(leaf.Cost * (leaf.CostResource == SkillCostResource.Tp ? 1 : -1));
         sb.Append('@');
         sb.Append(targetingParameters.attackAtrea.ToString());
         sb.Append('@');
-        sb.Append(CamelCaseBoolIfNeeded(usability.usableByBee, value.OriginalBoolCasing, false));
+        sb.Append(CamelCaseBoolIfNeeded(usability.usableByBee, leaf.OriginalBoolCasing, false));
         sb.Append('@');
-        sb.Append(CamelCaseBoolIfNeeded(usability.usableByBeetle, value.OriginalBoolCasing, false));
+        sb.Append(CamelCaseBoolIfNeeded(usability.usableByBeetle, leaf.OriginalBoolCasing, false));
         sb.Append('@');
-        sb.Append(CamelCaseBoolIfNeeded(usability.usableByMoth, value.OriginalBoolCasing, false));
+        sb.Append(CamelCaseBoolIfNeeded(usability.usableByMoth, leaf.OriginalBoolCasing, false));
         sb.Append('@');
-        sb.Append(CamelCaseBoolIfNeeded(targetingParameters.onlyGroundedEnemies, value.OriginalBoolCasing, false));
+        sb.Append(CamelCaseBoolIfNeeded(targetingParameters.onlyGroundedEnemies, leaf.OriginalBoolCasing, false));
         sb.Append('@');
-        sb.Append(CamelCaseBoolIfNeeded(targetingParameters.onlyFrontEnemy, value.OriginalBoolCasing, false));
+        sb.Append(CamelCaseBoolIfNeeded(targetingParameters.onlyFrontEnemy, leaf.OriginalBoolCasing, false));
         sb.Append('@');
-        sb.Append(value.ActionCommandHelpText?.GameId ?? -1);
+        sb.Append(leaf.ActionCommandHelpText?.GameId ?? -1);
         sb.Append('@');
-        sb.Append(CamelCaseBoolIfNeeded(targetingParameters.onlyPlayersAlive, value.OriginalBoolCasing, false));
+        sb.Append(CamelCaseBoolIfNeeded(targetingParameters.onlyPlayersAlive, leaf.OriginalBoolCasing, false));
         sb.Append('@');
-        sb.Append(CamelCaseBoolIfNeeded(targetingParameters.excludeSelf, value.OriginalBoolCasing, true));
+        sb.Append(CamelCaseBoolIfNeeded(targetingParameters.excludeSelf, leaf.OriginalBoolCasing, true));
         sb.Append('@');
-        sb.Append(CamelCaseBoolIfNeeded(targetingParameters.onlyPlayersFainted, value.OriginalBoolCasing, true));
+        sb.Append(CamelCaseBoolIfNeeded(targetingParameters.onlyPlayersFainted, leaf.OriginalBoolCasing, true));
 
         return sb.ToString();
     }
 
-    public void FromTextAssetSerializedString(string subPath, string text, SkillLeaf value)
+    public void FromTextAssetSerializedString(string subPath, string text, SkillLeaf leaf)
     {
         string[] fields = text.Split(StringUtils.AtSymbolSplitDelimiter);
         string usableByBeeString = fields[2];
         if (char.IsLower(usableByBeeString[0]))
         {
-            value.OriginalBoolCasing = BoolCasing.AllCamelCase;
+            leaf.OriginalBoolCasing = BoolCasing.AllCamelCase;
         }
         else
         {
             string onlyPlayersFaintedString = fields[10];
-            value.OriginalBoolCasing = char.IsLower(onlyPlayersFaintedString[0])
+            leaf.OriginalBoolCasing = char.IsLower(onlyPlayersFaintedString[0])
                 ? BoolCasing.PascalCaseWithLastTwoCamelCase
                 : BoolCasing.AllPascalCase;
         }
@@ -118,14 +118,14 @@ internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
             bool.Parse(fields[9]), bool.Parse(fields[10]));
 
         int cost = int.Parse(fields[0]);
-        value.CostResource = cost >= 0 ? SkillCostResource.Tp : SkillCostResource.Hp;
-        value.Cost = Math.Abs(cost);
+        leaf.CostResource = cost >= 0 ? SkillCostResource.Tp : SkillCostResource.Hp;
+        leaf.Cost = Math.Abs(cost);
         int actionCommandHelpTextGameId = int.Parse(fields[7]);
-        value.ActionCommandHelpText = actionCommandHelpTextGameId > -1
+        leaf.ActionCommandHelpText = actionCommandHelpTextGameId > -1
             ? new(_actionCommandHelpTextsRegistry.LeavesByGameIds[actionCommandHelpTextGameId])
             : null;
 
-        value.Target = targetParameters switch
+        leaf.Target = targetParameters switch
         {
             (AttackArea.SingleEnemy, false, false, false, false, false) => SkillTarget.SingleEnemy,
             (AttackArea.SingleEnemy, true, false, false, false, false) => SkillTarget.SingleEnemyGround,
@@ -151,7 +151,7 @@ internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
                 $"Invalid {nameof(RawTargetingParameters)}: {targetParameters}")
         };
 
-        value.UsableBy = usabilityParameters switch
+        leaf.UsableBy = usabilityParameters switch
         {
             (false, false, false) => SkillUsability.AnyBug,
             (false, false, true) => SkillUsability.Moth,

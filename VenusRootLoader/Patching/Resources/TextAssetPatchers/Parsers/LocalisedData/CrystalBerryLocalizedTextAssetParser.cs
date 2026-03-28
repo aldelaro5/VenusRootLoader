@@ -2,6 +2,7 @@ using VenusRootLoader.Api.Leaves;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.LocalisedData;
 
+/// <inheritdoc/>
 internal sealed class CrystalBerryLocalizedTextAssetParser : ILocalizedTextAssetParser<CrystalBerryLeaf>
 {
     public string GetTextAssetSerializedString(string subPath, int languageId, CrystalBerryLeaf leaf) =>

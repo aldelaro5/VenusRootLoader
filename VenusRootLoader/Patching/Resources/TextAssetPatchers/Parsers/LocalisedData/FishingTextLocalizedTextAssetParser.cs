@@ -2,6 +2,7 @@ using VenusRootLoader.Api.Leaves;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.LocalisedData;
 
+/// <inheritdoc/>
 internal sealed class FishingTextLocalizedTextAssetParser : ILocalizedTextAssetParser<FishingTextLeaf>
 {
     public string GetTextAssetSerializedString(string subPath, int languageId, FishingTextLeaf leaf) =>

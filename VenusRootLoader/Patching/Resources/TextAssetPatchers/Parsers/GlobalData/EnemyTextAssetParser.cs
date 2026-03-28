@@ -7,6 +7,7 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalData;
 
+/// <inheritdoc/>
 internal sealed class EnemyTextAssetParser : ITextAssetParser<EnemyLeaf>
 {
     private readonly ILeavesRegistry<EnemyLeaf> _enemiesRegistry;

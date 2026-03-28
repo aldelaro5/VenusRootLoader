@@ -7,7 +7,7 @@ namespace VenusRootLoader.Patching.Resources;
 
 /// <summary>
 /// A patcher that processes all <see cref="IResourcesTypePatcher{T}"/> and <see cref="IResourcesArrayTypePatcher{T}"/>.
-/// Notably, it where <see cref="Resources.Load(string, Type)"/> and <see cref="Resources.LoadAll(string, Type)"/> are patched.
+/// Notably, it's where <c>Resources.Load</c> and <c>Resources.LoadAll</c> are patched.
 /// The expectation is that each resources type patchers handles patching a specific type of resources.
 /// </summary>
 internal sealed class ResourcesTopLevelPatcher : ITopLevelPatcher

@@ -4,6 +4,7 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.LocalisedData;
 
+/// <inheritdoc/>
 internal sealed class ItemLocalizedTextAssetParser : ILocalizedTextAssetParser<ItemLeaf>
 {
     public string GetTextAssetSerializedString(string subPath, int languageId, ItemLeaf leaf)

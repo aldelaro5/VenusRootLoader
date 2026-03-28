@@ -4,6 +4,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.OrderingData;
 
+/// <inheritdoc/>
 internal sealed class SpyCardOrderingTextAssetParser : IOrderingTextAssetParser<SpyCardLeaf>
 {
     public string GetTextAssetString(IOrderedLeavesRegistry<SpyCardLeaf> orderedRegistry)

@@ -4,6 +4,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.OrderingData;
 
+/// <inheritdoc/>
 internal sealed class MedalOrderingTextAssetParser : IOrderingTextAssetParser<MedalLeaf>
 {
     public string GetTextAssetString(IOrderedLeavesRegistry<MedalLeaf> orderedRegistry)

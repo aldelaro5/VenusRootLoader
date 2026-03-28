@@ -4,6 +4,7 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalData;
 
+/// <inheritdoc/>
 internal sealed class RecipeTextAssetParser : ITextAssetParser<RecipeLeaf>
 {
     private readonly ILeavesRegistry<ItemLeaf> _itemsRegistry;

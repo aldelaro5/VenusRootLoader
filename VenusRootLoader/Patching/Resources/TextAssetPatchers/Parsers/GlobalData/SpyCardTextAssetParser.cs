@@ -5,6 +5,7 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalData;
 
+/// <inheritdoc/>
 internal sealed class SpyCardTextAssetParser : ITextAssetParser<SpyCardLeaf>
 {
     private readonly ILeavesRegistry<EnemyLeaf> _enemiesRegistry;

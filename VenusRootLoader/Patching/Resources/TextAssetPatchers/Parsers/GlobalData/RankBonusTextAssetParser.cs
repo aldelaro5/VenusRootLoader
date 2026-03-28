@@ -4,6 +4,7 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalData;
 
+/// <inheritdoc/>
 internal sealed class RankBonusTextAssetParser : ITextAssetParser<RankBonusLeaf>
 {
     public string GetTextAssetSerializedString(string subPath, RankBonusLeaf leaf)

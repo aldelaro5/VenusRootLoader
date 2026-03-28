@@ -4,6 +4,7 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalData;
 
+/// <inheritdoc/>
 internal sealed class MusicTextAssetParser : ITextAssetParser<MusicLeaf>
 {
     public string GetTextAssetSerializedString(string subPath, MusicLeaf leaf)

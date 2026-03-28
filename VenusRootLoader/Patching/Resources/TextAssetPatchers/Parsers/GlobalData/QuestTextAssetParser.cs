@@ -6,6 +6,7 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalData;
 
+/// <inheritdoc/>
 internal sealed class QuestTextAssetParser : ITextAssetParser<QuestLeaf>
 {
     private const string BoardDataSubPath = "BoardData";

@@ -7,6 +7,7 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalData;
 
+/// <inheritdoc/>
 internal sealed class AnimIdTextAssetParser : ITextAssetParser<AnimIdLeaf>
 {
     private readonly ILeavesRegistry<DialogueBleepLeaf> _bleepsRegistry;

@@ -4,6 +4,7 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.LocalisedData;
 
+/// <inheritdoc/>
 internal sealed class LoreBookLocalizedTextAssetParser : ILocalizedTextAssetParser<LoreBookLeaf>
 {
     private const string LoreBookTextSubpath = "LoreText";

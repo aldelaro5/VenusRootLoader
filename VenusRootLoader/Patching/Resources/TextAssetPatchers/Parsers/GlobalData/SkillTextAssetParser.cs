@@ -12,6 +12,7 @@ using RawTargetingParameters = (BattleControl.AttackArea attackAtrea, bool onlyG
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalData;
 
+/// <inheritdoc/>
 internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
 {
     private readonly ILeavesRegistry<ActionCommandHelpTextLeaf> _actionCommandHelpTextsRegistry;

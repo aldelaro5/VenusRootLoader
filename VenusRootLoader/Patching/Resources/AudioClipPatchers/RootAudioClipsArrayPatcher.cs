@@ -3,6 +3,10 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.AudioClipPatchers;
 
+/// <summary>
+/// An <see cref="IResourcesArrayTypePatcher{TObject}"/> that patches <see cref="AudioClip"/> assets arrays.
+/// It mainly dispatches the actual patching to any concerned <see cref="IAudioClipArrayPatcher"/> depending on the resource path.
+/// </summary>
 internal sealed class RootAudioClipsArrayPatcher : IResourcesArrayTypePatcher<AudioClip>
 {
     private readonly Dictionary<string, IAudioClipArrayPatcher> _audioClipArrayPatchers =

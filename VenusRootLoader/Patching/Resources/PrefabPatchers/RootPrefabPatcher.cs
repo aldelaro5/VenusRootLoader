@@ -3,6 +3,10 @@ using Object = UnityEngine.Object;
 
 namespace VenusRootLoader.Patching.Resources.PrefabPatchers;
 
+/// <summary>
+/// An <see cref="IResourcesTypePatcher{TObject}"/> that patches prefabs assets (which are Unity <see cref="Object"/>).
+/// It mainly dispatches the actual patching to any concerned <see cref="IPrefabPatcher"/> depending on the resource path.
+/// </summary>
 internal sealed class RootPrefabPatcher : IResourcesTypePatcher<Object>
 {
     private readonly Dictionary<string, IPrefabPatcher> _textAssetPatchers =

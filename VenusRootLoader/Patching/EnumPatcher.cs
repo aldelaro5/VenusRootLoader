@@ -4,6 +4,9 @@ using VenusRootLoader.Extensions;
 
 namespace VenusRootLoader.Patching;
 
+/// <summary>
+/// A patching service that allows to add custom enum values at runtime by patching Mono's mscorlib implementation.
+/// </summary>
 internal sealed class EnumPatcher
 {
     private class CustomEnumNamesInfo
@@ -23,6 +26,8 @@ internal sealed class EnumPatcher
 
     private readonly Dictionary<Type, CustomEnumNamesInfo> _customEnumNames = new();
 
+    // A field that when set to null, it clears the enum values cache of the type and will force Mono to go through our
+    // patch below to fetch the new enum values.
     private readonly FieldInfo _runtimeTypeGenericCacheField =
         AccessTools.TypeByName("System.RuntimeType").Field("GenericCache");
 
@@ -47,6 +52,12 @@ internal sealed class EnumPatcher
         return resultId;
     }
 
+    // This method is an icall from Mono's mscorlib that fetches a list of values and names in 2 separate arrays that matches the
+    // ones available for the enum types. Notably, this method is ALWAYS involved somehow in any of the System.Enum APIs
+    // meaning that just by patching this, we essentially guarantee that as far as Mono and the game is concerned, if we
+    // add values to those list, they simply exist from now on. The only thing to keep in mind is this is only true if the
+    // internal cache of the enum type hasn't been filled yet. This means we need to clear the cache on any changes done
+    // through this patch.
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Enum), "GetEnumValuesAndNames")]
     private static void AddCustomEnumValuesAndNames(

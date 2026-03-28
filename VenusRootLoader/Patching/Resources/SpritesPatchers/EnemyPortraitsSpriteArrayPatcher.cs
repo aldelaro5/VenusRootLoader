@@ -6,6 +6,24 @@ using Object = UnityEngine.Object;
 
 namespace VenusRootLoader.Patching.Resources.SpritesPatchers;
 
+/// <summary>
+/// An <see cref="ISpriteArrayPatcher"/> that handles patching the EnemyPortraits sprites at <c>Sprites/Items/EnemyPortraits</c>.
+/// This sprite array is special because it has its contents used by 4 different <see cref="ILeavesRegistry{TLeaf}"/>
+/// and each of them references them in a similar way. This is problematic for modding because we want to let buds edit
+/// existing sprites or assign new ones for their custom <see cref="Leaf"/>.
+/// <p>
+/// In order to address this issue, this patcher will reindex the entire sprite array. It does this by ensuring all base
+/// game sprites have the same indexes in the array, but every new ones will get their index reserved in an arbitrary order.
+/// </p>
+/// <p>
+/// Additionally, the patcher will clone duplicated sprite references among the 4 registries such that each <see cref="Leaf"/>
+/// references its own sprite. This avoids unwanted side effects when editing a sprite of a leaf.
+/// </p>
+/// <p>
+/// This reindexing will cause differences in the TextAssets where these indexes appear in, but this is expected and a
+/// necessary side effect to achieve this. The goal is to maintain semantic equivalence with the game.
+/// </p>
+/// </summary>
 internal sealed class EnemyPortraitsSpriteArrayPatcher : ISpriteArrayPatcher
 {
     private readonly ILeavesRegistry<DiscoveryLeaf> _discoveriesRegistry;
@@ -47,6 +65,9 @@ internal sealed class EnemyPortraitsSpriteArrayPatcher : ISpriteArrayPatcher
         return sprites.Values.ToArray();
     }
 
+    // In order to clone duplicated references, we simply set the indexes of the duplicated ones to null. This will
+    // cause the patcher to act on them the same way then if they were new sprites of a custom leaf so they will automatically
+    // get reassigned to a new index.
     private void CloneSpriteDuplicates()
     {
         IEnumerable<IEnemyPortraitSprite> discoveryLeaves = _discoveriesRegistry

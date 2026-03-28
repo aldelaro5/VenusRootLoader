@@ -5,6 +5,9 @@ using Object = UnityEngine.Object;
 
 namespace VenusRootLoader.Patching.Resources.PrefabPatchers;
 
+/// <summary>
+/// An <see cref="IPrefabPatcher"/> that patches maps prefabs from the game.
+/// </summary>
 internal sealed class MapPatcher : IPrefabPatcher
 {
     private readonly ILeavesRegistry<MusicLeaf> _musicRegistry;

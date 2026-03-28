@@ -4,6 +4,9 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Resources.AudioClipPatchers;
 
+/// <summary>
+/// An <see cref="IAudioClipArrayPatcher"/> that handles patching dialogue bleeps from the game.
+/// </summary>
 internal sealed class SoundDialoguesAudioClipArrayPatcher : IAudioClipArrayPatcher
 {
     private readonly ILeavesRegistry<DialogueBleepLeaf> _dialogueBleepsRegistry;
@@ -33,6 +36,7 @@ internal sealed class SoundDialoguesAudioClipArrayPatcher : IAudioClipArrayPatch
 
             int gameId = int.Parse(originalAudioClip.name.Replace("Dialogue", string.Empty));
             AudioClip bleepSound = _dialogueBleepsRegistry.LeavesByGameIds[gameId].BleepSound;
+            // This is important because the game may use the name to discover what bleep the AudioClip is playing.
             bleepSound.name = $"Dialogue{gameId}";
             audioClips.Add(bleepSound);
         }
@@ -40,6 +44,7 @@ internal sealed class SoundDialoguesAudioClipArrayPatcher : IAudioClipArrayPatch
         for (int i = original.Length - amountSkipped; i < _dialogueBleepsRegistry.LeavesByGameIds.Count; i++)
         {
             AudioClip bleepSound = _dialogueBleepsRegistry.LeavesByGameIds[i].BleepSound;
+            // This is important because the game may use the name to discover what bleep the AudioClip is playing.
             bleepSound.name = $"Dialogue{i}";
             audioClips.Add(bleepSound);
         }

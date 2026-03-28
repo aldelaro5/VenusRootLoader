@@ -35,6 +35,9 @@ internal sealed class EnumBasedRegistry<TLeaf, TEnum> : BaseRegistry<TLeaf>
         return enumValue + _offsetEnumValueToGameId;
     }
 
+    // These checks were gathered by a look at Mono's Enum implementations and figuring out what isn't allowed in an enum
+    // value name. While C# might enforce some restrictions, they aren't the same than the ones enforced at runtime which
+    // this is what these checks focus on.
     private static void EnsureNamedIdIsValidEnumName(string namedId)
     {
         Guard.IsNotNullOrWhiteSpace(namedId);

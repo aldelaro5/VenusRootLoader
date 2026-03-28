@@ -3,6 +3,10 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.SpritesPatchers;
 
+/// <summary>
+/// An <see cref="IResourcesArrayTypePatcher{TObject}"/> that patches <see cref="Sprite"/> assets arrays.
+/// It mainly dispatches the actual patching to any concerned <see cref="ISpriteArrayPatcher"/> depending on the resource path.
+/// </summary>
 internal sealed class RootSpritesArrayPatcher : IResourcesArrayTypePatcher<Sprite>
 {
     private readonly Dictionary<string, ISpriteArrayPatcher> _spriteArrayPatchers =

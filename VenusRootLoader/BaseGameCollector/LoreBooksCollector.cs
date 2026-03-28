@@ -43,31 +43,7 @@ internal sealed class LoreBooksCollector : IBaseGameCollector
 
     public void CollectBaseGameData(string baseGameId)
     {
-        IMetadataTokenProvider tokenFlags = null!;
-
-        Type event71EnumeratorType = typeof(EventControl).InnerTypes().Single(x => x.Name.Contains("<Event71>"));
-        MethodInfo event71MoveNextMethod =
-            AccessTools.DeclaredMethod(event71EnumeratorType, nameof(IEnumerator.MoveNext))!;
-        using DynamicMethodDefinition dmd = new(event71MoveNextMethod);
-        ILContext context = new(dmd.Definition);
-        ILCursor cursor = new(context);
-
-        MethodInfo resourcesLoadTextAssetMethod = AccessTools.GetDeclaredMethods(typeof(Resources))
-            .Single(m => m.Name == nameof(Resources.Load) && m.ContainsGenericParameters)
-            .MakeGenericMethod(typeof(TextAsset));
-        FieldInfo flagsField = event71EnumeratorType
-            .GetRuntimeFields()
-            .Single(f => f.Name.Contains("<flags>"));
-
-        cursor.GotoNext(i => i.MatchCall(resourcesLoadTextAssetMethod));
-        cursor.GotoNext(i => i.MatchStfld(flagsField));
-        cursor.GotoPrev(i => i.MatchLdtoken(out _));
-        cursor.Index--;
-        cursor.GotoPrev(i => i.MatchLdtoken(out tokenFlags!));
-
-        FieldInfo flagsArrayField = ((FieldReference)tokenFlags).ResolveReflection();
-        int[] flags =
-            _assemblyCSharpDataCollector.ReadIntArrayFromPrivateImplementationDetailField(flagsArrayField);
+        int[] flags = CollectLoreBooksObtainedFlagGameIds();
 
         int loreBooksAmount = LoreTextsLanguageData.Values.First().Length;
         for (int i = 0; i < loreBooksAmount; i++)
@@ -93,5 +69,36 @@ internal sealed class LoreBooksCollector : IBaseGameCollector
         _logger.LogInformation(
             "Collected and registered {LoreBooksAmount} base game lore books",
             loreBooksAmount);
+    }
+
+    // The flags are hardcoded in an array in event 71 (Fortune Teller event).
+    private int[] CollectLoreBooksObtainedFlagGameIds()
+    {
+        IMetadataTokenProvider tokenFlags = null!;
+
+        Type event71EnumeratorType = typeof(EventControl).InnerTypes().Single(x => x.Name.Contains("<Event71>"));
+        MethodInfo event71MoveNextMethod =
+            AccessTools.DeclaredMethod(event71EnumeratorType, nameof(IEnumerator.MoveNext))!;
+        using DynamicMethodDefinition dmd = new(event71MoveNextMethod);
+        ILContext context = new(dmd.Definition);
+        ILCursor cursor = new(context);
+
+        MethodInfo resourcesLoadTextAssetMethod = AccessTools.GetDeclaredMethods(typeof(Resources))
+            .Single(m => m.Name == nameof(Resources.Load) && m.ContainsGenericParameters)
+            .MakeGenericMethod(typeof(TextAsset));
+        FieldInfo flagsField = event71EnumeratorType
+            .GetRuntimeFields()
+            .Single(f => f.Name.Contains("<flags>"));
+
+        cursor.GotoNext(i => i.MatchCall(resourcesLoadTextAssetMethod));
+        cursor.GotoNext(i => i.MatchStfld(flagsField));
+        cursor.GotoPrev(i => i.MatchLdtoken(out _));
+        cursor.Index--;
+        cursor.GotoPrev(i => i.MatchLdtoken(out tokenFlags!));
+
+        FieldInfo flagsArrayField = ((FieldReference)tokenFlags).ResolveReflection();
+        int[] flags =
+            _assemblyCSharpDataCollector.ReadIntArrayFromPrivateImplementationDetailField(flagsArrayField);
+        return flags;
     }
 }

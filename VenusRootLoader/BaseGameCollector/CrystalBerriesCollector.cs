@@ -32,18 +32,7 @@ internal sealed class CrystalBerriesCollector : IBaseGameCollector
 
     public void CollectBaseGameData(string baseGameId)
     {
-        int crystalBerriesAmount = 0;
-
-        MethodInfo setVariableMethod =
-            AccessTools.DeclaredMethod(typeof(MainManager), nameof(MainManager.SetVariables))!;
-        using DynamicMethodDefinition dmd = new(setVariableMethod);
-        ILContext context = new(dmd.Definition);
-        ILCursor cursor = new(context);
-
-        cursor
-            .GotoNext(i => i.MatchStfld<MainManager>(nameof(MainManager.crystalbflags)))
-            .GotoPrev(i => i.MatchLdcI4(out crystalBerriesAmount));
-
+        int crystalBerriesAmount = CollectCrystalBerriesAmount();
         for (int i = 0; i < crystalBerriesAmount; i++)
         {
             CrystalBerryLeaf crystalBerryLeaf = _crystalBerriesRegistry.RegisterExisting(i, i.ToString(), baseGameId);
@@ -60,5 +49,23 @@ internal sealed class CrystalBerriesCollector : IBaseGameCollector
         _logger.LogInformation(
             "Collected and registered {CrystalBerriesAmount} base game Crystal Berries",
             crystalBerriesAmount);
+    }
+
+    // The amount of crystal berries isn't straight forward to figure out because it's not declared in a dedicated way.
+    // The best heuristic is to find the length that crystalbflags gets initalized at in SetVariables.
+    private static int CollectCrystalBerriesAmount()
+    {
+        int crystalBerriesAmount = 0;
+
+        MethodInfo setVariableMethod =
+            AccessTools.DeclaredMethod(typeof(MainManager), nameof(MainManager.SetVariables))!;
+        using DynamicMethodDefinition dmd = new(setVariableMethod);
+        ILContext context = new(dmd.Definition);
+        ILCursor cursor = new(context);
+
+        cursor
+            .GotoNext(i => i.MatchStfld<MainManager>(nameof(MainManager.crystalbflags)))
+            .GotoPrev(i => i.MatchLdcI4(out crystalBerriesAmount));
+        return crystalBerriesAmount;
     }
 }

@@ -46,28 +46,7 @@ internal sealed class QuestsCollector : IBaseGameCollector
 
     public void CollectBaseGameData(string baseGameId)
     {
-        MethodInfo setVariableMethod =
-            AccessTools.DeclaredMethod(typeof(MainManager), nameof(MainManager.GetQuestsBoard))!;
-        using DynamicMethodDefinition dmd = new(setVariableMethod);
-        using ILContext context = new(dmd.Definition);
-
-        List<int> bountyQuestsGameIds = new();
-        context.Invoke(ilc =>
-        {
-            ILCursor cursor = new(ilc);
-            cursor.GotoNext(i => i.MatchBrtrue(out _));
-            cursor.GotoNext(i => i.MatchBrtrue(out _));
-            cursor.Index++;
-            cursor.GotoNext(i => i.MatchLdelemI4());
-            cursor.Index++;
-            while (cursor.Instrs[cursor.Index].MatchLdcI4(out int questGameId))
-            {
-                bountyQuestsGameIds.Add(questGameId);
-                cursor.Index++;
-                cursor.GotoNext(i => i.MatchLdelemI4());
-                cursor.Index++;
-            }
-        });
+        List<int> bountyQuestsGameIds = CollectBountyQuestsGameIds();
 
         for (int i = 0; i < _questNamedIds.Length; i++)
         {
@@ -92,5 +71,33 @@ internal sealed class QuestsCollector : IBaseGameCollector
         }
 
         _logger.LogInformation("Collected and registered {QuestsAmount} base game quests", _questNamedIds.Length);
+    }
+
+    // Bounty quests have their game ids hardcoded in GetQuestsBoards so we need to collect them from that method.
+    private static List<int> CollectBountyQuestsGameIds()
+    {
+        MethodInfo setVariableMethod =
+            AccessTools.DeclaredMethod(typeof(MainManager), nameof(MainManager.GetQuestsBoard))!;
+        using DynamicMethodDefinition dmd = new(setVariableMethod);
+        using ILContext context = new(dmd.Definition);
+
+        List<int> bountyQuestsGameIds = new();
+        context.Invoke(ilc =>
+        {
+            ILCursor cursor = new(ilc);
+            cursor.GotoNext(i => i.MatchBrtrue(out _));
+            cursor.GotoNext(i => i.MatchBrtrue(out _));
+            cursor.Index++;
+            cursor.GotoNext(i => i.MatchLdelemI4());
+            cursor.Index++;
+            while (cursor.Instrs[cursor.Index].MatchLdcI4(out int questGameId))
+            {
+                bountyQuestsGameIds.Add(questGameId);
+                cursor.Index++;
+                cursor.GotoNext(i => i.MatchLdelemI4());
+                cursor.Index++;
+            }
+        });
+        return bountyQuestsGameIds;
     }
 }

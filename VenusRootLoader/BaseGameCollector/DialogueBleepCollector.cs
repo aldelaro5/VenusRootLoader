@@ -24,6 +24,8 @@ internal sealed class DialogueBleepCollector : IBaseGameCollector
 
     public void CollectBaseGameData(string baseGameId)
     {
+        // We need to strip out clips like Dialogue3old which aren't considered bleeps that can be addressed as such.
+        // They are effectively unused in base game.
         List<AudioClip> dialogueBleeps = _dialogueBleeps
             .Where(a => char.IsDigit(a.name[^1]))
             .OrderBy(a => int.Parse(a.name.Replace("Dialogue", string.Empty)))

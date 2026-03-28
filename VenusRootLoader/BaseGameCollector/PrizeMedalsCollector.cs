@@ -51,10 +51,15 @@ internal sealed class PrizeMedalsCollector : IBaseGameCollector
         FieldInfo prizeIdsField = ((FieldReference)tokenPrizeIds).ResolveReflection();
         FieldInfo prizeFlagsField = ((FieldReference)tokenPrizeFlags).ResolveReflection();
         FieldInfo prizeEnemyIdsField = ((FieldReference)tokenPrizeEnemyIds).ResolveReflection();
+        // The medal game ids of the prize medals indexed by prize medal game id.
         int[] prizeIds =
             _assemblyCSharpDataCollector.ReadIntArrayFromPrivateImplementationDetailField(prizeIdsField);
+        // The bound flag ids of the prize medals indexed by prize medal game id.
         int[] prizeFlags =
             _assemblyCSharpDataCollector.ReadIntArrayFromPrivateImplementationDetailField(prizeFlagsField);
+        // The displayed enemy game ids of the prize medals indexed by prize medal game id.
+        // NOTE: It's possible this is negative for the special "Explorer Duo" string
+        // TODO: Handle custom values like Explorer Duo more gracefully
         int[] prizeEnemyIds =
             _assemblyCSharpDataCollector.ReadIntArrayFromPrivateImplementationDetailField(prizeEnemyIdsField);
 

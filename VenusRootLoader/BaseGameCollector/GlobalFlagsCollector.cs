@@ -33,6 +33,8 @@ internal sealed class GlobalFlagsCollector : IBaseGameCollector
         int flagvarsAmount = 0;
         int flagstringsAmount = 0;
 
+        // The amount of flags, flagvars and flagstrings aren't straight forward to figure out because it's not declared
+        // in a dedicated way. The best heuristic is to find the length that these arrays gets initalized at in SetVariables.
         MethodInfo setVariableMethod =
             AccessTools.DeclaredMethod(typeof(MainManager), nameof(MainManager.SetVariables))!;
         using DynamicMethodDefinition dmd = new(setVariableMethod);

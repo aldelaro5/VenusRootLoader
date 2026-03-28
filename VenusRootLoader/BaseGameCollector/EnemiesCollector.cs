@@ -92,18 +92,26 @@ internal sealed class EnemiesCollector : IBaseGameCollector
         FieldInfo bossListField = ((FieldReference)tokenBossList).ResolveReflection();
         FieldInfo miniBossListField = ((FieldReference)tokenMiniBossLiss).ResolveReflection();
         FieldInfo miniBossCardField = ((FieldReference)tokenMiniBossCard).ResolveReflection();
-        FieldInfo excludeIdsField = ((FieldReference)tokenSpecialList).ResolveReflection();
+        FieldInfo specialListField = ((FieldReference)tokenSpecialList).ResolveReflection();
 
+        // The list of bosses game ids at B.O.S.S. Typically matches the enemy id concerned, but not always for special sets of enemies.
         int[] bossList = _assemblyCSharpDataCollector.ReadIntArrayFromPrivateImplementationDetailField(bossListField);
+        // The list of mini bosses game ids at B.O.S.S. Typically matches the enemy id concerned, but not always for special sets of enemies.
         int[] miniBossList =
             _assemblyCSharpDataCollector.ReadIntArrayFromPrivateImplementationDetailField(miniBossListField);
+        // The list of enemy game ids whose Spy Data are considered as mini bosses and thus, rare.
+        // Typically, it means the matching base game Spy Card is a mini boss, but this isn't always true as it notably
+        // excludes the DeadLander enemies.
         int[] miniBossCard =
             _assemblyCSharpDataCollector.ReadIntArrayFromPrivateImplementationDetailField(miniBossCardField);
+        // The fire and ice variants of the Krawler, Cape and Warden which have some special handling in the game.
         int[] specialList =
-            _assemblyCSharpDataCollector.ReadIntArrayFromPrivateImplementationDetailField(excludeIdsField);
+            _assemblyCSharpDataCollector.ReadIntArrayFromPrivateImplementationDetailField(specialListField);
 
         IEnumerable<int> enemyIdsExcludedFromBestiary = _orderedRegistry.Registry.LeavesByGameIds.Keys
             .Except(_orderedRegistry.BaseGameIdsToOrderingIndex.Keys);
+
+        // The MenderBot is hardcoded in the game to be excluded.
         HashSet<int> excludedEnemyGameIdsFromRandomCot = bossList
             .Concat(miniBossList)
             .Concat(miniBossCard)
@@ -113,6 +121,7 @@ internal sealed class EnemiesCollector : IBaseGameCollector
             .Where(e => e >= 0)
             .ToHashSet();
 
+        // The GoldenSeedling is hardcoded to be considered rare.
         HashSet<int> gameIdsWithRareSpyData = bossList
             .Concat(miniBossCard)
             .Append((int)MainManager.Enemies.GoldenSeedling)
@@ -145,6 +154,9 @@ internal sealed class EnemiesCollector : IBaseGameCollector
         foreach (EnemyLeaf leaf in _orderedRegistry.Registry.LeavesByGameIds.Values)
         {
             IEnemyPortraitSprite enemyPortraitSprite = leaf;
+            // Enemies' EnemyPortraits sprites indexes are special because any negativew numbers means that the index is
+            // equal to the enemy id. We need this knowledge to read the index, but after reindexation by the patcher,
+            // these will go away since we want to use our own indexes regardless of the lead type.
             if (enemyPortraitSprite.EnemyPortraitsSpriteIndex < 0)
                 enemyPortraitSprite.EnemyPortraitsSpriteIndex = leaf.GameId;
 

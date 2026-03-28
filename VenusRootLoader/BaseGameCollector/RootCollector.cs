@@ -3,6 +3,10 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
+/// <summary>
+/// A service to call all the collector's collection methods. This is meant to be resolved from Entry early on boot.
+/// It also contains convenience methods for the collectors to use.
+/// </summary>
 internal sealed class RootCollector
 {
     internal static readonly string[] LanguageDisplayNames = MainManager.languagenames.ToArray();

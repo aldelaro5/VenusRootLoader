@@ -40,6 +40,32 @@ internal sealed class MedalFortuneTellerHintCollector : IBaseGameCollector
 
     public void CollectBaseGameData(string baseGameId)
     {
+        int[] flags = CollectMedalObtainedFlagGameIds();
+
+        int medalFortuneTellerHintsAmount = MedalFortuneTellerHintsLanguageData.Values.First().Length;
+        for (int i = 0; i < medalFortuneTellerHintsAmount; i++)
+        {
+            MedalFortuneTellerHintLeaf medalFortuneTellerHintLeaf =
+                _medalFortuneTellerHintsRegistry.RegisterExisting(i, i.ToString(), baseGameId);
+            medalFortuneTellerHintLeaf.MedalObtainedFlag = new(_flagsRegistry.LeavesByGameIds[flags[i]]);
+            for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
+            {
+                _localizedTextAssetParser.FromTextAssetSerializedString(
+                    TextAssetPaths.DataLocalizedMedalFortuneTellerHintsPathSuffix,
+                    j,
+                    MedalFortuneTellerHintsLanguageData[j][i],
+                    medalFortuneTellerHintLeaf);
+            }
+        }
+
+        _logger.LogInformation(
+            "Collected and registered {MedalFortuneTellerHintsAmount} base game medal fortune teller hints",
+            medalFortuneTellerHintsAmount);
+    }
+
+    // The flags are hardcoded in an array in event 71 (Fortune Teller event).
+    private int[] CollectMedalObtainedFlagGameIds()
+    {
         IMetadataTokenProvider tokenFlags = null!;
 
         Type event71EnumeratorType = typeof(EventControl).InnerTypes().Single(x => x.Name.Contains("<Event71>"));
@@ -63,25 +89,6 @@ internal sealed class MedalFortuneTellerHintCollector : IBaseGameCollector
         FieldInfo flagsArrayField = ((FieldReference)tokenFlags).ResolveReflection();
         int[] flags =
             _assemblyCSharpDataCollector.ReadIntArrayFromPrivateImplementationDetailField(flagsArrayField);
-
-        int medalFortuneTellerHintsAmount = MedalFortuneTellerHintsLanguageData.Values.First().Length;
-        for (int i = 0; i < medalFortuneTellerHintsAmount; i++)
-        {
-            MedalFortuneTellerHintLeaf medalFortuneTellerHintLeaf =
-                _medalFortuneTellerHintsRegistry.RegisterExisting(i, i.ToString(), baseGameId);
-            medalFortuneTellerHintLeaf.MedalObtainedFlag = new(_flagsRegistry.LeavesByGameIds[flags[i]]);
-            for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
-            {
-                _localizedTextAssetParser.FromTextAssetSerializedString(
-                    TextAssetPaths.DataLocalizedMedalFortuneTellerHintsPathSuffix,
-                    j,
-                    MedalFortuneTellerHintsLanguageData[j][i],
-                    medalFortuneTellerHintLeaf);
-            }
-        }
-
-        _logger.LogInformation(
-            "Collected and registered {MedalFortuneTellerHintsAmount} base game medal fortune teller hints",
-            medalFortuneTellerHintsAmount);
+        return flags;
     }
 }

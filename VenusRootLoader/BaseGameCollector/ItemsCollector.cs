@@ -9,6 +9,8 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class ItemsCollector : IBaseGameCollector
 {
+    // Items0 contains both items and medals sprites, but they're both contiguous in the array and the game hardcodes the
+    // index that separates these 2 regions so we need to hardcode this too.
     private const int ItemsSpritesAmountInItems0 = 176;
 
     private static readonly string[] ItemsData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataItemsPath);

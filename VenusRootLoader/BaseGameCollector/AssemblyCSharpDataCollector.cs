@@ -7,11 +7,21 @@ using System.Reflection;
 
 namespace VenusRootLoader.BaseGameCollector;
 
+/// <summary>
+/// This service allows collectors to perform complex query to the game's assembly on disk.
+/// </summary>
 internal interface IAssemblyCSharpDataCollector
 {
-    int[] ReadIntArrayFromPrivateImplementationDetailField(FieldInfo fieldName);
+    /// <summary>
+    /// Reads an optimized out int array from the <c>&lt;PrivateImplementationDetails&gt;</c> type which typically means
+    /// the array was originally hardcoded in the game's codebase.
+    /// </summary>
+    /// <param name="field">The field inside <c>&lt;PrivateImplementationDetails&gt;</c> to read the array from.</param>
+    /// <returns>The array read.</returns>
+    int[] ReadIntArrayFromPrivateImplementationDetailField(FieldInfo field);
 }
 
+/// <inheritdoc/>
 internal sealed class AssemblyCSharpDataCollector : IAssemblyCSharpDataCollector
 {
     private class AssemblyData

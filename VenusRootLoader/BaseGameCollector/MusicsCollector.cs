@@ -45,6 +45,9 @@ internal sealed class MusicsCollector : IBaseGameCollector
 
     public void CollectBaseGameData(string baseGameId)
     {
+        // The game contains specific music that technically exists as music, but cannot be purchased from Samira.
+        // This is enforced in FixSamira where should any music ends up being unlocked, it will be removed from the list.
+        // We can use this to collect those excluded music.
         MethodInfo setVariableMethod =
             AccessTools.DeclaredMethod(typeof(MainManager), nameof(MainManager.FixSamira))!;
         using DynamicMethodDefinition dmd = new(setVariableMethod);
@@ -74,6 +77,8 @@ internal sealed class MusicsCollector : IBaseGameCollector
                     musicLeaf);
             }
 
+            // Some music have an enum value so they technically exist, but they don't have an actual AudioClip to back them.
+            // Those are considered unused and should also be excluded from Samira as the game implicitly does it.
             bool hasBackingAudioClip = MusicAudioClipsByName.ContainsKey(musicLeaf.NamedId);
             if (hasBackingAudioClip)
                 musicLeaf.Music = MusicAudioClipsByName[musicLeaf.NamedId];

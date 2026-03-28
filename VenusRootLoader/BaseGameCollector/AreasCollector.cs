@@ -56,6 +56,17 @@ internal sealed class AreasCollector : IBaseGameCollector
             }
         }
 
+        CollectMapPositions();
+
+        _logger.LogInformation(
+            "Collected and registered {AreasAmount} base game Areas",
+            areasAmount);
+    }
+
+    // In order to collect the map positions on the <see cref="PauseMenu"/>, we need to seek them in <see cref="PauseMenu.MapSetup"/>.
+    // This method contains a switch on the area's game id that will assign the position to render the area on the map.
+    private void CollectMapPositions()
+    {
         MethodInfo setVariableMethod =
             AccessTools.DeclaredMethod(typeof(PauseMenu), nameof(PauseMenu.MapSetup))!;
         using DynamicMethodDefinition dmd = new(setVariableMethod);
@@ -71,15 +82,13 @@ internal sealed class AreasCollector : IBaseGameCollector
             cursor.Goto(switchArmInstruction);
             float x = 0f;
             float z = 0f;
+            // This strange encoding matches how it works in game. Since we want to expose the logical coordinates, we need
+            // to decode them. The patcher will need to reencode them later.
             cursor.GotoNext(inst => inst.MatchLdcR4(out x));
             cursor.GotoNext(inst => inst.MatchLdcR4(out _));
             cursor.GotoNext(inst => inst.MatchLdcR4(out z));
 
             _areasRegistry.LeavesByGameIds[i].MapPosition = new(-x, -z);
         }
-
-        _logger.LogInformation(
-            "Collected and registered {AreasAmount} base game Areas",
-            areasAmount);
     }
 }

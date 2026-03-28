@@ -30,6 +30,9 @@ internal sealed class CommonDialoguesCollector : IBaseGameCollector
         int commonDialoguesAmount = CommonDialoguesLanguageData.Values.First().Length;
         for (int i = 0; i < commonDialoguesAmount; i++)
         {
+            // Common dialogues do have 0 indexed sequental game ids, but we actually want to use their dialogue ids
+            // encoded form for convenience. That form starts at -1 and goes in descending order which is why we need to
+            // encode the game id for registration.
             CommonDialogueLeaf commonDialogueLeaf =
                 _commonDialoguesRegistry.RegisterExisting(-i - 1, i.ToString(), baseGameId);
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)

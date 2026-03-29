@@ -24,6 +24,8 @@ internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
 
     public string GetTextAssetSerializedString(string subPath, SkillLeaf leaf)
     {
+        // We enforce a limited set of combinations because only these have different valid effects from each other.
+        // Any other combination is invalid and most of them will simply have one flag not take effect or affect the game badly.
         RawTargetingParameters targetingParameters = leaf.Target switch
         {
             SkillTarget.SingleEnemy => (AttackArea.SingleEnemy, false, false, false, false, false),
@@ -58,6 +60,9 @@ internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
                 $"Invalid {nameof(SkillUsability)}: {leaf.UsableBy}")
         };
 
+        // These 3 skills are special because they are the only ones in the game with invalid combinations as specified above.
+        // We fixed them when filling in the leaf, but we would like to preserve them if their target are unchanged for the
+        // sake of base game data parity.
         switch (leaf.NamedId)
         {
             case nameof(MainManager.Skills.RevivalMassage) when leaf.Target == SkillTarget.SingleAlly:
@@ -126,6 +131,7 @@ internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
             ? new(_actionCommandHelpTextsRegistry.LeavesByGameIds[actionCommandHelpTextGameId])
             : null;
 
+        // See the comment above on the GetTextAssetSerializedString for why we have to do this.
         leaf.Target = targetParameters switch
         {
             (AttackArea.SingleEnemy, false, false, false, false, false) => SkillTarget.SingleEnemy,

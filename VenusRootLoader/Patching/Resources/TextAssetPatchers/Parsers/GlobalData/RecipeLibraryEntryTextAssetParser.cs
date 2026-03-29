@@ -32,6 +32,7 @@ internal sealed class RecipeLibraryEntryTextAssetParser : ITextAssetParser<Recip
             return ThrowHelper.ThrowInvalidDataException<string>($"This parser doesn't support the subPath {subPath}");
 
         StringBuilder sb = new();
+        // This is the special incompatible recipe.
         if (leaf.Recipe.Leaf.FirstItem is null &&
             leaf.Recipe.Leaf.SecondItem is null)
         {
@@ -65,6 +66,8 @@ internal sealed class RecipeLibraryEntryTextAssetParser : ITextAssetParser<Recip
     {
         if (subPath.Equals(CookOrderSubPath, StringComparison.OrdinalIgnoreCase))
         {
+            // We assume this will be read first so we need to have a blank leaf to receive the other TextAsset info
+            // before we can fully resolve it.
             leaf.Recipe = new(new(-1, "", ""));
             leaf.Recipe.Leaf.ResultItem = new(_itemsRegistry.LeavesByGameIds[int.Parse(text)]);
             return;
@@ -78,6 +81,8 @@ internal sealed class RecipeLibraryEntryTextAssetParser : ITextAssetParser<Recip
         int firstItem = int.Parse(fields[0]);
         if (firstItem == -1)
         {
+            // This RecipeLeaf is special because it can't really exist in the registry so it has to be a placeholder
+            // since you can still edit the result item.
             RecipeLeaf incompatibleRecipeLeaf = new(-1, "INCOMPATIBLE", leaf.CreatorId)
             {
                 FirstItem = null,

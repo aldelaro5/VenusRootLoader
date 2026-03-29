@@ -160,6 +160,8 @@ internal sealed class AnimIdTextAssetParser : ITextAssetParser<AnimIdLeaf>
         sb.Append(')');
     }
 
+    // The base game formats these with no decimal places for whole numbers so we have to preserve this behavior.
+    // This is still semantically equivalent.
     private static string FormatVectorComponent(float component) =>
         Math.Truncate(component).Equals(component)
             ? component.ToString("N1", CultureInfo.InvariantCulture)

@@ -31,7 +31,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
     {
         if (subPath.EndsWith("names", StringComparison.OrdinalIgnoreCase))
             return mapEntity.Name;
-        
+
         StringBuilder sb = new();
 
         sb.Append(mapEntity.Type.ToString());
@@ -263,6 +263,11 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
     {
         string[] fields = text.Split(StringUtils.ClosingBraceSplitDelimiter);
 
+        // Map entities are unique in the sense there's dozens kinds of them that act completely differently from each
+        // other are under, and they are under the same type and data format: NPCControl. This is very inconvenient and
+        // to fix this, we have to create derived classes for each map entity type whose concrete type is resolved using
+        // the NPCType and ObjectTypes fields. From there, each derived type can expose its own tailored API referencing
+        // the base fields so we preserve parity on the base game side, but buds gets to see a more convenient representation.
         NPCControl.NPCType type = Enum.Parse<NPCControl.NPCType>(fields[0]);
         NPCControl.ObjectTypes objectType = Enum.Parse<NPCControl.ObjectTypes>(fields[1]);
         MapEntity value = GetTypedMapEntity(type, objectType);
@@ -455,6 +460,9 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         if (fields.Length > 196)
             value.UnusedOverflowData = string.Join("}", fields.Skip(196));
 
+        // This last step is needed because while we have filled all the backing fields of the entity, the derived class
+        // might need to synchronize itself with the data we just filled. This only needs to be done once per map entity
+        // because we just filled them from external data, but any further modification should get synchronized immediately.
         value.InitializeFromExisting(_registryResolver);
         return value;
     }
@@ -466,6 +474,26 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             _ => new BlankMapEntity()
         };
 
+    // This allows to basically preserve as much as possible the original array from base game, but only if the new list
+    // wouldn't exceed the length of the base game one. This wouldn't impact logic because ultimately, the game only cares
+    // about the advertised length in the data which will be ours to control. It's just to copy leftover, possibly unused data.
+    private static List<T> GetListPaddedWithOriginalArray<T>(List<T> newList, T[] originalArray)
+    {
+        return newList.Concat(
+                originalArray
+                    .Skip(newList.Count)
+                    .Take(originalArray.Length - newList.Count))
+            .ToList();
+    }
+
+    // Since the way arrays are formated involve a self-declared length followed by the content that has a fixed length,
+    // it's possible that the advertised length is smaller than what was actually in the array. When this happens, the
+    // game will ignore overflowed data even if it's physically still present in the asset. This was likely done as a
+    // quicker way to delete data by making them unreadable instead of actually deleting them. For analysis purposes,
+    // we would like to log any detected instances of these quirks in Trace level logs. We detect this by detecting non
+    // default data past the advertised length.
+
+    // This method does what was explained above with an int[] detecting non 0 values.
     private void LogIfListHasUnreadableData(string entityName, string listName, int expectedLength, int[] array)
     {
         if (array.All(x => x == 0))
@@ -483,6 +511,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         }
     }
 
+    // This method does what was explained above with an Vector3[] detecting non Vector3.zero values.
     private void LogIfListHasUnreadableData(string entityName, string listName, int expectedLength, Vector3[] array)
     {
         if (array.All(x => x == default))
@@ -498,14 +527,5 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 expectedLength,
                 string.Join(" | ", array));
         }
-    }
-
-    private static List<T> GetListPaddedWithOriginalArray<T>(List<T> newList, T[] originalArray)
-    {
-        return newList.Concat(
-                originalArray
-                    .Skip(newList.Count)
-                    .Take(originalArray.Length - newList.Count))
-            .ToList();
     }
 }

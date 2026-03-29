@@ -6,6 +6,29 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Logic;
 
+/// <summary>
+/// This patcher adds support for a variable amount of elements in array data present on map entities to exist in the game.
+/// More specifically, it allows custom length for these fields:
+/// <list type="bullet">
+/// <item><see cref="NPCControl.requires"/></item>
+/// <item><see cref="NPCControl.limit"/></item>
+/// <item><see cref="NPCControl.data"/></item>
+/// <item><see cref="NPCControl.vectordata"/></item>
+/// <item><see cref="NPCControl.dialogues"/></item>
+/// <item><see cref="NPCControl.battleids"/></item>
+/// <item><see cref="NPCControl.emoticonflag"/></item>
+/// </list>
+/// <p>
+/// It patches the following:
+/// <list type="bullet">
+/// <item><see cref="MapControl.CreateEntities"/>: Changes the hardcoded length of the array fields to accomodate our map entities.</item>
+/// <item><see cref="NPCControl.SetBadgeShop"/>: Changes the amount of shelved items to be the length of
+/// <see cref="NPCControl.vectordata"/> instead of <see cref="NPCControl.data"/> which is easier to work with because
+/// the content of <see cref="NPCControl.data"/> isn't used for a medals shops while <see cref="NPCControl.vectordata"/>
+/// is used for both types of shops.</item>
+/// </list>
+/// </p>
+/// </summary>
 internal sealed class MapEntitiesArraysLengthTopLevelPatcher : ITopLevelPatcher
 {
     private readonly IHarmonyTypePatcher _harmonyTypePatcher;
@@ -41,10 +64,14 @@ internal sealed class MapEntitiesArraysLengthTopLevelPatcher : ITopLevelPatcher
 
         matcher.MatchStartForward(CodeMatch.StoresLocal());
         int mapIdLocalIndex = matcher.Instruction.LocalIndex();
-        CodeInstruction mapIdLdLoc = new(OpCodes.Ldloc_S, mapIdLocalIndex);
+        CodeInstruction mapIdLocalLoad = CodeInstruction.LoadLocal(mapIdLocalIndex);
+
         matcher.MatchStartForward(new CodeMatch(OpCodes.Ldelem_Ref));
         matcher.MatchStartBackwards(CodeMatch.LoadsLocal());
-        CodeInstruction mapEntityIdLdLoc = matcher.Instruction.Clone();
+        // LocalIndex() is broken here so we have to clone the instruction.
+        CodeInstruction mapEntityIdLoadLocal = matcher.Instruction.Clone();
+
+        // This field is right before the first we need to patch so it's convenient to go to its store first.
         matcher.MatchStartForward(CodeMatch.StoresField(npcControlEventIdField));
         matcher.MatchStartForward(CodeMatch.StoresLocal());
         LocalBuilder mapEntityDataFieldIndexLocal = (LocalBuilder)matcher.Instruction.operand;
@@ -53,7 +80,7 @@ internal sealed class MapEntitiesArraysLengthTopLevelPatcher : ITopLevelPatcher
         matcher.MatchStartForward(new CodeMatch(i => i.IsStloc(mapEntityDataFieldIndexLocal)));
         matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
         matcher.Advance(1);
-        matcher.Insert(mapEntityIdLdLoc, mapIdLdLoc, Transpilers.EmitDelegate(PatchNewRequiresLength));
+        matcher.Insert(mapEntityIdLoadLocal, mapIdLocalLoad, Transpilers.EmitDelegate(PatchNewRequiresLength));
 
         matcher.MatchStartForward(CodeMatch.StoresField(npcControlLimitField));
         matcher.Advance(1);
@@ -62,7 +89,7 @@ internal sealed class MapEntitiesArraysLengthTopLevelPatcher : ITopLevelPatcher
         matcher.MatchStartBackwards(new CodeMatch(i => i.IsStloc(mapEntityDataFieldIndexLocal)));
         matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
         matcher.Advance(1);
-        matcher.Insert(mapEntityIdLdLoc, mapIdLdLoc, Transpilers.EmitDelegate(PatchNewLimitsLength));
+        matcher.Insert(mapEntityIdLoadLocal, mapIdLocalLoad, Transpilers.EmitDelegate(PatchNewLimitsLength));
 
         matcher.MatchStartForward(CodeMatch.LoadsField(npcControlDataField));
         matcher.Advance(1);
@@ -71,7 +98,7 @@ internal sealed class MapEntitiesArraysLengthTopLevelPatcher : ITopLevelPatcher
         matcher.MatchStartBackwards(new CodeMatch(i => i.IsStloc(mapEntityDataFieldIndexLocal)));
         matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
         matcher.Advance(1);
-        matcher.Insert(mapEntityIdLdLoc, mapIdLdLoc, Transpilers.EmitDelegate(PatchNewDataLength));
+        matcher.Insert(mapEntityIdLoadLocal, mapIdLocalLoad, Transpilers.EmitDelegate(PatchNewDataLength));
 
         matcher.MatchStartForward(CodeMatch.LoadsField(npcControlVectorDataField));
         matcher.Advance(1);
@@ -80,15 +107,23 @@ internal sealed class MapEntitiesArraysLengthTopLevelPatcher : ITopLevelPatcher
         matcher.MatchStartBackwards(new CodeMatch(i => i.IsStloc(mapEntityDataFieldIndexLocal)));
         matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
         matcher.Advance(1);
-        matcher.Insert(mapEntityIdLdLoc, mapIdLdLoc, Transpilers.EmitDelegate(PatchNewVectorDataFieldsLength));
+        matcher.Insert(mapEntityIdLoadLocal, mapIdLocalLoad, Transpilers.EmitDelegate(PatchNewVectorDataFieldsLength));
 
+        // This one patches the hardcoded length if the map entity is a shop system
         matcher.MatchStartForward(CodeMatch.StoresField(npcControlDialoguesField));
         matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
         matcher.Advance(1);
-        matcher.Insert(mapEntityIdLdLoc, mapIdLdLoc, Transpilers.EmitDelegate(PatchNewDialoguesLength));
-        
-        matcher.MatchStartForward(CodeMatch.StoresField(npcControlDialoguesField));
+        matcher.Insert(mapEntityIdLoadLocal, mapIdLocalLoad, Transpilers.EmitDelegate(PatchNewDialoguesLength));
+
+        // Still a shop system, but this one patches the for loop length condition
+        matcher.MatchStartForward(CodeMatch.Branches());
+        Label labelLoopEnd = (Label)matcher.Instruction.operand;
+        matcher.MatchStartForward(new CodeMatch(i => i.labels.Contains(labelLoopEnd)));
+        matcher.MatchStartForward(CodeMatch.LoadsConstant());
         matcher.Advance(1);
+        matcher.Insert(mapEntityIdLoadLocal, mapIdLocalLoad, Transpilers.EmitDelegate(PatchNewVectorDataFieldsLength));
+
+        // This one patches the accunukated field index
         matcher.MatchStartForward(CodeMatch.StoresField(npcControlDialoguesField));
         matcher.Advance(1);
         matcher.MatchStartForward(CodeMatch.StoresField(npcControlDialoguesField));
@@ -96,7 +131,7 @@ internal sealed class MapEntitiesArraysLengthTopLevelPatcher : ITopLevelPatcher
         matcher.MatchStartBackwards(new CodeMatch(i => i.IsStloc(mapEntityDataFieldIndexLocal)));
         matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
         matcher.Advance(1);
-        matcher.Insert(mapEntityIdLdLoc, mapIdLdLoc, Transpilers.EmitDelegate(PatchNewDialoguesFieldsLength));
+        matcher.Insert(mapEntityIdLoadLocal, mapIdLocalLoad, Transpilers.EmitDelegate(PatchNewDialoguesFieldsLength));
 
         matcher.MatchStartForward(CodeMatch.StoresField(npcControlBattleIdsField));
         matcher.Advance(1);
@@ -105,7 +140,7 @@ internal sealed class MapEntitiesArraysLengthTopLevelPatcher : ITopLevelPatcher
         matcher.MatchStartBackwards(new CodeMatch(i => i.IsStloc(mapEntityDataFieldIndexLocal)));
         matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
         matcher.Advance(1);
-        matcher.Insert(mapEntityIdLdLoc, mapIdLdLoc, Transpilers.EmitDelegate(PatchNewBattleIdsLength));
+        matcher.Insert(mapEntityIdLoadLocal, mapIdLocalLoad, Transpilers.EmitDelegate(PatchNewBattleIdsLength));
 
         matcher.MatchStartForward(CodeMatch.StoresField(npcControlEmoticonFlagsField));
         matcher.MatchStartForward(CodeMatch.Branches());
@@ -113,7 +148,7 @@ internal sealed class MapEntitiesArraysLengthTopLevelPatcher : ITopLevelPatcher
         matcher.MatchStartForward(new CodeMatch(i => i.labels.Contains(emoticonFlagLoopLabel)));
         matcher.MatchStartForward(CodeMatch.LoadsConstant());
         matcher.Advance(1);
-        matcher.Insert(mapEntityIdLdLoc, mapIdLdLoc, Transpilers.EmitDelegate(PatchNewEmoticonFlagsLength));
+        matcher.Insert(mapEntityIdLoadLocal, mapIdLocalLoad, Transpilers.EmitDelegate(PatchNewEmoticonFlagsLength));
 
         return matcher.Instructions();
     }
@@ -166,6 +201,7 @@ internal sealed class MapEntitiesArraysLengthTopLevelPatcher : ITopLevelPatcher
         return Math.Max(originalLength, mapLeaf.Entities[mapEntityId].InternalDialogues.Count);
     }
 
+    // This is the amount of fields, the one above is the array length.
     private static int PatchNewDialoguesFieldsLength(int originalLength, int mapEntityId, int mapGameId)
     {
         MapLeaf mapLeaf = _instance._mapsLeafRegistry.LeavesByGameIds[mapGameId];

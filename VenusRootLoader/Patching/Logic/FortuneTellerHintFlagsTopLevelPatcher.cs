@@ -7,6 +7,16 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Logic;
 
+/// <summary>
+/// This patcher adds support for custom obtained flags from the <see cref="LoreBookLeaf"/> and <see cref="MedalFortuneTellerHintLeaf"/>
+/// to exist in the game such that they work properly for the fortune-teller hints.
+/// <p>
+/// It patches the following:
+/// <list type="bullet">
+/// <item><see cref="EventControl.Event71"/>: Changes the hardcoded obtained flags arrays used for Lore Books and Medal instances.</item>
+/// </list>
+/// </p>
+/// </summary>
 internal sealed class FortuneTellerHintFlagsTopLevelPatcher : ITopLevelPatcher
 {
     private static FortuneTellerHintFlagsTopLevelPatcher _instance = null!;

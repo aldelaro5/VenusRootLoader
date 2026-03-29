@@ -5,6 +5,16 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Logic;
 
+/// <summary>
+/// This patcher adds support for allowing <see cref="EnemyLeaf"/> to decide if they should be included or excluded from
+/// Cave Of Trials random mode pool.
+/// <p>
+/// It patches the following:
+/// <list type="bullet">
+/// <item><see cref="EventControl.GetRandomEnemy"/>: Replaces a while loop condition to only reject enemy game ids that the registry says to exclude.</item>
+/// </list>
+/// </p>
+/// </summary>
 internal sealed class CaveOfTrialsRandomModeExclusionTopLevelPatcher : ITopLevelPatcher
 {
     private static CaveOfTrialsRandomModeExclusionTopLevelPatcher _instance = null!;
@@ -34,14 +44,17 @@ internal sealed class CaveOfTrialsRandomModeExclusionTopLevelPatcher : ITopLevel
         matcher.MatchStartForward(CodeMatch.Branches());
         Label startLoopLabel = (Label)matcher.Operand;
         matcher.MatchStartBackwards(CodeMatch.LoadsLocal());
-        OpCode opCodelocalReturnValue = matcher.Opcode;
+        int returnValueLocalIndex = matcher.Instruction.LocalIndex();
+        CodeInstruction loadReturnValueLocal = CodeInstruction.LoadLocal(returnValueLocalIndex);
         matcher.MatchStartBackwards(CodeMatch.StoresLocal());
         matcher.Advance(1);
+        // We are effectively hijacking the while condition here by going to the loop start if it's excluded and returning
+        // immediately if it's included.
         matcher.Insert(
-            new(opCodelocalReturnValue),
+            loadReturnValueLocal,
             Transpilers.EmitDelegate(IsAllowedOnCaveOfTrialsRandomMode),
             new(OpCodes.Brfalse, startLoopLabel),
-            new(opCodelocalReturnValue),
+            loadReturnValueLocal,
             new(OpCodes.Ret));
 
         return matcher.Instructions();

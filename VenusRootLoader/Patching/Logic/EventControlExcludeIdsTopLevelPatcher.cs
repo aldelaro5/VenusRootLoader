@@ -6,6 +6,15 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Logic;
 
+/// <summary>
+/// This patcher allows the <see cref="EnemyLeaf"/> registry to reflect which one is excluded or included in the bestiary when speaking to Tattl (event 65).
+/// <p>
+/// It patches the following:
+/// <list type="bullet">
+/// <item><see cref="EventControl()"/>: Changes <see cref="EventControl.excludeids"/> to reflect information from the <see cref="EnemyLeaf"/> registry.</item>
+/// </list>
+/// </p>
+/// </summary>
 internal sealed class EventControlExcludeIdsTopLevelPatcher : ITopLevelPatcher
 {
     private static EventControlExcludeIdsTopLevelPatcher _instance = null!;

@@ -6,6 +6,20 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Logic;
 
+/// <summary>
+/// This patcher adds support for <see cref="PrizeMedalLeaf"/> since their data are normally hardcoded using the following arrays:
+/// <list type="bullet">
+/// <item><see cref="MainManager.prizeids"/>: The medal game ids.</item>
+/// <item><see cref="MainManager.prizeflags"/>: The bound flagvar game ids.</item>
+/// <item><see cref="MainManager.prizeenemyids"/>: The displayed enemy game ids.</item>
+/// </list>
+/// <p>
+/// It patches the following:
+/// <list type="bullet">
+/// <item><see cref="MainManager.SetVariables"/>: Changes the 3 arrays to reflect the state of the prize medal registry.</item>
+/// </list>
+/// </p>
+/// </summary>
 internal sealed class PrizeMedalsTopLevelPatcher : ITopLevelPatcher
 {
     private static PrizeMedalsTopLevelPatcher _instance = null!;
@@ -42,14 +56,15 @@ internal sealed class PrizeMedalsTopLevelPatcher : ITopLevelPatcher
         return matcher.Instructions();
     }
 
+    // We are essentially NOPing the creation of the array and replace it with an array we control.
     private static CodeMatcher PatchPrizeMedalArray(
         CodeMatcher matcher,
-        FieldInfo prizeIdsField,
+        FieldInfo arrayField,
         Func<int[]> arrayPatcher)
     {
-        matcher.MatchStartForward(CodeMatch.StoresField(prizeIdsField))
-            .MatchStartBackwards(CodeMatch.LoadsConstant());
-        while (!matcher.Instruction.StoresField(prizeIdsField))
+        matcher.MatchStartForward(CodeMatch.StoresField(arrayField));
+        matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
+        while (!matcher.Instruction.StoresField(arrayField))
             matcher.SetInstructionAndAdvance(Code.Nop);
         matcher.Advance(-1);
         matcher.SetInstruction(Transpilers.EmitDelegate(arrayPatcher));

@@ -5,6 +5,16 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Logic;
 
+/// <summary>
+/// This patcher adds custom sprites support for <see cref="ItemLeaf"/> and <see cref="MedalLeaf"/>.
+/// <p>
+/// It patches the following:
+/// <list type="bullet">
+/// <item><see cref="MainManager.LoadItemSprites"/>: Replaces the whole method so <see cref="MainManager.itemsprites"/>
+/// reflects the information from the <see cref="ItemLeaf"/> and <see cref="MedalLeaf"/> registries.</item>
+/// </list>
+/// </p>
+/// </summary>
 internal sealed class ItemAndMedalSpriteTopLevelPatcher : ITopLevelPatcher
 {
     // ReSharper disable once UnusedMember.Local

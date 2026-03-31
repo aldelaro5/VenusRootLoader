@@ -68,8 +68,8 @@ internal sealed class MapEntitiesArraysLengthTopLevelPatcher : ITopLevelPatcher
 
         matcher.MatchStartForward(new CodeMatch(OpCodes.Ldelem_Ref));
         matcher.MatchStartBackwards(CodeMatch.LoadsLocal());
-        // LocalIndex() is broken here so we have to clone the instruction.
-        CodeInstruction mapEntityIdLoadLocal = matcher.Instruction.Clone();
+        int mapEntityIdLocalIndex = matcher.Instruction.LocalIndex();
+        CodeInstruction mapEntityIdLoadLocal = CodeInstruction.LoadLocal(mapEntityIdLocalIndex);
 
         // This field is right before the first we need to patch so it's convenient to go to its store first.
         matcher.MatchStartForward(CodeMatch.StoresField(npcControlEventIdField));

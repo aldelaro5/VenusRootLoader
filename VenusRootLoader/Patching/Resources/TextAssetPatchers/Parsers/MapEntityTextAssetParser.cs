@@ -477,6 +477,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 int.Parse(fields[61 + 2]) == 0
                     ? new MovableRockMapEntity()
                     : new SlidingIcePillarMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PressurePlate) => new PressurePlateMapEntity(),
             _ => new BlankMapEntity()
         };
 

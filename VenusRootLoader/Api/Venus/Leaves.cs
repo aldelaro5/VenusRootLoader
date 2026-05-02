@@ -326,4 +326,13 @@ public partial class Venus
 
     public IReadOnlyCollection<MapLeaf> GetAllMaps() =>
         RegistryResolver.Resolve<MapLeaf>().GetAll();
+
+    internal EventLeaf RegisterEvent(string namedId) =>
+        RegistryResolver.Resolve<EventLeaf>().RegisterNew(namedId, BudId);
+
+    public EventLeaf GetEvent(string namedId) =>
+        RegistryResolver.Resolve<EventLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<EventLeaf> GetAllEvents() =>
+        RegistryResolver.Resolve<EventLeaf>().GetAll();
 }

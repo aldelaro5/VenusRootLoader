@@ -67,6 +67,7 @@ internal static class Startup
 
         services.AddSingleton<EnumPatcher>();
 
+        services.AddAutoSequentialIdBasedLeavesRegistry<EventLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<DialogueBleepLeaf>();
         services.AddEnumBasedLeavesRegistry<AnimIdLeaf, MainManager.AnimIDs>(-1);
         services.AddEnumBasedLeavesRegistry<ItemLeaf, MainManager.Items>();
@@ -246,6 +247,7 @@ internal static class Startup
         services.AddSingleton<RootPatcher>();
 
         services.AddSingleton<IAssemblyCSharpDataCollector, AssemblyCSharpDataCollector>();
+        services.AddSingleton<IBaseGameCollector, EventCollector>();
         services.AddSingleton<IBaseGameCollector, DialogueBleepCollector>();
         services.AddSingleton<IBaseGameCollector, AnimIdsCollector>();
         services.AddSingleton<IBaseGameCollector, ItemsCollector>();

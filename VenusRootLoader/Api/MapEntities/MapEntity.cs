@@ -20,7 +20,6 @@ public abstract class MapEntity
     internal abstract void InitializeFromExisting(IRegistryResolver registryResolver);
 
     public Vector3 StartingPosition { get; set; }
-    public Vector3 EulerAngles { get; set; }
     internal bool IsReturnToHeightOriginallyInt { get; set; }
     public bool ReturnToHeight { get; set; }
     internal int[] OriginalRequires { get; } = new int[10];
@@ -46,6 +45,7 @@ public abstract class MapEntity
     public float InternalCcolHeight { get; set; }
     public float InternalCcolRadius { get; set; }
 
+    public Vector3 InternalEulerAngles { get; set; }
     public float InternalRadius { get; set; }
     public float InternalTimer { get; set; } = -1f;
     public float InternalSpeed { get; set; }

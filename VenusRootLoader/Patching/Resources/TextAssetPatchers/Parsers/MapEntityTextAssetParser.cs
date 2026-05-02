@@ -179,11 +179,11 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             sb.Append('}');
         }
 
-        sb.Append(mapEntity.EulerAngles.x);
+        sb.Append(mapEntity.InternalEulerAngles.x);
         sb.Append('}');
-        sb.Append(mapEntity.EulerAngles.y);
+        sb.Append(mapEntity.InternalEulerAngles.y);
         sb.Append('}');
-        sb.Append(mapEntity.EulerAngles.z);
+        sb.Append(mapEntity.InternalEulerAngles.z);
         sb.Append('}');
 
         sb.Append(mapEntity.InternalBattleEnemyIds.Count);
@@ -270,7 +270,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         // the base fields so we preserve parity on the base game side, but buds gets to see a more convenient representation.
         NPCControl.NPCType type = Enum.Parse<NPCControl.NPCType>(fields[0]);
         NPCControl.ObjectTypes objectType = Enum.Parse<NPCControl.ObjectTypes>(fields[1]);
-        MapEntity value = GetTypedMapEntity(type, objectType);
+        MapEntity value = GetTypedMapEntity(type, objectType, fields);
 
         value.Id = id;
         value.Name = name;
@@ -397,7 +397,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 value.OriginalDialogues);
         }
 
-        value.EulerAngles = new(float.Parse(fields[163]), float.Parse(fields[164]), float.Parse(fields[165]));
+        value.InternalEulerAngles = new(float.Parse(fields[163]), float.Parse(fields[164]), float.Parse(fields[165]));
 
         int battleEnemyIdsLength = int.Parse(fields[166]);
         for (int i = 0; i < 4; i++)
@@ -467,10 +467,16 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         return value;
     }
 
-    private MapEntity GetTypedMapEntity(NPCControl.NPCType type, NPCControl.ObjectTypes objectType) =>
+    private MapEntity GetTypedMapEntity(NPCControl.NPCType type, NPCControl.ObjectTypes objectType, string[] fields) =>
         (type, objectType) switch
         {
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BeetleGrass) => new BeetleGrassMapEntity(),
+            // data[2] determines the mode of operation, and it changes the way some fields are used so we split the type based on it
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PushRock) =>
+                int.Parse(fields[60]) < 3 ||
+                int.Parse(fields[61 + 2]) == 0
+                    ? new MovableRockMapEntity()
+                    : new SlidingIcePillarMapEntity(),
             _ => new BlankMapEntity()
         };
 

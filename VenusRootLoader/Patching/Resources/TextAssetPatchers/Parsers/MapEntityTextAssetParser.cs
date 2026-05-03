@@ -472,6 +472,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 -2 => new AndGateOnFlagsMapEntity(),
                 _ => new AndGateOnEntitiesActivationMapEntity(),
             },
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.CameraChange) => new CameraChangeMapEntity(),
             _ => new BlankMapEntity()
         };
 

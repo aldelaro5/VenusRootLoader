@@ -483,6 +483,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
             },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DoorOtherMap) => new LoadingZoneMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.SetPlayerRespawn) => new SetPlayerRespawnZoneMapEntity(),
             _ => new BlankMapEntity()
         };
 

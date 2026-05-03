@@ -3,7 +3,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.MapEntities;
 
-public sealed class EventTriggerAutomaticMapEntity : MapEntity
+public sealed class AutomaticEventTriggerMapEntity : MapEntity
 {
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.EventTrigger;
@@ -18,7 +18,7 @@ public sealed class EventTriggerAutomaticMapEntity : MapEntity
         }
     }
 
-    internal EventTriggerAutomaticMapEntity() { }
+    internal AutomaticEventTriggerMapEntity() { }
 
     internal override void InitializeFromNew()
     {

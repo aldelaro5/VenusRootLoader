@@ -31,7 +31,7 @@ public sealed class EventTriggerZoneMapEntity : MapEntity
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([-1, 0]);
+        InternalData.AddRange([-1, 0, 0]);
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
         InternalBoxColSize = Vector3.one;

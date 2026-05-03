@@ -115,6 +115,18 @@ public sealed class LoadingZoneMapEntity : MapEntity
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
 
+    public int RegionalFlagId { get => InternalRegionalFlagId; set => InternalRegionalFlagId = value; }
+
+    public Branch<FlagLeaf>? ActivationFlag
+    {
+        get;
+        set
+        {
+            InternalActivationFlagId = value?.GameId ?? -1;
+            field = value;
+        }
+    }
+
     internal LoadingZoneMapEntity() { }
 
     internal override void InitializeFromNew()
@@ -134,6 +146,10 @@ public sealed class LoadingZoneMapEntity : MapEntity
             InternalVectorData.AddRange(Enumerable.Repeat(Vector3.zero, 7 - InternalVectorData.Count));
 
         ILeavesRegistry<MapLeaf> mapsRegistry = registryResolver.Resolve<MapLeaf>();
+        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
         Map = new(mapsRegistry.LeavesByGameIds[InternalData[0]]);
+
+        if (InternalActivationFlagId > 0)
+            ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
     }
 }

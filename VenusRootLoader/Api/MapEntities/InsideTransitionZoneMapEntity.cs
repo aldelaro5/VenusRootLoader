@@ -53,6 +53,18 @@ public sealed class InsideTransitionZoneMapEntity : MapEntity
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
 
+    public int RegionalFlagId { get => InternalRegionalFlagId; set => InternalRegionalFlagId = value; }
+
+    public Branch<FlagLeaf>? ActivationFlag
+    {
+        get;
+        set
+        {
+            InternalActivationFlagId = value?.GameId ?? -1;
+            field = value;
+        }
+    }
+
     internal InsideTransitionZoneMapEntity() { }
 
     internal override void InitializeFromNew()
@@ -72,6 +84,10 @@ public sealed class InsideTransitionZoneMapEntity : MapEntity
             InternalVectorData.AddRange(Enumerable.Repeat(Vector3.zero, 8 - InternalVectorData.Count));
 
         ILeavesRegistry<MusicLeaf> musicRegistry = registryResolver.Resolve<MusicLeaf>();
+        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
         MusicUsedWhileInside = InternalData[1] == -1 ? null : new(musicRegistry.LeavesByGameIds[InternalData[1]]);
+
+        if (InternalActivationFlagId > 0)
+            ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
     }
 }

@@ -27,6 +27,18 @@ public sealed class EventTriggerZoneMapEntity : MapEntity
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
 
+    public int RegionalFlagId { get => InternalRegionalFlagId; set => InternalRegionalFlagId = value; }
+
+    public Branch<FlagLeaf>? ActivationFlag
+    {
+        get;
+        set
+        {
+            InternalActivationFlagId = value?.GameId ?? -1;
+            field = value;
+        }
+    }
+
     internal EventTriggerZoneMapEntity() { }
 
     internal override void InitializeFromNew()
@@ -43,6 +55,10 @@ public sealed class EventTriggerZoneMapEntity : MapEntity
             InternalData.AddRange(Enumerable.Repeat(0, 3 - InternalData.Count));
 
         ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
+        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
         EventToStartWhenTriggered = new(eventsRegistry.LeavesByGameIds[InternalData[0]]);
+
+        if (InternalActivationFlagId > 0)
+            ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
     }
 }

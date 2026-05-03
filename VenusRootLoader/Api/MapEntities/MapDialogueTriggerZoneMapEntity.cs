@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.MapEntities;
@@ -22,6 +23,18 @@ public sealed class MapDialogueTriggerZoneMapEntity : MapEntity
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
 
+    public int RegionalFlagId { get => InternalRegionalFlagId; set => InternalRegionalFlagId = value; }
+
+    public Branch<FlagLeaf>? ActivationFlag
+    {
+        get;
+        set
+        {
+            InternalActivationFlagId = value?.GameId ?? -1;
+            field = value;
+        }
+    }
+
     internal MapDialogueTriggerZoneMapEntity() { }
 
     internal override void InitializeFromNew()
@@ -36,5 +49,10 @@ public sealed class MapDialogueTriggerZoneMapEntity : MapEntity
     {
         if (InternalData.Count < 3)
             InternalData.AddRange(Enumerable.Repeat(0, 3 - InternalData.Count));
+
+        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+
+        if (InternalActivationFlagId > 0)
+            ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
     }
 }

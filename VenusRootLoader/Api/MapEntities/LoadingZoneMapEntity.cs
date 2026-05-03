@@ -19,7 +19,6 @@ public sealed class LoadingZoneMapEntity : MapEntity
         }
     }
 
-
     public Vector3? CameraPositionOffsetFromTargetAfterLoadOverride
     {
         get => InternalData[1] != 1 ? null : InternalVectorData[3];

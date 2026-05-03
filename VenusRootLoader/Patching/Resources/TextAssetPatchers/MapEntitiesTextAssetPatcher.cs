@@ -26,7 +26,7 @@ internal interface IMapEntityTextAssetPatcher
 }
 
 /// <inheritdoc/>
-/// This relies on a <see cref="IMapEntityTextAssetParser"/> to do the conversion from <see cref="MapEntity"/> to string.
+/// <p>This relies on a <see cref="IMapEntityTextAssetParser"/> to do the conversion from <see cref="MapEntity"/> to string.</p>
 internal sealed class MapEntitiesTextAssetPatcher : IMapEntityTextAssetPatcher
 {
     private readonly ILogger<MapEntitiesTextAssetPatcher> _logger;

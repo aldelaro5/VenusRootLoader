@@ -484,6 +484,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DoorOtherMap) => new LoadingZoneMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.SetPlayerRespawn) => new SetPlayerRespawnZoneMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DoorSameMap) => new InsideTransitionZoneMapEntity(),
             _ => new BlankMapEntity()
         };
 

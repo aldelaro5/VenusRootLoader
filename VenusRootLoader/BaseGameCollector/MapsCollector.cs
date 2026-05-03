@@ -72,17 +72,18 @@ internal sealed class MapsCollector : IBaseGameCollector
                 mapLeaf.InternalEntities.Add(mapEntity);
             }
 
-            foreach (MapEntity mapEntity in mapLeaf.InternalEntities)
-            {
-                // This last step is needed because while we have filled all the backing fields of the entity, the derived class
-                // might need to synchronize itself with the data we just filled. This only needs to be done once per map entity
-                // because we just filled them from external data, but any further modification should get synchronized immediately.
-                // It also needs to be done after every MapEntity have been added so references across them works as expected.
-                mapEntity.InitializeFromExisting(_registryResolver);
-            }
-
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
                 mapLeaf.Dialogues[j] = MapsDialogues[j][MapNamedIds[i]].ToList();
+        }
+
+        // This last step is needed because while we have filled all the backing fields of the entity, the derived class
+        // might need to synchronize itself with the data we just filled. This only needs to be done once per map entity
+        // because we just filled them from external data, but any further modification should get synchronized immediately.
+        // It also needs to be done after every map have been added so references across them works as expected.
+        foreach (MapLeaf mapLeaf in _mapsRegistry.LeavesByGameIds.Values)
+        {
+            foreach (MapEntity mapEntity in mapLeaf.InternalEntities)
+                mapEntity.InitializeFromExisting(_registryResolver);
         }
 
         _logger.LogInformation(

@@ -482,6 +482,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 3 => new CollectibleCrystalBerryMapEntity(),
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
             },
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DoorOtherMap) => new LoadingZoneMapEntity(),
             _ => new BlankMapEntity()
         };
 

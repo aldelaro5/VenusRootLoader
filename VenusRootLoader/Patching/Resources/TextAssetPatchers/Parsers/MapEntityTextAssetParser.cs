@@ -466,7 +466,11 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         (type, objectType) switch
         {
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BeetleGrass) => new BeetleGrassMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PushRock) => DeterminePushRockType(fields),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PushRock) =>
+                int.Parse(fields[60]) < 3 ||
+                int.Parse(fields[61 + 2]) == 0
+                    ? new MovableRockMapEntity()
+                    : new SlidingIcePillarMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PressurePlate) => new PressurePlateMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ANDGate) => int.Parse(fields[61 + 0]) switch
             {
@@ -485,14 +489,13 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DoorOtherMap) => new LoadingZoneMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.SetPlayerRespawn) => new SetPlayerRespawnZoneMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DoorSameMap) => new InsideTransitionZoneMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.EventTrigger) =>
+                int.Parse(fields[60]) >= 3 &&
+                int.Parse(fields[61 + 2]) == 1
+                    ? new EventTriggerAutomaticMapEntity()
+                    : new EventTriggerZoneMapEntity(),
             _ => new BlankMapEntity()
         };
-
-    private static MapEntity DeterminePushRockType(string[] fields) =>
-        // data[2] determines the mode of operation, and it changes the way some fields are used so we split the type based on it
-        int.Parse(fields[60]) < 3 || int.Parse(fields[61 + 2]) == 0
-            ? new MovableRockMapEntity()
-            : new SlidingIcePillarMapEntity();
 
     // This allows to basically preserve as much as possible the original array from base game, but only if the new list
     // wouldn't exceed the length of the base game one. This wouldn't impact logic because ultimately, the game only cares

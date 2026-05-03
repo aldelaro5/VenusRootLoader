@@ -494,6 +494,11 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 int.Parse(fields[61 + 2]) == 1
                     ? new AutomaticEventTriggerMapEntity()
                     : new EventTriggerZoneMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DialogueTrigger) =>
+                int.Parse(fields[60]) >= 3 &&
+                int.Parse(fields[61 + 2]) == 1
+                    ? new AutomaticMapDialogueTriggerMapEntity()
+                    : new MapDialogueTriggerZoneMapEntity(),
             _ => new BlankMapEntity()
         };
 

@@ -25,37 +25,26 @@ public sealed class CameraChangeMapEntity : MapEntity
         }
     }
 
-    public Vector3? CameraLowerBoundsWhenTriggered
+    public (Vector3 lowerBounds, Vector3 upperBounds)? CameraBoundsWhenTriggered
     {
-        get => InternalData[1] != 1 || InternalVectorData[2].magnitude <= 0.1f ? null : InternalVectorData[2];
+        get => InternalData[1] != 1 ||
+               (InternalVectorData[2].magnitude <= 0.1f && InternalVectorData[1].magnitude <= 0.1f)
+            ? null
+            : (InternalVectorData[2], InternalVectorData[1]);
         set
         {
-            if (value is null || value.Value.magnitude <= 0.1f)
+            if (value is null ||
+                (value.Value.lowerBounds.magnitude <= 0.1f && value.Value.upperBounds.magnitude <= 0.1f))
             {
                 InternalData[1] = 0;
                 InternalVectorData[2] = Vector3.zero;
-                return;
-            }
-
-            InternalData[1] = 1;
-            InternalVectorData[2] = value.Value;
-        }
-    }
-
-    public Vector3? CameraUpperBoundsWhenTriggered
-    {
-        get => InternalData[1] != 1 || InternalVectorData[1].magnitude <= 0.1f ? null : InternalVectorData[1];
-        set
-        {
-            if (value is null || value.Value.magnitude <= 0.1f)
-            {
-                InternalData[1] = 0;
                 InternalVectorData[1] = Vector3.zero;
                 return;
             }
 
             InternalData[1] = 1;
-            InternalVectorData[1] = value.Value;
+            InternalVectorData[2] = value.Value.lowerBounds;
+            InternalVectorData[1] = value.Value.upperBounds;
         }
     }
 

@@ -62,6 +62,7 @@ internal sealed class MapsCollector : IBaseGameCollector
                 string mapEntityText = mapEntityData.Data[j];
                 string mapEntityName = mapEntityData.Names[j];
                 MapEntity mapEntity = _mapEntityTextAssetParser.FromTextAssetSerializedString(
+                    new Branch<MapLeaf>(mapLeaf),
                     mapLeaf.InternalEntities.Count,
                     mapEntityName,
                     mapEntityText);

@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Api.MapEntities;
 using VenusRootLoader.BaseGameCollector;
 
@@ -23,8 +24,9 @@ public interface IMapEntityTextAssetParser
     /// Allows an <see cref="IBaseGameCollector"/> to fill in a <see cref="MapEntity"/> from a <see cref="TextAsset"/>
     /// string that is associated with its data or name.
     /// </summary>
+    /// <param name="map">A reference of the <see cref="MapLeaf"/> associated with the <see cref="MapEntity"/>.</param>
     /// <param name="id">The associated <see cref="MapEntity"/>'s unique id for the map.</param>
     /// <param name="name">The <see cref="MapEntity"/>'s name.</param>
     /// <param name="text">The line data of the <see cref="TextAsset"/> to use.</param>
-    MapEntity FromTextAssetSerializedString(int id, string name, string text);
+    MapEntity FromTextAssetSerializedString(Branch<MapLeaf> map, int id, string name, string text);
 }

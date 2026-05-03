@@ -33,6 +33,7 @@ public sealed class MapLeaf : Leaf
 
         newEntity.Id = InternalEntities.Count;
         newEntity.Name = name;
+        newEntity.Map = new(this);
         newEntity.InitializeFromNew();
         InternalEntities.Add(newEntity);
         return newEntity;

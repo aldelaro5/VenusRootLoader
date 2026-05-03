@@ -259,7 +259,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         return sb.ToString();
     }
 
-    public MapEntity FromTextAssetSerializedString(int id, string name, string text)
+    public MapEntity FromTextAssetSerializedString(Branch<MapLeaf> map, int id, string name, string text)
     {
         string[] fields = text.Split(StringUtils.ClosingBraceSplitDelimiter);
 
@@ -274,6 +274,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
 
         value.Id = id;
         value.Name = name;
+        value.Map = map;
         value.OriginalType = type;
         value.OriginalObjectType = objectType;
         value.InternalPrimaryBehavior = Enum.Parse<NPCControl.ActionBehaviors>(fields[2]);

@@ -9,6 +9,7 @@ public abstract class MapEntity
 {
     public int Id { get; internal set; }
     public string Name { get; internal set; } = "";
+    public Branch<MapLeaf> Map { get; internal set; }
 
     protected internal NPCControl.NPCType OriginalType { get; internal set; }
     internal abstract NPCControl.NPCType Type { get; }

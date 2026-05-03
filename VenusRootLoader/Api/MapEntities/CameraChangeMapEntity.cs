@@ -163,6 +163,6 @@ public sealed class CameraChangeMapEntity : MapEntity
         if (InternalData.Count < 8)
             InternalData.AddRange(Enumerable.Repeat(0, 8 - InternalData.Count));
         if (InternalVectorData.Count < 6)
-            InternalVectorData.AddRange(Enumerable.Repeat(Vector3.zero, 6 - InternalData.Count));
+            InternalVectorData.AddRange(Enumerable.Repeat(Vector3.zero, 6 - InternalVectorData.Count));
     }
 }

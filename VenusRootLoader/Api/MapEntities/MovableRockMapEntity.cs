@@ -31,5 +31,11 @@ public sealed class MovableRockMapEntity : MapEntity
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.PushRock - 1;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver) { }
+    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    {
+        if (InternalData.Count < 4)
+            InternalData.AddRange(Enumerable.Repeat(0, 4 - InternalData.Count));
+        if (InternalVectorData.Count < 2)
+            InternalVectorData.AddRange(Enumerable.Repeat(Vector3.zero, 2 - InternalVectorData.Count));
+    }
 }

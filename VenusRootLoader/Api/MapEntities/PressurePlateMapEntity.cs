@@ -107,7 +107,10 @@ public sealed class PressurePlateMapEntity : MapEntity
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
-        if (InternalData.Count > 2 && InternalData[2] >= 0)
+        if (InternalData.Count < 3)
+            InternalData.AddRange(Enumerable.Repeat(-1, 3 - InternalData.Count));
+
+        if (InternalData[2] >= 0)
         {
             ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
             EventToTriggerOnFirstActuation = new(eventsRegistry.LeavesByGameIds[InternalData[2]]);

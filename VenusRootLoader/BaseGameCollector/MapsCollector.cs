@@ -24,15 +24,18 @@ internal sealed class MapsCollector : IBaseGameCollector
     private readonly ILogger<MapsCollector> _logger;
     private readonly ILeavesRegistry<MapLeaf> _mapsRegistry;
     private readonly IMapEntityTextAssetParser _mapEntityTextAssetParser;
+    private readonly IRegistryResolver _registryResolver;
 
     public MapsCollector(
         ILogger<MapsCollector> logger,
         ILeavesRegistry<MapLeaf> mapsRegistry,
-        IMapEntityTextAssetParser mapEntityTextAssetParser)
+        IMapEntityTextAssetParser mapEntityTextAssetParser,
+        IRegistryResolver registryResolver)
     {
         _logger = logger;
         _mapsRegistry = mapsRegistry;
         _mapEntityTextAssetParser = mapEntityTextAssetParser;
+        _registryResolver = registryResolver;
 
         for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
         {
@@ -67,6 +70,15 @@ internal sealed class MapsCollector : IBaseGameCollector
                     mapEntityName,
                     mapEntityText);
                 mapLeaf.InternalEntities.Add(mapEntity);
+            }
+
+            foreach (MapEntity mapEntity in mapLeaf.InternalEntities)
+            {
+                // This last step is needed because while we have filled all the backing fields of the entity, the derived class
+                // might need to synchronize itself with the data we just filled. This only needs to be done once per map entity
+                // because we just filled them from external data, but any further modification should get synchronized immediately.
+                // It also needs to be done after every MapEntity have been added so references across them works as expected.
+                mapEntity.InitializeFromExisting(_registryResolver);
             }
 
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)

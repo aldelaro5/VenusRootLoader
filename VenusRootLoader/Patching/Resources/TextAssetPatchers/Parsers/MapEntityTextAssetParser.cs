@@ -15,15 +15,12 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
 {
     private readonly ILogger<MapEntityTextAssetParser> _logger;
     private readonly ILeavesRegistry<FlagLeaf> _flagsRegistry;
-    private readonly IRegistryResolver _registryResolver;
 
     public MapEntityTextAssetParser(
         ILogger<MapEntityTextAssetParser> logger,
-        ILeavesRegistry<FlagLeaf> flagsRegistry,
-        IRegistryResolver registryResolver)
+        ILeavesRegistry<FlagLeaf> flagsRegistry)
     {
         _logger = logger;
-        _registryResolver = registryResolver;
         _flagsRegistry = flagsRegistry;
     }
 
@@ -461,10 +458,6 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         if (fields.Length > 196)
             value.UnusedOverflowData = string.Join("}", fields.Skip(196));
 
-        // This last step is needed because while we have filled all the backing fields of the entity, the derived class
-        // might need to synchronize itself with the data we just filled. This only needs to be done once per map entity
-        // because we just filled them from external data, but any further modification should get synchronized immediately.
-        value.InitializeFromExisting(_registryResolver);
         return value;
     }
 

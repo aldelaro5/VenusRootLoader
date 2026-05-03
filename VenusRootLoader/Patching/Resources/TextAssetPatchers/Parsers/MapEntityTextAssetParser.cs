@@ -465,15 +465,21 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         (type, objectType) switch
         {
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BeetleGrass) => new BeetleGrassMapEntity(),
-            // data[2] determines the mode of operation, and it changes the way some fields are used so we split the type based on it
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PushRock) =>
-                int.Parse(fields[60]) < 3 ||
-                int.Parse(fields[61 + 2]) == 0
-                    ? new MovableRockMapEntity()
-                    : new SlidingIcePillarMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PushRock) => DeterminePushRockType(fields),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PressurePlate) => new PressurePlateMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ANDGate) => int.Parse(fields[61 + 0]) switch
+            {
+                -2 => new AndGateOnFlagsMapEntity(),
+                _ => new AndGateOnEntitiesActivationMapEntity(),
+            },
             _ => new BlankMapEntity()
         };
+
+    private static MapEntity DeterminePushRockType(string[] fields) =>
+        // data[2] determines the mode of operation, and it changes the way some fields are used so we split the type based on it
+        int.Parse(fields[60]) < 3 || int.Parse(fields[61 + 2]) == 0
+            ? new MovableRockMapEntity()
+            : new SlidingIcePillarMapEntity();
 
     // This allows to basically preserve as much as possible the original array from base game, but only if the new list
     // wouldn't exceed the length of the base game one. This wouldn't impact logic because ultimately, the game only cares
@@ -512,7 +518,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         }
     }
 
-    // This method does what was explained above with an Vector3[] detecting non Vector3.zero values.
+    // This method does what was explained above with a Vector3[] detecting non Vector3.zero values.
     private void LogIfListHasUnreadableData(string entityName, string listName, int expectedLength, Vector3[] array)
     {
         if (array.All(x => x == default))

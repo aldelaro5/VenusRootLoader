@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Text;
@@ -470,9 +471,17 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ANDGate) => int.Parse(fields[61 + 0]) switch
             {
                 -2 => new AndGateOnFlagsMapEntity(),
-                _ => new AndGateOnEntitiesActivationMapEntity(),
+                >= -1 => new AndGateOnEntitiesActivationMapEntity(),
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
             },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.CameraChange) => new CameraChangeMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Item) => int.Parse(fields[61 + 0]) switch
+            {
+                0 or 1 => new CollectibleItemMapEntity(),
+                2 => new CollectibleMedalMapEntity(),
+                3 => new CollectibleCrystalBerryMapEntity(),
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
+            },
             _ => new BlankMapEntity()
         };
 

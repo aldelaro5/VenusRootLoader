@@ -8,6 +8,9 @@ public sealed class CameraChangeMapEntity : MapEntity
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.CameraChange;
 
+    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
+    public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
+
     public Vector3? CameraPositionOffsetFromTargetWhenTriggered
     {
         get => InternalData[0] != 1 ? null : InternalVectorData[0];

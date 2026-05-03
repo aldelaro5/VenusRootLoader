@@ -44,11 +44,11 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         sb.Append('}');
         sb.Append(mapEntity.InternalDeathType.ToString());
         sb.Append('}');
-        sb.Append(mapEntity.StartingPosition.x);
+        sb.Append(mapEntity.InternalStartingPosition.x);
         sb.Append('}');
-        sb.Append(mapEntity.StartingPosition.y);
+        sb.Append(mapEntity.InternalStartingPosition.y);
         sb.Append('}');
-        sb.Append(mapEntity.StartingPosition.z);
+        sb.Append(mapEntity.InternalStartingPosition.z);
         sb.Append('}');
         sb.Append(mapEntity.InternalAnimIdOrItemId);
         sb.Append('}');
@@ -279,7 +279,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         value.InternalSecondaryBehavior = Enum.Parse<NPCControl.ActionBehaviors>(fields[3]);
         value.InternalNpcInteraction = Enum.Parse<NPCControl.Interaction>(fields[4]);
         value.InternalDeathType = Enum.Parse<NPCControl.DeathType>(fields[5]);
-        value.StartingPosition = new(float.Parse(fields[6]), float.Parse(fields[7]), float.Parse(fields[8]));
+        value.InternalStartingPosition = new(float.Parse(fields[6]), float.Parse(fields[7]), float.Parse(fields[8]));
         value.InternalAnimIdOrItemId = int.Parse(fields[9]);
         value.InternalIsFlipped = bool.Parse(fields[10]);
         value.InternalCcolHeight = float.Parse(fields[11]);

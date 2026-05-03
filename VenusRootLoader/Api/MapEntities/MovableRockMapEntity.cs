@@ -8,6 +8,7 @@ public sealed class MovableRockMapEntity : MapEntity
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.PushRock;
 
+    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
     public float LaunchYVelocity
     {
         get => InternalVectorData[0].y;

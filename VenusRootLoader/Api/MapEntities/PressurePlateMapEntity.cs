@@ -19,6 +19,7 @@ public sealed class PressurePlateMapEntity : MapEntity
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.PressurePlate;
 
+    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
     public PressurePlateType PressurePlateType
     {
         get;

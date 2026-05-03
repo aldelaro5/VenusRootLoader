@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
 
@@ -8,6 +9,7 @@ public sealed class CollectibleCrystalBerryMapEntity : MapEntity
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.Item;
 
+    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
     public Branch<CrystalBerryLeaf> CrystalBerry
     {
         get;

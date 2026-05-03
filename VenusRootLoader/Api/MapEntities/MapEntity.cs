@@ -20,7 +20,6 @@ public abstract class MapEntity
     internal abstract void InitializeFromNew();
     internal abstract void InitializeFromExisting(IRegistryResolver registryResolver);
 
-    public Vector3 StartingPosition { get; set; }
     internal bool IsReturnToHeightOriginallyInt { get; set; }
     public bool ReturnToHeight { get; set; }
     internal int[] OriginalRequires { get; } = new int[10];
@@ -39,6 +38,7 @@ public abstract class MapEntity
     public NPCControl.DeathType InternalDeathType { get; set; }
     public int InternalAnimIdOrItemId { get; set; } = -1;
     public bool InternalIsFlipped { get; set; }
+    public Vector3 InternalStartingPosition { get; set; }
     public float InitialHeight { get; set; }
     public float InternalBobRange { get; set; }
     public float InternalBobSpeed { get; set; }

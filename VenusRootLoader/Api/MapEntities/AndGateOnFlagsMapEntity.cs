@@ -17,7 +17,7 @@ public sealed class AndGateOnFlagsMapEntity : MapEntity
     internal override void InitializeFromNew()
     {
         InternalAnimIdOrItemId = -1;
-        StartingPosition = new(0f, 9999f, 0f);
+        InternalStartingPosition = new(0f, 9999f, 0f);
         InternalActivationFlagId = -1;
         InternalData.AddRange([-2]);
     }

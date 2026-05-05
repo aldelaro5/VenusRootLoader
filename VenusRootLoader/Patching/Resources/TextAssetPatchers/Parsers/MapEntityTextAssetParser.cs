@@ -472,12 +472,15 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                     ? new MovableRockMapEntity()
                     : new SlidingIcePillarMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PressurePlate) => new PressurePlateMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ANDGate) => int.Parse(fields[61 + 0]) switch
-            {
-                -2 => new AndGateOnFlagsMapEntity(),
-                >= -1 => new AndGateOnEntitiesActivationMapEntity(),
-                _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
-            },
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ANDGate) =>
+                int.Parse(fields[60]) == 2 && int.Parse(fields[61 + 1]) == -1
+                    ? new AndGateOnSingleFlagMapEntity()
+                    : int.Parse(fields[61 + 0]) switch
+                    {
+                        -2 => new AndGateOnFlagsMapEntity(),
+                        >= -1 => new AndGateOnEntitiesActivationMapEntity(),
+                        _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
+                    },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.CameraChange) => new CameraChangeMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Item) => int.Parse(fields[61 + 0]) switch
             {
@@ -499,6 +502,15 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 int.Parse(fields[61 + 2]) == 1
                     ? new AutomaticMapDialogueTriggerMapEntity()
                     : new MapDialogueTriggerZoneMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ANDBlock) =>
+                int.Parse(fields[60]) == 2 && int.Parse(fields[61 + 1]) == -1
+                    ? new AndBlockOnSingleFlagMapEntity()
+                    : int.Parse(fields[61 + 0]) switch
+                    {
+                        -2 => new AndBlockOnFlagsMapEntity(),
+                        >= -1 => new AndBlockOnEntitiesActivationMapEntity(),
+                        _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
+                    },
             _ => new BlankMapEntity()
         };
 

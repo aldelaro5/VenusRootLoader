@@ -511,6 +511,10 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                         >= -1 => new AndBlockOnEntitiesActivationMapEntity(),
                         _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
                     },
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.SavePoint) =>
+                int.Parse(fields[61 + 1]) >= 10
+                    ? new DeadLanderOmegaAlertCrystalMapEntity()
+                    : new SavePointCrystalMapEntity(),
             _ => new BlankMapEntity()
         };
 

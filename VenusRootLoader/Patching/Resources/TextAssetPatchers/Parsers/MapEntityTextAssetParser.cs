@@ -515,6 +515,10 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 int.Parse(fields[61 + 1]) >= 10
                     ? new DeadLanderOmegaAlertCrystalMapEntity()
                     : new SavePointCrystalMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.JumpSpring) =>
+                int.Parse(fields[61 + 0]) == 1
+                    ? new JumpToPositionSpringMapEntity()
+                    : new JumpUpSpringMapEntity(),
             _ => new BlankMapEntity()
         };
 

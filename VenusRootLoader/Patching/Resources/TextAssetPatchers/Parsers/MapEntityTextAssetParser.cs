@@ -519,6 +519,14 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 int.Parse(fields[61 + 0]) == 1
                     ? new JumpToPositionSpringMapEntity()
                     : new JumpUpSpringMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DigSpot) =>
+                (int.Parse(fields[61 + 0]), int.Parse(fields[61 + 1])) switch
+                {
+                    (1, _) => new DigSpotCrystalBerryMapEntity(),
+                    (>= 2, _) => new DigSpotStartEventMapEntity(),
+                    (<= 0, >= 2) => new DigSpotMedalMapEntity(),
+                    (<= 0, < 2) => new DigSpotItemMapEntity(),
+                },
             _ => new BlankMapEntity()
         };
 

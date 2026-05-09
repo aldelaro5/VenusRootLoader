@@ -527,6 +527,15 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                     (<= 0, >= 2) => new DigSpotMedalMapEntity(),
                     (<= 0, < 2) => new DigSpotItemMapEntity(),
                 },
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Switch) =>
+                (int.Parse(fields[61 + 0]), int.Parse(fields[61 + 1]), int.Parse(fields[61 + 2])) switch
+                {
+                    (0, 0, 0) => new LatchedSwitchMapEntity(),
+                    (0, 0, _) => new TimerSwitchMapEntity(),
+                    (0, 1, _) => new LinkableToggleSwitchMapEntity(),
+                    (1, >= 0, _) => new EventTriggerSwitchMapEntity(),
+                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
+                },
             _ => new BlankMapEntity()
         };
 

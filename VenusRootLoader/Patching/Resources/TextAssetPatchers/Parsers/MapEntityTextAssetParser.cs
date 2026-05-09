@@ -465,7 +465,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
     private MapEntity GetTypedMapEntity(NPCControl.NPCType type, NPCControl.ObjectTypes objectType, string[] fields) =>
         (type, objectType) switch
         {
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BeetleGrass) => new BeetleGrassMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BeetleGrass) => new CuttableGrassMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PushRock) =>
                 int.Parse(fields[60]) < 3 ||
                 int.Parse(fields[61 + 2]) == 0

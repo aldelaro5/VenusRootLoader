@@ -5,7 +5,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.MapEntities;
 
-public sealed class BeetleGrassMapEntity : MapEntity
+public sealed class CuttableGrassMapEntity : MapEntity
 {
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.BeetleGrass;
@@ -43,7 +43,7 @@ public sealed class BeetleGrassMapEntity : MapEntity
         }
     }
 
-    internal BeetleGrassMapEntity() { }
+    internal CuttableGrassMapEntity() { }
 
     internal override void InitializeFromNew()
     {

@@ -536,6 +536,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                     (1, >= 0, _) => new EventTriggerSwitchMapEntity(),
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
                 },
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.CoiledObject) => new TrappedEntityMapEntity(),
             _ => new BlankMapEntity()
         };
 

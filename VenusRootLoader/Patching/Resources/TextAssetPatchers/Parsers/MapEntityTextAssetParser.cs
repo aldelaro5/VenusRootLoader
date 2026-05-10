@@ -537,6 +537,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
                 },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.CoiledObject) => new TrappedEntityMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.FixedAnim) => new FixedAnimstateMapEntity(),
             _ => new BlankMapEntity()
         };
 

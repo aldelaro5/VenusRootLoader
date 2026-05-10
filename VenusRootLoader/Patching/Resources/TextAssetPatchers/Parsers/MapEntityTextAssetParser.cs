@@ -538,6 +538,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.CoiledObject) => new TrappedEntityMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.FixedAnim) => new FixedAnimstateMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.EnemySpawner) => new EnemySpawnerMapEntity(),
             _ => new BlankMapEntity()
         };
 

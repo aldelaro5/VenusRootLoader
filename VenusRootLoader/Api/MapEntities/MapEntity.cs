@@ -43,8 +43,8 @@ public abstract class MapEntity
     public float InternalBobRange { get; set; }
     public float InternalBobSpeed { get; set; }
 
-    public float InternalCcolHeight { get; set; }
-    public float InternalCcolRadius { get; set; }
+    public float InternalCcolHeight { get; set; } = 2f;
+    public float InternalCcolRadius { get; set; } = 0.5f;
 
     public Vector3 InternalEulerAngles { get; set; }
     public float InternalRadius { get; set; }

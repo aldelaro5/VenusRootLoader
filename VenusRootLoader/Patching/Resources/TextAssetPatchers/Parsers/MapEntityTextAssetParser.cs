@@ -544,6 +544,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 (int)float.Parse(fields[103 + (1 * 3) + 0]) == 1
                     ? new MovingPlatformAlongLerpMapEntity()
                     : new MovingPlatformAlongPathMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BreakableRock) => new BreakableRockMapEntity(),
             _ => new BlankMapEntity()
         };
 

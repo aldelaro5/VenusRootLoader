@@ -540,6 +540,10 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.FixedAnim) => new FixedAnimstateMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.EnemySpawner) => new EnemySpawnerMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Dropplet) => new FreezableWaterDropletMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PathPlatform) =>
+                (int)float.Parse(fields[103 + (1 * 3) + 0]) == 1
+                    ? new MovingPlatformAlongLerpMapEntity()
+                    : new MovingPlatformAlongPathMapEntity(),
             _ => new BlankMapEntity()
         };
 

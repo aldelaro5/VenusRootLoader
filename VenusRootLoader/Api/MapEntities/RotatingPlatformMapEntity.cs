@@ -6,6 +6,13 @@ using VenusRootLoader.Registry;
 namespace VenusRootLoader.Api.MapEntities;
 
 // TODO: Fix the length 0 issue on NPCControl.CreateEntities so this can move without a switch
+// TODO: Fix a Rotater issue where its eulerAngles can get permanently stuck while on a platform rotating in x/z, here's a simple reproduction:
+// rotate.ChangeMovementPathNodeEulerAngles(
+// [
+//     new(-90f, 0f, 0f),
+//     new(-90f, 90f, 0f),
+//     new(-60f, 0f, 30f)
+// ]);
 public sealed class RotatingPlatformMapEntity : MapEntity
 {
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;

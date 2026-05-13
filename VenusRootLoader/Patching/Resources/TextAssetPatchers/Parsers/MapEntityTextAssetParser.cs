@@ -546,6 +546,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                     : new MovingPlatformAlongPathMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BreakableRock) => new BreakableRockMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.RotatingPlatform) => new RotatingPlatformMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Geizer) => new GeyserMapEntity(),
             _ => new BlankMapEntity()
         };
 

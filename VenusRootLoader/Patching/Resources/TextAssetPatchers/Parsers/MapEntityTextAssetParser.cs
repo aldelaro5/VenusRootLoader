@@ -548,6 +548,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.RotatingPlatform) => new RotatingPlatformMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Geizer) => new GeyserMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.MusicRange) => new MusicChangeZoneMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TempPlatform) => new FlytrapPlatformMapEntity(),
             _ => new BlankMapEntity()
         };
 

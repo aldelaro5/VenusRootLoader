@@ -25,7 +25,6 @@ public sealed class GeyserMapEntity : MapEntity
     // TODO: This seems to not work right on a regular grounded surface, recheck if it's bound to water level
     public bool IsUnseenUntilActive { get => InternalData[3] != 0; set => InternalData[3] = value ? 1 : 0; }
 
-    // TODO: Test this later with a StencilSwitch
     public bool WontFreezeFromIceRadius { get => InternalData[4] != 0; set => InternalData[4] = value ? 1 : 0; }
 
     public float OscillationFrequencyInHertz
@@ -50,7 +49,7 @@ public sealed class GeyserMapEntity : MapEntity
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange(Enumerable.Repeat(-1, 5 - InternalData.Count));
+        InternalData.AddRange([-1, -1, -1, -1, 0]);
         InternalVectorData.Add(new(1f, 1f, 1000f));
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;

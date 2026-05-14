@@ -550,6 +550,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.MusicRange) => new MusicChangeZoneMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TempPlatform) => new FlytrapPlatformMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ScrewSwitch) => new SpinningCrankMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ResetCamera) => new ResetCameraZoneMapEntity(),
             _ => new BlankMapEntity()
         };
 

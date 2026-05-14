@@ -551,6 +551,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TempPlatform) => new FlytrapPlatformMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ScrewSwitch) => new SpinningCrankMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ResetCamera) => new ResetCameraZoneMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.StencilSwitch) => new IceRadiusSwitchMapEntity(),
             _ => new BlankMapEntity()
         };
 

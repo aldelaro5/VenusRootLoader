@@ -4,6 +4,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.MapEntities;
 
+// TODO: it's possible this works with other animid, recheck later
 public enum IceRadiusSwitchKind
 {
     BigCrystalSwitch = 54,

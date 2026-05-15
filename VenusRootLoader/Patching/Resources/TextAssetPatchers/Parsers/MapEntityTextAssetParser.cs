@@ -552,6 +552,11 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ScrewSwitch) => new SpinningCrankMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ResetCamera) => new ResetCameraZoneMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.StencilSwitch) => new IceRadiusSwitchMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.RollingRock) => int.Parse(fields[61 + 2]) switch
+            {
+                1 => new RollingRockCanonMapEntity(),
+                _ => new RollingRockMapEntity()
+            },
             _ => new BlankMapEntity()
         };
 

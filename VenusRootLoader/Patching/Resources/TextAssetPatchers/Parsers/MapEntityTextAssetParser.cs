@@ -559,6 +559,8 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TriggerSwitch) => new SwitchTriggerZoneMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WindPusher) => new WindBeamZoneMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WaterSwitch) =>
+                new MapChildVerticalPositionSwitchMapEntity(),
             _ => new BlankMapEntity()
         };
 

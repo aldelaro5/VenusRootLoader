@@ -558,6 +558,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 _ => new RollingRockMapEntity()
             },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TriggerSwitch) => new SwitchTriggerZoneMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WindPusher) => new WindBeamZoneMapEntity(),
             _ => new BlankMapEntity()
         };
 

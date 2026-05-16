@@ -22,7 +22,7 @@ public sealed class RollingRockCanonMapEntity : MapEntity
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(
                     nameof(RequiredMapEntityActivationForShot),
-                    $"The entity is not in the {map.NamedId} which is required");
+                    $"The entity is not in the {map.NamedId} map which is required");
             }
 
             if (value is { EffectiveValue: -1 })

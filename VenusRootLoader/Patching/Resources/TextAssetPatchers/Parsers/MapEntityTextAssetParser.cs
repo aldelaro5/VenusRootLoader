@@ -557,6 +557,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 1 => new RollingRockCanonMapEntity(),
                 _ => new RollingRockMapEntity()
             },
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TriggerSwitch) => new SwitchTriggerZoneMapEntity(),
             _ => new BlankMapEntity()
         };
 

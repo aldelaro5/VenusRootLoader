@@ -591,7 +591,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
 
         return (int)float.Parse(fields[72 + (0 * 3) + 1]) == -2
             ? new EnemyEncounterHoldingKeyItemMapEntity()
-            : new EnemyEncounterMapEntity();
+            : new EnemyEncounterWithRegularItemDropsMapEntity();
     }
 
     // This allows to basically preserve as much as possible the original array from base game, but only if the new list

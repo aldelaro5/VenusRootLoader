@@ -7,7 +7,7 @@ namespace VenusRootLoader.Api.MapEntities;
 
 using ItemDrop = (Branch<ItemLeaf> Item, Branch<FlagLeaf>? RequiredFlag);
 
-public sealed class EnemyEncounterMapEntity : MapEntity
+public sealed class EnemyEncounterWithRegularItemDropsMapEntity : MapEntity
 {
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Enemy;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.None;
@@ -30,13 +30,13 @@ public sealed class EnemyEncounterMapEntity : MapEntity
     public ReadOnlyCollection<ItemDrop> ItemsDropPoolWhenDefeated { get; private set; } =
         new List<ItemDrop>().AsReadOnly();
 
-    public int? RespawnTimerInFrames
+    public float MovementRadius
     {
-        get => InternalEventId == 0 ? null : InternalEventId;
-        set => InternalEventId = value ?? 0;
+        get => InternalRadiusLimit;
+        set => InternalRadiusLimit = value;
     }
 
-    internal EnemyEncounterMapEntity() { }
+    internal EnemyEncounterWithRegularItemDropsMapEntity() { }
 
     internal override void InitializeFromNew()
     {

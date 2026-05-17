@@ -45,10 +45,10 @@ public sealed class EnemyEncounterHoldingKeyItemMapEntity : MapEntity
         }
     }
 
-    public int? RespawnTimerInFrames
+    public float MovementRadius
     {
-        get => InternalEventId == 0 ? null : InternalEventId;
-        set => InternalEventId = value ?? 0;
+        get => InternalRadiusLimit;
+        set => InternalRadiusLimit = value;
     }
 
     internal EnemyEncounterHoldingKeyItemMapEntity() { }

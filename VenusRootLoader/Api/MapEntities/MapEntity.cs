@@ -45,8 +45,8 @@ public abstract class MapEntity
     public Vector3 InternalEulerAngles { get; set; }
     public float InternalRadius { get; set; }
     public float InternalTimer { get; set; } = -1f;
-    public float InternalSpeed { get; set; }
-    public float InternalSpeedMultiplier { get; set; }
+    public float InternalSpeed { get; set; } = 2.5f;
+    public float InternalSpeedMultiplier { get; set; } = 1.0f;
     public float InternalRadiusLimit { get; set; }
     public float InternalWanderRadius { get; set; }
     public float InternalTeleportRadius { get; set; }

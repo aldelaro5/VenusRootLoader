@@ -17,6 +17,10 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
     private readonly ILogger<MapEntityTextAssetParser> _logger;
     private readonly ILeavesRegistry<FlagLeaf> _flagsRegistry;
 
+    // TODO: We likely want a patch for this, it's due to the fact vectordata is both used for item drops and path positions
+    private static readonly NPCControl.ActionBehaviors[] EnemiesBehaviorsWithoutItemsDrops =
+        [NPCControl.ActionBehaviors.SetPath, NPCControl.ActionBehaviors.SetPathJump];
+
     public MapEntityTextAssetParser(
         ILogger<MapEntityTextAssetParser> logger,
         ILeavesRegistry<FlagLeaf> flagsRegistry)
@@ -268,16 +272,19 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         // the base fields so we preserve parity on the base game side, but buds gets to see a more convenient representation.
         NPCControl.NPCType type = Enum.Parse<NPCControl.NPCType>(fields[0]);
         NPCControl.ObjectTypes objectType = Enum.Parse<NPCControl.ObjectTypes>(fields[1]);
-        MapEntity value = GetTypedMapEntity(type, objectType, fields);
+        NPCControl.ActionBehaviors primaryBehavior = Enum.Parse<NPCControl.ActionBehaviors>(fields[2]);
+        NPCControl.ActionBehaviors secondaryBehavior = Enum.Parse<NPCControl.ActionBehaviors>(fields[3]);
+        NPCControl.Interaction npcInteraction = Enum.Parse<NPCControl.Interaction>(fields[4]);
+        MapEntity value = GetTypedMapEntity(type, objectType, primaryBehavior, secondaryBehavior, fields);
 
         value.Id = id;
         value.Name = name;
         value.Map = map;
         value.OriginalType = type;
         value.OriginalObjectType = objectType;
-        value.InternalPrimaryBehavior = Enum.Parse<NPCControl.ActionBehaviors>(fields[2]);
-        value.InternalSecondaryBehavior = Enum.Parse<NPCControl.ActionBehaviors>(fields[3]);
-        value.InternalNpcInteraction = Enum.Parse<NPCControl.Interaction>(fields[4]);
+        value.InternalPrimaryBehavior = primaryBehavior;
+        value.InternalSecondaryBehavior = secondaryBehavior;
+        value.InternalNpcInteraction = npcInteraction;
         value.InternalDeathType = Enum.Parse<NPCControl.DeathType>(fields[5]);
         value.InternalStartingPosition = new(float.Parse(fields[6]), float.Parse(fields[7]), float.Parse(fields[8]));
         value.InternalAnimIdOrItemId = int.Parse(fields[9]);
@@ -462,7 +469,12 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         return value;
     }
 
-    private MapEntity GetTypedMapEntity(NPCControl.NPCType type, NPCControl.ObjectTypes objectType, string[] fields) =>
+    private MapEntity GetTypedMapEntity(
+        NPCControl.NPCType type,
+        NPCControl.ObjectTypes objectType,
+        NPCControl.ActionBehaviors primaryBehavior,
+        NPCControl.ActionBehaviors secondaryBehavior,
+        string[] fields) =>
         (type, objectType) switch
         {
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BeetleGrass) => new CuttableGrassMapEntity(),
@@ -561,8 +573,26 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WindPusher) => new WindBeamZoneMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WaterSwitch) =>
                 new MapChildVerticalPositionSwitchMapEntity(),
+            (NPCControl.NPCType.Enemy, _) => DetermineEnemyMapEntityType(primaryBehavior, secondaryBehavior, fields),
             _ => new BlankMapEntity()
         };
+
+    private static MapEntity DetermineEnemyMapEntityType(
+        NPCControl.ActionBehaviors primaryBehavior,
+        NPCControl.ActionBehaviors secondaryBehavior,
+        string[] fields)
+    {
+        if (int.Parse(fields[37]) > 0 ||
+            EnemiesBehaviorsWithoutItemsDrops.Contains(primaryBehavior) ||
+            EnemiesBehaviorsWithoutItemsDrops.Contains(secondaryBehavior))
+        {
+            return new EnemyEncounterWithoutItemDropsMapEntity();
+        }
+
+        return (int)float.Parse(fields[72 + (0 * 3) + 1]) == -2
+            ? new EnemyEncounterHoldingKeyItemMapEntity()
+            : new EnemyEncounterMapEntity();
+    }
 
     // This allows to basically preserve as much as possible the original array from base game, but only if the new list
     // wouldn't exceed the length of the base game one. This wouldn't impact logic because ultimately, the game only cares

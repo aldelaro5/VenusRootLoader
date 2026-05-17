@@ -1,12 +1,16 @@
+using CommunityToolkit.Diagnostics;
 using System.Collections.ObjectModel;
+using System.Reflection;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Api.MapEntities.ActionBehaviors;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.MapEntities;
 
 using ItemDrop = (Branch<ItemLeaf> Item, Branch<FlagLeaf>? RequiredFlag);
 
+// TODO: Abstract the action behaviors logic somewhere so it can be shared
 public sealed class EnemyEncounterWithRegularItemDropsMapEntity : MapEntity
 {
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Enemy;
@@ -51,6 +55,9 @@ public sealed class EnemyEncounterWithRegularItemDropsMapEntity : MapEntity
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
         ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
 
+        InitializeExistingBehavior(ActionBehaviorKind.OutOfRange, registryResolver);
+        InitializeExistingBehavior(ActionBehaviorKind.InRange, registryResolver);
+
         AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
 
         List<Branch<EnemyLeaf>> enemies = InternalBattleEnemyIds
@@ -73,6 +80,24 @@ public sealed class EnemyEncounterWithRegularItemDropsMapEntity : MapEntity
         ChangeItemsDropPoolWhenDefeated(itemsDrop);
     }
 
+    private void InitializeExistingBehavior(ActionBehaviorKind kind, IRegistryResolver registryResolver)
+    {
+        NPCControl.ActionBehaviors behaviorType = kind switch
+        {
+            ActionBehaviorKind.OutOfRange => InternalPrimaryBehavior,
+            ActionBehaviorKind.InRange => InternalSecondaryBehavior,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<NPCControl.ActionBehaviors>(nameof(kind))
+        };
+
+        ActionBehavior behavior = behaviorType switch
+        {
+            NPCControl.ActionBehaviors.FacePlayer => new FacePlayerActionBehavior(this, kind),
+            _ => new BlankActionBehavior(this, kind)
+        };
+
+        behavior.InitializeFromExisting(registryResolver);
+    }
+
     public void ChangeEnemiesFormationInBattle(List<Branch<EnemyLeaf>> enemies)
     {
         InternalBattleEnemyIds.Clear();
@@ -91,5 +116,33 @@ public sealed class EnemyEncounterWithRegularItemDropsMapEntity : MapEntity
         }
 
         ItemsDropPoolWhenDefeated = items.AsReadOnly();
+    }
+
+    public TBehavior SetOutOfRangeBehavior<TBehavior>() where TBehavior : ActionBehavior
+    {
+        TBehavior behavior = (TBehavior)Activator.CreateInstance(
+            typeof(TBehavior),
+            BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
+            null,
+            [this, ActionBehaviorKind.OutOfRange],
+            null,
+            null);
+
+        InternalPrimaryBehavior = behavior.BehaviorType;
+        return behavior;
+    }
+
+    public TBehavior SetInRangeBehavior<TBehavior>() where TBehavior : ActionBehavior
+    {
+        TBehavior behavior = (TBehavior)Activator.CreateInstance(
+            typeof(TBehavior),
+            BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
+            null,
+            [this, ActionBehaviorKind.InRange],
+            null,
+            null);
+
+        InternalSecondaryBehavior = behavior.BehaviorType;
+        return behavior;
     }
 }

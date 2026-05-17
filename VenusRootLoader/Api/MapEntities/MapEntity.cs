@@ -22,10 +22,6 @@ public abstract class MapEntity
 
     internal bool IsReturnToHeightOriginallyInt { get; set; }
     public bool ReturnToHeight { get; set; }
-    internal int[] OriginalRequires { get; } = new int[10];
-    public List<Branch<FlagLeaf>> Requires { get; } = new();
-    internal int[] OriginalLimits { get; } = new int[10];
-    public List<LimitFlag> Limit { get; } = new();
     public int InsideId { get; set; } = -1;
     public Color TagColor { get; set; }
 
@@ -69,6 +65,11 @@ public abstract class MapEntity
     public bool InternalBoxColIsTrigger { get; set; }
     public Vector3 InternalBoxColSize { get; set; } = Vector3.one;
     public Vector3 InternalBoxColCenter { get; set; }
+
+    internal int[] OriginalRequires { get; } = new int[10];
+    public List<Branch<FlagLeaf>> InternalRequires { get; } = new();
+    internal int[] OriginalLimits { get; } = new int[10];
+    public List<LimitFlag> InternalLimits { get; } = new();
 
     internal int[] OriginalData { get; } = new int[10];
     public List<int> InternalData { get; } = new();

@@ -174,13 +174,13 @@ internal sealed class MapEntitiesArraysLengthTopLevelPatcher : ITopLevelPatcher
     private static int PatchNewRequiresLength(int originalLength, int mapEntityId, int mapGameId)
     {
         MapLeaf mapLeaf = _instance._mapsLeafRegistry.LeavesByGameIds[mapGameId];
-        return Math.Max(originalLength, mapLeaf.Entities[mapEntityId].Requires.Count);
+        return Math.Max(originalLength, mapLeaf.Entities[mapEntityId].InternalRequires.Count);
     }
 
     private static int PatchNewLimitsLength(int originalLength, int mapEntityId, int mapGameId)
     {
         MapLeaf mapLeaf = _instance._mapsLeafRegistry.LeavesByGameIds[mapGameId];
-        return Math.Max(originalLength, mapLeaf.Entities[mapEntityId].Limit.Count);
+        return Math.Max(originalLength, mapLeaf.Entities[mapEntityId].InternalLimits.Count);
     }
 
     private static int PatchNewDataLength(int originalLength, int mapEntityId, int mapGameId)

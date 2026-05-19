@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Api.MapEntities.ActionBehaviors;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.MapEntities;
@@ -51,7 +52,12 @@ public sealed class EnemyEncounterHoldingKeyItemMapEntity : MapEntity
         set => InternalRadiusLimit = value;
     }
 
-    internal EnemyEncounterHoldingKeyItemMapEntity() { }
+    public MapEntityBehaviors Behaviors { get; }
+
+    internal EnemyEncounterHoldingKeyItemMapEntity()
+    {
+        Behaviors = new(this);
+    }
 
     internal override void InitializeFromNew()
     {
@@ -72,6 +78,8 @@ public sealed class EnemyEncounterHoldingKeyItemMapEntity : MapEntity
         ILeavesRegistry<EnemyLeaf> enemiesRegistry = registryResolver.Resolve<EnemyLeaf>();
         ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
         ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
+
+        Behaviors.InitializeBehaviorFromExisting();
 
         AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
         KeyItemDropped = new(itemsRegistry.LeavesByGameIds[(int)InternalVectorData[0].x]);

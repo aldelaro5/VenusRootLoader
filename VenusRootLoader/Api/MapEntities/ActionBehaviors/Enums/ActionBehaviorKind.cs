@@ -1,4 +1,4 @@
-namespace VenusRootLoader.Api.MapEntities.ActionBehaviors
+namespace VenusRootLoader.Api.MapEntities.ActionBehaviors.Enums
 {
     public enum ActionBehaviorKind
     {

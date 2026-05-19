@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Api.MapEntities.ActionBehaviors;
+using VenusRootLoader.Api.MapEntities.ActionBehaviors.Enums;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.MapEntities;
@@ -40,6 +41,9 @@ public sealed class EnemyEncounterWithRegularItemDropsMapEntity : MapEntity
         set => InternalRadiusLimit = value;
     }
 
+    public ActionBehavior? OutOfBehaviorRangeBehavior { get; private set; }
+    public ActionBehavior? InBehaviorRangeBehavior { get; private set; }
+
     public float BehaviorRangeRadius
     {
         get => InternalRadius;
@@ -60,6 +64,9 @@ public sealed class EnemyEncounterWithRegularItemDropsMapEntity : MapEntity
         ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
         ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
+
+        InitializeBehaviorFromExisting(ActionBehaviorKind.OutOfRange);
+        InitializeBehaviorFromExisting(ActionBehaviorKind.InRange);
 
         AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
 
@@ -83,6 +90,72 @@ public sealed class EnemyEncounterWithRegularItemDropsMapEntity : MapEntity
         ChangeItemsDropPoolWhenDefeated(itemsDrop);
     }
 
+    private void InitializeBehaviorFromExisting(ActionBehaviorKind kind)
+    {
+        NPCControl.ActionBehaviors internalType = kind switch
+        {
+            ActionBehaviorKind.OutOfRange => InternalPrimaryBehavior,
+            ActionBehaviorKind.InRange => InternalSecondaryBehavior,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<NPCControl.ActionBehaviors>(nameof(kind))
+        };
+
+        ActionBehavior? behavior = MapExistingInternalBehaviorType(kind, internalType);
+
+        switch (kind)
+        {
+            case ActionBehaviorKind.OutOfRange:
+                OutOfBehaviorRangeBehavior = behavior;
+                break;
+            case ActionBehaviorKind.InRange:
+                InBehaviorRangeBehavior = behavior;
+                break;
+            default:
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(kind));
+                break;
+        }
+    }
+
+    private ActionBehavior? MapExistingInternalBehaviorType(
+        ActionBehaviorKind kind,
+        NPCControl.ActionBehaviors internalType)
+    {
+        return internalType switch
+        {
+            NPCControl.ActionBehaviors.None => null,
+            NPCControl.ActionBehaviors.FacePlayer => new FaceDirectionActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.ChasePlayer => new ChasePlayerActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.FleeFromPlayer => new FleeFromPlayerActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.TurnRandomly => new SpriteFlipActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.Wander => new WanderActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.FaceAwayFromPlayer => new FaceDirectionActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.TurnFixedInterval => new SpriteFlipActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.Disguise => new DisguiseActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.DisguiseOnce => new DisguiseOnceBeforeWanderActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.FaceAhead => new FaceDirectionActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.FaceBehind => new FaceDirectionActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.FaceUp => new FaceDirectionActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.FaceDown => new FaceDirectionActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.SetPath => new MoveAlongPathActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.ChargeAtPlayer => new ChargeAtPlayerActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.ChargeAtPlayerFlipSprite => new ChargeAtPlayerActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.ShootProjectile => new ShootProjectileActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.ChargeAndAttack => new ChaseAndAttackPlayerActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.Unmoveable => new UnmovableWhenDizzyActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.ChargeAttackUnderground => new ChaseAndAttackPlayerActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.WanderUnderground => new WanderActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.SetPathJump => new MoveAlongPathActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.ChangeSpriteInRandius => new ChangeAnimstateInRadiusActionBehavior(this),
+            NPCControl.ActionBehaviors.ChaseWhenAnim => new ChasePlayerWhenAnimstateIsChaseActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.WalkWhenAnim => new WanderWhenAnimstateIsWalkOrIdleActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.WanderOffscreen => new WanderActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.WanderNoWarp => new WanderActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.WanderOnWater => new WanderActionBehavior(this, kind),
+            NPCControl.ActionBehaviors.ChaseOnWater => new ChasePlayerActionBehavior(this, kind),
+            _ => ThrowHelper.ThrowInvalidOperationException<ActionBehavior?>(
+                $"The internal action behavior type {internalType} is not supported.")
+        };
+    }
+
     public void ChangeEnemiesFormationInBattle(List<Branch<EnemyLeaf>> enemies)
     {
         InternalBattleEnemyIds.Clear();
@@ -103,188 +176,227 @@ public sealed class EnemyEncounterWithRegularItemDropsMapEntity : MapEntity
         ItemsDropPoolWhenDefeated = items.AsReadOnly();
     }
 
-    public void SetFacingBehavior(ActionBehaviorKind kind, FacingBehaviorDirection direction)
+    public FaceDirectionActionBehavior SetFaceDirectionBehavior(
+        ActionBehaviorKind kind,
+        FacingBehaviorDirection direction)
     {
-        NPCControl.ActionBehaviors behaviorType = direction switch
+        FaceDirectionActionBehavior behavior = new(this, kind) { FacingDirection = direction };
+        SetActionBehavior(behavior, kind);
+        return behavior;
+    }
+
+    public ChasePlayerActionBehavior SetChasePlayerBehavior(ActionBehaviorKind kind, bool chaseOnWater)
+    {
+        ChasePlayerActionBehavior behavior = new(this, kind) { ChaseOnWater = chaseOnWater };
+        SetActionBehavior(behavior, kind);
+        return behavior;
+    }
+
+    public ChasePlayerWhenAnimstateIsChaseActionBehavior SetChasePlayerWhenAnimstateIsChaseBehavior(
+        ActionBehaviorKind kind,
+        int animstateOverrideWhenNotChase)
+    {
+        ChasePlayerWhenAnimstateIsChaseActionBehavior behavior = new(this, kind)
         {
-            FacingBehaviorDirection.TowardsPlayer => NPCControl.ActionBehaviors.FacePlayer,
-            FacingBehaviorDirection.AwayFromPlayer => NPCControl.ActionBehaviors.FaceAwayFromPlayer,
-            FacingBehaviorDirection.TowardsEntityRightVector => NPCControl.ActionBehaviors.FaceAhead,
-            FacingBehaviorDirection.TowardsEntityLeftVector => NPCControl.ActionBehaviors.FaceBehind,
-            FacingBehaviorDirection.TowardsEntityForwardVector => NPCControl.ActionBehaviors.FaceUp,
-            FacingBehaviorDirection.TowardsEntityBackwardVector => NPCControl.ActionBehaviors.FaceDown,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<NPCControl.ActionBehaviors>(nameof(direction))
+            AnimstateOverrideWhenNotChase = animstateOverrideWhenNotChase
         };
-
-        SetBehaviorTypeAndFrequency(kind, behaviorType, null);
+        SetActionBehavior(behavior, kind);
+        return behavior;
     }
 
-    public void SetChasePlayerBehavior(ActionBehaviorKind kind, bool chaseOnWater)
-    {
-        NPCControl.ActionBehaviors type = chaseOnWater
-            ? NPCControl.ActionBehaviors.ChaseOnWater
-            : NPCControl.ActionBehaviors.ChasePlayer;
-
-        SetBehaviorTypeAndFrequency(kind, type, null);
-    }
-
-    public void SetChasePlayerBehaviorWhenAnimstateIsChase(ActionBehaviorKind kind, int animstateOverrideWhenNotChase)
-    {
-        SetBehaviorTypeAndFrequency(kind, NPCControl.ActionBehaviors.ChaseWhenAnim, animstateOverrideWhenNotChase);
-    }
-
-    public void SetChaseAndAttackPlayerBehavior(
+    public ChaseAndAttackPlayerActionBehavior SetChaseAndAttackPlayerBehavior(
         ActionBehaviorKind kind,
         float minimumDistanceFromPlayerBeforeAttacking,
         bool attacksFromUnderground)
     {
-        NPCControl.ActionBehaviors type = attacksFromUnderground
-            ? NPCControl.ActionBehaviors.ChargeAttackUnderground
-            : NPCControl.ActionBehaviors.ChargeAndAttack;
-
-        SetBehaviorTypeAndFrequency(kind, type, minimumDistanceFromPlayerBeforeAttacking);
+        ChaseAndAttackPlayerActionBehavior behavior = new(this, kind)
+        {
+            MinimumDistanceFromPlayerBeforeAttacking = minimumDistanceFromPlayerBeforeAttacking,
+            AttacksFromUnderground = attacksFromUnderground
+        };
+        SetActionBehavior(behavior, kind);
+        return behavior;
     }
 
-    public void SetFleeFromPlayerBehavior(ActionBehaviorKind kind)
+    public FleeFromPlayerActionBehavior SetFleeFromPlayerBehavior(ActionBehaviorKind kind)
     {
-        SetBehaviorTypeAndFrequency(kind, NPCControl.ActionBehaviors.FleeFromPlayer, null);
+        FleeFromPlayerActionBehavior behavior = new(this, kind);
+        SetActionBehavior(behavior, kind);
+        return behavior;
     }
 
-    public void SetSpriteFlipBehavior(
+    public SpriteFlipActionBehavior SetSpriteFlipBehavior(
         ActionBehaviorKind kind,
         float baseFlipIntervalInFrames,
         bool flipsAtRandomInterval)
     {
-        NPCControl.ActionBehaviors type = flipsAtRandomInterval
-            ? NPCControl.ActionBehaviors.TurnRandomly
-            : NPCControl.ActionBehaviors.TurnFixedInterval;
-
-        SetBehaviorTypeAndFrequency(kind, type, baseFlipIntervalInFrames);
+        SpriteFlipActionBehavior behavior = new(this, kind)
+        {
+            BaseFlipIntervalInFrames = baseFlipIntervalInFrames,
+            FlipsAtRandomInterval = flipsAtRandomInterval
+        };
+        SetActionBehavior(behavior, kind);
+        return behavior;
     }
 
-    public void SetWanderBehavior(
+    public WanderActionBehavior SetWanderBehavior(
         ActionBehaviorKind kind,
         WanderBehaviorPattern pattern,
         float maxFramesIntervalBeforeMovingAgain,
         float radiusToWanderFromStartingPosition,
         float maxDistanceFromStartingPositionBeforeTeleported)
     {
-        NPCControl.ActionBehaviors type = pattern switch
+        WanderActionBehavior behavior = new(this, kind)
         {
-            WanderBehaviorPattern.Regular => NPCControl.ActionBehaviors.Wander,
-            WanderBehaviorPattern.FromUnderground => NPCControl.ActionBehaviors.WanderUnderground,
-            WanderBehaviorPattern.CanWonderWhenInactive => NPCControl.ActionBehaviors.WanderOffscreen,
-            WanderBehaviorPattern.WillNotWarpIfNoWanderPositionIsAvailable => NPCControl.ActionBehaviors.WanderNoWarp,
-            WanderBehaviorPattern.OnWater => NPCControl.ActionBehaviors.WanderOnWater,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<NPCControl.ActionBehaviors>(nameof(pattern))
+            WanderPattern = pattern,
+            MaxFramesIntervalBeforeMovingAgain = maxFramesIntervalBeforeMovingAgain,
+            RadiusToWanderFromStartingPosition = radiusToWanderFromStartingPosition,
+            MaxDistanceFromStartingPositionBeforeTeleported = maxDistanceFromStartingPositionBeforeTeleported
         };
-
-        SetBehaviorTypeAndFrequency(kind, type, maxFramesIntervalBeforeMovingAgain);
-        InternalWanderRadius = radiusToWanderFromStartingPosition;
-        InternalTeleportRadius = maxDistanceFromStartingPositionBeforeTeleported;
+        SetActionBehavior(behavior, kind);
+        return behavior;
     }
 
     // NOTE: The animstate AND the wander frames delay are the same so they conflict, but there's not much that can be done to address this
-    public void SetWanderBehaviorWhenAnimstateIsWalkOrIdle(
+    public WanderWhenAnimstateIsWalkOrIdleActionBehavior SetWanderWhenAnimstateIsWalkOrIdleBehavior(
         ActionBehaviorKind kind,
         int animstateOverrideWhenNotChase,
         float radiusToWanderFromStartingPosition,
         float maxDistanceFromStartingPositionBeforeTeleported)
     {
-        SetBehaviorTypeAndFrequency(kind, NPCControl.ActionBehaviors.WalkWhenAnim, animstateOverrideWhenNotChase);
-        InternalWanderRadius = radiusToWanderFromStartingPosition;
-        InternalTeleportRadius = maxDistanceFromStartingPositionBeforeTeleported;
+        WanderWhenAnimstateIsWalkOrIdleActionBehavior behavior = new(this, kind)
+        {
+            AnimstateOverrideWhenNotChase = animstateOverrideWhenNotChase,
+            RadiusToWanderFromStartingPosition = radiusToWanderFromStartingPosition,
+            MaxDistanceFromStartingPositionBeforeTeleported = maxDistanceFromStartingPositionBeforeTeleported
+        };
+        SetActionBehavior(behavior, kind);
+        return behavior;
     }
 
-    public void SetDisguiseBehavior(ActionBehaviorKind kind)
+    public DisguiseActionBehavior SetDisguiseBehavior(ActionBehaviorKind kind)
     {
-        SetBehaviorTypeAndFrequency(kind, NPCControl.ActionBehaviors.Disguise, null);
+        DisguiseActionBehavior behavior = new(this, kind);
+        SetActionBehavior(behavior, kind);
+        return behavior;
     }
 
-    public void SetDisguiseOnceBeforeWanderBehavior(
+    public DisguiseOnceBeforeWanderActionBehavior SetDisguiseOnceBeforeWanderBehavior(
         ActionBehaviorKind kind,
         float maxFramesIntervalBeforeMovingAgain,
         float radiusToWanderFromStartingPosition,
         float maxDistanceFromStartingPositionBeforeTeleported)
     {
-        SetBehaviorTypeAndFrequency(kind, NPCControl.ActionBehaviors.DisguiseOnce, maxFramesIntervalBeforeMovingAgain);
-        InternalWanderRadius = radiusToWanderFromStartingPosition;
-        InternalTeleportRadius = maxDistanceFromStartingPositionBeforeTeleported;
+        DisguiseOnceBeforeWanderActionBehavior behavior = new(this, kind)
+        {
+            MaxFramesIntervalBeforeMovingAgain = maxFramesIntervalBeforeMovingAgain,
+            RadiusToWanderFromStartingPosition = radiusToWanderFromStartingPosition,
+            MaxDistanceFromStartingPositionBeforeTeleported = maxDistanceFromStartingPositionBeforeTeleported
+        };
+        SetActionBehavior(behavior, kind);
+        return behavior;
     }
 
-    public void SetPathBehavior(
+    // TODO: Consider handling items drops not being allowed with this or patch the game to allow them
+    public MoveAlongPathActionBehavior SetMoveAlongPathBehavior(
         ActionBehaviorKind kind,
         float delayFramesBeforeMovingToNextNode,
         bool jumpWhileMoving,
         ICollection<Vector3> positionNodesInPath)
     {
-        // TODO: Change the throw so it applies to all enemies except the ones without item drops
-        if (InternalVectorData.Count > 0)
+        MoveAlongPathActionBehavior behavior = new(this, kind)
         {
-            ThrowHelper.ThrowInvalidOperationException(
-                "It is not possible to set a path behavior when there are item drops");
-        }
-
-        NPCControl.ActionBehaviors type = jumpWhileMoving
-            ? NPCControl.ActionBehaviors.SetPathJump
-            : NPCControl.ActionBehaviors.SetPath;
-
-        SetBehaviorTypeAndFrequency(kind, type, delayFramesBeforeMovingToNextNode);
-        InternalVectorData.AddRange(positionNodesInPath);
+            DelayFramesBeforeMovingToNextNode = delayFramesBeforeMovingToNextNode,
+            JumpWhileMoving = jumpWhileMoving,
+        };
+        behavior.ChangeMovementPathNodePositions(positionNodesInPath);
+        SetActionBehavior(behavior, kind);
+        return behavior;
     }
 
-    public void SetChargeAtPlayerBehavior(ActionBehaviorKind kind, bool lockSpriteFlipDuringCharge)
+    public ChargeAtPlayerActionBehavior SetChargeAtPlayerBehavior(
+        ActionBehaviorKind kind,
+        bool lockSpriteFlipDuringCharge)
     {
-        NPCControl.ActionBehaviors type = lockSpriteFlipDuringCharge
-            ? NPCControl.ActionBehaviors.ChargeAtPlayerFlipSprite
-            : NPCControl.ActionBehaviors.ChargeAtPlayer;
-
-        SetBehaviorTypeAndFrequency(kind, type, null);
+        ChargeAtPlayerActionBehavior behavior = new(this, kind)
+        {
+            LockSpriteFlipDuringCharge = lockSpriteFlipDuringCharge
+        };
+        SetActionBehavior(behavior, kind);
+        return behavior;
     }
 
-    public void SetShootProjectileBehavior(ActionBehaviorKind kind)
+    public ShootProjectileActionBehavior SetShootProjectileBehavior(ActionBehaviorKind kind)
     {
-        SetBehaviorTypeAndFrequency(kind, NPCControl.ActionBehaviors.ShootProjectile, null);
+        ShootProjectileActionBehavior behavior = new(this, kind);
+        SetActionBehavior(behavior, kind);
+        return behavior;
     }
 
-    public void SetUnmovableWhenDizzyBehavior(ActionBehaviorKind kind)
+    public UnmovableWhenDizzyActionBehavior SetUnmovableWhenDizzyBehavior(ActionBehaviorKind kind)
     {
-        SetBehaviorTypeAndFrequency(kind, NPCControl.ActionBehaviors.Unmoveable, null);
+        UnmovableWhenDizzyActionBehavior behavior = new(this, kind);
+        SetActionBehavior(behavior, kind);
+        return behavior;
     }
 
-    public void SetChangeAnimstateInRadiusGlobalBehavior(
+    public ChangeAnimstateInRadiusActionBehavior SetChangeAnimstateInRadiusGlobalBehavior(
         float radius,
         int animstateWhenOutsideRadius,
         int animstateWhenInsideRadius)
     {
-        InternalPrimaryBehavior = NPCControl.ActionBehaviors.ChangeSpriteInRandius;
-        InternalSecondaryBehavior = NPCControl.ActionBehaviors.ChangeSpriteInRandius;
-        InternalWanderRadius = radius;
-        InternalPrimaryActionFrequency = animstateWhenOutsideRadius;
-        InternalSecondaryActionFrequency = animstateWhenInsideRadius;
+        ChangeAnimstateInRadiusActionBehavior behavior = new(this)
+        {
+            Radius = radius,
+            AnimstateWhenOutsideRadius = animstateWhenOutsideRadius,
+            AnimstateWhenInsideRadius = animstateWhenInsideRadius
+        };
+        SetActionBehavior(behavior, null);
+        return behavior;
     }
 
     public void ClearBehavior(ActionBehaviorKind kind)
     {
-        SetBehaviorTypeAndFrequency(kind, NPCControl.ActionBehaviors.None, 0f);
+        SetActionBehavior(null, kind);
     }
 
-    private void SetBehaviorTypeAndFrequency(
-        ActionBehaviorKind kind,
-        NPCControl.ActionBehaviors behaviorType,
-        float? frequency)
+    private void SetActionBehavior(ActionBehavior? behavior, ActionBehaviorKind? kind)
     {
         switch (kind)
         {
             case ActionBehaviorKind.OutOfRange:
-                InternalPrimaryBehavior = behaviorType;
-                if (frequency.HasValue)
-                    InternalPrimaryActionFrequency = frequency.Value;
+                OutOfBehaviorRangeBehavior = behavior;
+                if (behavior is null)
+                {
+                    InternalPrimaryBehavior = NPCControl.ActionBehaviors.None;
+                    InternalPrimaryActionFrequency = 0f;
+                }
+
+                if (InBehaviorRangeBehavior is ChasePlayerWhenAnimstateIsChaseActionBehavior)
+                {
+                    InBehaviorRangeBehavior = null;
+                    InternalSecondaryBehavior = NPCControl.ActionBehaviors.None;
+                    InternalSecondaryActionFrequency = 0f;
+                }
                 break;
             case ActionBehaviorKind.InRange:
-                InternalSecondaryBehavior = behaviorType;
-                if (frequency.HasValue)
-                    InternalSecondaryActionFrequency = frequency.Value;
+                InBehaviorRangeBehavior = behavior;
+                if (behavior is null)
+                {
+                    InternalSecondaryBehavior = NPCControl.ActionBehaviors.None;
+                    InternalSecondaryActionFrequency = 0f;
+                }
+
+                if (OutOfBehaviorRangeBehavior is ChasePlayerWhenAnimstateIsChaseActionBehavior)
+                {
+                    OutOfBehaviorRangeBehavior = null;
+                    InternalPrimaryBehavior = NPCControl.ActionBehaviors.None;
+                    InternalPrimaryActionFrequency = 0f;
+                }
+                break;
+            case null:
+                OutOfBehaviorRangeBehavior = behavior;
+                InBehaviorRangeBehavior = behavior;
                 break;
             default:
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(kind));

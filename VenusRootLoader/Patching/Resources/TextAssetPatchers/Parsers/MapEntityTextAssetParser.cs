@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Api.MapEntities;
+using VenusRootLoader.Api.MapEntities.Npcs;
 using VenusRootLoader.Extensions;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
@@ -585,6 +586,20 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 primaryBehavior,
                 secondaryBehavior,
                 fields),
+            (NPCControl.NPCType.NPC, _, NPCControl.Interaction.None) => new NoInteractionNpcMapEntity(),
+            (NPCControl.NPCType.NPC, _, NPCControl.Interaction.Talk or NPCControl.Interaction.Check) =>
+                new TalkingNpcMapEntity(),
+            (NPCControl.NPCType.NPC, _, NPCControl.Interaction.Event or NPCControl.Interaction.LockedDoor) =>
+                new EventNpcMapEntity(),
+            (NPCControl.NPCType.NPC, _, NPCControl.Interaction.Shop) => float.Parse(fields[103 + (10 * 3)] + 0) == 0f
+                ? new ItemsShopMapEntity()
+                : new MedalsShopMapEntity(),
+            (NPCControl.NPCType.NPC, _, NPCControl.Interaction.QuestBoard) => new QuestBoardNpcMapEntity(),
+            (NPCControl.NPCType.NPC, _, NPCControl.Interaction.StorageAnt) => new ItemsStorageNpcMapEntity(),
+            (NPCControl.NPCType.NPC, _, NPCControl.Interaction.CaravanBadge) => new ItemsShopMedalNpcMapEntity(),
+            (NPCControl.NPCType.NPC, _, NPCControl.Interaction.VenusHeal) => new VenusHealingNpcMapEntity(),
+            _ => ThrowHelper.ThrowInvalidOperationException<MapEntity>(
+                $"Invalid NPCControl - type: {type}, objecttype: {objectType}, interaction: {interaction}")
         };
 
     private static MapEntity DetermineEnemyMapEntityType(

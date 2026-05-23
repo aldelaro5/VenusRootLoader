@@ -1,0 +1,50 @@
+using CommunityToolkit.Diagnostics;
+using UnityEngine;
+using VenusRootLoader.Registry;
+
+namespace VenusRootLoader.Api.MapEntities.Npcs;
+
+public sealed class ItemsShopMedalNpcMapEntity : MapEntity
+{
+    internal override NPCControl.NPCType Type => NPCControl.NPCType.NPC;
+    internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.None;
+    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.CaravanBadge;
+
+    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
+
+    public MapEntity ShopKeeperMapEntity
+    {
+        get => Map.Leaf.Entities[InternalData[0]];
+        set
+        {
+            if (value.Map != Map)
+            {
+                ThrowHelper.ThrowInvalidOperationException(
+                    "The caretaker map entity must be on the same map as this NPC");
+            }
+
+            InternalData[0] = value.Id;
+        }
+    }
+
+    public int ShopKeeperDialogueIdWhenInteracting
+    {
+        get => InternalData[1];
+        set => InternalData[1] = value;
+    }
+
+    public float InteractRangeRadius
+    {
+        get => InternalRadius;
+        set => InternalRadius = value;
+    }
+
+    internal ItemsShopMedalNpcMapEntity() { }
+
+    internal override void InitializeFromNew()
+    {
+        InternalData.AddRange(Enumerable.Repeat(0, 2 - InternalData.Count));
+    }
+
+    internal override void InitializeFromExisting(IRegistryResolver registryResolver) { }
+}

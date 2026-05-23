@@ -9,6 +9,7 @@ public sealed class AndBlockOnFlagsMapEntity : MapEntity
 {
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.ANDBlock;
+    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public ReadOnlyCollection<Branch<FlagLeaf>> FlagsInput { get; private set; } =
         new List<Branch<FlagLeaf>>().AsReadOnly();

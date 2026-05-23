@@ -15,6 +15,7 @@ public sealed class IceRadiusSwitchMapEntity : MapEntity
 {
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.StencilSwitch;
+    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public IceRadiusSwitchKind SwitchKind
     {

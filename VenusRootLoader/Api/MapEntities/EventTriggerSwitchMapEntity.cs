@@ -8,6 +8,7 @@ public sealed class EventTriggerSwitchMapEntity : MapEntity
 {
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.Switch;
+    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public Branch<EventLeaf> EventToStartWhenToggled
     {

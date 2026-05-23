@@ -10,6 +10,7 @@ public sealed class AndBlockOnSingleFlagMapEntity : MapEntity
 {
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.ANDBlock;
+    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public NegatableFlag FlagInput
     {

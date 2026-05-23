@@ -10,6 +10,7 @@ public sealed class EnemyEncounterHoldingKeyItemMapEntity : MapEntity
 {
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Enemy;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.None;
+    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
 
@@ -79,7 +80,7 @@ public sealed class EnemyEncounterHoldingKeyItemMapEntity : MapEntity
         ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
         ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
 
-        Behaviors.InitializeBehaviorFromExisting();
+        Behaviors.InitializeBehaviorFromExisting(registryResolver);
 
         AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
         KeyItemDropped = new(itemsRegistry.LeavesByGameIds[(int)InternalVectorData[0].x]);

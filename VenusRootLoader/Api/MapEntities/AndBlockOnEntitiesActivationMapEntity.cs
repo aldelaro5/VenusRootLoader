@@ -11,6 +11,7 @@ public sealed class AndBlockOnEntitiesActivationMapEntity : MapEntity
 {
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.ANDBlock;
+    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public ReadOnlyCollection<NegatableMapEntityActivation> EntityActivationsInput { get; private set; } =
         new List<NegatableMapEntityActivation>().AsReadOnly();

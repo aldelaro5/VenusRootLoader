@@ -14,6 +14,7 @@ public sealed class EnemyEncounterWithRegularItemDropsMapEntity : MapEntity
 {
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Enemy;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.None;
+    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
 
@@ -59,7 +60,7 @@ public sealed class EnemyEncounterWithRegularItemDropsMapEntity : MapEntity
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
         ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
 
-        Behaviors.InitializeBehaviorFromExisting();
+        Behaviors.InitializeBehaviorFromExisting(registryResolver);
 
         AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
 

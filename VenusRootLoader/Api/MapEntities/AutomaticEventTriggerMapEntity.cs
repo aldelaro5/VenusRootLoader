@@ -7,6 +7,7 @@ public sealed class AutomaticEventTriggerMapEntity : MapEntity
 {
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.EventTrigger;
+    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public Branch<EventLeaf> EventToImmediatelyStart
     {

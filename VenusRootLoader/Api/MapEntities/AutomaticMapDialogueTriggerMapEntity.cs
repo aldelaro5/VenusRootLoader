@@ -6,6 +6,7 @@ public sealed class AutomaticMapDialogueTriggerMapEntity : MapEntity
 {
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.DialogueTrigger;
+    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public int MapDialogueLineIdToImmediatelyProcess
     {

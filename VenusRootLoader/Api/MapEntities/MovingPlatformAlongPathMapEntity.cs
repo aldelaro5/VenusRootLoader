@@ -11,6 +11,7 @@ public sealed class MovingPlatformAlongPathMapEntity : MapEntity
 {
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.PathPlatform;
+    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
 

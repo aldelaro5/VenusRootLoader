@@ -9,6 +9,7 @@ public sealed class WindBeamZoneMapEntity : MapEntity
 {
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.WindPusher;
+    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
 

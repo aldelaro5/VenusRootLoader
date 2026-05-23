@@ -17,6 +17,9 @@ public abstract class MapEntity
     protected internal NPCControl.ObjectTypes OriginalObjectType { get; internal set; }
     internal abstract NPCControl.ObjectTypes ObjectType { get; }
 
+    protected internal NPCControl.Interaction OriginalInteraction { get; internal set; }
+    internal abstract NPCControl.Interaction Interaction { get; }
+
     internal abstract void InitializeFromNew();
     internal abstract void InitializeFromExisting(IRegistryResolver registryResolver);
 
@@ -30,7 +33,6 @@ public abstract class MapEntity
     public NPCControl.ActionBehaviors InternalSecondaryBehavior { get; set; }
     public float InternalSecondaryActionFrequency { get; set; }
 
-    public NPCControl.Interaction InternalNpcInteraction { get; set; }
     public NPCControl.DeathType InternalDeathType { get; set; }
     public int InternalAnimIdOrItemId { get; set; } = -1;
     public bool InternalIsFlipped { get; set; }
@@ -83,8 +85,9 @@ public abstract class MapEntity
     internal int[] OriginalBattleEnemyIds { get; } = new int[4];
     public List<int> InternalBattleEnemyIds { get; } = new();
 
+    private static readonly Vector2[] DefaultEmoticons = Enumerable.Repeat(new Vector2(-1, 0), 10).ToArray();
     public Vector3 InternalEmoticonOffset { get; set; } = Vector3.zero;
-    internal Vector2[] OriginalEmoticonFlags { get; } = new Vector2[10];
+    internal Vector2[] OriginalEmoticonFlags { get; } = DefaultEmoticons;
     public List<Vector2> InternalEmoticonFlags { get; } = new();
 
     internal string UnusedOverflowData { get; set; } = "";

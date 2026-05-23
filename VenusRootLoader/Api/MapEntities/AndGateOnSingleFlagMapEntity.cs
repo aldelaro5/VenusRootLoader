@@ -9,6 +9,7 @@ public sealed class AndGateOnSingleFlagMapEntity : MapEntity
 {
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.ANDGate;
+    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public NegatableFlag FlagInput
     {

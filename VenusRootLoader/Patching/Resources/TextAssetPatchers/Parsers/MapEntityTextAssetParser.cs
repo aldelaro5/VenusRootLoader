@@ -44,7 +44,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         sb.Append('}');
         sb.Append(mapEntity.InternalSecondaryBehavior.ToString());
         sb.Append('}');
-        sb.Append(mapEntity.InternalNpcInteraction.ToString());
+        sb.Append(mapEntity.Interaction.ToString());
         sb.Append('}');
         sb.Append(mapEntity.InternalDeathType.ToString());
         sb.Append('}');
@@ -274,17 +274,23 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         NPCControl.ObjectTypes objectType = Enum.Parse<NPCControl.ObjectTypes>(fields[1]);
         NPCControl.ActionBehaviors primaryBehavior = Enum.Parse<NPCControl.ActionBehaviors>(fields[2]);
         NPCControl.ActionBehaviors secondaryBehavior = Enum.Parse<NPCControl.ActionBehaviors>(fields[3]);
-        NPCControl.Interaction npcInteraction = Enum.Parse<NPCControl.Interaction>(fields[4]);
-        MapEntity value = GetTypedMapEntity(type, objectType, primaryBehavior, secondaryBehavior, fields);
+        NPCControl.Interaction interaction = Enum.Parse<NPCControl.Interaction>(fields[4]);
+        MapEntity value = GetTypedMapEntity(
+            type,
+            objectType,
+            primaryBehavior,
+            secondaryBehavior,
+            interaction,
+            fields);
 
         value.Id = id;
         value.Name = name;
         value.Map = map;
         value.OriginalType = type;
         value.OriginalObjectType = objectType;
+        value.OriginalInteraction = interaction;
         value.InternalPrimaryBehavior = primaryBehavior;
         value.InternalSecondaryBehavior = secondaryBehavior;
-        value.InternalNpcInteraction = npcInteraction;
         value.InternalDeathType = Enum.Parse<NPCControl.DeathType>(fields[5]);
         value.InternalStartingPosition = new(float.Parse(fields[6]), float.Parse(fields[7]), float.Parse(fields[8]));
         value.InternalAnimIdOrItemId = int.Parse(fields[9]);
@@ -474,17 +480,18 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         NPCControl.ObjectTypes objectType,
         NPCControl.ActionBehaviors primaryBehavior,
         NPCControl.ActionBehaviors secondaryBehavior,
+        NPCControl.Interaction interaction,
         string[] fields) =>
-        (type, objectType) switch
+        (type, objectType, interaction) switch
         {
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BeetleGrass) => new CuttableGrassMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PushRock) =>
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BeetleGrass, _) => new CuttableGrassMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PushRock, _) =>
                 int.Parse(fields[60]) < 3 ||
                 int.Parse(fields[61 + 2]) == 0
                     ? new MovableRockMapEntity()
                     : new SlidingIcePillarMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PressurePlate) => new PressurePlateMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ANDGate) =>
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PressurePlate, _) => new PressurePlateMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ANDGate, _) =>
                 int.Parse(fields[60]) == 2 && int.Parse(fields[61 + 1]) == -1
                     ? new AndGateOnSingleFlagMapEntity()
                     : int.Parse(fields[61 + 0]) switch
@@ -493,28 +500,29 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                         >= -1 => new AndGateOnEntitiesActivationMapEntity(),
                         _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
                     },
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.CameraChange) => new CameraChangeMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Item) => int.Parse(fields[61 + 0]) switch
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.CameraChange, _) => new CameraChangeMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Item, _) => int.Parse(fields[61 + 0]) switch
             {
                 0 or 1 => new CollectibleItemMapEntity(),
                 2 => new CollectibleMedalMapEntity(),
                 3 => new CollectibleCrystalBerryMapEntity(),
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
             },
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DoorOtherMap) => new LoadingZoneMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.SetPlayerRespawn) => new SetPlayerRespawnZoneMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DoorSameMap) => new InsideTransitionZoneMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.EventTrigger) =>
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DoorOtherMap, _) => new LoadingZoneMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.SetPlayerRespawn, _) =>
+                new SetPlayerRespawnZoneMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DoorSameMap, _) => new InsideTransitionZoneMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.EventTrigger, _) =>
                 int.Parse(fields[60]) >= 3 &&
                 int.Parse(fields[61 + 2]) == 1
                     ? new AutomaticEventTriggerMapEntity()
                     : new EventTriggerZoneMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DialogueTrigger) =>
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DialogueTrigger, _) =>
                 int.Parse(fields[60]) >= 3 &&
                 int.Parse(fields[61 + 2]) == 1
                     ? new AutomaticMapDialogueTriggerMapEntity()
                     : new MapDialogueTriggerZoneMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ANDBlock) =>
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ANDBlock, _) =>
                 int.Parse(fields[60]) == 2 && int.Parse(fields[61 + 1]) == -1
                     ? new AndBlockOnSingleFlagMapEntity()
                     : int.Parse(fields[61 + 0]) switch
@@ -523,15 +531,15 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                         >= -1 => new AndBlockOnEntitiesActivationMapEntity(),
                         _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
                     },
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.SavePoint) =>
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.SavePoint, _) =>
                 int.Parse(fields[61 + 1]) >= 10
                     ? new DeadLanderOmegaAlertCrystalMapEntity()
                     : new SavePointCrystalMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.JumpSpring) =>
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.JumpSpring, _) =>
                 int.Parse(fields[61 + 0]) == 1
                     ? new JumpToPositionSpringMapEntity()
                     : new JumpUpSpringMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DigSpot) =>
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DigSpot, _) =>
                 (int.Parse(fields[61 + 0]), int.Parse(fields[61 + 1])) switch
                 {
                     (1, _) => new DigSpotCrystalBerryMapEntity(),
@@ -539,7 +547,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                     (<= 0, >= 2) => new DigSpotMedalMapEntity(),
                     (<= 0, < 2) => new DigSpotItemMapEntity(),
                 },
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Switch) =>
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Switch, _) =>
                 (int.Parse(fields[61 + 0]), int.Parse(fields[61 + 1]), int.Parse(fields[61 + 2])) switch
                 {
                     (0, 0, 0) => new LatchedSwitchMapEntity(),
@@ -548,33 +556,35 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                     (1, >= 0, _) => new EventTriggerSwitchMapEntity(),
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
                 },
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.CoiledObject) => new TrappedEntityMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.FixedAnim) => new FixedAnimstateMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.EnemySpawner) => new EnemySpawnerMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Dropplet) => new FreezableWaterDropletMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PathPlatform) =>
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.CoiledObject, _) => new TrappedEntityMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.FixedAnim, _) => new FixedAnimstateMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.EnemySpawner, _) => new EnemySpawnerMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Dropplet, _) => new FreezableWaterDropletMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PathPlatform, _) =>
                 (int)float.Parse(fields[103 + (1 * 3) + 0]) == 1
                     ? new MovingPlatformAlongLerpMapEntity()
                     : new MovingPlatformAlongPathMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BreakableRock) => new BreakableRockMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.RotatingPlatform) => new RotatingPlatformMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Geizer) => new GeyserMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.MusicRange) => new MusicChangeZoneMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TempPlatform) => new FlytrapPlatformMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ScrewSwitch) => new SpinningCrankMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ResetCamera) => new ResetCameraZoneMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.StencilSwitch) => new IceRadiusSwitchMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.RollingRock) => int.Parse(fields[61 + 2]) switch
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BreakableRock, _) => new BreakableRockMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.RotatingPlatform, _) => new RotatingPlatformMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Geizer, _) => new GeyserMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.MusicRange, _) => new MusicChangeZoneMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TempPlatform, _) => new FlytrapPlatformMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ScrewSwitch, _) => new SpinningCrankMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ResetCamera, _) => new ResetCameraZoneMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.StencilSwitch, _) => new IceRadiusSwitchMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.RollingRock, _) => int.Parse(fields[61 + 2]) switch
             {
                 1 => new RollingRockCanonMapEntity(),
                 _ => new RollingRockMapEntity()
             },
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TriggerSwitch) => new SwitchTriggerZoneMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WindPusher) => new WindBeamZoneMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WaterSwitch) =>
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TriggerSwitch, _) => new SwitchTriggerZoneMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WindPusher, _) => new WindBeamZoneMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WaterSwitch, _) =>
                 new MapChildVerticalPositionSwitchMapEntity(),
-            (NPCControl.NPCType.Enemy, _) => DetermineEnemyMapEntityType(primaryBehavior, secondaryBehavior, fields),
-            _ => new BlankMapEntity()
+            (NPCControl.NPCType.Enemy, _, _) => DetermineEnemyMapEntityType(
+                primaryBehavior,
+                secondaryBehavior,
+                fields),
         };
 
     private static MapEntity DetermineEnemyMapEntityType(

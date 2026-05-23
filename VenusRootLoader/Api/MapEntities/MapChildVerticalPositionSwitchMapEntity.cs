@@ -15,6 +15,7 @@ public sealed class MapChildVerticalPositionSwitchMapEntity : MapEntity
 {
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.WaterSwitch;
+    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public MapChildVerticalPositionSwitchKind SwitchKind
     {

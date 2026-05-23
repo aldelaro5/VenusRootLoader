@@ -8,6 +8,7 @@ public sealed class TimerSwitchMapEntity : MapEntity
 {
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.Switch;
+    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public int TimerInFramesBeforeAutomaticTurnOff { get => InternalData[2]; set => InternalData[2] = value; }
     public bool CanOnlyBeActuatedWithHornSlash { get => InternalData[4] == 1; set => InternalData[4] = value ? 1 : 0; }

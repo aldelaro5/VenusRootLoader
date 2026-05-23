@@ -10,6 +10,7 @@ public sealed class AndGateOnEntitiesActivationMapEntity : MapEntity
 {
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.ANDGate;
+    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public ReadOnlyCollection<NegatableMapEntityActivation> EntityActivationsInput { get; private set; } =
         new List<NegatableMapEntityActivation>().AsReadOnly();

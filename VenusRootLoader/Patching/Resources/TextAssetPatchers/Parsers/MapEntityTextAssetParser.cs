@@ -398,8 +398,15 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 float.Parse(fields[103 + (i * 3) + 2]));
         }
 
-        for (int i = 0; i < dialoguesLength; i++)
-            value.InternalDialogues.Add(value.OriginalDialogues[i]);
+        if (interaction == NPCControl.Interaction.Shop)
+        {
+            value.InternalDialogues.AddRange(value.OriginalDialogues);
+        }
+        else
+        {
+            for (int i = 0; i < dialoguesLength; i++)
+                value.InternalDialogues.Add(value.OriginalDialogues[i]);
+        }
 
         if (_logger.IsEnabled(LogLevel.Trace))
         {

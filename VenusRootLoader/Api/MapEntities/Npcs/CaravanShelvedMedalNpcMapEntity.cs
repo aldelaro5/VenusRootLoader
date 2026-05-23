@@ -4,7 +4,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.MapEntities.Npcs;
 
-public sealed class ItemsShopMedalNpcMapEntity : MapEntity
+public sealed class CaravanShelvedMedalNpcMapEntity : MapEntity
 {
     internal override NPCControl.NPCType Type => NPCControl.NPCType.NPC;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.None;
@@ -39,7 +39,7 @@ public sealed class ItemsShopMedalNpcMapEntity : MapEntity
         set => InternalRadius = value;
     }
 
-    internal ItemsShopMedalNpcMapEntity() { }
+    internal CaravanShelvedMedalNpcMapEntity() { }
 
     internal override void InitializeFromNew()
     {

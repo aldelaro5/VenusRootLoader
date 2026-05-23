@@ -596,7 +596,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 : new MedalsShopMapEntity(),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.QuestBoard) => new QuestBoardNpcMapEntity(),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.StorageAnt) => new ItemsStorageNpcMapEntity(),
-            (NPCControl.NPCType.NPC, _, NPCControl.Interaction.CaravanBadge) => new ItemsShopMedalNpcMapEntity(),
+            (NPCControl.NPCType.NPC, _, NPCControl.Interaction.CaravanBadge) => new CaravanShelvedMedalNpcMapEntity(),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.VenusHeal) => new VenusHealingNpcMapEntity(),
             _ => ThrowHelper.ThrowInvalidOperationException<MapEntity>(
                 $"Invalid NPCControl - type: {type}, objecttype: {objectType}, interaction: {interaction}")

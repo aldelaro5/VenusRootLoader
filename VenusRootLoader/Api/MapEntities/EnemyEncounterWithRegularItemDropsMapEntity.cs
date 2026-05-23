@@ -8,8 +8,6 @@ namespace VenusRootLoader.Api.MapEntities;
 
 using ItemDrop = (Branch<ItemLeaf> Item, Branch<FlagLeaf>? RequiredFlag);
 
-// TODO: Abstract the action behaviors logic somewhere so it can be shared
-// TODO: When doing NPC, do not forget to expose StealthAI, it can't be used for enemies due to conflicts with battleids
 public sealed class EnemyEncounterWithRegularItemDropsMapEntity : MapEntity
 {
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Enemy;
@@ -38,6 +36,12 @@ public sealed class EnemyEncounterWithRegularItemDropsMapEntity : MapEntity
     {
         get => InternalRadiusLimit;
         set => InternalRadiusLimit = value;
+    }
+
+    public float BehaviorRangeRadius
+    {
+        get => InternalRadius;
+        set => InternalRadius = value;
     }
 
     public MapEntityBehaviors Behaviors { get; }

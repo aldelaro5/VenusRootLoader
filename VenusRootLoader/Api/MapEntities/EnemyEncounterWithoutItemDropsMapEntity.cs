@@ -39,6 +39,12 @@ public sealed class EnemyEncounterWithoutItemDropsMapEntity : MapEntity
         set => InternalRadiusLimit = value;
     }
 
+    public float BehaviorRangeRadius
+    {
+        get => InternalRadius;
+        set => InternalRadius = value;
+    }
+
     public MapEntityBehaviors Behaviors { get; }
 
     internal EnemyEncounterWithoutItemDropsMapEntity()

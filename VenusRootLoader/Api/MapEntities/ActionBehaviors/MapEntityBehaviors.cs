@@ -13,12 +13,6 @@ public sealed class MapEntityBehaviors
     public ActionBehavior? OutOfBehaviorRangeBehavior { get; private set; }
     public ActionBehavior? InBehaviorRangeBehavior { get; private set; }
 
-    public float BehaviorRangeRadius
-    {
-        get => _mapEntity.InternalRadius;
-        set => _mapEntity.InternalRadius = value;
-    }
-
     internal MapEntityBehaviors(MapEntity entity) { _mapEntity = entity; }
 
     internal void InitializeBehaviorFromExisting(IRegistryResolver registryResolver)

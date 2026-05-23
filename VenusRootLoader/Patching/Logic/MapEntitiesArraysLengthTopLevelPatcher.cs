@@ -121,7 +121,7 @@ internal sealed class MapEntitiesArraysLengthTopLevelPatcher : ITopLevelPatcher
         matcher.MatchStartForward(new CodeMatch(i => i.labels.Contains(labelLoopEnd)));
         matcher.MatchStartForward(CodeMatch.LoadsConstant());
         matcher.Advance(1);
-        matcher.Insert(mapEntityIdLoadLocal, mapIdLocalLoad, Transpilers.EmitDelegate(PatchNewVectorDataFieldsLength));
+        matcher.Insert(mapEntityIdLoadLocal, mapIdLocalLoad, Transpilers.EmitDelegate(PatchNewDialoguesLength));
 
         // This one patches the accunukated field index
         matcher.MatchStartForward(CodeMatch.StoresField(npcControlDialoguesField));

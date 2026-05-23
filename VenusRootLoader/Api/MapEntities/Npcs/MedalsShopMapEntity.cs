@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Api.MapEntities.ActionBehaviors;
@@ -23,6 +24,39 @@ public sealed class MedalsShopMapEntity : MapEntity
         }
     }
 
+    public int DialogueIdWhenInteractingWithShopKeeper
+    {
+        get => (int)InternalDialogues[0].y;
+        set => InternalDialogues[0] = new(InternalDialogues[0].x, value, InternalDialogues[0].z);
+    }
+
+    public bool OnlyAcceptsCrystalBerries
+    {
+        get => Mathf.Approximately(InternalDialogues[1].y, 1f);
+        set => InternalDialogues[1] = new(InternalDialogues[1].x, value ? 1f : 0f, InternalDialogues[1].z);
+    }
+
+    public int DialogueIdWhenInteractingWithShelvedItem
+    {
+        get => (int)InternalDialogues[6].y;
+        set => InternalDialogues[6] = new(InternalDialogues[6].x, value, InternalDialogues[6].z);
+    }
+
+    public float? ShelvedItemsInteractionRadius
+    {
+        get => InternalDialogues[8].x > 0.1f ? InternalDialogues[8].x / 10f : null;
+        set => InternalDialogues[8] = new(value * 10f ?? 0f, InternalDialogues[8].y, InternalDialogues[8].z);
+    }
+
+    public int MedalsShopId
+    {
+        get => (int)InternalDialogues[9].x;
+        set => InternalDialogues[9] = new(value, InternalDialogues[9].y, InternalDialogues[9].z);
+    }
+
+    public ReadOnlyCollection<Vector3> ShelvedMedalPositions { get; private set; } =
+        new List<Vector3>().AsReadOnly();
+
     public float MovementRadius
     {
         get => InternalRadiusLimit;
@@ -45,15 +79,30 @@ public sealed class MedalsShopMapEntity : MapEntity
     internal override void InitializeFromNew()
     {
         InternalAnimIdOrItemId = 0;
+        InternalDialogues.AddRange(Enumerable.Repeat(Vector3.zero, 10));
+        InternalDialogues.Add(new(1f, 0f, 0f));
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
-        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
         ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
 
         Behaviors.InitializeBehaviorFromExisting(registryResolver);
 
         AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
+
+        List<Vector3> shelvedMedalPositions = InternalVectorData.ToList();
+        ChangeShelvedMedalPositions(shelvedMedalPositions);
+    }
+
+    public void ChangeShelvedMedalPositions(List<Vector3> shelvedMedalPositions)
+    {
+        InternalVectorData.Clear();
+        foreach (Vector3 shelvedMedalPosition in shelvedMedalPositions)
+        {
+            InternalVectorData.Add(shelvedMedalPosition);
+        }
+
+        ShelvedMedalPositions = shelvedMedalPositions.AsReadOnly();
     }
 }

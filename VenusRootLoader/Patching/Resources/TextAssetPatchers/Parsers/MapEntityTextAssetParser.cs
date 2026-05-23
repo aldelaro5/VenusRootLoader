@@ -258,7 +258,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             sb.Append('}');
             sb.Append(mapEntity.UnusedOverflowData);
         }
-        
+
         return sb.ToString();
     }
 

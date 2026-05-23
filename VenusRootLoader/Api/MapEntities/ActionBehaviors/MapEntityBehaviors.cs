@@ -1,6 +1,8 @@
 using CommunityToolkit.Diagnostics;
 using UnityEngine;
+using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Api.MapEntities.ActionBehaviors.Enums;
+using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.MapEntities.ActionBehaviors;
 
@@ -19,13 +21,13 @@ public sealed class MapEntityBehaviors
 
     internal MapEntityBehaviors(MapEntity entity) { _mapEntity = entity; }
 
-    internal void InitializeBehaviorFromExisting()
+    internal void InitializeBehaviorFromExisting(IRegistryResolver registryResolver)
     {
-        InitializeBehaviorFromExisting(ActionBehaviorKind.OutOfRange);
-        InitializeBehaviorFromExisting(ActionBehaviorKind.InRange);
+        InitializeBehaviorFromExisting(ActionBehaviorKind.OutOfRange, registryResolver);
+        InitializeBehaviorFromExisting(ActionBehaviorKind.InRange, registryResolver);
     }
 
-    private void InitializeBehaviorFromExisting(ActionBehaviorKind kind)
+    private void InitializeBehaviorFromExisting(ActionBehaviorKind kind, IRegistryResolver registryResolver)
     {
         NPCControl.ActionBehaviors internalType = kind switch
         {
@@ -34,7 +36,7 @@ public sealed class MapEntityBehaviors
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<NPCControl.ActionBehaviors>(nameof(kind))
         };
 
-        ActionBehavior? behavior = MapExistingInternalBehaviorType(kind, internalType);
+        ActionBehavior? behavior = MapExistingInternalBehaviorType(kind, internalType, registryResolver);
 
         switch (kind)
         {
@@ -52,7 +54,8 @@ public sealed class MapEntityBehaviors
 
     private ActionBehavior? MapExistingInternalBehaviorType(
         ActionBehaviorKind kind,
-        NPCControl.ActionBehaviors internalType)
+        NPCControl.ActionBehaviors internalType,
+        IRegistryResolver registryResolver)
     {
         return internalType switch
         {
@@ -80,6 +83,7 @@ public sealed class MapEntityBehaviors
                 _mapEntity,
                 kind),
             NPCControl.ActionBehaviors.WanderUnderground => new WanderActionBehavior(_mapEntity, kind),
+            NPCControl.ActionBehaviors.StealthAI => CreateNewStealthSpotBehaviorFromExisting(registryResolver),
             NPCControl.ActionBehaviors.SetPathJump => new MoveAlongPathActionBehavior(_mapEntity, kind),
             NPCControl.ActionBehaviors.ChangeSpriteInRandius => new ChangeAnimstateInRadiusActionBehavior(_mapEntity),
             NPCControl.ActionBehaviors.ChaseWhenAnim => new ChasePlayerWhenAnimstateIsChaseActionBehavior(
@@ -95,6 +99,13 @@ public sealed class MapEntityBehaviors
             _ => ThrowHelper.ThrowInvalidOperationException<ActionBehavior?>(
                 $"The internal action behavior type {internalType} is not supported.")
         };
+    }
+
+    private StealthSpotBehavior CreateNewStealthSpotBehaviorFromExisting(IRegistryResolver registryResolver)
+    {
+        StealthSpotBehavior behavior = new(_mapEntity);
+        behavior.InitializeFromExisting(registryResolver);
+        return behavior;
     }
 
     public FaceDirectionActionBehavior SetFaceDirectionBehavior(
@@ -276,6 +287,22 @@ public sealed class MapEntityBehaviors
         return behavior;
     }
 
+    public StealthSpotBehavior SetStealthSpotGlobalBehavior(
+        Branch<EventLeaf>? eventToStartWhenSpottingPlayer,
+        float? delayFramesBeforeMovingToNextNode,
+        int visionLengthInUnits)
+    {
+        StealthSpotBehavior behavior = new(_mapEntity)
+        {
+            EventToStartWhenSpottingPlayer = eventToStartWhenSpottingPlayer,
+            VisionLengthInUnits = visionLengthInUnits,
+            DelayFramesBeforeMovingToNextNode = delayFramesBeforeMovingToNextNode
+        };
+        SetActionBehavior(null, ActionBehaviorKind.InRange);
+        SetActionBehavior(behavior, ActionBehaviorKind.OutOfRange);
+        return behavior;
+    }
+
     public void ClearBehavior(ActionBehaviorKind kind)
     {
         SetActionBehavior(null, kind);
@@ -310,6 +337,13 @@ public sealed class MapEntityBehaviors
                 }
 
                 if (OutOfBehaviorRangeBehavior is ChasePlayerWhenAnimstateIsChaseActionBehavior)
+                {
+                    OutOfBehaviorRangeBehavior = null;
+                    _mapEntity.InternalPrimaryBehavior = NPCControl.ActionBehaviors.None;
+                    _mapEntity.InternalPrimaryActionFrequency = 0f;
+                }
+
+                if (OutOfBehaviorRangeBehavior is StealthSpotBehavior)
                 {
                     OutOfBehaviorRangeBehavior = null;
                     _mapEntity.InternalPrimaryBehavior = NPCControl.ActionBehaviors.None;

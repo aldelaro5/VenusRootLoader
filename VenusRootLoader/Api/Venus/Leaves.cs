@@ -335,4 +335,17 @@ public partial class Venus
 
     public IReadOnlyCollection<EventLeaf> GetAllEvents() =>
         RegistryResolver.Resolve<EventLeaf>().GetAll();
+
+    public MedalShopLeaf RegisterMedalShop(string namedId, Branch<FlagLeaf> boughtAllStockFlag)
+    {
+        MedalShopLeaf medalShopLeaf = RegistryResolver.Resolve<MedalShopLeaf>().RegisterNew(namedId, BudId);
+        medalShopLeaf.BoughtAllStockFlag = boughtAllStockFlag;
+        return medalShopLeaf;
+    }
+
+    public MedalShopLeaf GetMedalShop(string namedId) =>
+        RegistryResolver.Resolve<MedalShopLeaf>().Get(namedId);
+
+    public IReadOnlyCollection<MedalShopLeaf> GetAllMedalShops() =>
+        RegistryResolver.Resolve<MedalShopLeaf>().GetAll();
 }

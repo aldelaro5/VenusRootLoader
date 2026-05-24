@@ -48,10 +48,14 @@ public sealed class MedalsShopMapEntity : MapEntity
         set => InternalDialogues[8] = new(value * 10f ?? 0f, InternalDialogues[8].y, InternalDialogues[8].z);
     }
 
-    public int MedalsShopId
+    public Branch<MedalShopLeaf> AssociatedMedalsShop
     {
-        get => (int)InternalDialogues[9].x;
-        set => InternalDialogues[9] = new(value, InternalDialogues[9].y, InternalDialogues[9].z);
+        get;
+        set
+        {
+            InternalDialogues[9] = new(value.GameId, InternalDialogues[9].y, InternalDialogues[9].z);
+            field = value;
+        }
     }
 
     public ReadOnlyCollection<Vector3> ShelvedMedalPositions { get; private set; } =
@@ -86,10 +90,12 @@ public sealed class MedalsShopMapEntity : MapEntity
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
+        ILeavesRegistry<MedalShopLeaf> medalShopsRegistry = registryResolver.Resolve<MedalShopLeaf>();
 
         Behaviors.InitializeBehaviorFromExisting(registryResolver);
 
         AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
+        AssociatedMedalsShop = new(medalShopsRegistry.LeavesByGameIds[(int)InternalDialogues[9].x]);
 
         List<Vector3> shelvedMedalPositions = InternalVectorData.ToList();
         ChangeShelvedMedalPositions(shelvedMedalPositions);

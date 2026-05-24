@@ -97,6 +97,7 @@ internal static class Startup
         services.AddAutoSequentialIdBasedLeavesRegistry<TestRoomTextLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<SpyCardsTextLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistryWithOrdering<SpyCardLeaf>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<MedalShopLeaf>();
         services.AddEnumBasedLeavesRegistry<MapLeaf, MainManager.Maps>();
         services.AddSingleton<IRegistryResolver, RegistryResolver>();
 
@@ -243,6 +244,7 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, AreaMapPositionsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, NonPurchasableMusicsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, UndergroundBarQuestsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, MedalShopsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, MapEntitiesArraysLengthTopLevelPatcher>();
         services.AddSingleton<RootPatcher>();
 
@@ -275,6 +277,7 @@ internal static class Startup
         services.AddSingleton<IBaseGameCollector, TestRoomTextsCollector>();
         services.AddSingleton<IBaseGameCollector, SpyCardsTextsCollector>();
         services.AddSingleton<IBaseGameCollector, SpyCardsCollector>();
+        services.AddSingleton<IBaseGameCollector, MedalShopsCollector>();
         services.AddSingleton<IBaseGameCollector, MapsCollector>();
         services.AddSingleton<RootCollector>();
 

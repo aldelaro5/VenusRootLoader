@@ -56,8 +56,8 @@ public sealed class StealthSpotBehavior : ActionBehavior
 
     public void ChangeMovementPathNodePositions(ICollection<Vector3> nodes)
     {
-        MapEntity.InternalVectorData.Clear();
-        MapEntity.InternalVectorData.AddRange(nodes);
+        MapEntity.InternalSecondaryVectorData.Clear();
+        MapEntity.InternalSecondaryVectorData.AddRange(nodes);
         MovementPathNodePositions = nodes.ToList().AsReadOnly();
     }
 }

@@ -18,9 +18,12 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
     private readonly ILogger<MapEntityTextAssetParser> _logger;
     private readonly ILeavesRegistry<FlagLeaf> _flagsRegistry;
 
-    // TODO: We likely want a patch for this, it's due to the fact vectordata is both used for item drops and path positions
-    private static readonly NPCControl.ActionBehaviors[] EnemiesBehaviorsWithoutItemsDrops =
-        [NPCControl.ActionBehaviors.SetPath, NPCControl.ActionBehaviors.SetPathJump];
+    private static readonly NPCControl.ActionBehaviors[] BaseGameEnemiesBehaviorsWithoutItemsDrops =
+    [
+        NPCControl.ActionBehaviors.SetPath,
+        NPCControl.ActionBehaviors.SetPathJump,
+        NPCControl.ActionBehaviors.StealthAI
+    ];
 
     public MapEntityTextAssetParser(
         ILogger<MapEntityTextAssetParser> logger,
@@ -166,6 +169,8 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             sb.Append('}');
         }
 
+        mapEntity.InternalSecondaryVectorDataArray = mapEntity.InternalSecondaryVectorData.ToArray();
+
         sb.Append(mapEntity.InternalDialogues.Count);
         sb.Append('}');
 
@@ -279,8 +284,6 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         MapEntity value = GetTypedMapEntity(
             type,
             objectType,
-            primaryBehavior,
-            secondaryBehavior,
             interaction,
             fields);
 
@@ -379,6 +382,14 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
 
         for (int i = 0; i < vectorDataLength; i++)
             value.InternalVectorData.Add(value.OriginalVectorData[i]);
+        value.InternalSecondaryVectorData.AddRange(value.InternalVectorData);
+
+        if (value is not EnemyEncounterHoldingKeyItemMapEntity &&
+            (BaseGameEnemiesBehaviorsWithoutItemsDrops.Contains(primaryBehavior) ||
+             BaseGameEnemiesBehaviorsWithoutItemsDrops.Contains(secondaryBehavior)))
+        {
+            value.InternalVectorData.Clear();
+        }
 
         if (_logger.IsEnabled(LogLevel.Trace))
         {
@@ -486,8 +497,6 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
     private MapEntity GetTypedMapEntity(
         NPCControl.NPCType type,
         NPCControl.ObjectTypes objectType,
-        NPCControl.ActionBehaviors primaryBehavior,
-        NPCControl.ActionBehaviors secondaryBehavior,
         NPCControl.Interaction interaction,
         string[] fields) =>
         (type, objectType, interaction) switch
@@ -589,10 +598,9 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WindPusher, _) => new WindBeamZoneMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WaterSwitch, _) =>
                 new MapChildVerticalPositionSwitchMapEntity(),
-            (NPCControl.NPCType.Enemy, _, _) => DetermineEnemyMapEntityType(
-                primaryBehavior,
-                secondaryBehavior,
-                fields),
+            (NPCControl.NPCType.Enemy, _, _) => (int)float.Parse(fields[72 + (0 * 3) + 1]) == -2
+                ? new EnemyEncounterHoldingKeyItemMapEntity()
+                : new EnemyEncounterWithRegularItemDropsMapEntity(),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.None) => new NoInteractionNpcMapEntity(),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.Talk or NPCControl.Interaction.Check) =>
                 new TalkingNpcMapEntity(),
@@ -606,25 +614,8 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.CaravanBadge) => new CaravanShelvedMedalNpcMapEntity(),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.VenusHeal) => new VenusHealingNpcMapEntity(),
             _ => ThrowHelper.ThrowInvalidOperationException<MapEntity>(
-                $"Invalid NPCControl - type: {type}, objecttype: {objectType}, interaction: {interaction}")
+                $"Invalid NPCControl - type: {type}, ObjectType: {objectType}, Interaction: {interaction}")
         };
-
-    private static MapEntity DetermineEnemyMapEntityType(
-        NPCControl.ActionBehaviors primaryBehavior,
-        NPCControl.ActionBehaviors secondaryBehavior,
-        string[] fields)
-    {
-        if (int.Parse(fields[37]) > 0 ||
-            EnemiesBehaviorsWithoutItemsDrops.Contains(primaryBehavior) ||
-            EnemiesBehaviorsWithoutItemsDrops.Contains(secondaryBehavior))
-        {
-            return new EnemyEncounterWithoutItemDropsMapEntity();
-        }
-
-        return (int)float.Parse(fields[72 + (0 * 3) + 1]) == -2
-            ? new EnemyEncounterHoldingKeyItemMapEntity()
-            : new EnemyEncounterWithRegularItemDropsMapEntity();
-    }
 
     // This allows to basically preserve as much as possible the original array from base game, but only if the new list
     // wouldn't exceed the length of the base game one. This wouldn't impact logic because ultimately, the game only cares

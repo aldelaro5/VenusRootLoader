@@ -78,6 +78,8 @@ public abstract class MapEntity
 
     internal Vector3[] OriginalVectorData { get; } = new Vector3[10];
     public List<Vector3> InternalVectorData { get; } = new();
+    internal List<Vector3> InternalSecondaryVectorData { get; } = new();
+    internal Vector3[] InternalSecondaryVectorDataArray { get; set; } = [];
 
     internal Vector3[] OriginalDialogues { get; } = new Vector3[20];
     public List<Vector3> InternalDialogues { get; } = new();

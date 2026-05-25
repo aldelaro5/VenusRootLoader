@@ -245,6 +245,7 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, NonPurchasableMusicsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, UndergroundBarQuestsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, MedalShopsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, PathNodesActionBehaviorsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, MapEntitiesArraysLengthTopLevelPatcher>();
         services.AddSingleton<RootPatcher>();
 

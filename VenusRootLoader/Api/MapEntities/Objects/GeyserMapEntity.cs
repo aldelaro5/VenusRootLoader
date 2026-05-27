@@ -60,7 +60,9 @@ public sealed class GeyserMapEntity : MapEntity
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
+        if (InternalData.Count < 3)
+            InternalData.AddRange(Enumerable.Repeat(-1, 3 - InternalData.Count));
         if (InternalData.Count < 5)
-            InternalData.AddRange(Enumerable.Repeat(-1, 5 - InternalData.Count));
+            InternalData.AddRange(Enumerable.Repeat(0, 5 - InternalData.Count));
     }
 }

@@ -61,7 +61,9 @@ public sealed class EventNpcMapEntity : MapEntity
 
         Behaviors.InitializeBehaviorFromExisting(registryResolver);
 
-        EventToStartOnInteract = new(eventsRegistry.LeavesByGameIds[InternalEventId]);
+        EventToStartOnInteract = OriginalInteraction == NPCControl.Interaction.LockedDoor
+            ? new(eventsRegistry.LeavesByGameIds[LockedDoorInteractionEventId])
+            : new(eventsRegistry.LeavesByGameIds[InternalEventId]);
         AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
     }
 }

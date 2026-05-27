@@ -30,6 +30,7 @@ public sealed class TalkingNpcMapEntity : MapEntity
     public ReadOnlyCollection<NpcConditionalDialogue> Dialogues { get; private set; } =
         new List<NpcConditionalDialogue>().AsReadOnly();
 
+    // TODO: Change to be split with first element as the fallback and rest which must have a conditional flag
     public ReadOnlyCollection<NpcConditionalEmoticon> Emoticons { get; private set; } =
         new List<NpcConditionalEmoticon>().AsReadOnly();
 

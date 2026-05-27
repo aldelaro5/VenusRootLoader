@@ -87,9 +87,8 @@ public abstract class MapEntity
     internal int[] OriginalBattleEnemyIds { get; } = new int[4];
     public List<int> InternalBattleEnemyIds { get; } = new();
 
-    private static readonly Vector2[] DefaultEmoticons = Enumerable.Repeat(new Vector2(-1, 0), 10).ToArray();
     public Vector3 InternalEmoticonOffset { get; set; } = Vector3.zero;
-    internal Vector2[] OriginalEmoticonFlags { get; } = DefaultEmoticons;
+    internal Vector2[] OriginalEmoticonFlags { get; } = Enumerable.Repeat(new Vector2(-1, 0), 10).ToArray();
     public List<Vector2> InternalEmoticonFlags { get; } = new();
 
     internal string UnusedOverflowData { get; set; } = "";

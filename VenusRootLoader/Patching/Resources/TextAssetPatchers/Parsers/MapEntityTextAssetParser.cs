@@ -20,7 +20,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
     private readonly ILogger<MapEntityTextAssetParser> _logger;
     private readonly ILeavesRegistry<FlagLeaf> _flagsRegistry;
 
-    private static readonly NPCControl.ActionBehaviors[] BaseGameEnemiesBehaviorsWithoutItemsDrops =
+    private static readonly NPCControl.ActionBehaviors[] BehaviorsWithSecondaryVectorData =
     [
         NPCControl.ActionBehaviors.SetPath,
         NPCControl.ActionBehaviors.SetPathJump,
@@ -116,7 +116,10 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         sb.Append('}');
         sb.Append(mapEntity.InternalFreezeOffset.z);
         sb.Append('}');
-        sb.Append(mapEntity.InternalEventId);
+        sb.Append(
+            mapEntity is { Type: NPCControl.NPCType.NPC, Interaction: NPCControl.Interaction.LockedDoor }
+                ? 0
+                : mapEntity.InternalEventId);
         sb.Append('}');
 
         sb.Append(mapEntity.InternalRequires.Count);
@@ -173,7 +176,10 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
 
         mapEntity.InternalSecondaryVectorDataArray = mapEntity.InternalSecondaryVectorData.ToArray();
 
-        sb.Append(mapEntity.InternalDialogues.Count);
+        sb.Append(
+            mapEntity is { Type: NPCControl.NPCType.NPC, Interaction: NPCControl.Interaction.Shop }
+                ? 1
+                : mapEntity.InternalDialogues.Count);
         sb.Append('}');
 
         List<Vector3> allDialogues = GetListPaddedWithOriginalArray(
@@ -287,6 +293,8 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             type,
             objectType,
             interaction,
+            primaryBehavior,
+            secondaryBehavior,
             fields);
 
         value.Id = id;
@@ -386,9 +394,16 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             value.InternalVectorData.Add(value.OriginalVectorData[i]);
         value.InternalSecondaryVectorData.AddRange(value.InternalVectorData);
 
+        if (type is NPCControl.NPCType.NPC or NPCControl.NPCType.Enemy &&
+            (BehaviorsWithSecondaryVectorData.Contains(primaryBehavior) ||
+             BehaviorsWithSecondaryVectorData.Contains(secondaryBehavior)))
+        {
+            value.InternalVectorData.Clear();
+        }
+
         if (value is not EnemyEncounterHoldingKeyItemMapEntity &&
-            (BaseGameEnemiesBehaviorsWithoutItemsDrops.Contains(primaryBehavior) ||
-             BaseGameEnemiesBehaviorsWithoutItemsDrops.Contains(secondaryBehavior)))
+            (BehaviorsWithSecondaryVectorData.Contains(primaryBehavior) ||
+             BehaviorsWithSecondaryVectorData.Contains(secondaryBehavior)))
         {
             value.InternalVectorData.Clear();
         }
@@ -458,23 +473,13 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             float.Parse(fields[177]));
         value.InsideId = int.Parse(fields[178]);
 
-        bool continueAddingIntoList = true;
         for (int i = 0; i < 10; i++)
         {
             string[] components = fields[179 + i].Split(StringUtils.CommaSplitDelimiter);
             value.OriginalEmoticonFlags[i] = new(float.Parse(components[0]), float.Parse(components[1]));
 
-            if (!continueAddingIntoList)
-                continue;
-            if (i > 0 && (int)value.OriginalEmoticonFlags[i].x < 0)
-            {
-                continueAddingIntoList = false;
-                if (value.InternalEmoticonFlags.Count == 1)
-                    value.InternalEmoticonFlags.Clear();
-                continue;
-            }
-
-            value.InternalEmoticonFlags.Add(value.OriginalEmoticonFlags[i]);
+            if (i == 0 || value.OriginalEmoticonFlags[i].x > 0)
+                value.InternalEmoticonFlags.Add(value.OriginalEmoticonFlags[i]);
         }
 
         value.InternalSpyDialogueMapId = int.Parse(fields[189]);
@@ -500,6 +505,8 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         NPCControl.NPCType type,
         NPCControl.ObjectTypes objectType,
         NPCControl.Interaction interaction,
+        NPCControl.ActionBehaviors primaryBehavior,
+        NPCControl.ActionBehaviors secondaryBehavior,
         string[] fields) =>
         (type, objectType, interaction) switch
         {
@@ -600,7 +607,9 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WindPusher, _) => new WindBeamZoneMapEntity(),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WaterSwitch, _) =>
                 new MapChildVerticalPositionSwitchMapEntity(),
-            (NPCControl.NPCType.Enemy, _, _) => (int)float.Parse(fields[72 + (0 * 3) + 1]) == -2
+            (NPCControl.NPCType.Enemy, _, _) => (int)float.Parse(fields[72 + (0 * 3) + 1]) == -2 &&
+                                                !BehaviorsWithSecondaryVectorData.Contains(primaryBehavior) &&
+                                                !BehaviorsWithSecondaryVectorData.Contains(secondaryBehavior)
                 ? new EnemyEncounterHoldingKeyItemMapEntity()
                 : new EnemyEncounterWithRegularItemDropsMapEntity(),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.None) => new NoInteractionNpcMapEntity(),

@@ -81,7 +81,7 @@ public sealed class MovingPlatformAlongPathMapEntity : MapEntity
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalDialogues.Count < 3)
-            InternalDialogues.AddRange(Enumerable.Repeat(Vector3.zero, 3 - InternalData.Count));
+            InternalDialogues.AddRange(Enumerable.Repeat(Vector3.zero, 3 - InternalDialogues.Count));
 
         ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
         AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);

@@ -54,7 +54,7 @@ public sealed class JumpToPositionSpringMapEntity : MapEntity
     internal override void InitializeFromNew()
     {
         InternalData.AddRange([1, 0, -1]);
-        InternalVectorData.AddRange([Vector3.right * 15f, Vector3.zero, Vector3.zero]);
+        InternalVectorData.AddRange([new(15f, 0f, 0f), Vector3.zero, Vector3.right]);
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
         InternalBoxColSize = new(1.5f, 1f, 1.5f);
@@ -65,6 +65,6 @@ public sealed class JumpToPositionSpringMapEntity : MapEntity
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalVectorData.Count < 3)
-            InternalVectorData.AddRange(Enumerable.Repeat(Vector3.zero, 3 - InternalVectorData.Count));
+            InternalVectorData.Add(Vector3.right);
     }
 }

@@ -41,9 +41,5 @@ public sealed class JumpUpSpringMapEntity : MapEntity
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.BounceShroom - 1;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
-    {
-        if (InternalVectorData.Count < 3)
-            InternalVectorData.AddRange(Enumerable.Repeat(Vector3.zero, 3 - InternalVectorData.Count));
-    }
+    internal override void InitializeFromExisting(IRegistryResolver registryResolver) { }
 }

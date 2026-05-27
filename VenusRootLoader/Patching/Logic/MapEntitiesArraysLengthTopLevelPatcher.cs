@@ -123,7 +123,7 @@ internal sealed class MapEntitiesArraysLengthTopLevelPatcher : ITopLevelPatcher
         matcher.Advance(1);
         matcher.Insert(mapEntityIdLoadLocal, mapIdLocalLoad, Transpilers.EmitDelegate(PatchNewDialoguesLength));
 
-        // This one patches the accunukated field index
+        // This one patches the accumulated field index
         matcher.MatchStartForward(CodeMatch.StoresField(npcControlDialoguesField));
         matcher.Advance(1);
         matcher.MatchStartForward(CodeMatch.StoresField(npcControlDialoguesField));

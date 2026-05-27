@@ -16,4 +16,5 @@ public readonly struct Branch<TLeaf> : ILeafIdentifier, IEquatable<Branch<TLeaf>
     public bool Equals(Branch<TLeaf> other) => EqualityComparer<TLeaf>.Default.Equals(Leaf, other.Leaf);
     public static bool operator ==(Branch<TLeaf> left, Branch<TLeaf> right) => left.Leaf.Equals(right.Leaf);
     public static bool operator !=(Branch<TLeaf> left, Branch<TLeaf> right) => !left.Leaf.Equals(right.Leaf);
+    public static implicit operator Branch<TLeaf>(TLeaf leaf) => new(leaf);
 }

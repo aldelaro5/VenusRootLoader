@@ -52,7 +52,9 @@ internal sealed class MapDialoguesTextAssetPatcher : IMapDialoguesTextAssetPatch
         string mapName = path[mapNameStart..];
 
         MapLeaf leaf = _mapsRegistry.LeavesByNamedIds[mapName];
-        List<string> newLines = leaf.Dialogues[languageId];
+        List<string> newLines = leaf.DialoguesRegistry.LeavesByGameIds.Values
+            .Select(d => d.LocalizedText[languageId])
+            .ToList();
 
         string text = string.Join("\n", newLines);
         if (_logger.IsEnabled(LogLevel.Trace))

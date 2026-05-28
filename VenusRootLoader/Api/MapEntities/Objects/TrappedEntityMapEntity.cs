@@ -8,6 +8,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 // TODO: Figure out if we can make this work for NPCs which seems to not lock their rigid properly
 public sealed class TrappedEntityMapEntity : MapEntity
 {
+    internal TrappedEntityMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.CoiledObject;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -32,8 +37,6 @@ public sealed class TrappedEntityMapEntity : MapEntity
         get => InternalRegionalFlagId < 0 ? null : InternalRegionalFlagId;
         set => InternalRegionalFlagId = value ?? -1;
     }
-
-    internal TrappedEntityMapEntity() { }
 
     internal override void InitializeFromNew()
     {

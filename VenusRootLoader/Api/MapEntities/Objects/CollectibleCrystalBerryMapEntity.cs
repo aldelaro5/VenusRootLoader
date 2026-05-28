@@ -6,6 +6,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 
 public sealed class CollectibleCrystalBerryMapEntity : MapEntity
 {
+    internal CollectibleCrystalBerryMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.Item;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -36,8 +41,6 @@ public sealed class CollectibleCrystalBerryMapEntity : MapEntity
         get => InternalData[2] == 0;
         set => InternalData[2] = value ? 0 : 1;
     }
-
-    internal CollectibleCrystalBerryMapEntity() { }
 
     internal override void InitializeFromNew()
     {

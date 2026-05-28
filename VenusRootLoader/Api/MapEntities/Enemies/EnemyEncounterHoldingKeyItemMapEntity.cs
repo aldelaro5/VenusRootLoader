@@ -8,6 +8,12 @@ namespace VenusRootLoader.Api.MapEntities.Enemies;
 
 public sealed class EnemyEncounterHoldingKeyItemMapEntity : MapEntity
 {
+    internal EnemyEncounterHoldingKeyItemMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+        Behaviors = new(this);
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Enemy;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.None;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -60,11 +66,6 @@ public sealed class EnemyEncounterHoldingKeyItemMapEntity : MapEntity
     }
 
     public MapEntityBehaviors Behaviors { get; }
-
-    internal EnemyEncounterHoldingKeyItemMapEntity()
-    {
-        Behaviors = new(this);
-    }
 
     internal override void InitializeFromNew()
     {

@@ -29,5 +29,9 @@ public sealed class FaceDirectionActionBehavior : ActionBehavior
         };
     }
 
-    internal FaceDirectionActionBehavior(MapEntity mapEntity, ActionBehaviorKind kind) : base(mapEntity, kind) { }
+    internal FaceDirectionActionBehavior(MapEntity mapEntity, ActionBehaviorKind kind) : base(
+        mapEntity,
+        kind)
+    {
+    }
 }

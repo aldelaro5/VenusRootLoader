@@ -7,6 +7,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 
 public sealed class CuttableGrassMapEntity : MapEntity
 {
+    internal CuttableGrassMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.BeetleGrass;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -43,8 +48,6 @@ public sealed class CuttableGrassMapEntity : MapEntity
             field = value;
         }
     }
-
-    internal CuttableGrassMapEntity() { }
 
     internal override void InitializeFromNew()
     {

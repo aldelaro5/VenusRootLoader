@@ -5,6 +5,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 
 public sealed class SpinningCrankMapEntity : MapEntity
 {
+    internal SpinningCrankMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.ScrewSwitch;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -34,8 +39,6 @@ public sealed class SpinningCrankMapEntity : MapEntity
 
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
-
-    internal SpinningCrankMapEntity() { }
 
     internal override void InitializeFromNew()
     {

@@ -10,6 +10,12 @@ using ShelvedItemForSale = (Branch<ItemLeaf> Item, Vector3 Position);
 
 public sealed class ItemsShopMapEntity : MapEntity
 {
+    internal ItemsShopMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+        Behaviors = new(this);
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.NPC;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.None;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.Shop;
@@ -66,11 +72,6 @@ public sealed class ItemsShopMapEntity : MapEntity
     }
 
     public MapEntityBehaviors Behaviors { get; }
-
-    internal ItemsShopMapEntity()
-    {
-        Behaviors = new(this);
-    }
 
     internal override void InitializeFromNew()
     {

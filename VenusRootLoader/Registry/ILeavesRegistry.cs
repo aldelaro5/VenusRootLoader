@@ -38,13 +38,32 @@ internal interface ILeavesRegistry<TLeaf>
     TLeaf RegisterNew(string namedId, string creatorId);
 
     /// <summary>
-    /// Creates a newly registered leaf with a predermined <see cref="Leaf.GameId"/>.
+    /// Creates a newly registered leaf using a subtype of <typeparamref name="TLeaf" /> to the registry with an automatically determined <see cref="Leaf.GameId"/>.
+    /// </summary>
+    /// <param name="namedId">The named id of the new leaf for buds to identify it.</param>
+    /// <param name="creatorId">The creator id that identifies who authored the leaf.</param>
+    /// <typeparam name="TSubLeaf">The leaf subtype</typeparam>
+    /// <returns>The newly registered leaf.</returns>
+    TSubLeaf RegisterNew<TSubLeaf>(string namedId, string creatorId) where TSubLeaf : TLeaf;
+
+    /// <summary>
+    /// Creates a newly registered leaf with a predetermined <see cref="Leaf.GameId"/>.
     /// </summary>
     /// <param name="gameId">The game id of the new leaf for the game to identify it.</param>
     /// <param name="namedId">The named id of the new leaf for buds to identify it.</param>
     /// <param name="creatorId">The creator id that identifies who authored the leaf.</param>
     /// <returns>The newly registered leaf.</returns>
     TLeaf RegisterExisting(int gameId, string namedId, string creatorId);
+
+    /// <summary>
+    /// Creates a newly registered leaf using a subtype of <typeparamref name="TLeaf" /> with a predetermined <see cref="Leaf.GameId"/>.
+    /// </summary>
+    /// <param name="gameId">The game id of the new leaf for the game to identify it.</param>
+    /// <param name="namedId">The named id of the new leaf for buds to identify it.</param>
+    /// <param name="creatorId">The creator id that identifies who authored the leaf.</param>
+    /// <typeparam name="TSubLeaf">The leaf subtype</typeparam>
+    /// <returns>The newly registered leaf.</returns>
+    TSubLeaf RegisterExisting<TSubLeaf>(int gameId, string namedId, string creatorId) where TSubLeaf : TLeaf;
 
     /// <summary>
     /// Obtains a leaf from the registry.

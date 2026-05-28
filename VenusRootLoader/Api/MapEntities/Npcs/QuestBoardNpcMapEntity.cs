@@ -7,6 +7,11 @@ namespace VenusRootLoader.Api.MapEntities.Npcs;
 
 public sealed class QuestBoardNpcMapEntity : MapEntity
 {
+    internal QuestBoardNpcMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.NPC;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.None;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.QuestBoard;
@@ -79,8 +84,6 @@ public sealed class QuestBoardNpcMapEntity : MapEntity
         get => InternalRadius;
         set => InternalRadius = value;
     }
-
-    internal QuestBoardNpcMapEntity() { }
 
     internal override void InitializeFromNew()
     {

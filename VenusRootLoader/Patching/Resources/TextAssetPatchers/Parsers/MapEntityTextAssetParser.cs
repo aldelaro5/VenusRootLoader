@@ -38,7 +38,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
     public string GetTextAssetSerializedString(string subPath, MapEntity mapEntity)
     {
         if (subPath.EndsWith("names", StringComparison.OrdinalIgnoreCase))
-            return mapEntity.Name;
+            return mapEntity.BaseGameObjectName;
 
         StringBuilder sb = new();
 
@@ -275,7 +275,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         return sb.ToString();
     }
 
-    public MapEntity FromTextAssetSerializedString(Branch<MapLeaf> map, int id, string name, string text)
+    public void FromTextAssetSerializedString(MapLeaf map, string baseGameId, int id, string name, string text)
     {
         string[] fields = text.Split(StringUtils.ClosingBraceSplitDelimiter);
 
@@ -290,6 +290,9 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         NPCControl.ActionBehaviors secondaryBehavior = Enum.Parse<NPCControl.ActionBehaviors>(fields[3]);
         NPCControl.Interaction interaction = Enum.Parse<NPCControl.Interaction>(fields[4]);
         MapEntity value = GetTypedMapEntity(
+            map,
+            id,
+            baseGameId,
             type,
             objectType,
             interaction,
@@ -298,7 +301,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             fields);
 
         value.Id = id;
-        value.Name = name;
+        value.BaseGameObjectName = name;
         value.Map = map;
         value.OriginalType = type;
         value.OriginalObjectType = objectType;
@@ -338,7 +341,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         if (_logger.IsEnabled(LogLevel.Trace))
         {
             LogIfListHasUnreadableData(
-                value.Name,
+                value.BaseGameObjectName,
                 nameof(MapEntity.InternalRequires),
                 requiresLength,
                 value.OriginalRequires);
@@ -360,7 +363,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         if (_logger.IsEnabled(LogLevel.Trace))
         {
             LogIfListHasUnreadableData(
-                value.Name,
+                value.BaseGameObjectName,
                 nameof(MapEntity.InternalLimits),
                 limitsLength,
                 value.OriginalLimits);
@@ -375,7 +378,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         if (_logger.IsEnabled(LogLevel.Trace))
         {
             LogIfListHasUnreadableData(
-                value.Name,
+                value.BaseGameObjectName,
                 nameof(MapEntity.InternalData),
                 dataLength,
                 value.OriginalData);
@@ -411,7 +414,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         if (_logger.IsEnabled(LogLevel.Trace))
         {
             LogIfListHasUnreadableData(
-                value.Name,
+                value.BaseGameObjectName,
                 nameof(MapEntity.InternalVectorData),
                 vectorDataLength,
                 value.OriginalVectorData);
@@ -439,7 +442,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         if (_logger.IsEnabled(LogLevel.Trace))
         {
             LogIfListHasUnreadableData(
-                value.Name,
+                value.BaseGameObjectName,
                 nameof(MapEntity.InternalDialogues),
                 dialoguesLength,
                 value.OriginalDialogues);
@@ -456,7 +459,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         if (_logger.IsEnabled(LogLevel.Trace))
         {
             LogIfListHasUnreadableData(
-                value.Name,
+                value.BaseGameObjectName,
                 nameof(MapEntity.InternalBattleEnemyIds),
                 battleEnemyIdsLength,
                 value.OriginalBattleEnemyIds);
@@ -497,136 +500,172 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
 
         if (fields.Length > 196)
             value.UnusedOverflowData = string.Join("}", fields.Skip(196));
-
-        return value;
     }
 
     private MapEntity GetTypedMapEntity(
+        MapLeaf map,
+        int id,
+        string baseGameId,
         NPCControl.NPCType type,
         NPCControl.ObjectTypes objectType,
         NPCControl.Interaction interaction,
         NPCControl.ActionBehaviors primaryBehavior,
         NPCControl.ActionBehaviors secondaryBehavior,
-        string[] fields) =>
-        (type, objectType, interaction) switch
+        string[] fields)
+    {
+        ILeavesRegistry<MapEntity> registry = map.EntitiesRegistry;
+        string namedId = id.ToString();
+
+        return (type, objectType, interaction) switch
         {
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BeetleGrass, _) => new CuttableGrassMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BeetleGrass, _) =>
+                registry.RegisterExisting<CuttableGrassMapEntity>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PushRock, _) =>
                 int.Parse(fields[60]) < 3 ||
                 int.Parse(fields[61 + 2]) == 0
-                    ? new MovableRockMapEntity()
-                    : new SlidingIcePillarMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PressurePlate, _) => new PressurePlateMapEntity(),
+                    ? registry.RegisterExisting<MovableRockMapEntity>(id, namedId, baseGameId)
+                    : registry.RegisterExisting<SlidingIcePillarMapEntity>(id, namedId, baseGameId),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PressurePlate, _) =>
+                registry.RegisterExisting<PressurePlateMapEntity>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ANDGate, _) =>
                 int.Parse(fields[60]) == 2 && int.Parse(fields[61 + 1]) == -1
-                    ? new AndGateOnSingleFlagMapEntity()
+                    ? registry.RegisterExisting<AndGateOnSingleFlagMapEntity>(id, namedId, baseGameId)
                     : int.Parse(fields[61 + 0]) switch
                     {
-                        -2 => new AndGateOnFlagsMapEntity(),
-                        >= -1 => new AndGateOnEntitiesActivationMapEntity(),
+                        -2 => registry.RegisterExisting<AndGateOnFlagsMapEntity>(id, namedId, baseGameId),
+                        >= -1 => registry.RegisterExisting<AndGateOnEntitiesActivationMapEntity>(
+                            id,
+                            namedId,
+                            baseGameId),
                         _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
                     },
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.CameraChange, _) => new CameraChangeMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.CameraChange, _) => registry.RegisterExisting<
+                CameraChangeMapEntity>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Item, _) => int.Parse(fields[61 + 0]) switch
             {
-                0 or 1 => new CollectibleItemMapEntity(),
-                2 => new CollectibleMedalMapEntity(),
-                3 => new CollectibleCrystalBerryMapEntity(),
+                0 or 1 => registry.RegisterExisting<CollectibleItemMapEntity>(id, namedId, baseGameId),
+                2 => registry.RegisterExisting<CollectibleMedalMapEntity>(id, namedId, baseGameId),
+                3 => registry.RegisterExisting<CollectibleCrystalBerryMapEntity>(id, namedId, baseGameId),
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
             },
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DoorOtherMap, _) => new LoadingZoneMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DoorOtherMap, _) =>
+                registry.RegisterExisting<LoadingZoneMapEntity>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.SetPlayerRespawn, _) =>
-                new SetPlayerRespawnZoneMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DoorSameMap, _) => new InsideTransitionZoneMapEntity(),
+                registry.RegisterExisting<SetPlayerRespawnZoneMapEntity>(id, namedId, baseGameId),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DoorSameMap, _) =>
+                registry.RegisterExisting<InsideTransitionZoneMapEntity>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.EventTrigger, _) =>
                 int.Parse(fields[60]) >= 3 &&
                 int.Parse(fields[61 + 2]) == 1
-                    ? new AutomaticEventTriggerMapEntity()
-                    : new EventTriggerZoneMapEntity(),
+                    ? registry.RegisterExisting<AutomaticEventTriggerMapEntity>(id, namedId, baseGameId)
+                    : registry.RegisterExisting<EventTriggerZoneMapEntity>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DialogueTrigger, _) =>
                 int.Parse(fields[60]) >= 3 &&
                 int.Parse(fields[61 + 2]) == 1
-                    ? new AutomaticMapDialogueTriggerMapEntity()
-                    : new MapDialogueTriggerZoneMapEntity(),
+                    ? registry.RegisterExisting<AutomaticMapDialogueTriggerMapEntity>(id, namedId, baseGameId)
+                    : registry.RegisterExisting<MapDialogueTriggerZoneMapEntity>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ANDBlock, _) =>
                 int.Parse(fields[60]) == 2 && int.Parse(fields[61 + 1]) == -1
-                    ? new AndBlockOnSingleFlagMapEntity()
+                    ? registry.RegisterExisting<AndBlockOnSingleFlagMapEntity>(id, namedId, baseGameId)
                     : int.Parse(fields[61 + 0]) switch
                     {
-                        -2 => new AndBlockOnFlagsMapEntity(),
-                        >= -1 => new AndBlockOnEntitiesActivationMapEntity(),
+                        -2 => registry.RegisterExisting<AndBlockOnFlagsMapEntity>(id, namedId, baseGameId),
+                        >= -1 => registry.RegisterExisting<AndBlockOnEntitiesActivationMapEntity>(
+                            id,
+                            namedId,
+                            baseGameId),
                         _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
                     },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.SavePoint, _) =>
                 int.Parse(fields[61 + 1]) >= 10
-                    ? new DeadLanderOmegaAlertCrystalMapEntity()
-                    : new SavePointCrystalMapEntity(),
+                    ? registry.RegisterExisting<DeadLanderOmegaAlertCrystalMapEntity>(id, namedId, baseGameId)
+                    : registry.RegisterExisting<SavePointCrystalMapEntity>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.JumpSpring, _) =>
                 int.Parse(fields[61 + 0]) == 1
-                    ? new JumpToPositionSpringMapEntity()
-                    : new JumpUpSpringMapEntity(),
+                    ? registry.RegisterExisting<JumpToPositionSpringMapEntity>(id, namedId, baseGameId)
+                    : registry.RegisterExisting<JumpUpSpringMapEntity>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DigSpot, _) =>
                 (int.Parse(fields[61 + 0]), int.Parse(fields[61 + 1])) switch
                 {
-                    (1, _) => new DigSpotCrystalBerryMapEntity(),
-                    (>= 2, _) => new DigSpotStartEventMapEntity(),
-                    (<= 0, >= 2) => new DigSpotMedalMapEntity(),
-                    (<= 0, < 2) => new DigSpotItemMapEntity(),
+                    (1, _) => registry.RegisterExisting<DigSpotCrystalBerryMapEntity>(id, namedId, baseGameId),
+                    (>= 2, _) => registry.RegisterExisting<DigSpotStartEventMapEntity>(id, namedId, baseGameId),
+                    (<= 0, >= 2) => registry.RegisterExisting<DigSpotMedalMapEntity>(id, namedId, baseGameId),
+                    (<= 0, < 2) => registry.RegisterExisting<DigSpotItemMapEntity>(id, namedId, baseGameId),
                 },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Switch, _) =>
                 (int.Parse(fields[61 + 0]), int.Parse(fields[61 + 1]), int.Parse(fields[61 + 2])) switch
                 {
-                    (0, 0, 0) => new LatchedSwitchMapEntity(),
-                    (0, 0, _) => new TimerSwitchMapEntity(),
-                    (0, 1, _) => new LinkableToggleSwitchMapEntity(),
-                    (1, >= 0, _) => new EventTriggerSwitchMapEntity(),
+                    (0, 0, 0) => registry.RegisterExisting<LatchedSwitchMapEntity>(id, namedId, baseGameId),
+                    (0, 0, _) => registry.RegisterExisting<TimerSwitchMapEntity>(id, namedId, baseGameId),
+                    (0, 1, _) => registry.RegisterExisting<LinkableToggleSwitchMapEntity>(id, namedId, baseGameId),
+                    (1, >= 0, _) => registry.RegisterExisting<EventTriggerSwitchMapEntity>(id, namedId, baseGameId),
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
                 },
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.CoiledObject, _) => new TrappedEntityMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.FixedAnim, _) => new FixedAnimstateMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.EnemySpawner, _) => new EnemySpawnerMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Dropplet, _) => new FreezableWaterDropletMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.CoiledObject, _) =>
+                registry.RegisterExisting<TrappedEntityMapEntity>(id, namedId, baseGameId),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.FixedAnim, _) =>
+                registry.RegisterExisting<FixedAnimstateMapEntity>(id, namedId, baseGameId),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.EnemySpawner, _) =>
+                registry.RegisterExisting<EnemySpawnerMapEntity>(id, namedId, baseGameId),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Dropplet, _) =>
+                registry.RegisterExisting<FreezableWaterDropletMapEntity>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PathPlatform, _) =>
                 (int)float.Parse(fields[103 + (1 * 3) + 0]) == 1
-                    ? new MovingPlatformAlongLerpMapEntity()
-                    : new MovingPlatformAlongPathMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BreakableRock, _) => new BreakableRockMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.RotatingPlatform, _) => new RotatingPlatformMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Geizer, _) => new GeyserMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.MusicRange, _) => new MusicChangeZoneMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TempPlatform, _) => new FlytrapPlatformMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ScrewSwitch, _) => new SpinningCrankMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ResetCamera, _) => new ResetCameraZoneMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.StencilSwitch, _) => new IceRadiusSwitchMapEntity(),
+                    ? registry.RegisterExisting<MovingPlatformAlongLerpMapEntity>(id, namedId, baseGameId)
+                    : registry.RegisterExisting<MovingPlatformAlongPathMapEntity>(id, namedId, baseGameId),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BreakableRock, _) =>
+                registry.RegisterExisting<BreakableRockMapEntity>(id, namedId, baseGameId),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.RotatingPlatform, _) =>
+                registry.RegisterExisting<RotatingPlatformMapEntity>(id, namedId, baseGameId),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Geizer, _) =>
+                registry.RegisterExisting<GeyserMapEntity>(id, namedId, baseGameId),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.MusicRange, _) =>
+                registry.RegisterExisting<MusicChangeZoneMapEntity>(id, namedId, baseGameId),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TempPlatform, _) =>
+                registry.RegisterExisting<FlytrapPlatformMapEntity>(id, namedId, baseGameId),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ScrewSwitch, _) =>
+                registry.RegisterExisting<SpinningCrankMapEntity>(id, namedId, baseGameId),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ResetCamera, _) =>
+                registry.RegisterExisting<ResetCameraZoneMapEntity>(id, namedId, baseGameId),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.StencilSwitch, _) =>
+                registry.RegisterExisting<IceRadiusSwitchMapEntity>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.RollingRock, _) => int.Parse(fields[61 + 2]) switch
             {
-                1 => new RollingRockCanonMapEntity(),
-                _ => new RollingRockMapEntity()
+                1 => registry.RegisterExisting<RollingRockCanonMapEntity>(id, namedId, baseGameId),
+                _ => registry.RegisterExisting<RollingRockMapEntity>(id, namedId, baseGameId)
             },
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TriggerSwitch, _) => new SwitchTriggerZoneMapEntity(),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WindPusher, _) => new WindBeamZoneMapEntity(),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TriggerSwitch, _) =>
+                registry.RegisterExisting<SwitchTriggerZoneMapEntity>(id, namedId, baseGameId),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WindPusher, _) =>
+                registry.RegisterExisting<WindBeamZoneMapEntity>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WaterSwitch, _) =>
-                new MapChildVerticalPositionSwitchMapEntity(),
+                registry.RegisterExisting<MapChildVerticalPositionSwitchMapEntity>(id, namedId, baseGameId),
             (NPCControl.NPCType.Enemy, _, _) => (int)float.Parse(fields[72 + (0 * 3) + 1]) == -2 &&
                                                 !BehaviorsWithSecondaryVectorData.Contains(primaryBehavior) &&
                                                 !BehaviorsWithSecondaryVectorData.Contains(secondaryBehavior)
-                ? new EnemyEncounterHoldingKeyItemMapEntity()
-                : new EnemyEncounterWithRegularItemDropsMapEntity(),
-            (NPCControl.NPCType.NPC, _, NPCControl.Interaction.None) => new NoInteractionNpcMapEntity(),
+                ? registry.RegisterExisting<EnemyEncounterHoldingKeyItemMapEntity>(id, namedId, baseGameId)
+                : registry.RegisterExisting<EnemyEncounterWithRegularItemDropsMapEntity>(id, namedId, baseGameId),
+            (NPCControl.NPCType.NPC, _, NPCControl.Interaction.None) =>
+                registry.RegisterExisting<NoInteractionNpcMapEntity>(id, namedId, baseGameId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.Talk or NPCControl.Interaction.Check) =>
-                new TalkingNpcMapEntity(),
+                registry.RegisterExisting<TalkingNpcMapEntity>(id, namedId, baseGameId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.Event or NPCControl.Interaction.LockedDoor) =>
-                new EventNpcMapEntity(),
+                registry.RegisterExisting<EventNpcMapEntity>(id, namedId, baseGameId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.Shop) => float.Parse(fields[103 + (10 * 3)] + 0) == 0f
-                ? new ItemsShopMapEntity()
-                : new MedalsShopMapEntity(),
-            (NPCControl.NPCType.NPC, _, NPCControl.Interaction.QuestBoard) => new QuestBoardNpcMapEntity(),
-            (NPCControl.NPCType.NPC, _, NPCControl.Interaction.StorageAnt) => new ItemsStorageNpcMapEntity(),
-            (NPCControl.NPCType.NPC, _, NPCControl.Interaction.CaravanBadge) => new CaravanShelvedMedalNpcMapEntity(),
-            (NPCControl.NPCType.NPC, _, NPCControl.Interaction.VenusHeal) => new VenusHealingNpcMapEntity(),
+                ? registry.RegisterExisting<ItemsShopMapEntity>(id, namedId, baseGameId)
+                : registry.RegisterExisting<MedalsShopMapEntity>(id, namedId, baseGameId),
+            (NPCControl.NPCType.NPC, _, NPCControl.Interaction.QuestBoard) =>
+                registry.RegisterExisting<QuestBoardNpcMapEntity>(id, namedId, baseGameId),
+            (NPCControl.NPCType.NPC, _, NPCControl.Interaction.StorageAnt) =>
+                registry.RegisterExisting<ItemsStorageNpcMapEntity>(id, namedId, baseGameId),
+            (NPCControl.NPCType.NPC, _, NPCControl.Interaction.CaravanBadge) =>
+                registry.RegisterExisting<CaravanShelvedMedalNpcMapEntity>(id, namedId, baseGameId),
+            (NPCControl.NPCType.NPC, _, NPCControl.Interaction.VenusHeal) =>
+                registry.RegisterExisting<VenusHealingNpcMapEntity>(id, namedId, baseGameId),
             _ => ThrowHelper.ThrowInvalidOperationException<MapEntity>(
                 $"Invalid NPCControl - type: {type}, ObjectType: {objectType}, Interaction: {interaction}")
         };
+    }
 
     // This allows to basically preserve as much as possible the original array from base game, but only if the new list
     // wouldn't exceed the length of the base game one. This wouldn't impact logic because ultimately, the game only cares

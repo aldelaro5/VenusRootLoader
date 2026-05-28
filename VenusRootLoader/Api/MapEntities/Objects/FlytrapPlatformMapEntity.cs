@@ -5,6 +5,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 
 public sealed class FlytrapPlatformMapEntity : MapEntity
 {
+    internal FlytrapPlatformMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.TempPlatform;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -19,8 +24,6 @@ public sealed class FlytrapPlatformMapEntity : MapEntity
         get => InternalVectorData[0].x;
         set => InternalVectorData[0] = new(value, InternalVectorData[0].y, InternalVectorData[0].z);
     }
-
-    internal FlytrapPlatformMapEntity() { }
 
     internal override void InitializeFromNew()
     {

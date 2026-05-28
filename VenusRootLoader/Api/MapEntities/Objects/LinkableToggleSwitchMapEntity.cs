@@ -6,6 +6,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 
 public sealed class LinkableToggleSwitchMapEntity : MapEntity
 {
+    internal LinkableToggleSwitchMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.Switch;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -38,8 +43,6 @@ public sealed class LinkableToggleSwitchMapEntity : MapEntity
             field = value;
         }
     }
-
-    internal LinkableToggleSwitchMapEntity() { }
 
     internal override void InitializeFromNew()
     {

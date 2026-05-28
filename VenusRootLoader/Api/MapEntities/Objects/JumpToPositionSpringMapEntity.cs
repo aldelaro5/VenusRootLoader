@@ -6,6 +6,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 
 public sealed class JumpToPositionSpringMapEntity : MapEntity
 {
+    internal JumpToPositionSpringMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.JumpSpring;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -48,8 +53,6 @@ public sealed class JumpToPositionSpringMapEntity : MapEntity
             InternalVectorData[0].y,
             InternalVectorData[0].z);
     }
-
-    internal JumpToPositionSpringMapEntity() { }
 
     internal override void InitializeFromNew()
     {

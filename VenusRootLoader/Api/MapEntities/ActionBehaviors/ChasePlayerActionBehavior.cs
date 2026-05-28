@@ -18,5 +18,7 @@ public sealed class ChasePlayerActionBehavior : ActionBehavior
             : NPCControl.ActionBehaviors.ChasePlayer;
     }
 
-    internal ChasePlayerActionBehavior(MapEntity mapEntity, ActionBehaviorKind kind) : base(mapEntity, kind) { }
+    internal ChasePlayerActionBehavior(MapEntity mapEntity, ActionBehaviorKind kind) : base(mapEntity, kind)
+    {
+    }
 }

@@ -7,6 +7,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 // TODO: Merge with the multi flags one later with a patch to fix its problems
 public sealed class AndGateOnSingleFlagMapEntity : MapEntity
 {
+    internal AndGateOnSingleFlagMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.ANDGate;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -20,8 +25,6 @@ public sealed class AndGateOnSingleFlagMapEntity : MapEntity
             field = value;
         }
     } = null!;
-
-    internal AndGateOnSingleFlagMapEntity() { }
 
     internal override void InitializeFromNew()
     {

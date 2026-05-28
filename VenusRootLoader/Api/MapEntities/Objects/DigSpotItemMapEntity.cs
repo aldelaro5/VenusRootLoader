@@ -6,6 +6,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 
 public sealed class DigSpotItemMapEntity : MapEntity
 {
+    internal DigSpotItemMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.DigSpot;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -43,8 +48,6 @@ public sealed class DigSpotItemMapEntity : MapEntity
             field = value;
         }
     }
-
-    internal DigSpotItemMapEntity() { }
 
     internal override void InitializeFromNew()
     {

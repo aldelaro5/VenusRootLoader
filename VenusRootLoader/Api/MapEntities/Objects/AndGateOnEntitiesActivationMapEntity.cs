@@ -8,6 +8,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 
 public sealed class AndGateOnEntitiesActivationMapEntity : MapEntity
 {
+    internal AndGateOnEntitiesActivationMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.ANDGate;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -24,8 +29,6 @@ public sealed class AndGateOnEntitiesActivationMapEntity : MapEntity
             field = value;
         }
     }
-
-    internal AndGateOnEntitiesActivationMapEntity() { }
 
     internal override void InitializeFromNew()
     {
@@ -61,11 +64,12 @@ public sealed class AndGateOnEntitiesActivationMapEntity : MapEntity
 
     public void ChangeEntitiesActivationInput(List<NegatableMapEntityActivation> entityActivationsInput)
     {
-        List<NegatableMapEntityActivation> incorrectEntities = entityActivationsInput.Where(e => e.MapEntity.Map != Map)
+        List<NegatableMapEntityActivation> incorrectEntities = entityActivationsInput
+            .Where(e => e.MapEntity.Map != Map)
             .ToList();
         if (incorrectEntities.Count > 0)
         {
-            IEnumerable<string> badEntityNames = incorrectEntities.Select(e => e.MapEntity.Name);
+            IEnumerable<string> badEntityNames = incorrectEntities.Select(e => e.MapEntity.BaseGameObjectName);
             ThrowHelper.ThrowArgumentOutOfRangeException(
                 nameof(entityActivationsInput),
                 $"The following entities are not present in the {Map.NamedId} map which is required: " +

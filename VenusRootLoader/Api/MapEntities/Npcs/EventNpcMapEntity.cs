@@ -7,6 +7,12 @@ namespace VenusRootLoader.Api.MapEntities.Npcs;
 
 public sealed class EventNpcMapEntity : MapEntity
 {
+    internal EventNpcMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+        Behaviors = new(this);
+    }
+
     private const int LockedDoorInteractionEventId = 59;
 
     internal override NPCControl.NPCType Type => NPCControl.NPCType.NPC;
@@ -46,11 +52,6 @@ public sealed class EventNpcMapEntity : MapEntity
     }
 
     public MapEntityBehaviors Behaviors { get; }
-
-    internal EventNpcMapEntity()
-    {
-        Behaviors = new(this);
-    }
 
     internal override void InitializeFromNew() { }
 

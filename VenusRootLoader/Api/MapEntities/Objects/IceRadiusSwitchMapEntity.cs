@@ -13,6 +13,11 @@ public enum IceRadiusSwitchKind
 
 public sealed class IceRadiusSwitchMapEntity : MapEntity
 {
+    internal IceRadiusSwitchMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.StencilSwitch;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -70,10 +75,6 @@ public sealed class IceRadiusSwitchMapEntity : MapEntity
             InternalActivationFlagId = value?.GameId ?? -1;
             field = value;
         }
-    }
-
-    internal IceRadiusSwitchMapEntity()
-    {
     }
 
     internal override void InitializeFromNew()

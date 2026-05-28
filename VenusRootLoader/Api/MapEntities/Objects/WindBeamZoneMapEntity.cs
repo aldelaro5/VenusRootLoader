@@ -7,6 +7,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 
 public sealed class WindBeamZoneMapEntity : MapEntity
 {
+    internal WindBeamZoneMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.WindPusher;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -67,8 +72,6 @@ public sealed class WindBeamZoneMapEntity : MapEntity
             value is null or < 0.1f ? 0f : value.Value,
             InternalVectorData[2].z);
     }
-
-    internal WindBeamZoneMapEntity() { }
 
     internal override void InitializeFromNew()
     {

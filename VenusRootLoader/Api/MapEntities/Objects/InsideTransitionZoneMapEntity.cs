@@ -6,6 +6,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 
 public sealed class InsideTransitionZoneMapEntity : MapEntity
 {
+    internal InsideTransitionZoneMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.DoorSameMap;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -65,8 +70,6 @@ public sealed class InsideTransitionZoneMapEntity : MapEntity
             field = value;
         }
     }
-
-    internal InsideTransitionZoneMapEntity() { }
 
     internal override void InitializeFromNew()
     {

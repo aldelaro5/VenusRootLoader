@@ -18,5 +18,9 @@ public sealed class ChargeAtPlayerActionBehavior : ActionBehavior
             : NPCControl.ActionBehaviors.ChargeAtPlayer;
     }
 
-    internal ChargeAtPlayerActionBehavior(MapEntity mapEntity, ActionBehaviorKind kind) : base(mapEntity, kind) { }
+    internal ChargeAtPlayerActionBehavior(MapEntity mapEntity, ActionBehaviorKind kind) : base(
+        mapEntity,
+        kind)
+    {
+    }
 }

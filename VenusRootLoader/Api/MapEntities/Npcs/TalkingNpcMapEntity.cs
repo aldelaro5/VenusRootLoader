@@ -8,6 +8,12 @@ namespace VenusRootLoader.Api.MapEntities.Npcs;
 
 public sealed class TalkingNpcMapEntity : MapEntity
 {
+    internal TalkingNpcMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+        Behaviors = new(this);
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.NPC;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.None;
 
@@ -49,11 +55,6 @@ public sealed class TalkingNpcMapEntity : MapEntity
     public MapEntityBehaviors Behaviors { get; }
 
     public bool InteractIconIsQuestionMark { get; set; }
-
-    internal TalkingNpcMapEntity()
-    {
-        Behaviors = new(this);
-    }
 
     internal override void InitializeFromNew()
     {

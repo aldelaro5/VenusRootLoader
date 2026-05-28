@@ -8,6 +8,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 // TODO: Merge with the multi flags one later with a patch to fix its problems
 public sealed class AndBlockOnSingleFlagMapEntity : MapEntity
 {
+    internal AndBlockOnSingleFlagMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.ANDBlock;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -52,8 +57,6 @@ public sealed class AndBlockOnSingleFlagMapEntity : MapEntity
         get => InternalVectorData[2].magnitude <= 0.1f ? null : InternalVectorData[2];
         set => InternalVectorData[2] = value ?? Vector3.zero;
     }
-
-    internal AndBlockOnSingleFlagMapEntity() { }
 
     internal override void InitializeFromNew()
     {

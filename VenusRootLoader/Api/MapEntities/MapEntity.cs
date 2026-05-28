@@ -5,10 +5,10 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.MapEntities;
 
-public abstract class MapEntity
+public abstract class MapEntity : Leaf
 {
     public int Id { get; internal set; }
-    public string Name { get; internal set; } = "";
+    public string BaseGameObjectName { get; set; } = $"Unnamed {nameof(MapEntity)}";
     public Branch<MapLeaf> Map { get; internal set; }
 
     protected internal NPCControl.NPCType OriginalType { get; internal set; }
@@ -20,6 +20,10 @@ public abstract class MapEntity
     protected internal NPCControl.Interaction OriginalInteraction { get; internal set; }
     internal abstract NPCControl.Interaction Interaction { get; }
 
+    internal MapEntity(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    {
+    }
+    
     internal abstract void InitializeFromNew();
     internal abstract void InitializeFromExisting(IRegistryResolver registryResolver);
 

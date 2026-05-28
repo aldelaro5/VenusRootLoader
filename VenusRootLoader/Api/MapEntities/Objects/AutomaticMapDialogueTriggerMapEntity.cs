@@ -4,6 +4,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 
 public sealed class AutomaticMapDialogueTriggerMapEntity : MapEntity
 {
+    internal AutomaticMapDialogueTriggerMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.DialogueTrigger;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -13,8 +18,6 @@ public sealed class AutomaticMapDialogueTriggerMapEntity : MapEntity
         get => InternalData[0];
         set => InternalData[0] = value;
     }
-
-    internal AutomaticMapDialogueTriggerMapEntity() { }
 
     internal override void InitializeFromNew()
     {

@@ -7,6 +7,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 
 public sealed class FixedAnimstateMapEntity : MapEntity
 {
+    internal FixedAnimstateMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.FixedAnim;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -39,8 +44,6 @@ public sealed class FixedAnimstateMapEntity : MapEntity
             field = value;
         }
     }
-
-    internal FixedAnimstateMapEntity() { }
 
     internal override void InitializeFromNew()
     {

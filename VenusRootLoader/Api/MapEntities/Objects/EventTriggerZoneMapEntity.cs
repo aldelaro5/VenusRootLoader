@@ -6,6 +6,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 
 public sealed class EventTriggerZoneMapEntity : MapEntity
 {
+    internal EventTriggerZoneMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.EventTrigger;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -43,8 +48,6 @@ public sealed class EventTriggerZoneMapEntity : MapEntity
             field = value;
         }
     }
-
-    internal EventTriggerZoneMapEntity() { }
 
     internal override void InitializeFromNew()
     {

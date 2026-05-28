@@ -11,6 +11,11 @@ public enum RollingRockScheme
 
 public sealed class RollingRockMapEntity : MapEntity
 {
+    internal RollingRockMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.RollingRock;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -41,8 +46,6 @@ public sealed class RollingRockMapEntity : MapEntity
     }
 
     public Vector3 RollingRotationAngles { get => InternalVectorData[2]; set => InternalVectorData[2] = value; }
-
-    internal RollingRockMapEntity() { }
 
     internal override void InitializeFromNew()
     {

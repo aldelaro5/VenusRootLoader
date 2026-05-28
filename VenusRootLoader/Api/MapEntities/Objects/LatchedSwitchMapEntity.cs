@@ -6,6 +6,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 
 public sealed class LatchedSwitchMapEntity : MapEntity
 {
+    internal LatchedSwitchMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.Switch;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -43,8 +48,6 @@ public sealed class LatchedSwitchMapEntity : MapEntity
         get => InternalRegionalFlagId < 0 ? null : InternalRegionalFlagId;
         set => InternalRegionalFlagId = value ?? -1;
     }
-
-    internal LatchedSwitchMapEntity() { }
 
     internal override void InitializeFromNew()
     {

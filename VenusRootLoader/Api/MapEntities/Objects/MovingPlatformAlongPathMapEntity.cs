@@ -9,6 +9,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 // TODO: Fix the length 0 issue on NPCControl.CreateEntities so this can move without a switch
 public sealed class MovingPlatformAlongPathMapEntity : MapEntity
 {
+    internal MovingPlatformAlongPathMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.PathPlatform;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -67,8 +72,6 @@ public sealed class MovingPlatformAlongPathMapEntity : MapEntity
         get => InternalDialogues[2].y == 0f ? null : InternalDialogues[2].y;
         set => InternalDialogues[2] = new Vector3(InternalDialogues[2].x, value ?? 0f, InternalDialogues[2].z);
     }
-
-    internal MovingPlatformAlongPathMapEntity() { }
 
     // TODO: Figure out a way to assign the actual AnimId branch here
     internal override void InitializeFromNew()

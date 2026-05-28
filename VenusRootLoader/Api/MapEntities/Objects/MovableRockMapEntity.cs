@@ -5,6 +5,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 
 public sealed class MovableRockMapEntity : MapEntity
 {
+    internal MovableRockMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.PushRock;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -21,8 +26,6 @@ public sealed class MovableRockMapEntity : MapEntity
         get => InternalVectorData[0].z;
         set => InternalVectorData[0] = new Vector3(InternalVectorData[0].x, InternalVectorData[0].y, value);
     }
-
-    internal MovableRockMapEntity() { }
 
     internal override void InitializeFromNew()
     {

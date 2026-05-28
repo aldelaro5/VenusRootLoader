@@ -42,7 +42,8 @@ public sealed class StealthSpotBehavior : ActionBehavior
         MapEntity.InternalPrimaryBehavior = NPCControl.ActionBehaviors.StealthAI;
 
         if (MapEntity.InternalBattleEnemyIds.Count < 2)
-            MapEntity.InternalBattleEnemyIds.AddRange(Enumerable.Repeat(0, 2 - MapEntity.InternalBattleEnemyIds.Count));
+            MapEntity.InternalBattleEnemyIds.AddRange(
+                Enumerable.Repeat(0, 2 - MapEntity.InternalBattleEnemyIds.Count));
     }
 
     internal void InitializeFromExisting(IRegistryResolver registryResolver)

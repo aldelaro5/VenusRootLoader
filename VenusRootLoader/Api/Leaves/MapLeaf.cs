@@ -1,6 +1,5 @@
-using System.Collections.ObjectModel;
-using System.Reflection;
 using VenusRootLoader.Api.MapEntities;
+using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves;
 
@@ -11,31 +10,21 @@ public sealed class MapLeaf : Leaf
     internal MapLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
-        Entities = new ReadOnlyCollection<MapEntity>(InternalEntities);
     }
 
-    internal List<MapEntity> InternalEntities { get; } = new();
+    internal ILeavesRegistry<MapEntity> EntitiesRegistry { get; set; } = null!;
+    internal ILeavesRegistry<MapDialogueLeaf> DialoguesRegistry { get; set; } = null!;
 
-    public ReadOnlyCollection<MapEntity> Entities { get; }
+    public IList<MapEntity> Entities => EntitiesRegistry.LeavesByGameIds.Values.ToList();
+    public IList<MapDialogueLeaf> Dialogues => DialoguesRegistry.LeavesByGameIds.Values.ToList();
 
-    public LocalizedData<List<string>> Dialogues { get; } = new();
-
-    public T ReserveNewMapEntity<T>(string name)
-        where T : MapEntity
+    public TMapEntity ReserveNewMapEntity<TMapEntity>(string namedId, string creatorId)
+        where TMapEntity : MapEntity
     {
-        T newEntity = (T)Activator.CreateInstance(
-            typeof(T),
-            BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
-            null,
-            null,
-            null,
-            null);
-
-        newEntity.Id = InternalEntities.Count;
-        newEntity.Name = name;
-        newEntity.Map = new(this);
+        TMapEntity newEntity = EntitiesRegistry.RegisterNew<TMapEntity>(namedId, creatorId);
+        newEntity.BaseGameObjectName = namedId;
+        newEntity.Map = this;
         newEntity.InitializeFromNew();
-        InternalEntities.Add(newEntity);
         return newEntity;
     }
 }

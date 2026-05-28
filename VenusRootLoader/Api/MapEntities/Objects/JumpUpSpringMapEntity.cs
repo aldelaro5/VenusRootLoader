@@ -6,6 +6,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 
 public sealed class JumpUpSpringMapEntity : MapEntity
 {
+    internal JumpUpSpringMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.JumpSpring;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -27,8 +32,6 @@ public sealed class JumpUpSpringMapEntity : MapEntity
         get => InternalVectorData[0].x <= 1.0f ? null : InternalVectorData[0].x;
         set => InternalVectorData[0] = new(value ?? 0f, InternalVectorData[0].y, InternalVectorData[0].z);
     }
-
-    internal JumpUpSpringMapEntity() { }
 
     internal override void InitializeFromNew()
     {

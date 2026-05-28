@@ -7,6 +7,12 @@ namespace VenusRootLoader.Api.MapEntities.Npcs;
 
 public sealed class NoInteractionNpcMapEntity : MapEntity
 {
+    internal NoInteractionNpcMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+        Behaviors = new(this);
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.NPC;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.None;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -30,11 +36,6 @@ public sealed class NoInteractionNpcMapEntity : MapEntity
     }
 
     public MapEntityBehaviors Behaviors { get; }
-
-    internal NoInteractionNpcMapEntity()
-    {
-        Behaviors = new(this);
-    }
 
     internal override void InitializeFromNew() { }
 

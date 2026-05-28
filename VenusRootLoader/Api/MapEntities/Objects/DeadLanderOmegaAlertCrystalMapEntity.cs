@@ -5,6 +5,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 
 public sealed class DeadLanderOmegaAlertCrystalMapEntity : MapEntity
 {
+    internal DeadLanderOmegaAlertCrystalMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.SavePoint;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -20,8 +25,6 @@ public sealed class DeadLanderOmegaAlertCrystalMapEntity : MapEntity
         get => InternalVectorData[0];
         set => InternalVectorData[0] = value;
     }
-
-    internal DeadLanderOmegaAlertCrystalMapEntity() { }
 
     internal override void InitializeFromNew()
     {

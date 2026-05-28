@@ -5,6 +5,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 
 public sealed class SlidingIcePillarMapEntity : MapEntity
 {
+    internal SlidingIcePillarMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.PushRock;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -21,8 +26,6 @@ public sealed class SlidingIcePillarMapEntity : MapEntity
         get => InternalBoxColSize.magnitude <= 0.1f ? null : InternalBoxColSize;
         set => InternalBoxColSize = value is null || value.Value.magnitude <= 0.1f ? Vector3.zero : value.Value;
     }
-
-    internal SlidingIcePillarMapEntity() { }
 
     internal override void InitializeFromNew()
     {

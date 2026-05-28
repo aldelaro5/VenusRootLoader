@@ -5,6 +5,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 
 public sealed class EnemySpawnerMapEntity : MapEntity
 {
+    internal EnemySpawnerMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.EnemySpawner;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -16,8 +21,6 @@ public sealed class EnemySpawnerMapEntity : MapEntity
     public int FramesBeforeRespawn { get => InternalData[4]; set => InternalData[4] = value; }
     public Vector3 RespawnCenter { get => InternalVectorData[0]; set => InternalVectorData[0] = value; }
     public Vector3 RespawnRadiusRange { get => InternalVectorData[1]; set => InternalVectorData[1] = value; }
-
-    internal EnemySpawnerMapEntity() { }
 
     internal override void InitializeFromNew()
     {

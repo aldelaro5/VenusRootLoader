@@ -16,6 +16,11 @@ public enum PressurePlateType
 
 public sealed class PressurePlateMapEntity : MapEntity
 {
+    internal PressurePlateMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.PressurePlate;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -92,8 +97,6 @@ public sealed class PressurePlateMapEntity : MapEntity
             field = value;
         }
     }
-
-    internal PressurePlateMapEntity() { }
 
     internal override void InitializeFromNew()
     {

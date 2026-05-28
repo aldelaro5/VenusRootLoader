@@ -5,6 +5,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 
 public sealed class GeyserMapEntity : MapEntity
 {
+    internal GeyserMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.Geizer;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -45,8 +50,6 @@ public sealed class GeyserMapEntity : MapEntity
         get => InternalVectorData[0].z;
         set => InternalVectorData[0] = new(InternalVectorData[0].x, InternalVectorData[0].y, value);
     }
-
-    internal GeyserMapEntity() { }
 
     internal override void InitializeFromNew()
     {

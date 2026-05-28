@@ -14,6 +14,11 @@ public enum SwitchMapEntityActivationTriggerZoneMode
 
 public sealed class SwitchMapEntityActivationTriggerZoneMapEntity : MapEntity
 {
+    internal SwitchMapEntityActivationTriggerZoneMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.TriggerSwitch;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -71,8 +76,6 @@ public sealed class SwitchMapEntityActivationTriggerZoneMapEntity : MapEntity
             field = value;
         }
     }
-
-    internal SwitchMapEntityActivationTriggerZoneMapEntity() { }
 
     internal override void InitializeFromNew()
     {

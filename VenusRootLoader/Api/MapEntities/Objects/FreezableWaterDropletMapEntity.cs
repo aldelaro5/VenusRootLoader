@@ -5,6 +5,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 
 public sealed class FreezableWaterDropletMapEntity : MapEntity
 {
+    internal FreezableWaterDropletMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.Dropplet;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -80,8 +85,6 @@ public sealed class FreezableWaterDropletMapEntity : MapEntity
         get => InternalVectorData[1].z != 0f ? InternalVectorData[1].z : null;
         set => InternalVectorData[1] = new(InternalVectorData[1].x, InternalVectorData[1].y, value ?? 0f);
     }
-
-    internal FreezableWaterDropletMapEntity() { }
 
     internal override void InitializeFromNew()
     {

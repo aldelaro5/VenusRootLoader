@@ -13,6 +13,11 @@ public enum MapChildVerticalPositionSwitchKind
 
 public sealed class MapChildVerticalPositionSwitchMapEntity : MapEntity
 {
+    internal MapChildVerticalPositionSwitchMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.WaterSwitch;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -64,8 +69,6 @@ public sealed class MapChildVerticalPositionSwitchMapEntity : MapEntity
             field = value;
         }
     }
-
-    internal MapChildVerticalPositionSwitchMapEntity() { }
 
     internal override void InitializeFromNew()
     {

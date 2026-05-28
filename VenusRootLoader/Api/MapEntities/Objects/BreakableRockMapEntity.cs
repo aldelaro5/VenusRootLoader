@@ -16,6 +16,11 @@ public enum BreakableRockTintColor
 
 public sealed class BreakableRockMapEntity : MapEntity
 {
+    internal BreakableRockMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.BreakableRock;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -44,8 +49,6 @@ public sealed class BreakableRockMapEntity : MapEntity
             field = value;
         }
     }
-
-    internal BreakableRockMapEntity() { }
 
     internal override void InitializeFromNew()
     {

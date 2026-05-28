@@ -19,35 +19,38 @@ internal sealed class MapsCollector : IBaseGameCollector
                 x => (RootCollector.ReadTextAssetLines($"{TextAssetPaths.DataMapEntitiesDirectory}/Names/{x}Names"),
                     RootCollector.ReadTextAssetLines($"{TextAssetPaths.DataMapEntitiesDirectory}/{x}")));
 
-    private static readonly Dictionary<int, Dictionary<string, string[]>> MapsDialogues = new();
+    private static readonly Dictionary<string, Dictionary<int, string[]>> MapsDialogues = new();
 
     private readonly ILogger<MapsCollector> _logger;
+    private readonly ILoggerFactory _loggerFactory;
     private readonly ILeavesRegistry<MapLeaf> _mapsRegistry;
     private readonly IMapEntityTextAssetParser _mapEntityTextAssetParser;
     private readonly IRegistryResolver _registryResolver;
 
     public MapsCollector(
         ILogger<MapsCollector> logger,
+        ILoggerFactory loggerFactory,
         ILeavesRegistry<MapLeaf> mapsRegistry,
         IMapEntityTextAssetParser mapEntityTextAssetParser,
         IRegistryResolver registryResolver)
     {
         _logger = logger;
+        _loggerFactory = loggerFactory;
         _mapsRegistry = mapsRegistry;
         _mapEntityTextAssetParser = mapEntityTextAssetParser;
         _registryResolver = registryResolver;
 
-        for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
+        foreach (string mapName in MapNamedIds)
         {
-            MapsDialogues[i] = new();
-            foreach (string mapName in MapNamedIds)
+            MapsDialogues[mapName] = new();
+            for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
             {
                 string[] itemLanguageData = Resources
                     .Load<TextAsset>(
                         $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataDialoguesLocalizedMapsDirectory}/{mapName}")
                     .text
                     .Split(StringUtils.NewlineSplitDelimiter);
-                MapsDialogues[i].Add(mapName, itemLanguageData);
+                MapsDialogues[mapName].Add(i, itemLanguageData);
             }
         }
     }
@@ -57,23 +60,33 @@ internal sealed class MapsCollector : IBaseGameCollector
         for (int i = 0; i < MapNamedIds.Length; i++)
         {
             (string[] Names, string[] Data) mapEntityData = MapsEntityData[i];
-            MapLeaf mapLeaf =
-                _mapsRegistry.RegisterExisting(i, MapNamedIds[i], baseGameId);
+            MapLeaf mapLeaf = _mapsRegistry.RegisterExisting(i, MapNamedIds[i], baseGameId);
+            mapLeaf.EntitiesRegistry = new AutoSequentialIdBasedRegistry<MapEntity>(
+                _loggerFactory.CreateLogger($"{mapLeaf.NamedId}_{nameof(MapLeaf.Entities)}"),
+                IdSequenceDirection.Increment);
+            mapLeaf.DialoguesRegistry = new AutoSequentialIdBasedRegistry<MapDialogueLeaf>(
+                _loggerFactory.CreateLogger($"{mapLeaf.NamedId}_{nameof(MapLeaf.Dialogues)}"),
+                IdSequenceDirection.Increment);
 
             for (int j = 0; j < mapEntityData.Data.Length; j++)
             {
                 string mapEntityText = mapEntityData.Data[j];
                 string mapEntityName = mapEntityData.Names[j];
-                MapEntity mapEntity = _mapEntityTextAssetParser.FromTextAssetSerializedString(
-                    new Branch<MapLeaf>(mapLeaf),
-                    mapLeaf.InternalEntities.Count,
+                _mapEntityTextAssetParser.FromTextAssetSerializedString(
+                    mapLeaf,
+                    baseGameId,
+                    mapLeaf.EntitiesRegistry.LeavesByGameIds.Count,
                     mapEntityName,
                     mapEntityText);
-                mapLeaf.InternalEntities.Add(mapEntity);
             }
 
-            for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
-                mapLeaf.Dialogues[j] = MapsDialogues[j][MapNamedIds[i]].ToList();
+            for (int j = 0; j < MapsDialogues[mapLeaf.NamedId].Values.Count; j++)
+            {
+                MapDialogueLeaf mapDialogueLeaf =
+                    mapLeaf.DialoguesRegistry.RegisterExisting(j, j.ToString(), baseGameId);
+                for (int k = 0; k < RootCollector.LanguageDisplayNames.Length; k++)
+                    mapDialogueLeaf.LocalizedText[k] = MapsDialogues[mapLeaf.NamedId][k][j];
+            }
         }
 
         // This last step is needed because while we have filled all the backing fields of the entity, the derived class
@@ -82,7 +95,7 @@ internal sealed class MapsCollector : IBaseGameCollector
         // It also needs to be done after every map have been added so references across them works as expected.
         foreach (MapLeaf mapLeaf in _mapsRegistry.LeavesByGameIds.Values)
         {
-            foreach (MapEntity mapEntity in mapLeaf.InternalEntities)
+            foreach (MapEntity mapEntity in mapLeaf.EntitiesRegistry.LeavesByGameIds.Values)
                 mapEntity.InitializeFromExisting(_registryResolver);
         }
 

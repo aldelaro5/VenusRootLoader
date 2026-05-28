@@ -6,6 +6,11 @@ namespace VenusRootLoader.Api.MapEntities.Objects;
 
 public sealed class EventTriggerSwitchMapEntity : MapEntity
 {
+    internal EventTriggerSwitchMapEntity(int gameId, string namedId, string creatorId)
+        : base(gameId, namedId, creatorId)
+    {
+    }
+
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.Switch;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
@@ -47,8 +52,6 @@ public sealed class EventTriggerSwitchMapEntity : MapEntity
             field = value;
         }
     }
-
-    internal EventTriggerSwitchMapEntity() { }
 
     internal override void InitializeFromNew()
     {

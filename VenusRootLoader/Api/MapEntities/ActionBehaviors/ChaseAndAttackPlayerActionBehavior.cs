@@ -24,7 +24,9 @@ public sealed class ChaseAndAttackPlayerActionBehavior : ActionBehavior
         set => InternalFrequencyForKind = value;
     }
 
-    internal ChaseAndAttackPlayerActionBehavior(MapEntity mapEntity, ActionBehaviorKind kind) : base(mapEntity, kind)
+    internal ChaseAndAttackPlayerActionBehavior(MapEntity mapEntity, ActionBehaviorKind kind) : base(
+        mapEntity,
+        kind)
     {
     }
 }

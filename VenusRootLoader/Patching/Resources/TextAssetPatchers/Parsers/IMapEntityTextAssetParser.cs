@@ -9,7 +9,7 @@ namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 /// Handles the conversion of a <see cref="MapEntity"/> to its matching <see cref="TextAsset"/> data or name string and
 /// also to fill a <see cref="MapEntity"/>'s data given its <see cref="TextAsset"/> data or name.
 /// </summary>
-public interface IMapEntityTextAssetParser
+internal interface IMapEntityTextAssetParser
 {
     /// <summary>
     /// Allows the <see cref="MapEntitiesTextAssetPatcher"/> to convert a <see cref="MapEntity"/> to its <see cref="TextAsset"/> line
@@ -24,9 +24,11 @@ public interface IMapEntityTextAssetParser
     /// Allows an <see cref="IBaseGameCollector"/> to fill in a <see cref="MapEntity"/> from a <see cref="TextAsset"/>
     /// string that is associated with its data or name.
     /// </summary>
-    /// <param name="map">A reference of the <see cref="MapLeaf"/> associated with the <see cref="MapEntity"/>.</param>
+    /// <param name="map">The <see cref="MapLeaf"/> associated with the <see cref="MapEntity"/>.</param>
+    /// <param name="baseGameId">The <see cref="Leaf.CreatorId"/> of the base game to use when registering the entity to the map's entities registry</param>
     /// <param name="id">The associated <see cref="MapEntity"/>'s unique id for the map.</param>
     /// <param name="name">The <see cref="MapEntity"/>'s name.</param>
     /// <param name="text">The line data of the <see cref="TextAsset"/> to use.</param>
-    MapEntity FromTextAssetSerializedString(Branch<MapLeaf> map, int id, string name, string text);
+    /// <remarks>This will register the entity to the map's entity registry using its parsed type</remarks>
+    void FromTextAssetSerializedString(MapLeaf map, string baseGameId, int id, string name, string text);
 }

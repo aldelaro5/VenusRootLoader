@@ -19,6 +19,9 @@ internal sealed class MapsCollector : IBaseGameCollector
                 x => (RootCollector.ReadTextAssetLines($"{TextAssetPaths.DataMapEntitiesDirectory}/Names/{x}Names"),
                     RootCollector.ReadTextAssetLines($"{TextAssetPaths.DataMapEntitiesDirectory}/{x}")));
 
+    private static readonly string[] TestRoomTextData =
+        RootCollector.ReadTextAssetLines(TextAssetPaths.DataTestRoomMapDialoguesPath);
+    
     private static readonly Dictionary<string, Dictionary<int, string[]>> MapsDialogues = new();
 
     private readonly ILogger<MapsCollector> _logger;
@@ -80,12 +83,17 @@ internal sealed class MapsCollector : IBaseGameCollector
                     mapEntityText);
             }
 
-            for (int j = 0; j < MapsDialogues[mapLeaf.NamedId].Values.Count; j++)
+            if (i == 0)
             {
-                MapDialogueLeaf mapDialogueLeaf =
-                    mapLeaf.DialoguesRegistry.RegisterExisting(j, j.ToString(), baseGameId);
-                for (int k = 0; k < RootCollector.LanguageDisplayNames.Length; k++)
-                    mapDialogueLeaf.LocalizedText[k] = MapsDialogues[mapLeaf.NamedId][k][j];
+                for (int j = 0; j < TestRoomTextData.Length; j++)
+                {
+                    MapDialogueLeaf mapDialogueLeaf =
+                        mapLeaf.DialoguesRegistry.RegisterExisting(j, j.ToString(), baseGameId);
+                    mapDialogueLeaf.LocalizedText[0] = TestRoomTextData[j];
+                }
+
+                continue;
+            }
             }
         }
 

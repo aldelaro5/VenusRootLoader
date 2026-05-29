@@ -59,6 +59,9 @@ internal sealed class RootTextAssetPatcher : IResourcesTypePatcher<TextAsset>
         if (textAssetSubpath.StartsWith(TextAssetPaths.DataMapEntitiesDirectory, StringComparison.OrdinalIgnoreCase))
             return _mapEntityTextAssetPatcher.PatchMapEntityTextAsset(textAssetSubpath, original);
 
+        if (textAssetSubpath == nameof(MainManager.Maps.TestRoom))
+            return _mapDialoguesTextAssetPatcher.PatchMapDialoguesTextAsset(0, path, original);
+
         if (textAssetSubpath.StartsWith(
                 TextAssetPaths.DataLocalizedDialoguesDirectoryPrefix,
                 StringComparison.OrdinalIgnoreCase))

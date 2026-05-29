@@ -94,6 +94,17 @@ internal sealed class MapsCollector : IBaseGameCollector
 
                 continue;
             }
+
+            for (int j = 0; j < MapsDialogues[mapLeaf.NamedId].Values.Max(x => x.Length); j++)
+                mapLeaf.DialoguesRegistry.RegisterExisting(j, j.ToString(), baseGameId);
+
+            for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
+            {
+                for (int k = 0; k < MapsDialogues[mapLeaf.NamedId][j].Length; k++)
+                {
+                    MapDialogueLeaf mapDialogueLeaf = mapLeaf.DialoguesRegistry.LeavesByGameIds[k];
+                    mapDialogueLeaf.LocalizedText[j] = MapsDialogues[mapLeaf.NamedId][j][k];
+                }
             }
         }
 

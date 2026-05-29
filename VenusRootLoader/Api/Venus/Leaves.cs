@@ -263,15 +263,6 @@ public partial class Venus
     public IReadOnlyCollection<FishingTextLeaf> GetAllFishingTexts() =>
         RegistryResolver.Resolve<FishingTextLeaf>().GetAll();
 
-    public TestRoomTextLeaf RegisterTestRoomText(string namedId) =>
-        RegistryResolver.Resolve<TestRoomTextLeaf>().RegisterNew(namedId, BudId);
-
-    public TestRoomTextLeaf GetTestRoomText(string namedId) =>
-        RegistryResolver.Resolve<TestRoomTextLeaf>().Get(namedId);
-
-    public IReadOnlyCollection<TestRoomTextLeaf> GetAllTestRoomTexts() =>
-        RegistryResolver.Resolve<TestRoomTextLeaf>().GetAll();
-
     public SpyCardsTextLeaf RegisterSpyCardText(string namedId) =>
         RegistryResolver.Resolve<SpyCardsTextLeaf>().RegisterNew(namedId, BudId);
 

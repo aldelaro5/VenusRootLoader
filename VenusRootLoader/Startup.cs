@@ -94,7 +94,6 @@ internal static class Startup
         services.AddAutoSequentialIdBasedLeavesRegistry<ActionCommandHelpTextLeaf>();
         services.AddEnumBasedLeavesRegistry<SkillLeaf, MainManager.Skills>();
         services.AddAutoSequentialIdBasedLeavesRegistry<FishingTextLeaf>();
-        services.AddAutoSequentialIdBasedLeavesRegistry<TestRoomTextLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<SpyCardsTextLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistryWithOrdering<SpyCardLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<MedalShopLeaf>();
@@ -207,9 +206,6 @@ internal static class Startup
         services.AddLocalizedTextAssetPatcher<FishingTextLeaf, FishingTextLocalizedTextAssetParser>(
             [TextAssetPaths.DataLocalizedFishingTextsPathSuffix]);
 
-        services.AddTextAssetPatcher<TestRoomTextLeaf, TestRoomTextTextAssetParser>(
-            [TextAssetPaths.DataTestRoomMapDialoguesPath]);
-
         services.AddLocalizedTextAssetPatcher<SpyCardsTextLeaf, SpyCardsTextLocalizedTextAssetParser>(
             [TextAssetPaths.DataLocalizedSpyCardsTextsPathSuffix]);
 
@@ -275,7 +271,6 @@ internal static class Startup
         services.AddSingleton<IBaseGameCollector, ActionCommandHelpTextsCollector>();
         services.AddSingleton<IBaseGameCollector, SkillsCollector>();
         services.AddSingleton<IBaseGameCollector, FishingTextsCollector>();
-        services.AddSingleton<IBaseGameCollector, TestRoomTextsCollector>();
         services.AddSingleton<IBaseGameCollector, SpyCardsTextsCollector>();
         services.AddSingleton<IBaseGameCollector, SpyCardsCollector>();
         services.AddSingleton<IBaseGameCollector, MedalShopsCollector>();

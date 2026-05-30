@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Api.MapEntities;
+using VenusRootLoader.Api.Leaves.MapEntities;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Logic;
@@ -90,7 +90,7 @@ internal sealed class PathNodesActionBehaviorsTopLevelPatcher : ITopLevelPatcher
     private static Vector3[] PatchNewPathNodesArray(NPCControl instance)
     {
         MapLeaf map = _instance._mapsRegistry.LeavesByGameIds[(int)MainManager.map.mapid];
-        MapEntity mapEntity = map.EntitiesRegistry.LeavesByGameIds[instance.mapid];
-        return mapEntity.InternalSecondaryVectorDataArray;
+        MapEntityLeaf mapEntityLeaf = map.EntitiesRegistry.LeavesByGameIds[instance.mapid];
+        return mapEntityLeaf.InternalSecondaryVectorDataArray;
     }
 }

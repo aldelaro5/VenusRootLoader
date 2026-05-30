@@ -1,4 +1,4 @@
-using VenusRootLoader.Api.MapEntities;
+using VenusRootLoader.Api.Leaves.MapEntities;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves;
@@ -12,11 +12,11 @@ public sealed class MapLeaf : Leaf
     {
     }
 
-    internal ILeavesRegistry<MapEntity> EntitiesRegistry { get; set; } = null!;
+    internal ILeavesRegistry<MapEntityLeaf> EntitiesRegistry { get; set; } = null!;
     internal ILeavesRegistry<MapDialogueLeaf> DialoguesRegistry { get; set; } = null!;
 
     public TMapEntity ReserveNewMapEntity<TMapEntity>(string namedId, string creatorId)
-        where TMapEntity : MapEntity
+        where TMapEntity : MapEntityLeaf
     {
         TMapEntity newEntity = EntitiesRegistry.RegisterNew<TMapEntity>(namedId, creatorId);
         newEntity.BaseGameObjectName = namedId;

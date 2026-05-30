@@ -4,10 +4,10 @@ using System.Globalization;
 using System.Text;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Api.MapEntities;
-using VenusRootLoader.Api.MapEntities.Enemies;
-using VenusRootLoader.Api.MapEntities.Npcs;
-using VenusRootLoader.Api.MapEntities.Objects;
+using VenusRootLoader.Api.Leaves.MapEntities;
+using VenusRootLoader.Api.Leaves.MapEntities.Enemies;
+using VenusRootLoader.Api.Leaves.MapEntities.Npcs;
+using VenusRootLoader.Api.Leaves.MapEntities.Objects;
 using VenusRootLoader.Extensions;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
@@ -35,135 +35,135 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         _flagsRegistry = flagsRegistry;
     }
 
-    public string GetTextAssetSerializedString(string subPath, MapEntity mapEntity)
+    public string GetTextAssetSerializedString(string subPath, MapEntityLeaf mapEntityLeaf)
     {
         if (subPath.EndsWith("names", StringComparison.OrdinalIgnoreCase))
-            return mapEntity.BaseGameObjectName;
+            return mapEntityLeaf.BaseGameObjectName;
 
         StringBuilder sb = new();
 
-        sb.Append(mapEntity.Type.ToString());
+        sb.Append(mapEntityLeaf.Type.ToString());
         sb.Append('}');
-        sb.Append(mapEntity.ObjectType.ToString());
+        sb.Append(mapEntityLeaf.ObjectType.ToString());
         sb.Append('}');
-        sb.Append(mapEntity.InternalPrimaryBehavior.ToString());
+        sb.Append(mapEntityLeaf.InternalOutOfRangeBehavior.ToString());
         sb.Append('}');
-        sb.Append(mapEntity.InternalSecondaryBehavior.ToString());
+        sb.Append(mapEntityLeaf.InternalInRangeBehavior.ToString());
         sb.Append('}');
-        sb.Append(mapEntity.Interaction.ToString());
+        sb.Append(mapEntityLeaf.Interaction.ToString());
         sb.Append('}');
-        sb.Append(mapEntity.InternalDeathType.ToString());
+        sb.Append(mapEntityLeaf.InternalDeathType.ToString());
         sb.Append('}');
-        sb.Append(mapEntity.InternalStartingPosition.x);
+        sb.Append(mapEntityLeaf.InternalStartingPosition.x);
         sb.Append('}');
-        sb.Append(mapEntity.InternalStartingPosition.y);
+        sb.Append(mapEntityLeaf.InternalStartingPosition.y);
         sb.Append('}');
-        sb.Append(mapEntity.InternalStartingPosition.z);
+        sb.Append(mapEntityLeaf.InternalStartingPosition.z);
         sb.Append('}');
-        sb.Append(mapEntity.InternalAnimIdOrItemId);
+        sb.Append(mapEntityLeaf.InternalAnimIdOrItemId);
         sb.Append('}');
-        sb.Append(mapEntity.InternalIsFlipped);
+        sb.Append(mapEntityLeaf.InternalIsFlipped);
         sb.Append('}');
-        sb.Append(mapEntity.InternalCcolHeight);
+        sb.Append(mapEntityLeaf.InternalCcolHeight);
         sb.Append('}');
-        sb.Append(mapEntity.InternalCcolRadius);
+        sb.Append(mapEntityLeaf.InternalCcolRadius);
         sb.Append('}');
-        sb.Append(mapEntity.InternalRadius);
+        sb.Append(mapEntityLeaf.InternalRadius);
         sb.Append('}');
-        sb.Append(mapEntity.InternalTimer);
+        sb.Append(mapEntityLeaf.InternalTimer);
         sb.Append('}');
-        sb.Append(mapEntity.InternalSpeed);
+        sb.Append(mapEntityLeaf.InternalSpeed);
         sb.Append('}');
-        sb.Append(mapEntity.InternalPrimaryActionFrequency);
+        sb.Append(mapEntityLeaf.InternalOutOfRangeActionFrequency);
         sb.Append('}');
-        sb.Append(mapEntity.InternalSecondaryActionFrequency);
+        sb.Append(mapEntityLeaf.InternalInRangeActionFrequency);
         sb.Append('}');
-        sb.Append(mapEntity.InternalSpeedMultiplier);
+        sb.Append(mapEntityLeaf.InternalSpeedMultiplier);
         sb.Append('}');
-        sb.Append(mapEntity.InternalRadiusLimit);
+        sb.Append(mapEntityLeaf.InternalRadiusLimit);
         sb.Append('}');
-        sb.Append(mapEntity.InternalWanderRadius);
+        sb.Append(mapEntityLeaf.InternalWanderRadius);
         sb.Append('}');
-        sb.Append(mapEntity.InternalTeleportRadius);
+        sb.Append(mapEntityLeaf.InternalTeleportRadius);
         sb.Append('}');
-        sb.Append(mapEntity.InternalHaxBoxCol);
+        sb.Append(mapEntityLeaf.InternalHaxBoxCol);
         sb.Append('}');
-        sb.Append(mapEntity.InternalBoxColIsTrigger);
+        sb.Append(mapEntityLeaf.InternalBoxColIsTrigger);
         sb.Append('}');
-        sb.Append(mapEntity.InternalBoxColSize.x);
+        sb.Append(mapEntityLeaf.InternalBoxColSize.x);
         sb.Append('}');
-        sb.Append(mapEntity.InternalBoxColSize.y);
+        sb.Append(mapEntityLeaf.InternalBoxColSize.y);
         sb.Append('}');
-        sb.Append(mapEntity.InternalBoxColSize.z);
+        sb.Append(mapEntityLeaf.InternalBoxColSize.z);
         sb.Append('}');
-        sb.Append(mapEntity.InternalBoxColCenter.x);
+        sb.Append(mapEntityLeaf.InternalBoxColCenter.x);
         sb.Append('}');
-        sb.Append(mapEntity.InternalBoxColCenter.y);
+        sb.Append(mapEntityLeaf.InternalBoxColCenter.y);
         sb.Append('}');
-        sb.Append(mapEntity.InternalBoxColCenter.z);
+        sb.Append(mapEntityLeaf.InternalBoxColCenter.z);
         sb.Append('}');
-        sb.Append(mapEntity.InternalFreezeTime);
+        sb.Append(mapEntityLeaf.InternalFreezeTime);
         sb.Append('}');
-        sb.Append(mapEntity.InternalFreezeSize.x);
+        sb.Append(mapEntityLeaf.InternalFreezeSize.x);
         sb.Append('}');
-        sb.Append(mapEntity.InternalFreezeSize.y);
+        sb.Append(mapEntityLeaf.InternalFreezeSize.y);
         sb.Append('}');
-        sb.Append(mapEntity.InternalFreezeSize.z);
+        sb.Append(mapEntityLeaf.InternalFreezeSize.z);
         sb.Append('}');
-        sb.Append(mapEntity.InternalFreezeOffset.x);
+        sb.Append(mapEntityLeaf.InternalFreezeOffset.x);
         sb.Append('}');
-        sb.Append(mapEntity.InternalFreezeOffset.y);
+        sb.Append(mapEntityLeaf.InternalFreezeOffset.y);
         sb.Append('}');
-        sb.Append(mapEntity.InternalFreezeOffset.z);
+        sb.Append(mapEntityLeaf.InternalFreezeOffset.z);
         sb.Append('}');
         sb.Append(
-            mapEntity is { Type: NPCControl.NPCType.NPC, Interaction: NPCControl.Interaction.LockedDoor }
+            mapEntityLeaf is { Type: NPCControl.NPCType.NPC, Interaction: NPCControl.Interaction.LockedDoor }
                 ? 0
-                : mapEntity.InternalEventId);
+                : mapEntityLeaf.InternalEventId);
         sb.Append('}');
 
-        sb.Append(mapEntity.InternalRequires.Count);
+        sb.Append(mapEntityLeaf.InternalRequires.Count);
         sb.Append('}');
 
         List<int> allRequires = GetListPaddedWithOriginalArray(
-            mapEntity.InternalRequires.Select(r => r.GameId).ToList(),
-            mapEntity.OriginalRequires);
+            mapEntityLeaf.InternalRequires.Select(r => r.GameId).ToList(),
+            mapEntityLeaf.OriginalRequires);
         foreach (int require in allRequires)
         {
             sb.Append(require);
             sb.Append('}');
         }
 
-        sb.Append(mapEntity.InternalLimits.Count);
+        sb.Append(mapEntityLeaf.InternalLimits.Count);
         sb.Append('}');
 
-        List<int> allLimitsValues = mapEntity.InternalLimits
+        List<int> allLimitsValues = mapEntityLeaf.InternalLimits
             .Select(l => l.FailsWholeConditionWhenFlagIsTrue
                 ? -l.Flag.GameId
                 : l.Flag.GameId)
             .ToList();
-        List<int> allLimits = GetListPaddedWithOriginalArray(allLimitsValues, mapEntity.OriginalLimits);
+        List<int> allLimits = GetListPaddedWithOriginalArray(allLimitsValues, mapEntityLeaf.OriginalLimits);
         foreach (int limit in allLimits)
         {
             sb.Append(limit);
             sb.Append('}');
         }
 
-        sb.Append(mapEntity.InternalData.Count);
+        sb.Append(mapEntityLeaf.InternalData.Count);
         sb.Append('}');
 
-        List<int> allData = GetListPaddedWithOriginalArray(mapEntity.InternalData, mapEntity.OriginalData);
+        List<int> allData = GetListPaddedWithOriginalArray(mapEntityLeaf.InternalData, mapEntityLeaf.OriginalData);
         foreach (int data in allData)
         {
             sb.Append(data);
             sb.Append('}');
         }
 
-        sb.Append(mapEntity.InternalVectorData.Count);
+        sb.Append(mapEntityLeaf.InternalVectorData.Count);
         sb.Append('}');
 
         List<Vector3> allVectorData =
-            GetListPaddedWithOriginalArray(mapEntity.InternalVectorData, mapEntity.OriginalVectorData);
+            GetListPaddedWithOriginalArray(mapEntityLeaf.InternalVectorData, mapEntityLeaf.OriginalVectorData);
         foreach (Vector3 vectorData in allVectorData)
         {
             sb.Append(vectorData.x);
@@ -174,17 +174,17 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             sb.Append('}');
         }
 
-        mapEntity.InternalSecondaryVectorDataArray = mapEntity.InternalSecondaryVectorData.ToArray();
+        mapEntityLeaf.InternalSecondaryVectorDataArray = mapEntityLeaf.InternalSecondaryVectorData.ToArray();
 
         sb.Append(
-            mapEntity is { Type: NPCControl.NPCType.NPC, Interaction: NPCControl.Interaction.Shop }
+            mapEntityLeaf is { Type: NPCControl.NPCType.NPC, Interaction: NPCControl.Interaction.Shop }
                 ? 1
-                : mapEntity.InternalDialogues.Count);
+                : mapEntityLeaf.InternalDialogues.Count);
         sb.Append('}');
 
         List<Vector3> allDialogues = GetListPaddedWithOriginalArray(
-            mapEntity.InternalDialogues,
-            mapEntity.OriginalDialogues);
+            mapEntityLeaf.InternalDialogues,
+            mapEntityLeaf.OriginalDialogues);
         foreach (Vector3 dialogue in allDialogues)
         {
             sb.Append(dialogue.x);
@@ -195,43 +195,43 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             sb.Append('}');
         }
 
-        sb.Append(mapEntity.InternalEulerAngles.x);
+        sb.Append(mapEntityLeaf.InternalEulerAngles.x);
         sb.Append('}');
-        sb.Append(mapEntity.InternalEulerAngles.y);
+        sb.Append(mapEntityLeaf.InternalEulerAngles.y);
         sb.Append('}');
-        sb.Append(mapEntity.InternalEulerAngles.z);
+        sb.Append(mapEntityLeaf.InternalEulerAngles.z);
         sb.Append('}');
 
-        sb.Append(mapEntity.InternalBattleEnemyIds.Count);
+        sb.Append(mapEntityLeaf.InternalBattleEnemyIds.Count);
         sb.Append('}');
 
         List<int> allBattleEnemyIds =
-            GetListPaddedWithOriginalArray(mapEntity.InternalBattleEnemyIds, mapEntity.OriginalBattleEnemyIds);
+            GetListPaddedWithOriginalArray(mapEntityLeaf.InternalBattleEnemyIds, mapEntityLeaf.OriginalBattleEnemyIds);
         foreach (int battleEnemyId in allBattleEnemyIds)
         {
             sb.Append(battleEnemyId);
             sb.Append('}');
         }
 
-        sb.Append(mapEntity.TagColor.r);
+        sb.Append(mapEntityLeaf.TagColor.r);
         sb.Append('}');
-        sb.Append(mapEntity.TagColor.g);
+        sb.Append(mapEntityLeaf.TagColor.g);
         sb.Append('}');
-        sb.Append(mapEntity.TagColor.b);
+        sb.Append(mapEntityLeaf.TagColor.b);
         sb.Append('}');
-        sb.Append(mapEntity.TagColor.a);
+        sb.Append(mapEntityLeaf.TagColor.a);
         sb.Append('}');
-        sb.Append(mapEntity.InternalEmoticonOffset.x);
+        sb.Append(mapEntityLeaf.InternalEmoticonOffset.x);
         sb.Append('}');
-        sb.Append(mapEntity.InternalEmoticonOffset.y);
+        sb.Append(mapEntityLeaf.InternalEmoticonOffset.y);
         sb.Append('}');
-        sb.Append(mapEntity.InternalEmoticonOffset.z);
+        sb.Append(mapEntityLeaf.InternalEmoticonOffset.z);
         sb.Append('}');
-        sb.Append(mapEntity.InsideId);
+        sb.Append(mapEntityLeaf.InsideId);
         sb.Append('}');
 
         List<Vector2> allEmoticonFlags =
-            GetListPaddedWithOriginalArray(mapEntity.InternalEmoticonFlags, mapEntity.OriginalEmoticonFlags);
+            GetListPaddedWithOriginalArray(mapEntityLeaf.InternalEmoticonFlags, mapEntityLeaf.OriginalEmoticonFlags);
         foreach (Vector2 emoticonFlag in allEmoticonFlags)
         {
             sb.Append(emoticonFlag.x);
@@ -240,36 +240,36 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             sb.Append('}');
         }
 
-        sb.Append(mapEntity.InternalSpyDialogueMapId);
+        sb.Append(mapEntityLeaf.InternalSpyDialogueMapId);
         sb.Append('}');
-        sb.Append(mapEntity.InternalRegionalFlagId);
+        sb.Append(mapEntityLeaf.InternalRegionalFlagId);
         sb.Append('}');
-        sb.Append(mapEntity.InitialHeight);
+        sb.Append(mapEntityLeaf.InitialHeight);
         sb.Append('}');
-        sb.Append(mapEntity.InternalBobRange);
+        sb.Append(mapEntityLeaf.InternalBobRange);
         sb.Append('}');
-        sb.Append(mapEntity.InternalBobSpeed);
+        sb.Append(mapEntityLeaf.InternalBobSpeed);
         sb.Append('}');
-        sb.Append(mapEntity.InternalActivationFlagId);
+        sb.Append(mapEntityLeaf.InternalActivationFlagId);
         sb.Append('}');
 
         string valueReturnToHeightString;
-        if (mapEntity.IsReturnToHeightOriginallyInt)
+        if (mapEntityLeaf.IsReturnToHeightOriginallyInt)
         {
-            int returnToHeightInt = mapEntity.ReturnToHeight ? 1 : 0;
+            int returnToHeightInt = mapEntityLeaf.InternalReturnToHeight ? 1 : 0;
             valueReturnToHeightString = returnToHeightInt.ToString(CultureInfo.InvariantCulture);
         }
         else
         {
-            valueReturnToHeightString = mapEntity.ReturnToHeight.ToString();
+            valueReturnToHeightString = mapEntityLeaf.InternalReturnToHeight.ToString();
         }
 
         sb.Append(valueReturnToHeightString);
 
-        if (!string.IsNullOrEmpty(mapEntity.UnusedOverflowData))
+        if (!string.IsNullOrEmpty(mapEntityLeaf.UnusedOverflowData))
         {
             sb.Append('}');
-            sb.Append(mapEntity.UnusedOverflowData);
+            sb.Append(mapEntityLeaf.UnusedOverflowData);
         }
 
         return sb.ToString();
@@ -289,7 +289,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         NPCControl.ActionBehaviors primaryBehavior = Enum.Parse<NPCControl.ActionBehaviors>(fields[2]);
         NPCControl.ActionBehaviors secondaryBehavior = Enum.Parse<NPCControl.ActionBehaviors>(fields[3]);
         NPCControl.Interaction interaction = Enum.Parse<NPCControl.Interaction>(fields[4]);
-        MapEntity value = GetTypedMapEntity(
+        MapEntityLeaf value = GetTypedMapEntity(
             map,
             id,
             baseGameId,
@@ -305,8 +305,8 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         value.OriginalType = type;
         value.OriginalObjectType = objectType;
         value.OriginalInteraction = interaction;
-        value.InternalPrimaryBehavior = primaryBehavior;
-        value.InternalSecondaryBehavior = secondaryBehavior;
+        value.InternalOutOfRangeBehavior = primaryBehavior;
+        value.InternalInRangeBehavior = secondaryBehavior;
         value.InternalDeathType = Enum.Parse<NPCControl.DeathType>(fields[5]);
         value.InternalStartingPosition = new(float.Parse(fields[6]), float.Parse(fields[7]), float.Parse(fields[8]));
         value.InternalAnimIdOrItemId = int.Parse(fields[9]);
@@ -316,8 +316,8 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         value.InternalRadius = float.Parse(fields[13]);
         value.InternalTimer = float.Parse(fields[14]);
         value.InternalSpeed = float.Parse(fields[15]);
-        value.InternalPrimaryActionFrequency = float.Parse(fields[16]);
-        value.InternalSecondaryActionFrequency = float.Parse(fields[17]);
+        value.InternalOutOfRangeActionFrequency = float.Parse(fields[16]);
+        value.InternalInRangeActionFrequency = float.Parse(fields[17]);
         value.InternalSpeedMultiplier = float.Parse(fields[18]);
         value.InternalRadiusLimit = float.Parse(fields[19]);
         value.InternalWanderRadius = float.Parse(fields[20]);
@@ -341,7 +341,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         {
             LogIfListHasUnreadableData(
                 value.BaseGameObjectName,
-                nameof(MapEntity.InternalRequires),
+                nameof(MapEntityLeaf.InternalRequires),
                 requiresLength,
                 value.OriginalRequires);
         }
@@ -363,7 +363,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         {
             LogIfListHasUnreadableData(
                 value.BaseGameObjectName,
-                nameof(MapEntity.InternalLimits),
+                nameof(MapEntityLeaf.InternalLimits),
                 limitsLength,
                 value.OriginalLimits);
         }
@@ -378,7 +378,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         {
             LogIfListHasUnreadableData(
                 value.BaseGameObjectName,
-                nameof(MapEntity.InternalData),
+                nameof(MapEntityLeaf.InternalData),
                 dataLength,
                 value.OriginalData);
         }
@@ -403,7 +403,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             value.InternalVectorData.Clear();
         }
 
-        if (value is not EnemyEncounterHoldingKeyItemMapEntity &&
+        if (value is not EnemyEncounterHoldingKeyItemMapEntityLeaf &&
             (BehaviorsWithSecondaryVectorData.Contains(primaryBehavior) ||
              BehaviorsWithSecondaryVectorData.Contains(secondaryBehavior)))
         {
@@ -414,7 +414,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         {
             LogIfListHasUnreadableData(
                 value.BaseGameObjectName,
-                nameof(MapEntity.InternalVectorData),
+                nameof(MapEntityLeaf.InternalVectorData),
                 vectorDataLength,
                 value.OriginalVectorData);
         }
@@ -442,7 +442,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         {
             LogIfListHasUnreadableData(
                 value.BaseGameObjectName,
-                nameof(MapEntity.InternalDialogues),
+                nameof(MapEntityLeaf.InternalDialogues),
                 dialoguesLength,
                 value.OriginalDialogues);
         }
@@ -459,7 +459,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         {
             LogIfListHasUnreadableData(
                 value.BaseGameObjectName,
-                nameof(MapEntity.InternalBattleEnemyIds),
+                nameof(MapEntityLeaf.InternalBattleEnemyIds),
                 battleEnemyIdsLength,
                 value.OriginalBattleEnemyIds);
         }
@@ -493,15 +493,15 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
 
         value.IsReturnToHeightOriginallyInt = fields[195].Length == 1;
         if (value.IsReturnToHeightOriginallyInt)
-            value.ReturnToHeight = int.Parse(fields[195]) != 0;
+            value.InternalReturnToHeight = int.Parse(fields[195]) != 0;
         else
-            value.ReturnToHeight = bool.Parse(fields[195]);
+            value.InternalReturnToHeight = bool.Parse(fields[195]);
 
         if (fields.Length > 196)
             value.UnusedOverflowData = string.Join("}", fields.Skip(196));
     }
 
-    private static MapEntity GetTypedMapEntity(
+    private static MapEntityLeaf GetTypedMapEntity(
         MapLeaf map,
         int id,
         string baseGameId,
@@ -512,156 +512,156 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         NPCControl.ActionBehaviors secondaryBehavior,
         string[] fields)
     {
-        ILeavesRegistry<MapEntity> registry = map.EntitiesRegistry;
+        ILeavesRegistry<MapEntityLeaf> registry = map.EntitiesRegistry;
         string namedId = id.ToString();
 
         return (type, objectType, interaction) switch
         {
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BeetleGrass, _) =>
-                registry.RegisterExisting<CuttableGrassMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<CuttableGrassMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PushRock, _) =>
                 int.Parse(fields[60]) < 3 ||
                 int.Parse(fields[61 + 2]) == 0
-                    ? registry.RegisterExisting<MovableRockMapEntity>(id, namedId, baseGameId)
-                    : registry.RegisterExisting<SlidingIcePillarMapEntity>(id, namedId, baseGameId),
+                    ? registry.RegisterExisting<MovableRockMapEntityLeaf>(id, namedId, baseGameId)
+                    : registry.RegisterExisting<SlidingIcePillarMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PressurePlate, _) =>
-                registry.RegisterExisting<PressurePlateMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<PressurePlateMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ANDGate, _) =>
                 int.Parse(fields[60]) == 2 && int.Parse(fields[61 + 1]) == -1
-                    ? registry.RegisterExisting<AndGateOnSingleFlagMapEntity>(id, namedId, baseGameId)
+                    ? registry.RegisterExisting<AndGateOnSingleFlagMapEntityLeaf>(id, namedId, baseGameId)
                     : int.Parse(fields[61 + 0]) switch
                     {
-                        -2 => registry.RegisterExisting<AndGateOnFlagsMapEntity>(id, namedId, baseGameId),
-                        >= -1 => registry.RegisterExisting<AndGateOnEntitiesActivationMapEntity>(
+                        -2 => registry.RegisterExisting<AndGateOnFlagsMapEntityLeaf>(id, namedId, baseGameId),
+                        >= -1 => registry.RegisterExisting<AndGateOnEntitiesLeafActivationMapEntityLeaf>(
                             id,
                             namedId,
                             baseGameId),
-                        _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
+                        _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntityLeaf>()
                     },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.CameraChange, _) => registry.RegisterExisting<
-                CameraChangeMapEntity>(id, namedId, baseGameId),
+                CameraChangeMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Item, _) => int.Parse(fields[61 + 0]) switch
             {
-                0 or 1 => registry.RegisterExisting<CollectibleItemMapEntity>(id, namedId, baseGameId),
-                2 => registry.RegisterExisting<CollectibleMedalMapEntity>(id, namedId, baseGameId),
-                3 => registry.RegisterExisting<CollectibleCrystalBerryMapEntity>(id, namedId, baseGameId),
-                _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
+                0 or 1 => registry.RegisterExisting<CollectibleItemMapEntityLeaf>(id, namedId, baseGameId),
+                2 => registry.RegisterExisting<CollectibleMedalMapEntityLeaf>(id, namedId, baseGameId),
+                3 => registry.RegisterExisting<CollectibleCrystalBerryMapEntityLeaf>(id, namedId, baseGameId),
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntityLeaf>()
             },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DoorOtherMap, _) =>
-                registry.RegisterExisting<LoadingZoneMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<LoadingZoneMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.SetPlayerRespawn, _) =>
-                registry.RegisterExisting<SetPlayerRespawnZoneMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<SetPlayerRespawnZoneMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DoorSameMap, _) =>
-                registry.RegisterExisting<InsideTransitionZoneMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<InsideTransitionZoneMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.EventTrigger, _) =>
                 int.Parse(fields[60]) >= 3 &&
                 int.Parse(fields[61 + 2]) == 1
-                    ? registry.RegisterExisting<AutomaticEventTriggerMapEntity>(id, namedId, baseGameId)
-                    : registry.RegisterExisting<EventTriggerZoneMapEntity>(id, namedId, baseGameId),
+                    ? registry.RegisterExisting<AutomaticEventTriggerMapEntityLeaf>(id, namedId, baseGameId)
+                    : registry.RegisterExisting<EventTriggerZoneMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DialogueTrigger, _) =>
                 int.Parse(fields[60]) >= 3 &&
                 int.Parse(fields[61 + 2]) == 1
-                    ? registry.RegisterExisting<AutomaticMapDialogueTriggerMapEntity>(id, namedId, baseGameId)
-                    : registry.RegisterExisting<MapDialogueTriggerZoneMapEntity>(id, namedId, baseGameId),
+                    ? registry.RegisterExisting<AutomaticMapDialogueTriggerMapEntityLeaf>(id, namedId, baseGameId)
+                    : registry.RegisterExisting<MapDialogueTriggerZoneMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ANDBlock, _) =>
                 int.Parse(fields[60]) == 2 && int.Parse(fields[61 + 1]) == -1
-                    ? registry.RegisterExisting<AndBlockOnSingleFlagMapEntity>(id, namedId, baseGameId)
+                    ? registry.RegisterExisting<AndBlockOnSingleFlagMapEntityLeaf>(id, namedId, baseGameId)
                     : int.Parse(fields[61 + 0]) switch
                     {
-                        -2 => registry.RegisterExisting<AndBlockOnFlagsMapEntity>(id, namedId, baseGameId),
-                        >= -1 => registry.RegisterExisting<AndBlockOnEntitiesActivationMapEntity>(
+                        -2 => registry.RegisterExisting<AndBlockOnFlagsMapEntityLeaf>(id, namedId, baseGameId),
+                        >= -1 => registry.RegisterExisting<AndBlockOnEntitiesLeafActivationMapEntityLeaf>(
                             id,
                             namedId,
                             baseGameId),
-                        _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
+                        _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntityLeaf>()
                     },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.SavePoint, _) =>
                 int.Parse(fields[61 + 1]) >= 10
-                    ? registry.RegisterExisting<DeadLanderOmegaAlertCrystalMapEntity>(id, namedId, baseGameId)
-                    : registry.RegisterExisting<SavePointCrystalMapEntity>(id, namedId, baseGameId),
+                    ? registry.RegisterExisting<DeadLanderOmegaAlertCrystalMapEntityLeaf>(id, namedId, baseGameId)
+                    : registry.RegisterExisting<SavePointCrystalMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.JumpSpring, _) =>
                 int.Parse(fields[61 + 0]) == 1
-                    ? registry.RegisterExisting<JumpToPositionSpringMapEntity>(id, namedId, baseGameId)
-                    : registry.RegisterExisting<JumpUpSpringMapEntity>(id, namedId, baseGameId),
+                    ? registry.RegisterExisting<JumpToPositionSpringMapEntityLeaf>(id, namedId, baseGameId)
+                    : registry.RegisterExisting<JumpUpSpringMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DigSpot, _) =>
                 (int.Parse(fields[61 + 0]), int.Parse(fields[61 + 1])) switch
                 {
-                    (1, _) => registry.RegisterExisting<DigSpotCrystalBerryMapEntity>(id, namedId, baseGameId),
-                    (>= 2, _) => registry.RegisterExisting<DigSpotStartEventMapEntity>(id, namedId, baseGameId),
-                    (<= 0, >= 2) => registry.RegisterExisting<DigSpotMedalMapEntity>(id, namedId, baseGameId),
-                    (<= 0, < 2) => registry.RegisterExisting<DigSpotItemMapEntity>(id, namedId, baseGameId),
+                    (1, _) => registry.RegisterExisting<DigSpotCrystalBerryMapEntityLeaf>(id, namedId, baseGameId),
+                    (>= 2, _) => registry.RegisterExisting<DigSpotStartEventMapEntityLeaf>(id, namedId, baseGameId),
+                    (<= 0, >= 2) => registry.RegisterExisting<DigSpotMedalMapEntityLeaf>(id, namedId, baseGameId),
+                    (<= 0, < 2) => registry.RegisterExisting<DigSpotItemMapEntityLeaf>(id, namedId, baseGameId),
                 },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Switch, _) =>
                 (int.Parse(fields[61 + 0]), int.Parse(fields[61 + 1]), int.Parse(fields[61 + 2])) switch
                 {
-                    (0, 0, 0) => registry.RegisterExisting<LatchedSwitchMapEntity>(id, namedId, baseGameId),
-                    (0, 0, _) => registry.RegisterExisting<TimerSwitchMapEntity>(id, namedId, baseGameId),
-                    (0, 1, _) => registry.RegisterExisting<LinkableToggleSwitchMapEntity>(id, namedId, baseGameId),
-                    (1, >= 0, _) => registry.RegisterExisting<EventTriggerSwitchMapEntity>(id, namedId, baseGameId),
-                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntity>()
+                    (0, 0, 0) => registry.RegisterExisting<LatchedSwitchMapEntityLeaf>(id, namedId, baseGameId),
+                    (0, 0, _) => registry.RegisterExisting<TimerSwitchMapEntityLeaf>(id, namedId, baseGameId),
+                    (0, 1, _) => registry.RegisterExisting<LinkableToggleSwitchMapEntityLeaf>(id, namedId, baseGameId),
+                    (1, >= 0, _) => registry.RegisterExisting<EventTriggerSwitchMapEntityLeaf>(id, namedId, baseGameId),
+                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntityLeaf>()
                 },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.CoiledObject, _) =>
-                registry.RegisterExisting<TrappedEntityMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<TrappedEntityLeafMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.FixedAnim, _) =>
-                registry.RegisterExisting<FixedAnimstateMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<FixedAnimstateMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.EnemySpawner, _) =>
-                registry.RegisterExisting<EnemySpawnerMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<EnemySpawnerMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Dropplet, _) =>
-                registry.RegisterExisting<FreezableWaterDropletMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<FreezableWaterDropletMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PathPlatform, _) =>
                 (int)float.Parse(fields[103 + (1 * 3) + 0]) == 1
-                    ? registry.RegisterExisting<MovingPlatformAlongLerpMapEntity>(id, namedId, baseGameId)
-                    : registry.RegisterExisting<MovingPlatformAlongPathMapEntity>(id, namedId, baseGameId),
+                    ? registry.RegisterExisting<MovingPlatformAlongLerpMapEntityLeaf>(id, namedId, baseGameId)
+                    : registry.RegisterExisting<MovingPlatformAlongPathMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BreakableRock, _) =>
-                registry.RegisterExisting<BreakableRockMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<BreakableRockMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.RotatingPlatform, _) =>
-                registry.RegisterExisting<RotatingPlatformMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<RotatingPlatformMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Geizer, _) =>
-                registry.RegisterExisting<GeyserMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<GeyserMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.MusicRange, _) =>
-                registry.RegisterExisting<MusicChangeZoneMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<MusicChangeZoneMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TempPlatform, _) =>
-                registry.RegisterExisting<FlytrapPlatformMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<FlytrapPlatformMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ScrewSwitch, _) =>
-                registry.RegisterExisting<SpinningCrankMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<SpinningCrankMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ResetCamera, _) =>
-                registry.RegisterExisting<ResetCameraZoneMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<ResetCameraZoneMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.StencilSwitch, _) =>
-                registry.RegisterExisting<IceRadiusSwitchMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<IceRadiusSwitchMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.RollingRock, _) => int.Parse(fields[61 + 2]) switch
             {
-                1 => registry.RegisterExisting<RollingRockCanonMapEntity>(id, namedId, baseGameId),
-                _ => registry.RegisterExisting<RollingRockMapEntity>(id, namedId, baseGameId)
+                1 => registry.RegisterExisting<RollingRockCanonMapEntityLeaf>(id, namedId, baseGameId),
+                _ => registry.RegisterExisting<RollingRockMapEntityLeaf>(id, namedId, baseGameId)
             },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TriggerSwitch, _) =>
-                registry.RegisterExisting<SwitchTriggerZoneMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<SwitchTriggerZoneMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WindPusher, _) =>
-                registry.RegisterExisting<WindBeamZoneMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<WindBeamZoneMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WaterSwitch, _) =>
-                registry.RegisterExisting<MapChildVerticalPositionSwitchMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<MapChildVerticalPositionSwitchMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Enemy, _, _) => (int)float.Parse(fields[72 + (0 * 3) + 1]) == -2 &&
                                                 !BehaviorsWithSecondaryVectorData.Contains(primaryBehavior) &&
                                                 !BehaviorsWithSecondaryVectorData.Contains(secondaryBehavior)
-                ? registry.RegisterExisting<EnemyEncounterHoldingKeyItemMapEntity>(id, namedId, baseGameId)
-                : registry.RegisterExisting<EnemyEncounterWithRegularItemDropsMapEntity>(id, namedId, baseGameId),
+                ? registry.RegisterExisting<EnemyEncounterHoldingKeyItemMapEntityLeaf>(id, namedId, baseGameId)
+                : registry.RegisterExisting<EnemyEncounterWithRegularItemDropsMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.None) =>
-                registry.RegisterExisting<NoInteractionNpcMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<NoInteractionNpcMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.Talk or NPCControl.Interaction.Check) =>
-                registry.RegisterExisting<TalkingNpcMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<TalkingNpcMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.Event or NPCControl.Interaction.LockedDoor) =>
-                registry.RegisterExisting<EventNpcMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<EventNpcMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.Shop) => float.Parse(fields[103 + (10 * 3)] + 0) == 0f
-                ? registry.RegisterExisting<ItemsShopMapEntity>(id, namedId, baseGameId)
-                : registry.RegisterExisting<MedalsShopMapEntity>(id, namedId, baseGameId),
+                ? registry.RegisterExisting<ItemsShopMapEntityLeaf>(id, namedId, baseGameId)
+                : registry.RegisterExisting<MedalsShopMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.QuestBoard) =>
-                registry.RegisterExisting<QuestBoardNpcMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<QuestBoardNpcMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.StorageAnt) =>
-                registry.RegisterExisting<ItemsStorageNpcMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<ItemsStorageNpcMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.CaravanBadge) =>
-                registry.RegisterExisting<CaravanShelvedMedalNpcMapEntity>(id, namedId, baseGameId),
+                registry.RegisterExisting<CaravanShelvedMedalNpcMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.VenusHeal) =>
-                registry.RegisterExisting<VenusHealingNpcMapEntity>(id, namedId, baseGameId),
-            _ => ThrowHelper.ThrowInvalidOperationException<MapEntity>(
+                registry.RegisterExisting<VenusHealingNpcMapEntityLeaf>(id, namedId, baseGameId),
+            _ => ThrowHelper.ThrowInvalidOperationException<MapEntityLeaf>(
                 $"Invalid NPCControl - type: {type}, ObjectType: {objectType}, Interaction: {interaction}")
         };
     }

@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Api.MapEntities;
+using VenusRootLoader.Api.Leaves.MapEntities;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
@@ -64,7 +64,7 @@ internal sealed class MapsCollector : IBaseGameCollector
         {
             (string[] Names, string[] Data) mapEntityData = MapsEntityData[i];
             MapLeaf mapLeaf = _mapsRegistry.RegisterExisting(i, MapNamedIds[i], baseGameId);
-            mapLeaf.EntitiesRegistry = new AutoSequentialIdBasedRegistry<MapEntity>(
+            mapLeaf.EntitiesRegistry = new AutoSequentialIdBasedRegistry<MapEntityLeaf>(
                 _loggerFactory.CreateLogger($"{mapLeaf.NamedId}_{nameof(MapLeaf.EntitiesRegistry)}"),
                 IdSequenceDirection.Increment);
             mapLeaf.DialoguesRegistry = new AutoSequentialIdBasedRegistry<MapDialogueLeaf>(
@@ -119,7 +119,7 @@ internal sealed class MapsCollector : IBaseGameCollector
         // It also needs to be done after every map have been added so references across them works as expected.
         foreach (MapLeaf mapLeaf in _mapsRegistry.LeavesByGameIds.Values)
         {
-            foreach (MapEntity mapEntity in mapLeaf.EntitiesRegistry.LeavesByGameIds.Values)
+            foreach (MapEntityLeaf mapEntity in mapLeaf.EntitiesRegistry.LeavesByGameIds.Values)
                 mapEntity.InitializeFromExisting(_registryResolver);
         }
 

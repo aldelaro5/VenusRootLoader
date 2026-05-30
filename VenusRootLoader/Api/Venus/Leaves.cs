@@ -1,5 +1,5 @@
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Api.MapEntities;
+using VenusRootLoader.Api.Leaves.MapEntities;
 using VenusRootLoader.Registry;
 
 // ReSharper disable CheckNamespace
@@ -354,18 +354,18 @@ public partial class Venus
     public IReadOnlyCollection<MapDialogueLeaf> GetAllMapDialogues(MapLeaf map) =>
         map.DialoguesRegistry.GetAll();
 
-    public MapEntity RegisterMapEntity(string namedId, MapLeaf map)
+    public MapEntityLeaf RegisterMapEntity(string namedId, MapLeaf map)
     {
-        MapEntity mapEntity = map.EntitiesRegistry.RegisterNew(namedId, BudId);
-        mapEntity.BaseGameObjectName = namedId;
-        mapEntity.Map = map;
-        mapEntity.InitializeFromNew();
-        return mapEntity;
+        MapEntityLeaf mapEntityLeaf = map.EntitiesRegistry.RegisterNew(namedId, BudId);
+        mapEntityLeaf.BaseGameObjectName = namedId;
+        mapEntityLeaf.Map = map;
+        mapEntityLeaf.InitializeFromNew();
+        return mapEntityLeaf;
     }
 
-    public MapEntity GetMapEntity(string namedId, MapLeaf map) =>
+    public MapEntityLeaf GetMapEntity(string namedId, MapLeaf map) =>
         map.EntitiesRegistry.Get(namedId);
 
-    public IReadOnlyCollection<MapEntity> GetAllMapEntities(MapLeaf map) =>
+    public IReadOnlyCollection<MapEntityLeaf> GetAllMapEntities(MapLeaf map) =>
         map.EntitiesRegistry.GetAll();
 }

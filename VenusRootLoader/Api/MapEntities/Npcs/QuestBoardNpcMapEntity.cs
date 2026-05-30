@@ -20,7 +20,7 @@ public sealed class QuestBoardNpcMapEntity : MapEntity
 
     public MapEntity BoardCaretakerMapEntity
     {
-        get => Map.Leaf.Entities[InternalData[0]];
+        get => Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0]];
         set
         {
             if (value.Map != Map)
@@ -29,7 +29,7 @@ public sealed class QuestBoardNpcMapEntity : MapEntity
                     "The caretaker map entity must be on the same map as this NPC");
             }
 
-            InternalData[0] = value.Id;
+            InternalData[0] = value.GameId;
         }
     }
 

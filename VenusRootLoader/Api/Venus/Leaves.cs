@@ -1,4 +1,5 @@
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Api.MapEntities;
 using VenusRootLoader.Registry;
 
 // ReSharper disable CheckNamespace
@@ -339,4 +340,32 @@ public partial class Venus
 
     public IReadOnlyCollection<MedalShopLeaf> GetAllMedalShops() =>
         RegistryResolver.Resolve<MedalShopLeaf>().GetAll();
+
+    public MapDialogueLeaf RegisterMapDialogue(string namedId, MapLeaf map)
+    {
+        MapDialogueLeaf mapDialogueLeaf = map.DialoguesRegistry.RegisterNew(namedId, BudId);
+        mapDialogueLeaf.Map = map;
+        return mapDialogueLeaf;
+    }
+
+    public MapDialogueLeaf GetMapDialogue(string namedId, MapLeaf map) =>
+        map.DialoguesRegistry.Get(namedId);
+
+    public IReadOnlyCollection<MapDialogueLeaf> GetAllMapDialogues(MapLeaf map) =>
+        map.DialoguesRegistry.GetAll();
+
+    public MapEntity RegisterMapEntity(string namedId, MapLeaf map)
+    {
+        MapEntity mapEntity = map.EntitiesRegistry.RegisterNew(namedId, BudId);
+        mapEntity.BaseGameObjectName = namedId;
+        mapEntity.Map = map;
+        mapEntity.InitializeFromNew();
+        return mapEntity;
+    }
+
+    public MapEntity GetMapEntity(string namedId, MapLeaf map) =>
+        map.EntitiesRegistry.Get(namedId);
+
+    public IReadOnlyCollection<MapEntity> GetAllMapEntities(MapLeaf map) =>
+        map.EntitiesRegistry.GetAll();
 }

@@ -15,9 +15,6 @@ public sealed class MapLeaf : Leaf
     internal ILeavesRegistry<MapEntity> EntitiesRegistry { get; set; } = null!;
     internal ILeavesRegistry<MapDialogueLeaf> DialoguesRegistry { get; set; } = null!;
 
-    public IList<MapEntity> Entities => EntitiesRegistry.LeavesByGameIds.Values.ToList();
-    public IList<MapDialogueLeaf> Dialogues => DialoguesRegistry.LeavesByGameIds.Values.ToList();
-
     public TMapEntity ReserveNewMapEntity<TMapEntity>(string namedId, string creatorId)
         where TMapEntity : MapEntity
     {

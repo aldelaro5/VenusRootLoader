@@ -67,7 +67,7 @@ internal sealed class MapEntitiesTextAssetPatcher : IMapEntityTextAssetPatcher
         }
 
         MapLeaf leaf = _mapsRegistry.LeavesByGameIds[mapGameId];
-        IEnumerable<string> newLines = leaf.Entities
+        IEnumerable<string> newLines = leaf.EntitiesRegistry.LeavesByGameIds.Values
             .Select(mapEntity => _parser.GetTextAssetSerializedString(path, mapEntity));
 
         // Some game data relies on having a trailing LF for the parsing to work correctly

@@ -30,7 +30,7 @@ public sealed class WindBeamZoneMapEntity : MapEntity
                     $"The entity is not in the {map.NamedId} map which is required");
             }
 
-            InternalData[0] = value?.Id ?? -1;
+            InternalData[0] = value?.GameId ?? -1;
             field = value;
         }
     } = null!;
@@ -87,7 +87,7 @@ public sealed class WindBeamZoneMapEntity : MapEntity
         if (InternalData[0] != -1)
         {
             MapLeaf map = registryResolver.Resolve<MapLeaf>().LeavesByGameIds[Map.GameId];
-            RequiredMapEntityActivation = map.Entities.Single(e => e.Id == Math.Abs(InternalData[0]));
+            RequiredMapEntityActivation = map.EntitiesRegistry.LeavesByGameIds[Math.Abs(InternalData[0])];
         }
     }
 }

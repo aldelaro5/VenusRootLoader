@@ -19,7 +19,7 @@ public sealed class CaravanShelvedMedalNpcMapEntity : MapEntity
 
     public ItemsShopMapEntity AssociatedItemShop
     {
-        get => (ItemsShopMapEntity)Map.Leaf.Entities[InternalData[0]];
+        get => (ItemsShopMapEntity)Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0]];
         set
         {
             if (value.Map != Map)
@@ -28,7 +28,7 @@ public sealed class CaravanShelvedMedalNpcMapEntity : MapEntity
                     "The associated items shop map entity must be on the same map as this NPC");
             }
 
-            InternalData[0] = value.Id;
+            InternalData[0] = value.GameId;
         }
     }
 

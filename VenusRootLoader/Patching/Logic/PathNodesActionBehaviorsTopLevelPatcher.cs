@@ -90,7 +90,7 @@ internal sealed class PathNodesActionBehaviorsTopLevelPatcher : ITopLevelPatcher
     private static Vector3[] PatchNewPathNodesArray(NPCControl instance)
     {
         MapLeaf map = _instance._mapsRegistry.LeavesByGameIds[(int)MainManager.map.mapid];
-        MapEntity mapEntity = map.Entities[instance.mapid];
+        MapEntity mapEntity = map.EntitiesRegistry.LeavesByGameIds[instance.mapid];
         return mapEntity.InternalSecondaryVectorDataArray;
     }
 }

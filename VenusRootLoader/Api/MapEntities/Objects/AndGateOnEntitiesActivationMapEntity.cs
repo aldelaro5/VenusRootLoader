@@ -54,7 +54,7 @@ public sealed class AndGateOnEntitiesActivationMapEntity : MapEntity
             entityActivationInputs.Add(
                 new()
                 {
-                    MapEntity = map.Entities.Single(e => e.Id == Math.Abs(value)),
+                    MapEntity = map.EntitiesRegistry.LeavesByGameIds[Math.Abs(value)],
                     IsActivationValueNegated = value < 0
                 });
         }

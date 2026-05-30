@@ -38,14 +38,14 @@ public sealed class SwitchMapEntityActivationTriggerZoneMapEntity : MapEntity
                     $"The entity is not in the {value.Map.NamedId} map which is required");
             }
 
-            if (value.Id == Id)
+            if (value.GameId == GameId)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(
                     nameof(MapEntityActivationControlled),
                     "The entity controlled cannot be the entity itself");
             }
 
-            InternalData[0] = value.Id;
+            InternalData[0] = value.GameId;
             field = value;
         }
     } = null!;
@@ -92,7 +92,7 @@ public sealed class SwitchMapEntityActivationTriggerZoneMapEntity : MapEntity
         if (InternalData[0] != -1)
         {
             MapLeaf map = registryResolver.Resolve<MapLeaf>().LeavesByGameIds[Map.GameId];
-            MapEntityActivationControlled = map.Entities.Single(e => e.Id == Math.Abs(InternalData[0]));
+            MapEntityActivationControlled = map.EntitiesRegistry.LeavesByGameIds[Math.Abs(InternalData[0])];
         }
 
         if (InternalActivationFlagId > 0)

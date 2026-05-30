@@ -300,7 +300,6 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             secondaryBehavior,
             fields);
 
-        value.Id = id;
         value.BaseGameObjectName = name;
         value.Map = map;
         value.OriginalType = type;
@@ -502,7 +501,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             value.UnusedOverflowData = string.Join("}", fields.Skip(196));
     }
 
-    private MapEntity GetTypedMapEntity(
+    private static MapEntity GetTypedMapEntity(
         MapLeaf map,
         int id,
         string baseGameId,

@@ -7,7 +7,6 @@ namespace VenusRootLoader.Api.MapEntities;
 
 public abstract class MapEntity : Leaf
 {
-    public int Id { get; internal set; }
     public string BaseGameObjectName { get; set; } = $"Unnamed {nameof(MapEntity)}";
     public Branch<MapLeaf> Map { get; internal set; }
 

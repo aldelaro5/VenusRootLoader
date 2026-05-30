@@ -174,49 +174,57 @@ internal sealed class MapEntitiesArraysLengthTopLevelPatcher : ITopLevelPatcher
     private static int PatchNewRequiresLength(int originalLength, int mapEntityId, int mapGameId)
     {
         MapLeaf mapLeaf = _instance._mapsLeafRegistry.LeavesByGameIds[mapGameId];
-        return Math.Max(originalLength, mapLeaf.Entities[mapEntityId].InternalRequires.Count);
+        return Math.Max(originalLength, mapLeaf.EntitiesRegistry.LeavesByGameIds[mapEntityId].InternalRequires.Count);
     }
 
     private static int PatchNewLimitsLength(int originalLength, int mapEntityId, int mapGameId)
     {
         MapLeaf mapLeaf = _instance._mapsLeafRegistry.LeavesByGameIds[mapGameId];
-        return Math.Max(originalLength, mapLeaf.Entities[mapEntityId].InternalLimits.Count);
+        return Math.Max(originalLength, mapLeaf.EntitiesRegistry.LeavesByGameIds[mapEntityId].InternalLimits.Count);
     }
 
     private static int PatchNewDataLength(int originalLength, int mapEntityId, int mapGameId)
     {
         MapLeaf mapLeaf = _instance._mapsLeafRegistry.LeavesByGameIds[mapGameId];
-        return Math.Max(originalLength, mapLeaf.Entities[mapEntityId].InternalData.Count);
+        return Math.Max(originalLength, mapLeaf.EntitiesRegistry.LeavesByGameIds[mapEntityId].InternalData.Count);
     }
 
     private static int PatchNewVectorDataFieldsLength(int originalLength, int mapEntityId, int mapGameId)
     {
         MapLeaf mapLeaf = _instance._mapsLeafRegistry.LeavesByGameIds[mapGameId];
-        return Math.Max(originalLength, mapLeaf.Entities[mapEntityId].InternalVectorData.Count * 3);
+        return Math.Max(
+            originalLength,
+            mapLeaf.EntitiesRegistry.LeavesByGameIds[mapEntityId].InternalVectorData.Count * 3);
     }
 
     private static int PatchNewDialoguesLength(int originalLength, int mapEntityId, int mapGameId)
     {
         MapLeaf mapLeaf = _instance._mapsLeafRegistry.LeavesByGameIds[mapGameId];
-        return Math.Max(originalLength, mapLeaf.Entities[mapEntityId].InternalDialogues.Count);
+        return Math.Max(originalLength, mapLeaf.EntitiesRegistry.LeavesByGameIds[mapEntityId].InternalDialogues.Count);
     }
 
     // This is the amount of fields, the one above is the array length.
     private static int PatchNewDialoguesFieldsLength(int originalLength, int mapEntityId, int mapGameId)
     {
         MapLeaf mapLeaf = _instance._mapsLeafRegistry.LeavesByGameIds[mapGameId];
-        return Math.Max(originalLength, mapLeaf.Entities[mapEntityId].InternalDialogues.Count * 3);
+        return Math.Max(
+            originalLength,
+            mapLeaf.EntitiesRegistry.LeavesByGameIds[mapEntityId].InternalDialogues.Count * 3);
     }
 
     private static int PatchNewBattleIdsLength(int originalLength, int mapEntityId, int mapGameId)
     {
         MapLeaf mapLeaf = _instance._mapsLeafRegistry.LeavesByGameIds[mapGameId];
-        return Math.Max(originalLength, mapLeaf.Entities[mapEntityId].InternalBattleEnemyIds.Count);
+        return Math.Max(
+            originalLength,
+            mapLeaf.EntitiesRegistry.LeavesByGameIds[mapEntityId].InternalBattleEnemyIds.Count);
     }
 
     private static int PatchNewEmoticonFlagsLength(int originalLength, int mapEntityId, int mapGameId)
     {
         MapLeaf mapLeaf = _instance._mapsLeafRegistry.LeavesByGameIds[mapGameId];
-        return Math.Max(originalLength, mapLeaf.Entities[mapEntityId].InternalEmoticonFlags.Count);
+        return Math.Max(
+            originalLength,
+            mapLeaf.EntitiesRegistry.LeavesByGameIds[mapEntityId].InternalEmoticonFlags.Count);
     }
 }

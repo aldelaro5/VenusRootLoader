@@ -65,10 +65,10 @@ internal sealed class MapsCollector : IBaseGameCollector
             (string[] Names, string[] Data) mapEntityData = MapsEntityData[i];
             MapLeaf mapLeaf = _mapsRegistry.RegisterExisting(i, MapNamedIds[i], baseGameId);
             mapLeaf.EntitiesRegistry = new AutoSequentialIdBasedRegistry<MapEntity>(
-                _loggerFactory.CreateLogger($"{mapLeaf.NamedId}_{nameof(MapLeaf.Entities)}"),
+                _loggerFactory.CreateLogger($"{mapLeaf.NamedId}_{nameof(MapLeaf.EntitiesRegistry)}"),
                 IdSequenceDirection.Increment);
             mapLeaf.DialoguesRegistry = new AutoSequentialIdBasedRegistry<MapDialogueLeaf>(
-                _loggerFactory.CreateLogger($"{mapLeaf.NamedId}_{nameof(MapLeaf.Dialogues)}"),
+                _loggerFactory.CreateLogger($"{mapLeaf.NamedId}_{nameof(MapLeaf.DialoguesRegistry)}"),
                 IdSequenceDirection.Increment);
 
             for (int j = 0; j < mapEntityData.Data.Length; j++)
@@ -89,6 +89,7 @@ internal sealed class MapsCollector : IBaseGameCollector
                 {
                     MapDialogueLeaf mapDialogueLeaf =
                         mapLeaf.DialoguesRegistry.RegisterExisting(j, j.ToString(), baseGameId);
+                    mapDialogueLeaf.Map = mapLeaf;
                     mapDialogueLeaf.LocalizedText[0] = TestRoomTextData[j];
                 }
 
@@ -96,7 +97,11 @@ internal sealed class MapsCollector : IBaseGameCollector
             }
 
             for (int j = 0; j < MapsDialogues[mapLeaf.NamedId].Values.Max(x => x.Length); j++)
-                mapLeaf.DialoguesRegistry.RegisterExisting(j, j.ToString(), baseGameId);
+            {
+                MapDialogueLeaf mapDialogueLeaf =
+                    mapLeaf.DialoguesRegistry.RegisterExisting(j, j.ToString(), baseGameId);
+                mapDialogueLeaf.Map = mapLeaf;
+            }
 
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {

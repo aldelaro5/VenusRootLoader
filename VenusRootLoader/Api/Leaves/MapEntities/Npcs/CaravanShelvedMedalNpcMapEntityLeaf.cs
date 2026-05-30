@@ -60,7 +60,7 @@ public sealed class CaravanShelvedMedalNpcMapEntityLeaf : MapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
-        
+
         AssociatedItemShop = (ItemsShopMapEntityLeaf)Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0]];
         ShopKeeperDialogueWhenInteracting = InternalData[1] < 0
             ? commonDialoguesRegistry.LeavesByGameIds[InternalData[1]]

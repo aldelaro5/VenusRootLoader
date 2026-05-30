@@ -20,7 +20,7 @@ public abstract class MapEntityLeaf : Leaf
     internal MapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
     {
     }
-    
+
     internal abstract void InitializeFromNew();
     internal abstract void InitializeFromExisting(IRegistryResolver registryResolver);
 

@@ -120,7 +120,15 @@ internal sealed class MapsCollector : IBaseGameCollector
         foreach (MapLeaf mapLeaf in _mapsRegistry.LeavesByGameIds.Values)
         {
             foreach (MapEntityLeaf mapEntity in mapLeaf.EntitiesRegistry.LeavesByGameIds.Values)
+            {
+                // Fixes a base game issue where this entity has invalid, but normally inaccessible dialogues data
+                if (mapLeaf.NamedId == nameof(MainManager.Maps.BugariaEndThrone) && mapEntity.GameId == 16)
+                {
+                    mapEntity.InternalDialogues.Clear();
+                    mapEntity.InternalDialogues.Add(new(-1, 0, 0));
+                }
                 mapEntity.InitializeFromExisting(_registryResolver);
+            }
         }
 
         _logger.LogInformation(

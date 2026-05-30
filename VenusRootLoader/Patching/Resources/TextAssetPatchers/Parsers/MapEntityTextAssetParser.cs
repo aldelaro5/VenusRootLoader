@@ -562,7 +562,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 int.Parse(fields[60]) >= 3 &&
                 int.Parse(fields[61 + 2]) == 1
                     ? registry.RegisterExisting<AutomaticMapDialogueTriggerMapEntityLeaf>(id, namedId, baseGameId)
-                    : registry.RegisterExisting<MapDialogueTriggerZoneMapEntityLeaf>(id, namedId, baseGameId),
+                    : registry.RegisterExisting<DialogueTriggerZoneMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ANDBlock, _) =>
                 int.Parse(fields[60]) == 2 && int.Parse(fields[61 + 1]) == -1
                     ? registry.RegisterExisting<AndBlockOnSingleFlagMapEntityLeaf>(id, namedId, baseGameId)

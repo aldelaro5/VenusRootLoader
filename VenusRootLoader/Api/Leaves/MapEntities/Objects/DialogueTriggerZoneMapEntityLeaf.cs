@@ -1,11 +1,12 @@
+using CommunityToolkit.Diagnostics;
 using UnityEngine;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
-public sealed class MapDialogueTriggerZoneMapEntityLeaf : MapEntityLeaf
+public sealed class DialogueTriggerZoneMapEntityLeaf : MapEntityLeaf
 {
-    internal MapDialogueTriggerZoneMapEntityLeaf(int gameId, string namedId, string creatorId)
+    internal DialogueTriggerZoneMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
@@ -17,10 +18,17 @@ public sealed class MapDialogueTriggerZoneMapEntityLeaf : MapEntityLeaf
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
     public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
 
-    public int MapDialogueLineIdToProcessWhenTriggered
+    public Branch<DialogueLeaf> DialogueToProcessWhenTriggered
     {
-        get => InternalData[0];
-        set => InternalData[0] = value;
+        get;
+        set
+        {
+            if (value.Leaf.AssociatedMap is not null && value.Leaf.AssociatedMap != Map)
+                ThrowHelper.ThrowInvalidOperationException($"This map dialogue must be in the {Map.NamedId} map");
+
+            InternalData[0] = value.GameId;
+            field = value;
+        }
     }
 
     public bool IsOneShotTrigger { get => InternalData[1] != 1; set => InternalData[1] = value ? 0 : 1; }
@@ -54,8 +62,13 @@ public sealed class MapDialogueTriggerZoneMapEntityLeaf : MapEntityLeaf
             InternalData.AddRange(Enumerable.Repeat(0, 3 - InternalData.Count));
 
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+        ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
 
         if (InternalActivationFlagId > 0)
             ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+
+        DialogueToProcessWhenTriggered = InternalData[0] < 0
+            ? commonDialoguesRegistry.LeavesByGameIds[InternalData[0]]
+            : Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalData[0]];
     }
 }

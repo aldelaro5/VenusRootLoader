@@ -26,14 +26,14 @@ public sealed class RollingRockCanonMapEntityLeaf : MapEntityLeaf
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(
                     nameof(RequiredMapEntityActivationForShot),
-                    $"The entity is not in the {map.NamedId} map which is required");
+                    $"The entity must be in the {map.NamedId} map");
             }
 
             if (value is { EffectiveValue: -1 })
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(
                     nameof(RequiredMapEntityActivationForShot),
-                    $"It is not possible to test for the {nameof(MapEntityLeaf)} with id 1 to be inactive because it is " +
+                    $"It is not possible to test for the {nameof(MapEntityLeaf)} with gameId 1 to be inactive because it is " +
                     $"internally equivalent of having a {nameof(RequiredMapEntityActivationForShot)} of null");
             }
 

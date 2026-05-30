@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using System.Collections.ObjectModel;
 using UnityEngine;
 using VenusRootLoader.Registry;
@@ -40,8 +41,8 @@ public sealed class MovingPlatformAlongLerpMapEntityLeaf : MapEntityLeaf
 
     public Vector3 ActivePosition { get => InternalVectorData[1]; set => InternalVectorData[1] = value; }
 
-    public ReadOnlyCollection<int> RequiredEntityActivationsToMove { get; private set; } =
-        new List<int>().AsReadOnly();
+    public ReadOnlyCollection<Branch<MapEntityLeaf>> RequiredEntityActivationsToMove { get; private set; } =
+        new List<Branch<MapEntityLeaf>>().AsReadOnly();
 
     public bool StartMovementFromActivePosition
     {
@@ -87,13 +88,26 @@ public sealed class MovingPlatformAlongLerpMapEntityLeaf : MapEntityLeaf
 
         List<int> requiredEntityIdsActivation = new();
         requiredEntityIdsActivation.AddRange(InternalData);
-        RequiredEntityActivationsToMove = requiredEntityIdsActivation.AsReadOnly();
+        RequiredEntityActivationsToMove = requiredEntityIdsActivation
+            .Select(x => new Branch<MapEntityLeaf>(Map.Leaf.EntitiesRegistry.LeavesByGameIds[x])).ToList().AsReadOnly();
     }
 
-    public void ChangeRequiredEntityActivationsToMove(List<int> entityIds)
+    public void ChangeRequiredEntityActivationsToMove(List<Branch<MapEntityLeaf>> entities)
     {
+        List<string> badMapEntitiesNamedIds = entities
+            .Where(x => x.Leaf.Map != Map)
+            .Select(x => x.NamedId)
+            .ToList();
+        if (badMapEntitiesNamedIds.Count > 0)
+        {
+            ThrowHelper.ThrowArgumentException(
+                nameof(entities),
+                $"The following map entities needs to be in the {Map.NamedId} map, but they are not: " +
+                $"{string.Join(", ", badMapEntitiesNamedIds)}");
+        }
+
         InternalData.Clear();
-        InternalData.AddRange(entityIds);
-        RequiredEntityActivationsToMove = entityIds.AsReadOnly();
+        InternalData.AddRange(entities.Select(e => e.GameId));
+        RequiredEntityActivationsToMove = entities.AsReadOnly();
     }
 }

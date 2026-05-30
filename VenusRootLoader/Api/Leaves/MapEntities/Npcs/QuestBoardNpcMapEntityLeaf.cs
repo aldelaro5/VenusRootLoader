@@ -25,7 +25,7 @@ public sealed class QuestBoardNpcMapEntityLeaf : MapEntityLeaf
             if (value.Leaf.Map != Map)
             {
                 ThrowHelper.ThrowInvalidOperationException(
-                    "The caretaker map entity must be on the same map as this NPC");
+                    $"The caretaker map entity must be on the {Map.NamedId} map");
             }
 
             InternalData[0] = value.GameId;
@@ -33,10 +33,17 @@ public sealed class QuestBoardNpcMapEntityLeaf : MapEntityLeaf
         }
     }
 
-    public int CaretakerDialogueIdWhenQuestIsTaken
+    public Branch<DialogueLeaf> CaretakerDialogueWhenQuestIsTaken
     {
-        get => InternalData[1];
-        set => InternalData[1] = value;
+        get;
+        set
+        {
+            if (value.Leaf.AssociatedMap is not null && value.Leaf.AssociatedMap != Map)
+                ThrowHelper.ThrowInvalidOperationException($"This map dialogue must be in the {Map.NamedId} map");
+
+            InternalData[1] = value.GameId;
+            field = value;
+        }
     }
 
     public Branch<FlagLeaf>? FlagInteractWithCaretakerWhenFalse
@@ -94,10 +101,14 @@ public sealed class QuestBoardNpcMapEntityLeaf : MapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+        ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
 
         if (InternalData[2] >= 0)
             FlagInteractWithCaretakerWhenFalse = flagsRegistry.LeavesByGameIds[InternalData[2]];
 
         BoardCaretakerMapEntity = Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0]];
+        CaretakerDialogueWhenQuestIsTaken = InternalData[1] < 0
+            ? commonDialoguesRegistry.LeavesByGameIds[InternalData[1]]
+            : Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalData[1]];
     }
 }

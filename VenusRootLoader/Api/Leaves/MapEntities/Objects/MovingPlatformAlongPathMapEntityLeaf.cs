@@ -29,8 +29,8 @@ public sealed class MovingPlatformAlongPathMapEntityLeaf : MapEntityLeaf
         }
     }
 
-    public ReadOnlyCollection<int> RequiredEntityActivationsToMove { get; private set; } =
-        new List<int>().AsReadOnly();
+    public ReadOnlyCollection<Branch<MapEntityLeaf>> RequiredEntityActivationsToMove { get; private set; } =
+        new List<Branch<MapEntityLeaf>>().AsReadOnly();
 
     public ReadOnlyCollection<Vector3> MovementPathNodePositions { get; private set; } =
         new List<Vector3>().AsReadOnly();
@@ -90,18 +90,31 @@ public sealed class MovingPlatformAlongPathMapEntityLeaf : MapEntityLeaf
 
         List<int> requiredEntityIdsActivation = new();
         requiredEntityIdsActivation.AddRange(InternalData);
-        RequiredEntityActivationsToMove = requiredEntityIdsActivation.AsReadOnly();
+        RequiredEntityActivationsToMove = requiredEntityIdsActivation
+            .Select(x => new Branch<MapEntityLeaf>(Map.Leaf.EntitiesRegistry.LeavesByGameIds[x])).ToList().AsReadOnly();
 
         List<Vector3> movementPathNodePositions = new();
         movementPathNodePositions.AddRange(InternalVectorData);
         MovementPathNodePositions = movementPathNodePositions.AsReadOnly();
     }
 
-    public void ChangeRequiredEntityActivationsToMove(List<int> entityIds)
+    public void ChangeRequiredEntityActivationsToMove(List<Branch<MapEntityLeaf>> entities)
     {
+        List<string> badMapEntitiesNamedIds = entities
+            .Where(x => x.Leaf.Map != Map)
+            .Select(x => x.NamedId)
+            .ToList();
+        if (badMapEntitiesNamedIds.Count > 0)
+        {
+            ThrowHelper.ThrowArgumentException(
+                nameof(entities),
+                $"The following map entities needs to be in the {Map.NamedId} map, but they are not: " +
+                $"{string.Join(", ", badMapEntitiesNamedIds)}");
+        }
+
         InternalData.Clear();
-        InternalData.AddRange(entityIds);
-        RequiredEntityActivationsToMove = entityIds.AsReadOnly();
+        InternalData.AddRange(entities.Select(e => e.GameId));
+        RequiredEntityActivationsToMove = entities.AsReadOnly();
     }
 
     public void ChangeMovementPathNodePositions(List<Vector3> nodes)

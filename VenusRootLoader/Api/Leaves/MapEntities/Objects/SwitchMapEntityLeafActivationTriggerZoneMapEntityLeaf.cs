@@ -25,16 +25,16 @@ public sealed class SwitchMapEntityLeafActivationTriggerZoneMapEntityLeaf : MapE
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
     public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
 
-    public MapEntityLeaf MapEntityLeafActivationControlled
+    public Branch<MapEntityLeaf> MapEntityLeafActivationControlled
     {
         get;
         set
         {
-            if (value.Map != Map)
+            if (value.Leaf.Map != Map)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(
                     nameof(MapEntityLeafActivationControlled),
-                    $"The entity is not in the {value.Map.NamedId} map which is required");
+                    $"The entity is not in the {Map.NamedId} map which is required");
             }
 
             if (value.GameId == GameId)
@@ -88,11 +88,7 @@ public sealed class SwitchMapEntityLeafActivationTriggerZoneMapEntityLeaf : MapE
         if (InternalData.Count < 3)
             InternalData.AddRange(Enumerable.Repeat(0, 3 - InternalData.Count));
 
-        if (InternalData[0] != -1)
-        {
-            MapLeaf map = registryResolver.Resolve<MapLeaf>().LeavesByGameIds[Map.GameId];
-            MapEntityLeafActivationControlled = map.EntitiesRegistry.LeavesByGameIds[Math.Abs(InternalData[0])];
-        }
+        MapEntityLeafActivationControlled = Map.Leaf.EntitiesRegistry.LeavesByGameIds[Math.Abs(InternalData[0])];
 
         if (InternalActivationFlagId > 0)
         {

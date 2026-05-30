@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using System.Collections.ObjectModel;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
@@ -31,10 +32,17 @@ public sealed class ItemsShopMapEntityLeaf : MapEntityLeaf
         }
     }
 
-    public int DialogueIdWhenInteractingWithShopKeeper
+    public Branch<DialogueLeaf> DialogueWhenInteractingWithShopKeeper
     {
-        get => (int)InternalDialogues[0].y;
-        set => InternalDialogues[0] = new(InternalDialogues[0].x, value, InternalDialogues[0].z);
+        get;
+        set
+        {
+            if (value.Leaf.AssociatedMap is not null && value.Leaf.AssociatedMap != Map)
+                ThrowHelper.ThrowInvalidOperationException($"This map dialogue must be in the {Map.NamedId} map");
+
+            InternalDialogues[0] = new(InternalDialogues[0].x, value.GameId, InternalDialogues[0].z);
+            field = value;
+        }
     }
 
     public float? ItemsBuyingPriceMultiplier
@@ -43,10 +51,17 @@ public sealed class ItemsShopMapEntityLeaf : MapEntityLeaf
         set => InternalDialogues[2] = new(InternalDialogues[2].x, value * 10f ?? 0f, InternalDialogues[2].z);
     }
 
-    public int DialogueIdWhenInteractingWithShelvedItem
+    public Branch<DialogueLeaf> DialogueWhenInteractingWithShelvedItem
     {
-        get => (int)InternalDialogues[6].y;
-        set => InternalDialogues[6] = new(InternalDialogues[6].x, value, InternalDialogues[6].z);
+        get;
+        set
+        {
+            if (value.Leaf.AssociatedMap is not null && value.Leaf.AssociatedMap != Map)
+                ThrowHelper.ThrowInvalidOperationException($"This map dialogue must be in the {Map.NamedId} map");
+
+            InternalDialogues[6] = new(InternalDialogues[6].x, value.GameId, InternalDialogues[6].z);
+            field = value;
+        }
     }
 
     public float? ShelvedItemsInteractionRadius
@@ -82,6 +97,7 @@ public sealed class ItemsShopMapEntityLeaf : MapEntityLeaf
     {
         ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
         ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
+        ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
 
         Behaviors.InitializeBehaviorFromExisting(registryResolver);
 
@@ -94,6 +110,13 @@ public sealed class ItemsShopMapEntityLeaf : MapEntityLeaf
                         new ShelvedItemForSale(new(itemsRegistry.LeavesByGameIds[data]), vectorData))
                 .ToList();
         ChangeItemsForSale(itemsForSale);
+
+        DialogueWhenInteractingWithShopKeeper = (int)InternalDialogues[0].y < 0
+            ? commonDialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[0].y]
+            : Map.Leaf.DialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[0].y];
+        DialogueWhenInteractingWithShelvedItem = (int)InternalDialogues[6].y < 0
+            ? commonDialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[6].y]
+            : Map.Leaf.DialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[6].y];
     }
 
     public void ChangeItemsForSale(List<ShelvedItemForSale> itemsForSale)

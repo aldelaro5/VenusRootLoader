@@ -25,7 +25,7 @@ public sealed class CaravanShelvedMedalNpcMapEntityLeaf : MapEntityLeaf
             if (value.Leaf.Map != Map)
             {
                 ThrowHelper.ThrowInvalidOperationException(
-                    "The associated items shop map entity must be on the same map as this NPC");
+                    $"The associated items shop must be in the {Map.NamedId} map");
             }
 
             InternalData[0] = value.GameId;
@@ -33,10 +33,17 @@ public sealed class CaravanShelvedMedalNpcMapEntityLeaf : MapEntityLeaf
         }
     }
 
-    public int ShopKeeperDialogueIdWhenInteracting
+    public Branch<DialogueLeaf> ShopKeeperDialogueWhenInteracting
     {
-        get => InternalData[1];
-        set => InternalData[1] = value;
+        get;
+        set
+        {
+            if (value.Leaf.AssociatedMap is not null && value.Leaf.AssociatedMap != Map)
+                ThrowHelper.ThrowInvalidOperationException($"This map dialogue must be in the {Map.NamedId} map");
+
+            InternalData[1] = value.GameId;
+            field = value;
+        }
     }
 
     public float InteractRangeRadius
@@ -52,6 +59,11 @@ public sealed class CaravanShelvedMedalNpcMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
+        ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
+        
         AssociatedItemShop = (ItemsShopMapEntityLeaf)Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0]];
+        ShopKeeperDialogueWhenInteracting = InternalData[1] < 0
+            ? commonDialoguesRegistry.LeavesByGameIds[InternalData[1]]
+            : Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalData[1]];
     }
 }

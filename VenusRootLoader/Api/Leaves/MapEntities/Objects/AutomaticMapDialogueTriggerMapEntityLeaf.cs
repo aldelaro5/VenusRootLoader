@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -13,10 +14,17 @@ public sealed class AutomaticMapDialogueTriggerMapEntityLeaf : MapEntityLeaf
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.DialogueTrigger;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
-    public int MapDialogueLineIdToImmediatelyProcess
+    public Branch<MapDialogueLeaf> MapDialogueLineIdToImmediatelyProcess
     {
-        get => InternalData[0];
-        set => InternalData[0] = value;
+        get;
+        set
+        {
+            if (value.Leaf.AssociatedMap != Map)
+                ThrowHelper.ThrowInvalidOperationException($"This map dialogue must be in the {Map.NamedId} map");
+
+            InternalData[0] = value.GameId;
+            field = value;
+        }
     }
 
     internal override void InitializeFromNew()
@@ -24,5 +32,8 @@ public sealed class AutomaticMapDialogueTriggerMapEntityLeaf : MapEntityLeaf
         InternalData.AddRange([-1, 0, 1]);
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver) { }
+    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    {
+        MapDialogueLineIdToImmediatelyProcess = Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalData[0]];
+    }
 }

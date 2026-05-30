@@ -72,7 +72,7 @@ public sealed class AndBlockOnEntitiesLeafActivationMapEntityLeaf : MapEntityLea
             entityActivationInputs.Add(
                 new()
                 {
-                    MapEntityLeaf = map.EntitiesRegistry.LeavesByGameIds[Math.Abs(value)],
+                    MapEntity = map.EntitiesRegistry.LeavesByGameIds[Math.Abs(value)],
                     IsActivationValueNegated = value < 0
                 });
         }
@@ -86,11 +86,11 @@ public sealed class AndBlockOnEntitiesLeafActivationMapEntityLeaf : MapEntityLea
     public void ChangeEntitiesActivationInput(List<NegatableMapEntityActivation> entityActivationsInput)
     {
         List<NegatableMapEntityActivation> incorrectEntities = entityActivationsInput
-            .Where(e => e.MapEntityLeaf.Map != Map)
+            .Where(e => e.MapEntity.Leaf.Map != Map)
             .ToList();
         if (incorrectEntities.Count > 0)
         {
-            IEnumerable<string> badEntityNames = incorrectEntities.Select(e => e.MapEntityLeaf.BaseGameObjectName);
+            IEnumerable<string> badEntityNames = incorrectEntities.Select(e => e.MapEntity.Leaf.BaseGameObjectName);
             ThrowHelper.ThrowArgumentOutOfRangeException(
                 nameof(entityActivationsInput),
                 $"The following entities are not present in the {Map.NamedId} map which is required: " +

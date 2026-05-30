@@ -17,12 +17,12 @@ public sealed class WindBeamZoneMapEntityLeaf : MapEntityLeaf
 
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
 
-    public MapEntityLeaf? RequiredMapEntityActivation
+    public Branch<MapEntityLeaf>? RequiredMapEntityActivation
     {
         get;
         set
         {
-            if (value?.Map is { } map && map != Map)
+            if (value?.Leaf.Map is { } map && map != Map)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(
                     nameof(RequiredMapEntityActivation),
@@ -32,7 +32,7 @@ public sealed class WindBeamZoneMapEntityLeaf : MapEntityLeaf
             InternalData[0] = value?.GameId ?? -1;
             field = value;
         }
-    } = null!;
+    }
 
     public Vector3 EndPosition { get => InternalVectorData[0]; set => InternalVectorData[0] = value; }
 
@@ -84,9 +84,6 @@ public sealed class WindBeamZoneMapEntityLeaf : MapEntityLeaf
             InternalVectorData.AddRange(Enumerable.Repeat(Vector3.zero, 3 - InternalVectorData.Count));
 
         if (InternalData[0] != -1)
-        {
-            MapLeaf map = registryResolver.Resolve<MapLeaf>().LeavesByGameIds[Map.GameId];
-            RequiredMapEntityActivation = map.EntitiesRegistry.LeavesByGameIds[Math.Abs(InternalData[0])];
-        }
+            RequiredMapEntityActivation = Map.Leaf.EntitiesRegistry.LeavesByGameIds[Math.Abs(InternalData[0])];
     }
 }

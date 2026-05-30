@@ -17,18 +17,19 @@ public sealed class CaravanShelvedMedalNpcMapEntityLeaf : MapEntityLeaf
 
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
 
-    public ItemsShopMapEntityLeaf AssociatedItemShop
+    public Branch<ItemsShopMapEntityLeaf> AssociatedItemShop
     {
-        get => (ItemsShopMapEntityLeaf)Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0]];
+        get;
         set
         {
-            if (value.Map != Map)
+            if (value.Leaf.Map != Map)
             {
                 ThrowHelper.ThrowInvalidOperationException(
                     "The associated items shop map entity must be on the same map as this NPC");
             }
 
             InternalData[0] = value.GameId;
+            field = value;
         }
     }
 
@@ -49,5 +50,8 @@ public sealed class CaravanShelvedMedalNpcMapEntityLeaf : MapEntityLeaf
         InternalData.AddRange(Enumerable.Repeat(0, 2 - InternalData.Count));
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver) { }
+    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    {
+        AssociatedItemShop = (ItemsShopMapEntityLeaf)Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0]];
+    }
 }

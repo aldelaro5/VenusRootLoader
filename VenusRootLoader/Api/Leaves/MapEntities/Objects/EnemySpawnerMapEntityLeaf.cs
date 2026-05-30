@@ -17,7 +17,17 @@ public sealed class EnemySpawnerMapEntityLeaf : MapEntityLeaf
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
     public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
 
-    public int MapEntityIdEnemyToRespawn { get => InternalData[0]; set => InternalData[0] = value; }
+    // TODO: Enforce this to be an actual enemy
+    public Branch<MapEntityLeaf> EnemyToRespawn
+    {
+        get;
+        set
+        {
+            InternalData[0] = value.GameId;
+            field = value;
+        }
+    }
+
     public int FramesBeforeRespawn { get => InternalData[4]; set => InternalData[4] = value; }
     public Vector3 RespawnCenter { get => InternalVectorData[0]; set => InternalVectorData[0] = value; }
     public Vector3 RespawnRadiusRange { get => InternalVectorData[1]; set => InternalVectorData[1] = value; }
@@ -28,5 +38,8 @@ public sealed class EnemySpawnerMapEntityLeaf : MapEntityLeaf
         InternalVectorData.AddRange([Vector3.zero, Vector3.one]);
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver) { }
+    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    {
+        EnemyToRespawn = Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0]];
+    }
 }

@@ -19,7 +19,15 @@ public sealed class TrappedEntityLeafMapEntityLeaf : MapEntityLeaf
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
     public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
 
-    public int TrappedMapEntityId { get => InternalData[0]; set => InternalData[0] = value; }
+    public Branch<MapEntityLeaf> TrappedMapEntity
+    {
+        get;
+        set
+        {
+            InternalData[0] = value.GameId;
+            field = value;
+        }
+    }
 
     public Branch<FlagLeaf>? FlagSetWhenEntityGetsUntrapped
     {
@@ -57,5 +65,7 @@ public sealed class TrappedEntityLeafMapEntityLeaf : MapEntityLeaf
 
         if (InternalData[1] > -1)
             FlagSetWhenEntityGetsUntrapped = new(flagsRegistry.LeavesByGameIds[InternalData[1]]);
+
+        TrappedMapEntity = Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0]];
     }
 }

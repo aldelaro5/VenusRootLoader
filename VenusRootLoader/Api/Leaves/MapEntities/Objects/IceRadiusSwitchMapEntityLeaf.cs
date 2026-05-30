@@ -30,10 +30,14 @@ public sealed class IceRadiusSwitchMapEntityLeaf : MapEntityLeaf
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
     public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
 
-    public int? ParentMapEntityId
+    public Branch<MapEntityLeaf>? ParentMapEntity
     {
-        get => InternalData[1] == -1 ? null : InternalData[1];
-        set => InternalData[1] = value ?? -1;
+        get;
+        set
+        {
+            InternalData[1] = value?.GameId ?? -1;
+            field = value;
+        }
     }
 
     public bool IsActuatedOnMapLoad { get => InternalData[2] == 1; set => InternalData[2] = value ? 1 : 0; }
@@ -91,5 +95,8 @@ public sealed class IceRadiusSwitchMapEntityLeaf : MapEntityLeaf
 
         if (InternalActivationFlagId > 0)
             ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+
+        if (InternalData[1] != -1)
+            ParentMapEntity = Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[1]];
     }
 }

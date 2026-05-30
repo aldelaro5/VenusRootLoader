@@ -17,18 +17,19 @@ public sealed class QuestBoardNpcMapEntityLeaf : MapEntityLeaf
 
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
 
-    public MapEntityLeaf BoardCaretakerMapEntityLeaf
+    public Branch<MapEntityLeaf> BoardCaretakerMapEntity
     {
-        get => Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0]];
+        get;
         set
         {
-            if (value.Map != Map)
+            if (value.Leaf.Map != Map)
             {
                 ThrowHelper.ThrowInvalidOperationException(
                     "The caretaker map entity must be on the same map as this NPC");
             }
 
             InternalData[0] = value.GameId;
+            field = value;
         }
     }
 
@@ -94,8 +95,9 @@ public sealed class QuestBoardNpcMapEntityLeaf : MapEntityLeaf
     {
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
 
-        FlagInteractWithCaretakerWhenFalse = InternalData[2] >= 0
-            ? new(flagsRegistry.LeavesByGameIds[InternalData[2]])
-            : null;
+        if (InternalData[2] >= 0)
+            FlagInteractWithCaretakerWhenFalse = flagsRegistry.LeavesByGameIds[InternalData[2]];
+
+        BoardCaretakerMapEntity = Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0]];
     }
 }

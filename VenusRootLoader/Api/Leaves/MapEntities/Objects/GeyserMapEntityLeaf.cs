@@ -17,12 +17,16 @@ public sealed class GeyserMapEntityLeaf : MapEntityLeaf
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
     public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
 
-    public bool IsHoneyGeiser { get => InternalData[0] == 1; set => InternalData[0] = value ? 1 : 0; }
+    public bool IsHoneyGeyser { get => InternalData[0] == 1; set => InternalData[0] = value ? 1 : 0; }
 
-    public int? MapEntityIdActivationRequiredToBeActive
+    public Branch<MapEntityLeaf>? MapEntityActivationRequiredToBeActive
     {
-        get => InternalData[1] == -1 ? null : InternalData[1];
-        set => InternalData[1] = value ?? -1;
+        get;
+        set
+        {
+            InternalData[1] = value?.GameId ?? -1;
+            field = value;
+        }
     }
 
     // TODO: Test this later
@@ -67,5 +71,8 @@ public sealed class GeyserMapEntityLeaf : MapEntityLeaf
             InternalData.AddRange(Enumerable.Repeat(-1, 3 - InternalData.Count));
         if (InternalData.Count < 5)
             InternalData.AddRange(Enumerable.Repeat(0, 5 - InternalData.Count));
+
+        if (InternalData[1] != -1)
+            MapEntityActivationRequiredToBeActive = Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[1]];
     }
 }

@@ -17,7 +17,7 @@ public sealed class DeadLanderOmegaAlertCrystalMapEntityLeaf : MapEntityLeaf
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
     public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
 
-    public bool HasAnIlluminatedSphere { get => InternalData[0] == 1; set => InternalData[0] = value ? 1 : 0; }
+    public bool HasIlluminatedSphere { get => InternalData[0] == 1; set => InternalData[0] = value ? 1 : 0; }
     public int DeadLanderOmegaId { get => InternalData[1] - 10; set => InternalData[1] = value + 10; }
 
     public Vector3 PositionDeadLanderOmegaLooksAtWhenHit

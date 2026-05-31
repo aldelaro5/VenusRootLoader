@@ -65,10 +65,10 @@ internal sealed class MapsCollector : IBaseGameCollector
             (string[] Names, string[] Data) mapEntityData = MapsEntityData[i];
             MapLeaf mapLeaf = _mapsRegistry.RegisterExisting(i, MapNamedIds[i], baseGameId);
             mapLeaf.EntitiesRegistry = new AutoSequentialIdBasedRegistry<MapEntityLeaf>(
-                _loggerFactory.CreateLogger($"{mapLeaf.NamedId}_{nameof(MapLeaf.EntitiesRegistry)}"),
+                _loggerFactory.CreateLogger($"Maps.{mapLeaf.NamedId}_{nameof(MapLeaf.EntitiesRegistry)}"),
                 IdSequenceDirection.Increment);
             mapLeaf.DialoguesRegistry = new AutoSequentialIdBasedRegistry<MapDialogueLeaf>(
-                _loggerFactory.CreateLogger($"{mapLeaf.NamedId}_{nameof(MapLeaf.DialoguesRegistry)}"),
+                _loggerFactory.CreateLogger($"Maps.{mapLeaf.NamedId}_{nameof(MapLeaf.DialoguesRegistry)}"),
                 IdSequenceDirection.Increment);
 
             for (int j = 0; j < mapEntityData.Data.Length; j++)

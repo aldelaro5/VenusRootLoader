@@ -25,8 +25,8 @@ internal sealed class EnumBasedRegistry<TLeaf, TEnum> : BaseRegistry<TLeaf>
         _enumPatcher = enumPatcher;
     }
 
-    public override TLeaf RegisterExisting(int gameId, string namedId, string creatorId) =>
-        base.RegisterExisting(gameId + _offsetEnumValueToGameId, namedId, creatorId);
+    public override TSubLeaf RegisterExisting<TSubLeaf>(int gameId, string namedId, string creatorId) =>
+        base.RegisterExisting<TSubLeaf>(gameId + _offsetEnumValueToGameId, namedId, creatorId);
 
     protected override int CreateNewGameId(string namedId, string creatorId)
     {

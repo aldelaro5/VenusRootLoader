@@ -240,11 +240,11 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             sb.Append('}');
         }
 
-        sb.Append(mapEntityLeaf.InternalSpyDialogueMapId);
+        sb.Append(mapEntityLeaf.InternalSpyDialogueId);
         sb.Append('}');
         sb.Append(mapEntityLeaf.InternalRegionalFlagId);
         sb.Append('}');
-        sb.Append(mapEntityLeaf.InitialHeight);
+        sb.Append(mapEntityLeaf.InternalInitialHeight);
         sb.Append('}');
         sb.Append(mapEntityLeaf.InternalBobRange);
         sb.Append('}');
@@ -484,9 +484,9 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 value.InternalEmoticonFlags.Add(value.OriginalEmoticonFlags[i]);
         }
 
-        value.InternalSpyDialogueMapId = int.Parse(fields[189]);
+        value.InternalSpyDialogueId = int.Parse(fields[189]);
         value.InternalRegionalFlagId = int.Parse(fields[190]);
-        value.InitialHeight = float.Parse(fields[191]);
+        value.InternalInitialHeight = float.Parse(fields[191]);
         value.InternalBobRange = float.Parse(fields[192]);
         value.InternalBobSpeed = float.Parse(fields[193]);
         value.InternalActivationFlagId = int.Parse(fields[194]);

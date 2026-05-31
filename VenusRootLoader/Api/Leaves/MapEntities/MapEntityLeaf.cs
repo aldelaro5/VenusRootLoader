@@ -25,20 +25,20 @@ public abstract class MapEntityLeaf : Leaf
     internal abstract void InitializeFromExisting(IRegistryResolver registryResolver);
 
     internal bool IsReturnToHeightOriginallyInt { get; set; }
-    public bool InternalReturnToHeight { get; set; }
+    public bool InternalReturnToHeight { get; set; } = true;
     public int InsideId { get; set; } = -1;
     public Color TagColor { get; set; }
 
     public NPCControl.ActionBehaviors InternalOutOfRangeBehavior { get; set; }
-    public float InternalOutOfRangeActionFrequency { get; set; }
+    public float InternalOutOfRangeActionFrequency { get; set; } = 200f;
     public NPCControl.ActionBehaviors InternalInRangeBehavior { get; set; }
-    public float InternalInRangeActionFrequency { get; set; }
+    public float InternalInRangeActionFrequency { get; set; } = 200f;
 
     public NPCControl.DeathType InternalDeathType { get; set; }
     public int InternalAnimIdOrItemId { get; set; } = -1;
     public bool InternalIsFlipped { get; set; }
     public Vector3 InternalStartingPosition { get; set; }
-    public float InitialHeight { get; set; }
+    public float InternalInitialHeight { get; set; }
     public float InternalBobRange { get; set; }
     public float InternalBobSpeed { get; set; }
 
@@ -48,20 +48,20 @@ public abstract class MapEntityLeaf : Leaf
     public Vector3 InternalEulerAngles { get; set; }
     public float InternalRadius { get; set; }
     public float InternalTimer { get; set; } = -1f;
-    public float InternalSpeed { get; set; } = 2.5f;
-    public float InternalSpeedMultiplier { get; set; } = 1.0f;
-    public float InternalRadiusLimit { get; set; }
-    public float InternalWanderRadius { get; set; }
-    public float InternalTeleportRadius { get; set; }
+    public float InternalSpeed { get; set; } = 5f;
+    public float InternalSpeedMultiplier { get; set; } = 1f;
+    public float InternalRadiusLimit { get; set; } = 6f;
+    public float InternalWanderRadius { get; set; } = 3f;
+    public float InternalTeleportRadius { get; set; } = 9f;
 
-    public float InternalFreezeTime { get; set; }
+    public float InternalFreezeTime { get; set; } = 600f;
     public Vector3 InternalFreezeSize { get; set; } = Vector3.one;
     public Vector3 InternalFreezeOffset { get; set; } = Vector3.zero;
 
     public int InternalActivationFlagId { get; set; } = -1;
     public int InternalRegionalFlagId { get; set; } = -1;
 
-    public int InternalSpyDialogueMapId { get; set; }
+    public int InternalSpyDialogueId { get; set; } = -1;
     public int InternalEventId { get; set; } = -1;
 
     public bool InternalHaxBoxCol { get; set; }

@@ -236,7 +236,6 @@ public sealed class MapEntityBehaviors
         return behavior;
     }
 
-    // TODO: Consider handling items drops not being allowed with this or patch the game to allow them
     public MoveAlongPathActionBehavior SetMoveAlongPathBehavior(
         ActionBehaviorKind kind,
         float delayFramesBeforeMovingToNextNode,

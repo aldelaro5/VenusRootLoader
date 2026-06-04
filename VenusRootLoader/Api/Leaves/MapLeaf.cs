@@ -3,7 +3,6 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves;
 
-// TODO: This API needs several improvements before it's ready
 // TODO: Figure out the MapControl config and Unity prefab tooling
 public sealed class MapLeaf : Leaf
 {

@@ -1,4 +1,6 @@
+using CommunityToolkit.Diagnostics;
 using UnityEngine;
+using VenusRootLoader.Api.Leaves.MapEntities.Enemies;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -17,12 +19,14 @@ public sealed class EnemySpawnerMapEntityLeaf : MapEntityLeaf
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
     public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
 
-    // TODO: Enforce this to be an actual enemy
-    public Branch<MapEntityLeaf> EnemyToRespawn
+    public Branch<EnemyMapEntityLeaf> EnemyToRespawn
     {
         get;
         set
         {
+            if (value.Leaf.Map != Map)
+                ThrowHelper.ThrowInvalidOperationException($"This map enemy must be in the {Map.NamedId} map");
+
             InternalData[0] = value.GameId;
             field = value;
         }
@@ -40,6 +44,6 @@ public sealed class EnemySpawnerMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
-        EnemyToRespawn = Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0]];
+        EnemyToRespawn = (Branch<EnemyMapEntityLeaf>)Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0]]!;
     }
 }

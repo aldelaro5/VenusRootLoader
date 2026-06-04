@@ -4,7 +4,6 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
 
-// TODO: Add path position nodes
 // TODO: Figure out if you can put a delay
 // TODO: Should we split the type for the sleep start one?
 public sealed class StealthSpotBehavior : ActionBehavior

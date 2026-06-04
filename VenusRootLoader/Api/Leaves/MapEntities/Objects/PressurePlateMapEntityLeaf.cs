@@ -4,7 +4,6 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
-// TODO: Consider moving this to a leaf, collector would hardcode the ones that exists
 public enum PressurePlateType
 {
     RegularWoodenPlate,

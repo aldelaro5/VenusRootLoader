@@ -38,13 +38,19 @@ public abstract class NpcMapEntityLeaf : MapEntityLeaf
     public float MovementRadius { get => InternalRadiusLimit; set => InternalRadiusLimit = value; }
     public float BehaviorAndInteractRangeRadius { get => InternalRadius; set => InternalRadius = value; }
 
-    // TODO: Change to be split with first element as the fallback and rest which must have a conditional flag
-    public ReadOnlyCollection<NpcConditionalEmoticon> Emoticons { get; private set; } =
+    public required NpcEmoticon FallbackEmoticon
+    {
+        get => (NpcEmoticon)(int)InternalEmoticonFlags[0].y;
+        set => InternalEmoticonFlags[0] = new(InternalEmoticonFlags[0].x, (int)value);
+    }
+
+    public ReadOnlyCollection<NpcConditionalEmoticon> ConditionalEmoticons { get; private set; } =
         new List<NpcConditionalEmoticon>().AsReadOnly();
 
     internal override void InitializeFromNew()
     {
         InternalAnimIdOrItemId = 0;
+        InternalEmoticonFlags.Add(new(-1, 0));
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
@@ -57,10 +63,13 @@ public abstract class NpcMapEntityLeaf : MapEntityLeaf
         AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
 
         List<NpcConditionalEmoticon> emoticons = InternalEmoticonFlags
+            .Skip(1)
             .Select(emoticon => new NpcConditionalEmoticon
             {
-                RequiredFlag = emoticon.x < 0 ? null : new(flagsRegistry.LeavesByGameIds[(int)emoticon.x]),
-                EmoticonId = emoticon.y >= 0f ? (int)emoticon.y : null,
+                RequiredFlag = (int)emoticon.x >= 0
+                    ? new(flagsRegistry.LeavesByGameIds[(int)emoticon.x])
+                    : null,
+                Emoticon = (NpcEmoticon)(int)emoticon.y,
             })
             .ToList();
         ChangeEmoticons(emoticons);
@@ -68,14 +77,12 @@ public abstract class NpcMapEntityLeaf : MapEntityLeaf
 
     public void ChangeEmoticons(List<NpcConditionalEmoticon> emoticons)
     {
-        InternalEmoticonFlags.Clear();
+        if (InternalEmoticonFlags.Count > 1)
+            InternalEmoticonFlags.RemoveRange(1, InternalEmoticonFlags.Count - 1);
 
         foreach (NpcConditionalEmoticon emoticon in emoticons)
-        {
-            InternalEmoticonFlags.Add(
-                new(emoticon.RequiredFlag?.GameId ?? -1, emoticon.EmoticonId ?? -1));
-        }
+            InternalEmoticonFlags.Add(new(emoticon.RequiredFlag?.GameId ?? -1, (int)emoticon.Emoticon));
 
-        Emoticons = emoticons.AsReadOnly();
+        ConditionalEmoticons = emoticons.AsReadOnly();
     }
 }

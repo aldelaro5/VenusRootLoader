@@ -1,77 +1,27 @@
 using System.Collections.ObjectModel;
-using UnityEngine;
-using VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Enemies;
 
 using ItemDrop = (Branch<ItemLeaf> Item, Branch<FlagLeaf>? RequiredFlag);
 
-public sealed class EnemyEncounterWithRegularItemDropsMapEntityLeaf : MapEntityLeaf
+public sealed class EnemyEncounterWithRegularItemDropsMapEntityLeaf : EnemyMapEntityLeaf
 {
     internal EnemyEncounterWithRegularItemDropsMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
-        Behaviors = new(this);
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.Enemy;
-    internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.None;
-    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
-
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-
-    public Branch<AnimIdLeaf> AnimId
-    {
-        get;
-        set
-        {
-            InternalAnimIdOrItemId = value.GameId;
-            field = value;
-        }
-    }
-
-    public ReadOnlyCollection<Branch<EnemyLeaf>> EnemiesFormationInBattle { get; private set; } =
-        new List<Branch<EnemyLeaf>>().AsReadOnly();
+    internal NPCControl.DeathType DeathMethod { get => InternalDeathType; set => InternalDeathType = value; }
 
     public ReadOnlyCollection<ItemDrop> ItemsDropPoolWhenDefeated { get; private set; } =
         new List<ItemDrop>().AsReadOnly();
 
-    public float MovementRadius
-    {
-        get => InternalRadiusLimit;
-        set => InternalRadiusLimit = value;
-    }
-
-    public float BehaviorRangeRadius
-    {
-        get => InternalRadius;
-        set => InternalRadius = value;
-    }
-
-    public MapEntityBehaviors Behaviors { get; }
-
-    internal override void InitializeFromNew()
-    {
-        InternalBattleEnemyIds.Add(0);
-        InternalAnimIdOrItemId = 0;
-    }
-
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
-        ILeavesRegistry<EnemyLeaf> enemiesRegistry = registryResolver.Resolve<EnemyLeaf>();
+        base.InitializeFromExisting(registryResolver);
         ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
-        ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
-
-        Behaviors.InitializeBehaviorFromExisting(registryResolver);
-
-        AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
-
-        List<Branch<EnemyLeaf>> enemies = InternalBattleEnemyIds
-            .Select(i => new Branch<EnemyLeaf>(enemiesRegistry.LeavesByGameIds[i]))
-            .ToList();
-        ChangeEnemiesFormationInBattle(enemies);
 
         List<ItemDrop> itemsDrop = InternalVectorData
             .Select(itemDrop =>
@@ -86,13 +36,6 @@ public sealed class EnemyEncounterWithRegularItemDropsMapEntityLeaf : MapEntityL
             })
             .ToList();
         ChangeItemsDropPoolWhenDefeated(itemsDrop);
-    }
-
-    public void ChangeEnemiesFormationInBattle(List<Branch<EnemyLeaf>> enemies)
-    {
-        InternalBattleEnemyIds.Clear();
-        InternalBattleEnemyIds.AddRange(enemies.Select(t => t.GameId));
-        EnemiesFormationInBattle = enemies.AsReadOnly();
     }
 
     public void ChangeItemsDropPoolWhenDefeated(List<ItemDrop> items)

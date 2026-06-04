@@ -1,38 +1,20 @@
-using UnityEngine;
-using VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
-public sealed class EventNpcMapEntityLeaf : MapEntityLeaf
+public sealed class EventNpcMapEntityLeaf : NpcMapEntityLeaf
 {
     internal EventNpcMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
-        Behaviors = new(this);
     }
 
     private const int LockedDoorInteractionEventId = 59;
-
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.NPC;
-    internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.None;
 
     internal override NPCControl.Interaction Interaction =>
         EventToStartOnInteract.GameId == LockedDoorInteractionEventId
             ? NPCControl.Interaction.LockedDoor
             : NPCControl.Interaction.Event;
-
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-
-    public Branch<AnimIdLeaf> AnimId
-    {
-        get;
-        set
-        {
-            InternalAnimIdOrItemId = value.GameId;
-            field = value;
-        }
-    }
 
     public Branch<EventLeaf> EventToStartOnInteract
     {
@@ -44,26 +26,31 @@ public sealed class EventNpcMapEntityLeaf : MapEntityLeaf
         }
     }
 
-    public float BehaviorAndInteractRangeRadius
+    public Branch<DialogueLeaf>? SpyDialogue
     {
-        get => InternalRadius;
-        set => InternalRadius = value;
+        get;
+        set
+        {
+            InternalSpyDialogueId = value?.GameId ?? -1;
+            field = value;
+        }
     }
-
-    public MapEntityBehaviors Behaviors { get; }
-
-    internal override void InitializeFromNew() { }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
-        ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
+        base.InitializeFromExisting(registryResolver);
         ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
+        ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
 
-        Behaviors.InitializeBehaviorFromExisting(registryResolver);
+        if (InternalSpyDialogueId != -1)
+        {
+            SpyDialogue = InternalSpyDialogueId < 0
+                ? commonDialoguesRegistry.LeavesByGameIds[InternalSpyDialogueId]
+                : Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalSpyDialogueId];
+        }
 
         EventToStartOnInteract = OriginalInteraction == NPCControl.Interaction.LockedDoor
             ? new(eventsRegistry.LeavesByGameIds[LockedDoorInteractionEventId])
             : new(eventsRegistry.LeavesByGameIds[InternalEventId]);
-        AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
     }
 }

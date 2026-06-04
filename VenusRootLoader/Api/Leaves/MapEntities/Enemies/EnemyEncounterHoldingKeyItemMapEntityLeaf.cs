@@ -1,36 +1,15 @@
-using System.Collections.ObjectModel;
-using UnityEngine;
-using VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Enemies;
 
-public sealed class EnemyEncounterHoldingKeyItemMapEntityLeaf : MapEntityLeaf
+public sealed class EnemyEncounterHoldingKeyItemMapEntityLeaf : EnemyMapEntityLeaf
 {
     internal EnemyEncounterHoldingKeyItemMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
-        Behaviors = new(this);
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.Enemy;
-    internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.None;
-    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
-
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-
-    public Branch<AnimIdLeaf> AnimId
-    {
-        get;
-        set
-        {
-            InternalAnimIdOrItemId = value.GameId;
-            field = value;
-        }
-    }
-
-    public ReadOnlyCollection<Branch<EnemyLeaf>> EnemiesFormationInBattle { get; private set; } =
-        new List<Branch<EnemyLeaf>>().AsReadOnly();
+    internal NPCControl.DeathType DeathMethod { get => InternalDeathType; set => InternalDeathType = value; }
 
     public Branch<ItemLeaf> KeyItemDropped
     {
@@ -44,34 +23,19 @@ public sealed class EnemyEncounterHoldingKeyItemMapEntityLeaf : MapEntityLeaf
 
     public Branch<FlagLeaf> KeyItemObtainedFlag
     {
-        get => InternalLimits[0].Flag;
+        get => Limits[0].Flag;
         set
         {
             InternalActivationFlagId = value.GameId;
-            InternalLimits[0].Flag = value;
+            Limits[0].Flag = value;
         }
     }
 
-    public float MovementRadius
-    {
-        get => InternalRadiusLimit;
-        set => InternalRadiusLimit = value;
-    }
-
-    public float BehaviorRangeRadius
-    {
-        get => InternalRadius;
-        set => InternalRadius = value;
-    }
-
-    public MapEntityBehaviors Behaviors { get; }
-
     internal override void InitializeFromNew()
     {
-        InternalBattleEnemyIds.Add(0);
-        InternalAnimIdOrItemId = 0;
+        base.InitializeFromNew();
         InternalVectorData.Add(new(0f, -2f, 0f));
-        InternalLimits.Add(
+        Limits.Add(
             new()
             {
                 Flag = new(),
@@ -82,25 +46,9 @@ public sealed class EnemyEncounterHoldingKeyItemMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
-        ILeavesRegistry<EnemyLeaf> enemiesRegistry = registryResolver.Resolve<EnemyLeaf>();
+        base.InitializeFromExisting(registryResolver);
         ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
-        ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
-
-        Behaviors.InitializeBehaviorFromExisting(registryResolver);
-
-        AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
+        
         KeyItemDropped = new(itemsRegistry.LeavesByGameIds[(int)InternalVectorData[0].x]);
-
-        List<Branch<EnemyLeaf>> enemies = InternalBattleEnemyIds
-            .Select(i => new Branch<EnemyLeaf>(enemiesRegistry.LeavesByGameIds[i]))
-            .ToList();
-        ChangeEnemiesFormationInBattle(enemies);
-    }
-
-    public void ChangeEnemiesFormationInBattle(List<Branch<EnemyLeaf>> enemies)
-    {
-        InternalBattleEnemyIds.Clear();
-        InternalBattleEnemyIds.AddRange(enemies.Select(t => t.GameId));
-        EnemiesFormationInBattle = enemies.AsReadOnly();
     }
 }

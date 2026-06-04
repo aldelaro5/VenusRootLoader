@@ -24,73 +24,82 @@ public abstract class MapEntityLeaf : Leaf
     internal abstract void InitializeFromNew();
     internal abstract void InitializeFromExisting(IRegistryResolver registryResolver);
 
-    internal bool IsReturnToHeightOriginallyInt { get; set; }
-    public bool InternalReturnToHeight { get; set; } = true;
-    public int InsideId { get; set; } = -1;
-    public Color TagColor { get; set; }
-
-    public NPCControl.ActionBehaviors InternalOutOfRangeBehavior { get; set; }
-    public float InternalOutOfRangeActionFrequency { get; set; } = 200f;
-    public NPCControl.ActionBehaviors InternalInRangeBehavior { get; set; }
-    public float InternalInRangeActionFrequency { get; set; } = 200f;
-
-    public NPCControl.DeathType InternalDeathType { get; set; }
-    public int InternalAnimIdOrItemId { get; set; } = -1;
-    public bool InternalIsFlipped { get; set; }
-    public Vector3 InternalStartingPosition { get; set; }
-    public float InternalInitialHeight { get; set; }
-    public float InternalBobRange { get; set; }
-    public float InternalBobSpeed { get; set; }
-
-    public float InternalCcolHeight { get; set; } = 2f;
-    public float InternalCcolRadius { get; set; } = 0.5f;
-
-    public Vector3 InternalEulerAngles { get; set; }
-    public float InternalRadius { get; set; }
-    public float InternalTimer { get; set; } = -1f;
-    public float InternalSpeed { get; set; } = 5f;
-    public float InternalSpeedMultiplier { get; set; } = 1f;
-    public float InternalRadiusLimit { get; set; } = 6f;
-    public float InternalWanderRadius { get; set; } = 3f;
-    public float InternalTeleportRadius { get; set; } = 9f;
-
-    public float InternalFreezeTime { get; set; } = 600f;
-    public Vector3 InternalFreezeSize { get; set; } = Vector3.one;
-    public Vector3 InternalFreezeOffset { get; set; } = Vector3.zero;
-
-    public int InternalActivationFlagId { get; set; } = -1;
-    public int InternalRegionalFlagId { get; set; } = -1;
-
-    public int InternalSpyDialogueId { get; set; } = -1;
-    public int InternalEventId { get; set; } = -1;
-
-    public bool InternalHaxBoxCol { get; set; }
-    public bool InternalBoxColIsTrigger { get; set; }
-    public Vector3 InternalBoxColSize { get; set; } = Vector3.one;
-    public Vector3 InternalBoxColCenter { get; set; }
-
     internal int[] OriginalRequires { get; } = new int[10];
-    public List<Branch<FlagLeaf>> InternalRequires { get; } = new();
+    public List<Branch<FlagLeaf>> Requires { get; } = new();
     internal int[] OriginalLimits { get; } = new int[10];
-    public List<LimitFlag> InternalLimits { get; } = new();
+    public List<LimitFlag> Limits { get; } = new();
+
+    public Vector3 EntityStartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
+    public Color TagColor { get => InternalTagColor; set => InternalTagColor = value; }
+    public int InsideId { get => InternalInsideId; set => InternalInsideId = value; }
+    public int RegionalFlagId { get => InternalRegionalFlagId; set => InternalRegionalFlagId = value; }
+    public Vector3 TransformEulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
+
+    internal bool IsReturnToHeightOriginallyInt { get; set; }
+    internal bool InternalReturnToHeight { get; set; } = true;
+    internal int InternalInsideId { get; set; } = -1;
+    internal Color InternalTagColor { get; set; }
+
+    internal NPCControl.ActionBehaviors InternalOutOfRangeBehavior { get; set; }
+    internal float InternalOutOfRangeActionFrequency { get; set; } = 200f;
+    internal NPCControl.ActionBehaviors InternalInRangeBehavior { get; set; }
+    internal float InternalInRangeActionFrequency { get; set; } = 200f;
+
+    internal NPCControl.DeathType InternalDeathType { get; set; }
+    internal int InternalAnimIdOrItemId { get; set; } = -1;
+    internal bool InternalIsFlipped { get; set; }
+    internal Vector3 InternalStartingPosition { get; set; }
+    internal float InternalInitialHeight { get; set; }
+    internal float InternalBobRange { get; set; }
+    internal float InternalBobSpeed { get; set; }
+
+    internal float InternalCcolHeight { get; set; } = 2f;
+    internal float InternalCcolRadius { get; set; } = 0.5f;
+
+    internal Vector3 InternalEulerAngles { get; set; }
+    internal float InternalRadius { get; set; }
+    internal float InternalTimer { get; set; } = -1f;
+
+    internal float InternalSpeed { get; set; } = 5f;
+
+    // TODO: Expose this in the behaviors where it's used
+    internal float InternalSpeedMultiplier { get; set; } = 1f;
+    internal float InternalRadiusLimit { get; set; } = 6f;
+    internal float InternalWanderRadius { get; set; } = 3f;
+    internal float InternalTeleportRadius { get; set; } = 9f;
+
+    internal float InternalFreezeTime { get; set; } = 600f;
+    internal Vector3 InternalFreezeSize { get; set; } = Vector3.one;
+    internal Vector3 InternalFreezeOffset { get; set; } = Vector3.zero;
+
+    internal int InternalActivationFlagId { get; set; } = -1;
+    internal int InternalRegionalFlagId { get; set; } = -1;
+
+    internal int InternalSpyDialogueId { get; set; } = -1;
+    internal int InternalEventId { get; set; } = -1;
+
+    internal bool InternalHaxBoxCol { get; set; }
+    internal bool InternalBoxColIsTrigger { get; set; }
+    internal Vector3 InternalBoxColSize { get; set; } = Vector3.one;
+    internal Vector3 InternalBoxColCenter { get; set; }
 
     internal int[] OriginalData { get; } = new int[10];
-    public List<int> InternalData { get; } = new();
+    internal List<int> InternalData { get; } = new();
 
     internal Vector3[] OriginalVectorData { get; } = new Vector3[10];
-    public List<Vector3> InternalVectorData { get; } = new();
+    internal List<Vector3> InternalVectorData { get; } = new();
     internal List<Vector3> InternalSecondaryVectorData { get; } = new();
     internal Vector3[] InternalSecondaryVectorDataArray { get; set; } = [];
 
     internal Vector3[] OriginalDialogues { get; } = new Vector3[20];
-    public List<Vector3> InternalDialogues { get; } = new();
+    internal List<Vector3> InternalDialogues { get; } = new();
 
     internal int[] OriginalBattleEnemyIds { get; } = new int[4];
-    public List<int> InternalBattleEnemyIds { get; } = new();
+    internal List<int> InternalBattleEnemyIds { get; } = new();
 
-    public Vector3 InternalEmoticonOffset { get; set; } = Vector3.zero;
+    internal Vector3 InternalEmoticonOffset { get; set; } = Vector3.zero;
     internal Vector2[] OriginalEmoticonFlags { get; } = Enumerable.Repeat(new Vector2(-1, 0), 10).ToArray();
-    public List<Vector2> InternalEmoticonFlags { get; } = new();
+    internal List<Vector2> InternalEmoticonFlags { get; } = new();
 
     internal string UnusedOverflowData { get; set; } = "";
 }

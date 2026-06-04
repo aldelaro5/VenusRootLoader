@@ -1,49 +1,36 @@
-using UnityEngine;
-using VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
-public sealed class ItemsStorageNpcMapEntityLeaf : MapEntityLeaf
+public sealed class ItemsStorageNpcMapEntityLeaf : NpcMapEntityLeaf
 {
     internal ItemsStorageNpcMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
-        Behaviors = new(this);
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.NPC;
-    internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.None;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.StorageAnt;
 
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-
-    public Branch<AnimIdLeaf> AnimId
+    public Branch<DialogueLeaf>? SpyDialogue
     {
         get;
         set
         {
-            InternalAnimIdOrItemId = value.GameId;
+            InternalSpyDialogueId = value?.GameId ?? -1;
             field = value;
         }
     }
 
-    public float BehaviorAndInteractRangeRadius
-    {
-        get => InternalRadius;
-        set => InternalRadius = value;
-    }
-
-    public MapEntityBehaviors Behaviors { get; }
-
-    internal override void InitializeFromNew() { }
-
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
-        ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
+        base.InitializeFromExisting(registryResolver);
+        ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
 
-        Behaviors.InitializeBehaviorFromExisting(registryResolver);
-
-        AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
+        if (InternalSpyDialogueId != -1)
+        {
+            SpyDialogue = InternalSpyDialogueId < 0
+                ? commonDialoguesRegistry.LeavesByGameIds[InternalSpyDialogueId]
+                : Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalSpyDialogueId];
+        }
     }
 }

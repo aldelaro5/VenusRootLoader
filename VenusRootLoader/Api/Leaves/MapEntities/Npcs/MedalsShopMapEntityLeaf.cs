@@ -1,34 +1,18 @@
 using CommunityToolkit.Diagnostics;
 using System.Collections.ObjectModel;
 using UnityEngine;
-using VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
-public sealed class MedalsShopMapEntityLeaf : MapEntityLeaf
+public sealed class MedalsShopMapEntityLeaf : NpcMapEntityLeaf
 {
     internal MedalsShopMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
-        Behaviors = new(this);
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.NPC;
-    internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.None;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.Shop;
-
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-
-    public Branch<AnimIdLeaf> AnimId
-    {
-        get;
-        set
-        {
-            InternalAnimIdOrItemId = value.GameId;
-            field = value;
-        }
-    }
 
     public Branch<DialogueLeaf> DialogueWhenInteractingWithShopKeeper
     {
@@ -78,39 +62,39 @@ public sealed class MedalsShopMapEntityLeaf : MapEntityLeaf
         }
     }
 
+    public Branch<DialogueLeaf>? SpyDialogue
+    {
+        get;
+        set
+        {
+            InternalSpyDialogueId = value?.GameId ?? -1;
+            field = value;
+        }
+    }
+
     public ReadOnlyCollection<Vector3> ShelvedMedalPositions { get; private set; } =
         new List<Vector3>().AsReadOnly();
 
-    public float MovementRadius
-    {
-        get => InternalRadiusLimit;
-        set => InternalRadiusLimit = value;
-    }
-
-    public float BehaviorAndInteractRangeRadius
-    {
-        get => InternalRadius;
-        set => InternalRadius = value;
-    }
-
-    public MapEntityBehaviors Behaviors { get; }
-
     internal override void InitializeFromNew()
     {
-        InternalAnimIdOrItemId = 0;
+        base.InitializeFromNew();
         InternalDialogues.AddRange(Enumerable.Repeat(Vector3.zero, 10));
         InternalDialogues.Add(new(1f, 0f, 0f));
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
-        ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
+        base.InitializeFromExisting(registryResolver);
         ILeavesRegistry<MedalShopLeaf> medalShopsRegistry = registryResolver.Resolve<MedalShopLeaf>();
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
 
-        Behaviors.InitializeBehaviorFromExisting(registryResolver);
+        if (InternalSpyDialogueId != -1)
+        {
+            SpyDialogue = InternalSpyDialogueId < 0
+                ? commonDialoguesRegistry.LeavesByGameIds[InternalSpyDialogueId]
+                : Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalSpyDialogueId];
+        }
 
-        AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
         AssociatedMedalsShop = new(medalShopsRegistry.LeavesByGameIds[(int)InternalDialogues[9].x]);
 
         List<Vector3> shelvedMedalPositions = InternalVectorData.ToList();

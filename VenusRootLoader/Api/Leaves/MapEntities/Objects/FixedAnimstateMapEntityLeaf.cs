@@ -43,6 +43,13 @@ public sealed class FixedAnimstateMapEntityLeaf : MapEntityLeaf
         }
     }
 
+    public float EntityBobSpeed { get => InternalBobSpeed; set => InternalBobSpeed = value; }
+    public float EntityBobRange { get => InternalBobRange; set => InternalBobRange = value; }
+    public float EntityInitialHeight { get => InternalInitialHeight; set => InternalInitialHeight = value; }
+    public float EntityCapsuleColliderRadius { get => InternalCcolRadius; set => InternalCcolRadius = value; }
+    public float EntityCapsulerColliderHeight { get => InternalCcolHeight; set => InternalCcolHeight = value; }
+    public bool EntitySpriteIsFlipped { get => InternalIsFlipped; set => InternalIsFlipped = value; }
+
     internal override void InitializeFromNew()
     {
         InternalData.AddRange([0, 0]);

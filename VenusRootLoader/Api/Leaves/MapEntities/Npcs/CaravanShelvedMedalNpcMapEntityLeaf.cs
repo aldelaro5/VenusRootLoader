@@ -1,21 +1,16 @@
 using CommunityToolkit.Diagnostics;
-using UnityEngine;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
-public sealed class CaravanShelvedMedalNpcMapEntityLeaf : MapEntityLeaf
+public sealed class CaravanShelvedMedalNpcMapEntityLeaf : NpcMapEntityLeaf
 {
     internal CaravanShelvedMedalNpcMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.NPC;
-    internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.None;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.CaravanBadge;
-
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
 
     public Branch<ItemsShopMapEntityLeaf> AssociatedItemShop
     {
@@ -46,19 +41,15 @@ public sealed class CaravanShelvedMedalNpcMapEntityLeaf : MapEntityLeaf
         }
     }
 
-    public float InteractRangeRadius
-    {
-        get => InternalRadius;
-        set => InternalRadius = value;
-    }
-
     internal override void InitializeFromNew()
     {
+        base.InitializeFromNew();
         InternalData.AddRange(Enumerable.Repeat(0, 2 - InternalData.Count));
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
+        base.InitializeFromExisting(registryResolver);
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
 
         AssociatedItemShop = (ItemsShopMapEntityLeaf)Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0]];

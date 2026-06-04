@@ -4,18 +4,14 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
-public sealed class QuestBoardNpcMapEntityLeaf : MapEntityLeaf
+public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
 {
     internal QuestBoardNpcMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.NPC;
-    internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.None;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.QuestBoard;
-
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
 
     public Branch<MapEntityLeaf> BoardCaretakerMapEntity
     {
@@ -86,20 +82,16 @@ public sealed class QuestBoardNpcMapEntityLeaf : MapEntityLeaf
             InternalVectorData[2].z);
     }
 
-    public float InteractRangeRadius
-    {
-        get => InternalRadius;
-        set => InternalRadius = value;
-    }
-
     internal override void InitializeFromNew()
     {
+        base.InitializeFromNew();
         InternalData.AddRange(Enumerable.Repeat(-1, 3 - InternalData.Count));
         InternalVectorData.AddRange(Enumerable.Repeat(Vector3.zero, 3 - InternalVectorData.Count));
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
+        base.InitializeFromExisting(registryResolver);
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
 

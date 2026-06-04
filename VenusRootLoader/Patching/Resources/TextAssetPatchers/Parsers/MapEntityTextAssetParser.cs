@@ -122,11 +122,11 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 : mapEntityLeaf.InternalEventId);
         sb.Append('}');
 
-        sb.Append(mapEntityLeaf.InternalRequires.Count);
+        sb.Append(mapEntityLeaf.Requires.Count);
         sb.Append('}');
 
         List<int> allRequires = GetListPaddedWithOriginalArray(
-            mapEntityLeaf.InternalRequires.Select(r => r.GameId).ToList(),
+            mapEntityLeaf.Requires.Select(r => r.GameId).ToList(),
             mapEntityLeaf.OriginalRequires);
         foreach (int require in allRequires)
         {
@@ -134,10 +134,10 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             sb.Append('}');
         }
 
-        sb.Append(mapEntityLeaf.InternalLimits.Count);
+        sb.Append(mapEntityLeaf.Limits.Count);
         sb.Append('}');
 
-        List<int> allLimitsValues = mapEntityLeaf.InternalLimits
+        List<int> allLimitsValues = mapEntityLeaf.Limits
             .Select(l => l.FailsWholeConditionWhenFlagIsTrue
                 ? -l.Flag.GameId
                 : l.Flag.GameId)
@@ -213,13 +213,13 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             sb.Append('}');
         }
 
-        sb.Append(mapEntityLeaf.TagColor.r);
+        sb.Append(mapEntityLeaf.InternalTagColor.r);
         sb.Append('}');
-        sb.Append(mapEntityLeaf.TagColor.g);
+        sb.Append(mapEntityLeaf.InternalTagColor.g);
         sb.Append('}');
-        sb.Append(mapEntityLeaf.TagColor.b);
+        sb.Append(mapEntityLeaf.InternalTagColor.b);
         sb.Append('}');
-        sb.Append(mapEntityLeaf.TagColor.a);
+        sb.Append(mapEntityLeaf.InternalTagColor.a);
         sb.Append('}');
         sb.Append(mapEntityLeaf.InternalEmoticonOffset.x);
         sb.Append('}');
@@ -227,7 +227,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         sb.Append('}');
         sb.Append(mapEntityLeaf.InternalEmoticonOffset.z);
         sb.Append('}');
-        sb.Append(mapEntityLeaf.InsideId);
+        sb.Append(mapEntityLeaf.InternalInsideId);
         sb.Append('}');
 
         List<Vector2> allEmoticonFlags =
@@ -335,13 +335,13 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         for (int i = 0; i < 10; i++)
             value.OriginalRequires[i] = int.Parse(fields[39 + i]);
         for (int i = 0; i < requiresLength; i++)
-            value.InternalRequires.Add(new(_flagsRegistry.LeavesByGameIds[value.OriginalRequires[i]]));
+            value.Requires.Add(new(_flagsRegistry.LeavesByGameIds[value.OriginalRequires[i]]));
 
         if (_logger.IsEnabled(LogLevel.Trace))
         {
             LogIfListHasUnreadableData(
                 value.BaseGameObjectName,
-                nameof(MapEntityLeaf.InternalRequires),
+                nameof(MapEntityLeaf.Requires),
                 requiresLength,
                 value.OriginalRequires);
         }
@@ -351,7 +351,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             value.OriginalLimits[i] = int.Parse(fields[50 + i]);
         for (int i = 0; i < limitsLength; i++)
         {
-            value.InternalLimits.Add(
+            value.Limits.Add(
                 new()
                 {
                     Flag = new(_flagsRegistry.LeavesByGameIds[Math.Abs(value.OriginalLimits[i])]),
@@ -363,7 +363,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         {
             LogIfListHasUnreadableData(
                 value.BaseGameObjectName,
-                nameof(MapEntityLeaf.InternalLimits),
+                nameof(MapEntityLeaf.Limits),
                 limitsLength,
                 value.OriginalLimits);
         }
@@ -464,7 +464,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 value.OriginalBattleEnemyIds);
         }
 
-        value.TagColor = new(
+        value.InternalTagColor = new(
             float.Parse(fields[171]),
             float.Parse(fields[172]),
             float.Parse(fields[173]),
@@ -473,7 +473,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             float.Parse(fields[175]),
             float.Parse(fields[176]),
             float.Parse(fields[177]));
-        value.InsideId = int.Parse(fields[178]);
+        value.InternalInsideId = int.Parse(fields[178]);
 
         for (int i = 0; i < 10; i++)
         {

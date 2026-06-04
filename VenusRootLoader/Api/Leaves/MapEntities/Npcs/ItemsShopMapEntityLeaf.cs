@@ -1,36 +1,20 @@
 using CommunityToolkit.Diagnostics;
 using System.Collections.ObjectModel;
 using UnityEngine;
-using VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
 using ShelvedItemForSale = (Branch<ItemLeaf> Item, Vector3 Position);
 
-public sealed class ItemsShopMapEntityLeaf : MapEntityLeaf
+public sealed class ItemsShopMapEntityLeaf : NpcMapEntityLeaf
 {
     internal ItemsShopMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
-        Behaviors = new(this);
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.NPC;
-    internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.None;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.Shop;
-
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-
-    public Branch<AnimIdLeaf> AnimId
-    {
-        get;
-        set
-        {
-            InternalAnimIdOrItemId = value.GameId;
-            field = value;
-        }
-    }
 
     public Branch<DialogueLeaf> DialogueWhenInteractingWithShopKeeper
     {
@@ -70,38 +54,37 @@ public sealed class ItemsShopMapEntityLeaf : MapEntityLeaf
         set => InternalDialogues[8] = new(value * 10f ?? 0f, InternalDialogues[8].y, InternalDialogues[8].z);
     }
 
+    public Branch<DialogueLeaf>? SpyDialogue
+    {
+        get;
+        set
+        {
+            InternalSpyDialogueId = value?.GameId ?? -1;
+            field = value;
+        }
+    }
+
     public ReadOnlyCollection<ShelvedItemForSale> ItemsForSale { get; private set; } =
         new List<ShelvedItemForSale>().AsReadOnly();
 
-    public float MovementRadius
-    {
-        get => InternalRadiusLimit;
-        set => InternalRadiusLimit = value;
-    }
-
-    public float BehaviorAndInteractRangeRadius
-    {
-        get => InternalRadius;
-        set => InternalRadius = value;
-    }
-
-    public MapEntityBehaviors Behaviors { get; }
-
     internal override void InitializeFromNew()
     {
-        InternalAnimIdOrItemId = 0;
+        base.InitializeFromNew();
         InternalDialogues.AddRange(Enumerable.Repeat(Vector3.zero, 11));
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
-        ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
+        base.InitializeFromExisting(registryResolver);
         ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
 
-        Behaviors.InitializeBehaviorFromExisting(registryResolver);
-
-        AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
+        if (InternalSpyDialogueId != -1)
+        {
+            SpyDialogue = InternalSpyDialogueId < 0
+                ? commonDialoguesRegistry.LeavesByGameIds[InternalSpyDialogueId]
+                : Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalSpyDialogueId];
+        }
 
         List<ShelvedItemForSale> itemsForSale =
             InternalData.Zip(

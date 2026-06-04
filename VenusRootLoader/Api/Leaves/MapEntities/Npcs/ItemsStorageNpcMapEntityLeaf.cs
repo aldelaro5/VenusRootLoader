@@ -1,5 +1,3 @@
-using VenusRootLoader.Registry;
-
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
 public sealed class ItemsStorageNpcMapEntityLeaf : SpyableNpcMapEntityLeaf

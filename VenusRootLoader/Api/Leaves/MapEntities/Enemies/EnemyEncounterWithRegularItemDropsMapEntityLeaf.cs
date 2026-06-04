@@ -3,8 +3,6 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Enemies;
 
-using ItemDrop = (Branch<ItemLeaf> Item, Branch<FlagLeaf>? RequiredFlag);
-
 public sealed class EnemyEncounterWithRegularItemDropsMapEntityLeaf : EnemyMapEntityLeaf
 {
     internal EnemyEncounterWithRegularItemDropsMapEntityLeaf(int gameId, string namedId, string creatorId)
@@ -14,8 +12,8 @@ public sealed class EnemyEncounterWithRegularItemDropsMapEntityLeaf : EnemyMapEn
 
     internal NPCControl.DeathType DeathMethod { get => InternalDeathType; set => InternalDeathType = value; }
 
-    public ReadOnlyCollection<ItemDrop> ItemsDropPoolWhenDefeated { get; private set; } =
-        new List<ItemDrop>().AsReadOnly();
+    public ReadOnlyCollection<EnemyItemDrop> ItemsDropPoolWhenDefeated { get; private set; } =
+        new List<EnemyItemDrop>().AsReadOnly();
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
@@ -23,25 +21,27 @@ public sealed class EnemyEncounterWithRegularItemDropsMapEntityLeaf : EnemyMapEn
         ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
 
-        List<ItemDrop> itemsDrop = InternalVectorData
+        List<EnemyItemDrop> itemsDrop = InternalVectorData
             .Select(itemDrop =>
             {
-                Branch<ItemLeaf> item = new(itemsRegistry.LeavesByGameIds[(int)itemDrop.x]);
-                Branch<FlagLeaf>? flag = itemDrop.y switch
+                return new EnemyItemDrop
                 {
-                    >= 0f => new(flagsRegistry.LeavesByGameIds[(int)itemDrop.y]),
-                    _ => null
+                    Item = itemsRegistry.LeavesByGameIds[(int)itemDrop.x],
+                    RequiredFlag = itemDrop.y switch
+                    {
+                        >= 0f => new(flagsRegistry.LeavesByGameIds[(int)itemDrop.y]),
+                        _ => null
+                    }
                 };
-                return (item, flag);
             })
             .ToList();
         ChangeItemsDropPoolWhenDefeated(itemsDrop);
     }
 
-    public void ChangeItemsDropPoolWhenDefeated(List<ItemDrop> items)
+    public void ChangeItemsDropPoolWhenDefeated(List<EnemyItemDrop> items)
     {
         InternalVectorData.Clear();
-        foreach (ItemDrop itemDrop in items)
+        foreach (EnemyItemDrop itemDrop in items)
         {
             int itemGameId = itemDrop.Item.GameId;
             int requiredFlagGameId = itemDrop.RequiredFlag?.GameId ?? -1;

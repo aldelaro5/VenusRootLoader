@@ -5,8 +5,6 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
-using ShelvedItemForSale = (Branch<ItemLeaf> Item, Vector3 Position);
-
 public sealed class ItemsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
 {
     internal ItemsShopMapEntityLeaf(int gameId, string namedId, string creatorId)
@@ -54,8 +52,8 @@ public sealed class ItemsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
         set => InternalDialogues[8] = new(value * 10f ?? 0f, InternalDialogues[8].y, InternalDialogues[8].z);
     }
 
-    public ReadOnlyCollection<ShelvedItemForSale> ItemsForSale { get; private set; } =
-        new List<ShelvedItemForSale>().AsReadOnly();
+    public ReadOnlyCollection<ItemShopShelvedItemForSale> ItemsForSale { get; private set; } =
+        new List<ItemShopShelvedItemForSale>().AsReadOnly();
 
     internal override void InitializeFromNew()
     {
@@ -69,11 +67,14 @@ public sealed class ItemsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
         ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
 
-        List<ShelvedItemForSale> itemsForSale =
+        List<ItemShopShelvedItemForSale> itemsForSale =
             InternalData.Zip(
                     InternalVectorData,
-                    (data, vectorData) =>
-                        new ShelvedItemForSale(new(itemsRegistry.LeavesByGameIds[data]), vectorData))
+                    (data, vectorData) => new ItemShopShelvedItemForSale
+                    {
+                        Item = itemsRegistry.LeavesByGameIds[data],
+                        Position = vectorData
+                    })
                 .ToList();
         ChangeItemsForSale(itemsForSale);
 
@@ -85,11 +86,11 @@ public sealed class ItemsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
             : Map.Leaf.DialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[6].y];
     }
 
-    public void ChangeItemsForSale(List<ShelvedItemForSale> itemsForSale)
+    public void ChangeItemsForSale(List<ItemShopShelvedItemForSale> itemsForSale)
     {
         InternalVectorData.Clear();
         InternalData.Clear();
-        foreach (ShelvedItemForSale itemForSale in itemsForSale)
+        foreach (ItemShopShelvedItemForSale itemForSale in itemsForSale)
         {
             InternalData.Add(itemForSale.Item.GameId);
             InternalVectorData.Add(itemForSale.Position);

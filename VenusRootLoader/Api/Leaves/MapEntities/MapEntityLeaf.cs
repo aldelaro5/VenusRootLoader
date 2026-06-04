@@ -25,15 +25,26 @@ public abstract class MapEntityLeaf : Leaf
     internal abstract void InitializeFromExisting(IRegistryResolver registryResolver);
 
     internal int[] OriginalRequires { get; } = new int[10];
-    public List<Branch<FlagLeaf>> Requires { get; } = new();
     internal int[] OriginalLimits { get; } = new int[10];
+
+    public List<Branch<FlagLeaf>> Requires { get; } = new();
     public List<LimitFlag> Limits { get; } = new();
 
     public Vector3 EntityStartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-    public Color TagColor { get => InternalTagColor; set => InternalTagColor = value; }
-    public int InsideId { get => InternalInsideId; set => InternalInsideId = value; }
-    public int RegionalFlagId { get => InternalRegionalFlagId; set => InternalRegionalFlagId = value; }
     public Vector3 TransformEulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
+    public Color TagColor { get => InternalTagColor; set => InternalTagColor = value; }
+
+    public int? InsideId
+    {
+        get => InternalInsideId < 0 ? null : InternalInsideId;
+        set => InternalInsideId = value ?? -1;
+    }
+
+    public int? RegionalFlagId
+    {
+        get => InternalRegionalFlagId < 0 ? null : InternalRegionalFlagId;
+        set => InternalRegionalFlagId = value ?? -1;
+    }
 
     internal bool IsReturnToHeightOriginallyInt { get; set; }
     internal bool InternalReturnToHeight { get; set; } = true;
@@ -62,7 +73,6 @@ public abstract class MapEntityLeaf : Leaf
 
     internal float InternalSpeed { get; set; } = 5f;
 
-    // TODO: Expose this in the behaviors where it's used
     internal float InternalSpeedMultiplier { get; set; } = 1f;
     internal float InternalRadiusLimit { get; set; } = 6f;
     internal float InternalWanderRadius { get; set; } = 3f;

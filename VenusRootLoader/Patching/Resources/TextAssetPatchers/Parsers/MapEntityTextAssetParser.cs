@@ -639,11 +639,14 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 registry.RegisterExisting<WindBeamZoneMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WaterSwitch, _) =>
                 registry.RegisterExisting<MapChildVerticalPositionSwitchMapEntityLeaf>(id, namedId, baseGameId),
-            (NPCControl.NPCType.Enemy, _, _) => (int)float.Parse(fields[72 + (0 * 3) + 1]) == -2 &&
-                                                !BehaviorsWithSecondaryVectorData.Contains(primaryBehavior) &&
-                                                !BehaviorsWithSecondaryVectorData.Contains(secondaryBehavior)
-                ? registry.RegisterExisting<EnemyEncounterHoldingKeyItemMapEntityLeaf>(id, namedId, baseGameId)
-                : registry.RegisterExisting<EnemyEncounterWithRegularItemDropsMapEntityLeaf>(id, namedId, baseGameId),
+            (NPCControl.NPCType.Enemy, _, _) => RegisterExistingEnemy(
+                id,
+                baseGameId,
+                primaryBehavior,
+                secondaryBehavior,
+                fields,
+                registry,
+                namedId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.None) =>
                 registry.RegisterExisting<NoInteractionNpcMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.Talk or NPCControl.Interaction.Check) =>
@@ -664,6 +667,30 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             _ => ThrowHelper.ThrowInvalidOperationException<MapEntityLeaf>(
                 $"Invalid NPCControl - type: {type}, ObjectType: {objectType}, Interaction: {interaction}")
         };
+    }
+
+    private static MapEntityLeaf RegisterExistingEnemy(
+        int id,
+        string baseGameId,
+        NPCControl.ActionBehaviors primaryBehavior,
+        NPCControl.ActionBehaviors secondaryBehavior,
+        string[] fields,
+        ILeavesRegistry<MapEntityLeaf> registry,
+        string namedId)
+    {
+        if ((int)float.Parse(fields[72 + (0 * 3) + 1]) == -2 &&
+            !BehaviorsWithSecondaryVectorData.Contains(primaryBehavior) &&
+            !BehaviorsWithSecondaryVectorData.Contains(secondaryBehavior))
+        {
+            return registry.RegisterExisting<EnemyEncounterHoldingKeyItemMapEntityLeaf>(id, namedId, baseGameId);
+        }
+
+        return int.Parse(fields[37]) >= 0
+            ? registry.RegisterExisting<EnemyEncounterRespawnableMapEntityLeaf>(id, namedId, baseGameId)
+            : registry.RegisterExisting<EnemyEncounterWithRegularItemDropsMapEntityLeaf>(
+                id,
+                namedId,
+                baseGameId);
     }
 
     // This allows to basically preserve as much as possible the original array from base game, but only if the new list

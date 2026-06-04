@@ -64,12 +64,6 @@ public sealed class IceRadiusSwitchMapEntityLeaf : MapEntityLeaf
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
 
-    public int? RegionalFlagId
-    {
-        get => InternalRegionalFlagId < 0 ? null : InternalRegionalFlagId;
-        set => InternalRegionalFlagId = value ?? -1;
-    }
-
     public Branch<FlagLeaf>? ActivationFlag
     {
         get;

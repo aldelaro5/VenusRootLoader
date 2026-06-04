@@ -120,8 +120,6 @@ public sealed class LoadingZoneMapEntityLeaf : MapEntityLeaf
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
 
-    public int RegionalFlagId { get => InternalRegionalFlagId; set => InternalRegionalFlagId = value; }
-
     public Branch<FlagLeaf>? ActivationFlag
     {
         get;

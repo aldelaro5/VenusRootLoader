@@ -26,12 +26,6 @@ public sealed class DigSpotCrystalBerryMapEntityLeaf : MapEntityLeaf
         }
     }
 
-    public int? RegionalFlagId
-    {
-        get => InternalRegionalFlagId < 0 ? null : InternalRegionalFlagId;
-        set => InternalRegionalFlagId = value ?? -1;
-    }
-
     public Branch<FlagLeaf>? ActivationFlag
     {
         get;

@@ -36,8 +36,6 @@ public sealed class CuttableGrassMapEntityLeaf : MapEntityLeaf
     public ReadOnlyCollection<Branch<ItemLeaf>?> ItemsDroppedWhenCut { get; private set; } =
         new List<Branch<ItemLeaf>?>().AsReadOnly();
 
-    public int RegionalFlagId { get => InternalRegionalFlagId; set => InternalRegionalFlagId = value; }
-
     public Branch<FlagLeaf>? ActivationFlag
     {
         get;

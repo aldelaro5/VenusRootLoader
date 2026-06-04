@@ -47,8 +47,6 @@ public sealed class CollectibleItemMapEntityLeaf : MapEntityLeaf
         set => InternalData[2] = value ? 0 : 1;
     }
 
-    public int RegionalFlagId { get => InternalRegionalFlagId; set => InternalRegionalFlagId = value; }
-
     public Branch<FlagLeaf>? ActivationFlag
     {
         get;

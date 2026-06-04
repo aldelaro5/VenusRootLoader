@@ -32,12 +32,6 @@ public sealed class DigSpotItemMapEntityLeaf : MapEntityLeaf
         set => InternalData[1] = value ? 1 : 0;
     }
 
-    public int? RegionalFlagId
-    {
-        get => InternalRegionalFlagId < 0 ? null : InternalRegionalFlagId;
-        set => InternalRegionalFlagId = value ?? -1;
-    }
-
     public Branch<FlagLeaf>? ActivationFlag
     {
         get;

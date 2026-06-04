@@ -33,12 +33,6 @@ public sealed class BreakableRockMapEntityLeaf : MapEntityLeaf
         set => InternalData[0] = (int)value;
     }
 
-    public int? RegionalFlagId
-    {
-        get => InternalRegionalFlagId < 0 ? null : InternalRegionalFlagId;
-        set => InternalRegionalFlagId = value ?? -1;
-    }
-
     public Branch<FlagLeaf>? ActivationFlag
     {
         get;

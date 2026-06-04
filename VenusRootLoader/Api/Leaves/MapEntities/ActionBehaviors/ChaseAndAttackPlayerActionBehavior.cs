@@ -24,6 +24,12 @@ public sealed class ChaseAndAttackPlayerActionBehavior : ActionBehavior
         set => InternalFrequencyForKind = value;
     }
 
+    public float MovementSpeedMultiplier
+    {
+        get => MapEntityLeaf.InternalSpeedMultiplier;
+        set => MapEntityLeaf.InternalSpeedMultiplier = value;
+    }
+
     internal ChaseAndAttackPlayerActionBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) : base(
         mapEntityLeaf,
         kind)

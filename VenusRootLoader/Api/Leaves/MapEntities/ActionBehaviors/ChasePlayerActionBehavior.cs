@@ -18,6 +18,12 @@ public sealed class ChasePlayerActionBehavior : ActionBehavior
             : NPCControl.ActionBehaviors.ChasePlayer;
     }
 
+    public float MovementSpeedMultiplier
+    {
+        get => MapEntityLeaf.InternalSpeedMultiplier;
+        set => MapEntityLeaf.InternalSpeedMultiplier = value;
+    }
+
     internal ChasePlayerActionBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) : base(mapEntityLeaf, kind)
     {
     }

@@ -18,6 +18,12 @@ public sealed class ChargeAtPlayerActionBehavior : ActionBehavior
             : NPCControl.ActionBehaviors.ChargeAtPlayer;
     }
 
+    public float MovementSpeedMultiplier
+    {
+        get => MapEntityLeaf.InternalSpeedMultiplier;
+        set => MapEntityLeaf.InternalSpeedMultiplier = value;
+    }
+
     internal ChargeAtPlayerActionBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) : base(
         mapEntityLeaf,
         kind)

@@ -113,20 +113,29 @@ public sealed class MapEntityBehaviors
         return behavior;
     }
 
-    public ChasePlayerActionBehavior SetChasePlayerBehavior(ActionBehaviorKind kind, bool chaseOnWater)
+    public ChasePlayerActionBehavior SetChasePlayerBehavior(
+        ActionBehaviorKind kind,
+        bool chaseOnWater,
+        float movementSpeedMultiplier)
     {
-        ChasePlayerActionBehavior behavior = new(_mapEntityLeaf, kind) { ChaseOnWater = chaseOnWater };
+        ChasePlayerActionBehavior behavior = new(_mapEntityLeaf, kind)
+        {
+            ChaseOnWater = chaseOnWater,
+            MovementSpeedMultiplier = movementSpeedMultiplier
+        };
         SetActionBehavior(behavior, kind);
         return behavior;
     }
 
     public ChasePlayerWhenAnimstateIsChaseActionBehavior SetChasePlayerWhenAnimstateIsChaseBehavior(
         ActionBehaviorKind kind,
-        int animstateOverrideWhenNotChase)
+        int animstateOverrideWhenNotChase,
+        float movementSpeedMultiplier)
     {
         ChasePlayerWhenAnimstateIsChaseActionBehavior behavior = new(_mapEntityLeaf, kind)
         {
-            AnimstateOverrideWhenNotChase = animstateOverrideWhenNotChase
+            AnimstateOverrideWhenNotChase = animstateOverrideWhenNotChase,
+            MovementSpeedMultiplier = movementSpeedMultiplier
         };
         SetActionBehavior(behavior, kind);
         return behavior;
@@ -135,12 +144,14 @@ public sealed class MapEntityBehaviors
     public ChaseAndAttackPlayerActionBehavior SetChaseAndAttackPlayerBehavior(
         ActionBehaviorKind kind,
         float minimumDistanceFromPlayerBeforeAttacking,
-        bool attacksFromUnderground)
+        bool attacksFromUnderground,
+        float movementSpeedMultiplier)
     {
         ChaseAndAttackPlayerActionBehavior behavior = new(_mapEntityLeaf, kind)
         {
             MinimumDistanceFromPlayerBeforeAttacking = minimumDistanceFromPlayerBeforeAttacking,
-            AttacksFromUnderground = attacksFromUnderground
+            AttacksFromUnderground = attacksFromUnderground,
+            MovementSpeedMultiplier = movementSpeedMultiplier
         };
         SetActionBehavior(behavior, kind);
         return behavior;
@@ -244,11 +255,13 @@ public sealed class MapEntityBehaviors
 
     public ChargeAtPlayerActionBehavior SetChargeAtPlayerBehavior(
         ActionBehaviorKind kind,
-        bool lockSpriteFlipDuringCharge)
+        bool lockSpriteFlipDuringCharge,
+        float movementSpeedMultiplier)
     {
         ChargeAtPlayerActionBehavior behavior = new(_mapEntityLeaf, kind)
         {
-            LockSpriteFlipDuringCharge = lockSpriteFlipDuringCharge
+            LockSpriteFlipDuringCharge = lockSpriteFlipDuringCharge,
+            MovementSpeedMultiplier = movementSpeedMultiplier
         };
         SetActionBehavior(behavior, kind);
         return behavior;

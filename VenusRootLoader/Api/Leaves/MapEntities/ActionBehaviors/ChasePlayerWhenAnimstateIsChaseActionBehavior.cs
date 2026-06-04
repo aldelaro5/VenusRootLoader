@@ -10,6 +10,12 @@ public sealed class ChasePlayerWhenAnimstateIsChaseActionBehavior : ActionBehavi
         set => InternalFrequencyForKind = value;
     }
 
+    public float MovementSpeedMultiplier
+    {
+        get => MapEntityLeaf.InternalSpeedMultiplier;
+        set => MapEntityLeaf.InternalSpeedMultiplier = value;
+    }
+
     internal ChasePlayerWhenAnimstateIsChaseActionBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind)
         : base(mapEntityLeaf, kind)
     {

@@ -4,7 +4,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
-public sealed class TalkingNpcMapEntityLeaf : NpcMapEntityLeaf
+public sealed class TalkingNpcMapEntityLeaf : SpyableNpcMapEntityLeaf
 {
     internal TalkingNpcMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
@@ -14,16 +14,6 @@ public sealed class TalkingNpcMapEntityLeaf : NpcMapEntityLeaf
     internal override NPCControl.Interaction Interaction => InteractIconIsQuestionMark
         ? NPCControl.Interaction.Check
         : NPCControl.Interaction.Talk;
-
-    public Branch<DialogueLeaf>? SpyDialogue
-    {
-        get;
-        set
-        {
-            InternalSpyDialogueId = value?.GameId ?? -1;
-            field = value;
-        }
-    }
 
     public ReadOnlyCollection<NpcConditionalDialogue> Dialogues { get; private set; } =
         new List<NpcConditionalDialogue>().AsReadOnly();
@@ -37,13 +27,6 @@ public sealed class TalkingNpcMapEntityLeaf : NpcMapEntityLeaf
         
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
-
-        if (InternalSpyDialogueId != -1)
-        {
-            SpyDialogue = InternalSpyDialogueId < 0
-                ? commonDialoguesRegistry.LeavesByGameIds[InternalSpyDialogueId]
-                : Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalSpyDialogueId];
-        }
 
         List<NpcConditionalDialogue> dialogues = InternalDialogues
             .Select(dialogue => new NpcConditionalDialogue

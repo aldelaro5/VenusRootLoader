@@ -7,7 +7,7 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
 using ShelvedItemForSale = (Branch<ItemLeaf> Item, Vector3 Position);
 
-public sealed class ItemsShopMapEntityLeaf : NpcMapEntityLeaf
+public sealed class ItemsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
 {
     internal ItemsShopMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
@@ -54,16 +54,6 @@ public sealed class ItemsShopMapEntityLeaf : NpcMapEntityLeaf
         set => InternalDialogues[8] = new(value * 10f ?? 0f, InternalDialogues[8].y, InternalDialogues[8].z);
     }
 
-    public Branch<DialogueLeaf>? SpyDialogue
-    {
-        get;
-        set
-        {
-            InternalSpyDialogueId = value?.GameId ?? -1;
-            field = value;
-        }
-    }
-
     public ReadOnlyCollection<ShelvedItemForSale> ItemsForSale { get; private set; } =
         new List<ShelvedItemForSale>().AsReadOnly();
 
@@ -78,13 +68,6 @@ public sealed class ItemsShopMapEntityLeaf : NpcMapEntityLeaf
         base.InitializeFromExisting(registryResolver);
         ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
-
-        if (InternalSpyDialogueId != -1)
-        {
-            SpyDialogue = InternalSpyDialogueId < 0
-                ? commonDialoguesRegistry.LeavesByGameIds[InternalSpyDialogueId]
-                : Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalSpyDialogueId];
-        }
 
         List<ShelvedItemForSale> itemsForSale =
             InternalData.Zip(

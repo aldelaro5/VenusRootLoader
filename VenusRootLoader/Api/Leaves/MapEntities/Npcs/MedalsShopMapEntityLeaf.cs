@@ -5,7 +5,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
-public sealed class MedalsShopMapEntityLeaf : NpcMapEntityLeaf
+public sealed class MedalsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
 {
     internal MedalsShopMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
@@ -62,16 +62,6 @@ public sealed class MedalsShopMapEntityLeaf : NpcMapEntityLeaf
         }
     }
 
-    public Branch<DialogueLeaf>? SpyDialogue
-    {
-        get;
-        set
-        {
-            InternalSpyDialogueId = value?.GameId ?? -1;
-            field = value;
-        }
-    }
-
     public ReadOnlyCollection<Vector3> ShelvedMedalPositions { get; private set; } =
         new List<Vector3>().AsReadOnly();
 
@@ -87,13 +77,6 @@ public sealed class MedalsShopMapEntityLeaf : NpcMapEntityLeaf
         base.InitializeFromExisting(registryResolver);
         ILeavesRegistry<MedalShopLeaf> medalShopsRegistry = registryResolver.Resolve<MedalShopLeaf>();
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
-
-        if (InternalSpyDialogueId != -1)
-        {
-            SpyDialogue = InternalSpyDialogueId < 0
-                ? commonDialoguesRegistry.LeavesByGameIds[InternalSpyDialogueId]
-                : Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalSpyDialogueId];
-        }
 
         AssociatedMedalsShop = new(medalShopsRegistry.LeavesByGameIds[(int)InternalDialogues[9].x]);
 

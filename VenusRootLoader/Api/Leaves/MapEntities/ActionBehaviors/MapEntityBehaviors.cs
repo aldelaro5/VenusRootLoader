@@ -78,7 +78,9 @@ public sealed class MapEntityBehaviors
                 _mapEntityLeaf,
                 kind),
             NPCControl.ActionBehaviors.WanderUnderground => new WanderActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.StealthAI => CreateNewStealthSpotBehaviorFromExisting(registryResolver),
+            NPCControl.ActionBehaviors.StealthAI => (int)_mapEntityLeaf.InternalOutOfRangeActionFrequency == 5555
+                ? new StealthSpotWhileAsleepBehavior(_mapEntityLeaf)
+                : CreateNewStealthSpotBehaviorFromExisting(registryResolver),
             NPCControl.ActionBehaviors.SetPathJump => new MoveAlongPathActionBehavior(_mapEntityLeaf, kind),
             NPCControl.ActionBehaviors.ChangeSpriteInRandius => new ChangeAnimstateInRadiusActionBehavior(
                 _mapEntityLeaf),
@@ -297,7 +299,7 @@ public sealed class MapEntityBehaviors
 
     public StealthSpotBehavior SetStealthSpotGlobalBehavior(
         Branch<EventLeaf>? eventToStartWhenSpottingPlayer,
-        float? delayFramesBeforeMovingToNextNode,
+        float delayFramesBeforeMovingToNextNode,
         int visionLengthInUnits)
     {
         StealthSpotBehavior behavior = new(_mapEntityLeaf)
@@ -305,6 +307,20 @@ public sealed class MapEntityBehaviors
             EventToStartWhenSpottingPlayer = eventToStartWhenSpottingPlayer,
             VisionLengthInUnits = visionLengthInUnits,
             DelayFramesBeforeMovingToNextNode = delayFramesBeforeMovingToNextNode
+        };
+        SetActionBehavior(null, ActionBehaviorKind.InRange);
+        SetActionBehavior(behavior, ActionBehaviorKind.OutOfRange);
+        return behavior;
+    }
+
+    public StealthSpotWhileAsleepBehavior SetStealthSpotWhileAsleepGlobalBehavior(
+        Branch<EventLeaf>? eventToStartWhenSpottingPlayer,
+        int visionLengthInUnits)
+    {
+        StealthSpotWhileAsleepBehavior behavior = new(_mapEntityLeaf)
+        {
+            EventToStartWhenSpottingPlayer = eventToStartWhenSpottingPlayer,
+            VisionLengthInUnits = visionLengthInUnits,
         };
         SetActionBehavior(null, ActionBehaviorKind.InRange);
         SetActionBehavior(behavior, ActionBehaviorKind.OutOfRange);

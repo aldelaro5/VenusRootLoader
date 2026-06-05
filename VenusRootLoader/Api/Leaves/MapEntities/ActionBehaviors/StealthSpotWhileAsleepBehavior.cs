@@ -1,18 +1,9 @@
-using System.Collections.ObjectModel;
-using UnityEngine;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
 
-// TODO: Figure out if you can put a delay
-public sealed class StealthSpotBehavior : ActionBehavior
+public sealed class StealthSpotWhileAsleepBehavior : ActionBehavior
 {
-    public float DelayFramesBeforeMovingToNextNode
-    {
-        get => MapEntityLeaf.InternalOutOfRangeActionFrequency;
-        set => MapEntityLeaf.InternalOutOfRangeActionFrequency = value;
-    }
-
     public Branch<EventLeaf>? EventToStartWhenSpottingPlayer
     {
         get;
@@ -29,12 +20,10 @@ public sealed class StealthSpotBehavior : ActionBehavior
         set => MapEntityLeaf.InternalBattleEnemyIds[1] = value;
     }
 
-    public ReadOnlyCollection<Vector3> MovementPathNodePositions { get; private set; } =
-        new List<Vector3>().AsReadOnly();
-
-    internal StealthSpotBehavior(MapEntityLeaf mapEntityLeaf) : base(mapEntityLeaf, null)
+    internal StealthSpotWhileAsleepBehavior(MapEntityLeaf mapEntityLeaf) : base(mapEntityLeaf, null)
     {
         MapEntityLeaf.InternalOutOfRangeBehavior = NPCControl.ActionBehaviors.StealthAI;
+        MapEntityLeaf.InternalOutOfRangeActionFrequency = 5555;
 
         if (MapEntityLeaf.InternalBattleEnemyIds.Count < 2)
         {
@@ -50,12 +39,5 @@ public sealed class StealthSpotBehavior : ActionBehavior
         EventToStartWhenSpottingPlayer = MapEntityLeaf.InternalBattleEnemyIds[0] >= 0
             ? new(eventsRegistry.LeavesByGameIds[MapEntityLeaf.InternalBattleEnemyIds[0]])
             : null;
-    }
-
-    public void ChangeMovementPathNodePositions(ICollection<Vector3> nodes)
-    {
-        MapEntityLeaf.InternalSecondaryVectorData.Clear();
-        MapEntityLeaf.InternalSecondaryVectorData.AddRange(nodes);
-        MovementPathNodePositions = nodes.ToList().AsReadOnly();
     }
 }

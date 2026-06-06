@@ -685,7 +685,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             return registry.RegisterExisting<EnemyEncounterHoldingKeyItemMapEntityLeaf>(id, namedId, baseGameId);
         }
 
-        return int.Parse(fields[37]) >= 0
+        return int.Parse(fields[37]) > 0
             ? registry.RegisterExisting<EnemyEncounterRespawnableMapEntityLeaf>(id, namedId, baseGameId)
             : registry.RegisterExisting<EnemyEncounterWithRegularItemDropsMapEntityLeaf>(
                 id,

@@ -1,4 +1,5 @@
-using System.Collections.ObjectModel;
+using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Enemies;
@@ -8,12 +9,13 @@ public sealed class EnemyEncounterWithRegularItemDropsMapEntityLeaf : EnemyMapEn
     internal EnemyEncounterWithRegularItemDropsMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
+        _itemsDropPoolWhenDefeated = new(InternalVectorData);
     }
 
     internal NPCControl.DeathType DeathMethod { get => InternalDeathType; set => InternalDeathType = value; }
 
-    public ReadOnlyCollection<EnemyItemDrop> ItemsDropPoolWhenDefeated { get; private set; } =
-        new List<EnemyItemDrop>().AsReadOnly();
+    private readonly ListWrapper<EnemyItemDrop, Vector3> _itemsDropPoolWhenDefeated;
+    public IList<EnemyItemDrop> ItemsDropPoolWhenDefeated => _itemsDropPoolWhenDefeated;
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
@@ -21,33 +23,15 @@ public sealed class EnemyEncounterWithRegularItemDropsMapEntityLeaf : EnemyMapEn
         ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
 
-        List<EnemyItemDrop> itemsDrop = InternalVectorData
-            .Select(itemDrop =>
+        _itemsDropPoolWhenDefeated.SynchronizeFromExistingData(
+            InternalVectorData.Select(itemDrop => new EnemyItemDrop
             {
-                return new EnemyItemDrop
+                Item = itemsRegistry.LeavesByGameIds[(int)itemDrop.x],
+                RequiredFlag = itemDrop.y switch
                 {
-                    Item = itemsRegistry.LeavesByGameIds[(int)itemDrop.x],
-                    RequiredFlag = itemDrop.y switch
-                    {
-                        >= 0f => new(flagsRegistry.LeavesByGameIds[(int)itemDrop.y]),
-                        _ => null
-                    }
-                };
-            })
-            .ToList();
-        ChangeItemsDropPoolWhenDefeated(itemsDrop);
-    }
-
-    public void ChangeItemsDropPoolWhenDefeated(List<EnemyItemDrop> items)
-    {
-        InternalVectorData.Clear();
-        foreach (EnemyItemDrop itemDrop in items)
-        {
-            int itemGameId = itemDrop.Item.GameId;
-            int requiredFlagGameId = itemDrop.RequiredFlag?.GameId ?? -1;
-            InternalVectorData.Add(new(itemGameId, requiredFlagGameId, 0f));
-        }
-
-        ItemsDropPoolWhenDefeated = items.AsReadOnly();
+                    >= 0f => new(flagsRegistry.LeavesByGameIds[(int)itemDrop.y]),
+                    _ => null
+                }
+            }).ToList());
     }
 }

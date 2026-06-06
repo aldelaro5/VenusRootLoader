@@ -125,7 +125,7 @@ internal sealed class MapsCollector : IBaseGameCollector
                 if (mapLeaf.NamedId == nameof(MainManager.Maps.BugariaEndThrone) && mapEntity.GameId == 16)
                 {
                     mapEntity.InternalDialogues.Clear();
-                    mapEntity.InternalDialogues.Add(new(-1, 0, 0));
+                    mapEntity.InternalDialogues.Add(new(new(-1, 0, 0)));
                 }
                 mapEntity.InitializeFromExisting(_registryResolver);
             }

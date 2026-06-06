@@ -1,5 +1,5 @@
-using System.Collections.ObjectModel;
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
@@ -18,44 +18,41 @@ public sealed class StealthSpotBehavior : ActionBehavior
         get;
         set
         {
-            MapEntityLeaf.InternalBattleEnemyIds[0] = value?.GameId ?? -1;
+            MapEntityLeaf.InternalBattleEnemyIds[0].Value = value?.GameId ?? -1;
             field = value;
         }
     }
 
     public int VisionLengthInUnits
     {
-        get => MapEntityLeaf.InternalBattleEnemyIds[1];
-        set => MapEntityLeaf.InternalBattleEnemyIds[1] = value;
+        get => MapEntityLeaf.InternalBattleEnemyIds[1].Value;
+        set => MapEntityLeaf.InternalBattleEnemyIds[1].Value = value;
     }
 
-    public ReadOnlyCollection<Vector3> MovementPathNodePositions { get; private set; } =
-        new List<Vector3>().AsReadOnly();
+    private readonly ListRefWrapper<Vector3, Vector3> _movementPathNodePositions;
+    public IList<Vector3> MovementPathNodePositions => _movementPathNodePositions;
 
     internal StealthSpotBehavior(MapEntityLeaf mapEntityLeaf) : base(mapEntityLeaf, null)
     {
+        _movementPathNodePositions = new(MapEntityLeaf.InternalSecondaryVectorData, 0, x => new(x));
         MapEntityLeaf.InternalOutOfRangeBehavior = NPCControl.ActionBehaviors.StealthAI;
 
         if (MapEntityLeaf.InternalBattleEnemyIds.Count < 2)
         {
             MapEntityLeaf.InternalBattleEnemyIds.AddRange(
-                Enumerable.Repeat(0, 2 - MapEntityLeaf.InternalBattleEnemyIds.Count));
+                Enumerable.Repeat(new Ref<int>(0), 2 - MapEntityLeaf.InternalBattleEnemyIds.Count));
         }
+
+        _movementPathNodePositions.SynchronizeFromExistingData(
+            MapEntityLeaf.InternalSecondaryVectorData.Select(x => x.Value).ToList());
     }
 
     internal void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
 
-        EventToStartWhenSpottingPlayer = MapEntityLeaf.InternalBattleEnemyIds[0] >= 0
-            ? new(eventsRegistry.LeavesByGameIds[MapEntityLeaf.InternalBattleEnemyIds[0]])
+        EventToStartWhenSpottingPlayer = MapEntityLeaf.InternalBattleEnemyIds[0].Value >= 0
+            ? new(eventsRegistry.LeavesByGameIds[MapEntityLeaf.InternalBattleEnemyIds[0].Value])
             : null;
-    }
-
-    public void ChangeMovementPathNodePositions(ICollection<Vector3> nodes)
-    {
-        MapEntityLeaf.InternalSecondaryVectorData.Clear();
-        MapEntityLeaf.InternalSecondaryVectorData.AddRange(nodes);
-        MovementPathNodePositions = nodes.ToList().AsReadOnly();
     }
 }

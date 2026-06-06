@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -21,91 +22,91 @@ public sealed class LoadingZoneMapEntityLeaf : MapEntityLeaf
         get;
         set
         {
-            InternalData[0] = value.GameId;
+            InternalData[0].Value = value.GameId;
             field = value;
         }
     }
 
     public Vector3? CameraPositionOffsetFromTargetAfterLoadOverride
     {
-        get => InternalData[1] != 1 ? null : InternalVectorData[3];
+        get => InternalData[1].Value != 1 ? null : InternalVectorData[3].Value;
         set
         {
             if (value is null)
             {
-                InternalData[1] = 0;
-                InternalVectorData[3] = Vector3.zero;
+                InternalData[1].Value = 0;
+                InternalVectorData[3].Value = Vector3.zero;
                 return;
             }
 
-            InternalData[1] = 1;
-            InternalVectorData[3] = value.Value;
+            InternalData[1].Value = 1;
+            InternalVectorData[3].Value = value.Value;
         }
     }
 
     public Vector3? CameraAnglesOffsetFromTargetAfterLoadOverride
     {
-        get => InternalData[2] != 1 ? null : InternalVectorData[4];
+        get => InternalData[2].Value != 1 ? null : InternalVectorData[4].Value;
         set
         {
             if (value is null)
             {
-                InternalData[2] = 0;
-                InternalVectorData[4] = Vector3.zero;
+                InternalData[2].Value = 0;
+                InternalVectorData[4].Value = Vector3.zero;
                 return;
             }
 
-            InternalData[2] = 1;
-            InternalVectorData[4] = value.Value;
+            InternalData[2].Value = 1;
+            InternalVectorData[4].Value = value.Value;
         }
     }
 
     public (Vector3 lowerBounds, Vector3 upperBounds)? CameraBoundsAfterLoadOverride
     {
-        get => InternalData[3] != 1 ? null : (InternalVectorData[6], InternalVectorData[5]);
+        get => InternalData[3].Value != 1 ? null : (InternalVectorData[6].Value, InternalVectorData[5].Value);
         set
         {
             if (value is null)
             {
-                InternalData[3] = 0;
-                InternalVectorData[6] = Vector3.zero;
-                InternalVectorData[5] = Vector3.zero;
+                InternalData[3].Value = 0;
+                InternalVectorData[6].Value = Vector3.zero;
+                InternalVectorData[5].Value = Vector3.zero;
                 return;
             }
 
-            InternalData[3] = 1;
-            InternalVectorData[6] = value.Value.lowerBounds;
-            InternalVectorData[5] = value.Value.upperBounds;
+            InternalData[3].Value = 1;
+            InternalVectorData[6].Value = value.Value.lowerBounds;
+            InternalVectorData[5].Value = value.Value.upperBounds;
         }
     }
 
     public Vector3? PositionToMoveToBeforeLoad
     {
-        get => InternalData[4] == 1 ? null : InternalVectorData[0];
+        get => InternalData[4].Value == 1 ? null : InternalVectorData[0].Value;
         set
         {
             if (value is null)
             {
-                InternalData[4] = 1;
-                InternalVectorData[0] = Vector3.zero;
+                InternalData[4].Value = 1;
+                InternalVectorData[0].Value = Vector3.zero;
                 return;
             }
 
-            InternalData[4] = 0;
-            InternalVectorData[0] = value.Value;
+            InternalData[4].Value = 0;
+            InternalVectorData[0].Value = value.Value;
         }
     }
 
     public Vector3 PositionToSpawnAfterMapLoad
     {
-        get => InternalVectorData[1];
-        set => InternalVectorData[1] = value;
+        get => InternalVectorData[1].Value;
+        set => InternalVectorData[1].Value = value;
     }
 
     public Vector3 PositionToMoveFromSpawnAfterMapLoad
     {
-        get => InternalVectorData[2];
-        set => InternalVectorData[2] = value;
+        get => InternalVectorData[2].Value;
+        set => InternalVectorData[2].Value = value;
     }
 
     public float? JumpMovementHeightAfterMapLoad
@@ -132,8 +133,8 @@ public sealed class LoadingZoneMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([-1, 0, 0, 0, 0]);
-        InternalVectorData.AddRange(Enumerable.Repeat(Vector3.zero, 7));
+        InternalData.AddRange([new(-1), new(0), new(0), new(0), new(0)]);
+        InternalVectorData.AddRange(Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 7));
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
         InternalBoxColSize = Vector3.one;
@@ -142,13 +143,16 @@ public sealed class LoadingZoneMapEntityLeaf : MapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 5)
-            InternalData.AddRange(Enumerable.Repeat(0, 5 - InternalData.Count));
+            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 5 - InternalData.Count));
         if (InternalVectorData.Count < 7)
-            InternalVectorData.AddRange(Enumerable.Repeat(Vector3.zero, 7 - InternalVectorData.Count));
+        {
+            InternalVectorData.AddRange(
+                Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 7 - InternalVectorData.Count));
+        }
 
         ILeavesRegistry<MapLeaf> mapsRegistry = registryResolver.Resolve<MapLeaf>();
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
-        Map = new(mapsRegistry.LeavesByGameIds[InternalData[0]]);
+        Map = new(mapsRegistry.LeavesByGameIds[InternalData[0].Value]);
 
         if (InternalActivationFlagId > 0)
             ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);

@@ -79,7 +79,7 @@ public sealed class MapEntityBehaviors
                 kind),
             NPCControl.ActionBehaviors.WanderUnderground => new WanderActionBehavior(_mapEntityLeaf, kind),
             NPCControl.ActionBehaviors.StealthAI => (int)_mapEntityLeaf.InternalOutOfRangeActionFrequency == 5555
-                ? new StealthSpotWhileAsleepBehavior(_mapEntityLeaf)
+                ? CreateNewStealthSpotWhileAsleepBehaviorFromExisting(registryResolver)
                 : CreateNewStealthSpotBehaviorFromExisting(registryResolver),
             NPCControl.ActionBehaviors.SetPathJump => new MoveAlongPathActionBehavior(_mapEntityLeaf, kind),
             NPCControl.ActionBehaviors.ChangeSpriteInRandius => new ChangeAnimstateInRadiusActionBehavior(
@@ -97,6 +97,14 @@ public sealed class MapEntityBehaviors
             _ => ThrowHelper.ThrowInvalidOperationException<ActionBehavior?>(
                 $"The internal action behavior type {internalType} is not supported.")
         };
+    }
+
+    private StealthSpotWhileAsleepBehavior CreateNewStealthSpotWhileAsleepBehaviorFromExisting(
+        IRegistryResolver registryResolver)
+    {
+        StealthSpotWhileAsleepBehavior behavior = new(_mapEntityLeaf);
+        behavior.InitializeFromExisting(registryResolver);
+        return behavior;
     }
 
     private StealthSpotBehavior CreateNewStealthSpotBehaviorFromExisting(IRegistryResolver registryResolver)
@@ -249,7 +257,8 @@ public sealed class MapEntityBehaviors
             DelayFramesBeforeMovingToNextNode = delayFramesBeforeMovingToNextNode,
             JumpWhileMoving = jumpWhileMoving,
         };
-        behavior.ChangeMovementPathNodePositions(positionNodesInPath);
+        foreach (Vector3 vector3 in positionNodesInPath)
+            behavior.MovementPathNodePositions.Add(vector3);
         SetActionBehavior(behavior, kind);
         return behavior;
     }

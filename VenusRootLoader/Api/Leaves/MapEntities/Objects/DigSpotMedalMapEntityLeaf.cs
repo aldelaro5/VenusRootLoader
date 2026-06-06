@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -21,7 +22,7 @@ public sealed class DigSpotMedalMapEntityLeaf : MapEntityLeaf
         get;
         set
         {
-            InternalData[2] = value.GameId;
+            InternalData[2].Value = value.GameId;
             field = value;
         }
     }
@@ -38,7 +39,7 @@ public sealed class DigSpotMedalMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([0, 2, 0]);
+        InternalData.AddRange([new(0), new(2), new(0)]);
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.DigMound - 1;
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
@@ -49,11 +50,11 @@ public sealed class DigSpotMedalMapEntityLeaf : MapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 3)
-            InternalData.AddRange(Enumerable.Repeat(-1, 3 - InternalData.Count));
+            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(-1), 3 - InternalData.Count));
 
         ILeavesRegistry<MedalLeaf> medalsRegistry = registryResolver.Resolve<MedalLeaf>();
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
-        MedalHiddenInside = new(medalsRegistry.LeavesByGameIds[InternalData[2]]);
+        MedalHiddenInside = new(medalsRegistry.LeavesByGameIds[InternalData[2].Value]);
 
         if (InternalActivationFlagId > 0)
             ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);

@@ -1,5 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -44,18 +45,22 @@ public sealed class SwitchMapEntityLeafActivationTriggerZoneMapEntityLeaf : MapE
                     "The entity controlled cannot be the entity itself");
             }
 
-            InternalData[0] = value.GameId;
+            InternalData[0].Value = value.GameId;
             field = value;
         }
     } = null!;
 
     public SwitchMapEntityActivationTriggerZoneMode ActivationMode
     {
-        get => (SwitchMapEntityActivationTriggerZoneMode)InternalData[1];
-        set => InternalData[1] = (int)value;
+        get => (SwitchMapEntityActivationTriggerZoneMode)InternalData[1].Value;
+        set => InternalData[1].Value = (int)value;
     }
 
-    public bool DestroysBeemerangWhileInside { get => InternalData[2] == 1; set => InternalData[2] = value ? 1 : 0; }
+    public bool DestroysBeemerangWhileInside
+    {
+        get => InternalData[2].Value == 1;
+        set => InternalData[2].Value = value ? 1 : 0;
+    }
 
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
@@ -72,7 +77,7 @@ public sealed class SwitchMapEntityLeafActivationTriggerZoneMapEntityLeaf : MapE
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([0, 1, 0]);
+        InternalData.AddRange([new(0), new(1), new(0)]);
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
     }
@@ -80,9 +85,9 @@ public sealed class SwitchMapEntityLeafActivationTriggerZoneMapEntityLeaf : MapE
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 3)
-            InternalData.AddRange(Enumerable.Repeat(0, 3 - InternalData.Count));
+            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 3 - InternalData.Count));
 
-        MapEntityLeafActivationControlled = Map.Leaf.EntitiesRegistry.LeavesByGameIds[Math.Abs(InternalData[0])];
+        MapEntityLeafActivationControlled = Map.Leaf.EntitiesRegistry.LeavesByGameIds[Math.Abs(InternalData[0].Value)];
 
         if (InternalActivationFlagId > 0)
         {

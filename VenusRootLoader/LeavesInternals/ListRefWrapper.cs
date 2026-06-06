@@ -2,21 +2,30 @@ using System.Collections;
 
 namespace VenusRootLoader.LeavesInternals;
 
-internal sealed class ListWrapper<TWrapper, TWrapped> : IList<TWrapper>
-    where TWrapper : IHasUnderluingValue<TWrapped>
+internal sealed class ListRefWrapper<TWrapper, TWrapped> : IList<TWrapper>
     where TWrapped : struct
 {
-    private readonly List<TWrapped> _wrappedList;
+    private readonly List<Ref<TWrapped>> _wrappedList;
+    private readonly int _startingIndex;
+    private readonly Func<TWrapper, Ref<TWrapped>> _refWrapper;
     private readonly List<TWrapper> _backingList = new();
 
-    internal ListWrapper(List<TWrapped> wrappedList)
+    internal ListRefWrapper(
+        List<Ref<TWrapped>> wrappedList,
+        int startingIndex,
+        Func<TWrapper, Ref<TWrapped>> refWrapper)
     {
         _wrappedList = wrappedList;
+        _startingIndex = startingIndex;
+        _refWrapper = refWrapper;
     }
 
     internal void SynchronizeFromExistingData(List<TWrapper> existingData)
     {
-        _backingList.AddRange(existingData);
+        _wrappedList.RemoveRange(_startingIndex, existingData.Count);
+        _backingList.Clear();
+        foreach (TWrapper item in existingData)
+            Add(item);
     }
 
     public int Count => _backingList.Count;
@@ -28,35 +37,38 @@ internal sealed class ListWrapper<TWrapper, TWrapped> : IList<TWrapper>
     public TWrapper this[int index]
     {
         get => _backingList[index];
-        set => _wrappedList[index] = value.UnderlyingRef;
+        set => _wrappedList[index + _startingIndex] = _refWrapper(value);
     }
 
     public void Add(TWrapper item)
     {
         _backingList.Add(item);
-        _wrappedList.Add(item.UnderlyingRef);
+        _wrappedList.Add(_refWrapper(item));
     }
 
     public void Insert(int index, TWrapper item)
     {
-        _wrappedList.Insert(index, item.UnderlyingRef);
         _backingList.Insert(index, item);
+        _wrappedList.Insert(index + _startingIndex, _refWrapper(item));
     }
 
     public void CopyTo(TWrapper[] array, int arrayIndex) => _backingList.CopyTo(array, arrayIndex);
     public bool Contains(TWrapper item) => _backingList.Contains(item);
     public int IndexOf(TWrapper item) => _backingList.IndexOf(item);
-
     public bool Remove(TWrapper item)
     {
-        _backingList.Remove(item);
-        return _wrappedList.Remove(item.UnderlyingRef);
+        TWrapped wrapped = _refWrapper(item).Value;
+        Ref<TWrapped>? refWrapper = _wrappedList.Skip(_startingIndex).FirstOrDefault(x => x.Value.Equals(wrapped));
+        if (refWrapper is null)
+            return false;
+
+        return _wrappedList.Remove(refWrapper) && _backingList.Remove(item);
     }
 
     public void RemoveAt(int index)
     {
-        _wrappedList.RemoveAt(index);
         _backingList.RemoveAt(index);
+        _wrappedList.RemoveAt(index + _startingIndex);
     }
 
     public void Clear()

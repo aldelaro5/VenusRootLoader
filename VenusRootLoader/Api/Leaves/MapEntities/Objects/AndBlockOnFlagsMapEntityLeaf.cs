@@ -1,5 +1,5 @@
-using System.Collections.ObjectModel;
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -9,14 +9,15 @@ public sealed class AndBlockOnFlagsMapEntityLeaf : MapEntityLeaf
     internal AndBlockOnFlagsMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
+        _flagsInput = new(InternalData, 1, x => new(x.GameId));
     }
 
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.ANDBlock;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
-    public ReadOnlyCollection<Branch<FlagLeaf>> FlagsInput { get; private set; } =
-        new List<Branch<FlagLeaf>>().AsReadOnly();
+    private readonly ListRefWrapper<Branch<FlagLeaf>, int> _flagsInput;
+    public IList<Branch<FlagLeaf>> FlagsInput => _flagsInput;
 
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
     public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
@@ -33,57 +34,52 @@ public sealed class AndBlockOnFlagsMapEntityLeaf : MapEntityLeaf
 
     public Vector3 LocalPositionWhenActuatedAfterLerp
     {
-        get => InternalVectorData[0];
-        set => InternalVectorData[0] = value;
+        get => InternalVectorData[0].Value;
+        set => InternalVectorData[0].Value = value;
     }
 
     public float LocalPositionLerpFactorWhenActuated
     {
-        get => InternalVectorData[1].x;
-        set => InternalVectorData[1] = new(value, InternalVectorData[1].y, InternalVectorData[1].z);
+        get => InternalVectorData[1].Value.x;
+        set => InternalVectorData[1].Value.x = value;
     }
 
     public Vector3? EntityStartScale
     {
-        get => InternalVectorData[2].magnitude <= 0.1f ? null : InternalVectorData[2];
-        set => InternalVectorData[2] = value ?? Vector3.zero;
+        get => InternalVectorData[2].Value.magnitude <= 0.1f ? null : InternalVectorData[2].Value;
+        set => InternalVectorData[2].Value = value ?? Vector3.zero;
     }
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([-2]);
-        InternalVectorData.AddRange([Vector3.down * 6f, Vector3.right * 0.1f, Vector3.zero]);
+        InternalData.AddRange([new Ref<int>(-2)]);
+        InternalVectorData.AddRange(
+        [
+            new Ref<Vector3>(Vector3.down * 6f),
+            new Ref<Vector3>(Vector3.right * 0.1f),
+            new Ref<Vector3>(Vector3.zero)
+        ]);
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.PrisonGate - 1;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalVectorData.Count < 3)
-            InternalVectorData.AddRange(Enumerable.Repeat(Vector3.zero, 3 - InternalVectorData.Count));
-
-        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
-        ILeavesRegistry<AnimIdLeaf> animidRegistry = registryResolver.Resolve<AnimIdLeaf>();
-
-        List<Branch<FlagLeaf>> flagsInput = new();
-        for (int i = 1; i < InternalData.Count; i++)
         {
-            int value = InternalData[i];
-            flagsInput.Add(new(flagsRegistry.LeavesByGameIds[Math.Abs(value)]));
+            InternalVectorData.AddRange(
+                Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 3 - InternalVectorData.Count));
         }
 
+        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+        ILeavesRegistry<AnimIdLeaf> animIdRegistry = registryResolver.Resolve<AnimIdLeaf>();
+
+        _flagsInput.SynchronizeFromExistingData(
+            InternalData
+                .Skip(1)
+                .Select(x => new Branch<FlagLeaf>(flagsRegistry.LeavesByGameIds[Math.Abs(x.Value)]))
+                .ToList());
+
         if (InternalAnimIdOrItemId >= 0)
-            AnimId = new(animidRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
-
-        ChangeFlagsInput(flagsInput);
-    }
-
-    public void ChangeFlagsInput(List<Branch<FlagLeaf>> flagsInput)
-    {
-        InternalData.RemoveRange(1, InternalData.Count - 1);
-
-        foreach (Branch<FlagLeaf> negatableFlag in flagsInput)
-            InternalData.Add(-negatableFlag.GameId);
-
-        FlagsInput = flagsInput.AsReadOnly();
+            AnimId = new(animIdRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
     }
 }

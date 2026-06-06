@@ -28,35 +28,32 @@ public sealed class JumpToPositionSpringMapEntityLeaf : MapEntityLeaf
 
     public int? InsideTransitionMapEntityIdToTriggerWhenUsingSpring
     {
-        get => InternalData[2] < 0 ? null : InternalData[2];
-        set => InternalData[2] = value ?? -1;
+        get => InternalData[2].Value < 0 ? null : InternalData[2].Value;
+        set => InternalData[2].Value = value ?? -1;
     }
 
     public Vector3 PositionToGoWhenUsingSpring
     {
-        get => InternalVectorData[1];
-        set => InternalVectorData[1] = value;
+        get => InternalVectorData[1].Value;
+        set => InternalVectorData[1].Value = value;
     }
 
     public float JumpHeightWhenUsingSpring
     {
-        get => InternalVectorData[0].x;
-        set => InternalVectorData[0] = new(value, InternalVectorData[0].y, InternalVectorData[0].z);
+        get => InternalVectorData[0].Value.x;
+        set => InternalVectorData[0].Value.x = value;
     }
 
     public float JumpDurationDivisorWhenUsingSpring
     {
-        get => Mathf.Clamp(InternalVectorData[2].x, 1f, 99f);
-        set => InternalVectorData[2] = new(
-            Mathf.Clamp(value, 1f, 99f),
-            InternalVectorData[0].y,
-            InternalVectorData[0].z);
+        get => Mathf.Clamp(InternalVectorData[2].Value.x, 1f, 99f);
+        set => InternalVectorData[2].Value.x = Mathf.Clamp(value, 1f, 99f);
     }
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([1, 0, -1]);
-        InternalVectorData.AddRange([new(15f, 0f, 0f), Vector3.zero, Vector3.right]);
+        InternalData.AddRange([new(1), new(0), new(-1)]);
+        InternalVectorData.AddRange([new(new(15f, 0f, 0f)), new(Vector3.zero), new(Vector3.right)]);
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
         InternalBoxColSize = new(1.5f, 1f, 1.5f);
@@ -67,6 +64,6 @@ public sealed class JumpToPositionSpringMapEntityLeaf : MapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalVectorData.Count < 3)
-            InternalVectorData.Add(Vector3.right);
+            InternalVectorData.Add(new(Vector3.right));
     }
 }

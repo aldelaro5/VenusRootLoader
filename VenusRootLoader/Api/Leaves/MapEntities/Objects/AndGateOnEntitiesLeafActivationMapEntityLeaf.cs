@@ -1,5 +1,4 @@
-using CommunityToolkit.Diagnostics;
-using System.Collections.ObjectModel;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -9,21 +8,22 @@ public sealed class AndGateOnEntitiesLeafActivationMapEntityLeaf : MapEntityLeaf
     internal AndGateOnEntitiesLeafActivationMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
+        _entityActivationsInput = new(InternalData, 1, x => x.Ref);
     }
 
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.ANDGate;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
-    public ReadOnlyCollection<NegatableMapEntityActivation> EntityActivationsInput { get; private set; } =
-        new List<NegatableMapEntityActivation>().AsReadOnly();
+    private readonly ListRefWrapper<NegatableMapEntityActivation, int> _entityActivationsInput;
+    public IList<NegatableMapEntityActivation> EntityActivationsInput => _entityActivationsInput;
 
     public Branch<EventLeaf>? OneShotEventOutputOverride
     {
         get;
         set
         {
-            InternalData[0] = value?.GameId ?? -1;
+            InternalData[0].Value = value?.GameId ?? -1;
             field = value;
         }
     }
@@ -33,52 +33,26 @@ public sealed class AndGateOnEntitiesLeafActivationMapEntityLeaf : MapEntityLeaf
         InternalAnimIdOrItemId = -1;
         InternalStartingPosition = new(0f, 9999f, 0f);
         InternalActivationFlagId = -1;
-        InternalData.AddRange([-1]);
+        InternalData.AddRange([new(-1)]);
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
-        if (InternalData[0] > -1)
+        if (InternalData[0].Value > -1)
         {
             ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
-            OneShotEventOutputOverride = new(eventsRegistry.LeavesByGameIds[InternalData[0]]);
+            OneShotEventOutputOverride = new(eventsRegistry.LeavesByGameIds[InternalData[0].Value]);
         }
 
         MapLeaf map = registryResolver.Resolve<MapLeaf>().LeavesByGameIds[Map.GameId];
-        List<NegatableMapEntityActivation> entityActivationInputs = new();
-        for (int i = 1; i < InternalData.Count; i++)
-        {
-            int value = InternalData[i];
-            entityActivationInputs.Add(
-                new()
+        _entityActivationsInput.SynchronizeFromExistingData(
+            InternalData
+                .Skip(1)
+                .Select(x => new NegatableMapEntityActivation
                 {
-                    MapEntity = map.EntitiesRegistry.LeavesByGameIds[Math.Abs(value)],
-                    IsActivationValueNegated = value < 0
-                });
-        }
-
-        ChangeEntitiesActivationInput(entityActivationInputs);
-    }
-
-    public void ChangeEntitiesActivationInput(List<NegatableMapEntityActivation> entityActivationsInput)
-    {
-        List<NegatableMapEntityActivation> incorrectEntities = entityActivationsInput
-            .Where(e => e.MapEntity.Leaf.Map != Map)
-            .ToList();
-        if (incorrectEntities.Count > 0)
-        {
-            IEnumerable<string> badEntityNames = incorrectEntities.Select(e => e.MapEntity.Leaf.BaseGameObjectName);
-            ThrowHelper.ThrowArgumentOutOfRangeException(
-                nameof(entityActivationsInput),
-                $"The following entities are not present in the {Map.NamedId} map which is required: " +
-                $"{string.Join(", ", badEntityNames)}");
-        }
-
-        InternalData.RemoveRange(1, InternalData.Count - 1);
-
-        foreach (NegatableMapEntityActivation negatableMapEntityActivation in entityActivationsInput)
-            InternalData.Add(negatableMapEntityActivation.EffectiveValue);
-
-        EntityActivationsInput = entityActivationsInput.AsReadOnly();
+                    MapEntity = map.EntitiesRegistry.LeavesByGameIds[Math.Abs(x.Value)],
+                    IsActivationValueNegated = x.Value < 0
+                })
+                .ToList());
     }
 }

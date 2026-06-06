@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -25,14 +26,14 @@ public sealed class SwitchTriggerZoneMapEntityLeaf : MapEntityLeaf
 
     public SwitchTriggerZoneMode ActivationMode
     {
-        get => (SwitchTriggerZoneMode)InternalData[1];
-        set => InternalData[1] = (int)value;
+        get => (SwitchTriggerZoneMode)InternalData[1].Value;
+        set => InternalData[1].Value = (int)value;
     }
 
     public bool DestroysBeemerangWhileInsideAndDeactivated
     {
-        get => InternalData[2] == 1;
-        set => InternalData[2] = value ? 1 : 0;
+        get => InternalData[2].Value == 1;
+        set => InternalData[2].Value = value ? 1 : 0;
     }
 
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
@@ -50,7 +51,7 @@ public sealed class SwitchTriggerZoneMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([-1, 1, 0]);
+        InternalData.AddRange([new(-1), new(1), new(0)]);
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
     }
@@ -58,7 +59,7 @@ public sealed class SwitchTriggerZoneMapEntityLeaf : MapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 3)
-            InternalData.AddRange(Enumerable.Repeat(0, 3 - InternalData.Count));
+            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 3 - InternalData.Count));
 
         if (InternalActivationFlagId > 0)
         {

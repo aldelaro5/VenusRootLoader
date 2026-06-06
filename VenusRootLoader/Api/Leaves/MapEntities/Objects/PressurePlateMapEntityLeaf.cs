@@ -1,5 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -33,25 +34,25 @@ public sealed class PressurePlateMapEntityLeaf : MapEntityLeaf
             {
                 case PressurePlateType.RegularWoodenPlate:
                     InternalAnimIdOrItemId = (int)MainManager.AnimIDs.WoodenPPlate - 1;
-                    InternalVectorData[0] = new(0f, -0.2f, 0f);
+                    InternalVectorData[0].Value = new(0f, -0.2f, 0f);
                     InternalBoxColSize = new(2f, 1f, 2f);
                     InternalBoxColCenter = new(0f, 1f, 0f);
                     break;
                 case PressurePlateType.DarkGreenWoodenPlate:
                     InternalAnimIdOrItemId = (int)MainManager.AnimIDs.WoodenPPlate2 - 1;
-                    InternalVectorData[0] = new(0f, -0.2f, 0f);
+                    InternalVectorData[0].Value = new(0f, -0.2f, 0f);
                     InternalBoxColSize = new(2f, 1f, 2f);
                     InternalBoxColCenter = new(0f, 1f, 0f);
                     break;
                 case PressurePlateType.AncientPressurePlate:
                     InternalAnimIdOrItemId = (int)MainManager.AnimIDs.AncientPressurePlate - 1;
-                    InternalVectorData[0] = new(0f, 0f, -0.004f);
+                    InternalVectorData[0].Value = new(0f, 0f, -0.004f);
                     InternalBoxColSize = new(3f, 1f, 3f);
                     InternalBoxColCenter = new(0f, 1f, 0f);
                     break;
                 case PressurePlateType.TestButton:
                     InternalAnimIdOrItemId = (int)MainManager.AnimIDs.TestButton - 1;
-                    InternalVectorData[0] = new(0f, -0.4f, 0f);
+                    InternalVectorData[0].Value = new(0f, -0.4f, 0f);
                     InternalBoxColSize = Vector3.one;
                     InternalBoxColCenter = Vector3.zero;
                     break;
@@ -66,14 +67,14 @@ public sealed class PressurePlateMapEntityLeaf : MapEntityLeaf
 
     public bool CanBeActuatedByPlayerCollider
     {
-        get => InternalData[0] == 1;
-        set => InternalData[0] = value ? 1 : 0;
+        get => InternalData[0].Value == 1;
+        set => InternalData[0].Value = value ? 1 : 0;
     }
 
     public bool CanBeActuatedByEntityIceCube
     {
-        get => InternalData[1] == 1;
-        set => InternalData[1] = value ? 1 : 0;
+        get => InternalData[1].Value == 1;
+        set => InternalData[1].Value = value ? 1 : 0;
     }
 
     public Branch<EventLeaf>? EventToTriggerOnFirstActuation
@@ -81,7 +82,7 @@ public sealed class PressurePlateMapEntityLeaf : MapEntityLeaf
         get;
         set
         {
-            InternalData[2] = value?.GameId ?? -1;
+            InternalData[2].Value = value?.GameId ?? -1;
             field = value;
         }
     }
@@ -98,9 +99,9 @@ public sealed class PressurePlateMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([1, 1, -1]);
+        InternalData.AddRange([new(1), new(1), new(-1)]);
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.WoodenPPlate - 1;
-        InternalVectorData.AddRange([new(0f, -0.2f, 0f)]);
+        InternalVectorData.AddRange([new(new(0f, -0.2f, 0f))]);
         InternalActivationFlagId = -1;
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
@@ -111,12 +112,12 @@ public sealed class PressurePlateMapEntityLeaf : MapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 3)
-            InternalData.AddRange(Enumerable.Repeat(-1, 3 - InternalData.Count));
+            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(-1), 3 - InternalData.Count));
 
-        if (InternalData[2] >= 0)
+        if (InternalData[2].Value >= 0)
         {
             ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
-            EventToTriggerOnFirstActuation = new(eventsRegistry.LeavesByGameIds[InternalData[2]]);
+            EventToTriggerOnFirstActuation = new(eventsRegistry.LeavesByGameIds[InternalData[2].Value]);
         }
 
         if (InternalActivationFlagId >= 0)

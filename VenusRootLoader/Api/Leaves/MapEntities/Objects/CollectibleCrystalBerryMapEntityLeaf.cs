@@ -20,7 +20,7 @@ public sealed class CollectibleCrystalBerryMapEntityLeaf : MapEntityLeaf
         get;
         set
         {
-            InternalData[3] = value.GameId;
+            InternalData[3].Value = value.GameId;
             field = value;
         }
     }
@@ -30,20 +30,20 @@ public sealed class CollectibleCrystalBerryMapEntityLeaf : MapEntityLeaf
         get;
         set
         {
-            InternalData[1] = value?.GameId ?? -1;
+            InternalData[1].Value = value?.GameId ?? -1;
             field = value;
         }
     }
 
     public bool IsCatchableByBeemerang
     {
-        get => InternalData[2] == 0;
-        set => InternalData[2] = value ? 0 : 1;
+        get => InternalData[2].Value == 0;
+        set => InternalData[2].Value = value ? 0 : 1;
     }
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([3, -1, 0, 0]);
+        InternalData.AddRange([new(3), new(-1), new(0), new(0)]);
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
@@ -51,8 +51,8 @@ public sealed class CollectibleCrystalBerryMapEntityLeaf : MapEntityLeaf
         ILeavesRegistry<CrystalBerryLeaf> crystalBerriesRegistry = registryResolver.Resolve<CrystalBerryLeaf>();
         ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
 
-        CrystalBerry = new(crystalBerriesRegistry.LeavesByGameIds[InternalData[3]]);
-        if (InternalData[1] > -1)
-            EventToTriggerWhenCollected = new(eventsRegistry.LeavesByGameIds[InternalData[1]]);
+        CrystalBerry = new(crystalBerriesRegistry.LeavesByGameIds[InternalData[3].Value]);
+        if (InternalData[1].Value > -1)
+            EventToTriggerWhenCollected = new(eventsRegistry.LeavesByGameIds[InternalData[1].Value]);
     }
 }

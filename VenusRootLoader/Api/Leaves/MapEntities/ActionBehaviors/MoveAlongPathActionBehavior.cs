@@ -1,7 +1,7 @@
 using CommunityToolkit.Diagnostics;
-using System.Collections.ObjectModel;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors.Enums;
+using VenusRootLoader.LeavesInternals;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
 
@@ -26,18 +26,14 @@ public sealed class MoveAlongPathActionBehavior : ActionBehavior
         set => InternalFrequencyForKind = value;
     }
 
-    public ReadOnlyCollection<Vector3> MovementPathNodePositions { get; private set; } =
-        new List<Vector3>().AsReadOnly();
+    private readonly ListRefWrapper<Vector3, Vector3> _movementPathNodePositions;
+    public IList<Vector3> MovementPathNodePositions => _movementPathNodePositions;
 
     internal MoveAlongPathActionBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) :
         base(mapEntityLeaf, kind)
     {
-    }
-
-    public void ChangeMovementPathNodePositions(ICollection<Vector3> nodes)
-    {
-        MapEntityLeaf.InternalSecondaryVectorData.Clear();
-        MapEntityLeaf.InternalSecondaryVectorData.AddRange(nodes);
-        MovementPathNodePositions = nodes.ToList().AsReadOnly();
+        _movementPathNodePositions = new(MapEntityLeaf.InternalSecondaryVectorData, 0, x => new(x));
+        _movementPathNodePositions.SynchronizeFromExistingData(
+            MapEntityLeaf.InternalSecondaryVectorData.Select(x => x.Value).ToList());
     }
 }

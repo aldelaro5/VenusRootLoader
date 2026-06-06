@@ -1,6 +1,5 @@
-using CommunityToolkit.Diagnostics;
-using System.Collections.ObjectModel;
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -11,6 +10,7 @@ public sealed class MovingPlatformAlongLerpMapEntityLeaf : MapEntityLeaf
     internal MovingPlatformAlongLerpMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
+        _requiredEntityActivationsToMove = new(InternalData, 0, x => new(x.GameId));
     }
 
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
@@ -31,83 +31,61 @@ public sealed class MovingPlatformAlongLerpMapEntityLeaf : MapEntityLeaf
 
     public Vector3 InactivePosition
     {
-        get => InternalVectorData[0];
+        get => InternalVectorData[0].Value;
         set
         {
-            InternalVectorData[0] = value;
+            InternalVectorData[0].Value = value;
             InternalStartingPosition = value;
         }
     }
 
-    public Vector3 ActivePosition { get => InternalVectorData[1]; set => InternalVectorData[1] = value; }
+    public Vector3 ActivePosition { get => InternalVectorData[1].Value; set => InternalVectorData[1].Value = value; }
 
-    public ReadOnlyCollection<Branch<MapEntityLeaf>> RequiredEntityActivationsToMove { get; private set; } =
-        new List<Branch<MapEntityLeaf>>().AsReadOnly();
+    private readonly ListRefWrapper<Branch<MapEntityLeaf>, int> _requiredEntityActivationsToMove;
+    public IList<Branch<MapEntityLeaf>> RequiredEntityActivationsToMove => _requiredEntityActivationsToMove;
 
     public bool StartMovementFromActivePosition
     {
-        get => (int)InternalDialogues[0].x == 1;
-        set => InternalDialogues[0] = new Vector3(value ? 1f : 0f, InternalDialogues[0].y, InternalDialogues[0].z);
+        get => (int)InternalDialogues[0].Value.x == 1;
+        set => InternalDialogues[0].Value.x = value ? 1f : 0f;
     }
 
     public float MovementSpeedMultiplier
     {
-        get => InternalDialogues[0].y;
-        set => InternalDialogues[0] = new Vector3(InternalDialogues[0].x, value, InternalDialogues[0].z);
+        get => InternalDialogues[0].Value.y;
+        set => InternalDialogues[0].Value.y = value;
     }
 
     public float? ModelScale
     {
-        get => InternalDialogues[2].x <= 0.1f ? null : InternalDialogues[2].x / 10f;
-        set => InternalDialogues[2] = new Vector3(
-            value is > 0.1f ? value.Value * 10f : 0f,
-            InternalDialogues[2].y,
-            InternalDialogues[2].z);
+        get => InternalDialogues[2].Value.x <= 0.1f ? null : InternalDialogues[2].Value.x / 10f;
+        set => InternalDialogues[2].Value.x = value is > 0.1f ? value.Value * 10f : 0f;
     }
 
     public float? FramesBeforeShockIfElectroPlatformOverride
     {
-        get => InternalDialogues[2].y == 0f ? null : InternalDialogues[2].y;
-        set => InternalDialogues[2] = new Vector3(InternalDialogues[2].x, value ?? 0f, InternalDialogues[2].z);
+        get => InternalDialogues[2].Value.y == 0f ? null : InternalDialogues[2].Value.y;
+        set => InternalDialogues[2].Value.y = value ?? 0f;
     }
 
     internal override void InitializeFromNew()
     {
-        InternalDialogues.AddRange([new(0f, 5f, 0f), new(1f, 0f, 0f), new(0f, 0f, 0f)]);
-        InternalVectorData.AddRange([Vector3.zero, Vector3.up]);
+        InternalDialogues.AddRange([new(new(0f, 5f, 0f)), new(new(1f, 0f, 0f)), new(new(0f, 0f, 0f))]);
+        InternalVectorData.AddRange([new(Vector3.zero), new(Vector3.up)]);
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.AncientPlatform - 1;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalDialogues.Count < 3)
-            InternalDialogues.AddRange(Enumerable.Repeat(Vector3.zero, 3 - InternalData.Count));
+            InternalDialogues.AddRange(Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 3 - InternalData.Count));
 
         ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
         AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
 
-        List<int> requiredEntityIdsActivation = new();
-        requiredEntityIdsActivation.AddRange(InternalData);
-        RequiredEntityActivationsToMove = requiredEntityIdsActivation
-            .Select(x => new Branch<MapEntityLeaf>(Map.Leaf.EntitiesRegistry.LeavesByGameIds[x])).ToList().AsReadOnly();
-    }
-
-    public void ChangeRequiredEntityActivationsToMove(List<Branch<MapEntityLeaf>> entities)
-    {
-        List<string> badMapEntitiesNamedIds = entities
-            .Where(x => x.Leaf.Map != Map)
-            .Select(x => x.NamedId)
-            .ToList();
-        if (badMapEntitiesNamedIds.Count > 0)
-        {
-            ThrowHelper.ThrowArgumentException(
-                nameof(entities),
-                $"The following map entities needs to be in the {Map.NamedId} map, but they are not: " +
-                $"{string.Join(", ", badMapEntitiesNamedIds)}");
-        }
-
-        InternalData.Clear();
-        InternalData.AddRange(entities.Select(e => e.GameId));
-        RequiredEntityActivationsToMove = entities.AsReadOnly();
+        _requiredEntityActivationsToMove.SynchronizeFromExistingData(
+            InternalData
+                .Select(x => new Branch<MapEntityLeaf>(Map.Leaf.EntitiesRegistry.LeavesByGameIds[x.Value]))
+                .ToList());
     }
 }

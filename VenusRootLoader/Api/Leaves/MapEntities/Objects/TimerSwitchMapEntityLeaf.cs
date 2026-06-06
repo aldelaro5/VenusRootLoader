@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -14,8 +15,17 @@ public sealed class TimerSwitchMapEntityLeaf : MapEntityLeaf
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.Switch;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
-    public int TimerInFramesBeforeAutomaticTurnOff { get => InternalData[2]; set => InternalData[2] = value; }
-    public bool CanOnlyBeActuatedWithHornSlash { get => InternalData[4] == 1; set => InternalData[4] = value ? 1 : 0; }
+    public int TimerInFramesBeforeAutomaticTurnOff
+    {
+        get => InternalData[2].Value;
+        set => InternalData[2].Value = value;
+    }
+
+    public bool CanOnlyBeActuatedWithHornSlash
+    {
+        get => InternalData[4].Value == 1;
+        set => InternalData[4].Value = value ? 1 : 0;
+    }
 
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
     public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
@@ -41,7 +51,7 @@ public sealed class TimerSwitchMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([0, 0, 30, 0, 0]);
+        InternalData.AddRange([new(0), new(0), new(30), new(0), new(0)]);
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.SwitchCrystal - 1;
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
@@ -52,7 +62,7 @@ public sealed class TimerSwitchMapEntityLeaf : MapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 5)
-            InternalData.AddRange(Enumerable.Repeat(0, 5 - InternalData.Count));
+            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 5 - InternalData.Count));
 
         ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
 

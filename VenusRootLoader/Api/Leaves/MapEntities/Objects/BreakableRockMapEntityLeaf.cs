@@ -29,8 +29,8 @@ public sealed class BreakableRockMapEntityLeaf : MapEntityLeaf
 
     public BreakableRockTintColor TintColor
     {
-        get => (BreakableRockTintColor)InternalData[0];
-        set => InternalData[0] = (int)value;
+        get => (BreakableRockTintColor)InternalData[0].Value;
+        set => InternalData[0].Value = (int)value;
     }
 
     public Branch<FlagLeaf>? ActivationFlag
@@ -45,7 +45,7 @@ public sealed class BreakableRockMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromNew()
     {
-        InternalData.Add(0);
+        InternalData.Add(new(0));
         InternalHaxBoxCol = true;
     }
 

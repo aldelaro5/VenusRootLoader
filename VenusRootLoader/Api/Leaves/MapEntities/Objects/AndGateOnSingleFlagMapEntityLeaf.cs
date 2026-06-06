@@ -26,7 +26,7 @@ public sealed class AndGateOnSingleFlagMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([0, -1]);
+        InternalData.AddRange([new(0), new(-1)]);
         InternalAnimIdOrItemId = -1;
         InternalStartingPosition = new(0f, 9999f, 0f);
         InternalActivationFlagId = 0;

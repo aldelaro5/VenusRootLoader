@@ -19,8 +19,8 @@ public sealed class SetPlayerRespawnZoneMapEntityLeaf : MapEntityLeaf
 
     public Vector3? RespawnPositionToSetWhenTriggered
     {
-        get => InternalVectorData[0].magnitude < 0.1 ? null : InternalVectorData[0];
-        set => InternalVectorData[0] = value is null or { magnitude: < 0.1f } ? Vector3.zero : value.Value;
+        get => InternalVectorData[0].Value.magnitude < 0.1 ? null : InternalVectorData[0].Value;
+        set => InternalVectorData[0].Value = value is null or { magnitude: < 0.1f } ? Vector3.zero : value.Value;
     }
 
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
@@ -28,7 +28,7 @@ public sealed class SetPlayerRespawnZoneMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromNew()
     {
-        InternalVectorData.Add(Vector3.back * 0.2f);
+        InternalVectorData.Add(new(Vector3.back * 0.2f));
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
         InternalBoxColSize = Vector3.one;
@@ -37,6 +37,6 @@ public sealed class SetPlayerRespawnZoneMapEntityLeaf : MapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalVectorData.Count == 0)
-            InternalVectorData.Add(Vector3.zero);
+            InternalVectorData.Add(new(Vector3.zero));
     }
 }

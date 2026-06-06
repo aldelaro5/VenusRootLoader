@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -24,7 +25,11 @@ public sealed class LatchedSwitchMapEntityLeaf : MapEntityLeaf
         }
     }
 
-    public bool CanOnlyBeActuatedWithHornSlash { get => InternalData[4] == 1; set => InternalData[4] = value ? 1 : 0; }
+    public bool CanOnlyBeActuatedWithHornSlash
+    {
+        get => InternalData[4].Value == 1;
+        set => InternalData[4].Value = value ? 1 : 0;
+    }
 
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
     public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
@@ -50,7 +55,7 @@ public sealed class LatchedSwitchMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([0, 0, 0, 0, 0]);
+        InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 5));
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.SwitchCrystal - 1;
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
@@ -62,7 +67,7 @@ public sealed class LatchedSwitchMapEntityLeaf : MapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 5)
-            InternalData.AddRange(Enumerable.Repeat(0, 5 - InternalData.Count));
+            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 5 - InternalData.Count));
 
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
         ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();

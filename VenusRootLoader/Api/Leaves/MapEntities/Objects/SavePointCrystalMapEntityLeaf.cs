@@ -17,14 +17,24 @@ public sealed class SavePointCrystalMapEntityLeaf : MapEntityLeaf
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
     public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
 
-    public bool HasAnIlluminatedSphere { get => InternalData[0] == 1; set => InternalData[0] = value ? 1 : 0; }
-    public bool HealsPartyWhenHit { get => InternalData[2] == 0; set => InternalData[2] = value ? 0 : 1; }
-    public Vector3 PositionSavedWhenSaving { get => InternalVectorData[0]; set => InternalVectorData[0] = value; }
+    public bool HasAnIlluminatedSphere
+    {
+        get => InternalData[0].Value == 1;
+        set => InternalData[0].Value = value ? 1 : 0;
+    }
+
+    public bool HealsPartyWhenHit { get => InternalData[2].Value == 0; set => InternalData[2].Value = value ? 0 : 1; }
+
+    public Vector3 PositionSavedWhenSaving
+    {
+        get => InternalVectorData[0].Value;
+        set => InternalVectorData[0].Value = value;
+    }
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([1, 0, 1]);
-        InternalVectorData.Add(Vector3.zero);
+        InternalData.AddRange([new(1), new(0), new(1)]);
+        InternalVectorData.Add(new(Vector3.zero));
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.SavePoint - 1;
     }
 

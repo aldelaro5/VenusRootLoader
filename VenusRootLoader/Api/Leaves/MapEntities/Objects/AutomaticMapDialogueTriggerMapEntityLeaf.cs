@@ -22,18 +22,18 @@ public sealed class AutomaticMapDialogueTriggerMapEntityLeaf : MapEntityLeaf
             if (value.Leaf.AssociatedMap != Map)
                 ThrowHelper.ThrowInvalidOperationException($"This map dialogue must be in the {Map.NamedId} map");
 
-            InternalData[0] = value.GameId;
+            InternalData[0].Value = value.GameId;
             field = value;
         }
     }
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([-1, 0, 1]);
+        InternalData.AddRange([new(-1), new(0), new(1)]);
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
-        MapDialogueLineIdToImmediatelyProcess = Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalData[0]];
+        MapDialogueLineIdToImmediatelyProcess = Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalData[0].Value];
     }
 }

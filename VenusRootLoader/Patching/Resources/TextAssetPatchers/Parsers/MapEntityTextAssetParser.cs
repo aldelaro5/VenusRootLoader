@@ -9,6 +9,7 @@ using VenusRootLoader.Api.Leaves.MapEntities.Enemies;
 using VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects;
 using VenusRootLoader.Extensions;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
@@ -152,7 +153,9 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         sb.Append(mapEntityLeaf.InternalData.Count);
         sb.Append('}');
 
-        List<int> allData = GetListPaddedWithOriginalArray(mapEntityLeaf.InternalData, mapEntityLeaf.OriginalData);
+        List<int> allData = GetListPaddedWithOriginalArray(
+            mapEntityLeaf.InternalData.Select(x => x.Value).ToList(),
+            mapEntityLeaf.OriginalData);
         foreach (int data in allData)
         {
             sb.Append(data);
@@ -163,7 +166,9 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         sb.Append('}');
 
         List<Vector3> allVectorData =
-            GetListPaddedWithOriginalArray(mapEntityLeaf.InternalVectorData, mapEntityLeaf.OriginalVectorData);
+            GetListPaddedWithOriginalArray(
+                mapEntityLeaf.InternalVectorData.Select(x => x.Value).ToList(),
+                mapEntityLeaf.OriginalVectorData);
         foreach (Vector3 vectorData in allVectorData)
         {
             sb.Append(vectorData.x);
@@ -174,7 +179,8 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             sb.Append('}');
         }
 
-        mapEntityLeaf.InternalSecondaryVectorDataArray = mapEntityLeaf.InternalSecondaryVectorData.ToArray();
+        mapEntityLeaf.InternalSecondaryVectorDataArray =
+            mapEntityLeaf.InternalSecondaryVectorData.Select(x => x.Value).ToArray();
 
         sb.Append(
             mapEntityLeaf is { Type: NPCControl.NPCType.NPC, Interaction: NPCControl.Interaction.Shop }
@@ -183,7 +189,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         sb.Append('}');
 
         List<Vector3> allDialogues = GetListPaddedWithOriginalArray(
-            mapEntityLeaf.InternalDialogues,
+            mapEntityLeaf.InternalDialogues.Select(x => x.Value).ToList(),
             mapEntityLeaf.OriginalDialogues);
         foreach (Vector3 dialogue in allDialogues)
         {
@@ -206,7 +212,9 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         sb.Append('}');
 
         List<int> allBattleEnemyIds =
-            GetListPaddedWithOriginalArray(mapEntityLeaf.InternalBattleEnemyIds, mapEntityLeaf.OriginalBattleEnemyIds);
+            GetListPaddedWithOriginalArray(
+                mapEntityLeaf.InternalBattleEnemyIds.Select(x => x.Value).ToList(),
+                mapEntityLeaf.OriginalBattleEnemyIds);
         foreach (int battleEnemyId in allBattleEnemyIds)
         {
             sb.Append(battleEnemyId);
@@ -231,7 +239,9 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         sb.Append('}');
 
         List<Vector2> allEmoticonFlags =
-            GetListPaddedWithOriginalArray(mapEntityLeaf.InternalEmoticonFlags, mapEntityLeaf.OriginalEmoticonFlags);
+            GetListPaddedWithOriginalArray(
+                mapEntityLeaf.InternalEmoticonFlags.Select(x => x.Value).ToList(),
+                mapEntityLeaf.OriginalEmoticonFlags);
         foreach (Vector2 emoticonFlag in allEmoticonFlags)
         {
             sb.Append(emoticonFlag.x);
@@ -372,7 +382,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         for (int i = 0; i < 10; i++)
             value.OriginalData[i] = int.Parse(fields[61 + i]);
         for (int i = 0; i < dataLength; i++)
-            value.InternalData.Add(value.OriginalData[i]);
+            value.InternalData.Add(new(value.OriginalData[i]));
 
         if (_logger.IsEnabled(LogLevel.Trace))
         {
@@ -393,7 +403,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         }
 
         for (int i = 0; i < vectorDataLength; i++)
-            value.InternalVectorData.Add(value.OriginalVectorData[i]);
+            value.InternalVectorData.Add(new(value.OriginalVectorData[i]));
         value.InternalSecondaryVectorData.AddRange(value.InternalVectorData);
 
         if (type is NPCControl.NPCType.NPC or NPCControl.NPCType.Enemy &&
@@ -430,12 +440,12 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
 
         if (interaction == NPCControl.Interaction.Shop)
         {
-            value.InternalDialogues.AddRange(value.OriginalDialogues);
+            value.InternalDialogues.AddRange(value.OriginalDialogues.Select(x => new Ref<Vector3>(x)));
         }
         else
         {
             for (int i = 0; i < dialoguesLength; i++)
-                value.InternalDialogues.Add(value.OriginalDialogues[i]);
+                value.InternalDialogues.Add(new(value.OriginalDialogues[i]));
         }
 
         if (_logger.IsEnabled(LogLevel.Trace))
@@ -453,7 +463,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         for (int i = 0; i < 4; i++)
             value.OriginalBattleEnemyIds[i] = int.Parse(fields[167 + i]);
         for (int i = 0; i < battleEnemyIdsLength; i++)
-            value.InternalBattleEnemyIds.Add(value.OriginalBattleEnemyIds[i]);
+            value.InternalBattleEnemyIds.Add(new(value.OriginalBattleEnemyIds[i]));
 
         if (_logger.IsEnabled(LogLevel.Trace))
         {
@@ -481,7 +491,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             value.OriginalEmoticonFlags[i] = new(float.Parse(components[0]), float.Parse(components[1]));
 
             if (i == 0 || value.OriginalEmoticonFlags[i].x > 0)
-                value.InternalEmoticonFlags.Add(value.OriginalEmoticonFlags[i]);
+                value.InternalEmoticonFlags.Add(new(value.OriginalEmoticonFlags[i]));
         }
 
         value.InternalSpyDialogueId = int.Parse(fields[189]);

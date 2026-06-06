@@ -27,8 +27,8 @@ public sealed class CollectibleItemMapEntityLeaf : MapEntityLeaf
 
     public bool IsKeyItem
     {
-        get => InternalData[0] == 1;
-        set => InternalData[0] = value ? 1 : 0;
+        get => InternalData[0].Value == 1;
+        set => InternalData[0].Value = value ? 1 : 0;
     }
 
     public Branch<EventLeaf>? EventToTriggerWhenCollected
@@ -36,15 +36,15 @@ public sealed class CollectibleItemMapEntityLeaf : MapEntityLeaf
         get;
         set
         {
-            InternalData[1] = value?.GameId ?? -1;
+            InternalData[1].Value = value?.GameId ?? -1;
             field = value;
         }
     }
 
     public bool IsCatchableByBeemerang
     {
-        get => InternalData[2] == 0;
-        set => InternalData[2] = value ? 0 : 1;
+        get => InternalData[2].Value == 0;
+        set => InternalData[2].Value = value ? 0 : 1;
     }
 
     public Branch<FlagLeaf>? ActivationFlag
@@ -59,23 +59,23 @@ public sealed class CollectibleItemMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([0, -1, 0]);
+        InternalData.AddRange([new(0), new(-1), new(0)]);
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 2)
-            InternalData.Add(-1);
+            InternalData.Add(new(-1));
         if (InternalData.Count < 3)
-            InternalData.Add(0);
+            InternalData.Add(new(0));
 
         ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
         ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
 
         Item = new(itemsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
-        if (InternalData[1] > -1)
-            EventToTriggerWhenCollected = new(eventsRegistry.LeavesByGameIds[InternalData[1]]);
+        if (InternalData[1].Value > -1)
+            EventToTriggerWhenCollected = new(eventsRegistry.LeavesByGameIds[InternalData[1].Value]);
         if (InternalActivationFlagId > 0)
             ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
     }

@@ -28,14 +28,14 @@ public sealed class JumpUpSpringMapEntityLeaf : MapEntityLeaf
 
     public float? JumpHeightOverrideWhenUsingSpring
     {
-        get => InternalVectorData[0].x <= 1.0f ? null : InternalVectorData[0].x;
-        set => InternalVectorData[0] = new(value ?? 0f, InternalVectorData[0].y, InternalVectorData[0].z);
+        get => InternalVectorData[0].Value.x <= 1.0f ? null : InternalVectorData[0].Value.x;
+        set => InternalVectorData[0].Value.x = value ?? 0f;
     }
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([0, 0, -1]);
-        InternalVectorData.AddRange([Vector3.right * 25f, Vector3.zero, Vector3.zero]);
+        InternalData.AddRange([new(0), new(0), new(-1)]);
+        InternalVectorData.AddRange([new(Vector3.right * 25f), new(Vector3.zero), new(Vector3.zero)]);
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
         InternalBoxColSize = new(1.5f, 1f, 1.5f);

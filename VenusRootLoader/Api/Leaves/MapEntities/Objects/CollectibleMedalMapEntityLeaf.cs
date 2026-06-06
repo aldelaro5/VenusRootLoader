@@ -30,15 +30,15 @@ public sealed class CollectibleMedalMapEntityLeaf : MapEntityLeaf
         get;
         set
         {
-            InternalData[1] = value?.GameId ?? -1;
+            InternalData[1].Value = value?.GameId ?? -1;
             field = value;
         }
     }
 
     public bool IsCatchableByBeemerang
     {
-        get => InternalData[2] == 0;
-        set => InternalData[2] = value ? 0 : 1;
+        get => InternalData[2].Value == 0;
+        set => InternalData[2].Value = value ? 0 : 1;
     }
 
     public Branch<FlagLeaf>? ActivationFlag
@@ -53,23 +53,23 @@ public sealed class CollectibleMedalMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([2, -1, 0]);
+        InternalData.AddRange([new(2), new(-1), new(0)]);
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 2)
-            InternalData.Add(-1);
+            InternalData.Add(new(-1));
         if (InternalData.Count < 3)
-            InternalData.Add(0);
+            InternalData.Add(new(0));
 
         ILeavesRegistry<MedalLeaf> medalsRegistry = registryResolver.Resolve<MedalLeaf>();
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
         ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
 
         Medal = new(medalsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
-        if (InternalData[1] > -1)
-            EventToTriggerWhenCollected = new(eventsRegistry.LeavesByGameIds[InternalData[1]]);
+        if (InternalData[1].Value > -1)
+            EventToTriggerWhenCollected = new(eventsRegistry.LeavesByGameIds[InternalData[1].Value]);
         if (InternalActivationFlagId > 0)
             ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
     }

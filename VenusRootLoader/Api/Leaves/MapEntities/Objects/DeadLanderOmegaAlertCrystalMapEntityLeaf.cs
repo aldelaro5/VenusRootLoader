@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -17,19 +18,24 @@ public sealed class DeadLanderOmegaAlertCrystalMapEntityLeaf : MapEntityLeaf
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
     public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
 
-    public bool HasIlluminatedSphere { get => InternalData[0] == 1; set => InternalData[0] = value ? 1 : 0; }
-    public int DeadLanderOmegaId { get => InternalData[1] - 10; set => InternalData[1] = value + 10; }
+    public bool HasIlluminatedSphere
+    {
+        get => InternalData[0].Value == 1;
+        set => InternalData[0].Value = value ? 1 : 0;
+    }
+
+    public int DeadLanderOmegaId { get => InternalData[1].Value - 10; set => InternalData[1].Value = value + 10; }
 
     public Vector3 PositionDeadLanderOmegaLooksAtWhenHit
     {
-        get => InternalVectorData[0];
-        set => InternalVectorData[0] = value;
+        get => InternalVectorData[0].Value;
+        set => InternalVectorData[0].Value = value;
     }
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([1, 10, 0]);
-        InternalVectorData.Add(Vector3.zero);
+        InternalData.AddRange([new Ref<int>(1), new Ref<int>(10), new Ref<int>(0)]);
+        InternalVectorData.Add(new Ref<Vector3>(Vector3.zero));
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.SavePoint - 1;
     }
 

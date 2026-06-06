@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -30,30 +31,30 @@ public sealed class MapChildVerticalPositionSwitchMapEntityLeaf : MapEntityLeaf
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
     public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
 
-    public int MapChildIndexToMove { get => InternalData[0]; set => InternalData[0] = value; }
+    public int MapChildIndexToMove { get => InternalData[0].Value; set => InternalData[0].Value = value; }
 
     public bool CanOnlyBeToggledUsingHornSlashAndHornDash
     {
-        get => InternalData[4] == 1;
-        set => InternalData[4] = value ? 1 : 0;
+        get => InternalData[4].Value == 1;
+        set => InternalData[4].Value = value ? 1 : 0;
     }
 
     public float FramesDurationForFullMovement
     {
-        get => InternalVectorData[0].x;
-        set => InternalVectorData[0] = new(value, InternalVectorData[0].y, InternalVectorData[0].z);
+        get => InternalVectorData[0].Value.x;
+        set => InternalVectorData[0].Value.x = value;
     }
 
     public float VerticalMovementUpperBound
     {
-        get => InternalVectorData[0].y;
-        set => InternalVectorData[0] = new(InternalVectorData[0].x, value, InternalVectorData[0].z);
+        get => InternalVectorData[0].Value.y;
+        set => InternalVectorData[0].Value.y = value;
     }
 
     public float VerticalMovementLowerBound
     {
-        get => InternalVectorData[0].z;
-        set => InternalVectorData[0] = new(InternalVectorData[0].x, InternalVectorData[0].y, value);
+        get => InternalVectorData[0].Value.z;
+        set => InternalVectorData[0].Value.z = value;
     }
 
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
@@ -71,8 +72,8 @@ public sealed class MapChildVerticalPositionSwitchMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([0, 0, 0, 0, 0]);
-        InternalVectorData.Add(new(180f, -1f, 1f));
+        InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 5));
+        InternalVectorData.Add(new(new(180f, -1f, 1f)));
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.BigCrystalSwitch - 1;
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;

@@ -35,30 +35,35 @@ public sealed class IceRadiusSwitchMapEntityLeaf : MapEntityLeaf
         get;
         set
         {
-            InternalData[1] = value?.GameId ?? -1;
+            InternalData[1].Value = value?.GameId ?? -1;
             field = value;
         }
     }
 
-    public bool IsActuatedOnMapLoad { get => InternalData[2] == 1; set => InternalData[2] = value ? 1 : 0; }
-    public bool AllCollidersAreDisabled { get => InternalData[3] == 1; set => InternalData[3] = value ? 1 : 0; }
+    public bool IsActuatedOnMapLoad { get => InternalData[2].Value == 1; set => InternalData[2].Value = value ? 1 : 0; }
+
+    public bool AllCollidersAreDisabled
+    {
+        get => InternalData[3].Value == 1;
+        set => InternalData[3].Value = value ? 1 : 0;
+    }
 
     public float RadiusChangeRateWhenToggled
     {
-        get => InternalVectorData[0].x;
-        set => InternalVectorData[0] = new(value, InternalVectorData[0].y, InternalVectorData[0].z);
+        get => InternalVectorData[0].Value.x;
+        set => InternalVectorData[0].Value.x = value;
     }
 
     public float RadiusRange
     {
-        get => InternalVectorData[0].y;
-        set => InternalVectorData[0] = new(InternalVectorData[0].x, value, InternalVectorData[0].z);
+        get => InternalVectorData[0].Value.y;
+        set => InternalVectorData[0].Value.y = value;
     }
 
     public Vector3 LocalPositionFromMapEntityParent
     {
-        get => InternalVectorData[1];
-        set => InternalVectorData[1] = value;
+        get => InternalVectorData[1].Value;
+        set => InternalVectorData[1].Value = value;
     }
 
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
@@ -76,8 +81,8 @@ public sealed class IceRadiusSwitchMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([0, -1, 0, 0]);
-        InternalVectorData.AddRange([new(0.1f, 5f, 0f), new(0f, 0f, 0f)]);
+        InternalData.AddRange([new(0), new(-1), new(0), new(0)]);
+        InternalVectorData.AddRange([new(new(0.1f, 5f, 0f)), new(new(0f, 0f, 0f))]);
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.BigCrystalSwitch - 1;
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
@@ -90,7 +95,7 @@ public sealed class IceRadiusSwitchMapEntityLeaf : MapEntityLeaf
         if (InternalActivationFlagId > 0)
             ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
 
-        if (InternalData[1] != -1)
-            ParentMapEntity = Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[1]];
+        if (InternalData[1].Value != -1)
+            ParentMapEntity = Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[1].Value];
     }
 }

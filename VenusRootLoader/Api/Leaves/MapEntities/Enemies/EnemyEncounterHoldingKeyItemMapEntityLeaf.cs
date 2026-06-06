@@ -16,7 +16,7 @@ public sealed class EnemyEncounterHoldingKeyItemMapEntityLeaf : EnemyMapEntityLe
         get;
         set
         {
-            InternalVectorData[0] = new(value.GameId, InternalVectorData[0].y, InternalVectorData[0].z);
+            InternalVectorData[0].Value.x = value.GameId;
             field = value;
         }
     }
@@ -34,7 +34,7 @@ public sealed class EnemyEncounterHoldingKeyItemMapEntityLeaf : EnemyMapEntityLe
     internal override void InitializeFromNew()
     {
         base.InitializeFromNew();
-        InternalVectorData.Add(new(0f, -2f, 0f));
+        InternalVectorData.Add(new(new(0f, -2f, 0f)));
         Limits.Add(
             new()
             {
@@ -48,7 +48,7 @@ public sealed class EnemyEncounterHoldingKeyItemMapEntityLeaf : EnemyMapEntityLe
     {
         base.InitializeFromExisting(registryResolver);
         ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
-        
-        KeyItemDropped = new(itemsRegistry.LeavesByGameIds[(int)InternalVectorData[0].x]);
+
+        KeyItemDropped = new(itemsRegistry.LeavesByGameIds[(int)InternalVectorData[0].Value.x]);
     }
 }

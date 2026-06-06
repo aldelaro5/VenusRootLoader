@@ -27,8 +27,13 @@ public sealed class FixedAnimstateMapEntityLeaf : MapEntityLeaf
         }
     }
 
-    public bool HasNoCcolAndRigidGravity { get => InternalData[0] == 1; set => InternalData[0] = value ? 1 : 0; }
-    public int Animstate { get => InternalData[1]; set => InternalData[1] = value; }
+    public bool HasNoCcolAndRigidGravity
+    {
+        get => InternalData[0].Value == 1;
+        set => InternalData[0].Value = value ? 1 : 0;
+    }
+
+    public int Animstate { get => InternalData[1].Value; set => InternalData[1].Value = value; }
 
     public BoxColliderInfo? BoxCollider
     {
@@ -52,7 +57,7 @@ public sealed class FixedAnimstateMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([0, 0]);
+        InternalData.AddRange([new(0), new(0)]);
         InternalAnimIdOrItemId = 0;
     }
 

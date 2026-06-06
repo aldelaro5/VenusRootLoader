@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -17,20 +18,20 @@ public sealed class MovableRockMapEntityLeaf : MapEntityLeaf
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
     public float LaunchYVelocity
     {
-        get => InternalVectorData[0].y;
-        set => InternalVectorData[0] = new Vector3(InternalVectorData[0].x, value, InternalVectorData[0].z);
+        get => InternalVectorData[0].Value.y;
+        set => InternalVectorData[0].Value.y = value;
     }
 
     public float LaunchXZVelocityMultiplier
     {
-        get => InternalVectorData[0].z;
-        set => InternalVectorData[0] = new Vector3(InternalVectorData[0].x, InternalVectorData[0].y, value);
+        get => InternalVectorData[0].Value.z;
+        set => InternalVectorData[0].Value.z = value;
     }
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([0, 0, 0, 0]);
-        InternalVectorData.AddRange([new(0f, 10f, 5f), new(0f, 0f, 0f)]);
+        InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 4));
+        InternalVectorData.AddRange([new(new(0f, 10f, 5f)), new(new(0f, 0f, 0f))]);
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = false;
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.PushRock - 1;
@@ -39,8 +40,9 @@ public sealed class MovableRockMapEntityLeaf : MapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 4)
-            InternalData.AddRange(Enumerable.Repeat(0, 4 - InternalData.Count));
+            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 4 - InternalData.Count));
         if (InternalVectorData.Count < 2)
-            InternalVectorData.AddRange(Enumerable.Repeat(Vector3.zero, 2 - InternalVectorData.Count));
+            InternalVectorData.AddRange(
+                Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 2 - InternalVectorData.Count));
     }
 }

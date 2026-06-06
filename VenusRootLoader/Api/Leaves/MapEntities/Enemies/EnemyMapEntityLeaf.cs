@@ -1,6 +1,6 @@
-using System.Collections.ObjectModel;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Enemies;
@@ -13,6 +13,7 @@ public abstract class EnemyMapEntityLeaf : MapEntityLeaf
 
     protected EnemyMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
     {
+        _enemiesFormationInBattle = new(InternalBattleEnemyIds, 0, x => new(x.GameId));
         Behaviors = new(this);
     }
 
@@ -44,12 +45,11 @@ public abstract class EnemyMapEntityLeaf : MapEntityLeaf
     public float EntitySpeed { get => InternalSpeed; set => InternalSpeed = value; }
     public float BehaviorRangeRadius { get => InternalRadius; set => InternalRadius = value; }
 
-    public ReadOnlyCollection<Branch<EnemyLeaf>> EnemiesFormationInBattle { get; private set; } =
-        new List<Branch<EnemyLeaf>>().AsReadOnly();
+    private readonly ListRefWrapper<Branch<EnemyLeaf>, int> _enemiesFormationInBattle;
+    public IList<Branch<EnemyLeaf>> EnemiesFormationInBattle => _enemiesFormationInBattle;
 
     internal override void InitializeFromNew()
     {
-        InternalBattleEnemyIds.Add(0);
         InternalAnimIdOrItemId = 0;
     }
 
@@ -62,16 +62,9 @@ public abstract class EnemyMapEntityLeaf : MapEntityLeaf
 
         AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
 
-        List<Branch<EnemyLeaf>> enemies = InternalBattleEnemyIds
-            .Select(i => new Branch<EnemyLeaf>(enemiesRegistry.LeavesByGameIds[i]))
-            .ToList();
-        ChangeEnemiesFormationInBattle(enemies);
-    }
-
-    public void ChangeEnemiesFormationInBattle(List<Branch<EnemyLeaf>> enemies)
-    {
-        InternalBattleEnemyIds.Clear();
-        InternalBattleEnemyIds.AddRange(enemies.Select(t => t.GameId));
-        EnemiesFormationInBattle = enemies.AsReadOnly();
+        _enemiesFormationInBattle.SynchronizeFromExistingData(
+            InternalBattleEnemyIds
+                .Select(i => new Branch<EnemyLeaf>(enemiesRegistry.LeavesByGameIds[i.Value]))
+                .ToList());
     }
 }

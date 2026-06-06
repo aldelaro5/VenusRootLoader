@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities;
@@ -94,22 +95,22 @@ public abstract class MapEntityLeaf : Leaf
     internal Vector3 InternalBoxColCenter { get; set; }
 
     internal int[] OriginalData { get; } = new int[10];
-    internal List<int> InternalData { get; } = new();
+    internal List<Ref<int>> InternalData { get; } = new();
 
     internal Vector3[] OriginalVectorData { get; } = new Vector3[10];
-    internal List<Vector3> InternalVectorData { get; } = new();
-    internal List<Vector3> InternalSecondaryVectorData { get; } = new();
+    internal List<Ref<Vector3>> InternalVectorData { get; } = new();
     internal Vector3[] InternalSecondaryVectorDataArray { get; set; } = [];
+    internal List<Ref<Vector3>> InternalSecondaryVectorData { get; } = new();
 
     internal Vector3[] OriginalDialogues { get; } = new Vector3[20];
-    internal List<Vector3> InternalDialogues { get; } = new();
+    internal List<Ref<Vector3>> InternalDialogues { get; } = new();
 
     internal int[] OriginalBattleEnemyIds { get; } = new int[4];
-    internal List<int> InternalBattleEnemyIds { get; } = new();
+    internal List<Ref<int>> InternalBattleEnemyIds { get; } = new();
 
     internal Vector3 InternalEmoticonOffset { get; set; } = Vector3.zero;
     internal Vector2[] OriginalEmoticonFlags { get; } = Enumerable.Repeat(new Vector2(-1, 0), 10).ToArray();
-    internal List<Vector2> InternalEmoticonFlags { get; } = new();
+    internal List<Ref<Vector2>> InternalEmoticonFlags { get; } = new();
 
     internal string UnusedOverflowData { get; set; } = "";
 }

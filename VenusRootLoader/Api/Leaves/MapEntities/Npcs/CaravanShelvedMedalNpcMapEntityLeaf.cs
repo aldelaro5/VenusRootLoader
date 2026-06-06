@@ -1,4 +1,5 @@
 using CommunityToolkit.Diagnostics;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
@@ -23,7 +24,7 @@ public sealed class CaravanShelvedMedalNpcMapEntityLeaf : NpcMapEntityLeaf
                     $"The associated items shop must be in the {Map.NamedId} map");
             }
 
-            InternalData[0] = value.GameId;
+            InternalData[0].Value = value.GameId;
             field = value;
         }
     }
@@ -36,7 +37,7 @@ public sealed class CaravanShelvedMedalNpcMapEntityLeaf : NpcMapEntityLeaf
             if (value.Leaf.AssociatedMap is not null && value.Leaf.AssociatedMap != Map)
                 ThrowHelper.ThrowInvalidOperationException($"This map dialogue must be in the {Map.NamedId} map");
 
-            InternalData[1] = value.GameId;
+            InternalData[1].Value = value.GameId;
             field = value;
         }
     }
@@ -44,7 +45,7 @@ public sealed class CaravanShelvedMedalNpcMapEntityLeaf : NpcMapEntityLeaf
     internal override void InitializeFromNew()
     {
         base.InitializeFromNew();
-        InternalData.AddRange(Enumerable.Repeat(0, 2 - InternalData.Count));
+        InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 2 - InternalData.Count));
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
@@ -52,9 +53,9 @@ public sealed class CaravanShelvedMedalNpcMapEntityLeaf : NpcMapEntityLeaf
         base.InitializeFromExisting(registryResolver);
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
 
-        AssociatedItemShop = (ItemsShopMapEntityLeaf)Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0]];
-        ShopKeeperDialogueWhenInteracting = InternalData[1] < 0
-            ? commonDialoguesRegistry.LeavesByGameIds[InternalData[1]]
-            : Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalData[1]];
+        AssociatedItemShop = (ItemsShopMapEntityLeaf)Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0].Value];
+        ShopKeeperDialogueWhenInteracting = InternalData[1].Value < 0
+            ? commonDialoguesRegistry.LeavesByGameIds[InternalData[1].Value]
+            : Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalData[1].Value];
     }
 }

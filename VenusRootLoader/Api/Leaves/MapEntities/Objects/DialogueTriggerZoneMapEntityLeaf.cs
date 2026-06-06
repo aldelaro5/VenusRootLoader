@@ -1,5 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -26,12 +27,12 @@ public sealed class DialogueTriggerZoneMapEntityLeaf : MapEntityLeaf
             if (value.Leaf.AssociatedMap is not null && value.Leaf.AssociatedMap != Map)
                 ThrowHelper.ThrowInvalidOperationException($"This map dialogue must be in the {Map.NamedId} map");
 
-            InternalData[0] = value.GameId;
+            InternalData[0].Value = value.GameId;
             field = value;
         }
     }
 
-    public bool IsOneShotTrigger { get => InternalData[1] != 1; set => InternalData[1] = value ? 0 : 1; }
+    public bool IsOneShotTrigger { get => InternalData[1].Value != 1; set => InternalData[1].Value = value ? 0 : 1; }
 
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
@@ -48,7 +49,7 @@ public sealed class DialogueTriggerZoneMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([-1, 0, 0]);
+        InternalData.AddRange([new(-1), new(0), new(0)]);
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
         InternalBoxColSize = Vector3.one;
@@ -57,7 +58,7 @@ public sealed class DialogueTriggerZoneMapEntityLeaf : MapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 3)
-            InternalData.AddRange(Enumerable.Repeat(0, 3 - InternalData.Count));
+            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 3 - InternalData.Count));
 
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
@@ -65,8 +66,8 @@ public sealed class DialogueTriggerZoneMapEntityLeaf : MapEntityLeaf
         if (InternalActivationFlagId > 0)
             ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
 
-        DialogueToProcessWhenTriggered = InternalData[0] < 0
-            ? commonDialoguesRegistry.LeavesByGameIds[InternalData[0]]
-            : Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalData[0]];
+        DialogueToProcessWhenTriggered = InternalData[0].Value < 0
+            ? commonDialoguesRegistry.LeavesByGameIds[InternalData[0].Value]
+            : Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalData[0].Value];
     }
 }

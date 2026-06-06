@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -21,7 +22,7 @@ public sealed class DigSpotCrystalBerryMapEntityLeaf : MapEntityLeaf
         get;
         set
         {
-            InternalData[1] = value.GameId;
+            InternalData[1].Value = value.GameId;
             field = value;
         }
     }
@@ -38,7 +39,7 @@ public sealed class DigSpotCrystalBerryMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([1, 0, -1]);
+        InternalData.AddRange([new(1), new(0), new(-1)]);
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.DigMound - 1;
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
@@ -49,11 +50,11 @@ public sealed class DigSpotCrystalBerryMapEntityLeaf : MapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 3)
-            InternalData.AddRange(Enumerable.Repeat(-1, 3 - InternalData.Count));
+            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(-1), 3 - InternalData.Count));
 
         ILeavesRegistry<CrystalBerryLeaf> crystalBerriesRegistry = registryResolver.Resolve<CrystalBerryLeaf>();
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
-        CrystalBerryHiddenInside = new(crystalBerriesRegistry.LeavesByGameIds[InternalData[1]]);
+        CrystalBerryHiddenInside = new(crystalBerriesRegistry.LeavesByGameIds[InternalData[1].Value]);
 
         if (InternalActivationFlagId > 0)
             ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);

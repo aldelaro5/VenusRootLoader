@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using System.Collections.ObjectModel;
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
@@ -22,15 +23,15 @@ public sealed class ItemsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
             if (value.Leaf.AssociatedMap is not null && value.Leaf.AssociatedMap != Map)
                 ThrowHelper.ThrowInvalidOperationException($"This map dialogue must be in the {Map.NamedId} map");
 
-            InternalDialogues[0] = new(InternalDialogues[0].x, value.GameId, InternalDialogues[0].z);
+            InternalDialogues[0].Value.y = value.GameId;
             field = value;
         }
     }
 
     public float? ItemsBuyingPriceMultiplier
     {
-        get => InternalDialogues[2].y > 0.1f ? InternalDialogues[2].y / 10f : null;
-        set => InternalDialogues[2] = new(InternalDialogues[2].x, value * 10f ?? 0f, InternalDialogues[2].z);
+        get => InternalDialogues[2].Value.y > 0.1f ? InternalDialogues[2].Value.y / 10f : null;
+        set => InternalDialogues[2].Value.y = value * 10f ?? 0f;
     }
 
     public Branch<DialogueLeaf> DialogueWhenInteractingWithShelvedItem
@@ -41,15 +42,15 @@ public sealed class ItemsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
             if (value.Leaf.AssociatedMap is not null && value.Leaf.AssociatedMap != Map)
                 ThrowHelper.ThrowInvalidOperationException($"This map dialogue must be in the {Map.NamedId} map");
 
-            InternalDialogues[6] = new(InternalDialogues[6].x, value.GameId, InternalDialogues[6].z);
+            InternalDialogues[6].Value.y = value.GameId;
             field = value;
         }
     }
 
     public float? ShelvedItemsInteractionRadius
     {
-        get => InternalDialogues[8].x > 0.1f ? InternalDialogues[8].x / 10f : null;
-        set => InternalDialogues[8] = new(value * 10f ?? 0f, InternalDialogues[8].y, InternalDialogues[8].z);
+        get => InternalDialogues[8].Value.x > 0.1f ? InternalDialogues[8].Value.x / 10f : null;
+        set => InternalDialogues[8].Value.x = value * 10f ?? 0f;
     }
 
     public ReadOnlyCollection<ItemShopShelvedItemForSale> ItemsForSale { get; private set; } =
@@ -58,7 +59,7 @@ public sealed class ItemsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
     internal override void InitializeFromNew()
     {
         base.InitializeFromNew();
-        InternalDialogues.AddRange(Enumerable.Repeat(Vector3.zero, 11));
+        InternalDialogues.AddRange(Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 11));
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
@@ -72,18 +73,18 @@ public sealed class ItemsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
                     InternalVectorData,
                     (data, vectorData) => new ItemShopShelvedItemForSale
                     {
-                        Item = itemsRegistry.LeavesByGameIds[data],
-                        Position = vectorData
+                        Item = itemsRegistry.LeavesByGameIds[data.Value],
+                        Position = vectorData.Value
                     })
                 .ToList();
         ChangeItemsForSale(itemsForSale);
 
-        DialogueWhenInteractingWithShopKeeper = (int)InternalDialogues[0].y < 0
-            ? commonDialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[0].y]
-            : Map.Leaf.DialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[0].y];
-        DialogueWhenInteractingWithShelvedItem = (int)InternalDialogues[6].y < 0
-            ? commonDialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[6].y]
-            : Map.Leaf.DialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[6].y];
+        DialogueWhenInteractingWithShopKeeper = (int)InternalDialogues[0].Value.y < 0
+            ? commonDialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[0].Value.y]
+            : Map.Leaf.DialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[0].Value.y];
+        DialogueWhenInteractingWithShelvedItem = (int)InternalDialogues[6].Value.y < 0
+            ? commonDialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[6].Value.y]
+            : Map.Leaf.DialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[6].Value.y];
     }
 
     public void ChangeItemsForSale(List<ItemShopShelvedItemForSale> itemsForSale)
@@ -92,8 +93,8 @@ public sealed class ItemsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
         InternalData.Clear();
         foreach (ItemShopShelvedItemForSale itemForSale in itemsForSale)
         {
-            InternalData.Add(itemForSale.Item.GameId);
-            InternalVectorData.Add(itemForSale.Position);
+            InternalData.Add(new(itemForSale.Item.GameId));
+            InternalVectorData.Add(new(itemForSale.Position));
         }
 
         ItemsForSale = itemsForSale.AsReadOnly();

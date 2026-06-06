@@ -1,6 +1,5 @@
-using CommunityToolkit.Diagnostics;
-using System.Collections.ObjectModel;
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -10,14 +9,15 @@ public sealed class AndBlockOnEntitiesLeafActivationMapEntityLeaf : MapEntityLea
     internal AndBlockOnEntitiesLeafActivationMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
+        _entityActivationsInput = new(InternalData, 1, x => x.Ref);
     }
 
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.ANDBlock;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
-    public ReadOnlyCollection<NegatableMapEntityActivation> EntityActivationsInput { get; private set; } =
-        new List<NegatableMapEntityActivation>().AsReadOnly();
+    private readonly ListRefWrapper<NegatableMapEntityActivation, int> _entityActivationsInput;
+    public IList<NegatableMapEntityActivation> EntityActivationsInput => _entityActivationsInput;
 
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
     public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
@@ -34,74 +34,54 @@ public sealed class AndBlockOnEntitiesLeafActivationMapEntityLeaf : MapEntityLea
 
     public Vector3 LocalPositionWhenActuatedAfterLerp
     {
-        get => InternalVectorData[0];
-        set => InternalVectorData[0] = value;
+        get => InternalVectorData[0].Value;
+        set => InternalVectorData[0].Value = value;
     }
 
     public float LocalPositionLerpFactorWhenActuated
     {
-        get => InternalVectorData[1].x;
-        set => InternalVectorData[1] = new(value, InternalVectorData[1].y, InternalVectorData[1].z);
+        get => InternalVectorData[1].Value.x;
+        set => InternalVectorData[1].Value.x = value;
     }
 
     public Vector3? EntityStartScale
     {
-        get => InternalVectorData[2].magnitude <= 0.1f ? null : InternalVectorData[2];
-        set => InternalVectorData[2] = value ?? Vector3.zero;
+        get => InternalVectorData[2].Value.magnitude <= 0.1f ? null : InternalVectorData[2].Value;
+        set => InternalVectorData[2].Value = value ?? Vector3.zero;
     }
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([-1]);
-        InternalVectorData.AddRange([Vector3.down * 6f, Vector3.right * 0.1f, Vector3.zero]);
+        InternalData.AddRange([new Ref<int>(-1)]);
+        InternalVectorData.AddRange(
+        [
+            new Ref<Vector3>(Vector3.down * 6f),
+            new Ref<Vector3>(Vector3.right * 0.1f),
+            new Ref<Vector3>(Vector3.zero)
+        ]);
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.PrisonGate - 1;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalVectorData.Count < 3)
-            InternalVectorData.AddRange(Enumerable.Repeat(Vector3.zero, 3 - InternalVectorData.Count));
+            InternalVectorData.AddRange(
+                Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 3 - InternalVectorData.Count));
 
         MapLeaf map = registryResolver.Resolve<MapLeaf>().LeavesByGameIds[Map.GameId];
         ILeavesRegistry<AnimIdLeaf> animidRegistry = registryResolver.Resolve<AnimIdLeaf>();
 
-        List<NegatableMapEntityActivation> entityActivationInputs = new();
-        for (int i = 1; i < InternalData.Count; i++)
-        {
-            int value = InternalData[i];
-            entityActivationInputs.Add(
-                new()
+        _entityActivationsInput.SynchronizeFromExistingData(
+            InternalData
+                .Skip(1)
+                .Select(x => new NegatableMapEntityActivation
                 {
-                    MapEntity = map.EntitiesRegistry.LeavesByGameIds[Math.Abs(value)],
-                    IsActivationValueNegated = value < 0
-                });
-        }
+                    MapEntity = map.EntitiesRegistry.LeavesByGameIds[Math.Abs(x.Value)],
+                    IsActivationValueNegated = x.Value < 0
+                })
+                .ToList());
 
         if (InternalAnimIdOrItemId >= 0)
             AnimId = new(animidRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
-
-        ChangeEntitiesActivationInput(entityActivationInputs);
-    }
-
-    public void ChangeEntitiesActivationInput(List<NegatableMapEntityActivation> entityActivationsInput)
-    {
-        List<NegatableMapEntityActivation> incorrectEntities = entityActivationsInput
-            .Where(e => e.MapEntity.Leaf.Map != Map)
-            .ToList();
-        if (incorrectEntities.Count > 0)
-        {
-            IEnumerable<string> badEntityNames = incorrectEntities.Select(e => e.MapEntity.Leaf.BaseGameObjectName);
-            ThrowHelper.ThrowArgumentOutOfRangeException(
-                nameof(entityActivationsInput),
-                $"The following entities are not present in the {Map.NamedId} map which is required: " +
-                $"{string.Join(", ", badEntityNames)}");
-        }
-
-        InternalData.RemoveRange(1, InternalData.Count - 1);
-
-        foreach (NegatableMapEntityActivation negatableMapEntityActivation in entityActivationsInput)
-            InternalData.Add(negatableMapEntityActivation.EffectiveValue);
-
-        EntityActivationsInput = entityActivationsInput.AsReadOnly();
     }
 }

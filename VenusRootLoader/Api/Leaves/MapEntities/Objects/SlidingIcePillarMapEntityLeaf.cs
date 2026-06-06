@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -17,8 +18,8 @@ public sealed class SlidingIcePillarMapEntityLeaf : MapEntityLeaf
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
     public float SlidingXZVelocityMultiplier
     {
-        get => InternalVectorData[0].z;
-        set => InternalVectorData[0] = new Vector3(InternalVectorData[0].x, InternalVectorData[0].y, value);
+        get => InternalVectorData[0].Value.z;
+        set => InternalVectorData[0].Value.z = value;
     }
 
     public Vector3? IcePillarScaleOverride
@@ -29,8 +30,8 @@ public sealed class SlidingIcePillarMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([0, 0, 3, 0]);
-        InternalVectorData.AddRange([new(0f, 0f, 0.1f), new(0f, 0f, 0f)]);
+        InternalData.AddRange([new(0), new(0), new(3), new(0)]);
+        InternalVectorData.AddRange([new(new(0f, 0f, 0.1f)), new(new(0f, 0f, 0f))]);
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = false;
         InternalBoxColSize = Vector3.zero;
@@ -40,8 +41,11 @@ public sealed class SlidingIcePillarMapEntityLeaf : MapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 4)
-            InternalData.AddRange(Enumerable.Repeat(0, 4 - InternalData.Count));
+            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 4 - InternalData.Count));
         if (InternalVectorData.Count < 2)
-            InternalVectorData.AddRange(Enumerable.Repeat(Vector3.zero, 2 - InternalVectorData.Count));
+        {
+            InternalVectorData.AddRange(
+                Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 2 - InternalVectorData.Count));
+        }
     }
 }

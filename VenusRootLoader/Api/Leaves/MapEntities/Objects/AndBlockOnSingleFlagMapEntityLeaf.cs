@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -40,26 +41,31 @@ public sealed class AndBlockOnSingleFlagMapEntityLeaf : MapEntityLeaf
 
     public Vector3 LocalPositionWhenActuatedAfterLerp
     {
-        get => InternalVectorData[0];
-        set => InternalVectorData[0] = value;
+        get => InternalVectorData[0].Value;
+        set => InternalVectorData[0].Value = value;
     }
 
     public float LocalPositionLerpFactorWhenActuated
     {
-        get => InternalVectorData[1].x;
-        set => InternalVectorData[1] = new(value, InternalVectorData[1].y, InternalVectorData[1].z);
+        get => InternalVectorData[1].Value.x;
+        set => InternalVectorData[1].Value.x = value;
     }
 
     public Vector3? EntityStartScale
     {
-        get => InternalVectorData[2].magnitude <= 0.1f ? null : InternalVectorData[2];
-        set => InternalVectorData[2] = value ?? Vector3.zero;
+        get => InternalVectorData[2].Value.magnitude <= 0.1f ? null : InternalVectorData[2].Value;
+        set => InternalVectorData[2].Value = value ?? Vector3.zero;
     }
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([0, -1]);
-        InternalVectorData.AddRange([Vector3.down * 6f, Vector3.right * 0.1f, Vector3.zero]);
+        InternalData.AddRange([new(0), new(-1)]);
+        InternalVectorData.AddRange(
+        [
+            new Ref<Vector3>(Vector3.down * 6f),
+            new Ref<Vector3>(Vector3.right * 0.1f),
+            new Ref<Vector3>(Vector3.zero)
+        ]);
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.PrisonGate - 1;
         InternalActivationFlagId = 0;
     }
@@ -67,7 +73,10 @@ public sealed class AndBlockOnSingleFlagMapEntityLeaf : MapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalVectorData.Count < 3)
-            InternalVectorData.AddRange(Enumerable.Repeat(Vector3.zero, 3 - InternalVectorData.Count));
+        {
+            InternalVectorData.AddRange(
+                Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 3 - InternalVectorData.Count));
+        }
 
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
         ILeavesRegistry<AnimIdLeaf> animidRegistry = registryResolver.Resolve<AnimIdLeaf>();

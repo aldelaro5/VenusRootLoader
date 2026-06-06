@@ -19,30 +19,34 @@ public sealed class SpinningCrankMapEntityLeaf : MapEntityLeaf
 
     public float RateIncreaseWhenSpinning
     {
-        get => InternalVectorData[0].x;
-        set => InternalVectorData[0] = new(value, InternalVectorData[0].y, InternalVectorData[0].z);
+        get => InternalVectorData[0].Value.x;
+        set => InternalVectorData[0].Value.x = value;
     }
 
     public float RateDecreaseWhenNotSpinning
     {
-        get => InternalVectorData[0].y;
-        set => InternalVectorData[0] = new(InternalVectorData[0].x, value, InternalVectorData[0].z);
+        get => InternalVectorData[0].Value.y;
+        set => InternalVectorData[0].Value.y = value;
     }
 
     public float TotalSpinCapacity
     {
-        get => InternalVectorData[0].z;
-        set => InternalVectorData[0] = new(InternalVectorData[0].x, InternalVectorData[0].y, value);
+        get => InternalVectorData[0].Value.z;
+        set => InternalVectorData[0].Value.z = value;
     }
 
-    public Vector3 SpinningRotationAngles { get => InternalVectorData[1]; set => InternalVectorData[1] = value; }
+    public Vector3 SpinningRotationAngles
+    {
+        get => InternalVectorData[1].Value;
+        set => InternalVectorData[1].Value = value;
+    }
 
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
 
     internal override void InitializeFromNew()
     {
-        InternalVectorData.AddRange([new(1f, 0.5f, 300f), new(0f, -20f, 0f)]);
+        InternalVectorData.AddRange([new(new(1f, 0.5f, 300f)), new(new(0f, -20f, 0f))]);
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.ScrewSwitch - 1;
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;

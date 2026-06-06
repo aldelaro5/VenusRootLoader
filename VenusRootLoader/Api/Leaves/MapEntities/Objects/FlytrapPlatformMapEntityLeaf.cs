@@ -17,18 +17,22 @@ public sealed class FlytrapPlatformMapEntityLeaf : MapEntityLeaf
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
     public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
 
-    public int TimeInFramesPlayerCanStayOnPlatform { get => InternalData[0]; set => InternalData[0] = value; }
+    public int TimeInFramesPlayerCanStayOnPlatform
+    {
+        get => InternalData[0].Value;
+        set => InternalData[0].Value = value;
+    }
 
     public float DelayFramesBeforeRespawnWhenFlytrapCloses
     {
-        get => InternalVectorData[0].x;
-        set => InternalVectorData[0] = new(value, InternalVectorData[0].y, InternalVectorData[0].z);
+        get => InternalVectorData[0].Value.x;
+        set => InternalVectorData[0].Value.x = value;
     }
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([60, 1, 1, 1]);
-        InternalVectorData.Add(new(60f, 0f, 0f));
+        InternalData.AddRange([new(60), new(1), new(1), new(1)]);
+        InternalVectorData.Add(new(new(60f, 0f, 0f)));
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.FlyTrapPlatform - 1;
     }
 

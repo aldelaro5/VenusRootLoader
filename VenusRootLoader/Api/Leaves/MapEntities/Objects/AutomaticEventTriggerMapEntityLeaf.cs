@@ -18,19 +18,19 @@ public sealed class AutomaticEventTriggerMapEntityLeaf : MapEntityLeaf
         get;
         set
         {
-            InternalData[0] = value.GameId;
+            InternalData[0].Value = value.GameId;
             field = value;
         }
     }
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([-1, 0, 1]);
+        InternalData.AddRange([new(-1), new(0), new(1)]);
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
-        EventToImmediatelyStart = new(eventsRegistry.LeavesByGameIds[InternalData[0]]);
+        EventToImmediatelyStart = new(eventsRegistry.LeavesByGameIds[InternalData[0].Value]);
     }
 }

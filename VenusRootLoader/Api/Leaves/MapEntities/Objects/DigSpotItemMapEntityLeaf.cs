@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -21,15 +22,15 @@ public sealed class DigSpotItemMapEntityLeaf : MapEntityLeaf
         get;
         set
         {
-            InternalData[2] = value.GameId;
+            InternalData[2].Value = value.GameId;
             field = value;
         }
     }
 
     public bool IsHiddenItemAKeyItem
     {
-        get => InternalData[1] == 1;
-        set => InternalData[1] = value ? 1 : 0;
+        get => InternalData[1].Value == 1;
+        set => InternalData[1].Value = value ? 1 : 0;
     }
 
     public Branch<FlagLeaf>? ActivationFlag
@@ -44,7 +45,7 @@ public sealed class DigSpotItemMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([0, 0, 0]);
+        InternalData.AddRange([new(0), new(0), new(0)]);
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.DigMound - 1;
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
@@ -55,11 +56,11 @@ public sealed class DigSpotItemMapEntityLeaf : MapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 3)
-            InternalData.AddRange(Enumerable.Repeat(-1, 3 - InternalData.Count));
+            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(-1), 3 - InternalData.Count));
 
         ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
-        ItemHiddenInside = new(itemsRegistry.LeavesByGameIds[InternalData[2]]);
+        ItemHiddenInside = new(itemsRegistry.LeavesByGameIds[InternalData[2].Value]);
 
         if (InternalActivationFlagId > 0)
             ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);

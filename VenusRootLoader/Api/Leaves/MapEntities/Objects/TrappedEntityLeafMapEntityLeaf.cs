@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -24,7 +25,7 @@ public sealed class TrappedEntityLeafMapEntityLeaf : MapEntityLeaf
         get;
         set
         {
-            InternalData[0] = value.GameId;
+            InternalData[0].Value = value.GameId;
             field = value;
         }
     }
@@ -34,7 +35,7 @@ public sealed class TrappedEntityLeafMapEntityLeaf : MapEntityLeaf
         get;
         set
         {
-            InternalData[1] = value?.GameId ?? -1;
+            InternalData[1].Value = value?.GameId ?? -1;
             field = value;
         }
     }
@@ -47,8 +48,8 @@ public sealed class TrappedEntityLeafMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([0, -1]);
-        InternalVectorData.Add(new(0f, -11.0f, 0f));
+        InternalData.AddRange([new(0), new(-1)]);
+        InternalVectorData.Add(new(new(0f, -11.0f, 0f)));
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.CoilyVine - 1;
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
@@ -59,13 +60,13 @@ public sealed class TrappedEntityLeafMapEntityLeaf : MapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 2)
-            InternalData.AddRange(Enumerable.Repeat(-1, 2 - InternalData.Count));
+            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(-1), 2 - InternalData.Count));
 
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
 
-        if (InternalData[1] > -1)
-            FlagSetWhenEntityGetsUntrapped = new(flagsRegistry.LeavesByGameIds[InternalData[1]]);
+        if (InternalData[1].Value > -1)
+            FlagSetWhenEntityGetsUntrapped = new(flagsRegistry.LeavesByGameIds[InternalData[1].Value]);
 
-        TrappedMapEntity = Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0]];
+        TrappedMapEntity = Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0].Value];
     }
 }

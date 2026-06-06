@@ -1,5 +1,5 @@
-using CommunityToolkit.Diagnostics;
-using System.Collections.ObjectModel;
+using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
@@ -9,14 +9,15 @@ public sealed class TalkingNpcMapEntityLeaf : SpyableNpcMapEntityLeaf
     internal TalkingNpcMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
+        _dialogues = new(InternalDialogues, 0, x => x.Ref);
     }
 
     internal override NPCControl.Interaction Interaction => InteractIconIsQuestionMark
         ? NPCControl.Interaction.Check
         : NPCControl.Interaction.Talk;
 
-    public ReadOnlyCollection<NpcConditionalDialogue> Dialogues { get; private set; } =
-        new List<NpcConditionalDialogue>().AsReadOnly();
+    private readonly ListRefWrapper<NpcConditionalDialogue, Vector3> _dialogues;
+    public IList<NpcConditionalDialogue> Dialogues => _dialogues;
 
     public bool InteractIconIsQuestionMark { get; set; }
 
@@ -28,41 +29,16 @@ public sealed class TalkingNpcMapEntityLeaf : SpyableNpcMapEntityLeaf
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
 
-        List<NpcConditionalDialogue> dialogues = InternalDialogues
+        _dialogues.SynchronizeFromExistingData(
+            InternalDialogues
             .Select(dialogue => new NpcConditionalDialogue
             {
-                Flag = dialogue.x < 0 ? null : new(flagsRegistry.LeavesByGameIds[(int)dialogue.x]),
-                Dialogue = (int)dialogue.y < 0
-                    ? commonDialoguesRegistry.LeavesByGameIds[(int)dialogue.y]
-                    : Map.Leaf.DialoguesRegistry.LeavesByGameIds[(int)dialogue.y],
-                DefaultAnimStateWhenSelected = (int)dialogue.z
+                Flag = dialogue.Value.x < 0 ? null : new(flagsRegistry.LeavesByGameIds[(int)dialogue.Value.x]),
+                Dialogue = (int)dialogue.Value.y < 0
+                    ? commonDialoguesRegistry.LeavesByGameIds[(int)dialogue.Value.y]
+                    : Map.Leaf.DialoguesRegistry.LeavesByGameIds[(int)dialogue.Value.y],
+                DefaultAnimStateWhenSelected = (int)dialogue.Value.z
             })
-            .ToList();
-        ChangeDialogues(dialogues);
-    }
-
-    public void ChangeDialogues(List<NpcConditionalDialogue> dialogues)
-    {
-        List<string> badMapDialoguesNamedIds = dialogues
-            .Where(x => x.Dialogue.Leaf.AssociatedMap is not null && x.Dialogue.Leaf.AssociatedMap != Map)
-            .Select(x => x.Dialogue.NamedId)
-            .ToList();
-        if (badMapDialoguesNamedIds.Count > 0)
-        {
-            ThrowHelper.ThrowArgumentException(
-                nameof(dialogues),
-                $"The following map dialogues needs to be in the {Map.NamedId} map, but they are not: " +
-                $"{string.Join(", ", badMapDialoguesNamedIds)}");
-        }
-        
-        InternalDialogues.Clear();
-
-        foreach (NpcConditionalDialogue dialogue in dialogues)
-        {
-            InternalDialogues.Add(
-                new(dialogue.Flag?.GameId ?? -1, dialogue.Dialogue.GameId, dialogue.DefaultAnimStateWhenSelected));
-        }
-
-        Dialogues = dialogues.AsReadOnly();
+            .ToList());
     }
 }

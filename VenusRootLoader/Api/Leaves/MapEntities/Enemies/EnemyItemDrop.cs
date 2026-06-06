@@ -3,18 +3,16 @@ using VenusRootLoader.LeavesInternals;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Enemies;
 
-public sealed class EnemyItemDrop : IHasUnderluingValue<Vector3>
+public sealed class EnemyItemDrop
 {
-    private readonly Vector3 _ref = Vector3.zero;
-
-    Vector3 IHasUnderluingValue<Vector3>.UnderlyingRef => _ref;
+    internal readonly Ref<Vector3> Ref = new(new(0, -1, 0));
 
     public required Branch<ItemLeaf> Item
     {
         get;
-        init
+        set
         {
-            _ref.x = value.GameId;
+            Ref.Value.x = value.GameId;
             field = value;
         }
     }
@@ -22,9 +20,9 @@ public sealed class EnemyItemDrop : IHasUnderluingValue<Vector3>
     public required Branch<FlagLeaf>? RequiredFlag
     {
         get;
-        init
+        set
         {
-            _ref.y = value?.GameId ?? -1;
+            Ref.Value.y = value?.GameId ?? -1;
             field = value;
         }
     }

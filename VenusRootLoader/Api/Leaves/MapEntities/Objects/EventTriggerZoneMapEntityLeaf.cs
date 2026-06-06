@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -22,12 +23,12 @@ public sealed class EventTriggerZoneMapEntityLeaf : MapEntityLeaf
         get;
         set
         {
-            InternalData[0] = value.GameId;
+            InternalData[0].Value = value.GameId;
             field = value;
         }
     }
 
-    public bool IsOneShotTrigger { get => InternalData[1] != 1; set => InternalData[1] = value ? 0 : 1; }
+    public bool IsOneShotTrigger { get => InternalData[1].Value != 1; set => InternalData[1].Value = value ? 0 : 1; }
 
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
@@ -44,7 +45,7 @@ public sealed class EventTriggerZoneMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([-1, 0, 0]);
+        InternalData.AddRange([new(-1), new(0), new(0)]);
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
         InternalBoxColSize = Vector3.one;
@@ -53,11 +54,11 @@ public sealed class EventTriggerZoneMapEntityLeaf : MapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 3)
-            InternalData.AddRange(Enumerable.Repeat(0, 3 - InternalData.Count));
+            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 3 - InternalData.Count));
 
         ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
-        EventToStartWhenTriggered = new(eventsRegistry.LeavesByGameIds[InternalData[0]]);
+        EventToStartWhenTriggered = new(eventsRegistry.LeavesByGameIds[InternalData[0].Value]);
 
         if (InternalActivationFlagId > 0)
             ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);

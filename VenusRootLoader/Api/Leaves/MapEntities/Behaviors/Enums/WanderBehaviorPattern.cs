@@ -1,4 +1,4 @@
-namespace VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors.Enums;
+namespace VenusRootLoader.Api.Leaves.MapEntities.Behaviors.Enums;
 
 public enum WanderBehaviorPattern
 {

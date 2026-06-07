@@ -1,9 +1,9 @@
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
-namespace VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
+namespace VenusRootLoader.Api.Leaves.MapEntities.Behaviors;
 
-public sealed class StealthSpotWhileAsleepBehavior : ActionBehavior
+public sealed class StealthSpotWhileAsleepBehavior : MapEntityBehavior
 {
     public Branch<EventLeaf>? EventToStartWhenSpottingPlayer
     {

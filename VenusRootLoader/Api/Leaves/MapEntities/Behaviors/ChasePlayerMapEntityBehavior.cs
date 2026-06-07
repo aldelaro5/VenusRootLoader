@@ -1,9 +1,9 @@
 using CommunityToolkit.Diagnostics;
-using VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors.Enums;
+using VenusRootLoader.Api.Leaves.MapEntities.Behaviors.Enums;
 
-namespace VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
+namespace VenusRootLoader.Api.Leaves.MapEntities.Behaviors;
 
-public sealed class ChasePlayerActionBehavior : ActionBehavior
+public sealed class ChasePlayerMapEntityBehavior : MapEntityBehavior
 {
     public bool ChaseOnWater
     {
@@ -24,7 +24,7 @@ public sealed class ChasePlayerActionBehavior : ActionBehavior
         set => MapEntityLeaf.InternalSpeedMultiplier = value;
     }
 
-    internal ChasePlayerActionBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) : base(mapEntityLeaf, kind)
+    internal ChasePlayerMapEntityBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) : base(mapEntityLeaf, kind)
     {
     }
 }

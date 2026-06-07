@@ -1,5 +1,5 @@
 using UnityEngine;
-using VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
+using VenusRootLoader.Api.Leaves.MapEntities.Behaviors;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
@@ -10,13 +10,13 @@ public abstract class NpcMapEntityLeaf : MapEntityLeaf
     protected NpcMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
     {
         _conditionalEmoticons = new(InternalEmoticonFlags, 1, x => x.Ref);
-        Behaviors = new(this);
+        BehaviorSystem = new(this);
     }
 
     internal sealed override NPCControl.NPCType Type => NPCControl.NPCType.NPC;
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.None;
 
-    public MapEntityBehaviors Behaviors { get; }
+    public MapEntityBehaviorSystem BehaviorSystem { get; }
 
     public Branch<AnimIdLeaf> AnimId
     {
@@ -59,7 +59,7 @@ public abstract class NpcMapEntityLeaf : MapEntityLeaf
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
         ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
 
-        Behaviors.InitializeBehaviorFromExisting(registryResolver);
+        BehaviorSystem.InitializeBehaviorFromExisting(registryResolver);
 
         AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
 

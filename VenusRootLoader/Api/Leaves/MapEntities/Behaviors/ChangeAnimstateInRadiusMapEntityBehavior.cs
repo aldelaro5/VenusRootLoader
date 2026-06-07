@@ -1,6 +1,6 @@
-namespace VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
+namespace VenusRootLoader.Api.Leaves.MapEntities.Behaviors;
 
-public sealed class ChangeAnimstateInRadiusActionBehavior : ActionBehavior
+public sealed class ChangeAnimstateInRadiusMapEntityBehavior : MapEntityBehavior
 {
     public float Radius
     {
@@ -20,7 +20,7 @@ public sealed class ChangeAnimstateInRadiusActionBehavior : ActionBehavior
         set => MapEntityLeaf.InternalInRangeActionFrequency = value;
     }
 
-    internal ChangeAnimstateInRadiusActionBehavior(MapEntityLeaf mapEntityLeaf) : base(mapEntityLeaf, null)
+    internal ChangeAnimstateInRadiusMapEntityBehavior(MapEntityLeaf mapEntityLeaf) : base(mapEntityLeaf, null)
     {
         mapEntityLeaf.InternalOutOfRangeBehavior = NPCControl.ActionBehaviors.ChangeSpriteInRandius;
         mapEntityLeaf.InternalInRangeBehavior = NPCControl.ActionBehaviors.ChangeSpriteInRandius;

@@ -1,9 +1,9 @@
 using CommunityToolkit.Diagnostics;
-using VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors.Enums;
+using VenusRootLoader.Api.Leaves.MapEntities.Behaviors.Enums;
 
-namespace VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
+namespace VenusRootLoader.Api.Leaves.MapEntities.Behaviors;
 
-public sealed class ChargeAtPlayerActionBehavior : ActionBehavior
+public sealed class ChargeAtPlayerMapEntityBehavior : MapEntityBehavior
 {
     public bool LockSpriteFlipDuringCharge
     {
@@ -24,7 +24,7 @@ public sealed class ChargeAtPlayerActionBehavior : ActionBehavior
         set => MapEntityLeaf.InternalSpeedMultiplier = value;
     }
 
-    internal ChargeAtPlayerActionBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) : base(
+    internal ChargeAtPlayerMapEntityBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) : base(
         mapEntityLeaf,
         kind)
     {

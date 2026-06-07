@@ -1,8 +1,8 @@
-using VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors.Enums;
+using VenusRootLoader.Api.Leaves.MapEntities.Behaviors.Enums;
 
-namespace VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
+namespace VenusRootLoader.Api.Leaves.MapEntities.Behaviors;
 
-public sealed class WanderWhenAnimstateIsWalkOrIdleActionBehavior : ActionBehavior
+public sealed class WanderWhenAnimstateIsWalkOrIdleMapEntityBehavior : MapEntityBehavior
 {
     public int AnimstateOverrideWhenNotChase
     {
@@ -22,7 +22,7 @@ public sealed class WanderWhenAnimstateIsWalkOrIdleActionBehavior : ActionBehavi
         set => MapEntityLeaf.InternalTeleportRadius = value;
     }
 
-    internal WanderWhenAnimstateIsWalkOrIdleActionBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind)
+    internal WanderWhenAnimstateIsWalkOrIdleMapEntityBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind)
         : base(mapEntityLeaf, kind)
     {
         InternalTypeForKind = NPCControl.ActionBehaviors.WalkWhenAnim;

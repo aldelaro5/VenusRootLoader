@@ -1,9 +1,9 @@
 using CommunityToolkit.Diagnostics;
-using VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors.Enums;
+using VenusRootLoader.Api.Leaves.MapEntities.Behaviors.Enums;
 
-namespace VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
+namespace VenusRootLoader.Api.Leaves.MapEntities.Behaviors;
 
-public sealed class FaceDirectionActionBehavior : ActionBehavior
+public sealed class FaceDirectionMapEntityBehavior : MapEntityBehavior
 {
     public FacingBehaviorDirection FacingDirection
     {
@@ -29,7 +29,7 @@ public sealed class FaceDirectionActionBehavior : ActionBehavior
         };
     }
 
-    internal FaceDirectionActionBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) : base(
+    internal FaceDirectionMapEntityBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) : base(
         mapEntityLeaf,
         kind)
     {

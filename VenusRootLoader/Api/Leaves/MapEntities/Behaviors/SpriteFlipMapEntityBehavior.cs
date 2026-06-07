@@ -1,9 +1,9 @@
 using CommunityToolkit.Diagnostics;
-using VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors.Enums;
+using VenusRootLoader.Api.Leaves.MapEntities.Behaviors.Enums;
 
-namespace VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
+namespace VenusRootLoader.Api.Leaves.MapEntities.Behaviors;
 
-public sealed class SpriteFlipActionBehavior : ActionBehavior
+public sealed class SpriteFlipMapEntityBehavior : MapEntityBehavior
 {
     public bool FlipsAtRandomInterval
     {
@@ -24,7 +24,7 @@ public sealed class SpriteFlipActionBehavior : ActionBehavior
         set => InternalFrequencyForKind = value;
     }
 
-    internal SpriteFlipActionBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) : base(mapEntityLeaf, kind)
+    internal SpriteFlipMapEntityBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) : base(mapEntityLeaf, kind)
     {
     }
 }

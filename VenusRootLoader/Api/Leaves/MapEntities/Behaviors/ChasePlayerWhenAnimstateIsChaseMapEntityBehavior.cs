@@ -1,8 +1,8 @@
-using VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors.Enums;
+using VenusRootLoader.Api.Leaves.MapEntities.Behaviors.Enums;
 
-namespace VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
+namespace VenusRootLoader.Api.Leaves.MapEntities.Behaviors;
 
-public sealed class ChasePlayerWhenAnimstateIsChaseActionBehavior : ActionBehavior
+public sealed class ChasePlayerWhenAnimstateIsChaseMapEntityBehavior : MapEntityBehavior
 {
     public int AnimstateOverrideWhenNotChase
     {
@@ -16,7 +16,7 @@ public sealed class ChasePlayerWhenAnimstateIsChaseActionBehavior : ActionBehavi
         set => MapEntityLeaf.InternalSpeedMultiplier = value;
     }
 
-    internal ChasePlayerWhenAnimstateIsChaseActionBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind)
+    internal ChasePlayerWhenAnimstateIsChaseMapEntityBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind)
         : base(mapEntityLeaf, kind)
     {
         InternalTypeForKind = NPCControl.ActionBehaviors.ChaseWhenAnim;

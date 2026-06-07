@@ -1,8 +1,8 @@
-using VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors.Enums;
+using VenusRootLoader.Api.Leaves.MapEntities.Behaviors.Enums;
 
-namespace VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
+namespace VenusRootLoader.Api.Leaves.MapEntities.Behaviors;
 
-public sealed class DisguiseOnceBeforeWanderActionBehavior : ActionBehavior
+public sealed class DisguiseOnceBeforeWanderMapEntityBehavior : MapEntityBehavior
 {
     public float MaxFramesIntervalBeforeMovingAgain
     {
@@ -22,7 +22,7 @@ public sealed class DisguiseOnceBeforeWanderActionBehavior : ActionBehavior
         set => MapEntityLeaf.InternalTeleportRadius = value;
     }
 
-    internal DisguiseOnceBeforeWanderActionBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind)
+    internal DisguiseOnceBeforeWanderMapEntityBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind)
         : base(mapEntityLeaf, kind)
     {
         InternalTypeForKind = NPCControl.ActionBehaviors.DisguiseOnce;

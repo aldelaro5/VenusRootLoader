@@ -1,18 +1,18 @@
 using CommunityToolkit.Diagnostics;
 using UnityEngine;
-using VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors.Enums;
+using VenusRootLoader.Api.Leaves.MapEntities.Behaviors.Enums;
 using VenusRootLoader.Registry;
 
-namespace VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
+namespace VenusRootLoader.Api.Leaves.MapEntities.Behaviors;
 
-public sealed class MapEntityBehaviors
+public sealed class MapEntityBehaviorSystem
 {
     private readonly MapEntityLeaf _mapEntityLeaf;
 
-    public ActionBehavior? OutOfBehaviorRangeBehavior { get; private set; }
-    public ActionBehavior? InBehaviorRangeBehavior { get; private set; }
+    public MapEntityBehavior? OutOfBehaviorRangeBehavior { get; private set; }
+    public MapEntityBehavior? InBehaviorRangeBehavior { get; private set; }
 
-    internal MapEntityBehaviors(MapEntityLeaf entityLeaf) { _mapEntityLeaf = entityLeaf; }
+    internal MapEntityBehaviorSystem(MapEntityLeaf entityLeaf) { _mapEntityLeaf = entityLeaf; }
 
     internal void InitializeBehaviorFromExisting(IRegistryResolver registryResolver)
     {
@@ -29,7 +29,7 @@ public sealed class MapEntityBehaviors
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<NPCControl.ActionBehaviors>(nameof(kind))
         };
 
-        ActionBehavior? behavior = MapExistingInternalBehaviorType(kind, internalType, registryResolver);
+        MapEntityBehavior? behavior = MapExistingInternalBehaviorType(kind, internalType, registryResolver);
 
         switch (kind)
         {
@@ -45,7 +45,7 @@ public sealed class MapEntityBehaviors
         }
     }
 
-    private ActionBehavior? MapExistingInternalBehaviorType(
+    private MapEntityBehavior? MapExistingInternalBehaviorType(
         ActionBehaviorKind kind,
         NPCControl.ActionBehaviors internalType,
         IRegistryResolver registryResolver)
@@ -53,48 +53,48 @@ public sealed class MapEntityBehaviors
         return internalType switch
         {
             NPCControl.ActionBehaviors.None => null,
-            NPCControl.ActionBehaviors.FacePlayer => new FaceDirectionActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.ChasePlayer => new ChasePlayerActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.FleeFromPlayer => new FleeFromPlayerActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.TurnRandomly => new SpriteFlipActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.Wander => new WanderActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.FaceAwayFromPlayer => new FaceDirectionActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.TurnFixedInterval => new SpriteFlipActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.Disguise => new DisguiseActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.DisguiseOnce => new DisguiseOnceBeforeWanderActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.FaceAhead => new FaceDirectionActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.FaceBehind => new FaceDirectionActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.FaceUp => new FaceDirectionActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.FaceDown => new FaceDirectionActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.SetPath => new MoveAlongPathActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.ChargeAtPlayer => new ChargeAtPlayerActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.ChargeAtPlayerFlipSprite => new ChargeAtPlayerActionBehavior(
+            NPCControl.ActionBehaviors.FacePlayer => new FaceDirectionMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.ChasePlayer => new ChasePlayerMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.FleeFromPlayer => new FleeFromPlayerMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.TurnRandomly => new SpriteFlipMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.Wander => new WanderMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.FaceAwayFromPlayer => new FaceDirectionMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.TurnFixedInterval => new SpriteFlipMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.Disguise => new DisguiseMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.DisguiseOnce => new DisguiseOnceBeforeWanderMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.FaceAhead => new FaceDirectionMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.FaceBehind => new FaceDirectionMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.FaceUp => new FaceDirectionMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.FaceDown => new FaceDirectionMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.SetPath => new MoveAlongPathMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.ChargeAtPlayer => new ChargeAtPlayerMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.ChargeAtPlayerFlipSprite => new ChargeAtPlayerMapEntityBehavior(
                 _mapEntityLeaf,
                 kind),
-            NPCControl.ActionBehaviors.ShootProjectile => new ShootProjectileActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.ChargeAndAttack => new ChaseAndAttackPlayerActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.Unmoveable => new UnmovableWhenDizzyActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.ChargeAttackUnderground => new ChaseAndAttackPlayerActionBehavior(
+            NPCControl.ActionBehaviors.ShootProjectile => new ShootProjectileMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.ChargeAndAttack => new ChaseAndAttackPlayerMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.Unmoveable => new UnmovableWhenDizzyMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.ChargeAttackUnderground => new ChaseAndAttackPlayerMapEntityBehavior(
                 _mapEntityLeaf,
                 kind),
-            NPCControl.ActionBehaviors.WanderUnderground => new WanderActionBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.WanderUnderground => new WanderMapEntityBehavior(_mapEntityLeaf, kind),
             NPCControl.ActionBehaviors.StealthAI => (int)_mapEntityLeaf.InternalOutOfRangeActionFrequency == 5555
                 ? CreateNewStealthSpotWhileAsleepBehaviorFromExisting(registryResolver)
                 : CreateNewStealthSpotBehaviorFromExisting(registryResolver),
-            NPCControl.ActionBehaviors.SetPathJump => new MoveAlongPathActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.ChangeSpriteInRandius => new ChangeAnimstateInRadiusActionBehavior(
+            NPCControl.ActionBehaviors.SetPathJump => new MoveAlongPathMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.ChangeSpriteInRandius => new ChangeAnimstateInRadiusMapEntityBehavior(
                 _mapEntityLeaf),
-            NPCControl.ActionBehaviors.ChaseWhenAnim => new ChasePlayerWhenAnimstateIsChaseActionBehavior(
+            NPCControl.ActionBehaviors.ChaseWhenAnim => new ChasePlayerWhenAnimstateIsChaseMapEntityBehavior(
                 _mapEntityLeaf,
                 kind),
-            NPCControl.ActionBehaviors.WalkWhenAnim => new WanderWhenAnimstateIsWalkOrIdleActionBehavior(
+            NPCControl.ActionBehaviors.WalkWhenAnim => new WanderWhenAnimstateIsWalkOrIdleMapEntityBehavior(
                 _mapEntityLeaf,
                 kind),
-            NPCControl.ActionBehaviors.WanderOffscreen => new WanderActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.WanderNoWarp => new WanderActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.WanderOnWater => new WanderActionBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.ChaseOnWater => new ChasePlayerActionBehavior(_mapEntityLeaf, kind),
-            _ => ThrowHelper.ThrowInvalidOperationException<ActionBehavior?>(
+            NPCControl.ActionBehaviors.WanderOffscreen => new WanderMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.WanderNoWarp => new WanderMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.WanderOnWater => new WanderMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.ChaseOnWater => new ChasePlayerMapEntityBehavior(_mapEntityLeaf, kind),
+            _ => ThrowHelper.ThrowInvalidOperationException<MapEntityBehavior?>(
                 $"The internal action behavior type {internalType} is not supported.")
         };
     }
@@ -114,10 +114,10 @@ public sealed class MapEntityBehaviors
         return behavior;
     }
 
-    public bool HasBehavior<TBehavior>() where TBehavior : ActionBehavior =>
+    public bool HasBehavior<TBehavior>() where TBehavior : MapEntityBehavior =>
         OutOfBehaviorRangeBehavior is TBehavior || InBehaviorRangeBehavior is TBehavior;
 
-    public TBehavior? TryGetBehavior<TBehavior>(ActionBehaviorKind kind) where TBehavior : ActionBehavior
+    public TBehavior? TryGetBehavior<TBehavior>(ActionBehaviorKind kind) where TBehavior : MapEntityBehavior
     {
         return kind switch
         {
@@ -127,21 +127,21 @@ public sealed class MapEntityBehaviors
         };
     }
 
-    public FaceDirectionActionBehavior SetFaceDirectionBehavior(
+    public FaceDirectionMapEntityBehavior SetFaceDirectionBehavior(
         ActionBehaviorKind kind,
         FacingBehaviorDirection direction)
     {
-        FaceDirectionActionBehavior behavior = new(_mapEntityLeaf, kind) { FacingDirection = direction };
+        FaceDirectionMapEntityBehavior behavior = new(_mapEntityLeaf, kind) { FacingDirection = direction };
         SetActionBehavior(behavior, kind);
         return behavior;
     }
 
-    public ChasePlayerActionBehavior SetChasePlayerBehavior(
+    public ChasePlayerMapEntityBehavior SetChasePlayerBehavior(
         ActionBehaviorKind kind,
         bool chaseOnWater,
         float movementSpeedMultiplier)
     {
-        ChasePlayerActionBehavior behavior = new(_mapEntityLeaf, kind)
+        ChasePlayerMapEntityBehavior behavior = new(_mapEntityLeaf, kind)
         {
             ChaseOnWater = chaseOnWater,
             MovementSpeedMultiplier = movementSpeedMultiplier
@@ -150,12 +150,12 @@ public sealed class MapEntityBehaviors
         return behavior;
     }
 
-    public ChasePlayerWhenAnimstateIsChaseActionBehavior SetChasePlayerWhenAnimstateIsChaseBehavior(
+    public ChasePlayerWhenAnimstateIsChaseMapEntityBehavior SetChasePlayerWhenAnimstateIsChaseBehavior(
         ActionBehaviorKind kind,
         int animstateOverrideWhenNotChase,
         float movementSpeedMultiplier)
     {
-        ChasePlayerWhenAnimstateIsChaseActionBehavior behavior = new(_mapEntityLeaf, kind)
+        ChasePlayerWhenAnimstateIsChaseMapEntityBehavior behavior = new(_mapEntityLeaf, kind)
         {
             AnimstateOverrideWhenNotChase = animstateOverrideWhenNotChase,
             MovementSpeedMultiplier = movementSpeedMultiplier
@@ -164,13 +164,13 @@ public sealed class MapEntityBehaviors
         return behavior;
     }
 
-    public ChaseAndAttackPlayerActionBehavior SetChaseAndAttackPlayerBehavior(
+    public ChaseAndAttackPlayerMapEntityBehavior SetChaseAndAttackPlayerBehavior(
         ActionBehaviorKind kind,
         float minimumDistanceFromPlayerBeforeAttacking,
         bool attacksFromUnderground,
         float movementSpeedMultiplier)
     {
-        ChaseAndAttackPlayerActionBehavior behavior = new(_mapEntityLeaf, kind)
+        ChaseAndAttackPlayerMapEntityBehavior behavior = new(_mapEntityLeaf, kind)
         {
             MinimumDistanceFromPlayerBeforeAttacking = minimumDistanceFromPlayerBeforeAttacking,
             AttacksFromUnderground = attacksFromUnderground,
@@ -180,19 +180,19 @@ public sealed class MapEntityBehaviors
         return behavior;
     }
 
-    public FleeFromPlayerActionBehavior SetFleeFromPlayerBehavior(ActionBehaviorKind kind)
+    public FleeFromPlayerMapEntityBehavior SetFleeFromPlayerBehavior(ActionBehaviorKind kind)
     {
-        FleeFromPlayerActionBehavior behavior = new(_mapEntityLeaf, kind);
+        FleeFromPlayerMapEntityBehavior behavior = new(_mapEntityLeaf, kind);
         SetActionBehavior(behavior, kind);
         return behavior;
     }
 
-    public SpriteFlipActionBehavior SetSpriteFlipBehavior(
+    public SpriteFlipMapEntityBehavior SetSpriteFlipBehavior(
         ActionBehaviorKind kind,
         float baseFlipIntervalInFrames,
         bool flipsAtRandomInterval)
     {
-        SpriteFlipActionBehavior behavior = new(_mapEntityLeaf, kind)
+        SpriteFlipMapEntityBehavior behavior = new(_mapEntityLeaf, kind)
         {
             BaseFlipIntervalInFrames = baseFlipIntervalInFrames,
             FlipsAtRandomInterval = flipsAtRandomInterval
@@ -201,14 +201,14 @@ public sealed class MapEntityBehaviors
         return behavior;
     }
 
-    public WanderActionBehavior SetWanderBehavior(
+    public WanderMapEntityBehavior SetWanderBehavior(
         ActionBehaviorKind kind,
         WanderBehaviorPattern pattern,
         float maxFramesIntervalBeforeMovingAgain,
         float radiusToWanderFromStartingPosition,
         float maxDistanceFromStartingPositionBeforeTeleport)
     {
-        WanderActionBehavior behavior = new(_mapEntityLeaf, kind)
+        WanderMapEntityBehavior behavior = new(_mapEntityLeaf, kind)
         {
             WanderPattern = pattern,
             MaxFramesIntervalBeforeMovingAgain = maxFramesIntervalBeforeMovingAgain,
@@ -220,13 +220,13 @@ public sealed class MapEntityBehaviors
     }
 
     // NOTE: The animstate AND the wander frames delay are the same so they conflict, but there's not much that can be done to address this
-    public WanderWhenAnimstateIsWalkOrIdleActionBehavior SetWanderWhenAnimstateIsWalkOrIdleBehavior(
+    public WanderWhenAnimstateIsWalkOrIdleMapEntityBehavior SetWanderWhenAnimstateIsWalkOrIdleBehavior(
         ActionBehaviorKind kind,
         int animstateOverrideWhenNotChase,
         float radiusToWanderFromStartingPosition,
         float maxDistanceFromStartingPositionBeforeTeleport)
     {
-        WanderWhenAnimstateIsWalkOrIdleActionBehavior behavior = new(_mapEntityLeaf, kind)
+        WanderWhenAnimstateIsWalkOrIdleMapEntityBehavior behavior = new(_mapEntityLeaf, kind)
         {
             AnimstateOverrideWhenNotChase = animstateOverrideWhenNotChase,
             RadiusToWanderFromStartingPosition = radiusToWanderFromStartingPosition,
@@ -236,20 +236,20 @@ public sealed class MapEntityBehaviors
         return behavior;
     }
 
-    public DisguiseActionBehavior SetDisguiseBehavior(ActionBehaviorKind kind)
+    public DisguiseMapEntityBehavior SetDisguiseBehavior(ActionBehaviorKind kind)
     {
-        DisguiseActionBehavior behavior = new(_mapEntityLeaf, kind);
+        DisguiseMapEntityBehavior behavior = new(_mapEntityLeaf, kind);
         SetActionBehavior(behavior, kind);
         return behavior;
     }
 
-    public DisguiseOnceBeforeWanderActionBehavior SetDisguiseOnceBeforeWanderBehavior(
+    public DisguiseOnceBeforeWanderMapEntityBehavior SetDisguiseOnceBeforeWanderBehavior(
         ActionBehaviorKind kind,
         float maxFramesIntervalBeforeMovingAgain,
         float radiusToWanderFromStartingPosition,
         float maxDistanceFromStartingPositionBeforeTeleport)
     {
-        DisguiseOnceBeforeWanderActionBehavior behavior = new(_mapEntityLeaf, kind)
+        DisguiseOnceBeforeWanderMapEntityBehavior behavior = new(_mapEntityLeaf, kind)
         {
             MaxFramesIntervalBeforeMovingAgain = maxFramesIntervalBeforeMovingAgain,
             RadiusToWanderFromStartingPosition = radiusToWanderFromStartingPosition,
@@ -259,13 +259,13 @@ public sealed class MapEntityBehaviors
         return behavior;
     }
 
-    public MoveAlongPathActionBehavior SetMoveAlongPathBehavior(
+    public MoveAlongPathMapEntityBehavior SetMoveAlongPathBehavior(
         ActionBehaviorKind kind,
         float delayFramesBeforeMovingToNextNode,
         bool jumpWhileMoving,
         ICollection<Vector3> positionNodesInPath)
     {
-        MoveAlongPathActionBehavior behavior = new(_mapEntityLeaf, kind)
+        MoveAlongPathMapEntityBehavior behavior = new(_mapEntityLeaf, kind)
         {
             DelayFramesBeforeMovingToNextNode = delayFramesBeforeMovingToNextNode,
             JumpWhileMoving = jumpWhileMoving,
@@ -276,12 +276,12 @@ public sealed class MapEntityBehaviors
         return behavior;
     }
 
-    public ChargeAtPlayerActionBehavior SetChargeAtPlayerBehavior(
+    public ChargeAtPlayerMapEntityBehavior SetChargeAtPlayerBehavior(
         ActionBehaviorKind kind,
         bool lockSpriteFlipDuringCharge,
         float movementSpeedMultiplier)
     {
-        ChargeAtPlayerActionBehavior behavior = new(_mapEntityLeaf, kind)
+        ChargeAtPlayerMapEntityBehavior behavior = new(_mapEntityLeaf, kind)
         {
             LockSpriteFlipDuringCharge = lockSpriteFlipDuringCharge,
             MovementSpeedMultiplier = movementSpeedMultiplier
@@ -290,26 +290,26 @@ public sealed class MapEntityBehaviors
         return behavior;
     }
 
-    public ShootProjectileActionBehavior SetShootProjectileBehavior(ActionBehaviorKind kind)
+    public ShootProjectileMapEntityBehavior SetShootProjectileBehavior(ActionBehaviorKind kind)
     {
-        ShootProjectileActionBehavior behavior = new(_mapEntityLeaf, kind);
+        ShootProjectileMapEntityBehavior behavior = new(_mapEntityLeaf, kind);
         SetActionBehavior(behavior, kind);
         return behavior;
     }
 
-    public UnmovableWhenDizzyActionBehavior SetUnmovableWhenDizzyBehavior(ActionBehaviorKind kind)
+    public UnmovableWhenDizzyMapEntityBehavior SetUnmovableWhenDizzyBehavior(ActionBehaviorKind kind)
     {
-        UnmovableWhenDizzyActionBehavior behavior = new(_mapEntityLeaf, kind);
+        UnmovableWhenDizzyMapEntityBehavior behavior = new(_mapEntityLeaf, kind);
         SetActionBehavior(behavior, kind);
         return behavior;
     }
 
-    public ChangeAnimstateInRadiusActionBehavior SetChangeAnimstateInRadiusGlobalBehavior(
+    public ChangeAnimstateInRadiusMapEntityBehavior SetChangeAnimstateInRadiusGlobalBehavior(
         float radius,
         int animstateWhenOutsideRadius,
         int animstateWhenInsideRadius)
     {
-        ChangeAnimstateInRadiusActionBehavior behavior = new(_mapEntityLeaf)
+        ChangeAnimstateInRadiusMapEntityBehavior behavior = new(_mapEntityLeaf)
         {
             Radius = radius,
             AnimstateWhenOutsideRadius = animstateWhenOutsideRadius,
@@ -361,7 +361,7 @@ public sealed class MapEntityBehaviors
         _mapEntityLeaf.InternalInRangeActionFrequency = 0f;
     }
 
-    private void SetActionBehavior(ActionBehavior? behavior, ActionBehaviorKind? kind)
+    private void SetActionBehavior(MapEntityBehavior? behavior, ActionBehaviorKind? kind)
     {
         switch (kind)
         {
@@ -373,7 +373,7 @@ public sealed class MapEntityBehaviors
                     _mapEntityLeaf.InternalOutOfRangeActionFrequency = 0f;
                 }
 
-                if (InBehaviorRangeBehavior is ChasePlayerWhenAnimstateIsChaseActionBehavior)
+                if (InBehaviorRangeBehavior is ChasePlayerWhenAnimstateIsChaseMapEntityBehavior)
                 {
                     InBehaviorRangeBehavior = null;
                     _mapEntityLeaf.InternalInRangeBehavior = NPCControl.ActionBehaviors.None;
@@ -389,7 +389,7 @@ public sealed class MapEntityBehaviors
                     _mapEntityLeaf.InternalInRangeActionFrequency = 0f;
                 }
 
-                if (OutOfBehaviorRangeBehavior is ChasePlayerWhenAnimstateIsChaseActionBehavior)
+                if (OutOfBehaviorRangeBehavior is ChasePlayerWhenAnimstateIsChaseMapEntityBehavior)
                 {
                     OutOfBehaviorRangeBehavior = null;
                     _mapEntityLeaf.InternalOutOfRangeBehavior = NPCControl.ActionBehaviors.None;

@@ -1,9 +1,9 @@
 using CommunityToolkit.Diagnostics;
-using VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors.Enums;
+using VenusRootLoader.Api.Leaves.MapEntities.Behaviors.Enums;
 
-namespace VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
+namespace VenusRootLoader.Api.Leaves.MapEntities.Behaviors;
 
-public sealed class ChaseAndAttackPlayerActionBehavior : ActionBehavior
+public sealed class ChaseAndAttackPlayerMapEntityBehavior : MapEntityBehavior
 {
     public bool AttacksFromUnderground
     {
@@ -30,7 +30,7 @@ public sealed class ChaseAndAttackPlayerActionBehavior : ActionBehavior
         set => MapEntityLeaf.InternalSpeedMultiplier = value;
     }
 
-    internal ChaseAndAttackPlayerActionBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) : base(
+    internal ChaseAndAttackPlayerMapEntityBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) : base(
         mapEntityLeaf,
         kind)
     {

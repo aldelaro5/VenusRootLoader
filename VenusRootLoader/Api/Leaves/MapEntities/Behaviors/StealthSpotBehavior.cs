@@ -2,10 +2,10 @@ using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
-namespace VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
+namespace VenusRootLoader.Api.Leaves.MapEntities.Behaviors;
 
 // TODO: Figure out if you can put a delay
-public sealed class StealthSpotBehavior : ActionBehavior
+public sealed class StealthSpotBehavior : MapEntityBehavior
 {
     public float DelayFramesBeforeMovingToNextNode
     {

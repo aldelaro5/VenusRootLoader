@@ -1,9 +1,9 @@
 using CommunityToolkit.Diagnostics;
-using VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors.Enums;
+using VenusRootLoader.Api.Leaves.MapEntities.Behaviors.Enums;
 
-namespace VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
+namespace VenusRootLoader.Api.Leaves.MapEntities.Behaviors;
 
-public abstract class ActionBehavior
+public abstract class MapEntityBehavior
 {
     internal MapEntityLeaf MapEntityLeaf { get; }
 
@@ -65,7 +65,7 @@ public abstract class ActionBehavior
         }
     }
 
-    protected ActionBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind? kind)
+    protected MapEntityBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind? kind)
     {
         MapEntityLeaf = mapEntityLeaf;
         Kind = kind;

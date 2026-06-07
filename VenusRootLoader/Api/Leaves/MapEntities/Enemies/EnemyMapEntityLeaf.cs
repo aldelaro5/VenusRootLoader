@@ -1,5 +1,5 @@
 using UnityEngine;
-using VenusRootLoader.Api.Leaves.MapEntities.ActionBehaviors;
+using VenusRootLoader.Api.Leaves.MapEntities.Behaviors;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
@@ -14,10 +14,10 @@ public abstract class EnemyMapEntityLeaf : MapEntityLeaf
     protected EnemyMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
     {
         _enemiesFormationInBattle = new(InternalBattleEnemyIds, 0, x => new(x.GameId));
-        Behaviors = new(this);
+        BehaviorSystem = new(this);
     }
 
-    public MapEntityBehaviors Behaviors { get; }
+    public MapEntityBehaviorSystem BehaviorSystem { get; }
 
     public Branch<AnimIdLeaf> AnimId
     {
@@ -58,7 +58,7 @@ public abstract class EnemyMapEntityLeaf : MapEntityLeaf
         ILeavesRegistry<EnemyLeaf> enemiesRegistry = registryResolver.Resolve<EnemyLeaf>();
         ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
 
-        Behaviors.InitializeBehaviorFromExisting(registryResolver);
+        BehaviorSystem.InitializeBehaviorFromExisting(registryResolver);
 
         AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
 

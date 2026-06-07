@@ -5,13 +5,16 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Enemies;
 
-public abstract class EnemyMapEntityLeaf : MapEntityLeaf
+public abstract class EnemyEncounterMapEntityLeaf : MapEntityLeaf
 {
     internal sealed override NPCControl.NPCType Type => NPCControl.NPCType.Enemy;
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.None;
     internal sealed override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
-    protected EnemyMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    protected EnemyEncounterMapEntityLeaf(int gameId, string namedId, string creatorId) : base(
+        gameId,
+        namedId,
+        creatorId)
     {
         _enemiesFormationInBattle = new(InternalBattleEnemyIds, 0, x => new(x.GameId));
         BehaviorSystem = new(this);
@@ -29,21 +32,21 @@ public abstract class EnemyMapEntityLeaf : MapEntityLeaf
         }
     }
 
-    public float EntityBobSpeed { get => InternalBobSpeed; set => InternalBobSpeed = value; }
-    public float EntityBobRange { get => InternalBobRange; set => InternalBobRange = value; }
-    public float EntityInitialHeight { get => InternalInitialHeight; set => InternalInitialHeight = value; }
+    public float EntityBobSpeedWhileAirborne { get => InternalBobSpeed; set => InternalBobSpeed = value; }
+    public float EntityBobRangeWhileAirborne { get => InternalBobRange; set => InternalBobRange = value; }
+    public float EntityInitialAltitudeFromGround { get => InternalInitialHeight; set => InternalInitialHeight = value; }
     public float EntityCapsuleColliderRadius { get => InternalCcolRadius; set => InternalCcolRadius = value; }
     public float EntityCapsulerColliderHeight { get => InternalCcolHeight; set => InternalCcolHeight = value; }
-    public bool EntitySpriteIsFlipped { get => InternalIsFlipped; set => InternalIsFlipped = value; }
+    public bool EntitySpriteStartsFlipped { get => InternalIsFlipped; set => InternalIsFlipped = value; }
     public Vector3 EntityEmoticonOffset { get => InternalEmoticonOffset; set => InternalEmoticonOffset = value; }
-    public Vector3 EntityIceCubeOffset { get => InternalFreezeOffset; set => InternalFreezeOffset = value; }
-    public Vector3 EntityIceCubeSize { get => InternalFreezeSize; set => InternalFreezeSize = value; }
-    public bool ReturnToHeightWhenUnfrozen { get => InternalReturnToHeight; set => InternalReturnToHeight = value; }
+    public Vector3 EntityIceCubeOffsetWhenFrozen { get => InternalFreezeOffset; set => InternalFreezeOffset = value; }
+    public Vector3 EntityIceCubeSizeWhenFrozen { get => InternalFreezeSize; set => InternalFreezeSize = value; }
+    public bool ReturnToAirWhenUnfrozen { get => InternalReturnToHeight; set => InternalReturnToHeight = value; }
     public float MovementRadius { get => InternalRadiusLimit; set => InternalRadiusLimit = value; }
     public float BehaviorAndInteractRangeRadius { get => InternalRadius; set => InternalRadius = value; }
     public float ExtraFreezeTimeInFrames { get => InternalFreezeTime; set => InternalFreezeTime = value; }
-    public float EntitySpeed { get => InternalSpeed; set => InternalSpeed = value; }
-    public float BehaviorRangeRadius { get => InternalRadius; set => InternalRadius = value; }
+    public float EntityMovementSpeed { get => InternalSpeed; set => InternalSpeed = value; }
+    public float BehaviorSystemRangeRadius { get => InternalRadius; set => InternalRadius = value; }
 
     private readonly ListRefWrapper<Branch<EnemyLeaf>, int> _enemiesFormationInBattle;
     public IList<Branch<EnemyLeaf>> EnemiesFormationInBattle => _enemiesFormationInBattle;

@@ -2,16 +2,16 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Enemies;
 
-public sealed class EnemyEncounterHoldingKeyItemMapEntityLeaf : EnemyMapEntityLeaf
+public sealed class EnemyEncounterDroppingKeyItemMapEntityLeaf : EnemyEncounterMapEntityLeaf
 {
-    internal EnemyEncounterHoldingKeyItemMapEntityLeaf(int gameId, string namedId, string creatorId)
+    internal EnemyEncounterDroppingKeyItemMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
 
     internal NPCControl.DeathType DeathMethod { get => InternalDeathType; set => InternalDeathType = value; }
 
-    public Branch<ItemLeaf> KeyItemDropped
+    public Branch<ItemLeaf> KeyItemDroppedWhenDefeated
     {
         get;
         set
@@ -49,6 +49,6 @@ public sealed class EnemyEncounterHoldingKeyItemMapEntityLeaf : EnemyMapEntityLe
         base.InitializeFromExisting(registryResolver);
         ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
 
-        KeyItemDropped = new(itemsRegistry.LeavesByGameIds[(int)InternalVectorData[0].Value.x]);
+        KeyItemDroppedWhenDefeated = new(itemsRegistry.LeavesByGameIds[(int)InternalVectorData[0].Value.x]);
     }
 }

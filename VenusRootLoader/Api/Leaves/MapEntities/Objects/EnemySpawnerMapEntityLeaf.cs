@@ -14,7 +14,7 @@ public sealed class EnemySpawnerMapEntityLeaf : ObjectMapEntityLeaf
 
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.EnemySpawner;
 
-    public Branch<EnemyMapEntityLeaf> EnemyToRespawn
+    public Branch<EnemyEncounterMapEntityLeaf> EnemyToRespawn
     {
         get;
         set
@@ -44,6 +44,7 @@ public sealed class EnemySpawnerMapEntityLeaf : ObjectMapEntityLeaf
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
-        EnemyToRespawn = (Branch<EnemyMapEntityLeaf>)Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0].Value]!;
+        EnemyToRespawn =
+            (Branch<EnemyEncounterMapEntityLeaf>)Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0].Value]!;
     }
 }

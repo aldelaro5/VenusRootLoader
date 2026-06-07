@@ -4,12 +4,12 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Enemies;
 
-public sealed class EnemyEncounterWithRegularItemDropsMapEntityLeaf : EnemyMapEntityLeaf
+public sealed class EnemyEncounterDroppingItemsMapEntityLeaf : EnemyEncounterMapEntityLeaf
 {
-    internal EnemyEncounterWithRegularItemDropsMapEntityLeaf(int gameId, string namedId, string creatorId)
+    internal EnemyEncounterDroppingItemsMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
-        _itemsDropPoolWhenDefeated = new(InternalVectorData, 0, x => x.Ref);
+        _itemsDropPoolWhenDefeated = new(InternalVectorData, 0, x => x.Vector3Ref);
     }
 
     internal NPCControl.DeathType DeathMethod { get => InternalDeathType; set => InternalDeathType = value; }

@@ -2,9 +2,9 @@ using CommunityToolkit.Diagnostics;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Enemies;
 
-public sealed class EnemyEncounterRespawnableMapEntityLeaf : EnemyMapEntityLeaf
+public sealed class EnemyEncounterWithRespawnMapEntityLeaf : EnemyEncounterMapEntityLeaf
 {
-    internal EnemyEncounterRespawnableMapEntityLeaf(int gameId, string namedId, string creatorId)
+    internal EnemyEncounterWithRespawnMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }

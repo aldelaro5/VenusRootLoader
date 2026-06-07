@@ -427,7 +427,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             value.InternalVectorData.Clear();
         }
 
-        if (value is not EnemyEncounterHoldingKeyItemMapEntityLeaf &&
+        if (value is not EnemyEncounterDroppingKeyItemMapEntityLeaf &&
             (BehaviorsWithSecondaryVectorData.Contains(primaryBehavior) ||
              BehaviorsWithSecondaryVectorData.Contains(secondaryBehavior)))
         {
@@ -712,12 +712,12 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             !BehaviorsWithSecondaryVectorData.Contains(primaryBehavior) &&
             !BehaviorsWithSecondaryVectorData.Contains(secondaryBehavior))
         {
-            return registry.RegisterExisting<EnemyEncounterHoldingKeyItemMapEntityLeaf>(id, namedId, baseGameId);
+            return registry.RegisterExisting<EnemyEncounterDroppingKeyItemMapEntityLeaf>(id, namedId, baseGameId);
         }
 
         return int.Parse(fields[37]) > 0
-            ? registry.RegisterExisting<EnemyEncounterRespawnableMapEntityLeaf>(id, namedId, baseGameId)
-            : registry.RegisterExisting<EnemyEncounterWithRegularItemDropsMapEntityLeaf>(
+            ? registry.RegisterExisting<EnemyEncounterWithRespawnMapEntityLeaf>(id, namedId, baseGameId)
+            : registry.RegisterExisting<EnemyEncounterDroppingItemsMapEntityLeaf>(
                 id,
                 namedId,
                 baseGameId);

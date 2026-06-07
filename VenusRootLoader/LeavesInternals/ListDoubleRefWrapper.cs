@@ -2,6 +2,20 @@ using System.Collections;
 
 namespace VenusRootLoader.LeavesInternals;
 
+/// <summary>
+/// An <see cref="IList{T}"/> that wraps 2 different <see cref="List{T}"/> whose type is a <see cref="Ref{T}"/> where T is a value type.
+/// This is done through 3 <see cref="List{T}"/>, one that holds the wrapper elements and the 2 that holds the wrapped <see cref="Ref{T}"/> elements.
+/// All three lists are constantly synchronized with each other as operations happens on the exposed <see cref="IList{T}"/>.
+/// </summary>
+/// <remarks>
+/// The purpose of this is to expose a type with list semantics through a different type than the 2 underlying lists' type with
+/// the ability to bind all the properties of the wrapper to the underlying values.
+/// This is possible through <see cref="Ref{T}"/> because it allows to refer to a value type by reference which allows the wrapper
+/// to directly change its underlying value in the underlying list.
+/// </remarks>
+/// <typeparam name="TWrapper">The element type to expose that wraps <see cref="Ref{T}"/> of <typeparamref name="TWrapped1"/> and <see cref="Ref{T}"/> of <typeparamref name="TWrapped2"/>.</typeparam>
+/// <typeparam name="TWrapped1">The element's <see cref="Ref{T}"/>'s type of the first underlying list.</typeparam>
+/// <typeparam name="TWrapped2">The element's <see cref="Ref{T}"/>'s type of the second underlying list.</typeparam>
 internal sealed class ListDoubleRefWrapper<TWrapper, TWrapped1, TWrapped2> : IList<TWrapper>
     where TWrapped1 : struct
     where TWrapped2 : struct
@@ -13,6 +27,14 @@ internal sealed class ListDoubleRefWrapper<TWrapper, TWrapped1, TWrapped2> : ILi
     private readonly Func<TWrapper, Ref<TWrapped2>> _refWrapper2;
     private readonly List<TWrapper> _backingList = new();
 
+    /// <summary>
+    /// Creates a new instance that binds the 2 underlying lists and their wrapper functions.
+    /// </summary>
+    /// <param name="wrappedList1">The first underlying list this type will be bound to.</param>
+    /// <param name="wrappedList2">The second underlying list this type will be bound to.</param>
+    /// <param name="startingIndex">The starting index to bind the underlying lists' elements.</param>
+    /// <param name="refWrapper1">A function that transforms a <typeparamref name="TWrapper"/> into a <see cref="Ref{T}"/> of <typeparamref name="TWrapped1"/>.</param>
+    /// <param name="refWrapper2">A function that transforms a <typeparamref name="TWrapper"/> into a <see cref="Ref{T}"/> of <typeparamref name="TWrapped2"/>.</param>
     internal ListDoubleRefWrapper(
         List<Ref<TWrapped1>> wrappedList1,
         List<Ref<TWrapped2>> wrappedList2,

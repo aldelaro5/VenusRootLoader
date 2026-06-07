@@ -2,6 +2,19 @@ using System.Collections;
 
 namespace VenusRootLoader.LeavesInternals;
 
+/// <summary>
+/// An <see cref="IList{T}"/> that wraps a <see cref="List{T}"/> whose type is a <see cref="Ref{T}"/> where T is a value type.
+/// This is done through 2 <see cref="List{T}"/>, one that holds the wrapper elements and one that holds the wrapped <see cref="Ref{T}"/> elements.
+/// Both lists are constantly synchronized with each other as operations happens on the exposed <see cref="IList{T}"/>.
+/// </summary>
+/// <remarks>
+/// The purpose of this is to expose a type with list semantics through a different type than the underlying list's type with
+/// the ability to bind all the properties of the wrapper to the underlying value.
+/// This is possible through <see cref="Ref{T}"/> because it allows to refer to a value type by reference which allows the wrapper
+/// to directly change its underlying value in the underlying list.
+/// </remarks>
+/// <typeparam name="TWrapper">The element type to expose that wraps <see cref="Ref{T}"/> of <typeparamref name="TWrapped"/>.</typeparam>
+/// <typeparam name="TWrapped">The element's <see cref="Ref{T}"/>'s type of the underlying list.</typeparam>
 internal sealed class ListRefWrapper<TWrapper, TWrapped> : IList<TWrapper>
     where TWrapped : struct
 {
@@ -10,6 +23,12 @@ internal sealed class ListRefWrapper<TWrapper, TWrapped> : IList<TWrapper>
     private readonly Func<TWrapper, Ref<TWrapped>> _refWrapper;
     private readonly List<TWrapper> _backingList = new();
 
+    /// <summary>
+    /// Creates a new instance that binds the underlying list and a wrapper function.
+    /// </summary>
+    /// <param name="wrappedList">The underlying list this type will be bound to.</param>
+    /// <param name="startingIndex">The starting index to bind the underlying list's elements.</param>
+    /// <param name="refWrapper">A function that transforms a <typeparamref name="TWrapper"/> into a <see cref="Ref{T}"/> of <typeparamref name="TWrapped"/>.</param>
     internal ListRefWrapper(
         List<Ref<TWrapped>> wrappedList,
         int startingIndex,

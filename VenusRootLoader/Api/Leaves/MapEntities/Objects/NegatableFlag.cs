@@ -1,4 +1,4 @@
-namespace VenusRootLoader.Api.Leaves.MapEntities;
+namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
 public sealed class NegatableFlag
 {

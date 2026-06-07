@@ -9,7 +9,7 @@ public sealed class DigSpotStartEventMapEntityLeaf : DigSpotMapEntityLeaf
     {
     }
 
-    public Branch<EventLeaf> EventToStartWhenDugUp
+    public Branch<EventLeaf> EventToStartWhenEmergingFromDigging
     {
         get;
         set
@@ -29,6 +29,6 @@ public sealed class DigSpotStartEventMapEntityLeaf : DigSpotMapEntityLeaf
     {
         base.InitializeFromExisting(registryResolver);
         ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
-        EventToStartWhenDugUp = new(eventsRegistry.LeavesByGameIds[InternalData[1].Value]);
+        EventToStartWhenEmergingFromDigging = new(eventsRegistry.LeavesByGameIds[InternalData[1].Value]);
     }
 }

@@ -18,7 +18,7 @@ public sealed class RotatingPlatformMapEntityLeaf : ObjectMapEntityLeaf
         : base(gameId, namedId, creatorId)
     {
         _requiredEntityActivationsToMove = new(InternalData, 0, x => new(x.GameId));
-        _movementPathNodeEulerAngles = new(InternalVectorData, 0, x => new(x));
+        _movementNodeEulerAngles = new(InternalVectorData, 0, x => new(x));
     }
 
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.RotatingPlatform;
@@ -33,11 +33,11 @@ public sealed class RotatingPlatformMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
-    private readonly ListRefWrapper<Branch<MapEntityLeaf>, int> _requiredEntityActivationsToMove;
-    public IList<Branch<MapEntityLeaf>> RequiredEntityActivationsToMove => _requiredEntityActivationsToMove;
+    private readonly ListRefWrapper<Branch<ObjectMapEntityLeaf>, int> _requiredEntityActivationsToMove;
+    public IList<Branch<ObjectMapEntityLeaf>> RequiredEntityActivationsToMove => _requiredEntityActivationsToMove;
 
-    private readonly ListRefWrapper<Vector3, Vector3> _movementPathNodeEulerAngles;
-    public IList<Vector3> MovementPathNodeEulerAngles => _movementPathNodeEulerAngles;
+    private readonly ListRefWrapper<Vector3, Vector3> _movementNodeEulerAngles;
+    public IList<Vector3> MovementNodeEulerAngles => _movementNodeEulerAngles;
 
     public float MovementSpeedMultiplier
     {
@@ -80,10 +80,12 @@ public sealed class RotatingPlatformMapEntityLeaf : ObjectMapEntityLeaf
 
         _requiredEntityActivationsToMove.SynchronizeFromExistingData(
             InternalData
-                .Select(x => new Branch<MapEntityLeaf>(Map.Leaf.EntitiesRegistry.LeavesByGameIds[x.Value]))
+                .Select(x =>
+                    new Branch<ObjectMapEntityLeaf>(
+                        (ObjectMapEntityLeaf)Map.Leaf.EntitiesRegistry.LeavesByGameIds[x.Value]))
                 .ToList());
 
-        _movementPathNodeEulerAngles.SynchronizeFromExistingData(
+        _movementNodeEulerAngles.SynchronizeFromExistingData(
             InternalVectorData.Select(x => x.Value)
                 .ToList());
     }

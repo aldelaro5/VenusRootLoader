@@ -1,15 +1,10 @@
 using UnityEngine;
+using VenusRootLoader.Api.Leaves.MapEntities.Objects.Enums;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
-// TODO: it's possible this works with other animid, recheck later
-public enum IceRadiusSwitchKind
-{
-    BigCrystalSwitch = 54,
-    SwitchCrystal = 36
-}
-
+// TODO: it's possible this works with other animId, recheck later
 public sealed class IceRadiusSwitchMapEntityLeaf : ObjectMapEntityLeaf
 {
     internal IceRadiusSwitchMapEntityLeaf(int gameId, string namedId, string creatorId)
@@ -43,7 +38,7 @@ public sealed class IceRadiusSwitchMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalData[3].Value = value ? 1 : 0;
     }
 
-    public float RadiusChangeRateWhenToggled
+    public float RadiusRangeChangeRateWhenToggled
     {
         get => InternalVectorData[0].Value.x;
         set => InternalVectorData[0].Value.x = value;

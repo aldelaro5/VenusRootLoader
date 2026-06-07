@@ -13,9 +13,10 @@ public abstract class CuttableGrassMapEntityLeaf : ObjectMapEntityLeaf
 
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.BeetleGrass;
 
-    public Vector3 BoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
-    public Vector3 BoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
+    public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
+    public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
 
+    // TODO: Move this to a leaf
     public int GrassSpriteId { get => InternalData[0].Value; set => InternalData[0].Value = value; }
 
     internal override void InitializeFromNew()

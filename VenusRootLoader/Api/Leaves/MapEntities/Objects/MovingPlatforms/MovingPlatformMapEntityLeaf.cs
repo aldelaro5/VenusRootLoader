@@ -45,8 +45,8 @@ public abstract class MovingPlatformMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalDialogues[2].Value.y = value ?? 0f;
     }
 
-    private readonly ListRefWrapper<Branch<MapEntityLeaf>, int> _requiredEntityActivationsToMove;
-    public IList<Branch<MapEntityLeaf>> RequiredEntityActivationsToMove => _requiredEntityActivationsToMove;
+    private readonly ListRefWrapper<Branch<ObjectMapEntityLeaf>, int> _requiredEntityActivationsToMove;
+    public IList<Branch<ObjectMapEntityLeaf>> RequiredEntityActivationsToMove => _requiredEntityActivationsToMove;
 
     internal override void InitializeFromNew()
     {
@@ -63,7 +63,9 @@ public abstract class MovingPlatformMapEntityLeaf : ObjectMapEntityLeaf
 
         _requiredEntityActivationsToMove.SynchronizeFromExistingData(
             InternalData
-                .Select(x => new Branch<MapEntityLeaf>(Map.Leaf.EntitiesRegistry.LeavesByGameIds[x.Value]))
+                .Select(x =>
+                    new Branch<ObjectMapEntityLeaf>(
+                        (ObjectMapEntityLeaf)Map.Leaf.EntitiesRegistry.LeavesByGameIds[x.Value]))
                 .ToList());
     }
 }

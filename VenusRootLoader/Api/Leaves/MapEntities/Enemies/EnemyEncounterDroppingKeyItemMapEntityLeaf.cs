@@ -23,11 +23,11 @@ public sealed class EnemyEncounterDroppingKeyItemMapEntityLeaf : EnemyEncounterM
 
     public Branch<FlagLeaf> KeyItemObtainedFlag
     {
-        get => Limits[0].Flag;
+        get => LimitedToFlags[0].Flag;
         set
         {
             InternalActivationFlagId = value.GameId;
-            Limits[0].Flag = value;
+            LimitedToFlags[0].Flag = value;
         }
     }
 
@@ -35,7 +35,7 @@ public sealed class EnemyEncounterDroppingKeyItemMapEntityLeaf : EnemyEncounterM
     {
         base.InitializeFromNew();
         InternalVectorData.Add(new(new(0f, -2f, 0f)));
-        Limits.Add(
+        LimitedToFlags.Add(
             new()
             {
                 Flag = new(),

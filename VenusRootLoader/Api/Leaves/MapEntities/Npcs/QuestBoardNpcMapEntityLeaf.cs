@@ -94,7 +94,7 @@ public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
             FlagInteractWithCaretakerIfFlagIsFalse = flagsRegistry.LeavesByGameIds[InternalData[2].Value];
 
         BoardCaretakerMapEntity =
-            (Branch<NpcMapEntityLeaf>)Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0].Value];
+            (Branch<NpcMapEntityLeaf>)Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0].Value]!;
         BoardCaretakerDialogueWhenQuestIsSelected = InternalData[1].Value < 0
             ? commonDialoguesRegistry.LeavesByGameIds[InternalData[1].Value]
             : Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalData[1].Value];

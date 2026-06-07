@@ -12,19 +12,19 @@ public sealed class SpinningCrankMapEntityLeaf : ObjectMapEntityLeaf
 
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.ScrewSwitch;
 
-    public float RateIncreaseWhenSpinning
+    public float RateOfIncreaseWhenSpinning
     {
         get => InternalVectorData[0].Value.x;
         set => InternalVectorData[0].Value.x = value;
     }
 
-    public float RateDecreaseWhenNotSpinning
+    public float RateOfDecreaseWhenNotSpinning
     {
         get => InternalVectorData[0].Value.y;
         set => InternalVectorData[0].Value.y = value;
     }
 
-    public float TotalSpinCapacity
+    public float MaximumSpinValue
     {
         get => InternalVectorData[0].Value.z;
         set => InternalVectorData[0].Value.z = value;

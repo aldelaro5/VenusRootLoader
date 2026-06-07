@@ -9,7 +9,7 @@ public sealed class SlidingIcePillarMapEntityLeaf : MovableObjectMapEntityLeaf
     {
     }
 
-    public float SlidingXZVelocityMultiplier
+    public float SlidingVelocityMultiplier
     {
         get => InternalVectorData[0].Value.z;
         set => InternalVectorData[0].Value.z = value;

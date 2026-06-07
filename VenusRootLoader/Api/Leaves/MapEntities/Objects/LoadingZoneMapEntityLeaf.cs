@@ -93,19 +93,19 @@ public sealed class LoadingZoneMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
-    public Vector3 PositionToSpawnAfterMapLoad
+    public Vector3 PositionToSpawnAfterLoad
     {
         get => InternalVectorData[1].Value;
         set => InternalVectorData[1].Value = value;
     }
 
-    public Vector3 PositionToMoveFromSpawnAfterMapLoad
+    public Vector3 PositionToMoveFromSpawnAfterLoad
     {
         get => InternalVectorData[2].Value;
         set => InternalVectorData[2].Value = value;
     }
 
-    public float? JumpMovementHeightAfterMapLoad
+    public float? JumpMovementHeightAfterLoad
     {
         get => InternalEmoticonOffset.x;
         set => InternalEmoticonOffset = new(

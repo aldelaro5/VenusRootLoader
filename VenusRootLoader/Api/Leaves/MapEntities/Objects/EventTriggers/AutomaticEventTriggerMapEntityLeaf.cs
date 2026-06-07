@@ -9,7 +9,7 @@ public sealed class AutomaticEventTriggerMapEntityLeaf : EventTriggerMapEntityLe
     {
     }
 
-    public Branch<EventLeaf> EventToImmediatelyStart
+    public Branch<EventLeaf> EventToImmediatelyStartOnMapLoad
     {
         get;
         set
@@ -27,6 +27,6 @@ public sealed class AutomaticEventTriggerMapEntityLeaf : EventTriggerMapEntityLe
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
-        EventToImmediatelyStart = new(eventsRegistry.LeavesByGameIds[InternalData[0].Value]);
+        EventToImmediatelyStartOnMapLoad = new(eventsRegistry.LeavesByGameIds[InternalData[0].Value]);
     }
 }

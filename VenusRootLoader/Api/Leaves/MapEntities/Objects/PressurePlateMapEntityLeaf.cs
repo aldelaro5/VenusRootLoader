@@ -1,17 +1,10 @@
 using CommunityToolkit.Diagnostics;
 using UnityEngine;
+using VenusRootLoader.Api.Leaves.MapEntities.Objects.Enums;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
-
-public enum PressurePlateType
-{
-    RegularWoodenPlate,
-    DarkGreenWoodenPlate,
-    AncientPressurePlate,
-    TestButton
-}
 
 public sealed class PressurePlateMapEntityLeaf : ObjectMapEntityLeaf
 {

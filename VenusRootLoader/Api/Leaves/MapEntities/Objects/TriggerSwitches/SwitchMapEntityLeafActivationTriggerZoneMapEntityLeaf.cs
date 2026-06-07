@@ -3,13 +3,6 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.TriggerSwitches;
 
-public enum SwitchMapEntityActivationTriggerZoneMode
-{
-    ToggleWhileInside = -1,
-    DeactivateWhileInside = 0,
-    ActivateWhileInside = 1
-}
-
 public sealed class SwitchMapEntityLeafActivationTriggerZoneMapEntityLeaf : TriggerSwitchMapEntityLeaf
 {
     internal SwitchMapEntityLeafActivationTriggerZoneMapEntityLeaf(int gameId, string namedId, string creatorId)
@@ -17,7 +10,7 @@ public sealed class SwitchMapEntityLeafActivationTriggerZoneMapEntityLeaf : Trig
     {
     }
 
-    public Branch<MapEntityLeaf> MapEntityLeafActivationControlled
+    public Branch<ObjectMapEntityLeaf> MapEntityWhoseActivationIsControlledByThis
     {
         get;
         set
@@ -25,14 +18,14 @@ public sealed class SwitchMapEntityLeafActivationTriggerZoneMapEntityLeaf : Trig
             if (value.Leaf.Map != Map)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(
-                    nameof(MapEntityLeafActivationControlled),
+                    nameof(MapEntityWhoseActivationIsControlledByThis),
                     $"The entity is not in the {Map.NamedId} map which is required");
             }
 
             if (value.GameId == GameId)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(
-                    nameof(MapEntityLeafActivationControlled),
+                    nameof(MapEntityWhoseActivationIsControlledByThis),
                     "The entity controlled cannot be the entity itself");
             }
 
@@ -62,6 +55,7 @@ public sealed class SwitchMapEntityLeafActivationTriggerZoneMapEntityLeaf : Trig
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         base.InitializeFromExisting(registryResolver);
-        MapEntityLeafActivationControlled = Map.Leaf.EntitiesRegistry.LeavesByGameIds[Math.Abs(InternalData[0].Value)];
+        MapEntityWhoseActivationIsControlledByThis =
+            (Branch<ObjectMapEntityLeaf>)Map.Leaf.EntitiesRegistry.LeavesByGameIds[Math.Abs(InternalData[0].Value)]!;
     }
 }

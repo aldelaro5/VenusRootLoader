@@ -1,11 +1,5 @@
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.RollingRocks;
 
-public enum RollingRockScheme
-{
-    RollOnSpawnWithoutImpactEffect = 0,
-    RollWhenHittingGroundWithImpactEffect = 1
-}
-
 public sealed class RollingRockWithoutCanonMapEntityLeaf : RollingRockMapEntityLeaf
 {
     internal RollingRockWithoutCanonMapEntityLeaf(int gameId, string namedId, string creatorId)
@@ -13,9 +7,9 @@ public sealed class RollingRockWithoutCanonMapEntityLeaf : RollingRockMapEntityL
     {
     }
 
-    public RollingRockScheme RollingScheme
+    public RollingRockMethod RollingMethod
     {
-        get => (RollingRockScheme)InternalData[0].Value;
+        get => (RollingRockMethod)InternalData[0].Value;
         set => InternalData[0].Value = (int)value;
     }
 

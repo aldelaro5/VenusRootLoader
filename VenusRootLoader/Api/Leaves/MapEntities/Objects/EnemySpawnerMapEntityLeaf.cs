@@ -27,10 +27,10 @@ public sealed class EnemySpawnerMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
-    public int FramesBeforeRespawn { get => InternalData[4].Value; set => InternalData[4].Value = value; }
+    public int FramesDelayBeforeRespawn { get => InternalData[4].Value; set => InternalData[4].Value = value; }
     public Vector3 RespawnCenter { get => InternalVectorData[0].Value; set => InternalVectorData[0].Value = value; }
 
-    public Vector3 RespawnRadiusRange
+    public Vector3 RespawnRadiusRangeFromPosition
     {
         get => InternalVectorData[1].Value;
         set => InternalVectorData[1].Value = value;

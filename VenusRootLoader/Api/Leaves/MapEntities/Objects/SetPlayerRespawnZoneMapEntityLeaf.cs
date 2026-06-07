@@ -26,7 +26,6 @@ public sealed class SetPlayerRespawnZoneMapEntityLeaf : ObjectMapEntityLeaf
         InternalVectorData.Add(new(Vector3.back * 0.2f));
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
-        InternalBoxColSize = Vector3.one;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

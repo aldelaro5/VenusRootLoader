@@ -1,11 +1,5 @@
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.TriggerSwitches;
 
-public enum SwitchTriggerZoneMode
-{
-    ActivateOnLeave = 0,
-    ActivateOnEnterDeactivateOnLeave = 1
-}
-
 public sealed class SwitchTriggerZoneMapEntityLeaf : TriggerSwitchMapEntityLeaf
 {
     internal SwitchTriggerZoneMapEntityLeaf(int gameId, string namedId, string creatorId)

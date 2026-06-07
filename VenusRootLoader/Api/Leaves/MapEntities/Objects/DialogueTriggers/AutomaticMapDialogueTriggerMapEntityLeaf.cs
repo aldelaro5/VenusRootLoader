@@ -10,7 +10,7 @@ public sealed class AutomaticMapDialogueTriggerMapEntityLeaf : DialogueTriggerMa
     {
     }
 
-    public Branch<MapDialogueLeaf> MapDialogueLineIdToImmediatelyProcess
+    public Branch<MapDialogueLeaf> MapDialogueLineIdToImmediatelyProcessOnMapLoad
     {
         get;
         set
@@ -30,6 +30,7 @@ public sealed class AutomaticMapDialogueTriggerMapEntityLeaf : DialogueTriggerMa
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
-        MapDialogueLineIdToImmediatelyProcess = Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalData[0].Value];
+        MapDialogueLineIdToImmediatelyProcessOnMapLoad =
+            Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalData[0].Value];
     }
 }

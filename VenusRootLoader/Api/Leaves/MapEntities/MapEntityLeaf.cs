@@ -28,8 +28,8 @@ public abstract class MapEntityLeaf : Leaf
     internal int[] OriginalRequires { get; } = new int[10];
     internal int[] OriginalLimits { get; } = new int[10];
 
-    public List<Branch<FlagLeaf>> Requires { get; } = new();
-    public List<LimitFlag> Limits { get; } = new();
+    public List<Branch<FlagLeaf>> RequiredFlags { get; } = new();
+    public List<LimitFlag> LimitedToFlags { get; } = new();
 
     public virtual Vector3 EntityStartingPosition
     {

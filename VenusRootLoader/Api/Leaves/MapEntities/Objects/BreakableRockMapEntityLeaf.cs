@@ -1,16 +1,7 @@
+using VenusRootLoader.Api.Leaves.MapEntities.Objects.Enums;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
-
-public enum BreakableRockTintColor
-{
-    White = 0,
-    Orange = 1,
-    Yellow = 2,
-    Gray = 3,
-    Green = 4,
-    Magenta = 5
-}
 
 public sealed class BreakableRockMapEntityLeaf : ObjectMapEntityLeaf
 {

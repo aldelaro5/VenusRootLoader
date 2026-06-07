@@ -10,6 +10,7 @@ public sealed class JumpToPositionSpringMapEntityLeaf : JumpSpringMapEntityLeaf
     {
     }
 
+    // TODO: Type this correctly
     public int? InsideTransitionMapEntityIdToTriggerWhenUsingSpring
     {
         get => InternalData[2].Value < 0 ? null : InternalData[2].Value;

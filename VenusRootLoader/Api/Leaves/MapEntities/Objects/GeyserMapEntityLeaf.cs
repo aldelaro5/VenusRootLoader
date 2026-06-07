@@ -14,7 +14,7 @@ public sealed class GeyserMapEntityLeaf : ObjectMapEntityLeaf
 
     public bool IsHoneyGeyser { get => InternalData[0].Value == 1; set => InternalData[0].Value = value ? 1 : 0; }
 
-    public Branch<MapEntityLeaf>? MapEntityActivationRequiredToBeActive
+    public Branch<ObjectMapEntityLeaf>? MapEntityActivationRequiredToBeActive
     {
         get;
         set
@@ -52,7 +52,7 @@ public sealed class GeyserMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalVectorData[0].Value.y = value;
     }
 
-    public float TimeInFramesFrozenWhenFrozen
+    public float FreezeTimeInFramesWhenFrozen
     {
         get => InternalVectorData[0].Value.z;
         set => InternalVectorData[0].Value.z = value;
@@ -76,6 +76,9 @@ public sealed class GeyserMapEntityLeaf : ObjectMapEntityLeaf
             InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 5 - InternalData.Count));
 
         if (InternalData[1].Value != -1)
-            MapEntityActivationRequiredToBeActive = Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[1].Value];
+        {
+            MapEntityActivationRequiredToBeActive =
+                (Branch<ObjectMapEntityLeaf>?)Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[1].Value]!;
+        }
     }
 }

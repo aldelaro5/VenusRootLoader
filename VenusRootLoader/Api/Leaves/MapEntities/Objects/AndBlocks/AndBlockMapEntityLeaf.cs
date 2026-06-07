@@ -34,7 +34,7 @@ public abstract class AndBlockMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalVectorData[1].Value.x = value;
     }
 
-    public Vector3? EntityStartScale
+    public Vector3? EntityStartScaleOverride
     {
         get => InternalVectorData[2].Value.magnitude <= 0.1f ? null : InternalVectorData[2].Value;
         set => InternalVectorData[2].Value = value ?? Vector3.zero;

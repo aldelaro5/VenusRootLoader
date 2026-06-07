@@ -10,7 +10,7 @@ public abstract class CollectibleMapEntityLeaf : ObjectMapEntityLeaf
 
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.Item;
 
-    public Branch<EventLeaf>? EventToTriggerWhenCollected
+    public Branch<EventLeaf>? EventToStartWhenCollected
     {
         get;
         set
@@ -31,6 +31,6 @@ public abstract class CollectibleMapEntityLeaf : ObjectMapEntityLeaf
         ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
 
         if (InternalData[1].Value > -1)
-            EventToTriggerWhenCollected = new(eventsRegistry.LeavesByGameIds[InternalData[1].Value]);
+            EventToStartWhenCollected = new(eventsRegistry.LeavesByGameIds[InternalData[1].Value]);
     }
 }

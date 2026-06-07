@@ -8,7 +8,7 @@ public sealed class AndBlockOnEntitiesLeafActivationMapEntityLeaf : AndBlockMapE
     internal AndBlockOnEntitiesLeafActivationMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
-        _entityActivationsInput = new(InternalData, 1, x => x.Ref);
+        _entityActivationsInput = new(InternalData, 1, x => x.IntRef);
     }
 
     private readonly ListRefWrapper<NegatableMapEntityActivation, int> _entityActivationsInput;
@@ -30,7 +30,7 @@ public sealed class AndBlockOnEntitiesLeafActivationMapEntityLeaf : AndBlockMapE
                 .Skip(1)
                 .Select(x => new NegatableMapEntityActivation
                 {
-                    MapEntity = map.EntitiesRegistry.LeavesByGameIds[Math.Abs(x.Value)],
+                    MapEntity = (Branch<ObjectMapEntityLeaf>)map.EntitiesRegistry.LeavesByGameIds[Math.Abs(x.Value)]!,
                     IsActivationValueNegated = x.Value < 0
                 })
                 .ToList());

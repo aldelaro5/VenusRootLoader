@@ -11,7 +11,7 @@ public sealed class FlytrapPlatformMapEntityLeaf : ObjectMapEntityLeaf
 
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.TempPlatform;
 
-    public int TimeInFramesPlayerCanStayOnPlatform
+    public int TimeInFramesPlayerCanStayOnPlatformBeforeFlyTrapCloses
     {
         get => InternalData[0].Value;
         set => InternalData[0].Value = value;

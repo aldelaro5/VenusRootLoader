@@ -155,7 +155,9 @@ public sealed class CameraChangeMapEntityLeaf : ObjectMapEntityLeaf
         if (InternalData.Count < 8)
             InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 8 - InternalData.Count));
         if (InternalVectorData.Count < 6)
+        {
             InternalVectorData.AddRange(
                 Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 6 - InternalVectorData.Count));
+        }
     }
 }

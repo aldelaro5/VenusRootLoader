@@ -9,13 +9,13 @@ public sealed class MovableRockMapEntityLeaf : MovableObjectMapEntityLeaf
     {
     }
 
-    public float LaunchYVelocity
+    public float LaunchVerticalVelocity
     {
         get => InternalVectorData[0].Value.y;
         set => InternalVectorData[0].Value.y = value;
     }
 
-    public float LaunchXZVelocityMultiplier
+    public float LaunchHorizontalVelocityMultiplier
     {
         get => InternalVectorData[0].Value.z;
         set => InternalVectorData[0].Value.z = value;

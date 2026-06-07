@@ -137,11 +137,11 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 : mapEntityLeaf.InternalEventId);
         sb.Append('}');
 
-        sb.Append(mapEntityLeaf.Requires.Count);
+        sb.Append(mapEntityLeaf.RequiredFlags.Count);
         sb.Append('}');
 
         List<int> allRequires = GetListPaddedWithOriginalArray(
-            mapEntityLeaf.Requires.Select(r => r.GameId).ToList(),
+            mapEntityLeaf.RequiredFlags.Select(r => r.GameId).ToList(),
             mapEntityLeaf.OriginalRequires);
         foreach (int require in allRequires)
         {
@@ -149,10 +149,10 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             sb.Append('}');
         }
 
-        sb.Append(mapEntityLeaf.Limits.Count);
+        sb.Append(mapEntityLeaf.LimitedToFlags.Count);
         sb.Append('}');
 
-        List<int> allLimitsValues = mapEntityLeaf.Limits
+        List<int> allLimitsValues = mapEntityLeaf.LimitedToFlags
             .Select(l => l.FailsWholeConditionWhenFlagIsTrue
                 ? -l.Flag.GameId
                 : l.Flag.GameId)
@@ -359,13 +359,13 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         for (int i = 0; i < 10; i++)
             value.OriginalRequires[i] = int.Parse(fields[39 + i]);
         for (int i = 0; i < requiresLength; i++)
-            value.Requires.Add(new(_flagsRegistry.LeavesByGameIds[value.OriginalRequires[i]]));
+            value.RequiredFlags.Add(new(_flagsRegistry.LeavesByGameIds[value.OriginalRequires[i]]));
 
         if (_logger.IsEnabled(LogLevel.Trace))
         {
             LogIfListHasUnreadableData(
                 value.BaseGameObjectName,
-                nameof(MapEntityLeaf.Requires),
+                nameof(MapEntityLeaf.RequiredFlags),
                 requiresLength,
                 value.OriginalRequires);
         }
@@ -375,7 +375,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             value.OriginalLimits[i] = int.Parse(fields[50 + i]);
         for (int i = 0; i < limitsLength; i++)
         {
-            value.Limits.Add(
+            value.LimitedToFlags.Add(
                 new()
                 {
                     Flag = new(_flagsRegistry.LeavesByGameIds[Math.Abs(value.OriginalLimits[i])]),
@@ -387,7 +387,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         {
             LogIfListHasUnreadableData(
                 value.BaseGameObjectName,
-                nameof(MapEntityLeaf.Limits),
+                nameof(MapEntityLeaf.LimitedToFlags),
                 limitsLength,
                 value.OriginalLimits);
         }

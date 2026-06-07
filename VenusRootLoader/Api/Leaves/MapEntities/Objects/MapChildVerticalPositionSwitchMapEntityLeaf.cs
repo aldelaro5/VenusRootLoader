@@ -1,16 +1,11 @@
 using UnityEngine;
+using VenusRootLoader.Api.Leaves.MapEntities.Objects.Enums;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
-// TODO: it's possible this works with other animid, recheck later
-public enum MapChildVerticalPositionSwitchKind
-{
-    BigCrystalSwitch = 54,
-    SwitchCrystal = 36
-}
-
+// TODO: it's possible this works with other animId, recheck later
 public sealed class MapChildVerticalPositionSwitchMapEntityLeaf : ObjectMapEntityLeaf
 {
     internal MapChildVerticalPositionSwitchMapEntityLeaf(int gameId, string namedId, string creatorId)

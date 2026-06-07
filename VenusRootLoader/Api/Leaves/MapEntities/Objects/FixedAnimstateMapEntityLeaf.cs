@@ -22,7 +22,7 @@ public sealed class FixedAnimstateMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
-    public bool HasNoCcolAndRigidGravity
+    public bool HasNoCapsuleColliderAndNoGravity
     {
         get => InternalData[0].Value == 1;
         set => InternalData[0].Value = value ? 1 : 0;
@@ -30,25 +30,17 @@ public sealed class FixedAnimstateMapEntityLeaf : ObjectMapEntityLeaf
 
     public int Animstate { get => InternalData[1].Value; set => InternalData[1].Value = value; }
 
-    public BoxColliderInfo? BoxCollider
-    {
-        get;
-        set
-        {
-            InternalHaxBoxCol = value is not null;
-            InternalBoxColIsTrigger = value?.IsTrigger ?? false;
-            InternalBoxColSize = value?.Size ?? Vector3.zero;
-            InternalBoxColCenter = value?.Center ?? Vector3.zero;
-            field = value;
-        }
-    }
+    public bool BoxColliderIsPresent { get => InternalHaxBoxCol; set => InternalHaxBoxCol = value; }
+    public bool BoxColliderIsTrigger { get => InternalBoxColIsTrigger; set => InternalBoxColIsTrigger = value; }
+    public Vector3 BoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
+    public Vector3 BoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
 
-    public float EntityBobSpeed { get => InternalBobSpeed; set => InternalBobSpeed = value; }
-    public float EntityBobRange { get => InternalBobRange; set => InternalBobRange = value; }
-    public float EntityInitialHeight { get => InternalInitialHeight; set => InternalInitialHeight = value; }
+    public float EntityBobSpeedWhileAirborne { get => InternalBobSpeed; set => InternalBobSpeed = value; }
+    public float EntityBobRangeWhileAirborne { get => InternalBobRange; set => InternalBobRange = value; }
+    public float EntityInitialAltitudeFromGround { get => InternalInitialHeight; set => InternalInitialHeight = value; }
     public float EntityCapsuleColliderRadius { get => InternalCcolRadius; set => InternalCcolRadius = value; }
     public float EntityCapsulerColliderHeight { get => InternalCcolHeight; set => InternalCcolHeight = value; }
-    public bool EntitySpriteIsFlipped { get => InternalIsFlipped; set => InternalIsFlipped = value; }
+    public bool EntitySpriteStartsFlipped { get => InternalIsFlipped; set => InternalIsFlipped = value; }
 
     internal override void InitializeFromNew()
     {
@@ -60,14 +52,5 @@ public sealed class FixedAnimstateMapEntityLeaf : ObjectMapEntityLeaf
     {
         ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
         AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
-        if (InternalHaxBoxCol)
-        {
-            BoxCollider = new()
-            {
-                IsTrigger = InternalBoxColIsTrigger,
-                Size = InternalBoxColSize,
-                Center = InternalBoxColCenter
-            };
-        }
     }
 }

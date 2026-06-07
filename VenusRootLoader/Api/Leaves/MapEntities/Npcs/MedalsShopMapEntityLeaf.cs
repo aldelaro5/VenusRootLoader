@@ -34,7 +34,7 @@ public sealed class MedalsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
         set => InternalDialogues[1].Value.y = value ? 1f : 0f;
     }
 
-    public Branch<DialogueLeaf> DialogueWhenInteractingWithShelvedItem
+    public Branch<DialogueLeaf> DialogueWhenInteractingWithShelvedMedal
     {
         get;
         set
@@ -47,7 +47,7 @@ public sealed class MedalsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
         }
     }
 
-    public float? ShelvedItemsInteractionRadius
+    public float? ShelvedMedalsInteractionRadius
     {
         get => InternalDialogues[8].Value.x > 0.1f ? InternalDialogues[8].Value.x / 10f : null;
         set => InternalDialogues[8].Value.x = value * 10f ?? 0f;
@@ -85,7 +85,7 @@ public sealed class MedalsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
         DialogueWhenInteractingWithShopKeeper = (int)InternalDialogues[0].Value.y < 0
             ? commonDialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[0].Value.y]
             : Map.Leaf.DialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[0].Value.y];
-        DialogueWhenInteractingWithShelvedItem = (int)InternalDialogues[6].Value.y < 0
+        DialogueWhenInteractingWithShelvedMedal = (int)InternalDialogues[6].Value.y < 0
             ? commonDialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[6].Value.y]
             : Map.Leaf.DialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[6].Value.y];
     }

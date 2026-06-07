@@ -9,15 +9,15 @@ public sealed class TalkingNpcMapEntityLeaf : SpyableNpcMapEntityLeaf
     internal TalkingNpcMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
-        _dialogues = new(InternalDialogues, 0, x => x.Ref);
+        _conditionalDialogues = new(InternalDialogues, 0, x => x.Vector3Ref);
     }
 
     internal override NPCControl.Interaction Interaction => InteractIconIsQuestionMark
         ? NPCControl.Interaction.Check
         : NPCControl.Interaction.Talk;
 
-    private readonly ListRefWrapper<NpcConditionalDialogue, Vector3> _dialogues;
-    public IList<NpcConditionalDialogue> Dialogues => _dialogues;
+    private readonly ListRefWrapper<NpcConditionalDialogue, Vector3> _conditionalDialogues;
+    public IList<NpcConditionalDialogue> ConditionalDialogues => _conditionalDialogues;
 
     public bool InteractIconIsQuestionMark { get; set; }
 
@@ -29,7 +29,7 @@ public sealed class TalkingNpcMapEntityLeaf : SpyableNpcMapEntityLeaf
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
 
-        _dialogues.SynchronizeFromExistingData(
+        _conditionalDialogues.SynchronizeFromExistingData(
             InternalDialogues
             .Select(dialogue => new NpcConditionalDialogue
             {

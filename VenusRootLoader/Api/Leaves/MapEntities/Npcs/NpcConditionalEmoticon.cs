@@ -5,14 +5,14 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
 public sealed class NpcConditionalEmoticon
 {
-    internal readonly Ref<Vector2> Ref = new(new(-1, 0));
+    internal readonly Ref<Vector2> Vector2Ref = new(new(-1, 0));
 
     public Branch<FlagLeaf>? RequiredFlag
     {
         get;
         set
         {
-            Ref.Value.x = value?.GameId ?? -1;
+            Vector2Ref.Value.x = value?.GameId ?? -1;
             field = value;
         }
     }
@@ -22,7 +22,7 @@ public sealed class NpcConditionalEmoticon
         get;
         set
         {
-            Ref.Value.y = (int)value;
+            Vector2Ref.Value.y = (int)value;
             field = value;
         }
     }

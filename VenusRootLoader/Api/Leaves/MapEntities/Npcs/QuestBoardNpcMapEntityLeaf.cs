@@ -14,7 +14,7 @@ public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
 
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.QuestBoard;
 
-    public Branch<MapEntityLeaf> BoardCaretakerMapEntity
+    public Branch<NpcMapEntityLeaf> BoardCaretakerMapEntity
     {
         get;
         set
@@ -30,7 +30,7 @@ public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
         }
     }
 
-    public Branch<DialogueLeaf> CaretakerDialogueWhenQuestIsTaken
+    public Branch<DialogueLeaf> BoardCaretakerDialogueWhenQuestIsSelected
     {
         get;
         set
@@ -43,7 +43,7 @@ public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
         }
     }
 
-    public Branch<FlagLeaf>? FlagInteractWithCaretakerWhenFalse
+    public Branch<FlagLeaf>? FlagInteractWithCaretakerIfFlagIsFalse
     {
         get;
         set
@@ -91,10 +91,11 @@ public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
 
         if (InternalData[2].Value >= 0)
-            FlagInteractWithCaretakerWhenFalse = flagsRegistry.LeavesByGameIds[InternalData[2].Value];
+            FlagInteractWithCaretakerIfFlagIsFalse = flagsRegistry.LeavesByGameIds[InternalData[2].Value];
 
-        BoardCaretakerMapEntity = Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0].Value];
-        CaretakerDialogueWhenQuestIsTaken = InternalData[1].Value < 0
+        BoardCaretakerMapEntity =
+            (Branch<NpcMapEntityLeaf>)Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0].Value];
+        BoardCaretakerDialogueWhenQuestIsSelected = InternalData[1].Value < 0
             ? commonDialoguesRegistry.LeavesByGameIds[InternalData[1].Value]
             : Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalData[1].Value];
     }

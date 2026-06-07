@@ -5,14 +5,14 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
 public sealed class NpcConditionalDialogue
 {
-    internal readonly Ref<Vector3> Ref = new(new(0, -1, 0));
+    internal readonly Ref<Vector3> Vector3Ref = new(new(0, -1, 0));
 
     public Branch<FlagLeaf>? Flag
     {
         get;
         set
         {
-            Ref.Value.x = value?.GameId ?? -1;
+            Vector3Ref.Value.x = value?.GameId ?? -1;
             field = value;
         }
     }
@@ -22,7 +22,7 @@ public sealed class NpcConditionalDialogue
         get;
         set
         {
-            Ref.Value.y = value.GameId;
+            Vector3Ref.Value.y = value.GameId;
             field = value;
         }
     }
@@ -32,7 +32,7 @@ public sealed class NpcConditionalDialogue
         get;
         set
         {
-            Ref.Value.z = value;
+            Vector3Ref.Value.z = value;
             field = value;
         }
     }

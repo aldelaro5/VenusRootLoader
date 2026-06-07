@@ -12,11 +12,11 @@ public sealed class EventNpcMapEntityLeaf : SpyableNpcMapEntityLeaf
     private const int LockedDoorInteractionEventId = 59;
 
     internal override NPCControl.Interaction Interaction =>
-        EventToStartOnInteract.GameId == LockedDoorInteractionEventId
+        EventToStartWhenInteracting.GameId == LockedDoorInteractionEventId
             ? NPCControl.Interaction.LockedDoor
             : NPCControl.Interaction.Event;
 
-    public Branch<EventLeaf> EventToStartOnInteract
+    public Branch<EventLeaf> EventToStartWhenInteracting
     {
         get;
         set
@@ -31,7 +31,7 @@ public sealed class EventNpcMapEntityLeaf : SpyableNpcMapEntityLeaf
         base.InitializeFromExisting(registryResolver);
         ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
 
-        EventToStartOnInteract = OriginalInteraction == NPCControl.Interaction.LockedDoor
+        EventToStartWhenInteracting = OriginalInteraction == NPCControl.Interaction.LockedDoor
             ? new(eventsRegistry.LeavesByGameIds[LockedDoorInteractionEventId])
             : new(eventsRegistry.LeavesByGameIds[InternalEventId]);
     }

@@ -9,7 +9,7 @@ public abstract class NpcMapEntityLeaf : MapEntityLeaf
 {
     protected NpcMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
     {
-        _conditionalEmoticons = new(InternalEmoticonFlags, 1, x => x.Ref);
+        _conditionalEmoticons = new(InternalEmoticonFlags, 1, x => x.Vector2Ref);
         BehaviorSystem = new(this);
     }
 
@@ -28,16 +28,16 @@ public abstract class NpcMapEntityLeaf : MapEntityLeaf
         }
     }
 
-    public float EntityBobSpeed { get => InternalBobSpeed; set => InternalBobSpeed = value; }
-    public float EntityBobRange { get => InternalBobRange; set => InternalBobRange = value; }
-    public float EntityInitialHeight { get => InternalInitialHeight; set => InternalInitialHeight = value; }
+    public float EntityBobSpeedWhileAirborne { get => InternalBobSpeed; set => InternalBobSpeed = value; }
+    public float EntityBobRangeWhileAirborne { get => InternalBobRange; set => InternalBobRange = value; }
+    public float EntityInitialAltitudeFromGround { get => InternalInitialHeight; set => InternalInitialHeight = value; }
     public float EntityCapsuleColliderRadius { get => InternalCcolRadius; set => InternalCcolRadius = value; }
     public float EntityCapsulerColliderHeight { get => InternalCcolHeight; set => InternalCcolHeight = value; }
-    public bool EntitySpriteIsFlipped { get => InternalIsFlipped; set => InternalIsFlipped = value; }
+    public bool EntitySpriteStartsFlipped { get => InternalIsFlipped; set => InternalIsFlipped = value; }
     public Vector3 EntityEmoticonOffset { get => InternalEmoticonOffset; set => InternalEmoticonOffset = value; }
-    public float EntitySpeed { get => InternalSpeed; set => InternalSpeed = value; }
+    public float EntityMovementSpeed { get => InternalSpeed; set => InternalSpeed = value; }
     public float MovementRadius { get => InternalRadiusLimit; set => InternalRadiusLimit = value; }
-    public float BehaviorAndInteractRangeRadius { get => InternalRadius; set => InternalRadius = value; }
+    public float BehaviorSystemAndInteractRangeRadius { get => InternalRadius; set => InternalRadius = value; }
 
     public NpcEmoticon FallbackEmoticon
     {

@@ -2,11 +2,11 @@ using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
-namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
+namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.CuttableGrasses;
 
-public sealed class CuttableGrassMapEntityLeaf : MapEntityLeaf
+public sealed class CuttableGrassWithItemDropsMapEntityLeaf : MapEntityLeaf
 {
-    internal CuttableGrassMapEntityLeaf(int gameId, string namedId, string creatorId)
+    internal CuttableGrassWithItemDropsMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
         _itemsDroppedWhenCut = new(InternalVectorData, 0, x => new(new(x?.GameId ?? -1, x is null ? 1 : 0, 0)));
@@ -23,16 +23,6 @@ public sealed class CuttableGrassMapEntityLeaf : MapEntityLeaf
     public Vector3 BoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
 
     public int GrassSpriteId { get => InternalData[0].Value; set => InternalData[0].Value = value; }
-
-    public Branch<CrystalBerryLeaf>? CrystalBerryDroppedWhenCut
-    {
-        get;
-        set
-        {
-            InternalData[1].Value = value?.GameId ?? -1;
-            field = value;
-        }
-    }
 
     private readonly ListRefWrapper<Branch<ItemLeaf>?, Vector3> _itemsDroppedWhenCut;
     public IList<Branch<ItemLeaf>?> ItemsDroppedWhenCut => _itemsDroppedWhenCut;
@@ -58,12 +48,8 @@ public sealed class CuttableGrassMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
-        ILeavesRegistry<CrystalBerryLeaf> crystalBerriesRegistry = registryResolver.Resolve<CrystalBerryLeaf>();
         ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
-
-        if (InternalData[1].Value >= 0)
-            CrystalBerryDroppedWhenCut = new(crystalBerriesRegistry.LeavesByGameIds[InternalData[1].Value]);
 
         _itemsDroppedWhenCut.SynchronizeFromExistingData(
             InternalVectorData

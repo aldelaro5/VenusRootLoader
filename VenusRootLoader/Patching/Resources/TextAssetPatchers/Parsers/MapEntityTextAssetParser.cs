@@ -12,6 +12,7 @@ using VenusRootLoader.Api.Leaves.MapEntities.Objects.AndBlocks;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.AndGates;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.Collectibles;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.Crystals;
+using VenusRootLoader.Api.Leaves.MapEntities.Objects.CuttableGrasses;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.DialogueTriggers;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.DigSpots;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.EventTriggers;
@@ -541,7 +542,13 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         return (type, objectType, interaction) switch
         {
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BeetleGrass, _) =>
-                registry.RegisterExisting<CuttableGrassMapEntityLeaf>(id, namedId, baseGameId),
+                int.Parse(fields[60]) < 2 ||
+                int.Parse(fields[61 + 1]) < 0
+                    ? registry.RegisterExisting<CuttableGrassWithItemDropsMapEntityLeaf>(id, namedId, baseGameId)
+                    : registry.RegisterExisting<CuttableGrassWithCrystalBerryDropMapEntityLeaf>(
+                        id,
+                        namedId,
+                        baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PushRock, _) =>
                 int.Parse(fields[60]) < 3 ||
                 int.Parse(fields[61 + 2]) == 0

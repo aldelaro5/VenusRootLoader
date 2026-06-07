@@ -4,7 +4,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.MovableObjects;
 
-public abstract class MovableObjectMapEntityLeaf : MapEntityLeaf
+public abstract class MovableObjectMapEntityLeaf : ObjectMapEntityLeaf
 {
     protected MovableObjectMapEntityLeaf(int gameId, string namedId, string creatorId) : base(
         gameId,
@@ -13,9 +13,7 @@ public abstract class MovableObjectMapEntityLeaf : MapEntityLeaf
     {
     }
 
-    internal sealed override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.PushRock;
-    internal sealed override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     internal override void InitializeFromNew()
     {

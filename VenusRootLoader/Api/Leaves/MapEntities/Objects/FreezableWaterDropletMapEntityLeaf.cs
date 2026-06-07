@@ -4,16 +4,14 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
-public sealed class FreezableWaterDropletMapEntityLeaf : MapEntityLeaf
+public sealed class FreezableWaterDropletMapEntityLeaf : ObjectMapEntityLeaf
 {
     internal FreezableWaterDropletMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.Dropplet;
-    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public int FramesDelayBeforeDropletRespawnAndIceCubeShatter
     {

@@ -13,16 +13,14 @@ public enum PressurePlateType
     TestButton
 }
 
-public sealed class PressurePlateMapEntityLeaf : MapEntityLeaf
+public sealed class PressurePlateMapEntityLeaf : ObjectMapEntityLeaf
 {
     internal PressurePlateMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.PressurePlate;
-    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public PressurePlateType PressurePlateType
     {

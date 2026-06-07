@@ -12,7 +12,7 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 //     new(-90f, 90f, 0f),
 //     new(-60f, 0f, 30f)
 // ]);
-public sealed class RotatingPlatformMapEntityLeaf : MapEntityLeaf
+public sealed class RotatingPlatformMapEntityLeaf : ObjectMapEntityLeaf
 {
     internal RotatingPlatformMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
@@ -21,9 +21,7 @@ public sealed class RotatingPlatformMapEntityLeaf : MapEntityLeaf
         _movementPathNodeEulerAngles = new(InternalVectorData, 0, x => new(x));
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.RotatingPlatform;
-    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public Branch<AnimIdLeaf> AnimId
     {

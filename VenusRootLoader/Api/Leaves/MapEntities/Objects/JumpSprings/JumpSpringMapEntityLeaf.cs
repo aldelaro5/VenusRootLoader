@@ -1,16 +1,12 @@
-using UnityEngine;
-
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.JumpSprings;
 
-public abstract class JumpSpringMapEntityLeaf : MapEntityLeaf
+public abstract class JumpSpringMapEntityLeaf : ObjectMapEntityLeaf
 {
     protected JumpSpringMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
     {
     }
 
-    internal sealed override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.JumpSpring;
-    internal sealed override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public JumpSpringColor Color
     {

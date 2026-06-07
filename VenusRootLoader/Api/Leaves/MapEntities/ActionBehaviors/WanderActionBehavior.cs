@@ -39,7 +39,7 @@ public sealed class WanderActionBehavior : ActionBehavior
         set => MapEntityLeaf.InternalWanderRadius = value;
     }
 
-    public float MaxDistanceFromStartingPositionBeforeTeleported
+    public float MaxDistanceFromStartingPositionBeforeTeleport
     {
         get => MapEntityLeaf.InternalTeleportRadius;
         set => MapEntityLeaf.InternalTeleportRadius = value;

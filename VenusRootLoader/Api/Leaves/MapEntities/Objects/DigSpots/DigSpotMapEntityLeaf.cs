@@ -4,15 +4,13 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.DigSpots;
 
-public abstract class DigSpotMapEntityLeaf : MapEntityLeaf
+public abstract class DigSpotMapEntityLeaf : ObjectMapEntityLeaf
 {
     protected DigSpotMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
     {
     }
 
-    internal sealed override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.DigSpot;
-    internal sealed override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public Branch<FlagLeaf>? ActivationFlag
     {

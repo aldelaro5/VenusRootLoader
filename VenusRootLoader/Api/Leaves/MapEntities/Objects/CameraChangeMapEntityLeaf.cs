@@ -4,16 +4,14 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
-public sealed class CameraChangeMapEntityLeaf : MapEntityLeaf
+public sealed class CameraChangeMapEntityLeaf : ObjectMapEntityLeaf
 {
     internal CameraChangeMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.CameraChange;
-    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public Vector3? CameraPositionOffsetFromTargetWhenTriggered
     {

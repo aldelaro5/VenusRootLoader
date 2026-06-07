@@ -206,14 +206,14 @@ public sealed class MapEntityBehaviors
         WanderBehaviorPattern pattern,
         float maxFramesIntervalBeforeMovingAgain,
         float radiusToWanderFromStartingPosition,
-        float maxDistanceFromStartingPositionBeforeTeleported)
+        float maxDistanceFromStartingPositionBeforeTeleport)
     {
         WanderActionBehavior behavior = new(_mapEntityLeaf, kind)
         {
             WanderPattern = pattern,
             MaxFramesIntervalBeforeMovingAgain = maxFramesIntervalBeforeMovingAgain,
             RadiusToWanderFromStartingPosition = radiusToWanderFromStartingPosition,
-            MaxDistanceFromStartingPositionBeforeTeleported = maxDistanceFromStartingPositionBeforeTeleported
+            MaxDistanceFromStartingPositionBeforeTeleport = maxDistanceFromStartingPositionBeforeTeleport
         };
         SetActionBehavior(behavior, kind);
         return behavior;
@@ -224,13 +224,13 @@ public sealed class MapEntityBehaviors
         ActionBehaviorKind kind,
         int animstateOverrideWhenNotChase,
         float radiusToWanderFromStartingPosition,
-        float maxDistanceFromStartingPositionBeforeTeleported)
+        float maxDistanceFromStartingPositionBeforeTeleport)
     {
         WanderWhenAnimstateIsWalkOrIdleActionBehavior behavior = new(_mapEntityLeaf, kind)
         {
             AnimstateOverrideWhenNotChase = animstateOverrideWhenNotChase,
             RadiusToWanderFromStartingPosition = radiusToWanderFromStartingPosition,
-            MaxDistanceFromStartingPositionBeforeTeleported = maxDistanceFromStartingPositionBeforeTeleported
+            MaxDistanceFromStartingPositionBeforeTeleport = maxDistanceFromStartingPositionBeforeTeleport
         };
         SetActionBehavior(behavior, kind);
         return behavior;
@@ -247,13 +247,13 @@ public sealed class MapEntityBehaviors
         ActionBehaviorKind kind,
         float maxFramesIntervalBeforeMovingAgain,
         float radiusToWanderFromStartingPosition,
-        float maxDistanceFromStartingPositionBeforeTeleported)
+        float maxDistanceFromStartingPositionBeforeTeleport)
     {
         DisguiseOnceBeforeWanderActionBehavior behavior = new(_mapEntityLeaf, kind)
         {
             MaxFramesIntervalBeforeMovingAgain = maxFramesIntervalBeforeMovingAgain,
             RadiusToWanderFromStartingPosition = radiusToWanderFromStartingPosition,
-            MaxDistanceFromStartingPositionBeforeTeleported = maxDistanceFromStartingPositionBeforeTeleported
+            MaxDistanceFromStartingPositionBeforeTeleport = maxDistanceFromStartingPositionBeforeTeleport
         };
         SetActionBehavior(behavior, kind);
         return behavior;

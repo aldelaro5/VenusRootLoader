@@ -1,4 +1,3 @@
-using UnityEngine;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -13,16 +12,14 @@ public enum BreakableRockTintColor
     Magenta = 5
 }
 
-public sealed class BreakableRockMapEntityLeaf : MapEntityLeaf
+public sealed class BreakableRockMapEntityLeaf : ObjectMapEntityLeaf
 {
     internal BreakableRockMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.BreakableRock;
-    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public BreakableRockTintColor TintColor
     {

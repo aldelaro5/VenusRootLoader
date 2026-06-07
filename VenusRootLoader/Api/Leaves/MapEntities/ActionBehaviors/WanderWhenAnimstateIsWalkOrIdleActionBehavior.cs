@@ -16,7 +16,7 @@ public sealed class WanderWhenAnimstateIsWalkOrIdleActionBehavior : ActionBehavi
         set => MapEntityLeaf.InternalWanderRadius = value;
     }
 
-    public float MaxDistanceFromStartingPositionBeforeTeleported
+    public float MaxDistanceFromStartingPositionBeforeTeleport
     {
         get => MapEntityLeaf.InternalTeleportRadius;
         set => MapEntityLeaf.InternalTeleportRadius = value;

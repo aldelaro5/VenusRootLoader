@@ -10,16 +10,14 @@ public enum IceRadiusSwitchKind
     SwitchCrystal = 36
 }
 
-public sealed class IceRadiusSwitchMapEntityLeaf : MapEntityLeaf
+public sealed class IceRadiusSwitchMapEntityLeaf : ObjectMapEntityLeaf
 {
     internal IceRadiusSwitchMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.StencilSwitch;
-    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public IceRadiusSwitchKind SwitchKind
     {

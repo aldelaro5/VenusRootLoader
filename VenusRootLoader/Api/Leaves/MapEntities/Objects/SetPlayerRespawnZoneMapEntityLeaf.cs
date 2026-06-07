@@ -3,16 +3,14 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
-public sealed class SetPlayerRespawnZoneMapEntityLeaf : MapEntityLeaf
+public sealed class SetPlayerRespawnZoneMapEntityLeaf : ObjectMapEntityLeaf
 {
     internal SetPlayerRespawnZoneMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.SetPlayerRespawn;
-    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public Vector3? RespawnPositionToSetWhenTriggered
     {

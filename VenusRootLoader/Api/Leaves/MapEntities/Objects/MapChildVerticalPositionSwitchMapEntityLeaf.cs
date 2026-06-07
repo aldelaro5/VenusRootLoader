@@ -11,16 +11,14 @@ public enum MapChildVerticalPositionSwitchKind
     SwitchCrystal = 36
 }
 
-public sealed class MapChildVerticalPositionSwitchMapEntityLeaf : MapEntityLeaf
+public sealed class MapChildVerticalPositionSwitchMapEntityLeaf : ObjectMapEntityLeaf
 {
     internal MapChildVerticalPositionSwitchMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.WaterSwitch;
-    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public MapChildVerticalPositionSwitchKind SwitchKind
     {

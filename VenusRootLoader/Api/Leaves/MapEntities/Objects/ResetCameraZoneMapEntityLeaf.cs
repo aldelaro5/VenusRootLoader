@@ -3,16 +3,14 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
-public sealed class ResetCameraZoneMapEntityLeaf : MapEntityLeaf
+public sealed class ResetCameraZoneMapEntityLeaf : ObjectMapEntityLeaf
 {
     internal ResetCameraZoneMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.ResetCamera;
-    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }

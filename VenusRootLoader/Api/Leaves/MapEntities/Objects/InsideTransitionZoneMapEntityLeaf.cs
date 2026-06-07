@@ -4,16 +4,14 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
-public sealed class InsideTransitionZoneMapEntityLeaf : MapEntityLeaf
+public sealed class InsideTransitionZoneMapEntityLeaf : ObjectMapEntityLeaf
 {
     internal InsideTransitionZoneMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.DoorSameMap;
-    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public int InsideIdUsedForTransition { get => InternalData[0].Value; set => InternalData[0].Value = value; }
 

@@ -3,16 +3,14 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
-public sealed class MusicChangeZoneMapEntityLeaf : MapEntityLeaf
+public sealed class MusicChangeZoneMapEntityLeaf : ObjectMapEntityLeaf
 {
     internal MusicChangeZoneMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.MusicRange;
-    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public int FramesDelayBeforeMusicChange { get => InternalData[1].Value; set => InternalData[1].Value = value; }
 

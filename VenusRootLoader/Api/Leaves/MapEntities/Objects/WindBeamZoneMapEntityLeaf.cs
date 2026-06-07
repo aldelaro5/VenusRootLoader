@@ -5,16 +5,14 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
-public sealed class WindBeamZoneMapEntityLeaf : MapEntityLeaf
+public sealed class WindBeamZoneMapEntityLeaf : ObjectMapEntityLeaf
 {
     internal WindBeamZoneMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.WindPusher;
-    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public Branch<MapEntityLeaf>? RequiredMapEntityActivation
     {

@@ -4,7 +4,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.TriggerSwitches;
 
-public abstract class TriggerSwitchMapEntityLeaf : MapEntityLeaf
+public abstract class TriggerSwitchMapEntityLeaf : ObjectMapEntityLeaf
 {
     protected TriggerSwitchMapEntityLeaf(int gameId, string namedId, string creatorId) : base(
         gameId,
@@ -13,9 +13,7 @@ public abstract class TriggerSwitchMapEntityLeaf : MapEntityLeaf
     {
     }
 
-    internal sealed override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.TriggerSwitch;
-    internal sealed override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }

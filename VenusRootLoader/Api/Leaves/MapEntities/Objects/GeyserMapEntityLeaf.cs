@@ -1,19 +1,16 @@
-using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
-public sealed class GeyserMapEntityLeaf : MapEntityLeaf
+public sealed class GeyserMapEntityLeaf : ObjectMapEntityLeaf
 {
     internal GeyserMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.Geizer;
-    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public bool IsHoneyGeyser { get => InternalData[0].Value == 1; set => InternalData[0].Value = value ? 1 : 0; }
 

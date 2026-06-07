@@ -3,16 +3,14 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
-public sealed class SpinningCrankMapEntityLeaf : MapEntityLeaf
+public sealed class SpinningCrankMapEntityLeaf : ObjectMapEntityLeaf
 {
     internal SpinningCrankMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.ScrewSwitch;
-    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public float RateIncreaseWhenSpinning
     {

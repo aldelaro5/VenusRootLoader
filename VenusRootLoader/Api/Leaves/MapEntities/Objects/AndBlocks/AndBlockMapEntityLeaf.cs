@@ -4,15 +4,13 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.AndBlocks;
 
-public abstract class AndBlockMapEntityLeaf : MapEntityLeaf
+public abstract class AndBlockMapEntityLeaf : ObjectMapEntityLeaf
 {
     protected AndBlockMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
     {
     }
 
-    internal sealed override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.ANDBlock;
-    internal sealed override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public Branch<AnimIdLeaf>? AnimId
     {

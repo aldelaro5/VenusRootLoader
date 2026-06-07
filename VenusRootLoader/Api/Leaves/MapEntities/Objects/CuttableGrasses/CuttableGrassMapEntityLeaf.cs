@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.CuttableGrasses;
 
-public abstract class CuttableGrassMapEntityLeaf : MapEntityLeaf
+public abstract class CuttableGrassMapEntityLeaf : ObjectMapEntityLeaf
 {
     protected CuttableGrassMapEntityLeaf(int gameId, string namedId, string creatorId) : base(
         gameId,
@@ -11,9 +11,7 @@ public abstract class CuttableGrassMapEntityLeaf : MapEntityLeaf
     {
     }
 
-    internal sealed override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.BeetleGrass;
-    internal sealed override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public Vector3 BoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
     public Vector3 BoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }

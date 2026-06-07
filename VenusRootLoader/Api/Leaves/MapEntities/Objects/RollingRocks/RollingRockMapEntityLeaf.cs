@@ -4,15 +4,13 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.RollingRocks;
 
-public abstract class RollingRockMapEntityLeaf : MapEntityLeaf
+public abstract class RollingRockMapEntityLeaf : ObjectMapEntityLeaf
 {
     protected RollingRockMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
     {
     }
 
-    internal sealed override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.RollingRock;
-    internal sealed override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public Vector3 DestinationPosition
     {

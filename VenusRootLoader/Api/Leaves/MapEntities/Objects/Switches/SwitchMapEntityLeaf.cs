@@ -4,15 +4,13 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Switches;
 
-public abstract class SwitchMapEntityLeaf : MapEntityLeaf
+public abstract class SwitchMapEntityLeaf : ObjectMapEntityLeaf
 {
     protected SwitchMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
     {
     }
 
-    internal sealed override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.Switch;
-    internal sealed override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public Branch<AnimIdLeaf>? AnimId
     {

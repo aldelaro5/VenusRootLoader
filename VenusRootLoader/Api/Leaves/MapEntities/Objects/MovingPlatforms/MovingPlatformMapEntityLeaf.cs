@@ -5,7 +5,7 @@ using VenusRootLoader.Registry;
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.MovingPlatforms;
 
 // TODO: Fix the length 0 issue on NPCControl.CreateEntities so these can move without a switch
-public abstract class MovingPlatformMapEntityLeaf : MapEntityLeaf
+public abstract class MovingPlatformMapEntityLeaf : ObjectMapEntityLeaf
 {
     protected MovingPlatformMapEntityLeaf(int gameId, string namedId, string creatorId) : base(
         gameId,
@@ -15,9 +15,7 @@ public abstract class MovingPlatformMapEntityLeaf : MapEntityLeaf
         _requiredEntityActivationsToMove = new(InternalData, 0, x => new(x.GameId));
     }
 
-    internal sealed override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.PathPlatform;
-    internal sealed override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public Branch<AnimIdLeaf> AnimId
     {
@@ -35,7 +33,7 @@ public abstract class MovingPlatformMapEntityLeaf : MapEntityLeaf
         set => InternalDialogues[0].Value.y = value;
     }
 
-    public float? ModelScale
+    public float? ModelScaleOverride
     {
         get => InternalDialogues[2].Value.x <= 0.1f ? null : InternalDialogues[2].Value.x / 10f;
         set => InternalDialogues[2].Value.x = value is > 0.1f ? value.Value * 10f : 0f;

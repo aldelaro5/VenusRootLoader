@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using UnityEngine;
 using VenusRootLoader.Registry;
 
@@ -10,11 +11,21 @@ public sealed class JumpToPositionSpringMapEntityLeaf : JumpSpringMapEntityLeaf
     {
     }
 
-    // TODO: Type this correctly
-    public int? InsideTransitionMapEntityIdToTriggerWhenUsingSpring
+    public Branch<InsideTransitionZoneMapEntityLeaf>? InsideTransitionToTriggerWhenUsingSpring
     {
-        get => InternalData[2].Value < 0 ? null : InternalData[2].Value;
-        set => InternalData[2].Value = value ?? -1;
+        get;
+        set
+        {
+            if (value is not null && value.Value.Leaf.Map != Map)
+            {
+                ThrowHelper.ThrowArgumentOutOfRangeException(
+                    nameof(InsideTransitionToTriggerWhenUsingSpring),
+                    $"The entity is not in the {Map.NamedId} map which is required");
+            }
+
+            InternalData[2].Value = value?.GameId ?? -1;
+            field = value;
+        }
     }
 
     public Vector3 PositionToGoWhenUsingSpring
@@ -46,5 +57,14 @@ public sealed class JumpToPositionSpringMapEntityLeaf : JumpSpringMapEntityLeaf
     {
         if (InternalVectorData.Count < 3)
             InternalVectorData.Add(new(Vector3.right));
+
+        if (InternalData[2].Value >= 0)
+        {
+            InsideTransitionToTriggerWhenUsingSpring =
+                Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[2].Value] is InsideTransitionZoneMapEntityLeaf
+                    insideTransition
+                    ? new(insideTransition)
+                    : null;
+        }
     }
 }

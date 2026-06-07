@@ -114,6 +114,19 @@ public sealed class MapEntityBehaviors
         return behavior;
     }
 
+    public bool HasBehavior<TBehavior>() where TBehavior : ActionBehavior =>
+        OutOfBehaviorRangeBehavior is TBehavior || InBehaviorRangeBehavior is TBehavior;
+
+    public TBehavior? TryGetBehavior<TBehavior>(ActionBehaviorKind kind) where TBehavior : ActionBehavior
+    {
+        return kind switch
+        {
+            ActionBehaviorKind.OutOfRange => OutOfBehaviorRangeBehavior as TBehavior,
+            ActionBehaviorKind.InRange => InBehaviorRangeBehavior as TBehavior,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<TBehavior?>(nameof(kind))
+        };
+    }
+
     public FaceDirectionActionBehavior SetFaceDirectionBehavior(
         ActionBehaviorKind kind,
         FacingBehaviorDirection direction)
@@ -339,6 +352,13 @@ public sealed class MapEntityBehaviors
     public void ClearBehavior(ActionBehaviorKind kind)
     {
         SetActionBehavior(null, kind);
+    }
+
+    public void ClearAllBehaviors()
+    {
+        SetActionBehavior(null, null);
+        _mapEntityLeaf.InternalOutOfRangeActionFrequency = 0f;
+        _mapEntityLeaf.InternalInRangeActionFrequency = 0f;
     }
 
     private void SetActionBehavior(ActionBehavior? behavior, ActionBehaviorKind? kind)

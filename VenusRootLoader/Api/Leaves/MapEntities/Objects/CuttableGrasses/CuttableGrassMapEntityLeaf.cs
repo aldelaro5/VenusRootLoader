@@ -15,9 +15,6 @@ public abstract class CuttableGrassMapEntityLeaf : MapEntityLeaf
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.BeetleGrass;
     internal sealed override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-    public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
-
     public Vector3 BoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
     public Vector3 BoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
 

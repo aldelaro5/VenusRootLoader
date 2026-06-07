@@ -13,8 +13,6 @@ public abstract class CollectibleMapEntityLeaf : MapEntityLeaf
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.Item;
     internal sealed override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-
     public Branch<EventLeaf>? EventToTriggerWhenCollected
     {
         get;

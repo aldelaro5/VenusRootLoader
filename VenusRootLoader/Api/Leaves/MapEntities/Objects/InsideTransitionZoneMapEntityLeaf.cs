@@ -15,8 +15,6 @@ public sealed class InsideTransitionZoneMapEntityLeaf : MapEntityLeaf
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.DoorSameMap;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-
     public int InsideIdUsedForTransition { get => InternalData[0].Value; set => InternalData[0].Value = value; }
 
     public Branch<MusicLeaf>? MusicUsedWhileInside

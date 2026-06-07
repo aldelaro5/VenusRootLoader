@@ -11,9 +11,6 @@ public sealed class EventTriggerZoneMapEntityLeaf : EventTriggerMapEntityLeaf
     {
     }
 
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-    public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
-
     public Branch<EventLeaf> EventToStartWhenTriggered
     {
         get;

@@ -28,9 +28,6 @@ public sealed class MapChildVerticalPositionSwitchMapEntityLeaf : MapEntityLeaf
         set => InternalAnimIdOrItemId = (int)value;
     }
 
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-    public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
-
     public int MapChildIndexToMove { get => InternalData[0].Value; set => InternalData[0].Value = value; }
 
     public bool CanOnlyBeToggledUsingHornSlashAndHornDash

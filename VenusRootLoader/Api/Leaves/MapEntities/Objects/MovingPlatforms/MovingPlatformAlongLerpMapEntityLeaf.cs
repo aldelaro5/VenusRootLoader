@@ -9,13 +9,13 @@ public sealed class MovingPlatformAlongLerpMapEntityLeaf : MovingPlatformMapEnti
     {
     }
 
-    public Vector3 InactivePosition
+    public override Vector3 EntityStartingPosition
     {
-        get => InternalVectorData[0].Value;
+        get => base.EntityStartingPosition;
         set
         {
+            base.EntityStartingPosition = value;
             InternalVectorData[0].Value = value;
-            InternalStartingPosition = value;
         }
     }
 

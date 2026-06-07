@@ -12,9 +12,6 @@ public sealed class DialogueTriggerZoneMapEntityLeaf : DialogueTriggerMapEntityL
     {
     }
 
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-    public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
-
     public Branch<DialogueLeaf> DialogueToProcessWhenTriggered
     {
         get;

@@ -19,8 +19,6 @@ public abstract class MovingPlatformMapEntityLeaf : MapEntityLeaf
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.PathPlatform;
     internal sealed override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
-    public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
-
     public Branch<AnimIdLeaf> AnimId
     {
         get;

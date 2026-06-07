@@ -15,9 +15,6 @@ public sealed class GeyserMapEntityLeaf : MapEntityLeaf
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.Geizer;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-    public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
-
     public bool IsHoneyGeyser { get => InternalData[0].Value == 1; set => InternalData[0].Value = value ? 1 : 0; }
 
     public Branch<MapEntityLeaf>? MapEntityActivationRequiredToBeActive

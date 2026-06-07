@@ -24,9 +24,6 @@ public sealed class BreakableRockMapEntityLeaf : MapEntityLeaf
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.BreakableRock;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-    public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
-
     public BreakableRockTintColor TintColor
     {
         get => (BreakableRockTintColor)InternalData[0].Value;

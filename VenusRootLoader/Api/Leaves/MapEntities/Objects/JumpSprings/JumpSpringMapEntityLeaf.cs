@@ -12,8 +12,6 @@ public abstract class JumpSpringMapEntityLeaf : MapEntityLeaf
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.JumpSpring;
     internal sealed override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-
     public JumpSpringColor Color
     {
         get => InternalAnimIdOrItemId == (int)MainManager.AnimIDs.BounceShroom - 1

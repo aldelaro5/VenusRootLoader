@@ -14,9 +14,6 @@ public sealed class SetPlayerRespawnZoneMapEntityLeaf : MapEntityLeaf
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.SetPlayerRespawn;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-    public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
-
     public Vector3? RespawnPositionToSetWhenTriggered
     {
         get => InternalVectorData[0].Value.magnitude < 0.1 ? null : InternalVectorData[0].Value;

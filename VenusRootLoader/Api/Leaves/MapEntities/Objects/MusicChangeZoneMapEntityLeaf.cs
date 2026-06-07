@@ -14,8 +14,6 @@ public sealed class MusicChangeZoneMapEntityLeaf : MapEntityLeaf
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.MusicRange;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-
     public int FramesDelayBeforeMusicChange { get => InternalData[1].Value; set => InternalData[1].Value = value; }
 
     public Branch<MusicLeaf> MusicWhenInRange

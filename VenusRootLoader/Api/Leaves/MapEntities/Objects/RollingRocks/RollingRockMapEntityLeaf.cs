@@ -14,8 +14,6 @@ public abstract class RollingRockMapEntityLeaf : MapEntityLeaf
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.RollingRock;
     internal sealed override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-
     public Vector3 DestinationPosition
     {
         get => InternalVectorData[0].Value;

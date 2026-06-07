@@ -17,8 +17,6 @@ public abstract class MovableObjectMapEntityLeaf : MapEntityLeaf
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.PushRock;
     internal sealed override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-
     internal override void InitializeFromNew()
     {
         InternalHaxBoxCol = true;

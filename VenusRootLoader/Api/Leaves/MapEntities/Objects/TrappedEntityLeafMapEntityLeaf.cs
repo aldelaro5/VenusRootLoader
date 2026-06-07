@@ -6,6 +6,7 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
 // TODO: Patch a proper fix to the ROT modifier workaround which doesn't work right and is basically a race condition
 // TODO: Figure out if we can make this work for NPCs which seems to not lock their rigid properly
+// TODO: Remember to specify in the xmldoc that the regional gets set when untrapped
 public sealed class TrappedEntityLeafMapEntityLeaf : MapEntityLeaf
 {
     internal TrappedEntityLeafMapEntityLeaf(int gameId, string namedId, string creatorId)
@@ -16,9 +17,6 @@ public sealed class TrappedEntityLeafMapEntityLeaf : MapEntityLeaf
     internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.CoiledObject;
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
-
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-    public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
 
     public Branch<MapEntityLeaf> TrappedMapEntity
     {
@@ -38,12 +36,6 @@ public sealed class TrappedEntityLeafMapEntityLeaf : MapEntityLeaf
             InternalData[1].Value = value?.GameId ?? -1;
             field = value;
         }
-    }
-
-    public int? RegionalFlagIdSetWhenEntityGetsUntrapped
-    {
-        get => InternalRegionalFlagId < 0 ? null : InternalRegionalFlagId;
-        set => InternalRegionalFlagId = value ?? -1;
     }
 
     internal override void InitializeFromNew()

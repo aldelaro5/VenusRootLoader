@@ -27,9 +27,6 @@ public sealed class IceRadiusSwitchMapEntityLeaf : MapEntityLeaf
         set => InternalAnimIdOrItemId = (int)value;
     }
 
-    public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-    public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
-
     public Branch<MapEntityLeaf>? ParentMapEntity
     {
         get;

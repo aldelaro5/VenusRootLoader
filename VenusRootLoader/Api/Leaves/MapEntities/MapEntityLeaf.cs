@@ -31,7 +31,12 @@ public abstract class MapEntityLeaf : Leaf
     public List<Branch<FlagLeaf>> Requires { get; } = new();
     public List<LimitFlag> Limits { get; } = new();
 
-    public Vector3 EntityStartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
+    public virtual Vector3 EntityStartingPosition
+    {
+        get => InternalStartingPosition;
+        set => InternalStartingPosition = value;
+    }
+
     public Vector3 TransformEulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }
     public Color TagColor { get => InternalTagColor; set => InternalTagColor = value; }
 

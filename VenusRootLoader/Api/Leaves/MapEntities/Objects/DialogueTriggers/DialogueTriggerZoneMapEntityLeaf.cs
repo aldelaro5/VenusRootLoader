@@ -5,16 +5,12 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.DialogueTriggers;
 
-public sealed class DialogueTriggerZoneMapEntityLeaf : MapEntityLeaf
+public sealed class DialogueTriggerZoneMapEntityLeaf : DialogueTriggerMapEntityLeaf
 {
     internal DialogueTriggerZoneMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
-
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
-    internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.DialogueTrigger;
-    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
     public Vector3 EulerAngles { get => InternalEulerAngles; set => InternalEulerAngles = value; }

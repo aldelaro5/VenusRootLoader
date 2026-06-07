@@ -3,17 +3,13 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.AndGates;
 
-public sealed class AndGateOnEntitiesLeafActivationMapEntityLeaf : MapEntityLeaf
+public sealed class AndGateOnEntitiesLeafActivationMapEntityLeaf : AndGateMapEntityLeaf
 {
     internal AndGateOnEntitiesLeafActivationMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
         _entityActivationsInput = new(InternalData, 1, x => x.Ref);
     }
-
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
-    internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.ANDGate;
-    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     private readonly ListRefWrapper<NegatableMapEntityActivation, int> _entityActivationsInput;
     public IList<NegatableMapEntityActivation> EntityActivationsInput => _entityActivationsInput;
@@ -30,8 +26,7 @@ public sealed class AndGateOnEntitiesLeafActivationMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromNew()
     {
-        InternalAnimIdOrItemId = -1;
-        InternalStartingPosition = new(0f, 9999f, 0f);
+        base.InitializeFromNew();
         InternalActivationFlagId = -1;
         InternalData.AddRange([new(-1)]);
     }

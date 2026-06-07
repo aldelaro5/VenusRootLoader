@@ -17,8 +17,8 @@ using VenusRootLoader.Api.Leaves.MapEntities.Objects.DialogueTriggers;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.DigSpots;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.EventTriggers;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.JumpSprings;
+using VenusRootLoader.Api.Leaves.MapEntities.Objects.MovableObjects;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.MovingPlatforms;
-using VenusRootLoader.Api.Leaves.MapEntities.Objects.PushableObjects;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.RollingRocks;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.Switches;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.TriggerSwitches;
@@ -661,7 +661,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.RollingRock, _) => int.Parse(fields[61 + 2]) switch
             {
                 1 => registry.RegisterExisting<RollingRockCanonMapEntityLeaf>(id, namedId, baseGameId),
-                _ => registry.RegisterExisting<RollingRockMapEntityLeaf>(id, namedId, baseGameId)
+                _ => registry.RegisterExisting<RollingRockWithoutCanonMapEntityLeaf>(id, namedId, baseGameId)
             },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TriggerSwitch, _) =>
                 registry.RegisterExisting<SwitchTriggerZoneMapEntityLeaf>(id, namedId, baseGameId),

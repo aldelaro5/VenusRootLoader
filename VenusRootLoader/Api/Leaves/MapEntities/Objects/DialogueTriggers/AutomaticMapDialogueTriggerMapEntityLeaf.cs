@@ -3,16 +3,12 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.DialogueTriggers;
 
-public sealed class AutomaticMapDialogueTriggerMapEntityLeaf : MapEntityLeaf
+public sealed class AutomaticMapDialogueTriggerMapEntityLeaf : DialogueTriggerMapEntityLeaf
 {
     internal AutomaticMapDialogueTriggerMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
-
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
-    internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.DialogueTrigger;
-    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public Branch<MapDialogueLeaf> MapDialogueLineIdToImmediatelyProcess
     {

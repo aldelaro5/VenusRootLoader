@@ -3,7 +3,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.AndGates;
 
-public sealed class AndGateOnFlagsMapEntityLeaf : MapEntityLeaf
+public sealed class AndGateOnFlagsMapEntityLeaf : AndGateMapEntityLeaf
 {
     internal AndGateOnFlagsMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
@@ -11,17 +11,12 @@ public sealed class AndGateOnFlagsMapEntityLeaf : MapEntityLeaf
         _flagsInput = new(InternalData, 1, x => new(-x.GameId));
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
-    internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.ANDGate;
-    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
-
     private readonly ListRefWrapper<Branch<FlagLeaf>, int> _flagsInput;
     public IList<Branch<FlagLeaf>> FlagsInput => _flagsInput;
 
     internal override void InitializeFromNew()
     {
-        InternalAnimIdOrItemId = -1;
-        InternalStartingPosition = new(0f, 9999f, 0f);
+        base.InitializeFromNew();
         InternalActivationFlagId = -1;
         InternalData.AddRange([new(-2)]);
     }

@@ -2,16 +2,12 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.EventTriggers;
 
-public sealed class AutomaticEventTriggerMapEntityLeaf : MapEntityLeaf
+public sealed class AutomaticEventTriggerMapEntityLeaf : EventTriggerMapEntityLeaf
 {
     internal AutomaticEventTriggerMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
-
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
-    internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.EventTrigger;
-    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public Branch<EventLeaf> EventToImmediatelyStart
     {

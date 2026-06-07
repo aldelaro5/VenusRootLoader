@@ -4,30 +4,17 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.RollingRocks;
 
-public enum RollingRockScheme
+public abstract class RollingRockMapEntityLeaf : MapEntityLeaf
 {
-    RollOnSpawnWithoutImpactEffect = 0,
-    RollWhenHittingGroundWithImpactEffect = 1
-}
-
-public sealed class RollingRockMapEntityLeaf : MapEntityLeaf
-{
-    internal RollingRockMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    protected RollingRockMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
     {
     }
 
-    internal override NPCControl.NPCType Type => NPCControl.NPCType.Object;
-    internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.RollingRock;
-    internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
+    internal sealed override NPCControl.NPCType Type => NPCControl.NPCType.Object;
+    internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.RollingRock;
+    internal sealed override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
     public Vector3 StartingPosition { get => InternalStartingPosition; set => InternalStartingPosition = value; }
-
-    public RollingRockScheme RollingScheme
-    {
-        get => (RollingRockScheme)InternalData[0].Value;
-        set => InternalData[0].Value = (int)value;
-    }
 
     public Vector3 DestinationPosition
     {
@@ -55,8 +42,6 @@ public sealed class RollingRockMapEntityLeaf : MapEntityLeaf
 
     internal override void InitializeFromNew()
     {
-        InternalData.AddRange([new(1), new(0), new(0), new(-1)]);
-        InternalVectorData.AddRange([new(new(10f, 0f, 0f)), new(new(-10f, 0f, 0f)), new(new(0f, 0f, 5f))]);
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.RollingRock - 1;
     }
 

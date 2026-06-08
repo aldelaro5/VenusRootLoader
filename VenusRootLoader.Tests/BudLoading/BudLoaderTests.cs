@@ -369,7 +369,7 @@ public sealed class BudLoaderTests
         PermissionSetSignature permissionSetSignature = new();
         ITypeDefOrRef securityPermissionAttribute =
             budModuleDefinition.DefaultImporter.ImportType(typeof(SecurityPermissionAttribute));
-        SecurityAttribute securityAttribute = new(securityPermissionAttribute.ToTypeSignature());
+        SecurityAttribute securityAttribute = new(securityPermissionAttribute.ToTypeSignature(false));
         CustomAttributeNamedArgument customAttributeNamedArgument = new(
             CustomAttributeArgumentMemberType.Property,
             new(nameof(SecurityPermissionAttribute.SkipVerification)),

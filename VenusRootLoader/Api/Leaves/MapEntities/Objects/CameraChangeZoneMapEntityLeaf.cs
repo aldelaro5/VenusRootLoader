@@ -4,9 +4,9 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
-public sealed class CameraChangeMapEntityLeaf : ObjectMapEntityLeaf
+public sealed class CameraChangeZoneMapEntityLeaf : ObjectMapEntityLeaf
 {
-    internal CameraChangeMapEntityLeaf(int gameId, string namedId, string creatorId)
+    internal CameraChangeZoneMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
@@ -141,13 +141,18 @@ public sealed class CameraChangeMapEntityLeaf : ObjectMapEntityLeaf
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Vector3 triggerBoxColliderSize,
+        Vector3 triggerBoxColliderCenter)
     {
         InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 8));
         InternalVectorData.AddRange(Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 6));
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
-        InternalBoxColSize = Vector3.one;
+        TriggerBoxColliderSize = triggerBoxColliderSize;
+        TriggerBoxColliderCenter = triggerBoxColliderCenter;
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

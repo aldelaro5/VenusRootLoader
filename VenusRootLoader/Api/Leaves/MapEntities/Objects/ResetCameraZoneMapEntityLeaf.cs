@@ -15,10 +15,16 @@ public sealed class ResetCameraZoneMapEntityLeaf : ObjectMapEntityLeaf
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Vector3 triggerBoxColliderSize,
+        Vector3 triggerBoxColliderCenter)
     {
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
+        TriggerBoxColliderSize = triggerBoxColliderSize;
+        TriggerBoxColliderCenter = triggerBoxColliderCenter;
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver) { }

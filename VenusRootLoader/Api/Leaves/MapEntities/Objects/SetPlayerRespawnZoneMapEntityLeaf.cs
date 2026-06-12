@@ -21,11 +21,19 @@ public sealed class SetPlayerRespawnZoneMapEntityLeaf : ObjectMapEntityLeaf
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Vector3? respawnPositionToSetWhenTriggered,
+        Vector3 triggerBoxColliderSize,
+        Vector3 triggerBoxColliderCenter)
     {
         InternalVectorData.Add(new(Vector3.back * 0.2f));
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
+        RespawnPositionToSetWhenTriggered = respawnPositionToSetWhenTriggered;
+        TriggerBoxColliderSize = triggerBoxColliderSize;
+        TriggerBoxColliderCenter = triggerBoxColliderCenter;
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

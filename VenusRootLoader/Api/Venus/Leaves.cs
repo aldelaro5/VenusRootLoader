@@ -354,16 +354,6 @@ public partial class Venus
     public IReadOnlyCollection<MapDialogueLeaf> GetAllMapDialogues(MapLeaf map) =>
         map.DialoguesRegistry.GetAll();
 
-    public TMapEntity RegisterMapEntity<TMapEntity>(string namedId, MapLeaf map)
-        where TMapEntity : MapEntityLeaf
-    {
-        TMapEntity mapEntityLeaf = map.EntitiesRegistry.RegisterNew<TMapEntity>(namedId, BudId);
-        mapEntityLeaf.BaseGameObjectName = namedId;
-        mapEntityLeaf.Map = map;
-        mapEntityLeaf.InitializeFromNew();
-        return mapEntityLeaf;
-    }
-
     public MapEntityLeaf GetMapEntity(string namedId, MapLeaf map) =>
         map.EntitiesRegistry.Get(namedId);
 

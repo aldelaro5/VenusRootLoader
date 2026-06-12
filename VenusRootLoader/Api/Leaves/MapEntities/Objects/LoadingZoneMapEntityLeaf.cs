@@ -127,13 +127,25 @@ public sealed class LoadingZoneMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<MapLeaf> destinationMap,
+        Vector3 positionToSpawnAfterLoad,
+        Vector3 positionToMoveFromSpawnAfterLoad,
+        Vector3 triggerBoxColliderSize,
+        Vector3 triggerBoxColliderCenter)
     {
         InternalData.AddRange([new(-1), new(0), new(0), new(0), new(0)]);
         InternalVectorData.AddRange(Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 7));
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
         InternalBoxColSize = Vector3.one;
+        DestinationMap = destinationMap;
+        PositionToSpawnAfterLoad = positionToSpawnAfterLoad;
+        PositionToMoveFromSpawnAfterLoad = positionToMoveFromSpawnAfterLoad;
+        TriggerBoxColliderSize = triggerBoxColliderSize;
+        TriggerBoxColliderCenter = triggerBoxColliderCenter;
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

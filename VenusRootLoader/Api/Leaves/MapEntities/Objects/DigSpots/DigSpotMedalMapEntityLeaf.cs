@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.DigSpots;
@@ -19,10 +20,11 @@ public sealed class DigSpotMedalMapEntityLeaf : DigSpotMapEntityLeaf
         }
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(Vector3 startingPosition, Branch<MedalLeaf> medalHiddenInside)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition);
         InternalData.AddRange([new(0), new(2), new(0)]);
+        MedalHiddenInside = medalHiddenInside;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

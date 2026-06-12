@@ -51,9 +51,15 @@ public abstract class EnemyEncounterMapEntityLeaf : MapEntityLeaf
     private readonly ListRefWrapper<Branch<EnemyLeaf>, int> _enemiesFormationInBattle;
     public IList<Branch<EnemyLeaf>> EnemiesFormationInBattle => _enemiesFormationInBattle;
 
-    internal override void InitializeFromNew()
+    internal virtual void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<AnimIdLeaf> animId,
+        IList<Branch<EnemyLeaf>> enemiesFormationInBattle)
     {
-        InternalAnimIdOrItemId = 0;
+        AnimId = animId;
+        EntityStartingPosition = startingPosition;
+        foreach (Branch<EnemyLeaf> enemies in enemiesFormationInBattle)
+            EnemiesFormationInBattle.Add(enemies);
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

@@ -17,9 +17,14 @@ public sealed class DeadLanderOmegaAlertCrystalMapEntityLeaf : CrystalMapEntityL
         set => InternalVectorData[0].Value = value;
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        int deadLanderOmegaId,
+        Vector3 positionDeadLanderOmegaLooksAtWhenHit)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition);
         InternalData.AddRange([new(1), new(10), new(0)]);
+        DeadLanderOmegaId = deadLanderOmegaId;
+        PositionDeadLanderOmegaLooksAtWhenHit = positionDeadLanderOmegaLooksAtWhenHit;
     }
 }

@@ -8,9 +8,8 @@ public abstract class AndGateMapEntityLeaf : ObjectMapEntityLeaf
 
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.ANDGate;
 
-    internal override void InitializeFromNew()
+    protected void InitializeFromNew()
     {
-        InternalAnimIdOrItemId = -1;
         InternalStartingPosition = new(0f, 9999f, 0f);
     }
 }

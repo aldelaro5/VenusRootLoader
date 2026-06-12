@@ -86,7 +86,9 @@ public sealed class FreezableWaterDropletMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalVectorData[1].Value.z = value ?? 0f;
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Vector3 iceCubeStartingPositionOffset)
     {
         InternalData.AddRange([new(30), new(10), new(1), new(0), new(0)]);
         InternalVectorData.AddRange([new(Vector3.zero), new(new(5f, 10f, 0f))]);
@@ -94,6 +96,8 @@ public sealed class FreezableWaterDropletMapEntityLeaf : ObjectMapEntityLeaf
         InternalBoxColIsTrigger = true;
         InternalBoxColSize = new(2f, 2f, 2f);
         InternalBoxColCenter = new(0f, 1f, 0f);
+        IceCubeStartingPositionOffset = iceCubeStartingPositionOffset;
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
@@ -24,6 +25,16 @@ public sealed class EventNpcMapEntityLeaf : SpyableNpcMapEntityLeaf
             InternalEventId = value.GameId;
             field = value;
         }
+    }
+
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<AnimIdLeaf>? animId,
+        Branch<DialogueLeaf>? spyDialogue,
+        Branch<EventLeaf> eventToStartWhenInteracting)
+    {
+        base.InitializeFromNew(startingPosition, animId, spyDialogue);
+        EventToStartWhenInteracting = eventToStartWhenInteracting;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

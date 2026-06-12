@@ -15,10 +15,11 @@ public abstract class MovableObjectMapEntityLeaf : ObjectMapEntityLeaf
 
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.PushRock;
 
-    internal override void InitializeFromNew()
+    internal virtual void InitializeFromNew(Vector3 startingPosition)
     {
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = false;
+        EntityStartingPosition = startingPosition;
     }
 
     internal sealed override void InitializeFromExisting(IRegistryResolver registryResolver)

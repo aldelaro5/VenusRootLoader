@@ -56,10 +56,20 @@ public sealed class ItemsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
     private readonly ListDoubleRefWrapper<ItemShopShelvedItemForSale, int, Vector3> _itemsForSale;
     public IList<ItemShopShelvedItemForSale> ItemsForSale => _itemsForSale;
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<AnimIdLeaf>? animId,
+        Branch<DialogueLeaf>? spyDialogue,
+        Branch<DialogueLeaf> dialogueWhenInteractingWithShopKeeper,
+        Branch<DialogueLeaf> dialogueWhenInteractingWithShelvedItem,
+        IList<ItemShopShelvedItemForSale> itemsForSale)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition, animId, spyDialogue);
         InternalDialogues.AddRange(Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 11));
+        DialogueWhenInteractingWithShopKeeper = dialogueWhenInteractingWithShopKeeper;
+        DialogueWhenInteractingWithShelvedItem = dialogueWhenInteractingWithShelvedItem;
+        foreach (ItemShopShelvedItemForSale itemForSale in itemsForSale)
+            ItemsForSale.Add(itemForSale);
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

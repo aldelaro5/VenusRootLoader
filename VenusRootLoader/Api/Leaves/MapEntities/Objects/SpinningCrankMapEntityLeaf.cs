@@ -39,7 +39,11 @@ public sealed class SpinningCrankMapEntityLeaf : ObjectMapEntityLeaf
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        float rateOfIncreaseWhenSpinning,
+        float rateOfDecreaseWhenNotSpinning,
+        float maximumSpinValue)
     {
         InternalVectorData.AddRange([new(new(1f, 0.5f, 300f)), new(new(0f, -20f, 0f))]);
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.ScrewSwitch - 1;
@@ -47,6 +51,10 @@ public sealed class SpinningCrankMapEntityLeaf : ObjectMapEntityLeaf
         InternalBoxColIsTrigger = true;
         InternalBoxColSize = new(1f, 2f, 1f);
         InternalBoxColCenter = new(0f, 1f, 0f);
+        RateOfIncreaseWhenSpinning = rateOfIncreaseWhenSpinning;
+        RateOfDecreaseWhenNotSpinning = rateOfDecreaseWhenNotSpinning;
+        MaximumSpinValue = maximumSpinValue;
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver) { }

@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.DigSpots;
@@ -25,10 +26,15 @@ public sealed class DigSpotItemMapEntityLeaf : DigSpotMapEntityLeaf
         set => InternalData[1].Value = value ? 1 : 0;
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<ItemLeaf> itemHiddenInside,
+        bool isHiddenItemAKeyItem)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition);
         InternalData.AddRange([new(0), new(0), new(0)]);
+        ItemHiddenInside = itemHiddenInside;
+        IsHiddenItemAKeyItem = isHiddenItemAKeyItem;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

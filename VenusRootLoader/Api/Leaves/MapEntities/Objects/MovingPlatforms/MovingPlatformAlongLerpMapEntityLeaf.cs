@@ -27,10 +27,17 @@ public sealed class MovingPlatformAlongLerpMapEntityLeaf : MovingPlatformMapEnti
         set => InternalDialogues[0].Value.x = value ? 1f : 0f;
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<AnimIdLeaf> animId,
+        IList<Branch<ObjectMapEntityLeaf>> requiredEntityActivationsToMove,
+        Vector3 fromPosition,
+        Vector3 toPosition)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition, animId, requiredEntityActivationsToMove);
         InternalDialogues.AddRange([new(new(0f, 5f, 0f)), new(new(1f, 0f, 0f)), new(new(0f, 0f, 0f))]);
         InternalVectorData.AddRange([new(Vector3.zero), new(Vector3.up)]);
+        EntityStartingPosition = fromPosition;
+        ActivePosition = toPosition;
     }
 }

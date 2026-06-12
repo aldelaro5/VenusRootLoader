@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Collectibles;
@@ -19,9 +20,11 @@ public sealed class CollectibleCrystalBerryMapEntityLeaf : CollectibleMapEntityL
         }
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(Vector3 startingPosition, Branch<CrystalBerryLeaf> crystalBerry)
     {
+        base.InitializeFromNew(startingPosition);
         InternalData.AddRange([new(3), new(-1), new(0), new(0)]);
+        CrystalBerry = crystalBerry;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

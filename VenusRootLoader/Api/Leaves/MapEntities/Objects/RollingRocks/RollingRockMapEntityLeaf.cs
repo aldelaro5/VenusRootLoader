@@ -36,9 +36,13 @@ public abstract class RollingRockMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalVectorData[2].Value = value;
     }
 
-    internal override void InitializeFromNew()
+    internal virtual void InitializeFromNew(
+        Vector3 startingPosition,
+        Vector3 destinationPosition)
     {
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.RollingRock - 1;
+        DestinationPosition = destinationPosition;
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.CuttableGrasses;
@@ -19,10 +20,11 @@ public sealed class CuttableGrassWithCrystalBerryDropMapEntityLeaf : CuttableGra
         }
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(Vector3 startingPosition, Branch<CrystalBerryLeaf> crystalBerryDroppedWhenCut)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition);
         InternalData.AddRange([new(0), new(0)]);
+        CrystalBerryDroppedWhenCut = crystalBerryDroppedWhenCut;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

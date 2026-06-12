@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
@@ -35,7 +36,9 @@ public sealed class TrappedEntityLeafMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<MapEntityLeaf> trappedMapEntity)
     {
         InternalData.AddRange([new(0), new(-1)]);
         InternalVectorData.Add(new(new(0f, -11.0f, 0f)));
@@ -44,6 +47,8 @@ public sealed class TrappedEntityLeafMapEntityLeaf : ObjectMapEntityLeaf
         InternalBoxColIsTrigger = true;
         InternalBoxColSize = new(2.5f, 5f, 2.5f);
         InternalBoxColCenter = new(0f, -11.5f, 0f);
+        TrappedMapEntity = trappedMapEntity;
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

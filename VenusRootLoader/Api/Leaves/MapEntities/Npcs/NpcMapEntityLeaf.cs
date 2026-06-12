@@ -18,12 +18,12 @@ public abstract class NpcMapEntityLeaf : MapEntityLeaf
 
     public MapEntityBehaviorSystem BehaviorSystem { get; }
 
-    public Branch<AnimIdLeaf> AnimId
+    public Branch<AnimIdLeaf>? AnimId
     {
         get;
         set
         {
-            InternalAnimIdOrItemId = value.GameId;
+            InternalAnimIdOrItemId = value?.GameId ?? -1;
             field = value;
         }
     }
@@ -48,10 +48,11 @@ public abstract class NpcMapEntityLeaf : MapEntityLeaf
     private readonly ListRefWrapper<NpcConditionalEmoticon, Vector2> _conditionalEmoticons;
     public IList<NpcConditionalEmoticon> ConditionalEmoticons => _conditionalEmoticons;
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(Vector3 startingPosition, Branch<AnimIdLeaf>? animId)
     {
-        InternalAnimIdOrItemId = 0;
+        AnimId = animId;
         InternalEmoticonFlags.Add(new(new(-1, 0)));
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
@@ -61,7 +62,9 @@ public abstract class NpcMapEntityLeaf : MapEntityLeaf
 
         BehaviorSystem.InitializeBehaviorFromExisting(registryResolver);
 
-        AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
+        AnimId = InternalAnimIdOrItemId >= 0
+            ? new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId])
+            : null;
 
         _conditionalEmoticons.SynchronizeFromExistingData(
             InternalEmoticonFlags

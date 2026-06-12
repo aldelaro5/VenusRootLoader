@@ -19,11 +19,12 @@ public abstract class CuttableGrassMapEntityLeaf : ObjectMapEntityLeaf
     // TODO: Move this to a leaf
     public int GrassSpriteId { get => InternalData[0].Value; set => InternalData[0].Value = value; }
 
-    internal override void InitializeFromNew()
+    protected void InitializeFromNew(Vector3 startingPosition)
     {
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = false;
         InternalBoxColCenter = new(0f, 10f, 0f);
         InternalBoxColSize = new(1.5f, 20f, 0.75f);
+        EntityStartingPosition = startingPosition;
     }
 }

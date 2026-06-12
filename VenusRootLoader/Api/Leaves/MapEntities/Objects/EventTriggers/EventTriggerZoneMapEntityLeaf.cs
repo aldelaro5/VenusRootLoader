@@ -36,12 +36,19 @@ public sealed class EventTriggerZoneMapEntityLeaf : EventTriggerMapEntityLeaf
         }
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<EventLeaf> eventToStartWhenTriggered,
+        Vector3 triggerBoxColliderSize,
+        Vector3 triggerBoxColliderCenter)
     {
         InternalData.AddRange([new(-1), new(0), new(0)]);
+        EventToStartWhenTriggered = eventToStartWhenTriggered;
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
-        InternalBoxColSize = Vector3.one;
+        TriggerBoxColliderSize = triggerBoxColliderSize;
+        TriggerBoxColliderCenter = triggerBoxColliderCenter;
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.Enums;
 using VenusRootLoader.Registry;
 
@@ -28,10 +29,11 @@ public sealed class BreakableRockMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(Vector3 startingPosition)
     {
         InternalData.Add(new(0));
         InternalHaxBoxCol = true;
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

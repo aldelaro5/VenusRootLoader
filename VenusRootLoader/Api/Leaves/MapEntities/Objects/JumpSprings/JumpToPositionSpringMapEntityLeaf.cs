@@ -46,11 +46,12 @@ public sealed class JumpToPositionSpringMapEntityLeaf : JumpSpringMapEntityLeaf
         set => InternalVectorData[2].Value.x = Mathf.Clamp(value, 1f, 99f);
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(Vector3 startingPosition, Vector3 positionToGoWhenUsingSpring)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition);
         InternalData.AddRange([new(1), new(0), new(-1)]);
         InternalVectorData.AddRange([new(new(15f, 0f, 0f)), new(Vector3.zero), new(Vector3.right)]);
+        PositionToGoWhenUsingSpring = positionToGoWhenUsingSpring;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

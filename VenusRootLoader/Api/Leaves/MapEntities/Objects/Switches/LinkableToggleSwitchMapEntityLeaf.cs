@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Switches;
@@ -25,10 +26,14 @@ public sealed class LinkableToggleSwitchMapEntityLeaf : SwitchMapEntityLeaf
         }
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<AnimIdLeaf>? animId,
+        Branch<FlagLeaf>? linkFlag)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition, animId);
         InternalData.AddRange([new(0), new(1), new(0), new(0), new(0)]);
+        LinkFlag = linkFlag;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

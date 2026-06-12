@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Enemies;
@@ -31,17 +32,22 @@ public sealed class EnemyEncounterDroppingKeyItemMapEntityLeaf : EnemyEncounterM
         }
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<AnimIdLeaf> animId,
+        IList<Branch<EnemyLeaf>> enemiesFormationInBattle,
+        Branch<ItemLeaf> keyItemDroppedWhenDefeated,
+        Branch<FlagLeaf> keyItemObtainedFlag)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition, animId, enemiesFormationInBattle);
         InternalVectorData.Add(new(new(0f, -2f, 0f)));
+        KeyItemDroppedWhenDefeated = keyItemDroppedWhenDefeated;
         LimitedToFlags.Add(
             new()
             {
-                Flag = new(),
+                Flag = keyItemObtainedFlag,
                 FailsWholeConditionWhenFlagIsTrue = false
             });
-        InternalActivationFlagId = 0;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

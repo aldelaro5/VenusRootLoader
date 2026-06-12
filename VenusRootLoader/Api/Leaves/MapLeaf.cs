@@ -13,14 +13,4 @@ public sealed class MapLeaf : Leaf
 
     internal ILeavesRegistry<MapEntityLeaf> EntitiesRegistry { get; set; } = null!;
     internal ILeavesRegistry<MapDialogueLeaf> DialoguesRegistry { get; set; } = null!;
-
-    public TMapEntity ReserveNewMapEntity<TMapEntity>(string namedId, string creatorId)
-        where TMapEntity : MapEntityLeaf
-    {
-        TMapEntity newEntity = EntitiesRegistry.RegisterNew<TMapEntity>(namedId, creatorId);
-        newEntity.BaseGameObjectName = namedId;
-        newEntity.Map = this;
-        newEntity.InitializeFromNew();
-        return newEntity;
-    }
 }

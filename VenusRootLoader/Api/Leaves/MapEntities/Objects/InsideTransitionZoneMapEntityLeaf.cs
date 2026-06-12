@@ -74,13 +74,25 @@ public sealed class InsideTransitionZoneMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        int insideIdUsedForTransition,
+        Vector3 positionToMoveToWhenEntering,
+        Vector3 positionToMoveToWhenExiting,
+        Vector3 triggerBoxColliderSize,
+        Vector3 triggerBoxColliderCenter)
     {
         InternalData.AddRange([new(-1), new(-1)]);
         InternalVectorData.AddRange(Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 8));
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
         InternalBoxColSize = Vector3.one;
+        InsideIdUsedForTransition = insideIdUsedForTransition;
+        PositionToMoveToWhenEntering = positionToMoveToWhenEntering;
+        PositionToMoveToWhenExiting = positionToMoveToWhenExiting;
+        TriggerBoxColliderSize = triggerBoxColliderSize;
+        TriggerBoxColliderCenter = triggerBoxColliderCenter;
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

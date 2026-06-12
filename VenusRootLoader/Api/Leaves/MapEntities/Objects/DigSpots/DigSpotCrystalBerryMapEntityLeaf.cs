@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.DigSpots;
@@ -19,10 +20,11 @@ public sealed class DigSpotCrystalBerryMapEntityLeaf : DigSpotMapEntityLeaf
         }
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(Vector3 startingPosition, Branch<CrystalBerryLeaf> crystalBerryHiddenInside)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition);
         InternalData.AddRange([new(1), new(0), new(-1)]);
+        CrystalBerryHiddenInside = crystalBerryHiddenInside;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

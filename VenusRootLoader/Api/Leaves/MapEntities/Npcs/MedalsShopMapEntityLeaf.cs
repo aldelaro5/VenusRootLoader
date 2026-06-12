@@ -15,6 +15,16 @@ public sealed class MedalsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
 
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.Shop;
 
+    public Branch<MedalShopLeaf> AssociatedMedalsShop
+    {
+        get;
+        set
+        {
+            InternalDialogues[9].Value.x = value.GameId;
+            field = value;
+        }
+    }
+
     public Branch<DialogueLeaf> DialogueWhenInteractingWithShopKeeper
     {
         get;
@@ -53,24 +63,26 @@ public sealed class MedalsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
         set => InternalDialogues[8].Value.x = value * 10f ?? 0f;
     }
 
-    public Branch<MedalShopLeaf> AssociatedMedalsShop
-    {
-        get;
-        set
-        {
-            InternalDialogues[9].Value.x = value.GameId;
-            field = value;
-        }
-    }
-
     private readonly ListRefWrapper<Vector3, Vector3> _shelvedMedalPositions;
     public IList<Vector3> ShelvedMedalPositions => _shelvedMedalPositions;
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<AnimIdLeaf>? animIdLeaf,
+        Branch<DialogueLeaf>? spyDialogue,
+        Branch<MedalShopLeaf> associatedMedalsShop,
+        Branch<DialogueLeaf> dialogueWhenInteractingWithShopKeeper,
+        Branch<DialogueLeaf> dialogueWhenInteractingWithShelvedMedal,
+        IList<Vector3> shelvedMedalPositions)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition, animIdLeaf, spyDialogue);
         InternalDialogues.AddRange(Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 10));
         InternalDialogues.Add(new(new(1f, 0f, 0f)));
+        AssociatedMedalsShop = associatedMedalsShop;
+        DialogueWhenInteractingWithShopKeeper = dialogueWhenInteractingWithShopKeeper;
+        DialogueWhenInteractingWithShelvedMedal = dialogueWhenInteractingWithShelvedMedal;
+        foreach (Vector3 shelvedMedalPosition in shelvedMedalPositions)
+            ShelvedMedalPositions.Add(shelvedMedalPosition);
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

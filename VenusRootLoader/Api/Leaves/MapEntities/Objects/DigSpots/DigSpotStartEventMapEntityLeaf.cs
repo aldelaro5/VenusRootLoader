@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.DigSpots;
@@ -19,10 +20,11 @@ public sealed class DigSpotStartEventMapEntityLeaf : DigSpotMapEntityLeaf
         }
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(Vector3 startingPosition, Branch<EventLeaf> eventToStartWhenEmergingFromDigging)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition);
         InternalData.AddRange([new(2), new(-1), new(-1)]);
+        EventToStartWhenEmergingFromDigging = eventToStartWhenEmergingFromDigging;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

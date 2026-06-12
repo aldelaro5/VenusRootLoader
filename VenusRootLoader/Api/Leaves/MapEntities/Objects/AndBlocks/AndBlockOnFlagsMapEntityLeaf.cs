@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
@@ -8,16 +9,21 @@ public sealed class AndBlockOnFlagsMapEntityLeaf : AndBlockMapEntityLeaf
     internal AndBlockOnFlagsMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
-        _flagsInput = new(InternalData, 1, x => new(x.GameId));
+        _flagInputs = new(InternalData, 1, x => new(x.GameId));
     }
 
-    private readonly ListRefWrapper<Branch<FlagLeaf>, int> _flagsInput;
-    public IList<Branch<FlagLeaf>> FlagsInput => _flagsInput;
+    private readonly ListRefWrapper<Branch<FlagLeaf>, int> _flagInputs;
+    public IList<Branch<FlagLeaf>> FlagInputs => _flagInputs;
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<AnimIdLeaf>? animId,
+        IList<Branch<FlagLeaf>> flagInputs)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition, animId);
         InternalData.AddRange([new(-2)]);
+        foreach (Branch<FlagLeaf> flagInput in flagInputs)
+            FlagInputs.Add(flagInput);
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
@@ -25,7 +31,7 @@ public sealed class AndBlockOnFlagsMapEntityLeaf : AndBlockMapEntityLeaf
         base.InitializeFromExisting(registryResolver);
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
 
-        _flagsInput.SynchronizeFromExistingData(
+        _flagInputs.SynchronizeFromExistingData(
             InternalData
                 .Skip(1)
                 .Select(x => new Branch<FlagLeaf>(flagsRegistry.LeavesByGameIds[Math.Abs(x.Value)]))

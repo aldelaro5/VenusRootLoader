@@ -42,10 +42,15 @@ public sealed class FixedAnimstateMapEntityLeaf : ObjectMapEntityLeaf
     public float EntityCapsulerColliderHeight { get => InternalCcolHeight; set => InternalCcolHeight = value; }
     public bool EntitySpriteStartsFlipped { get => InternalIsFlipped; set => InternalIsFlipped = value; }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<AnimIdLeaf> animId,
+        int animstate)
     {
         InternalData.AddRange([new(0), new(0)]);
-        InternalAnimIdOrItemId = 0;
+        AnimId = animId;
+        Animstate = animstate;
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

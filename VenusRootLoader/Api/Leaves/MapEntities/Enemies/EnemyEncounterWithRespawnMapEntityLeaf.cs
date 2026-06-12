@@ -1,4 +1,5 @@
 using CommunityToolkit.Diagnostics;
+using UnityEngine;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Enemies;
 
@@ -19,9 +20,12 @@ public sealed class EnemyEncounterWithRespawnMapEntityLeaf : EnemyEncounterMapEn
         }
     }
 
-    internal override void InitializeFromNew()
+    internal override void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<AnimIdLeaf> animId,
+        IList<Branch<EnemyLeaf>> enemiesFormationInBattle)
     {
-        base.InitializeFromNew();
-        InternalEventId = 30;
+        base.InitializeFromNew(startingPosition, animId, enemiesFormationInBattle);
+        FramesAfterDeathBeforeRespawn = 30;
     }
 }

@@ -4,6 +4,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Switches;
 
+// TODO: Defaults animId to SwitchCrystal on Venus
 public abstract class SwitchMapEntityLeaf : ObjectMapEntityLeaf
 {
     protected SwitchMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
@@ -31,13 +32,16 @@ public abstract class SwitchMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalData[4].Value = value ? 1 : 0;
     }
 
-    internal override void InitializeFromNew()
+    protected void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<AnimIdLeaf>? animId)
     {
-        InternalAnimIdOrItemId = (int)MainManager.AnimIDs.SwitchCrystal - 1;
+        AnimId = animId;
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
         InternalBoxColSize = Vector3.one;
         InternalBoxColCenter = Vector3.up * 0.5f;
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

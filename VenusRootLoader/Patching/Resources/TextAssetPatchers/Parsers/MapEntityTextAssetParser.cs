@@ -569,7 +569,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                         _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntityLeaf>()
                     },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.CameraChange, _) => registry.RegisterExisting<
-                CameraChangeMapEntityLeaf>(id, namedId, baseGameId),
+                CameraChangeZoneMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Item, _) => int.Parse(fields[61 + 0]) switch
             {
                 0 or 1 => registry.RegisterExisting<CollectibleItemMapEntityLeaf>(id, namedId, baseGameId),
@@ -649,7 +649,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Geizer, _) =>
                 registry.RegisterExisting<GeyserMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.MusicRange, _) =>
-                registry.RegisterExisting<MusicChangeZoneMapEntityLeaf>(id, namedId, baseGameId),
+                registry.RegisterExisting<MusicChangeRadiusMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TempPlatform, _) =>
                 registry.RegisterExisting<FlytrapPlatformMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ScrewSwitch, _) =>

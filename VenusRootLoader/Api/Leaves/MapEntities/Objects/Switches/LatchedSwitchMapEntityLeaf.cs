@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
@@ -21,11 +22,14 @@ public sealed class LatchedSwitchMapEntityLeaf : SwitchMapEntityLeaf
         }
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<AnimIdLeaf>? animId,
+        Branch<FlagLeaf> latchHoldFlag)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition, animId);
         InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 5));
-        InternalActivationFlagId = 0;
+        LatchHoldFlag = latchHoldFlag;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.AndBlocks;
@@ -20,11 +21,14 @@ public sealed class AndBlockOnSingleFlagMapEntityLeaf : AndBlockMapEntityLeaf
         }
     } = null!;
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<AnimIdLeaf>? animId,
+        NegatableFlag flagInput)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition, animId);
         InternalData.AddRange([new(0), new(-1)]);
-        InternalActivationFlagId = 0;
+        FlagInput = flagInput;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

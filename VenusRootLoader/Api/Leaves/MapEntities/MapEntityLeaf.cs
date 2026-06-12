@@ -22,7 +22,6 @@ public abstract class MapEntityLeaf : Leaf
     {
     }
 
-    internal abstract void InitializeFromNew();
     internal abstract void InitializeFromExisting(IRegistryResolver registryResolver);
 
     internal int[] OriginalRequires { get; } = new int[10];

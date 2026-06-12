@@ -1,4 +1,5 @@
 using CommunityToolkit.Diagnostics;
+using UnityEngine;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.RollingRocks;
@@ -41,9 +42,11 @@ public sealed class RollingRockCanonMapEntityLeaf : RollingRockMapEntityLeaf
         set => InternalVectorData[1].Value.z = value;
     }
 
-    internal override void InitializeFromNew()
+    internal override void InitializeFromNew(
+        Vector3 startingPosition,
+        Vector3 destinationPosition)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition, destinationPosition);
         InternalData.AddRange([new(0), new(0), new(1), new(-1)]);
         InternalVectorData.AddRange(
             [new(new(10f, 0f, 0f)), new(new(-10f, 0f, 0f)), new(new(10f, 0f, 0f)), new(new(0f, 0f, 5f))]);

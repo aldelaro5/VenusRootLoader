@@ -60,13 +60,23 @@ public sealed class MapChildVerticalPositionSwitchMapEntityLeaf : ObjectMapEntit
         }
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        int mapChildIndexToMove,
+        float verticalMovementLowerBound,
+        float verticalMovementUpperBound,
+        float framesDurationForFullMovement)
     {
         InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 5));
         InternalVectorData.Add(new(new(180f, -1f, 1f)));
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.BigCrystalSwitch - 1;
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
+        MapChildIndexToMove = mapChildIndexToMove;
+        VerticalMovementLowerBound = verticalMovementLowerBound;
+        VerticalMovementUpperBound = verticalMovementUpperBound;
+        FramesDurationForFullMovement = framesDurationForFullMovement;
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

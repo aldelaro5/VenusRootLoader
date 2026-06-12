@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.MovableObjects;
@@ -21,9 +22,9 @@ public sealed class MovableRockMapEntityLeaf : MovableObjectMapEntityLeaf
         set => InternalVectorData[0].Value.z = value;
     }
 
-    internal override void InitializeFromNew()
+    internal override void InitializeFromNew(Vector3 startingPosition)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition);
         InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 4));
         InternalVectorData.AddRange([new(new(0f, 10f, 5f)), new(new(0f, 0f, 0f))]);
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.PushRock - 1;

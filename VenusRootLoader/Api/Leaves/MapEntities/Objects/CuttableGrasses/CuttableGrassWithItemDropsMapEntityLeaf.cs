@@ -25,10 +25,12 @@ public sealed class CuttableGrassWithItemDropsMapEntityLeaf : CuttableGrassMapEn
         }
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(Vector3 startingPosition, IList<Branch<ItemLeaf>?> itemsDroppedWhenCut)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition);
         InternalData.AddRange([new(0), new(-1)]);
+        foreach (Branch<ItemLeaf>? item in itemsDroppedWhenCut)
+            ItemsDroppedWhenCut.Add(item);
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

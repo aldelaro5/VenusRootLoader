@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.TriggerSwitches;
 
 public sealed class SwitchTriggerZoneMapEntityLeaf : TriggerSwitchMapEntityLeaf
@@ -19,9 +21,14 @@ public sealed class SwitchTriggerZoneMapEntityLeaf : TriggerSwitchMapEntityLeaf
         set => InternalData[2].Value = value ? 1 : 0;
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Vector3 triggerBoxColliderSize,
+        Vector3 triggerBoxColliderCenter,
+        SwitchTriggerZoneMode activationMode)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition, triggerBoxColliderSize, triggerBoxColliderCenter);
         InternalData.AddRange([new(-1), new(1), new(0)]);
+        ActivationMode = activationMode;
     }
 }

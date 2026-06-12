@@ -17,9 +17,14 @@ public sealed class SavePointCrystalMapEntityLeaf : CrystalMapEntityLeaf
         set => InternalVectorData[0].Value = value;
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Vector3 spawnPositionSavedWhenSavingTheGame,
+        bool healsPartyWhenHit)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition);
         InternalData.AddRange([new(1), new(0), new(1)]);
+        SpawnPositionSavedWhenSavingTheGame = spawnPositionSavedWhenSavingTheGame;
+        HealsPartyWhenHit = healsPartyWhenHit;
     }
 }

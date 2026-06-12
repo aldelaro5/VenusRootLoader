@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Collectibles;
@@ -24,6 +25,11 @@ public abstract class CollectibleMapEntityLeaf : ObjectMapEntityLeaf
     {
         get => InternalData[2].Value == 0;
         set => InternalData[2].Value = value ? 0 : 1;
+    }
+
+    protected void InitializeFromNew(Vector3 startingPosition)
+    {
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

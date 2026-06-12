@@ -3,9 +3,9 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
-public sealed class MusicChangeZoneMapEntityLeaf : ObjectMapEntityLeaf
+public sealed class MusicChangeRadiusMapEntityLeaf : ObjectMapEntityLeaf
 {
-    internal MusicChangeZoneMapEntityLeaf(int gameId, string namedId, string creatorId)
+    internal MusicChangeRadiusMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
@@ -24,7 +24,7 @@ public sealed class MusicChangeZoneMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
-    public float RangeRadiusFromPosition
+    public float RangeRadius
     {
         get => InternalVectorData[0].Value.x;
         set => InternalVectorData[0].Value.x = value;
@@ -42,10 +42,16 @@ public sealed class MusicChangeZoneMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalVectorData[0].Value.z = value;
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<MusicLeaf> musicWhenInRange,
+        float rangeRadiusFromPosition)
     {
         InternalData.AddRange([new(0), new(20), new(0)]);
         InternalVectorData.AddRange([new(new(10f, 0.1f, 1f)), new(Vector3.zero)]);
+        MusicWhenInRange = musicWhenInRange;
+        RangeRadius = rangeRadiusFromPosition;
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

@@ -22,13 +22,14 @@ public abstract class DigSpotMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
-    internal override void InitializeFromNew()
+    protected void InitializeFromNew(Vector3 startingPosition)
     {
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.DigMound - 1;
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
         InternalBoxColSize = new(1.4f, 1.4f, 1.4f);
         InternalBoxColCenter = Vector3.zero;
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

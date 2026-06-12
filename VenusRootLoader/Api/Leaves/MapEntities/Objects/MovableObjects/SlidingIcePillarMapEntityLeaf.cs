@@ -21,9 +21,9 @@ public sealed class SlidingIcePillarMapEntityLeaf : MovableObjectMapEntityLeaf
         set => InternalBoxColSize = value is null || value.Value.magnitude <= 0.1f ? Vector3.zero : value.Value;
     }
 
-    internal override void InitializeFromNew()
+    internal override void InitializeFromNew(Vector3 startingPosition)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition);
         InternalData.AddRange([new(0), new(0), new(3), new(0)]);
         InternalVectorData.AddRange([new(new(0f, 0f, 0.1f)), new(new(0f, 0f, 0f))]);
         InternalBoxColSize = Vector3.zero;

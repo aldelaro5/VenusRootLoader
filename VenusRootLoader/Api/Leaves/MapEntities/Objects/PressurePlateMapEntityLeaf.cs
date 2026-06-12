@@ -87,7 +87,7 @@ public sealed class PressurePlateMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(Vector3 startingPosition, PressurePlateType pressurePlateType)
     {
         InternalData.AddRange([new(1), new(1), new(-1)]);
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.WoodenPPlate - 1;
@@ -97,6 +97,8 @@ public sealed class PressurePlateMapEntityLeaf : ObjectMapEntityLeaf
         InternalBoxColIsTrigger = true;
         InternalBoxColSize = new(2f, 1f, 2f);
         InternalBoxColCenter = new(0f, 1f, 0f);
+        PressurePlateType = pressurePlateType;
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

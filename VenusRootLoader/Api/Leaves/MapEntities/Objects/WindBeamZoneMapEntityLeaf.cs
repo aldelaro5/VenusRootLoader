@@ -63,10 +63,20 @@ public sealed class WindBeamZoneMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalVectorData[2].Value.y = value is null or < 0.1f ? 0f : value.Value;
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Vector3 endPosition,
+        float windPushForceUnitsPerSecond,
+        float colliderWidth,
+        float colliderHeight)
     {
         InternalData.Add(new(-1));
         InternalVectorData.AddRange([new(new(1f, 0f, 0f)), new(new(0.1f, 3f, 3f)), new(new(0f, 0f, 0f))]);
+        EndPosition = endPosition;
+        WindPushForceUnitsPerSecond = windPushForceUnitsPerSecond;
+        ColliderWidth = colliderWidth;
+        ColliderHeight = colliderHeight;
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.RollingRocks;
 
 public sealed class RollingRockWithoutCanonMapEntityLeaf : RollingRockMapEntityLeaf
@@ -13,10 +15,14 @@ public sealed class RollingRockWithoutCanonMapEntityLeaf : RollingRockMapEntityL
         set => InternalData[0].Value = (int)value;
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Vector3 destinationPosition,
+        RollingRockMethod rollingMethod)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition, destinationPosition);
         InternalData.AddRange([new(1), new(0), new(0), new(-1)]);
         InternalVectorData.AddRange([new(new(10f, 0f, 0f)), new(new(-10f, 0f, 0f)), new(new(0f, 0f, 5f))]);
+        RollingMethod = rollingMethod;
     }
 }

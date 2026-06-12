@@ -23,9 +23,11 @@ public sealed class AutomaticMapDialogueTriggerMapEntityLeaf : DialogueTriggerMa
         }
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(Branch<MapDialogueLeaf> mapDialogueLineIdToImmediatelyProcessOnMapLoad)
     {
         InternalData.AddRange([new(-1), new(0), new(1)]);
+        MapDialogueLineIdToImmediatelyProcessOnMapLoad = mapDialogueLineIdToImmediatelyProcessOnMapLoad;
+        EntityStartingPosition = new(0f, -999f, 0f);
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

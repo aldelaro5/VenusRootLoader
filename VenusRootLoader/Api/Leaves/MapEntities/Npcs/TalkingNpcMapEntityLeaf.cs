@@ -21,6 +21,17 @@ public sealed class TalkingNpcMapEntityLeaf : SpyableNpcMapEntityLeaf
 
     public bool InteractIconIsQuestionMark { get; set; }
 
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<AnimIdLeaf>? animIdLeaf,
+        Branch<DialogueLeaf>? spyDialogue,
+        IList<NpcConditionalDialogue> conditionalDialogues)
+    {
+        base.InitializeFromNew(startingPosition, animIdLeaf, spyDialogue);
+        foreach (NpcConditionalDialogue conditionalDialogue in conditionalDialogues)
+            ConditionalDialogues.Add(conditionalDialogue);
+    }
+
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         base.InitializeFromExisting(registryResolver);

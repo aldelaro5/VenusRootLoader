@@ -17,6 +17,17 @@ public sealed class EnemyEncounterDroppingItemsMapEntityLeaf : EnemyEncounterMap
     private readonly ListRefWrapper<EnemyItemDrop, Vector3> _itemsDropPoolWhenDefeated;
     public IList<EnemyItemDrop> ItemsDropPoolWhenDefeated => _itemsDropPoolWhenDefeated;
 
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<AnimIdLeaf> animId,
+        IList<Branch<EnemyLeaf>> enemiesFormationInBattle,
+        IList<EnemyItemDrop> itemsDropPoolWhenDefeated)
+    {
+        base.InitializeFromNew(startingPosition, animId, enemiesFormationInBattle);
+        foreach (EnemyItemDrop enemyItemDrop in itemsDropPoolWhenDefeated)
+            ItemsDropPoolWhenDefeated.Add(enemyItemDrop);
+    }
+
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         base.InitializeFromExisting(registryResolver);

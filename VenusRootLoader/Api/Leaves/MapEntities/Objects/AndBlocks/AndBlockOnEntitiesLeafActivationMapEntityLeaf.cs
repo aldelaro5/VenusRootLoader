@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
@@ -8,16 +9,21 @@ public sealed class AndBlockOnEntitiesLeafActivationMapEntityLeaf : AndBlockMapE
     internal AndBlockOnEntitiesLeafActivationMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
-        _entityActivationsInput = new(InternalData, 1, x => x.IntRef);
+        _entityActivationsInputs = new(InternalData, 1, x => x.IntRef);
     }
 
-    private readonly ListRefWrapper<NegatableMapEntityActivation, int> _entityActivationsInput;
-    public IList<NegatableMapEntityActivation> EntityActivationsInput => _entityActivationsInput;
+    private readonly ListRefWrapper<NegatableMapEntityActivation, int> _entityActivationsInputs;
+    public IList<NegatableMapEntityActivation> EntityActivationsInputs => _entityActivationsInputs;
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<AnimIdLeaf>? animId,
+        IList<NegatableMapEntityActivation> entityActivationsInputs)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition, animId);
         InternalData.AddRange([new(-1)]);
+        foreach (NegatableMapEntityActivation entityActivationInput in entityActivationsInputs)
+            EntityActivationsInputs.Add(entityActivationInput);
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
@@ -25,7 +31,7 @@ public sealed class AndBlockOnEntitiesLeafActivationMapEntityLeaf : AndBlockMapE
         base.InitializeFromExisting(registryResolver);
         MapLeaf map = registryResolver.Resolve<MapLeaf>().LeavesByGameIds[Map.GameId];
 
-        _entityActivationsInput.SynchronizeFromExistingData(
+        _entityActivationsInputs.SynchronizeFromExistingData(
             InternalData
                 .Skip(1)
                 .Select(x => new NegatableMapEntityActivation

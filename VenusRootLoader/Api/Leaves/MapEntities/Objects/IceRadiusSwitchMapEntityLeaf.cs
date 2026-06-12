@@ -69,13 +69,19 @@ public sealed class IceRadiusSwitchMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        float radiusRange,
+        float radiusRangeChangeRateWhenToggled)
     {
         InternalData.AddRange([new(0), new(-1), new(0), new(0)]);
         InternalVectorData.AddRange([new(new(0.1f, 5f, 0f)), new(new(0f, 0f, 0f))]);
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.BigCrystalSwitch - 1;
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
+        RadiusRange = radiusRange;
+        RadiusRangeChangeRateWhenToggled = radiusRangeChangeRateWhenToggled;
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

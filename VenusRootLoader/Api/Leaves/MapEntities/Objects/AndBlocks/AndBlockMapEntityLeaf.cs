@@ -4,6 +4,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.AndBlocks;
 
+// TODO: Defaults animId to PrisonGate in venus
 public abstract class AndBlockMapEntityLeaf : ObjectMapEntityLeaf
 {
     protected AndBlockMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
@@ -40,15 +41,16 @@ public abstract class AndBlockMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalVectorData[2].Value = value ?? Vector3.zero;
     }
 
-    internal override void InitializeFromNew()
+    protected void InitializeFromNew(Vector3 startingPosition, Branch<AnimIdLeaf>? animId)
     {
+        EntityStartingPosition = startingPosition;
         InternalVectorData.AddRange(
         [
             new(Vector3.down * 6f),
             new(Vector3.right * 0.1f),
             new(Vector3.zero)
         ]);
-        InternalAnimIdOrItemId = (int)MainManager.AnimIDs.PrisonGate - 1;
+        AnimId = animId;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

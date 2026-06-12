@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -23,11 +24,12 @@ public sealed class FlytrapPlatformMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalVectorData[0].Value.x = value;
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(Vector3 startingPosition)
     {
         InternalData.AddRange([new(60), new(1), new(1), new(1)]);
         InternalVectorData.Add(new(new(60f, 0f, 0f)));
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.FlyTrapPlatform - 1;
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver) { }

@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
@@ -58,7 +59,10 @@ public sealed class GeyserMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalVectorData[0].Value.z = value;
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        float oscillationFrequencyInHertz,
+        float oscillationMagnitude)
     {
         InternalData.AddRange([new(-1), new(-1), new(-1), new(-1), new(0)]);
         InternalVectorData.Add(new(new(1f, 1f, 1000f)));
@@ -66,6 +70,9 @@ public sealed class GeyserMapEntityLeaf : ObjectMapEntityLeaf
         InternalBoxColIsTrigger = true;
         InternalBoxColSize = new(2f, 6f, 2f);
         InternalBoxColCenter = new(0f, 3f, 0f);
+        OscillationFrequencyInHertz = oscillationFrequencyInHertz;
+        OscillationMagnitude = oscillationMagnitude;
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

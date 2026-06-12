@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.DialogueTriggers;
 
 public abstract class DialogueTriggerMapEntityLeaf : ObjectMapEntityLeaf

@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.JumpSprings;
 
 public abstract class JumpSpringMapEntityLeaf : ObjectMapEntityLeaf
@@ -18,12 +20,13 @@ public abstract class JumpSpringMapEntityLeaf : ObjectMapEntityLeaf
             : (int)MainManager.AnimIDs.BounceShroom2 - 1;
     }
 
-    internal override void InitializeFromNew()
+    protected void InitializeFromNew(Vector3 startingPosition)
     {
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
         InternalBoxColSize = new(1.5f, 1f, 1.5f);
         InternalBoxColCenter = new(0f, 0.4f, 0f);
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.BounceShroom - 1;
+        EntityStartingPosition = startingPosition;
     }
 }

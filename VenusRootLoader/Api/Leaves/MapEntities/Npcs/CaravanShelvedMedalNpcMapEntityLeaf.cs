@@ -1,4 +1,5 @@
 using CommunityToolkit.Diagnostics;
+using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
@@ -42,10 +43,15 @@ public sealed class CaravanShelvedMedalNpcMapEntityLeaf : NpcMapEntityLeaf
         }
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<ItemsShopMapEntityLeaf> associatedItemShop,
+        Branch<DialogueLeaf> shopKeeperDialogueWhenInteracting)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition, null);
         InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 2 - InternalData.Count));
+        AssociatedItemShop = associatedItemShop;
+        ShopKeeperDialogueWhenInteracting = shopKeeperDialogueWhenInteracting;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

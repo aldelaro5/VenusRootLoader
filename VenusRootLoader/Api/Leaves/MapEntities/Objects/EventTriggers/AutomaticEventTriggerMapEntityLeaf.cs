@@ -19,9 +19,11 @@ public sealed class AutomaticEventTriggerMapEntityLeaf : EventTriggerMapEntityLe
         }
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(Branch<EventLeaf> eventToImmediatelyStartOnMapLoad)
     {
         InternalData.AddRange([new(-1), new(0), new(1)]);
+        EventToImmediatelyStartOnMapLoad = eventToImmediatelyStartOnMapLoad;
+        EntityStartingPosition = new(0f, -999f, 0f);
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

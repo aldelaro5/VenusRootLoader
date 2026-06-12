@@ -7,6 +7,7 @@ public sealed class EnemyItemDrop
 {
     internal readonly Ref<Vector3> Vector3Ref = new(new(0, -1, 0));
 
+    // TODO: should this be nullable for padding in the pool?
     public required Branch<ItemLeaf> Item
     {
         get;

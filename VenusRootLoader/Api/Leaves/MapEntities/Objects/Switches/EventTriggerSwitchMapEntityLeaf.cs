@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Switches;
@@ -29,10 +30,14 @@ public sealed class EventTriggerSwitchMapEntityLeaf : SwitchMapEntityLeaf
         }
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<AnimIdLeaf>? animId,
+        Branch<EventLeaf> eventToStartWhenToggled)
     {
-        base.InitializeFromNew();
+        base.InitializeFromNew(startingPosition, animId);
         InternalData.AddRange([new(1), new(1), new(0), new(0), new(0)]);
+        EventToStartWhenToggled = eventToStartWhenToggled;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

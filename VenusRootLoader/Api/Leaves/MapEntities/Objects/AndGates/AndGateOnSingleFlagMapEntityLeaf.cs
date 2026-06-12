@@ -20,11 +20,11 @@ public sealed class AndGateOnSingleFlagMapEntityLeaf : AndGateMapEntityLeaf
         }
     } = null!;
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(NegatableFlag flagInput)
     {
         base.InitializeFromNew();
         InternalData.AddRange([new(0), new(-1)]);
-        InternalActivationFlagId = 0;
+        FlagInput = flagInput;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

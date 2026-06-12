@@ -36,10 +36,18 @@ public sealed class EnemySpawnerMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalVectorData[1].Value = value;
     }
 
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<EnemyEncounterMapEntityLeaf> enemyToRespawn,
+        Vector3 respawnCenter,
+        Vector3 respawnRadiusRangeFromPosition)
     {
         InternalData.AddRange([new(0), new(0), new(0), new(0), new(300), new(-1)]);
         InternalVectorData.AddRange([new(Vector3.zero), new(Vector3.one)]);
+        EnemyToRespawn = enemyToRespawn;
+        RespawnCenter = respawnCenter;
+        RespawnRadiusRangeFromPosition = respawnRadiusRangeFromPosition;
+        EntityStartingPosition = startingPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

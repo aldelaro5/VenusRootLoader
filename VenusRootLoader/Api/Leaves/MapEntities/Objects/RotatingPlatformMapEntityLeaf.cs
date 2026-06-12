@@ -64,10 +64,19 @@ public sealed class RotatingPlatformMapEntityLeaf : ObjectMapEntityLeaf
     }
 
     // TODO: Figure out a way to assign the actual AnimId branch here
-    internal override void InitializeFromNew()
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        IList<Branch<ObjectMapEntityLeaf>> requiredEntityActivationsToMove,
+        IList<Vector3> movementNodeEulerAngles)
     {
         InternalDialogues.AddRange([new(new(0f, 5f, 0f)), new(new(0f, 0f, 0f)), new(new(0f, 0f, 0f))]);
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.LongAncientPlatform - 1;
+        EntityStartingPosition = startingPosition;
+
+        foreach (Branch<ObjectMapEntityLeaf> entity in requiredEntityActivationsToMove)
+            RequiredEntityActivationsToMove.Add(entity);
+        foreach (Vector3 movementNodeEulerAngle in movementNodeEulerAngles)
+            MovementNodeEulerAngles.Add(movementNodeEulerAngle);
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

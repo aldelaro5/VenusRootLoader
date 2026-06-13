@@ -26,11 +26,13 @@ public class VenusMapEntityRegisterMethodsSourceGenerator : IIncrementalGenerato
 
           namespace {{Namespace}};
 
+          [Microsoft.CodeAnalysis.EmbeddedAttribute]
           [System.AttributeUsage(System.AttributeTargets.Method)]
           internal class {{MapEntityInitializeFromNewAttributeName}} : System.Attribute
           {
           }
-
+          
+          [Microsoft.CodeAnalysis.EmbeddedAttribute]
           [System.AttributeUsage(System.AttributeTargets.Method)]
           internal class {{MapEntityRegisterMethodAttributeName}} : System.Attribute
           {
@@ -107,9 +109,13 @@ public class VenusMapEntityRegisterMethodsSourceGenerator : IIncrementalGenerato
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterPostInitializationOutput(ctx => ctx.AddSource(
-            $"{MapEntityInitializeFromNewAttributeName}.g.cs",
-            SourceText.From(AttributeSourceCode, Encoding.UTF8)));
+        context.RegisterPostInitializationOutput(ctx =>
+        {
+            ctx.AddEmbeddedAttributeDefinition();
+            ctx.AddSource(
+                $"{MapEntityInitializeFromNewAttributeName}.g.cs",
+                SourceText.From(AttributeSourceCode, Encoding.UTF8));
+        });
 
         IncrementalValuesProvider<MethodDeclarationSyntax> provider = context.SyntaxProvider
             .ForAttributeWithMetadataName(

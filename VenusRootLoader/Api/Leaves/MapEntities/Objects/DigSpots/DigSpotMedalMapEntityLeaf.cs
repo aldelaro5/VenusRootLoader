@@ -1,5 +1,6 @@
 using UnityEngine;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.DigSpots;
 
@@ -20,6 +21,7 @@ public sealed class DigSpotMedalMapEntityLeaf : DigSpotMapEntityLeaf
         }
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(Vector3 startingPosition, Branch<MedalLeaf> medalHiddenInside)
     {
         base.InitializeFromNew(startingPosition);

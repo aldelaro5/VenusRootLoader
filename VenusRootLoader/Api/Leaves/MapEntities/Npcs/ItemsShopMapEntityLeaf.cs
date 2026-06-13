@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
@@ -56,6 +57,7 @@ public sealed class ItemsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
     private readonly ListDoubleRefWrapper<ItemShopShelvedItemForSale, int, Vector3> _itemsForSale;
     public IList<ItemShopShelvedItemForSale> ItemsForSale => _itemsForSale;
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
         Branch<AnimIdLeaf>? animId,

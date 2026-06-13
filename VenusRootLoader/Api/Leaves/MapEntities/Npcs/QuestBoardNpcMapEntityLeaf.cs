@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
@@ -77,6 +78,7 @@ public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
         set => InternalVectorData[2].Value.y = value;
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
         Branch<AnimIdLeaf>? animId,

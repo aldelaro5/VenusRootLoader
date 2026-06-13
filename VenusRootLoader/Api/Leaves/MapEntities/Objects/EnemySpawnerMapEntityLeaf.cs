@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves.MapEntities.Enemies;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
@@ -36,6 +37,7 @@ public sealed class EnemySpawnerMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalVectorData[1].Value = value;
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
         Branch<EnemyEncounterMapEntityLeaf> enemyToRespawn,

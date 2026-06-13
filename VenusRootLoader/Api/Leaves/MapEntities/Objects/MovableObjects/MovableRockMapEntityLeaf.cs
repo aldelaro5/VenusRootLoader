@@ -1,5 +1,6 @@
 using UnityEngine;
 using VenusRootLoader.LeavesInternals;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.MovableObjects;
 
@@ -22,6 +23,7 @@ public sealed class MovableRockMapEntityLeaf : MovableObjectMapEntityLeaf
         set => InternalVectorData[0].Value.z = value;
     }
 
+    [MapEntityInitializeFromNew]
     internal override void InitializeFromNew(Vector3 startingPosition)
     {
         base.InitializeFromNew(startingPosition);

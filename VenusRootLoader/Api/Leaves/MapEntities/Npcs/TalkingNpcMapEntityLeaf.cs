@@ -1,6 +1,7 @@
 using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
@@ -21,6 +22,7 @@ public sealed class TalkingNpcMapEntityLeaf : SpyableNpcMapEntityLeaf
 
     public bool InteractIconIsQuestionMark { get; set; }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
         Branch<AnimIdLeaf>? animIdLeaf,

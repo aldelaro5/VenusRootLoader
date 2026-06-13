@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.RollingRocks;
 
@@ -15,6 +16,7 @@ public sealed class RollingRockWithoutCanonMapEntityLeaf : RollingRockMapEntityL
         set => InternalData[0].Value = (int)value;
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
         Vector3 destinationPosition,

@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using UnityEngine;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.JumpSprings;
 
@@ -46,6 +47,7 @@ public sealed class JumpToPositionSpringMapEntityLeaf : JumpSpringMapEntityLeaf
         set => InternalVectorData[2].Value.x = Mathf.Clamp(value, 1f, 99f);
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(Vector3 startingPosition, Vector3 positionToGoWhenUsingSpring)
     {
         base.InitializeFromNew(startingPosition);

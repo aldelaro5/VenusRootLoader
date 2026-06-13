@@ -1,3 +1,5 @@
+using VenusRootLoader.SourceGenerators;
+
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
 public sealed class ItemsStorageNpcMapEntityLeaf : SpyableNpcMapEntityLeaf
@@ -8,4 +10,7 @@ public sealed class ItemsStorageNpcMapEntityLeaf : SpyableNpcMapEntityLeaf
     }
 
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.StorageAnt;
+
+    [MapEntityInitializeFromNew]
+    internal void InitializeFromNew() { }
 }

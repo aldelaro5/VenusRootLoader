@@ -1,6 +1,7 @@
 using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.AndBlocks;
 
@@ -15,6 +16,7 @@ public sealed class AndBlockOnFlagsMapEntityLeaf : AndBlockMapEntityLeaf
     private readonly ListRefWrapper<Branch<FlagLeaf>, int> _flagInputs;
     public IList<Branch<FlagLeaf>> FlagInputs => _flagInputs;
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
         Branch<AnimIdLeaf>? animId,

@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Crystals;
 
@@ -17,6 +18,7 @@ public sealed class DeadLanderOmegaAlertCrystalMapEntityLeaf : CrystalMapEntityL
         set => InternalVectorData[0].Value = value;
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
         int deadLanderOmegaId,

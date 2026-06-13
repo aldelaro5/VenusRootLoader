@@ -1,5 +1,6 @@
 using UnityEngine;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.CuttableGrasses;
 
@@ -20,6 +21,7 @@ public sealed class CuttableGrassWithCrystalBerryDropMapEntityLeaf : CuttableGra
         }
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(Vector3 startingPosition, Branch<CrystalBerryLeaf> crystalBerryDroppedWhenCut)
     {
         base.InitializeFromNew(startingPosition);

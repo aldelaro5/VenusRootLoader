@@ -1,5 +1,6 @@
 using UnityEngine;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
@@ -42,6 +43,7 @@ public sealed class MusicChangeRadiusMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalVectorData[0].Value.z = value;
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
         Branch<MusicLeaf> musicWhenInRange,

@@ -1,5 +1,6 @@
 using UnityEngine;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.JumpSprings;
 
@@ -16,6 +17,7 @@ public sealed class JumpUpSpringMapEntityLeaf : JumpSpringMapEntityLeaf
         set => InternalVectorData[0].Value.x = value ?? 0f;
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(Vector3 startingPosition, float? jumpHeightOverrideWhenUsingSpring)
     {
         base.InitializeFromNew(startingPosition);

@@ -1,3 +1,5 @@
+using VenusRootLoader.SourceGenerators;
+
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
 public sealed class VenusHealingNpcMapEntityLeaf : NpcMapEntityLeaf
@@ -8,4 +10,7 @@ public sealed class VenusHealingNpcMapEntityLeaf : NpcMapEntityLeaf
     }
 
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.VenusHeal;
+
+    [MapEntityInitializeFromNew]
+    public void InitializeFromNew() { }
 }

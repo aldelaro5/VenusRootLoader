@@ -2,6 +2,7 @@ using UnityEngine;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.Enums;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
@@ -60,6 +61,7 @@ public sealed class MapChildVerticalPositionSwitchMapEntityLeaf : ObjectMapEntit
         }
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
         int mapChildIndexToMove,

@@ -1,6 +1,7 @@
 using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
@@ -64,6 +65,7 @@ public sealed class RotatingPlatformMapEntityLeaf : ObjectMapEntityLeaf
     }
 
     // TODO: Figure out a way to assign the actual AnimId branch here
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
         IList<Branch<ObjectMapEntityLeaf>> requiredEntityActivationsToMove,

@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.MovingPlatforms;
 
@@ -27,6 +28,7 @@ public sealed class MovingPlatformAlongLerpMapEntityLeaf : MovingPlatformMapEnti
         set => InternalDialogues[0].Value.x = value ? 1f : 0f;
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
         Branch<AnimIdLeaf> animId,

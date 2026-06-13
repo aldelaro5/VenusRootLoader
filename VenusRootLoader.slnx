@@ -17,6 +17,7 @@
         <Platform Project="x64" />
   </Project>
     <Project Path="VenusRootLoader.Preloader/VenusRootLoader.Preloader.csproj" />
+    <Project Path="VenusRootLoader.SourceGenerators/VenusRootLoader.SourceGenerators.csproj"/>
   <Project Path="VenusRootLoader.Tests/VenusRootLoader.Tests.csproj" />
     <Project Path="VenusRootLoader/VenusRootLoader.csproj" />
   <Project Path="VenusRootLoader.Build.Tasks.Tests/VenusRootLoader.Build.Tasks.Tests.csproj" />

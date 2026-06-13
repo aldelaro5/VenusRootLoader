@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.MovableObjects;
 
@@ -21,6 +22,7 @@ public sealed class SlidingIcePillarMapEntityLeaf : MovableObjectMapEntityLeaf
         set => InternalBoxColSize = value is null || value.Value.magnitude <= 0.1f ? Vector3.zero : value.Value;
     }
 
+    [MapEntityInitializeFromNew]
     internal override void InitializeFromNew(Vector3 startingPosition)
     {
         base.InitializeFromNew(startingPosition);

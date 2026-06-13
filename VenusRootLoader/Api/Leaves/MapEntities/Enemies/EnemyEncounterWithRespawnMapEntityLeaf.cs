@@ -1,5 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using UnityEngine;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Enemies;
 
@@ -20,6 +21,7 @@ public sealed class EnemyEncounterWithRespawnMapEntityLeaf : EnemyEncounterMapEn
         }
     }
 
+    [MapEntityInitializeFromNew]
     internal override void InitializeFromNew(
         Vector3 startingPosition,
         Branch<AnimIdLeaf> animId,

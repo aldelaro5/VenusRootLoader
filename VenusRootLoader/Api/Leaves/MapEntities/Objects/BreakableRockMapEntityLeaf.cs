@@ -1,6 +1,7 @@
 using UnityEngine;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.Enums;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
@@ -29,6 +30,7 @@ public sealed class BreakableRockMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(Vector3 startingPosition)
     {
         InternalData.Add(new(0));

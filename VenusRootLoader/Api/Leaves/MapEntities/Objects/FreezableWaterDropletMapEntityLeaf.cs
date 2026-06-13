@@ -1,6 +1,7 @@
 using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
@@ -86,6 +87,7 @@ public sealed class FreezableWaterDropletMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalVectorData[1].Value.z = value ?? 0f;
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
         Vector3 iceCubeStartingPositionOffset)

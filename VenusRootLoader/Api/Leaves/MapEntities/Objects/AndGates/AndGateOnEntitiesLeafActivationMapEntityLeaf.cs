@@ -1,5 +1,6 @@
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.AndGates;
 
@@ -24,6 +25,7 @@ public sealed class AndGateOnEntitiesLeafActivationMapEntityLeaf : AndGateMapEnt
         }
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(IList<NegatableMapEntityActivation> entityActivationsInputs)
     {
         base.InitializeFromNew();

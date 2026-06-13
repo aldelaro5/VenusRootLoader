@@ -1,5 +1,6 @@
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.AndGates;
 
@@ -14,6 +15,7 @@ public sealed class AndGateOnFlagsMapEntityLeaf : AndGateMapEntityLeaf
     private readonly ListRefWrapper<Branch<FlagLeaf>, int> _flagInputs;
     public IList<Branch<FlagLeaf>> FlagInputs => _flagInputs;
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(IList<Branch<FlagLeaf>> flagInputs)
     {
         base.InitializeFromNew();

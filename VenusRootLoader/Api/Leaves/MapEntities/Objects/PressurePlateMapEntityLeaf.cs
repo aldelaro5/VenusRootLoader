@@ -3,6 +3,7 @@ using UnityEngine;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.Enums;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
@@ -87,6 +88,7 @@ public sealed class PressurePlateMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(Vector3 startingPosition, PressurePlateType pressurePlateType)
     {
         InternalData.AddRange([new(1), new(1), new(-1)]);

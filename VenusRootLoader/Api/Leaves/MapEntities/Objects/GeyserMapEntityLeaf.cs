@@ -1,6 +1,7 @@
 using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
@@ -59,6 +60,7 @@ public sealed class GeyserMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalVectorData[0].Value.z = value;
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
         float oscillationFrequencyInHertz,

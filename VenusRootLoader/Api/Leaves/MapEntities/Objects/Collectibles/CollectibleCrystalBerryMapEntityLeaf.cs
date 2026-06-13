@@ -1,5 +1,6 @@
 using UnityEngine;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Collectibles;
 
@@ -20,6 +21,7 @@ public sealed class CollectibleCrystalBerryMapEntityLeaf : CollectibleMapEntityL
         }
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(Vector3 startingPosition, Branch<CrystalBerryLeaf> crystalBerry)
     {
         base.InitializeFromNew(startingPosition);

@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using UnityEngine;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.TriggerSwitches;
 
@@ -47,6 +48,7 @@ public sealed class SwitchMapEntityLeafActivationTriggerZoneMapEntityLeaf : Trig
         set => InternalData[2].Value = value ? 1 : 0;
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
         Vector3 triggerBoxColliderSize,

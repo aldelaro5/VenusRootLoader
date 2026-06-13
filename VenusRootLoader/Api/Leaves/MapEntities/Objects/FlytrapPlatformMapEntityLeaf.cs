@@ -1,5 +1,6 @@
 using UnityEngine;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
@@ -24,6 +25,7 @@ public sealed class FlytrapPlatformMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalVectorData[0].Value.x = value;
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(Vector3 startingPosition)
     {
         InternalData.AddRange([new(60), new(1), new(1), new(1)]);

@@ -1,4 +1,5 @@
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.EventTriggers;
 
@@ -19,6 +20,7 @@ public sealed class AutomaticEventTriggerMapEntityLeaf : EventTriggerMapEntityLe
         }
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(Branch<EventLeaf> eventToImmediatelyStartOnMapLoad)
     {
         InternalData.AddRange([new(-1), new(0), new(1)]);

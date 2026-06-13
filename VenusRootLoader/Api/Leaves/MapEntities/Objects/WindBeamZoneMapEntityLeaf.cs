@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
@@ -63,6 +64,7 @@ public sealed class WindBeamZoneMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalVectorData[2].Value.y = value is null or < 0.1f ? 0f : value.Value;
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
         Vector3 endPosition,

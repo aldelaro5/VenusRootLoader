@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Switches;
 
@@ -16,6 +17,7 @@ public sealed class TimerSwitchMapEntityLeaf : SwitchMapEntityLeaf
         set => InternalData[2].Value = value;
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
         Branch<AnimIdLeaf>? animId,

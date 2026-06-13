@@ -1,5 +1,6 @@
 using UnityEngine;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Collectibles;
 
@@ -30,6 +31,7 @@ public sealed class CollectibleMedalMapEntityLeaf : CollectibleMapEntityLeaf
         }
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(Vector3 startingPosition, Branch<MedalLeaf> medal)
     {
         base.InitializeFromNew(startingPosition);

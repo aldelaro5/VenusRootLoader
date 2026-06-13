@@ -1,5 +1,6 @@
 using UnityEngine;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.DigSpots;
 
@@ -20,6 +21,7 @@ public sealed class DigSpotStartEventMapEntityLeaf : DigSpotMapEntityLeaf
         }
     }
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(Vector3 startingPosition, Branch<EventLeaf> eventToStartWhenEmergingFromDigging)
     {
         base.InitializeFromNew(startingPosition);

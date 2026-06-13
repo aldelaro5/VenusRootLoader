@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
@@ -66,6 +67,7 @@ public sealed class MedalsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
     private readonly ListRefWrapper<Vector3, Vector3> _shelvedMedalPositions;
     public IList<Vector3> ShelvedMedalPositions => _shelvedMedalPositions;
 
+    [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
         Branch<AnimIdLeaf>? animIdLeaf,

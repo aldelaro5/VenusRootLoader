@@ -1,3 +1,5 @@
+using VenusRootLoader.SourceGenerators;
+
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
 public sealed class NoInteractionNpcMapEntityLeaf : NpcMapEntityLeaf
@@ -8,4 +10,7 @@ public sealed class NoInteractionNpcMapEntityLeaf : NpcMapEntityLeaf
     }
 
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
+
+    [MapEntityInitializeFromNew]
+    public void InitializeFromNew() { }
 }

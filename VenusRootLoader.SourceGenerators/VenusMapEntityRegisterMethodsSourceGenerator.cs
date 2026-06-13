@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using System.Text;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
 namespace VenusRootLoader.SourceGenerators;
@@ -9,13 +8,34 @@ namespace VenusRootLoader.SourceGenerators;
 [Generator(LanguageNames.CSharp)]
 public class VenusMapEntityRegisterMethodsSourceGenerator : IIncrementalGenerator
 {
-    private record struct RegisterMethodInfo
+    private record BaseRegisterMethodInfo
     {
-        public required INamedTypeSymbol MapEntityTypeName { get; init; }
-        public required IMethodSymbol MapEntityRegisterMethod { get; init; }
-        public required IMethodSymbol MapEntityInitializeFromNewMethod { get; init; }
+        public required string Name { get; init; }
+        public required string MethodParameters { get; init; }
+        public required string CallingParameters { get; init; }
     }
 
+    private record MapEntityInitializationInfo
+    {
+        public required string MapEntityTypeName { get; init; }
+        public required string MapEntityDisplayString { get; init; }
+        public required string InitializeMethodName { get; init; }
+        public required string InitializeMethodParameters { get; init; }
+        public required string InitializeMethodCallingParameters { get; init; }
+    }
+
+    private record VenusMapEntityRegisterMethodInfo
+    {
+        public required string MapEntityTypeName { get; init; }
+        public required string MapEntityDisplayString { get; init; }
+        public required string MethodParameters { get; init; }
+        public required string MapEntityBaseRegisterMethodName { get; init; }
+        public required string MapEntityBaseRegisterMethodCallingParameters { get; init; }
+        public required string MapEntityInitializeFromNewMethodName { get; init; }
+        public required string MapEntityInitializeFromNewMethodCallingParameters { get; init; }
+    }
+
+    private const string MethodParameterSeparator = ",\n        ";
     private const string Namespace = "VenusRootLoader.SourceGenerators";
     private const string MapEntityInitializeFromNewAttributeName = "MapEntityInitializeFromNewAttribute";
     private const string MapEntityRegisterMethodAttributeName = "MapEntityRegisterMethodAttribute";
@@ -62,51 +82,6 @@ public class VenusMapEntityRegisterMethodsSourceGenerator : IIncrementalGenerato
             }
         """;
 
-    private static string BuildMapEntityRegisterMethodSourceCode(RegisterMethodInfo registerMethodInfo)
-    {
-        StringBuilder sb = new(MapEntityRegisterMethodTemplate);
-        sb.Replace("{{mapEntityTypeName}}", registerMethodInfo.MapEntityTypeName.ToDisplayString());
-        sb.Replace("{{mapEntityTypeNameWithoutLeafSuffix}}", registerMethodInfo.MapEntityTypeName.Name[..^4]);
-        sb.Replace(
-            "{{methodParameters}}",
-            BuildSignatureMethodParametersFromMultiple(
-                [registerMethodInfo.MapEntityRegisterMethod, registerMethodInfo.MapEntityInitializeFromNewMethod]));
-        sb.Replace("{{mapEntityRegisterMethodName}}", registerMethodInfo.MapEntityRegisterMethod.Name);
-        sb.Replace(
-            "{{mapEntityRegisterMethodParameters}}",
-            BuildMethodCallingParametersFromOne(registerMethodInfo.MapEntityRegisterMethod));
-        sb.Replace(
-            "{{mapEntityInitializeFromNewMethodName}}",
-            registerMethodInfo.MapEntityInitializeFromNewMethod.Name);
-        sb.Replace(
-            "{{mapEntityInitializeFromNewMethodParameters}}",
-            BuildMethodCallingParametersFromOne(registerMethodInfo.MapEntityInitializeFromNewMethod));
-        return sb.ToString();
-    }
-
-    private static string BuildSignatureMethodParametersFromMultiple(List<IMethodSymbol> symbolMethods)
-    {
-        IEnumerable<string> parameters = symbolMethods
-            .SelectMany(m => m.Parameters)
-            .Select(p => p.ToDisplayString());
-        return string.Join(",\n        ", parameters);
-    }
-
-    private static string BuildMethodCallingParametersFromOne(IMethodSymbol symbolMethod)
-    {
-        IEnumerable<string> parameters = symbolMethod.Parameters.Select(p => p.Name);
-        return string.Join(", ", parameters);
-    }
-
-    private static string BuildVenusSourceCode(List<RegisterMethodInfo> registerMethods)
-    {
-        StringBuilder sb = new(VenusSourceCodeTemplate);
-        sb.Replace(
-            "{{methods}}",
-            string.Join("\n\n", registerMethods.Select(BuildMapEntityRegisterMethodSourceCode)));
-        return sb.ToString();
-    }
-
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(ctx =>
@@ -117,55 +92,129 @@ public class VenusMapEntityRegisterMethodsSourceGenerator : IIncrementalGenerato
                 SourceText.From(AttributeSourceCode, Encoding.UTF8));
         });
 
-        IncrementalValuesProvider<MethodDeclarationSyntax> provider = context.SyntaxProvider
-            .ForAttributeWithMetadataName(
-                $"{Namespace}.{MapEntityInitializeFromNewAttributeName}",
-                DummyPredicate,
-                (syntaxContext, _) => (MethodDeclarationSyntax)syntaxContext.TargetNode);
-        IncrementalValueProvider<MethodDeclarationSyntax> provider2 = context.SyntaxProvider
+        IncrementalValueProvider<BaseRegisterMethodInfo> providerRegisterMethod = context
+            .SyntaxProvider
             .ForAttributeWithMetadataName(
                 $"{Namespace}.{MapEntityRegisterMethodAttributeName}",
                 DummyPredicate,
-                (syntaxContext, _) => (MethodDeclarationSyntax)syntaxContext.TargetNode)
+                TransformRegisterMethod)
             .Collect()
             .Select((x, _) => x.Single());
+        IncrementalValuesProvider<MapEntityInitializationInfo> providerMapEntityInitialization = context
+            .SyntaxProvider
+            .ForAttributeWithMetadataName(
+                $"{Namespace}.{MapEntityInitializeFromNewAttributeName}",
+                DummyPredicate,
+                TransformMapEntityInitializeFromNewMethod);
 
-        context.RegisterSourceOutput(
-            context.CompilationProvider.Combine(provider.Collect()).Combine(provider2),
-            (ctx, t) => GenerateCode(ctx, t.Left.Left, t.Left.Right, t.Right));
+        IncrementalValueProvider<ImmutableArray<VenusMapEntityRegisterMethodInfo>> finalProvider =
+            providerRegisterMethod
+                .Combine(providerMapEntityInitialization.Collect())
+                .SelectMany((combined, _) => combined.Right.Select(mapEntityInitializationInfo =>
+                    MergeProviderValues(combined.Left, mapEntityInitializationInfo)))
+                .Collect();
+
+        context.RegisterSourceOutput(finalProvider, GenerateCode);
     }
 
     private static bool DummyPredicate(SyntaxNode syntaxNode, CancellationToken cancellationToken) => true;
 
-    private static void GenerateCode(
-        SourceProductionContext context,
-        Compilation compilation,
-        ImmutableArray<MethodDeclarationSyntax> mapEntityInitializeFromNewDeclarations,
-        MethodDeclarationSyntax registerMethodDeclaration)
+    private static BaseRegisterMethodInfo TransformRegisterMethod(
+        GeneratorAttributeSyntaxContext syntaxContext,
+        CancellationToken cancellationToken)
     {
-        List<RegisterMethodInfo> registerMethodInfos = new();
-        SemanticModel semanticModelRegisterMethod = compilation.GetSemanticModel(registerMethodDeclaration.SyntaxTree);
         IMethodSymbol registerMethodSymbol =
-            (IMethodSymbol)semanticModelRegisterMethod.GetDeclaredSymbol(registerMethodDeclaration)!;
-
-        foreach (MethodDeclarationSyntax initializeFromNewDeclaration in mapEntityInitializeFromNewDeclarations)
+            (IMethodSymbol)syntaxContext.SemanticModel.GetDeclaredSymbol(syntaxContext.TargetNode, cancellationToken)!;
+        return new()
         {
-            SemanticModel semanticModelInitializeFromNewMethod =
-                compilation.GetSemanticModel(initializeFromNewDeclaration.SyntaxTree);
-            IMethodSymbol initializeFromNewSymbol =
-                (IMethodSymbol)semanticModelInitializeFromNewMethod.GetDeclaredSymbol(initializeFromNewDeclaration)!;
+            Name = registerMethodSymbol.Name,
+            MethodParameters = BuildMethodSignatureParameters(registerMethodSymbol),
+            CallingParameters = BuildMethodCallingParameters(registerMethodSymbol)
+        };
+    }
 
-            registerMethodInfos.Add(
-                new()
-                {
-                    MapEntityTypeName = initializeFromNewSymbol.ContainingType,
-                    MapEntityRegisterMethod = registerMethodSymbol,
-                    MapEntityInitializeFromNewMethod = initializeFromNewSymbol,
-                });
+    private static MapEntityInitializationInfo TransformMapEntityInitializeFromNewMethod(
+        GeneratorAttributeSyntaxContext syntaxContext,
+        CancellationToken cancellationToken)
+    {
+        IMethodSymbol initializeFromNewSymbol =
+            (IMethodSymbol)syntaxContext.SemanticModel.GetDeclaredSymbol(syntaxContext.TargetNode, cancellationToken)!;
+
+        return new()
+        {
+            MapEntityTypeName = initializeFromNewSymbol.ContainingType.Name,
+            MapEntityDisplayString = initializeFromNewSymbol.ContainingType.ToDisplayString(),
+            InitializeMethodName = initializeFromNewSymbol.Name,
+            InitializeMethodParameters = BuildMethodSignatureParameters(initializeFromNewSymbol),
+            InitializeMethodCallingParameters = BuildMethodCallingParameters(initializeFromNewSymbol),
+        };
+    }
+
+    private static string BuildMethodSignatureParameters(IMethodSymbol registerMethodSymbol)
+    {
+        return string.Join(MethodParameterSeparator, registerMethodSymbol.Parameters.Select(p => p.ToDisplayString()));
+    }
+
+    private static string BuildMethodCallingParameters(IMethodSymbol symbolMethod)
+    {
+        return string.Join(", ", symbolMethod.Parameters.Select(p => p.Name));
+    }
+
+    private static VenusMapEntityRegisterMethodInfo MergeProviderValues(
+        BaseRegisterMethodInfo registerProvider,
+        MapEntityInitializationInfo mapEntityInitializationInfo)
+    {
+        StringBuilder sb = new();
+        sb.Append(registerProvider.MethodParameters);
+        if (!string.IsNullOrWhiteSpace(mapEntityInitializationInfo.InitializeMethodParameters))
+        {
+            sb.Append(MethodParameterSeparator);
+            sb.Append(mapEntityInitializationInfo.InitializeMethodParameters);
         }
 
-        context.AddSource(
-            "VenusMapEntity.g.cs",
-            SourceText.From(BuildVenusSourceCode(registerMethodInfos), Encoding.UTF8));
+        string methodParameters = sb.ToString();
+
+        return new VenusMapEntityRegisterMethodInfo
+        {
+            MapEntityTypeName = mapEntityInitializationInfo.MapEntityTypeName,
+            MapEntityDisplayString = mapEntityInitializationInfo.MapEntityDisplayString,
+            MethodParameters = methodParameters,
+            MapEntityBaseRegisterMethodName = registerProvider.Name,
+            MapEntityBaseRegisterMethodCallingParameters = registerProvider.CallingParameters,
+            MapEntityInitializeFromNewMethodName = mapEntityInitializationInfo.InitializeMethodName,
+            MapEntityInitializeFromNewMethodCallingParameters =
+                mapEntityInitializationInfo.InitializeMethodCallingParameters
+        };
+    }
+
+    private static void GenerateCode(
+        SourceProductionContext context,
+        ImmutableArray<VenusMapEntityRegisterMethodInfo> registerMethodInfos)
+    {
+        string venusSourceCode = VenusSourceCodeTemplate.Replace(
+            "{{methods}}",
+            string.Join("\n\n", registerMethodInfos.Select(BuildVenusMapEntityRegisterMethodSourceCode)));
+
+        context.AddSource("VenusMapEntity.g.cs", SourceText.From(venusSourceCode, Encoding.UTF8));
+    }
+
+    private static string BuildVenusMapEntityRegisterMethodSourceCode(
+        VenusMapEntityRegisterMethodInfo venusMapEntityRegisterMethodInfo)
+    {
+        StringBuilder sb = new(MapEntityRegisterMethodTemplate);
+        sb.Replace("{{mapEntityTypeName}}", venusMapEntityRegisterMethodInfo.MapEntityDisplayString);
+        sb.Replace("{{mapEntityTypeNameWithoutLeafSuffix}}", venusMapEntityRegisterMethodInfo.MapEntityTypeName[..^4]);
+        sb.Replace("{{methodParameters}}", venusMapEntityRegisterMethodInfo.MethodParameters);
+        sb.Replace("{{mapEntityRegisterMethodName}}", venusMapEntityRegisterMethodInfo.MapEntityBaseRegisterMethodName);
+        sb.Replace(
+            "{{mapEntityRegisterMethodParameters}}",
+            venusMapEntityRegisterMethodInfo.MapEntityBaseRegisterMethodCallingParameters);
+        sb.Replace(
+            "{{mapEntityInitializeFromNewMethodName}}",
+            venusMapEntityRegisterMethodInfo.MapEntityInitializeFromNewMethodName);
+        sb.Replace(
+            "{{mapEntityInitializeFromNewMethodParameters}}",
+            venusMapEntityRegisterMethodInfo.MapEntityInitializeFromNewMethodCallingParameters);
+        return sb.ToString();
     }
 }

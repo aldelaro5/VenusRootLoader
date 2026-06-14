@@ -9,10 +9,7 @@ public abstract class MapEntityLeaf : Leaf
     public string BaseGameObjectName { get; set; } = $"Unnamed {nameof(MapEntityLeaf)}";
     public Branch<MapLeaf> Map { get; internal set; }
 
-    protected internal NPCControl.NPCType OriginalType { get; internal set; }
     internal abstract NPCControl.NPCType Type { get; }
-
-    protected internal NPCControl.ObjectTypes OriginalObjectType { get; internal set; }
     internal abstract NPCControl.ObjectTypes ObjectType { get; }
 
     protected internal NPCControl.Interaction OriginalInteraction { get; internal set; }

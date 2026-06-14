@@ -3,7 +3,7 @@
 namespace VenusRootLoader.LeavesInternals;
 
 [Flags]
-public enum MapEntityModifiers
+internal enum MapEntityModifiers
 {
     // The order is important: it causes the least differences with base game when applied in this order
     None = 0,

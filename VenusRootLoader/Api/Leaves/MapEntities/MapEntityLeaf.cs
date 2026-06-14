@@ -8,7 +8,7 @@ namespace VenusRootLoader.Api.Leaves.MapEntities;
 public abstract class MapEntityLeaf : Leaf
 {
     private readonly string[] _modifiersNames = [.. Enum.GetNames(typeof(MapEntityModifiers)).Skip(1)];
-    public MapEntityModifiers Modifiers { get; set; }
+    internal MapEntityModifiers Modifiers { get; set; }
 
     public string BaseGameObjectName
     {

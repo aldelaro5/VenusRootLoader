@@ -19,8 +19,8 @@ public sealed class AndBlockOnEntitiesLeafActivationMapEntityLeaf : AndBlockMapE
     [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
-        Branch<AnimIdLeaf>? animId,
-        IList<NegatableMapEntityActivation> entityActivationsInputs)
+        IList<NegatableMapEntityActivation> entityActivationsInputs,
+        Branch<AnimIdLeaf> animId)
     {
         base.InitializeFromNew(startingPosition, animId);
         InternalData.AddRange([new(-1)]);

@@ -19,8 +19,8 @@ public sealed class AndBlockOnFlagsMapEntityLeaf : AndBlockMapEntityLeaf
     [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
-        Branch<AnimIdLeaf>? animId,
-        IList<Branch<FlagLeaf>> flagInputs)
+        IList<Branch<FlagLeaf>> flagInputs,
+        Branch<AnimIdLeaf> animId)
     {
         base.InitializeFromNew(startingPosition, animId);
         InternalData.AddRange([new(-2)]);

@@ -4,7 +4,6 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.AndBlocks;
 
-// TODO: Defaults animId to PrisonGate in venus
 public abstract class AndBlockMapEntityLeaf : ObjectMapEntityLeaf
 {
     protected AndBlockMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
@@ -13,12 +12,12 @@ public abstract class AndBlockMapEntityLeaf : ObjectMapEntityLeaf
 
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.ANDBlock;
 
-    public Branch<AnimIdLeaf>? AnimId
+    public Branch<AnimIdLeaf> AnimId
     {
         get;
         set
         {
-            InternalAnimIdOrItemId = value?.GameId ?? -1;
+            InternalAnimIdOrItemId = value.GameId;
             field = value;
         }
     }
@@ -41,7 +40,7 @@ public abstract class AndBlockMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalVectorData[2].Value = value ?? Vector3.zero;
     }
 
-    protected void InitializeFromNew(Vector3 startingPosition, Branch<AnimIdLeaf>? animId)
+    protected void InitializeFromNew(Vector3 startingPosition, Branch<AnimIdLeaf> animId)
     {
         EntityStartingPosition = startingPosition;
         InternalVectorData.AddRange(

@@ -20,8 +20,8 @@ public sealed class TimerSwitchMapEntityLeaf : SwitchMapEntityLeaf
     [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
-        Branch<AnimIdLeaf>? animId,
-        int timerInFramesBeforeAutomaticTurnOff)
+        int timerInFramesBeforeAutomaticTurnOff,
+        Branch<AnimIdLeaf>? animId)
     {
         base.InitializeFromNew(startingPosition, animId);
         InternalData.AddRange([new(0), new(0), new(30), new(0), new(0)]);

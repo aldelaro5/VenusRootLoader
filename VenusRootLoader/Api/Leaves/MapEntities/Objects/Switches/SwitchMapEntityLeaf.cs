@@ -4,7 +4,6 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Switches;
 
-// TODO: Defaults animId to SwitchCrystal on Venus
 public abstract class SwitchMapEntityLeaf : ObjectMapEntityLeaf
 {
     protected SwitchMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)

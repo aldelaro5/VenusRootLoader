@@ -32,6 +32,11 @@ namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 /// <inheritdoc/>
 internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
 {
+    private readonly string[] _modifiersNames = [.. Enum.GetNames(typeof(MapEntityModifiers)).Skip(1)];
+
+    private readonly MapEntityModifiers[] _modifiersValues =
+        [.. ((MapEntityModifiers[])Enum.GetValues(typeof(MapEntityModifiers))).Skip(1)];
+
     private readonly ILogger<MapEntityTextAssetParser> _logger;
     private readonly ILeavesRegistry<FlagLeaf> _flagsRegistry;
 
@@ -53,7 +58,17 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
     public string GetTextAssetSerializedString(string subPath, MapEntityLeaf mapEntityLeaf)
     {
         if (subPath.EndsWith("names", StringComparison.OrdinalIgnoreCase))
-            return mapEntityLeaf.BaseGameObjectName;
+        {
+            StringBuilder sbName = new();
+            foreach (MapEntityModifiers mapEntityModifier in _modifiersValues)
+            {
+                if (mapEntityLeaf.Modifiers.HasFlag(mapEntityModifier))
+                    sbName.Append(mapEntityModifier.ToString());
+            }
+
+            sbName.Append(mapEntityLeaf.BaseGameObjectName);
+            return sbName.ToString();
+        }
 
         StringBuilder sb = new();
 
@@ -324,10 +339,17 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             secondaryBehavior,
             fields);
 
+        foreach (string modifiersName in _modifiersNames)
+        {
+            if (!name.Contains(modifiersName))
+                continue;
+
+            value.Modifiers |= Enum.Parse<MapEntityModifiers>(modifiersName);
+            name = name.Replace(modifiersName, "");
+        }
+
         value.BaseGameObjectName = name;
         value.Map = map;
-        value.OriginalType = type;
-        value.OriginalObjectType = objectType;
         value.OriginalInteraction = interaction;
         value.InternalOutOfRangeBehavior = primaryBehavior;
         value.InternalInRangeBehavior = secondaryBehavior;

@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
@@ -6,7 +7,25 @@ namespace VenusRootLoader.Api.Leaves.MapEntities;
 
 public abstract class MapEntityLeaf : Leaf
 {
-    public string BaseGameObjectName { get; set; } = $"Unnamed {nameof(MapEntityLeaf)}";
+    private readonly string[] _modifiersNames = [.. Enum.GetNames(typeof(MapEntityModifiers)).Skip(1)];
+    internal MapEntityModifiers Modifiers { get; set; }
+
+    public string BaseGameObjectName
+    {
+        get;
+        set
+        {
+            if (_modifiersNames.Any(value.Contains))
+            {
+                ThrowHelper.ThrowArgumentOutOfRangeException(
+                    nameof(BaseGameObjectName),
+                    $"{value} contains internal modifier(s) which is not allowed.");
+            }
+
+            field = value;
+        }
+    } = $"Unnamed {nameof(MapEntityLeaf)}";
+
     public Branch<MapLeaf> Map { get; internal set; }
 
     internal abstract NPCControl.NPCType Type { get; }

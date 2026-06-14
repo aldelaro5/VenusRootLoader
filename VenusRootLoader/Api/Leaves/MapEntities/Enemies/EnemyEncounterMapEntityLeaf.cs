@@ -51,6 +51,42 @@ public abstract class EnemyEncounterMapEntityLeaf : MapEntityLeaf
     private readonly ListRefWrapper<Branch<EnemyLeaf>, int> _enemiesFormationInBattle;
     public IList<Branch<EnemyLeaf>> EnemiesFormationInBattle => _enemiesFormationInBattle;
 
+    public bool HasExtendedForceMoveFailsafeTimer
+    {
+        get => Modifiers.HasFlag(MapEntityModifiers.TIME);
+        set
+        {
+            if (value)
+                Modifiers |= MapEntityModifiers.TIME;
+            else
+                Modifiers &= ~MapEntityModifiers.TIME;
+        }
+    }
+
+    public bool ForceExtraFreezeEffect
+    {
+        get => Modifiers.HasFlag(MapEntityModifiers.ICE);
+        set
+        {
+            if (value)
+                Modifiers |= MapEntityModifiers.ICE;
+            else
+                Modifiers &= ~MapEntityModifiers.ICE;
+        }
+    }
+
+    public bool HasSpriteFlippingUpdatesEvenWhenOutOfCameraRange
+    {
+        get => Modifiers.HasFlag(MapEntityModifiers.ALF);
+        set
+        {
+            if (value)
+                Modifiers |= MapEntityModifiers.ALF;
+            else
+                Modifiers &= ~MapEntityModifiers.ALF;
+        }
+    }
+
     internal virtual void InitializeFromNew(
         Vector3 startingPosition,
         Branch<AnimIdLeaf> animId,

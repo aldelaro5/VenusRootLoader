@@ -1,4 +1,6 @@
+using CommunityToolkit.Diagnostics;
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
@@ -16,6 +18,39 @@ public abstract class SpyableNpcMapEntityLeaf : NpcMapEntityLeaf
         {
             InternalSpyDialogueId = value?.GameId ?? -1;
             field = value;
+        }
+    }
+
+    public NpcHornInteraction HornInteraction
+    {
+        get
+        {
+            if (Modifiers.HasFlag(MapEntityModifiers.ITHD))
+                return NpcHornInteraction.InteractWithHornDashOnly;
+            return Modifiers.HasFlag(MapEntityModifiers.ITAH)
+                ? NpcHornInteraction.InteractWithAnyHornAttack
+                : NpcHornInteraction.None;
+        }
+        set
+        {
+            switch (value)
+            {
+                case NpcHornInteraction.None:
+                    Modifiers &= ~MapEntityModifiers.ITAH;
+                    Modifiers &= ~MapEntityModifiers.ITHD;
+                    break;
+                case NpcHornInteraction.InteractWithHornDashOnly:
+                    Modifiers &= ~MapEntityModifiers.ITAH;
+                    Modifiers |= MapEntityModifiers.ITHD;
+                    break;
+                case NpcHornInteraction.InteractWithAnyHornAttack:
+                    Modifiers |= MapEntityModifiers.ITAH;
+                    Modifiers &= ~MapEntityModifiers.ITHD;
+                    break;
+                default:
+                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(PhysicsBehavior));
+                    break;
+            }
         }
     }
 

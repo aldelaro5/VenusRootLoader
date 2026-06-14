@@ -1,5 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Enemies;
@@ -18,6 +19,31 @@ public sealed class EnemyEncounterWithRespawnMapEntityLeaf : EnemyEncounterMapEn
         {
             Guard.IsGreaterThan(value, 0, nameof(FramesAfterDeathBeforeRespawn));
             InternalEventId = value;
+        }
+    }
+
+    public bool SpawnsOnGroundWhenMapIsLoaded
+    {
+        get => Modifiers.HasFlag(MapEntityModifiers.COG);
+        set
+        {
+            if (value)
+                Modifiers |= MapEntityModifiers.COG;
+            else
+                Modifiers &= ~MapEntityModifiers.COG;
+        }
+    }
+
+    // TODO: Test this does something
+    public bool ForceNotGroundedOnSpawn
+    {
+        get => Modifiers.HasFlag(MapEntityModifiers.NGS);
+        set
+        {
+            if (value)
+                Modifiers |= MapEntityModifiers.NGS;
+            else
+                Modifiers &= ~MapEntityModifiers.NGS;
         }
     }
 

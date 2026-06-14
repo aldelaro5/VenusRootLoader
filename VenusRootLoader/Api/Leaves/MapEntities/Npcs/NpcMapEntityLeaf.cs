@@ -48,6 +48,42 @@ public abstract class NpcMapEntityLeaf : MapEntityLeaf
     private readonly ListRefWrapper<NpcConditionalEmoticon, Vector2> _conditionalEmoticons;
     public IList<NpcConditionalEmoticon> ConditionalEmoticons => _conditionalEmoticons;
 
+    public bool HasExtendedForceMoveFailsafeTimer
+    {
+        get => Modifiers.HasFlag(MapEntityModifiers.TIME);
+        set
+        {
+            if (value)
+                Modifiers |= MapEntityModifiers.TIME;
+            else
+                Modifiers &= ~MapEntityModifiers.TIME;
+        }
+    }
+
+    public bool HasSpriteFlippingUpdatesEvenWhenOutOfCameraRange
+    {
+        get => Modifiers.HasFlag(MapEntityModifiers.ALF);
+        set
+        {
+            if (value)
+                Modifiers |= MapEntityModifiers.ALF;
+            else
+                Modifiers &= ~MapEntityModifiers.ALF;
+        }
+    }
+
+    public bool AlwaysShowEmoticonsEvenWhenOutOfRange
+    {
+        get => Modifiers.HasFlag(MapEntityModifiers.ShwEm);
+        set
+        {
+            if (value)
+                Modifiers |= MapEntityModifiers.ShwEm;
+            else
+                Modifiers &= ~MapEntityModifiers.ShwEm;
+        }
+    }
+
     internal void InitializeFromNew(Vector3 startingPosition, Branch<AnimIdLeaf>? animId)
     {
         AnimId = animId;

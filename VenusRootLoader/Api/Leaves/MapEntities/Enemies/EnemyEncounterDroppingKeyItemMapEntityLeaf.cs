@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 using VenusRootLoader.SourceGenerators;
 
@@ -50,6 +51,8 @@ public sealed class EnemyEncounterDroppingKeyItemMapEntityLeaf : EnemyEncounterM
                 Flag = keyItemObtainedFlag,
                 FailsWholeConditionWhenFlagIsTrue = false
             });
+        // TODO: Patch the game so this works for any items
+        Modifiers |= MapEntityModifiers.ShwKEY;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

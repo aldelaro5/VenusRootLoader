@@ -3,7 +3,7 @@
 namespace VenusRootLoader.LeavesInternals;
 
 [Flags]
-internal enum MapEntityModifiers
+public enum MapEntityModifiers
 {
     // The order is important: it causes the least differences with base game when applied in this order
     None = 0,
@@ -22,6 +22,8 @@ internal enum MapEntityModifiers
     ShwEm = 1 << 12,
     NGS = 1 << 13,
     COG = 1 << 14,
+
+    // TODO: Figure out what this gravity workaround was for
     NGF = 1 << 15,
     ITHD = 1 << 16,
     ITAH = 1 << 17,

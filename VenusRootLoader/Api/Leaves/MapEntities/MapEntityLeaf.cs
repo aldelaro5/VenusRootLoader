@@ -8,7 +8,7 @@ namespace VenusRootLoader.Api.Leaves.MapEntities;
 public abstract class MapEntityLeaf : Leaf
 {
     private readonly string[] _modifiersNames = [.. Enum.GetNames(typeof(MapEntityModifiers)).Skip(1)];
-    internal MapEntityModifiers Modifiers { get; set; }
+    public MapEntityModifiers Modifiers { get; set; }
 
     public string BaseGameObjectName
     {
@@ -39,6 +39,100 @@ public abstract class MapEntityLeaf : Leaf
     }
 
     internal abstract void InitializeFromExisting(IRegistryResolver registryResolver);
+
+    public bool IsHologram
+    {
+        get => Modifiers.HasFlag(MapEntityModifiers.Holo);
+        set
+        {
+            if (value)
+                Modifiers |= MapEntityModifiers.Holo;
+            else
+                Modifiers &= ~MapEntityModifiers.Holo;
+        }
+    }
+
+    public MapEntityPhysicsBehavior PhysicsBehavior
+    {
+        get
+        {
+            if (Modifiers.HasFlag(MapEntityModifiers.Fixed))
+                return MapEntityPhysicsBehavior.FixedInPlaceWithoutCapsuleCollider;
+            return Modifiers.HasFlag(MapEntityModifiers.FxdCol)
+                ? MapEntityPhysicsBehavior.FixedInPlaceWithCapsuleCollider
+                : MapEntityPhysicsBehavior.Normal;
+        }
+        set
+        {
+            switch (value)
+            {
+                case MapEntityPhysicsBehavior.Normal:
+                    Modifiers &= ~MapEntityModifiers.Fixed;
+                    Modifiers &= ~MapEntityModifiers.FxdCol;
+                    break;
+                case MapEntityPhysicsBehavior.FixedInPlaceWithoutCapsuleCollider:
+                    Modifiers |= MapEntityModifiers.Fixed;
+                    Modifiers &= ~MapEntityModifiers.FxdCol;
+                    break;
+                case MapEntityPhysicsBehavior.FixedInPlaceWithCapsuleCollider:
+                    Modifiers &= ~MapEntityModifiers.Fixed;
+                    Modifiers |= MapEntityModifiers.FxdCol;
+                    break;
+                default:
+                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(PhysicsBehavior));
+                    break;
+            }
+        }
+    }
+
+    public bool IsActiveEvenWhenOutOfCameraRange
+    {
+        get => Modifiers.HasFlag(MapEntityModifiers.ALW);
+        set
+        {
+            if (value)
+                Modifiers |= MapEntityModifiers.ALW;
+            else
+                Modifiers &= ~MapEntityModifiers.ALW;
+        }
+    }
+
+    public bool IsActiveEvenWhenGameIsPaused
+    {
+        get => Modifiers.HasFlag(MapEntityModifiers.PAU);
+        set
+        {
+            if (value)
+                Modifiers |= MapEntityModifiers.PAU;
+            else
+                Modifiers &= ~MapEntityModifiers.PAU;
+        }
+    }
+
+    public bool IsDisabledWhenCurrentInsideIsNotInsideid
+    {
+        get => Modifiers.HasFlag(MapEntityModifiers.HIDE);
+        set
+        {
+            if (value)
+                Modifiers |= MapEntityModifiers.HIDE;
+            else
+                Modifiers &= ~MapEntityModifiers.HIDE;
+        }
+    }
+
+    // TODO: Figure out a way to patch the game so this isn't needed
+    public bool HasEulerAnglesSetWithDelay
+    {
+        get => Modifiers.HasFlag(MapEntityModifiers.ROT);
+        set
+        {
+            if (value)
+                Modifiers |= MapEntityModifiers.ROT;
+            else
+                Modifiers &= ~MapEntityModifiers.ROT;
+        }
+    }
 
     internal int[] OriginalRequires { get; } = new int[10];
     internal int[] OriginalLimits { get; } = new int[10];

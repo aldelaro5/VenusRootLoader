@@ -22,7 +22,7 @@ public sealed class EnemyEncounterWithRespawnMapEntityLeaf : EnemyEncounterMapEn
         }
     }
 
-    public bool SpawnsOnGroundWhenMapIsLoaded
+    public bool IsStartingPositionSetToGroundBelowWhenMapIsLoaded
     {
         get => Modifiers.HasFlag(MapEntityModifiers.COG);
         set
@@ -34,7 +34,6 @@ public sealed class EnemyEncounterWithRespawnMapEntityLeaf : EnemyEncounterMapEn
         }
     }
 
-    // TODO: Test this does something
     public bool ForceNotGroundedOnSpawn
     {
         get => Modifiers.HasFlag(MapEntityModifiers.NGS);

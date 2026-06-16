@@ -12,7 +12,7 @@ public abstract class DigSpotMapEntityLeaf : ObjectMapEntityLeaf
 
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.DigSpot;
 
-    public Branch<FlagLeaf>? ActivationFlag
+    public Branch<FlagLeaf>? FlagSetToTrueWhenCollectingOrStartingEvent
     {
         get;
         set
@@ -39,6 +39,6 @@ public abstract class DigSpotMapEntityLeaf : ObjectMapEntityLeaf
 
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
         if (InternalActivationFlagId > 0)
-            ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSetToTrueWhenCollectingOrStartingEvent = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
     }
 }

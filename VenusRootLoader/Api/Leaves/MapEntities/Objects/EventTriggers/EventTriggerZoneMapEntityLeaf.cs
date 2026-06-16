@@ -27,7 +27,7 @@ public sealed class EventTriggerZoneMapEntityLeaf : EventTriggerMapEntityLeaf
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
 
-    public Branch<FlagLeaf>? ActivationFlag
+    public Branch<FlagLeaf>? FlagSetToTrueWhenTriggered
     {
         get;
         set
@@ -63,6 +63,6 @@ public sealed class EventTriggerZoneMapEntityLeaf : EventTriggerMapEntityLeaf
         EventToStartWhenTriggered = new(eventsRegistry.LeavesByGameIds[InternalData[0].Value]);
 
         if (InternalActivationFlagId > 0)
-            ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSetToTrueWhenTriggered = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
     }
 }

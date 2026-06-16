@@ -20,7 +20,7 @@ public sealed class BreakableRockMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalData[0].Value = (int)value;
     }
 
-    public Branch<FlagLeaf>? ActivationFlag
+    public Branch<FlagLeaf>? FlagSetToTrueWhenRockBreaks
     {
         get;
         set
@@ -43,7 +43,7 @@ public sealed class BreakableRockMapEntityLeaf : ObjectMapEntityLeaf
         if (InternalActivationFlagId > 0)
         {
             ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
-            ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSetToTrueWhenRockBreaks = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
         }
     }
 }

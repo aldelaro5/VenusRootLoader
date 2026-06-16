@@ -27,7 +27,7 @@ public sealed class CollectibleItemMapEntityLeaf : CollectibleMapEntityLeaf
         set => InternalData[0].Value = value ? 1 : 0;
     }
 
-    public Branch<FlagLeaf>? ActivationFlag
+    public Branch<FlagLeaf>? FlagSetToTrueWhenCollecting
     {
         get;
         set
@@ -59,6 +59,6 @@ public sealed class CollectibleItemMapEntityLeaf : CollectibleMapEntityLeaf
 
         Item = new(itemsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
         if (InternalActivationFlagId > 0)
-            ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSetToTrueWhenCollecting = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
     }
 }

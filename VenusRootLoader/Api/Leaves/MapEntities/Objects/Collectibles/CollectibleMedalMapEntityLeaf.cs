@@ -21,7 +21,7 @@ public sealed class CollectibleMedalMapEntityLeaf : CollectibleMapEntityLeaf
         }
     }
 
-    public Branch<FlagLeaf>? ActivationFlag
+    public Branch<FlagLeaf>? FlagSetToTrueWhenCollecting
     {
         get;
         set
@@ -52,6 +52,6 @@ public sealed class CollectibleMedalMapEntityLeaf : CollectibleMapEntityLeaf
 
         Medal = new(medalsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
         if (InternalActivationFlagId > 0)
-            ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSetToTrueWhenCollecting = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
     }
 }

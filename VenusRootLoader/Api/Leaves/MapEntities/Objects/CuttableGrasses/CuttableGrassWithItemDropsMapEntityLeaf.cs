@@ -16,7 +16,7 @@ public sealed class CuttableGrassWithItemDropsMapEntityLeaf : CuttableGrassMapEn
     private readonly ListRefWrapper<Branch<ItemLeaf>?, Vector3> _itemsDroppedWhenCut;
     public IList<Branch<ItemLeaf>?> ItemsDroppedWhenCut => _itemsDroppedWhenCut;
 
-    public Branch<FlagLeaf>? ActivationFlag
+    public Branch<FlagLeaf>? FlagSetToTrueWhenCutOrCollectingDroppedItem
     {
         get;
         set
@@ -48,6 +48,6 @@ public sealed class CuttableGrassWithItemDropsMapEntityLeaf : CuttableGrassMapEn
                 .ToList());
 
         if (InternalActivationFlagId >= 0)
-            ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSetToTrueWhenCutOrCollectingDroppedItem = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
     }
 }

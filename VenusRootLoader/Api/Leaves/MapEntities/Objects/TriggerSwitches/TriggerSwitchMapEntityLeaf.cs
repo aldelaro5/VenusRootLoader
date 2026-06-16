@@ -18,7 +18,7 @@ public abstract class TriggerSwitchMapEntityLeaf : ObjectMapEntityLeaf
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
 
-    public Branch<FlagLeaf>? ActivationFlag
+    public Branch<FlagLeaf>? FlagSetToTrueWhenTriggered
     {
         get;
         set
@@ -48,7 +48,7 @@ public abstract class TriggerSwitchMapEntityLeaf : ObjectMapEntityLeaf
         if (InternalActivationFlagId > 0)
         {
             ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
-            ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSetToTrueWhenTriggered = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
         }
     }
 }

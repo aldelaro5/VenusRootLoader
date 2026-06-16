@@ -31,7 +31,7 @@ public sealed class DialogueTriggerZoneMapEntityLeaf : DialogueTriggerMapEntityL
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
 
-    public Branch<FlagLeaf>? ActivationFlag
+    public Branch<FlagLeaf>? FlagSetToTrueWhenTriggered
     {
         get;
         set
@@ -66,7 +66,7 @@ public sealed class DialogueTriggerZoneMapEntityLeaf : DialogueTriggerMapEntityL
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
 
         if (InternalActivationFlagId > 0)
-            ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSetToTrueWhenTriggered = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
 
         DialogueToProcessWhenTriggered = InternalData[0].Value < 0
             ? commonDialoguesRegistry.LeavesByGameIds[InternalData[0].Value]

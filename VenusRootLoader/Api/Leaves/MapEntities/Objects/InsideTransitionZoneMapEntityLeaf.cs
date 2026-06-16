@@ -65,7 +65,7 @@ public sealed class InsideTransitionZoneMapEntityLeaf : ObjectMapEntityLeaf
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
 
-    public Branch<FlagLeaf>? ActivationFlag
+    public Branch<FlagLeaf>? FlagSetToTrueWhenTriggering
     {
         get;
         set
@@ -112,6 +112,6 @@ public sealed class InsideTransitionZoneMapEntityLeaf : ObjectMapEntityLeaf
             : new(musicRegistry.LeavesByGameIds[InternalData[1].Value]);
 
         if (InternalActivationFlagId > 0)
-            ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSetToTrueWhenTriggering = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
     }
 }

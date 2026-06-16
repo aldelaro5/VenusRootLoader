@@ -63,7 +63,7 @@ public sealed class IceRadiusSwitchMapEntityLeaf : ObjectMapEntityLeaf
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
 
-    public Branch<FlagLeaf>? ActivationFlag
+    public Branch<FlagLeaf>? FlagSwitchActuation
     {
         get;
         set
@@ -95,7 +95,7 @@ public sealed class IceRadiusSwitchMapEntityLeaf : ObjectMapEntityLeaf
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
 
         if (InternalActivationFlagId > 0)
-            ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSwitchActuation = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
 
         if (InternalData[1].Value != -1)
             ParentMapEntity = Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[1].Value];

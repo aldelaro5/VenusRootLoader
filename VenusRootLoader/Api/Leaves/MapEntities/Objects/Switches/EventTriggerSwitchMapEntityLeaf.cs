@@ -21,7 +21,7 @@ public sealed class EventTriggerSwitchMapEntityLeaf : SwitchMapEntityLeaf
         }
     }
 
-    public Branch<FlagLeaf>? ActivationFlag
+    public Branch<FlagLeaf>? FlagSetToTrueWhenStartingEvent
     {
         get;
         set
@@ -50,6 +50,6 @@ public sealed class EventTriggerSwitchMapEntityLeaf : SwitchMapEntityLeaf
 
         EventToStartWhenToggled = new(eventsRegistry.LeavesByGameIds[InternalData[1].Value]);
         if (InternalActivationFlagId > 0)
-            ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSetToTrueWhenStartingEvent = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
     }
 }

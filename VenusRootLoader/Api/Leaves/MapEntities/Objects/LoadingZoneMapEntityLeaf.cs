@@ -118,7 +118,7 @@ public sealed class LoadingZoneMapEntityLeaf : ObjectMapEntityLeaf
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
 
-    public Branch<FlagLeaf>? ActivationFlag
+    public Branch<FlagLeaf>? FlagSetToTrueWhenTriggering
     {
         get;
         set
@@ -165,6 +165,6 @@ public sealed class LoadingZoneMapEntityLeaf : ObjectMapEntityLeaf
         Map = new(mapsRegistry.LeavesByGameIds[InternalData[0].Value]);
 
         if (InternalActivationFlagId > 0)
-            ActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSetToTrueWhenTriggering = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
     }
 }

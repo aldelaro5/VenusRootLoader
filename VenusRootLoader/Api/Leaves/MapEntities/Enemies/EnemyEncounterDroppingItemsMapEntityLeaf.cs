@@ -13,7 +13,8 @@ public sealed class EnemyEncounterDroppingItemsMapEntityLeaf : EnemyEncounterMap
         _itemsDropPoolWhenDefeated = new(InternalVectorData, 0, x => x.Vector3Ref);
     }
 
-    internal NPCControl.DeathType DeathMethod { get => InternalDeathType; set => InternalDeathType = value; }
+    // TODO: Needs more testing
+    internal NPCControl.DeathType DefeatAnimation { get => InternalDeathType; set => InternalDeathType = value; }
 
     private readonly ListRefWrapper<EnemyItemDrop, Vector3> _itemsDropPoolWhenDefeated;
     public IList<EnemyItemDrop> ItemsDropPoolWhenDefeated => _itemsDropPoolWhenDefeated;

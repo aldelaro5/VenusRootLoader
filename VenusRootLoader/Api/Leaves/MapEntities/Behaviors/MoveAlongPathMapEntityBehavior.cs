@@ -29,7 +29,7 @@ public sealed class MoveAlongPathMapEntityBehavior : MapEntityBehavior
     private readonly ListRefWrapper<Vector3, Vector3> _movementPathNodePositions;
     public IList<Vector3> MovementPathNodePositions => _movementPathNodePositions;
 
-    internal MoveAlongPathMapEntityBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) :
+    internal MoveAlongPathMapEntityBehavior(MapEntityLeaf mapEntityLeaf, BehaviorKind kind) :
         base(mapEntityLeaf, kind)
     {
         _movementPathNodePositions = new(MapEntityLeaf.InternalSecondaryVectorData, 0, x => new(x));

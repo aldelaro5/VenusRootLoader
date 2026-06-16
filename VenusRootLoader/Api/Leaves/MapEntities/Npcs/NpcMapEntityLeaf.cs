@@ -72,7 +72,7 @@ public abstract class NpcMapEntityLeaf : MapEntityLeaf
         }
     }
 
-    public bool AlwaysShowEmoticonsEvenWhenOutOfRange
+    public bool AlwaysShowEmoticonsEvenWhenOutOfDistanceRange
     {
         get => Modifiers.HasFlag(MapEntityModifiers.ShwEm);
         set

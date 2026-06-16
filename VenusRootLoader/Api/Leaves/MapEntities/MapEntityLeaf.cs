@@ -19,7 +19,8 @@ public abstract class MapEntityLeaf : Leaf
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(
                     nameof(BaseGameObjectName),
-                    $"{value} contains internal modifier(s) which is not allowed.");
+                    $"{value} cannot contains any of the following as they are internal modifiers: " +
+                    $"{string.Join(", ", _modifiersNames)}.");
             }
 
             field = value;
@@ -109,7 +110,7 @@ public abstract class MapEntityLeaf : Leaf
         }
     }
 
-    public bool IsDisabledWhenCurrentInsideIsNotInsideid
+    public bool IsDisabledWhenCurrentInsideIsDifferent
     {
         get => Modifiers.HasFlag(MapEntityModifiers.HIDE);
         set
@@ -122,7 +123,7 @@ public abstract class MapEntityLeaf : Leaf
     }
 
     // TODO: Figure out a way to patch the game so this isn't needed
-    public bool HasEulerAnglesSetWithDelay
+    public bool HasEulerAnglesSetWithDelayOnMapLoad
     {
         get => Modifiers.HasFlag(MapEntityModifiers.ROT);
         set

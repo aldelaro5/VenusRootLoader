@@ -1,5 +1,4 @@
 using UnityEngine;
-using VenusRootLoader.Api.Leaves.MapEntities.Objects.Enums;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 using VenusRootLoader.SourceGenerators;
@@ -16,10 +15,14 @@ public sealed class MapChildVerticalPositionSwitchMapEntityLeaf : ObjectMapEntit
 
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.WaterSwitch;
 
-    public MapChildVerticalPositionSwitchKind SwitchKind
+    public Branch<AnimIdLeaf> AnimId
     {
-        get => (MapChildVerticalPositionSwitchKind)InternalAnimIdOrItemId;
-        set => InternalAnimIdOrItemId = (int)value;
+        get;
+        set
+        {
+            InternalAnimIdOrItemId = value.GameId;
+            field = value;
+        }
     }
 
     public int MapChildIndexToMove { get => InternalData[0].Value; set => InternalData[0].Value = value; }
@@ -64,6 +67,7 @@ public sealed class MapChildVerticalPositionSwitchMapEntityLeaf : ObjectMapEntit
     [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
+        Branch<AnimIdLeaf> animId,
         int mapChildIndexToMove,
         float verticalMovementLowerBound,
         float verticalMovementUpperBound,
@@ -71,7 +75,6 @@ public sealed class MapChildVerticalPositionSwitchMapEntityLeaf : ObjectMapEntit
     {
         InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 5));
         InternalVectorData.Add(new(new(180f, -1f, 1f)));
-        InternalAnimIdOrItemId = (int)MainManager.AnimIDs.BigCrystalSwitch - 1;
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
         MapChildIndexToMove = mapChildIndexToMove;
@@ -79,6 +82,7 @@ public sealed class MapChildVerticalPositionSwitchMapEntityLeaf : ObjectMapEntit
         VerticalMovementUpperBound = verticalMovementUpperBound;
         FramesDurationForFullMovement = framesDurationForFullMovement;
         EntityStartingPosition = startingPosition;
+        AnimId = animId;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

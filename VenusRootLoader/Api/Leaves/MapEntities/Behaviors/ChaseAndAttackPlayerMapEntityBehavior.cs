@@ -5,7 +5,7 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Behaviors;
 
 public sealed class ChaseAndAttackPlayerMapEntityBehavior : MapEntityBehavior
 {
-    public bool AttacksFromUnderground
+    public bool AttackFromUnderground
     {
         get => InternalTypeForKind switch
         {
@@ -30,7 +30,7 @@ public sealed class ChaseAndAttackPlayerMapEntityBehavior : MapEntityBehavior
         set => MapEntityLeaf.InternalSpeedMultiplier = value;
     }
 
-    internal ChaseAndAttackPlayerMapEntityBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) : base(
+    internal ChaseAndAttackPlayerMapEntityBehavior(MapEntityLeaf mapEntityLeaf, BehaviorKind kind) : base(
         mapEntityLeaf,
         kind)
     {

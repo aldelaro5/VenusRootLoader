@@ -4,7 +4,7 @@ public enum WanderBehaviorPattern
 {
     Regular,
     FromUnderground,
-    CanWonderWhenInactive,
+    CanWanderWhenInactive,
     WillNotWarpIfNoWanderPositionIsAvailable,
     OnWater
 }

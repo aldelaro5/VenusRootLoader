@@ -168,7 +168,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         sb.Append('}');
 
         List<int> allLimitsValues = mapEntityLeaf.LimitedToFlags
-            .Select(l => l.FailsWholeConditionWhenFlagIsTrue
+            .Select(l => l.FailsWholeExistConditionWhenFlagIsTrue
                 ? -l.Flag.GameId
                 : l.Flag.GameId)
             .ToList();
@@ -401,7 +401,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 new()
                 {
                     Flag = new(_flagsRegistry.LeavesByGameIds[Math.Abs(value.OriginalLimits[i])]),
-                    FailsWholeConditionWhenFlagIsTrue = value.OriginalLimits[i] < 0
+                    FailsWholeExistConditionWhenFlagIsTrue = value.OriginalLimits[i] < 0
                 });
         }
 
@@ -653,7 +653,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntityLeaf>()
                 },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.CoiledObject, _) =>
-                registry.RegisterExisting<TrappedEntityLeafMapEntityLeaf>(id, namedId, baseGameId),
+                registry.RegisterExisting<TrappedEntityMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.FixedAnim, _) =>
                 registry.RegisterExisting<FixedAnimstateMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.EnemySpawner, _) =>
@@ -706,8 +706,8 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.Event or NPCControl.Interaction.LockedDoor) =>
                 registry.RegisterExisting<EventNpcMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.Shop) => float.Parse(fields[103 + (10 * 3)] + 0) == 0f
-                ? registry.RegisterExisting<ItemsShopMapEntityLeaf>(id, namedId, baseGameId)
-                : registry.RegisterExisting<MedalsShopMapEntityLeaf>(id, namedId, baseGameId),
+                ? registry.RegisterExisting<ItemShopMapEntityLeaf>(id, namedId, baseGameId)
+                : registry.RegisterExisting<MedalShopMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.QuestBoard) =>
                 registry.RegisterExisting<QuestBoardNpcMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.StorageAnt) =>

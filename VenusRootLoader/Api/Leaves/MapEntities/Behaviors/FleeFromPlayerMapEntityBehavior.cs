@@ -4,7 +4,7 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Behaviors;
 
 public sealed class FleeFromPlayerMapEntityBehavior : MapEntityBehavior
 {
-    internal FleeFromPlayerMapEntityBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) : base(
+    internal FleeFromPlayerMapEntityBehavior(MapEntityLeaf mapEntityLeaf, BehaviorKind kind) : base(
         mapEntityLeaf,
         kind)
     {

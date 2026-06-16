@@ -36,11 +36,11 @@ public sealed class MovingPlatformAlongPathMapEntityLeaf : MovingPlatformMapEnti
     [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
+        Branch<AnimIdLeaf> animId,
         IList<Branch<ObjectMapEntityLeaf>> requiredEntityActivationsToMove,
-        IList<Vector3> movementPathNodePositions,
-        Branch<AnimIdLeaf> animId)
+        IList<Vector3> movementPathNodePositions)
     {
-        base.InitializeFromNew(startingPosition, requiredEntityActivationsToMove, animId);
+        base.InitializeFromNew(startingPosition, animId, requiredEntityActivationsToMove);
         InternalDialogues.AddRange([new(new(0f, 5f, 0f)), new(new(0f, 30f, 0f)), new(new(0f, 0f, 0f))]);
         foreach (Vector3 movementPathNodePosition in movementPathNodePositions)
             MovementPathNodePositions.Add(movementPathNodePosition);

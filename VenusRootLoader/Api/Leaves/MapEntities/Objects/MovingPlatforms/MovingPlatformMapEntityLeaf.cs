@@ -50,8 +50,8 @@ public abstract class MovingPlatformMapEntityLeaf : ObjectMapEntityLeaf
 
     protected void InitializeFromNew(
         Vector3 startingPosition,
-        IList<Branch<ObjectMapEntityLeaf>> requiredEntityActivationsToMove,
-        Branch<AnimIdLeaf> animId)
+        Branch<AnimIdLeaf> animId,
+        IList<Branch<ObjectMapEntityLeaf>> requiredEntityActivationsToMove)
     {
         AnimId = animId;
         EntityStartingPosition = startingPosition;

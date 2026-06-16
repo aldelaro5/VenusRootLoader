@@ -24,7 +24,7 @@ public sealed class ChasePlayerMapEntityBehavior : MapEntityBehavior
         set => MapEntityLeaf.InternalSpeedMultiplier = value;
     }
 
-    internal ChasePlayerMapEntityBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) : base(mapEntityLeaf, kind)
+    internal ChasePlayerMapEntityBehavior(MapEntityLeaf mapEntityLeaf, BehaviorKind kind) : base(mapEntityLeaf, kind)
     {
     }
 }

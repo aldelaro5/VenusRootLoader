@@ -46,11 +46,13 @@ public sealed class TalkingNpcMapEntityLeaf : SpyableNpcMapEntityLeaf
             InternalDialogues
             .Select(dialogue => new NpcConditionalDialogue
             {
-                Flag = dialogue.Value.x < 0 ? null : new(flagsRegistry.LeavesByGameIds[(int)dialogue.Value.x]),
+                RequiredFlag = dialogue.Value.x < 0
+                    ? null
+                    : new(flagsRegistry.LeavesByGameIds[(int)dialogue.Value.x]),
                 Dialogue = (int)dialogue.Value.y < 0
                     ? commonDialoguesRegistry.LeavesByGameIds[(int)dialogue.Value.y]
                     : Map.Leaf.DialoguesRegistry.LeavesByGameIds[(int)dialogue.Value.y],
-                DefaultAnimStateWhenSelected = (int)dialogue.Value.z
+                DefaultIdleAnimstateWhenSelected = (int)dialogue.Value.z
             })
             .ToList());
     }

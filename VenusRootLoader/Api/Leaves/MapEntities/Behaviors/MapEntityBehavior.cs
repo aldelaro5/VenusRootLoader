@@ -7,14 +7,14 @@ public abstract class MapEntityBehavior
 {
     internal MapEntityLeaf MapEntityLeaf { get; }
 
-    private ActionBehaviorKind? Kind { get; }
+    private BehaviorKind? Kind { get; }
 
     internal NPCControl.ActionBehaviors InternalTypeForKind
     {
         get => Kind switch
         {
-            ActionBehaviorKind.OutOfRange => MapEntityLeaf.InternalOutOfRangeBehavior,
-            ActionBehaviorKind.InRange => MapEntityLeaf.InternalInRangeBehavior,
+            BehaviorKind.OutOfRange => MapEntityLeaf.InternalOutOfRangeBehavior,
+            BehaviorKind.InRange => MapEntityLeaf.InternalInRangeBehavior,
             null => NPCControl.ActionBehaviors.None,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<NPCControl.ActionBehaviors>(nameof(Kind))
         };
@@ -24,10 +24,10 @@ public abstract class MapEntityBehavior
             {
                 case null:
                     return;
-                case ActionBehaviorKind.OutOfRange:
+                case BehaviorKind.OutOfRange:
                     MapEntityLeaf.InternalOutOfRangeBehavior = value;
                     break;
-                case ActionBehaviorKind.InRange:
+                case BehaviorKind.InRange:
                     MapEntityLeaf.InternalInRangeBehavior = value;
                     break;
                 default:
@@ -41,8 +41,8 @@ public abstract class MapEntityBehavior
     {
         get => Kind switch
         {
-            ActionBehaviorKind.OutOfRange => MapEntityLeaf.InternalOutOfRangeActionFrequency,
-            ActionBehaviorKind.InRange => MapEntityLeaf.InternalInRangeActionFrequency,
+            BehaviorKind.OutOfRange => MapEntityLeaf.InternalOutOfRangeActionFrequency,
+            BehaviorKind.InRange => MapEntityLeaf.InternalInRangeActionFrequency,
             null => 0f,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<float>(nameof(Kind))
         };
@@ -52,10 +52,10 @@ public abstract class MapEntityBehavior
             {
                 case null:
                     return;
-                case ActionBehaviorKind.OutOfRange:
+                case BehaviorKind.OutOfRange:
                     MapEntityLeaf.InternalOutOfRangeActionFrequency = value;
                     break;
-                case ActionBehaviorKind.InRange:
+                case BehaviorKind.InRange:
                     MapEntityLeaf.InternalInRangeActionFrequency = value;
                     break;
                 default:
@@ -65,7 +65,7 @@ public abstract class MapEntityBehavior
         }
     }
 
-    protected MapEntityBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind? kind)
+    protected MapEntityBehavior(MapEntityLeaf mapEntityLeaf, BehaviorKind? kind)
     {
         MapEntityLeaf = mapEntityLeaf;
         Kind = kind;

@@ -16,16 +16,16 @@ public sealed class MapEntityBehaviorSystem
 
     internal void InitializeBehaviorFromExisting(IRegistryResolver registryResolver)
     {
-        InitializeBehaviorFromExisting(ActionBehaviorKind.OutOfRange, registryResolver);
-        InitializeBehaviorFromExisting(ActionBehaviorKind.InRange, registryResolver);
+        InitializeBehaviorFromExisting(BehaviorKind.OutOfRange, registryResolver);
+        InitializeBehaviorFromExisting(BehaviorKind.InRange, registryResolver);
     }
 
-    private void InitializeBehaviorFromExisting(ActionBehaviorKind kind, IRegistryResolver registryResolver)
+    private void InitializeBehaviorFromExisting(BehaviorKind kind, IRegistryResolver registryResolver)
     {
         NPCControl.ActionBehaviors internalType = kind switch
         {
-            ActionBehaviorKind.OutOfRange => _mapEntityLeaf.InternalOutOfRangeBehavior,
-            ActionBehaviorKind.InRange => _mapEntityLeaf.InternalInRangeBehavior,
+            BehaviorKind.OutOfRange => _mapEntityLeaf.InternalOutOfRangeBehavior,
+            BehaviorKind.InRange => _mapEntityLeaf.InternalInRangeBehavior,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<NPCControl.ActionBehaviors>(nameof(kind))
         };
 
@@ -33,10 +33,10 @@ public sealed class MapEntityBehaviorSystem
 
         switch (kind)
         {
-            case ActionBehaviorKind.OutOfRange:
+            case BehaviorKind.OutOfRange:
                 OutOfBehaviorRangeBehavior = behavior;
                 break;
-            case ActionBehaviorKind.InRange:
+            case BehaviorKind.InRange:
                 InBehaviorRangeBehavior = behavior;
                 break;
             default:
@@ -46,7 +46,7 @@ public sealed class MapEntityBehaviorSystem
     }
 
     private MapEntityBehavior? MapExistingInternalBehaviorType(
-        ActionBehaviorKind kind,
+        BehaviorKind kind,
         NPCControl.ActionBehaviors internalType,
         IRegistryResolver registryResolver)
     {
@@ -117,18 +117,18 @@ public sealed class MapEntityBehaviorSystem
     public bool HasBehavior<TBehavior>() where TBehavior : MapEntityBehavior =>
         OutOfBehaviorRangeBehavior is TBehavior || InBehaviorRangeBehavior is TBehavior;
 
-    public TBehavior? TryGetBehavior<TBehavior>(ActionBehaviorKind kind) where TBehavior : MapEntityBehavior
+    public TBehavior? TryGetBehavior<TBehavior>(BehaviorKind kind) where TBehavior : MapEntityBehavior
     {
         return kind switch
         {
-            ActionBehaviorKind.OutOfRange => OutOfBehaviorRangeBehavior as TBehavior,
-            ActionBehaviorKind.InRange => InBehaviorRangeBehavior as TBehavior,
+            BehaviorKind.OutOfRange => OutOfBehaviorRangeBehavior as TBehavior,
+            BehaviorKind.InRange => InBehaviorRangeBehavior as TBehavior,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<TBehavior?>(nameof(kind))
         };
     }
 
     public FaceDirectionMapEntityBehavior SetFaceDirectionBehavior(
-        ActionBehaviorKind kind,
+        BehaviorKind kind,
         FacingBehaviorDirection direction)
     {
         FaceDirectionMapEntityBehavior behavior = new(_mapEntityLeaf, kind) { FacingDirection = direction };
@@ -137,7 +137,7 @@ public sealed class MapEntityBehaviorSystem
     }
 
     public ChasePlayerMapEntityBehavior SetChasePlayerBehavior(
-        ActionBehaviorKind kind,
+        BehaviorKind kind,
         bool chaseOnWater,
         float movementSpeedMultiplier)
     {
@@ -151,7 +151,7 @@ public sealed class MapEntityBehaviorSystem
     }
 
     public ChasePlayerWhenAnimstateIsChaseMapEntityBehavior SetChasePlayerWhenAnimstateIsChaseBehavior(
-        ActionBehaviorKind kind,
+        BehaviorKind kind,
         int animstateOverrideWhenNotChase,
         float movementSpeedMultiplier)
     {
@@ -165,22 +165,22 @@ public sealed class MapEntityBehaviorSystem
     }
 
     public ChaseAndAttackPlayerMapEntityBehavior SetChaseAndAttackPlayerBehavior(
-        ActionBehaviorKind kind,
+        BehaviorKind kind,
         float minimumDistanceFromPlayerBeforeAttacking,
-        bool attacksFromUnderground,
+        bool attackFromUnderground,
         float movementSpeedMultiplier)
     {
         ChaseAndAttackPlayerMapEntityBehavior behavior = new(_mapEntityLeaf, kind)
         {
             MinimumDistanceFromPlayerBeforeAttacking = minimumDistanceFromPlayerBeforeAttacking,
-            AttacksFromUnderground = attacksFromUnderground,
+            AttackFromUnderground = attackFromUnderground,
             MovementSpeedMultiplier = movementSpeedMultiplier
         };
         SetActionBehavior(behavior, kind);
         return behavior;
     }
 
-    public FleeFromPlayerMapEntityBehavior SetFleeFromPlayerBehavior(ActionBehaviorKind kind)
+    public FleeFromPlayerMapEntityBehavior SetFleeFromPlayerBehavior(BehaviorKind kind)
     {
         FleeFromPlayerMapEntityBehavior behavior = new(_mapEntityLeaf, kind);
         SetActionBehavior(behavior, kind);
@@ -188,7 +188,7 @@ public sealed class MapEntityBehaviorSystem
     }
 
     public SpriteFlipMapEntityBehavior SetSpriteFlipBehavior(
-        ActionBehaviorKind kind,
+        BehaviorKind kind,
         float baseFlipIntervalInFrames,
         bool flipsAtRandomInterval)
     {
@@ -202,7 +202,7 @@ public sealed class MapEntityBehaviorSystem
     }
 
     public WanderMapEntityBehavior SetWanderBehavior(
-        ActionBehaviorKind kind,
+        BehaviorKind kind,
         WanderBehaviorPattern pattern,
         float maxFramesIntervalBeforeMovingAgain,
         float radiusToWanderFromStartingPosition,
@@ -221,14 +221,14 @@ public sealed class MapEntityBehaviorSystem
 
     // NOTE: The animstate AND the wander frames delay are the same so they conflict, but there's not much that can be done to address this
     public WanderWhenAnimstateIsWalkOrIdleMapEntityBehavior SetWanderWhenAnimstateIsWalkOrIdleBehavior(
-        ActionBehaviorKind kind,
-        int animstateOverrideWhenNotChase,
+        BehaviorKind kind,
+        int animstateOverrideWhenNotWalkOrIdle,
         float radiusToWanderFromStartingPosition,
         float maxDistanceFromStartingPositionBeforeTeleport)
     {
         WanderWhenAnimstateIsWalkOrIdleMapEntityBehavior behavior = new(_mapEntityLeaf, kind)
         {
-            AnimstateOverrideWhenNotChase = animstateOverrideWhenNotChase,
+            AnimstateOverrideWhenNotWalkOrIdle = animstateOverrideWhenNotWalkOrIdle,
             RadiusToWanderFromStartingPosition = radiusToWanderFromStartingPosition,
             MaxDistanceFromStartingPositionBeforeTeleport = maxDistanceFromStartingPositionBeforeTeleport
         };
@@ -236,7 +236,7 @@ public sealed class MapEntityBehaviorSystem
         return behavior;
     }
 
-    public DisguiseMapEntityBehavior SetDisguiseBehavior(ActionBehaviorKind kind)
+    public DisguiseMapEntityBehavior SetDisguiseBehavior(BehaviorKind kind)
     {
         DisguiseMapEntityBehavior behavior = new(_mapEntityLeaf, kind);
         SetActionBehavior(behavior, kind);
@@ -244,7 +244,7 @@ public sealed class MapEntityBehaviorSystem
     }
 
     public DisguiseOnceBeforeWanderMapEntityBehavior SetDisguiseOnceBeforeWanderBehavior(
-        ActionBehaviorKind kind,
+        BehaviorKind kind,
         float maxFramesIntervalBeforeMovingAgain,
         float radiusToWanderFromStartingPosition,
         float maxDistanceFromStartingPositionBeforeTeleport)
@@ -260,7 +260,7 @@ public sealed class MapEntityBehaviorSystem
     }
 
     public MoveAlongPathMapEntityBehavior SetMoveAlongPathBehavior(
-        ActionBehaviorKind kind,
+        BehaviorKind kind,
         float delayFramesBeforeMovingToNextNode,
         bool jumpWhileMoving,
         ICollection<Vector3> positionNodesInPath)
@@ -277,7 +277,7 @@ public sealed class MapEntityBehaviorSystem
     }
 
     public ChargeAtPlayerMapEntityBehavior SetChargeAtPlayerBehavior(
-        ActionBehaviorKind kind,
+        BehaviorKind kind,
         bool lockSpriteFlipDuringCharge,
         float movementSpeedMultiplier)
     {
@@ -290,14 +290,14 @@ public sealed class MapEntityBehaviorSystem
         return behavior;
     }
 
-    public ShootProjectileMapEntityBehavior SetShootProjectileBehavior(ActionBehaviorKind kind)
+    public ShootProjectileMapEntityBehavior SetShootProjectileBehavior(BehaviorKind kind)
     {
         ShootProjectileMapEntityBehavior behavior = new(_mapEntityLeaf, kind);
         SetActionBehavior(behavior, kind);
         return behavior;
     }
 
-    public UnmovableWhenDizzyMapEntityBehavior SetUnmovableWhenDizzyBehavior(ActionBehaviorKind kind)
+    public UnmovableWhenDizzyMapEntityBehavior SetUnmovableWhenDizzyBehavior(BehaviorKind kind)
     {
         UnmovableWhenDizzyMapEntityBehavior behavior = new(_mapEntityLeaf, kind);
         SetActionBehavior(behavior, kind);
@@ -330,8 +330,8 @@ public sealed class MapEntityBehaviorSystem
             VisionLengthInUnits = visionLengthInUnits,
             DelayFramesBeforeMovingToNextNode = delayFramesBeforeMovingToNextNode
         };
-        SetActionBehavior(null, ActionBehaviorKind.InRange);
-        SetActionBehavior(behavior, ActionBehaviorKind.OutOfRange);
+        SetActionBehavior(null, BehaviorKind.InRange);
+        SetActionBehavior(behavior, BehaviorKind.OutOfRange);
         return behavior;
     }
 
@@ -344,12 +344,12 @@ public sealed class MapEntityBehaviorSystem
             EventToStartWhenSpottingPlayer = eventToStartWhenSpottingPlayer,
             VisionLengthInUnits = visionLengthInUnits,
         };
-        SetActionBehavior(null, ActionBehaviorKind.InRange);
-        SetActionBehavior(behavior, ActionBehaviorKind.OutOfRange);
+        SetActionBehavior(null, BehaviorKind.InRange);
+        SetActionBehavior(behavior, BehaviorKind.OutOfRange);
         return behavior;
     }
 
-    public void ClearBehavior(ActionBehaviorKind kind)
+    public void ClearBehavior(BehaviorKind kind)
     {
         SetActionBehavior(null, kind);
     }
@@ -361,11 +361,11 @@ public sealed class MapEntityBehaviorSystem
         _mapEntityLeaf.InternalInRangeActionFrequency = 0f;
     }
 
-    private void SetActionBehavior(MapEntityBehavior? behavior, ActionBehaviorKind? kind)
+    private void SetActionBehavior(MapEntityBehavior? behavior, BehaviorKind? kind)
     {
         switch (kind)
         {
-            case ActionBehaviorKind.OutOfRange:
+            case BehaviorKind.OutOfRange:
                 OutOfBehaviorRangeBehavior = behavior;
                 if (behavior is null)
                 {
@@ -381,7 +381,7 @@ public sealed class MapEntityBehaviorSystem
                 }
 
                 break;
-            case ActionBehaviorKind.InRange:
+            case BehaviorKind.InRange:
                 InBehaviorRangeBehavior = behavior;
                 if (behavior is null)
                 {

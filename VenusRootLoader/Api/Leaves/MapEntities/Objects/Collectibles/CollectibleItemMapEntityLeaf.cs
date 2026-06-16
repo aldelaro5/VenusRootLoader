@@ -21,7 +21,7 @@ public sealed class CollectibleItemMapEntityLeaf : CollectibleMapEntityLeaf
         }
     }
 
-    public bool IsKeyItem
+    public bool IsAKeyItem
     {
         get => InternalData[0].Value == 1;
         set => InternalData[0].Value = value ? 1 : 0;
@@ -43,7 +43,7 @@ public sealed class CollectibleItemMapEntityLeaf : CollectibleMapEntityLeaf
         base.InitializeFromNew(startingPosition);
         InternalData.AddRange([new(0), new(-1), new(0)]);
         Item = item;
-        IsKeyItem = isKeyItem;
+        IsAKeyItem = isKeyItem;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

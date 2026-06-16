@@ -77,7 +77,7 @@ public sealed class LoadingZoneMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
-    public Vector3? PositionToMoveToBeforeLoad
+    public Vector3? PositionToMoveTowardsBeforeLoad
     {
         get => InternalData[4].Value == 1 ? null : InternalVectorData[0].Value;
         set
@@ -100,7 +100,7 @@ public sealed class LoadingZoneMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalVectorData[1].Value = value;
     }
 
-    public Vector3 PositionToMoveFromSpawnAfterLoad
+    public Vector3 PositionToMoveTowardsFromSpawnAfterLoad
     {
         get => InternalVectorData[2].Value;
         set => InternalVectorData[2].Value = value;
@@ -133,7 +133,7 @@ public sealed class LoadingZoneMapEntityLeaf : ObjectMapEntityLeaf
         Vector3 startingPosition,
         Branch<MapLeaf> destinationMap,
         Vector3 positionToSpawnAfterLoad,
-        Vector3 positionToMoveFromSpawnAfterLoad,
+        Vector3 positionToMoveTowardsFromSpawnAfterLoad,
         Vector3 triggerBoxColliderSize,
         Vector3 triggerBoxColliderCenter)
     {
@@ -144,7 +144,7 @@ public sealed class LoadingZoneMapEntityLeaf : ObjectMapEntityLeaf
         InternalBoxColSize = Vector3.one;
         DestinationMap = destinationMap;
         PositionToSpawnAfterLoad = positionToSpawnAfterLoad;
-        PositionToMoveFromSpawnAfterLoad = positionToMoveFromSpawnAfterLoad;
+        PositionToMoveTowardsFromSpawnAfterLoad = positionToMoveTowardsFromSpawnAfterLoad;
         TriggerBoxColliderSize = triggerBoxColliderSize;
         TriggerBoxColliderCenter = triggerBoxColliderCenter;
         EntityStartingPosition = startingPosition;

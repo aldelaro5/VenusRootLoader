@@ -15,7 +15,7 @@ public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
 
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.QuestBoard;
 
-    public Branch<NpcMapEntityLeaf> BoardCaretaker
+    public Branch<NpcMapEntityLeaf> BoardCaretakerNpc
     {
         get;
         set
@@ -44,7 +44,7 @@ public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
         }
     }
 
-    public Branch<FlagLeaf>? FlagInteractWithCaretakerIfFlagIsFalse
+    public Branch<FlagLeaf>? FlagInteractWithCaretakerWhenItIsFalse
     {
         get;
         set
@@ -115,13 +115,13 @@ public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
     internal void InitializeFromNew(
         Vector3 startingPosition,
         Branch<AnimIdLeaf>? animId,
-        Branch<NpcMapEntityLeaf> boardCaretaker,
+        Branch<NpcMapEntityLeaf> boardCaretakerNpc,
         Branch<DialogueLeaf> boardCaretakerDialogueWhenQuestIsSelected)
     {
         base.InitializeFromNew(startingPosition, animId);
         InternalData.AddRange(Enumerable.Repeat(new Ref<int>(-1), 3 - InternalData.Count));
         InternalVectorData.AddRange(Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 3 - InternalVectorData.Count));
-        BoardCaretaker = boardCaretaker;
+        BoardCaretakerNpc = boardCaretakerNpc;
         BoardCaretakerDialogueWhenQuestIsSelected = boardCaretakerDialogueWhenQuestIsSelected;
     }
 
@@ -132,9 +132,9 @@ public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
 
         if (InternalData[2].Value >= 0)
-            FlagInteractWithCaretakerIfFlagIsFalse = flagsRegistry.LeavesByGameIds[InternalData[2].Value];
+            FlagInteractWithCaretakerWhenItIsFalse = flagsRegistry.LeavesByGameIds[InternalData[2].Value];
 
-        BoardCaretaker =
+        BoardCaretakerNpc =
             (Branch<NpcMapEntityLeaf>)Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0].Value]!;
         BoardCaretakerDialogueWhenQuestIsSelected = InternalData[1].Value < 0
             ? commonDialoguesRegistry.LeavesByGameIds[InternalData[1].Value]

@@ -24,7 +24,7 @@ public sealed class SpriteFlipMapEntityBehavior : MapEntityBehavior
         set => InternalFrequencyForKind = value;
     }
 
-    internal SpriteFlipMapEntityBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) : base(mapEntityLeaf, kind)
+    internal SpriteFlipMapEntityBehavior(MapEntityLeaf mapEntityLeaf, BehaviorKind kind) : base(mapEntityLeaf, kind)
     {
     }
 }

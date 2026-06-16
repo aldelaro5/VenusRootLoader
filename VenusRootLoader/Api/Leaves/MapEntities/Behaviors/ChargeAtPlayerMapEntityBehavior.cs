@@ -24,7 +24,7 @@ public sealed class ChargeAtPlayerMapEntityBehavior : MapEntityBehavior
         set => MapEntityLeaf.InternalSpeedMultiplier = value;
     }
 
-    internal ChargeAtPlayerMapEntityBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) : base(
+    internal ChargeAtPlayerMapEntityBehavior(MapEntityLeaf mapEntityLeaf, BehaviorKind kind) : base(
         mapEntityLeaf,
         kind)
     {

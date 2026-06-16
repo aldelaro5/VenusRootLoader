@@ -12,7 +12,7 @@ public sealed class RollingRockCanonMapEntityLeaf : RollingRockMapEntityLeaf
     {
     }
 
-    public NegatableMapEntityActivation? RequiredMapEntityActivationForShot
+    public NegatableMapEntityActivation? RequiredMapEntityActivationForShooting
     {
         get;
         set
@@ -20,16 +20,16 @@ public sealed class RollingRockCanonMapEntityLeaf : RollingRockMapEntityLeaf
             if (value?.MapEntity.Leaf.Map is { } map && map != Map)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(
-                    nameof(RequiredMapEntityActivationForShot),
+                    nameof(RequiredMapEntityActivationForShooting),
                     $"The entity must be in the {map.NamedId} map");
             }
 
             if (value is { EffectiveValue: -1 })
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(
-                    nameof(RequiredMapEntityActivationForShot),
+                    nameof(RequiredMapEntityActivationForShooting),
                     $"It is not possible to test for the {nameof(MapEntityLeaf)} with gameId 1 to be inactive because it is " +
-                    $"internally equivalent of having a {nameof(RequiredMapEntityActivationForShot)} of null");
+                    $"internally equivalent of having a {nameof(RequiredMapEntityActivationForShooting)} of null");
             }
 
             InternalData[3].Value = value?.EffectiveValue ?? -1;
@@ -37,7 +37,7 @@ public sealed class RollingRockCanonMapEntityLeaf : RollingRockMapEntityLeaf
         }
     }
 
-    public float DelayFramesBeforeShot
+    public float DelayFramesBeforeShooting
     {
         get => InternalVectorData[1].Value.z;
         set => InternalVectorData[1].Value.z = value;
@@ -60,7 +60,7 @@ public sealed class RollingRockCanonMapEntityLeaf : RollingRockMapEntityLeaf
         if (InternalData[3].Value != -1)
         {
             MapLeaf map = registryResolver.Resolve<MapLeaf>().LeavesByGameIds[Map.GameId];
-            RequiredMapEntityActivationForShot = new()
+            RequiredMapEntityActivationForShooting = new()
             {
                 MapEntity =
                     (Branch<ObjectMapEntityLeaf>)map.EntitiesRegistry.LeavesByGameIds[Math.Abs(InternalData[3].Value)]!,

@@ -32,7 +32,11 @@ public sealed class WindBeamZoneMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
-    public Vector3 EndPosition { get => InternalVectorData[0].Value; set => InternalVectorData[0].Value = value; }
+    public Vector3 PositionWindMoveTowards
+    {
+        get => InternalVectorData[0].Value;
+        set => InternalVectorData[0].Value = value;
+    }
 
     public float WindPushForceUnitsPerSecond
     {
@@ -40,13 +44,13 @@ public sealed class WindBeamZoneMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalVectorData[1].Value.x = value;
     }
 
-    public float ColliderWidth
+    public float TriggerColliderWidth
     {
         get => InternalVectorData[1].Value.y;
         set => InternalVectorData[1].Value.y = value;
     }
 
-    public float ColliderHeight
+    public float TriggerColliderHeight
     {
         get => InternalVectorData[1].Value.z;
         set => InternalVectorData[1].Value.z = value;
@@ -67,17 +71,17 @@ public sealed class WindBeamZoneMapEntityLeaf : ObjectMapEntityLeaf
     [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
-        Vector3 endPosition,
+        Vector3 positionWindMoveTowards,
         float windPushForceUnitsPerSecond,
-        float colliderWidth,
-        float colliderHeight)
+        float triggerColliderWidth,
+        float triggerColliderHeight)
     {
         InternalData.Add(new(-1));
         InternalVectorData.AddRange([new(new(1f, 0f, 0f)), new(new(0.1f, 3f, 3f)), new(new(0f, 0f, 0f))]);
-        EndPosition = endPosition;
+        PositionWindMoveTowards = positionWindMoveTowards;
         WindPushForceUnitsPerSecond = windPushForceUnitsPerSecond;
-        ColliderWidth = colliderWidth;
-        ColliderHeight = colliderHeight;
+        TriggerColliderWidth = triggerColliderWidth;
+        TriggerColliderHeight = triggerColliderHeight;
         EntityStartingPosition = startingPosition;
     }
 

@@ -6,9 +6,9 @@ using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
-public sealed class ItemsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
+public sealed class ItemShopMapEntityLeaf : SpyableNpcMapEntityLeaf
 {
-    internal ItemsShopMapEntityLeaf(int gameId, string namedId, string creatorId)
+    internal ItemShopMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
         _itemsForSale = new(InternalData, InternalVectorData, 0, x => x.RefItemGameId, x => x.RefPosition);

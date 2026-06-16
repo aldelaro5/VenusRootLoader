@@ -1,6 +1,6 @@
 namespace VenusRootLoader.Api.Leaves.MapEntities.Behaviors.Enums
 {
-    public enum ActionBehaviorKind
+    public enum BehaviorKind
     {
         OutOfRange,
         InRange

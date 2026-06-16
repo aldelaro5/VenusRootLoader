@@ -6,6 +6,8 @@ using VenusRootLoader.Api.Leaves.MapEntities.Objects.MovingPlatforms;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.Switches;
 using VenusRootLoader.SourceGenerators;
 
+// ReSharper disable CheckNamespace
+
 namespace VenusRootLoader.Api;
 
 public partial class Venus
@@ -34,8 +36,8 @@ public partial class Venus
             namedId,
             map,
             startingPosition,
-            entityActivationsInputs,
-            animId);
+            animId,
+            entityActivationsInputs);
     }
 
     public AndBlockOnFlagsMapEntityLeaf RegisterAndBlockOnFlagsMapEntity(
@@ -46,7 +48,7 @@ public partial class Venus
     {
         AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>()
             .LeavesByNamedIds[nameof(MainManager.AnimIDs.PrisonGate)];
-        return RegisterAndBlockOnFlagsMapEntity(namedId, map, startingPosition, flagInputs, animId);
+        return RegisterAndBlockOnFlagsMapEntity(namedId, map, startingPosition, animId, flagInputs);
     }
 
     public AndBlockOnSingleFlagMapEntityLeaf RegisterAndBlockOnSingleFlagMapEntity(
@@ -57,7 +59,7 @@ public partial class Venus
     {
         AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>()
             .LeavesByNamedIds[nameof(MainManager.AnimIDs.PrisonGate)];
-        return RegisterAndBlockOnSingleFlagMapEntity(namedId, map, startingPosition, flagInput, animId);
+        return RegisterAndBlockOnSingleFlagMapEntity(namedId, map, startingPosition, animId, flagInput);
     }
 
     public MovingPlatformAlongLerpMapEntityLeaf RegisterMovingPlatformAlongLerpMapEntity(
@@ -74,10 +76,10 @@ public partial class Venus
             namedId,
             map,
             startingPosition,
+            animId,
             requiredEntityActivationsToMove,
             fromPosition,
-            toPosition,
-            animId);
+            toPosition);
     }
 
     public MovingPlatformAlongPathMapEntityLeaf RegisterMovingPlatformAlongPathMapEntity(
@@ -93,9 +95,9 @@ public partial class Venus
             namedId,
             map,
             startingPosition,
+            animId,
             requiredEntityActivationsToMove,
-            movementPathNodePositions,
-            animId);
+            movementPathNodePositions);
     }
 
     public EventTriggerSwitchMapEntityLeaf RegisterEventTriggerSwitchMapEntity(

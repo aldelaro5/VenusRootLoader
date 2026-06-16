@@ -26,13 +26,13 @@ public sealed class InsideTransitionZoneMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
-    public Vector3 PositionToMoveToWhenEntering
+    public Vector3 PositionToMoveTowardsWhenEntering
     {
         get => InternalVectorData[0].Value;
         set => InternalVectorData[0].Value = value;
     }
 
-    public Vector3 PositionToMoveToWhenExiting
+    public Vector3 PositionToMoveTowardsWhenExiting
     {
         get => InternalVectorData[1].Value;
         set => InternalVectorData[1].Value = value;
@@ -79,8 +79,8 @@ public sealed class InsideTransitionZoneMapEntityLeaf : ObjectMapEntityLeaf
     internal void InitializeFromNew(
         Vector3 startingPosition,
         int insideIdUsedForTransition,
-        Vector3 positionToMoveToWhenEntering,
-        Vector3 positionToMoveToWhenExiting,
+        Vector3 positionToMoveTowardsWhenEntering,
+        Vector3 positionToMoveTowardsWhenExiting,
         Vector3 triggerBoxColliderSize,
         Vector3 triggerBoxColliderCenter)
     {
@@ -90,8 +90,8 @@ public sealed class InsideTransitionZoneMapEntityLeaf : ObjectMapEntityLeaf
         InternalBoxColIsTrigger = true;
         InternalBoxColSize = Vector3.one;
         InsideIdUsedForTransition = insideIdUsedForTransition;
-        PositionToMoveToWhenEntering = positionToMoveToWhenEntering;
-        PositionToMoveToWhenExiting = positionToMoveToWhenExiting;
+        PositionToMoveTowardsWhenEntering = positionToMoveTowardsWhenEntering;
+        PositionToMoveTowardsWhenExiting = positionToMoveTowardsWhenExiting;
         TriggerBoxColliderSize = triggerBoxColliderSize;
         TriggerBoxColliderCenter = triggerBoxColliderCenter;
         EntityStartingPosition = startingPosition;

@@ -16,7 +16,7 @@ public sealed class ChasePlayerWhenAnimstateIsChaseMapEntityBehavior : MapEntity
         set => MapEntityLeaf.InternalSpeedMultiplier = value;
     }
 
-    internal ChasePlayerWhenAnimstateIsChaseMapEntityBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind)
+    internal ChasePlayerWhenAnimstateIsChaseMapEntityBehavior(MapEntityLeaf mapEntityLeaf, BehaviorKind kind)
         : base(mapEntityLeaf, kind)
     {
         InternalTypeForKind = NPCControl.ActionBehaviors.ChaseWhenAnim;

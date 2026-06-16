@@ -6,9 +6,9 @@ using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
-public sealed class MedalsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
+public sealed class MedalShopMapEntityLeaf : SpyableNpcMapEntityLeaf
 {
-    internal MedalsShopMapEntityLeaf(int gameId, string namedId, string creatorId)
+    internal MedalShopMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
         _shelvedMedalPositions = new(InternalVectorData, 0, x => new(x));
@@ -16,7 +16,7 @@ public sealed class MedalsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
 
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.Shop;
 
-    public Branch<MedalShopLeaf> AssociatedMedalsShop
+    public Branch<MedalShopLeaf> AssociatedMedalShop
     {
         get;
         set
@@ -72,7 +72,7 @@ public sealed class MedalsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
         Vector3 startingPosition,
         Branch<AnimIdLeaf>? animIdLeaf,
         Branch<DialogueLeaf>? spyDialogue,
-        Branch<MedalShopLeaf> associatedMedalsShop,
+        Branch<MedalShopLeaf> associatedMedalShop,
         Branch<DialogueLeaf> dialogueWhenInteractingWithShopKeeper,
         Branch<DialogueLeaf> dialogueWhenInteractingWithShelvedMedal,
         IList<Vector3> shelvedMedalPositions)
@@ -80,7 +80,7 @@ public sealed class MedalsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
         base.InitializeFromNew(startingPosition, animIdLeaf, spyDialogue);
         InternalDialogues.AddRange(Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 10));
         InternalDialogues.Add(new(new(1f, 0f, 0f)));
-        AssociatedMedalsShop = associatedMedalsShop;
+        AssociatedMedalShop = associatedMedalShop;
         DialogueWhenInteractingWithShopKeeper = dialogueWhenInteractingWithShopKeeper;
         DialogueWhenInteractingWithShelvedMedal = dialogueWhenInteractingWithShelvedMedal;
         foreach (Vector3 shelvedMedalPosition in shelvedMedalPositions)
@@ -94,7 +94,7 @@ public sealed class MedalsShopMapEntityLeaf : SpyableNpcMapEntityLeaf
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
 
         _shelvedMedalPositions.SynchronizeFromExistingData(InternalVectorData.Select(x => x.Value).ToList());
-        AssociatedMedalsShop = new(medalShopsRegistry.LeavesByGameIds[(int)InternalDialogues[9].Value.x]);
+        AssociatedMedalShop = new(medalShopsRegistry.LeavesByGameIds[(int)InternalDialogues[9].Value.x]);
 
         DialogueWhenInteractingWithShopKeeper = (int)InternalDialogues[0].Value.y < 0
             ? commonDialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[0].Value.y]

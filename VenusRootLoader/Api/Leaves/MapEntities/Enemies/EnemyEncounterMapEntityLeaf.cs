@@ -51,7 +51,7 @@ public abstract class EnemyEncounterMapEntityLeaf : MapEntityLeaf
     private readonly ListRefWrapper<Branch<EnemyLeaf>, int> _enemiesFormationInBattle;
     public IList<Branch<EnemyLeaf>> EnemiesFormationInBattle => _enemiesFormationInBattle;
 
-    public bool HasExtendedForceMoveFailsafeTimer
+    public bool HasDoubledForceMoveFailsafeTimer
     {
         get => Modifiers.HasFlag(MapEntityModifiers.TIME);
         set

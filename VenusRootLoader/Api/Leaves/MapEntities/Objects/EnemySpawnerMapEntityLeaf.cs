@@ -31,7 +31,7 @@ public sealed class EnemySpawnerMapEntityLeaf : ObjectMapEntityLeaf
     public int FramesDelayBeforeRespawn { get => InternalData[4].Value; set => InternalData[4].Value = value; }
     public Vector3 RespawnCenter { get => InternalVectorData[0].Value; set => InternalVectorData[0].Value = value; }
 
-    public Vector3 RespawnRadiusRangeFromPosition
+    public Vector3 RespawnRadius
     {
         get => InternalVectorData[1].Value;
         set => InternalVectorData[1].Value = value;
@@ -42,13 +42,13 @@ public sealed class EnemySpawnerMapEntityLeaf : ObjectMapEntityLeaf
         Vector3 startingPosition,
         Branch<EnemyEncounterMapEntityLeaf> enemyToRespawn,
         Vector3 respawnCenter,
-        Vector3 respawnRadiusRangeFromPosition)
+        Vector3 respawnRadius)
     {
         InternalData.AddRange([new(0), new(0), new(0), new(0), new(300), new(-1)]);
         InternalVectorData.AddRange([new(Vector3.zero), new(Vector3.one)]);
         EnemyToRespawn = enemyToRespawn;
         RespawnCenter = respawnCenter;
-        RespawnRadiusRangeFromPosition = respawnRadiusRangeFromPosition;
+        RespawnRadius = respawnRadius;
         EntityStartingPosition = startingPosition;
     }
 

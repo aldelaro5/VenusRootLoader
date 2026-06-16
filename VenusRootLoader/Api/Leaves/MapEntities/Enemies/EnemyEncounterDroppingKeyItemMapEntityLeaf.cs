@@ -12,7 +12,8 @@ public sealed class EnemyEncounterDroppingKeyItemMapEntityLeaf : EnemyEncounterM
     {
     }
 
-    internal NPCControl.DeathType DeathMethod { get => InternalDeathType; set => InternalDeathType = value; }
+    // TODO: Needs more testing
+    internal NPCControl.DeathType DefeatAnimation { get => InternalDeathType; set => InternalDeathType = value; }
 
     public Branch<ItemLeaf> KeyItemDroppedWhenDefeated
     {
@@ -49,9 +50,9 @@ public sealed class EnemyEncounterDroppingKeyItemMapEntityLeaf : EnemyEncounterM
             new()
             {
                 Flag = keyItemObtainedFlag,
-                FailsWholeConditionWhenFlagIsTrue = false
+                FailsWholeExistConditionWhenFlagIsTrue = false
             });
-        // TODO: Patch the game so this works for any items
+        // TODO: Patch the game so this works for any animid
         Modifiers |= MapEntityModifiers.ShwKEY;
     }
 

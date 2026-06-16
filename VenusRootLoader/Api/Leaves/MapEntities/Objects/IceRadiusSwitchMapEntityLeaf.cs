@@ -1,5 +1,4 @@
 using UnityEngine;
-using VenusRootLoader.Api.Leaves.MapEntities.Objects.Enums;
 using VenusRootLoader.Registry;
 using VenusRootLoader.SourceGenerators;
 
@@ -15,10 +14,14 @@ public sealed class IceRadiusSwitchMapEntityLeaf : ObjectMapEntityLeaf
 
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.StencilSwitch;
 
-    public IceRadiusSwitchKind SwitchKind
+    public Branch<AnimIdLeaf> AnimId
     {
-        get => (IceRadiusSwitchKind)InternalAnimIdOrItemId;
-        set => InternalAnimIdOrItemId = (int)value;
+        get;
+        set
+        {
+            InternalAnimIdOrItemId = value.GameId;
+            field = value;
+        }
     }
 
     public Branch<MapEntityLeaf>? ParentMapEntity
@@ -73,17 +76,18 @@ public sealed class IceRadiusSwitchMapEntityLeaf : ObjectMapEntityLeaf
     [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
+        Branch<AnimIdLeaf> animId,
         float radiusRange,
         float radiusRangeChangeRateWhenToggled)
     {
         InternalData.AddRange([new(0), new(-1), new(0), new(0)]);
         InternalVectorData.AddRange([new(new(0.1f, 5f, 0f)), new(new(0f, 0f, 0f))]);
-        InternalAnimIdOrItemId = (int)MainManager.AnimIDs.BigCrystalSwitch - 1;
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
         RadiusRange = radiusRange;
         RadiusRangeChangeRateWhenToggled = radiusRangeChangeRateWhenToggled;
         EntityStartingPosition = startingPosition;
+        AnimId = animId;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

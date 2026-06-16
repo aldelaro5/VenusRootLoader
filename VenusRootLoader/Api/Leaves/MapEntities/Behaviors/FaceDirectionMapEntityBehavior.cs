@@ -29,7 +29,7 @@ public sealed class FaceDirectionMapEntityBehavior : MapEntityBehavior
         };
     }
 
-    internal FaceDirectionMapEntityBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) : base(
+    internal FaceDirectionMapEntityBehavior(MapEntityLeaf mapEntityLeaf, BehaviorKind kind) : base(
         mapEntityLeaf,
         kind)
     {

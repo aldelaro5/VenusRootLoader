@@ -4,7 +4,7 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Behaviors;
 
 public sealed class UnmovableWhenDizzyMapEntityBehavior : MapEntityBehavior
 {
-    internal UnmovableWhenDizzyMapEntityBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) : base(
+    internal UnmovableWhenDizzyMapEntityBehavior(MapEntityLeaf mapEntityLeaf, BehaviorKind kind) : base(
         mapEntityLeaf,
         kind)
     {

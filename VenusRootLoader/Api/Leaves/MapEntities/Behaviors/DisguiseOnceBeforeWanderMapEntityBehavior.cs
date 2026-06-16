@@ -22,7 +22,7 @@ public sealed class DisguiseOnceBeforeWanderMapEntityBehavior : MapEntityBehavio
         set => MapEntityLeaf.InternalTeleportRadius = value;
     }
 
-    internal DisguiseOnceBeforeWanderMapEntityBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind)
+    internal DisguiseOnceBeforeWanderMapEntityBehavior(MapEntityLeaf mapEntityLeaf, BehaviorKind kind)
         : base(mapEntityLeaf, kind)
     {
         InternalTypeForKind = NPCControl.ActionBehaviors.DisguiseOnce;

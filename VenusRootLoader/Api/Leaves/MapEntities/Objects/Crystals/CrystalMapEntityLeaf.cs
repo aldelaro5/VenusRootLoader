@@ -11,7 +11,7 @@ public abstract class CrystalMapEntityLeaf : ObjectMapEntityLeaf
 
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.SavePoint;
 
-    public bool HasAnIlluminatedSphere
+    public bool IsSurroundedByAnIlluminatedSphere
     {
         get => InternalData[0].Value == 1;
         set => InternalData[0].Value = value ? 1 : 0;

@@ -7,7 +7,7 @@ public sealed class NpcConditionalDialogue
 {
     internal readonly Ref<Vector3> Vector3Ref = new(new(0, -1, 0));
 
-    public Branch<FlagLeaf>? Flag
+    public Branch<FlagLeaf>? RequiredFlag
     {
         get;
         set
@@ -27,7 +27,7 @@ public sealed class NpcConditionalDialogue
         }
     }
 
-    public int DefaultAnimStateWhenSelected
+    public int DefaultIdleAnimstateWhenSelected
     {
         get;
         set

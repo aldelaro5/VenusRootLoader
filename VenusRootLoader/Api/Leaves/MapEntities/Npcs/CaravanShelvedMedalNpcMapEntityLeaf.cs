@@ -15,7 +15,7 @@ public sealed class CaravanShelvedMedalNpcMapEntityLeaf : NpcMapEntityLeaf
 
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.CaravanBadge;
 
-    public Branch<ItemsShopMapEntityLeaf> AssociatedItemShop
+    public Branch<ItemShopMapEntityLeaf> AssociatedItemShop
     {
         get;
         set
@@ -80,7 +80,7 @@ public sealed class CaravanShelvedMedalNpcMapEntityLeaf : NpcMapEntityLeaf
     [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
-        Branch<ItemsShopMapEntityLeaf> associatedItemShop,
+        Branch<ItemShopMapEntityLeaf> associatedItemShop,
         Branch<DialogueLeaf> shopKeeperDialogueWhenInteracting)
     {
         base.InitializeFromNew(startingPosition, null);
@@ -94,7 +94,7 @@ public sealed class CaravanShelvedMedalNpcMapEntityLeaf : NpcMapEntityLeaf
         base.InitializeFromExisting(registryResolver);
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
 
-        AssociatedItemShop = (ItemsShopMapEntityLeaf)Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0].Value];
+        AssociatedItemShop = (ItemShopMapEntityLeaf)Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0].Value];
         ShopKeeperDialogueWhenInteracting = InternalData[1].Value < 0
             ? commonDialoguesRegistry.LeavesByGameIds[InternalData[1].Value]
             : Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalData[1].Value];

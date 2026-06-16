@@ -11,7 +11,7 @@ public sealed class WanderMapEntityBehavior : MapEntityBehavior
         {
             NPCControl.ActionBehaviors.Wander => WanderBehaviorPattern.Regular,
             NPCControl.ActionBehaviors.WanderUnderground => WanderBehaviorPattern.FromUnderground,
-            NPCControl.ActionBehaviors.WanderOffscreen => WanderBehaviorPattern.CanWonderWhenInactive,
+            NPCControl.ActionBehaviors.WanderOffscreen => WanderBehaviorPattern.CanWanderWhenInactive,
             NPCControl.ActionBehaviors.WanderNoWarp => WanderBehaviorPattern.WillNotWarpIfNoWanderPositionIsAvailable,
             NPCControl.ActionBehaviors.WanderOnWater => WanderBehaviorPattern.OnWater,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<WanderBehaviorPattern>(nameof(InternalTypeForKind))
@@ -20,7 +20,7 @@ public sealed class WanderMapEntityBehavior : MapEntityBehavior
         {
             WanderBehaviorPattern.Regular => NPCControl.ActionBehaviors.Wander,
             WanderBehaviorPattern.FromUnderground => NPCControl.ActionBehaviors.WanderUnderground,
-            WanderBehaviorPattern.CanWonderWhenInactive => NPCControl.ActionBehaviors.WanderOffscreen,
+            WanderBehaviorPattern.CanWanderWhenInactive => NPCControl.ActionBehaviors.WanderOffscreen,
             WanderBehaviorPattern.WillNotWarpIfNoWanderPositionIsAvailable => NPCControl.ActionBehaviors.WanderNoWarp,
             WanderBehaviorPattern.OnWater => NPCControl.ActionBehaviors.WanderOnWater,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<NPCControl.ActionBehaviors>(nameof(WanderPattern))
@@ -45,5 +45,5 @@ public sealed class WanderMapEntityBehavior : MapEntityBehavior
         set => MapEntityLeaf.InternalTeleportRadius = value;
     }
 
-    internal WanderMapEntityBehavior(MapEntityLeaf mapEntityLeaf, ActionBehaviorKind kind) : base(mapEntityLeaf, kind) { }
+    internal WanderMapEntityBehavior(MapEntityLeaf mapEntityLeaf, BehaviorKind kind) : base(mapEntityLeaf, kind) { }
 }

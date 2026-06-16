@@ -7,6 +7,6 @@ public enum NpcEmoticon
     QuestionMark,
     RedExclamationMark,
     Ellipsis,
-    Detector,
+    DetectorMedalIcon,
     GreenExclamationMark
 }

@@ -74,7 +74,8 @@ internal sealed class PathNodesActionBehaviorsTopLevelPatcher : ITopLevelPatcher
         matcher.Advance(1);
         matcher.MatchStartForward(CodeMatch.Calls(npcControlHasBehaviorMethod));
         matcher.MatchStartForward(CodeMatch.Calls(mainManagerBadgeHowManageEquippedMethod));
-        matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
+        matcher.MatchStartBackwards(CodeMatch.Branches());
+        matcher.Advance(1);
         matcher.CreateLabel(out Label itemDropsLogicLabel);
 
         matcher.MatchStartBackwards(CodeMatch.Calls(npcControlHasBehaviorMethod));

@@ -138,8 +138,8 @@ public sealed class MapEntityBehaviorSystem
 
     public ChasePlayerMapEntityBehavior SetChasePlayerBehavior(
         BehaviorKind kind,
-        bool chaseOnWater,
-        float movementSpeedMultiplier)
+        float movementSpeedMultiplier,
+        bool chaseOnWater)
     {
         ChasePlayerMapEntityBehavior behavior = new(_mapEntityLeaf, kind)
         {
@@ -167,8 +167,8 @@ public sealed class MapEntityBehaviorSystem
     public ChaseAndAttackPlayerMapEntityBehavior SetChaseAndAttackPlayerBehavior(
         BehaviorKind kind,
         float minimumDistanceFromPlayerBeforeAttacking,
-        bool attackFromUnderground,
-        float movementSpeedMultiplier)
+        float movementSpeedMultiplier,
+        bool attackFromUnderground)
     {
         ChaseAndAttackPlayerMapEntityBehavior behavior = new(_mapEntityLeaf, kind)
         {
@@ -204,8 +204,8 @@ public sealed class MapEntityBehaviorSystem
     public WanderMapEntityBehavior SetWanderBehavior(
         BehaviorKind kind,
         WanderBehaviorPattern pattern,
-        float maxFramesIntervalBeforeMovingAgain,
         float radiusToWanderFromStartingPosition,
+        float maxFramesIntervalBeforeMovingAgain,
         float maxDistanceFromStartingPositionBeforeTeleport)
     {
         WanderMapEntityBehavior behavior = new(_mapEntityLeaf, kind)
@@ -245,8 +245,8 @@ public sealed class MapEntityBehaviorSystem
 
     public DisguiseOnceBeforeWanderMapEntityBehavior SetDisguiseOnceBeforeWanderBehavior(
         BehaviorKind kind,
-        float maxFramesIntervalBeforeMovingAgain,
         float radiusToWanderFromStartingPosition,
+        float maxFramesIntervalBeforeMovingAgain,
         float maxDistanceFromStartingPositionBeforeTeleport)
     {
         DisguiseOnceBeforeWanderMapEntityBehavior behavior = new(_mapEntityLeaf, kind)
@@ -278,8 +278,8 @@ public sealed class MapEntityBehaviorSystem
 
     public ChargeAtPlayerMapEntityBehavior SetChargeAtPlayerBehavior(
         BehaviorKind kind,
-        bool lockSpriteFlipDuringCharge,
-        float movementSpeedMultiplier)
+        float movementSpeedMultiplier,
+        bool lockSpriteFlipDuringCharge)
     {
         ChargeAtPlayerMapEntityBehavior behavior = new(_mapEntityLeaf, kind)
         {
@@ -321,8 +321,8 @@ public sealed class MapEntityBehaviorSystem
 
     public StealthSpotBehavior SetStealthSpotGlobalBehavior(
         Branch<EventLeaf>? eventToStartWhenSpottingPlayer,
-        float delayFramesBeforeMovingToNextNode,
-        int visionLengthInUnits)
+        int visionLengthInUnits,
+        float delayFramesBeforeMovingToNextNode)
     {
         StealthSpotBehavior behavior = new(_mapEntityLeaf)
         {

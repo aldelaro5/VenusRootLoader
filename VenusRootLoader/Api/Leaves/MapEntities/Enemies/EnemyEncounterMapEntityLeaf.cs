@@ -43,7 +43,6 @@ public abstract class EnemyEncounterMapEntityLeaf : MapEntityLeaf
     public Vector3 EntityIceCubeSizeWhenFrozen { get => InternalFreezeSize; set => InternalFreezeSize = value; }
     public bool ReturnToAirWhenUnfrozen { get => InternalReturnToHeight; set => InternalReturnToHeight = value; }
     public float MovementRadius { get => InternalRadiusLimit; set => InternalRadiusLimit = value; }
-    public float BehaviorAndInteractRangeRadius { get => InternalRadius; set => InternalRadius = value; }
     public float ExtraFreezeTimeInFrames { get => InternalFreezeTime; set => InternalFreezeTime = value; }
     public float EntityMovementSpeed { get => InternalSpeed; set => InternalSpeed = value; }
     public float BehaviorSystemRangeRadius { get => InternalRadius; set => InternalRadius = value; }

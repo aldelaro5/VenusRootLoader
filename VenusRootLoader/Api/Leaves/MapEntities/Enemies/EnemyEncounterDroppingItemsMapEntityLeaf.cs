@@ -13,8 +13,7 @@ public sealed class EnemyEncounterDroppingItemsMapEntityLeaf : EnemyEncounterMap
         _itemsDropPoolWhenDefeated = new(InternalVectorData, 0, x => x.Vector3Ref);
     }
 
-    // TODO: Needs more testing
-    internal NPCControl.DeathType DefeatAnimation { get => InternalDeathType; set => InternalDeathType = value; }
+    public NPCControl.DeathType DefeatAnimation { get => InternalDeathType; set => InternalDeathType = value; }
 
     private readonly ListRefWrapper<EnemyItemDrop, Vector3> _itemsDropPoolWhenDefeated;
     public IList<EnemyItemDrop> ItemsDropPoolWhenDefeated => _itemsDropPoolWhenDefeated;
@@ -29,6 +28,7 @@ public sealed class EnemyEncounterDroppingItemsMapEntityLeaf : EnemyEncounterMap
         base.InitializeFromNew(startingPosition, animId, enemiesFormationInBattle);
         foreach (EnemyItemDrop enemyItemDrop in itemsDropPoolWhenDefeated)
             ItemsDropPoolWhenDefeated.Add(enemyItemDrop);
+        DefeatAnimation = NPCControl.DeathType.SpinSmoke;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

@@ -12,8 +12,7 @@ public sealed class EnemyEncounterDroppingKeyItemMapEntityLeaf : EnemyEncounterM
     {
     }
 
-    // TODO: Needs more testing
-    internal NPCControl.DeathType DefeatAnimation { get => InternalDeathType; set => InternalDeathType = value; }
+    public NPCControl.DeathType DefeatAnimation { get => InternalDeathType; set => InternalDeathType = value; }
 
     public Branch<ItemLeaf> KeyItemDroppedWhenDefeated
     {
@@ -54,6 +53,7 @@ public sealed class EnemyEncounterDroppingKeyItemMapEntityLeaf : EnemyEncounterM
             });
         // TODO: Patch the game so this works for any animid
         Modifiers |= MapEntityModifiers.ShwKEY;
+        DefeatAnimation = NPCControl.DeathType.SpinSmoke;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

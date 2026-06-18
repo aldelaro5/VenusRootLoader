@@ -32,9 +32,12 @@ public abstract class EnemyEncounterMapEntityLeaf : MapEntityLeaf
         }
     }
 
-    public float EntityBobSpeedWhileAirborne { get => InternalBobSpeed; set => InternalBobSpeed = value; }
-    public float EntityBobRangeWhileAirborne { get => InternalBobRange; set => InternalBobRange = value; }
     public float EntityInitialAltitudeFromGround { get => InternalInitialHeight; set => InternalInitialHeight = value; }
+
+    // This is not a mistake, the game mislabels them by swapping their semantics
+    public float EntityBobRangeInUnitsWhileAirborne { get => InternalBobSpeed; set => InternalBobSpeed = value; }
+    public float EntityBobSpeedWhileAirborne { get => InternalBobRange; set => InternalBobRange = value; }
+
     public float EntityCapsuleColliderRadius { get => InternalCcolRadius; set => InternalCcolRadius = value; }
     public float EntityCapsulerColliderHeight { get => InternalCcolHeight; set => InternalCcolHeight = value; }
     public bool EntitySpriteStartsFlipped { get => InternalIsFlipped; set => InternalIsFlipped = value; }

@@ -195,6 +195,11 @@ public abstract class MapEntityLeaf : Leaf
     internal float InternalTeleportRadius { get; set; } = 9f;
 
     internal float InternalFreezeTime { get; set; } = 600f;
+
+    // TODO: These 2 fields don't work because CheckSpecialID will not honor them, but if they are specified meaning they
+    // TODO: have a magnitude above 0.1f, it will still cause the offset to be overriden to (0f, 1f, 0f) and the size to (2f, 2f, 1f)
+    // TODO: This can't work for modding so we have to retroactively change all existing ones to these values and then patch
+    // TODO: the game to remove this quirk so they can actually function as it's supposed to
     internal Vector3 InternalFreezeSize { get; set; } = Vector3.one;
     internal Vector3 InternalFreezeOffset { get; set; } = Vector3.zero;
 

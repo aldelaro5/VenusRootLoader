@@ -3,17 +3,17 @@ using VenusRootLoader.LeavesInternals;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Enemies;
 
+// TODO: Look into a way to fix the length 0 problem resulting in Vector3.zero which is a Crunchy Leaf drop
 public sealed class EnemyItemDrop
 {
     internal readonly Ref<Vector3> Vector3Ref = new(new(0, -1, 0));
 
-    // TODO: should this be nullable for padding in the pool?
-    public required Branch<ItemLeaf> Item
+    public required Branch<ItemLeaf>? Item
     {
         get;
         set
         {
-            Vector3Ref.Value.x = value.GameId;
+            Vector3Ref.Value.x = value?.GameId ?? -1;
             field = value;
         }
     }

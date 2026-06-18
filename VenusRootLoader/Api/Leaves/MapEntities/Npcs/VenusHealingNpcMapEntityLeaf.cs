@@ -47,5 +47,8 @@ public sealed class VenusHealingNpcMapEntityLeaf : NpcMapEntityLeaf
     }
 
     [MapEntityInitializeFromNew]
-    public void InitializeFromNew() { }
+    public void InitializeFromNew()
+    {
+        InternalRadius = 1.25f;
+    }
 }

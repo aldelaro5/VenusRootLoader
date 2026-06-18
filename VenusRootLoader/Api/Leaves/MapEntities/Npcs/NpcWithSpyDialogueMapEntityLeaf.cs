@@ -5,9 +5,12 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
-public abstract class SpyableNpcMapEntityLeaf : NpcMapEntityLeaf
+public abstract class NpcWithSpyDialogueMapEntityLeaf : NpcMapEntityLeaf
 {
-    protected SpyableNpcMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    protected NpcWithSpyDialogueMapEntityLeaf(int gameId, string namedId, string creatorId) : base(
+        gameId,
+        namedId,
+        creatorId)
     {
     }
 
@@ -61,6 +64,7 @@ public abstract class SpyableNpcMapEntityLeaf : NpcMapEntityLeaf
     {
         base.InitializeFromNew(startingPosition, animId);
         SpyDialogue = spyDialogue;
+        InternalRadius = 1.25f;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

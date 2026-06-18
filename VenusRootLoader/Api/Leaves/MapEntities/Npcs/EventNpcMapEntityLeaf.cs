@@ -4,7 +4,7 @@ using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
-public sealed class EventNpcMapEntityLeaf : SpyableNpcMapEntityLeaf
+public sealed class EventNpcMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
 {
     internal EventNpcMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)

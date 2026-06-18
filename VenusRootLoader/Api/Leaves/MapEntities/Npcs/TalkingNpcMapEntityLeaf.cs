@@ -5,7 +5,7 @@ using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
-public sealed class TalkingNpcMapEntityLeaf : SpyableNpcMapEntityLeaf
+public sealed class TalkingNpcMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
 {
     internal TalkingNpcMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)

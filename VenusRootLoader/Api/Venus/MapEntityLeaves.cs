@@ -1,5 +1,6 @@
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Api.Leaves.MapEntities;
+using VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.AndBlocks;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.MovingPlatforms;
@@ -23,6 +24,26 @@ public partial class Venus
     }
 
     // The following overloads are written by hand since they need to use the resolver to access default values
+
+    public ItemsStorageNpcMapEntityLeaf RegisterItemsStorageNpcMapEntity(
+        string namedId,
+        MapLeaf map,
+        UnityEngine.Vector3 startingPosition)
+    {
+        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>()
+            .LeavesByNamedIds[nameof(MainManager.AnimIDs.MessengerAnt)];
+        return RegisterItemsStorageNpcMapEntity(namedId, map, startingPosition, animId);
+    }
+
+    public VenusHealingNpcMapEntityLeaf RegisterVenusHealingNpcMapEntity(
+        string namedId,
+        MapLeaf map,
+        UnityEngine.Vector3 startingPosition)
+    {
+        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>()
+            .LeavesByNamedIds[nameof(MainManager.AnimIDs.AngryPlant)];
+        return RegisterVenusHealingNpcMapEntity(namedId, map, startingPosition, animId);
+    }
 
     public AndBlockOnEntitiesLeafActivationMapEntityLeaf RegisterAndBlockOnEntitiesLeafActivationMapEntity(
         string namedId,

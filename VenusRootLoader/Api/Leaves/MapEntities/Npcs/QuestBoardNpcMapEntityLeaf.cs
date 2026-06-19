@@ -123,7 +123,6 @@ public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
         InternalVectorData.AddRange(Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 3 - InternalVectorData.Count));
         BoardCaretakerNpc = boardCaretakerNpc;
         BoardCaretakerDialogueWhenQuestIsSelected = boardCaretakerDialogueWhenQuestIsSelected;
-        InternalRadius = 1.25f;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

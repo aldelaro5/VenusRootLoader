@@ -88,11 +88,12 @@ public abstract class NpcMapEntityLeaf : MapEntityLeaf
         }
     }
 
-    internal void InitializeFromNew(Vector3 startingPosition, Branch<AnimIdLeaf>? animId)
+    internal virtual void InitializeFromNew(Vector3 startingPosition, Branch<AnimIdLeaf>? animId)
     {
         AnimId = animId;
         InternalEmoticonFlags.Add(new(new(-1, 0)));
         EntityStartingPosition = startingPosition;
+        InternalRadius = 1.25f;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

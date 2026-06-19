@@ -87,7 +87,6 @@ public sealed class CaravanShelvedMedalNpcMapEntityLeaf : NpcMapEntityLeaf
         InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 2 - InternalData.Count));
         AssociatedItemShop = associatedItemShop;
         ShopKeeperDialogueWhenInteracting = shopKeeperDialogueWhenInteracting;
-        InternalRadius = 1.25f;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

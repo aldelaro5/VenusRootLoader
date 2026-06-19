@@ -1,4 +1,5 @@
 using CommunityToolkit.Diagnostics;
+using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.SourceGenerators;
 
@@ -47,8 +48,8 @@ public sealed class VenusHealingNpcMapEntityLeaf : NpcMapEntityLeaf
     }
 
     [MapEntityInitializeFromNew]
-    public void InitializeFromNew()
+    internal override void InitializeFromNew(Vector3 startingPosition, Branch<AnimIdLeaf>? animId)
     {
-        InternalRadius = 1.25f;
+        base.InitializeFromNew(startingPosition, animId);
     }
 }

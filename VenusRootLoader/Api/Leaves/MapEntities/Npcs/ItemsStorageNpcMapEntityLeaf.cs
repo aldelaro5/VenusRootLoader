@@ -1,3 +1,4 @@
+using UnityEngine;
 using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
@@ -12,5 +13,8 @@ public sealed class ItemsStorageNpcMapEntityLeaf : NpcWithSpyDialogueMapEntityLe
     internal override NPCControl.Interaction Interaction => NPCControl.Interaction.StorageAnt;
 
     [MapEntityInitializeFromNew]
-    internal void InitializeFromNew() { }
+    internal override void InitializeFromNew(Vector3 startingPosition, Branch<AnimIdLeaf>? animId)
+    {
+        base.InitializeFromNew(startingPosition, animId);
+    }
 }

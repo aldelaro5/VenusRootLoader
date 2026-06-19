@@ -64,7 +64,6 @@ public abstract class NpcWithSpyDialogueMapEntityLeaf : NpcMapEntityLeaf
     {
         base.InitializeFromNew(startingPosition, animId);
         SpyDialogue = spyDialogue;
-        InternalRadius = 1.25f;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

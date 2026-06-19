@@ -31,6 +31,7 @@ public abstract class NpcMapEntityLeaf : MapEntityLeaf
     public float EntityInitialAltitudeFromGround { get => InternalInitialHeight; set => InternalInitialHeight = value; }
 
     // This is not a mistake, the game mislabels them by swapping their semantics
+    // TODO: Patch EntityControl.LateUpdate game so these works without the ALW modifier or inside events
     public float EntityBobRangeInUnitsWhileAirborne { get => InternalBobSpeed; set => InternalBobSpeed = value; }
     public float EntityBobSpeedWhileAirborne { get => InternalBobRange; set => InternalBobRange = value; }
 

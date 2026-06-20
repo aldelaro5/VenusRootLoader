@@ -105,6 +105,9 @@ public sealed class FreezableWaterDropletMapEntityLeaf : ObjectMapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 5)
-            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 5 - InternalData.Count));
+        {
+            for (int i = 0; i < 5 - InternalData.Count; i++)
+                InternalData.Add(new Ref<int>(0));
+        }
     }
 }

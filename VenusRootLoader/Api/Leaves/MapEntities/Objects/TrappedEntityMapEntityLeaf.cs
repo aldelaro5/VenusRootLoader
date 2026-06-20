@@ -56,7 +56,10 @@ public sealed class TrappedEntityMapEntityLeaf : ObjectMapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 2)
-            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(-1), 2 - InternalData.Count));
+        {
+            for (int i = 0; i < 2 - InternalData.Count; i++)
+                InternalData.Add(new Ref<int>(-1));
+        }
 
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
 

@@ -138,7 +138,8 @@ public sealed class LoadingZoneMapEntityLeaf : ObjectMapEntityLeaf
         Vector3 triggerBoxColliderCenter)
     {
         InternalData.AddRange([new(-1), new(0), new(0), new(0), new(0)]);
-        InternalVectorData.AddRange(Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 7));
+        for (int i = 0; i < 7; i++)
+            InternalVectorData.Add(new Ref<Vector3>(Vector3.zero));
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
         InternalBoxColSize = Vector3.one;
@@ -153,11 +154,15 @@ public sealed class LoadingZoneMapEntityLeaf : ObjectMapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 5)
-            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 5 - InternalData.Count));
+        {
+            for (int i = 0; i < 5 - InternalData.Count; i++)
+                InternalData.Add(new Ref<int>(0));
+        }
+
         if (InternalVectorData.Count < 7)
         {
-            InternalVectorData.AddRange(
-                Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 7 - InternalVectorData.Count));
+            for (int i = 0; i < 7 - InternalVectorData.Count; i++)
+                InternalVectorData.Add(new Ref<Vector3>(Vector3.zero));
         }
 
         ILeavesRegistry<MapLeaf> mapsRegistry = registryResolver.Resolve<MapLeaf>();

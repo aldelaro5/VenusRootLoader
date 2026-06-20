@@ -85,7 +85,8 @@ public sealed class InsideTransitionZoneMapEntityLeaf : ObjectMapEntityLeaf
         Vector3 triggerBoxColliderCenter)
     {
         InternalData.AddRange([new(-1), new(-1)]);
-        InternalVectorData.AddRange(Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 8));
+        for (int i = 0; i < 8; i++)
+            InternalVectorData.Add(new Ref<Vector3>(Vector3.zero));
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
         InternalBoxColSize = Vector3.one;
@@ -100,10 +101,16 @@ public sealed class InsideTransitionZoneMapEntityLeaf : ObjectMapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 2)
-            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(-1), 2 - InternalData.Count));
+        {
+            for (int i = 0; i < 2 - InternalData.Count; i++)
+                InternalData.Add(new Ref<int>(-1));
+        }
+
         if (InternalVectorData.Count < 8)
-            InternalVectorData.AddRange(
-                Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 8 - InternalVectorData.Count));
+        {
+            for (int i = 0; i < 8 - InternalVectorData.Count; i++)
+                InternalVectorData.Add(new Ref<Vector3>(Vector3.zero));
+        }
 
         ILeavesRegistry<MusicLeaf> musicRegistry = registryResolver.Resolve<MusicLeaf>();
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();

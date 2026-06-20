@@ -25,11 +25,15 @@ public abstract class MovableObjectMapEntityLeaf : ObjectMapEntityLeaf
     internal sealed override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 4)
-            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 4 - InternalData.Count));
+        {
+            for (int i = 0; i < 4 - InternalData.Count; i++)
+                InternalData.Add(new Ref<int>(0));
+        }
+
         if (InternalVectorData.Count < 2)
         {
-            InternalVectorData.AddRange(
-                Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 2 - InternalVectorData.Count));
+            for (int i = 0; i < 2 - InternalVectorData.Count; i++)
+                InternalVectorData.Add(new Ref<Vector3>(Vector3.zero));
         }
     }
 }

@@ -84,7 +84,10 @@ public sealed class RotatingPlatformMapEntityLeaf : ObjectMapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalDialogues.Count < 3)
-            InternalDialogues.AddRange(Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 3 - InternalData.Count));
+        {
+            for (int i = 0; i < 3 - InternalDialogues.Count; i++)
+                InternalDialogues.Add(new Ref<Vector3>(Vector3.zero));
+        }
 
         ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
         AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);

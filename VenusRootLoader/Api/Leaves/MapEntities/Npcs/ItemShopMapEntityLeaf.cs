@@ -67,7 +67,8 @@ public sealed class ItemShopMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
         IList<ItemShopShelvedItemForSale> itemsForSale)
     {
         base.InitializeFromNew(startingPosition, animId, spyDialogue);
-        InternalDialogues.AddRange(Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 11));
+        for (int i = 0; i < 11; i++)
+            InternalDialogues.Add(new Ref<Vector3>(Vector3.zero));
         DialogueWhenInteractingWithShopKeeper = dialogueWhenInteractingWithShopKeeper;
         DialogueWhenInteractingWithShelvedItem = dialogueWhenInteractingWithShelvedItem;
         foreach (ItemShopShelvedItemForSale itemForSale in itemsForSale)

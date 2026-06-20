@@ -48,6 +48,9 @@ public abstract class RollingRockMapEntityLeaf : ObjectMapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 4)
-            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(-1), 4 - InternalData.Count));
+        {
+            for (int i = 0; i < 4 - InternalData.Count; i++)
+                InternalData.Add(new Ref<int>(-1));
+        }
     }
 }

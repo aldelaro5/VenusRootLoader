@@ -27,7 +27,8 @@ public sealed class MovableRockMapEntityLeaf : MovableObjectMapEntityLeaf
     internal override void InitializeFromNew(Vector3 startingPosition)
     {
         base.InitializeFromNew(startingPosition);
-        InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 4));
+        for (int i = 0; i < 4; i++)
+            InternalData.Add(new Ref<int>(0));
         InternalVectorData.AddRange([new(new(0f, 10f, 5f)), new(new(0f, 0f, 0f))]);
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.PushRock - 1;
     }

@@ -73,7 +73,8 @@ public sealed class MapChildVerticalPositionSwitchMapEntityLeaf : ObjectMapEntit
         float verticalMovementUpperBound,
         float framesDurationForFullMovement)
     {
-        InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 5));
+        for (int i = 0; i < 5; i++)
+            InternalData.Add(new Ref<int>(0));
         InternalVectorData.Add(new(new(180f, -1f, 1f)));
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;

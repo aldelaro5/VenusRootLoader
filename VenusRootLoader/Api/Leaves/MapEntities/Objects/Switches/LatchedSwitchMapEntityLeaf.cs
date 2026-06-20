@@ -30,7 +30,8 @@ public sealed class LatchedSwitchMapEntityLeaf : SwitchMapEntityLeaf
         Branch<AnimIdLeaf>? animId)
     {
         base.InitializeFromNew(startingPosition, animId);
-        InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 5));
+        for (int i = 0; i < 5; i++)
+            InternalData.Add(new Ref<int>(0));
         LatchHoldFlag = latchHoldFlag;
     }
 

@@ -56,7 +56,10 @@ public sealed class EventTriggerZoneMapEntityLeaf : EventTriggerMapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 3)
-            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 3 - InternalData.Count));
+        {
+            for (int i = 0; i < 3 - InternalData.Count; i++)
+                InternalData.Add(new Ref<int>(0));
+        }
 
         ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();

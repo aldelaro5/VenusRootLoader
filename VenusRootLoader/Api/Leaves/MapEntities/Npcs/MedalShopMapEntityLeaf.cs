@@ -78,7 +78,8 @@ public sealed class MedalShopMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
         IList<Vector3> shelvedMedalPositions)
     {
         base.InitializeFromNew(startingPosition, animIdLeaf, spyDialogue);
-        InternalDialogues.AddRange(Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 10));
+        for (int i = 0; i < 10; i++)
+            InternalDialogues.Add(new Ref<Vector3>(Vector3.zero));
         InternalDialogues.Add(new(new(1f, 0f, 0f)));
         AssociatedMedalShop = associatedMedalShop;
         DialogueWhenInteractingWithShopKeeper = dialogueWhenInteractingWithShopKeeper;

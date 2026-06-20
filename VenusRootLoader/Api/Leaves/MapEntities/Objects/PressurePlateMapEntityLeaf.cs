@@ -106,7 +106,10 @@ public sealed class PressurePlateMapEntityLeaf : ObjectMapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 3)
-            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(-1), 3 - InternalData.Count));
+        {
+            for (int i = 0; i < 3 - InternalData.Count; i++)
+                InternalData.Add(new Ref<int>(-1));
+        }
 
         if (InternalData[2].Value >= 0)
         {

@@ -56,8 +56,8 @@ public abstract class AndBlockMapEntityLeaf : ObjectMapEntityLeaf
     {
         if (InternalVectorData.Count < 3)
         {
-            InternalVectorData.AddRange(
-                Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 3 - InternalVectorData.Count));
+            for (int i = 0; i < 3 - InternalVectorData.Count; i++)
+                InternalVectorData.Add(new Ref<Vector3>(Vector3.zero));
         }
 
         ILeavesRegistry<AnimIdLeaf> animIdRegistry = registryResolver.Resolve<AnimIdLeaf>();

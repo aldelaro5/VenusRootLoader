@@ -39,8 +39,8 @@ public sealed class StealthSpotBehavior : MapEntityBehavior
 
         if (MapEntityLeaf.InternalBattleEnemyIds.Count < 2)
         {
-            MapEntityLeaf.InternalBattleEnemyIds.AddRange(
-                Enumerable.Repeat(new Ref<int>(0), 2 - MapEntityLeaf.InternalBattleEnemyIds.Count));
+            for (int i = 0; i < 2 - MapEntityLeaf.InternalBattleEnemyIds.Count; i++)
+                MapEntityLeaf.InternalBattleEnemyIds.Add(new Ref<int>(0));
         }
 
         _movementPathNodePositions.SynchronizeFromExistingData(

@@ -148,8 +148,10 @@ public sealed class CameraChangeZoneMapEntityLeaf : ObjectMapEntityLeaf
         Vector3 triggerBoxColliderSize,
         Vector3 triggerBoxColliderCenter)
     {
-        InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 8));
-        InternalVectorData.AddRange(Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 6));
+        for (int i = 0; i < 8; i++)
+            InternalData.Add(new Ref<int>(0));
+        for (int i = 0; i < 6; i++)
+            InternalVectorData.Add(new Ref<Vector3>(Vector3.zero));
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
         TriggerBoxColliderSize = triggerBoxColliderSize;
@@ -160,11 +162,15 @@ public sealed class CameraChangeZoneMapEntityLeaf : ObjectMapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 8)
-            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 8 - InternalData.Count));
+        {
+            for (int i = 0; i < 8 - InternalData.Count; i++)
+                InternalData.Add(new Ref<int>(0));
+        }
+
         if (InternalVectorData.Count < 6)
         {
-            InternalVectorData.AddRange(
-                Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 6 - InternalVectorData.Count));
+            for (int i = 0; i < 6 - InternalVectorData.Count; i++)
+                InternalVectorData.Add(new Ref<Vector3>(Vector3.zero));
         }
     }
 }

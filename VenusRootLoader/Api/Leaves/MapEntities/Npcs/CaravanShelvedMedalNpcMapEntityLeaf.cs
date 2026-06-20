@@ -84,7 +84,8 @@ public sealed class CaravanShelvedMedalNpcMapEntityLeaf : NpcMapEntityLeaf
         Branch<DialogueLeaf> shopKeeperDialogueWhenInteracting)
     {
         base.InitializeFromNew(startingPosition, null);
-        InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 2 - InternalData.Count));
+        for (int i = 0; i < 2; i++)
+            InternalData.Add(new Ref<int>(0));
         AssociatedItemShop = associatedItemShop;
         ShopKeeperDialogueWhenInteracting = shopKeeperDialogueWhenInteracting;
     }

@@ -119,8 +119,10 @@ public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
         Branch<DialogueLeaf> boardCaretakerDialogueWhenQuestIsSelected)
     {
         base.InitializeFromNew(startingPosition, animId);
-        InternalData.AddRange(Enumerable.Repeat(new Ref<int>(-1), 3 - InternalData.Count));
-        InternalVectorData.AddRange(Enumerable.Repeat(new Ref<Vector3>(Vector3.zero), 3 - InternalVectorData.Count));
+        for (int i = 0; i < 3; i++)
+            InternalData.Add(new Ref<int>(-1));
+        for (int i = 0; i < 3; i++)
+            InternalVectorData.Add(new Ref<Vector3>(Vector3.zero));
         BoardCaretakerNpc = boardCaretakerNpc;
         BoardCaretakerDialogueWhenQuestIsSelected = boardCaretakerDialogueWhenQuestIsSelected;
     }

@@ -80,9 +80,16 @@ public sealed class GeyserMapEntityLeaf : ObjectMapEntityLeaf
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
         if (InternalData.Count < 3)
-            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(-1), 3 - InternalData.Count));
+        {
+            for (int i = 0; i < 3 - InternalData.Count; i++)
+                InternalData.Add(new Ref<int>(-1));
+        }
+
         if (InternalData.Count < 5)
-            InternalData.AddRange(Enumerable.Repeat(new Ref<int>(0), 5 - InternalData.Count));
+        {
+            for (int i = 0; i < 5 - InternalData.Count; i++)
+                InternalData.Add(new Ref<int>(0));
+        }
 
         if (InternalData[1].Value != -1)
         {

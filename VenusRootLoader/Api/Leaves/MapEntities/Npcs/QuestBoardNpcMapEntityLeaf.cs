@@ -44,7 +44,7 @@ public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
         }
     }
 
-    public Branch<FlagLeaf>? FlagInteractWithCaretakerWhenItIsFalse
+    public Branch<FlagLeaf>? FlagInteractWithCaretakerInsteadOfShowingQuestBoardWhenFalse
     {
         get;
         set
@@ -54,7 +54,7 @@ public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
         }
     }
 
-    public Vector3 CameraPositionBeforeShowingQuests
+    public Vector3 CameraPositionOffsetFromTargetBeforeShowingQuests
     {
         get => InternalVectorData[0].Value;
         set => InternalVectorData[0].Value = value;
@@ -134,7 +134,8 @@ public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
 
         if (InternalData[2].Value >= 0)
-            FlagInteractWithCaretakerWhenItIsFalse = flagsRegistry.LeavesByGameIds[InternalData[2].Value];
+            FlagInteractWithCaretakerInsteadOfShowingQuestBoardWhenFalse =
+                flagsRegistry.LeavesByGameIds[InternalData[2].Value];
 
         BoardCaretakerNpc =
             (Branch<NpcMapEntityLeaf>)Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0].Value]!;

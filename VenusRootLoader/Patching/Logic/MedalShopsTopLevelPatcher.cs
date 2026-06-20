@@ -40,6 +40,11 @@ internal sealed class MedalShopsTopLevelPatcher : ITopLevelPatcher
         return matcher.Instructions();
     }
 
+    // This patches Load by changing how loading the medal shop pool lines are treated. It consists of 2 steps for each line:
+    // - Overwrites the initializations of the array by all the starting stocks of the shops in the registry
+    // - Let the save overwrites the now initialized data with the parts that it has, skipping the ones not in the registry
+    // This requires 2 patches each: one to overwrite the initialization and one to overwrite the length read from the save
+    // so it skips the shops that aren't in the registry.
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(MainManager), nameof(MainManager.Load))]
     internal static IEnumerable<CodeInstruction> PatchAmountBadgeShopsStockLoaded(
@@ -52,6 +57,7 @@ internal sealed class MedalShopsTopLevelPatcher : ITopLevelPatcher
             nameof(MainManager.avaliablebadgepool));
         FieldInfo mainManagerBadgeShopsField = AccessTools.Field(typeof(MainManager), nameof(MainManager.badgeshops));
 
+        // avaliablebadgepool - overwrites the initialization
         matcher.MatchStartForward(CodeMatch.StoresField(mainManagerAvailableBadgePoolField));
         while (!matcher.Instruction.IsLdloc())
         {
@@ -61,6 +67,7 @@ internal sealed class MedalShopsTopLevelPatcher : ITopLevelPatcher
 
         matcher.SetInstruction(Transpilers.EmitDelegate(InitializeAvailableBadgePoolFromLoad));
 
+        // avaliablebadgepool - overwrite the length so it skips shops that aren't in the registry
         matcher.MatchStartForward(CodeMatch.Branches());
         Label forAvailableShopPoolsEndLabel = (Label)matcher.Operand;
         matcher.MatchStartForward(new CodeMatch(i => i.labels.Contains(forAvailableShopPoolsEndLabel)));
@@ -69,6 +76,7 @@ internal sealed class MedalShopsTopLevelPatcher : ITopLevelPatcher
         matcher.Advance(1);
         matcher.Insert(Transpilers.EmitDelegate(PatchMedalShopsAmountLoadedFromSave));
 
+        // badgeshops - overwrites the initialization
         matcher.MatchStartForward(CodeMatch.StoresField(mainManagerBadgeShopsField));
         while (!matcher.Instruction.IsLdloc())
         {
@@ -78,6 +86,7 @@ internal sealed class MedalShopsTopLevelPatcher : ITopLevelPatcher
 
         matcher.SetInstruction(Transpilers.EmitDelegate(InitializeBadgesShopsFromLoad));
 
+        // badgeshops - overwrite the length so it skips shops that aren't in the registry
         matcher.MatchStartForward(CodeMatch.Branches());
         Label forBadgeShopsEndLabel = (Label)matcher.Operand;
         matcher.MatchStartForward(new CodeMatch(i => i.labels.Contains(forBadgeShopsEndLabel)));
@@ -131,11 +140,14 @@ internal sealed class MedalShopsTopLevelPatcher : ITopLevelPatcher
 
     private static int PatchNewMedalShopsAmount() => _instance._medalShopsRegistry.LeavesByGameIds.Count;
 
+    // This overwrites the amount of shops read from the save so it skips the ones that don't exist in the registry.
     private static int PatchMedalShopsAmountLoadedFromSave(int lengthFromSave)
     {
         return Math.Min(lengthFromSave, _instance._medalShopsRegistry.LeavesByGameIds.Count);
     }
 
+    // This overwrites the initializations of the avaliablebadgepool so they all start with their starting stock before
+    // the save overwrites the data it has.
     private static void InitializeAvailableBadgePoolFromLoad(MainManager instance)
     {
         int amountFromRegistry = _instance._medalShopsRegistry.LeavesByGameIds.Count;
@@ -148,6 +160,8 @@ internal sealed class MedalShopsTopLevelPatcher : ITopLevelPatcher
         }
     }
 
+    // This overwrites the initializations of the badgeshops so they all start with their starting stock before
+    // the save overwrites the data it has.
     private static void InitializeBadgesShopsFromLoad(MainManager instance)
     {
         int amountFromRegistry = _instance._medalShopsRegistry.LeavesByGameIds.Count;

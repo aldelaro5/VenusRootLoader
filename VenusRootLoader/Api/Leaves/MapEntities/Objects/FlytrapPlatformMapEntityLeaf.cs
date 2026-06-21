@@ -25,13 +25,19 @@ public sealed class FlytrapPlatformMapEntityLeaf : ObjectMapEntityLeaf
         set => InternalVectorData[0].Value.x = value;
     }
 
+    public Vector3 PlatformPosition
+    {
+        get => InternalStartingPosition + Vector3.up * 10f;
+        set => InternalStartingPosition = value + Vector3.down * 10f;
+    }
+
     [MapEntityInitializeFromNew]
-    internal void InitializeFromNew(Vector3 startingPosition)
+    internal void InitializeFromNew(Vector3 platformPosition)
     {
         InternalData.AddRange([new(60), new(1), new(1), new(1)]);
         InternalVectorData.Add(new(new(60f, 0f, 0f)));
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.FlyTrapPlatform - 1;
-        EntityStartingPosition = startingPosition;
+        PlatformPosition = platformPosition;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver) { }

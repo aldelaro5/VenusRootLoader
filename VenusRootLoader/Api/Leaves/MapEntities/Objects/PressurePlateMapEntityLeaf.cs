@@ -78,7 +78,7 @@ public sealed class PressurePlateMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
-    public Branch<FlagLeaf>? OneShotActivationFlag
+    public Branch<FlagLeaf>? FlagActuationOverrideWhenTrue
     {
         get;
         set
@@ -120,7 +120,7 @@ public sealed class PressurePlateMapEntityLeaf : ObjectMapEntityLeaf
         if (InternalActivationFlagId >= 0)
         {
             ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
-            OneShotActivationFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagActuationOverrideWhenTrue = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
         }
 
         PressurePlateType = (MainManager.AnimIDs)(InternalAnimIdOrItemId + 1) switch

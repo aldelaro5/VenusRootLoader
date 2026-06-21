@@ -1,8 +1,9 @@
+using CommunityToolkit.Diagnostics;
 using UnityEngine;
 using VenusRootLoader.Registry;
 using VenusRootLoader.SourceGenerators;
 
-namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
+namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.SetRespawnZones;
 
 public sealed class SetPlayerRespawnZoneMapEntityLeaf : ObjectMapEntityLeaf
 {
@@ -13,10 +14,14 @@ public sealed class SetPlayerRespawnZoneMapEntityLeaf : ObjectMapEntityLeaf
 
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.SetPlayerRespawn;
 
-    public Vector3? RespawnPositionToSetWhenTriggered
+    public Vector3 RespawnPositionToSetWhenTriggered
     {
-        get => InternalVectorData[0].Value.magnitude < 0.1 ? null : InternalVectorData[0].Value;
-        set => InternalVectorData[0].Value = value is null or { magnitude: < 0.1f } ? Vector3.zero : value.Value;
+        get => InternalVectorData[0].Value;
+        set
+        {
+            Guard.IsGreaterThanOrEqualTo(value.magnitude, 0.1f);
+            InternalVectorData[0].Value = value;
+        }
     }
 
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
@@ -25,22 +30,20 @@ public sealed class SetPlayerRespawnZoneMapEntityLeaf : ObjectMapEntityLeaf
     [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
-        Vector3? respawnPositionToSetWhenTriggered,
+        Vector3 respawnPositionToSetWhenTriggered,
         Vector3 triggerBoxColliderSize,
         Vector3 triggerBoxColliderCenter)
     {
-        InternalVectorData.Add(new(Vector3.back * 0.2f));
+        Guard.IsGreaterThanOrEqualTo(respawnPositionToSetWhenTriggered.magnitude, 0.1f);
+        EntityStartingPosition = startingPosition;
         InternalHaxBoxCol = true;
         InternalBoxColIsTrigger = true;
-        RespawnPositionToSetWhenTriggered = respawnPositionToSetWhenTriggered;
         TriggerBoxColliderSize = triggerBoxColliderSize;
         TriggerBoxColliderCenter = triggerBoxColliderCenter;
-        EntityStartingPosition = startingPosition;
+        InternalVectorData.Add(new(respawnPositionToSetWhenTriggered));
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)
     {
-        if (InternalVectorData.Count == 0)
-            InternalVectorData.Add(new(Vector3.zero));
     }
 }

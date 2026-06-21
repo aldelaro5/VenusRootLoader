@@ -20,6 +20,7 @@ using VenusRootLoader.Api.Leaves.MapEntities.Objects.JumpSprings;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.MovableObjects;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.MovingPlatforms;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.RollingRocks;
+using VenusRootLoader.Api.Leaves.MapEntities.Objects.SetRespawnZones;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.Switches;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.TriggerSwitches;
 using VenusRootLoader.Extensions;
@@ -601,8 +602,12 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DoorOtherMap, _) =>
                 registry.RegisterExisting<LoadingZoneMapEntityLeaf>(id, namedId, baseGameId),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.SetPlayerRespawn, _) =>
-                registry.RegisterExisting<SetPlayerRespawnZoneMapEntityLeaf>(id, namedId, baseGameId),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.SetPlayerRespawn, _) => new Vector3(
+                float.Parse(fields[72 + 0]),
+                float.Parse(fields[72 + 1]),
+                float.Parse(fields[72 + 2])).magnitude >= 0.1
+                ? registry.RegisterExisting<SetPlayerRespawnZoneMapEntityLeaf>(id, namedId, baseGameId)
+                : registry.RegisterExisting<IndependantRespawnZoneMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DoorSameMap, _) =>
                 registry.RegisterExisting<InsideTransitionZoneMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.EventTrigger, _) =>

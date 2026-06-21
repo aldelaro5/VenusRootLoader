@@ -57,12 +57,6 @@ public sealed class FreezableWaterDropletMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
-    public bool IceCubeCanOnlyMoveIn8CardinalDirections
-    {
-        get => InternalData[4].Value == 1;
-        set => InternalData[4].Value = value ? 1 : 0;
-    }
-
     public Vector3 IceCubeStartingPositionOffset
     {
         get => InternalVectorData[0].Value;

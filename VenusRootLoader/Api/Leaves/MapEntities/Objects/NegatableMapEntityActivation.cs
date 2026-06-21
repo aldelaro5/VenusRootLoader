@@ -22,7 +22,8 @@ public sealed class NegatableMapEntityActivation
         set
         {
             field = value;
-            IntRef.Value = EffectiveValue;
+            if (MapEntity.Leaf is not null)
+                IntRef.Value = EffectiveValue;
         }
     }
 

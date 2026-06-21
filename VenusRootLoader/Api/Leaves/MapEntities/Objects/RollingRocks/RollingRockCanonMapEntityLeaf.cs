@@ -40,7 +40,11 @@ public sealed class RollingRockCanonMapEntityLeaf : RollingRockMapEntityLeaf
     public float DelayFramesBeforeShooting
     {
         get => InternalVectorData[1].Value.z;
-        set => InternalVectorData[1].Value.z = value;
+        set
+        {
+            Guard.IsGreaterThan(value, 0f);
+            InternalVectorData[1].Value.z = value;
+        }
     }
 
     [MapEntityInitializeFromNew]
@@ -50,8 +54,6 @@ public sealed class RollingRockCanonMapEntityLeaf : RollingRockMapEntityLeaf
     {
         base.InitializeFromNew(startingPosition, velocityWhenRolling);
         InternalData.AddRange([new(0), new(0), new(1), new(-1)]);
-        InternalVectorData.AddRange(
-            [new(new(10f, 0f, 0f)), new(new(-10f, 0f, 0f)), new(new(10f, 0f, 0f)), new(new(0f, 0f, 5f))]);
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

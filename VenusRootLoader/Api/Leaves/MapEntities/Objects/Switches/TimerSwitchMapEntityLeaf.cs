@@ -11,7 +11,7 @@ public sealed class TimerSwitchMapEntityLeaf : SwitchMapEntityLeaf
     {
     }
 
-    public int TimerInFramesBeforeAutomaticTurnOff
+    public int TimeInFramesBeforeAutomaticDeactivation
     {
         get => InternalData[2].Value;
         set => InternalData[2].Value = value;
@@ -20,11 +20,11 @@ public sealed class TimerSwitchMapEntityLeaf : SwitchMapEntityLeaf
     [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
-        int timerInFramesBeforeAutomaticTurnOff,
+        int timeInFramesBeforeAutomaticDeactivation,
         Branch<AnimIdLeaf>? animId)
     {
         base.InitializeFromNew(startingPosition, animId);
         InternalData.AddRange([new(0), new(0), new(30), new(0), new(0)]);
-        TimerInFramesBeforeAutomaticTurnOff = timerInFramesBeforeAutomaticTurnOff;
+        TimeInFramesBeforeAutomaticDeactivation = timeInFramesBeforeAutomaticDeactivation;
     }
 }

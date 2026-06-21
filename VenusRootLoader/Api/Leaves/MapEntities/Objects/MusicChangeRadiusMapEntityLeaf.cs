@@ -13,7 +13,11 @@ public sealed class MusicChangeRadiusMapEntityLeaf : ObjectMapEntityLeaf
 
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.MusicRange;
 
-    public int FramesDelayBeforeMusicChange { get => InternalData[1].Value; set => InternalData[1].Value = value; }
+    public int TimeInFramesBetweenDistanceChecks
+    {
+        get => InternalData[1].Value;
+        set => InternalData[1].Value = value;
+    }
 
     public Branch<MusicLeaf> MusicWhenInRange
     {

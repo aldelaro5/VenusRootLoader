@@ -12,7 +12,7 @@ public abstract class RollingRockMapEntityLeaf : ObjectMapEntityLeaf
 
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.RollingRock;
 
-    public Vector3 DestinationPosition
+    public Vector3 VelocityWhenRolling
     {
         get => InternalVectorData[0].Value;
         set => InternalVectorData[0].Value = value;
@@ -38,10 +38,11 @@ public abstract class RollingRockMapEntityLeaf : ObjectMapEntityLeaf
 
     internal virtual void InitializeFromNew(
         Vector3 startingPosition,
-        Vector3 destinationPosition)
+        Vector3 velocityWhenRolling)
     {
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.RollingRock - 1;
-        DestinationPosition = destinationPosition;
+        InternalVectorData.AddRange(
+            [new(velocityWhenRolling), new(new(-10f, 0f, Mathf.Epsilon)), new(new(0f, 0f, 5f))]);
         EntityStartingPosition = startingPosition;
     }
 

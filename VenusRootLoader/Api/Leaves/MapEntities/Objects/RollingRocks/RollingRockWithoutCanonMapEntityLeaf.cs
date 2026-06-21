@@ -19,12 +19,11 @@ public sealed class RollingRockWithoutCanonMapEntityLeaf : RollingRockMapEntityL
     [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
-        Vector3 destinationPosition,
+        Vector3 velocityWhenRolling,
         RollingRockMethod rollingMethod)
     {
-        base.InitializeFromNew(startingPosition, destinationPosition);
+        base.InitializeFromNew(startingPosition, velocityWhenRolling);
         InternalData.AddRange([new(1), new(0), new(0), new(-1)]);
-        InternalVectorData.AddRange([new(new(10f, 0f, 0f)), new(new(-10f, 0f, 0f)), new(new(0f, 0f, 5f))]);
         RollingMethod = rollingMethod;
     }
 }

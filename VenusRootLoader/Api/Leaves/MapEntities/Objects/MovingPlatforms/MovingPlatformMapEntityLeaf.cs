@@ -54,7 +54,7 @@ public abstract class MovingPlatformMapEntityLeaf : ObjectMapEntityLeaf
         IList<Branch<ObjectMapEntityLeaf>> requiredEntityActivationsToMove)
     {
         AnimId = animId;
-        EntityStartingPosition = startingPosition;
+        InternalStartingPosition = startingPosition;
         foreach (Branch<ObjectMapEntityLeaf> requiredEntityActivation in requiredEntityActivationsToMove)
             RequiredEntityActivationsToMove.Add(requiredEntityActivation);
     }

@@ -20,7 +20,11 @@ public sealed class MovingPlatformAlongLerpMapEntityLeaf : MovingPlatformMapEnti
         }
     }
 
-    public Vector3 ActivePosition { get => InternalVectorData[1].Value; set => InternalVectorData[1].Value = value; }
+    public Vector3 ActivePositionToMoveTowards
+    {
+        get => InternalVectorData[1].Value;
+        set => InternalVectorData[1].Value = value;
+    }
 
     public bool StartMovementFromActivePosition
     {
@@ -33,13 +37,10 @@ public sealed class MovingPlatformAlongLerpMapEntityLeaf : MovingPlatformMapEnti
         Vector3 startingPosition,
         Branch<AnimIdLeaf> animId,
         IList<Branch<ObjectMapEntityLeaf>> requiredEntityActivationsToMove,
-        Vector3 fromPosition,
-        Vector3 toPosition)
+        Vector3 activePositionToMoveTowards)
     {
         base.InitializeFromNew(startingPosition, animId, requiredEntityActivationsToMove);
+        InternalVectorData.AddRange([new(startingPosition), new(activePositionToMoveTowards)]);
         InternalDialogues.AddRange([new(new(0f, 5f, 0f)), new(new(1f, 0f, 0f)), new(new(0f, 0f, 0f))]);
-        InternalVectorData.AddRange([new(Vector3.zero), new(Vector3.up)]);
-        EntityStartingPosition = fromPosition;
-        ActivePosition = toPosition;
     }
 }

@@ -88,7 +88,6 @@ public partial class Venus
         MapLeaf map,
         UnityEngine.Vector3 startingPosition,
         IList<Branch<ObjectMapEntityLeaf>> requiredEntityActivationsToMove,
-        UnityEngine.Vector3 fromPosition,
         UnityEngine.Vector3 toPosition)
     {
         AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>()
@@ -99,7 +98,6 @@ public partial class Venus
             startingPosition,
             animId,
             requiredEntityActivationsToMove,
-            fromPosition,
             toPosition);
     }
 

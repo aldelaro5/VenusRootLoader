@@ -127,7 +127,7 @@ public partial class Venus
     {
         AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>()
             .LeavesByNamedIds[nameof(MainManager.AnimIDs.SwitchCrystal)];
-        return RegisterEventTriggerSwitchMapEntity(namedId, map, startingPosition, eventToStartWhenToggled, animId);
+        return RegisterEventTriggerSwitchMapEntity(namedId, map, startingPosition, animId, eventToStartWhenToggled);
     }
 
     public LatchedSwitchMapEntityLeaf RegisterLatchedSwitchMapEntity(
@@ -138,7 +138,7 @@ public partial class Venus
     {
         AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>()
             .LeavesByNamedIds[nameof(MainManager.AnimIDs.SwitchCrystal)];
-        return RegisterLatchedSwitchMapEntity(namedId, map, startingPosition, latchHoldFlag, animId);
+        return RegisterLatchedSwitchMapEntity(namedId, map, startingPosition, animId, latchHoldFlag);
     }
 
     public LinkableToggleSwitchMapEntityLeaf RegisterLinkableToggleSwitchMapEntity(
@@ -149,7 +149,7 @@ public partial class Venus
     {
         AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>()
             .LeavesByNamedIds[nameof(MainManager.AnimIDs.SwitchCrystal)];
-        return RegisterLinkableToggleSwitchMapEntity(namedId, map, startingPosition, linkFlag, animId);
+        return RegisterLinkableToggleSwitchMapEntity(namedId, map, startingPosition, animId, linkFlag);
     }
 
     public TimerSwitchMapEntityLeaf RegisterTimerSwitchMapEntity(
@@ -164,7 +164,7 @@ public partial class Venus
             namedId,
             map,
             startingPosition,
-            timerInFramesBeforeAutomaticTurnOff,
-            animId);
+            animId,
+            timerInFramesBeforeAutomaticTurnOff);
     }
 }

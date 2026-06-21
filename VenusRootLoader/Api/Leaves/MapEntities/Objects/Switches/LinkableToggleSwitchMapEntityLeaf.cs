@@ -30,8 +30,8 @@ public sealed class LinkableToggleSwitchMapEntityLeaf : SwitchMapEntityLeaf
     [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
-        Branch<FlagLeaf>? linkFlag,
-        Branch<AnimIdLeaf>? animId)
+        Branch<AnimIdLeaf>? animId,
+        Branch<FlagLeaf>? linkFlag)
     {
         base.InitializeFromNew(startingPosition, animId);
         InternalData.AddRange([new(0), new(1), new(0), new(0), new(0)]);

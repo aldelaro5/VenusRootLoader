@@ -34,8 +34,8 @@ public sealed class EventTriggerSwitchMapEntityLeaf : SwitchMapEntityLeaf
     [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
-        Branch<EventLeaf> eventToStartWhenToggled,
-        Branch<AnimIdLeaf>? animId)
+        Branch<AnimIdLeaf>? animId,
+        Branch<EventLeaf> eventToStartWhenToggled)
     {
         base.InitializeFromNew(startingPosition, animId);
         InternalData.AddRange([new(1), new(1), new(0), new(0), new(0)]);

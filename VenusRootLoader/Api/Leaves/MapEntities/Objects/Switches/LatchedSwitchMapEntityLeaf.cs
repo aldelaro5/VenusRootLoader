@@ -26,8 +26,8 @@ public sealed class LatchedSwitchMapEntityLeaf : SwitchMapEntityLeaf
     [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
         Vector3 startingPosition,
-        Branch<FlagLeaf> latchHoldFlag,
-        Branch<AnimIdLeaf>? animId)
+        Branch<AnimIdLeaf>? animId,
+        Branch<FlagLeaf> latchHoldFlag)
     {
         base.InitializeFromNew(startingPosition, animId);
         for (int i = 0; i < 5; i++)

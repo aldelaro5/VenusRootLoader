@@ -30,6 +30,17 @@ public sealed class DigSpotItemMapEntityLeaf : DigSpotMapEntityLeaf
         set => InternalData[1].Value = value ? 1 : 0;
     }
 
+    public Branch<FlagLeaf>? FlagSetToTrueWhenCollectingItem
+    {
+        get;
+        set
+        {
+            InternalActivationFlagId = value?.GameId ?? -1;
+            field = value;
+        }
+    }
+
+    // TODO: Mention in the xmldoc it only applies to Lore Book in base game
     public ObjectDetectorBehavior DetectorBehavior
     {
         get
@@ -80,5 +91,12 @@ public sealed class DigSpotItemMapEntityLeaf : DigSpotMapEntityLeaf
         base.InitializeFromExisting(registryResolver);
         ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
         ItemHiddenInside = new(itemsRegistry.LeavesByGameIds[InternalData[2].Value]);
+
+        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+        FlagSetToTrueWhenCollectingItem = InternalActivationFlagId switch
+        {
+            > 0 => new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]),
+            _ => FlagSetToTrueWhenCollectingItem
+        };
     }
 }

@@ -12,16 +12,6 @@ public abstract class DigSpotMapEntityLeaf : ObjectMapEntityLeaf
 
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.DigSpot;
 
-    public Branch<FlagLeaf>? FlagSetToTrueWhenCollectingOrStartingEvent
-    {
-        get;
-        set
-        {
-            InternalActivationFlagId = value?.GameId ?? -1;
-            field = value;
-        }
-    }
-
     protected void InitializeFromNew(Vector3 startingPosition)
     {
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.DigMound - 1;
@@ -39,9 +29,5 @@ public abstract class DigSpotMapEntityLeaf : ObjectMapEntityLeaf
             for (int i = 0; i < 3 - InternalData.Count; i++)
                 InternalData.Add(new Ref<int>(-1));
         }
-
-        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
-        if (InternalActivationFlagId > 0)
-            FlagSetToTrueWhenCollectingOrStartingEvent = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
     }
 }

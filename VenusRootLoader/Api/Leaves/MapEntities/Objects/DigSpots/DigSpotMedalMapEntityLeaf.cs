@@ -21,6 +21,16 @@ public sealed class DigSpotMedalMapEntityLeaf : DigSpotMapEntityLeaf
         }
     }
 
+    public Branch<FlagLeaf>? FlagSetToTrueWhenCollectingMedal
+    {
+        get;
+        set
+        {
+            InternalActivationFlagId = value?.GameId ?? -1;
+            field = value;
+        }
+    }
+
     [MapEntityInitializeFromNew]
     internal void InitializeFromNew(Vector3 startingPosition, Branch<MedalLeaf> medalHiddenInside)
     {
@@ -34,5 +44,12 @@ public sealed class DigSpotMedalMapEntityLeaf : DigSpotMapEntityLeaf
         base.InitializeFromExisting(registryResolver);
         ILeavesRegistry<MedalLeaf> medalsRegistry = registryResolver.Resolve<MedalLeaf>();
         MedalHiddenInside = new(medalsRegistry.LeavesByGameIds[InternalData[2].Value]);
+
+        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+        FlagSetToTrueWhenCollectingMedal = InternalActivationFlagId switch
+        {
+            > 0 => new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]),
+            _ => FlagSetToTrueWhenCollectingMedal
+        };
     }
 }

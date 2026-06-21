@@ -4,7 +4,7 @@ using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
-// TODO: it's possible this works with other animId, recheck later
+// TODO: check for wooden switch support
 public sealed class IceRadiusSwitchMapEntityLeaf : ObjectMapEntityLeaf
 {
     internal IceRadiusSwitchMapEntityLeaf(int gameId, string namedId, string creatorId)

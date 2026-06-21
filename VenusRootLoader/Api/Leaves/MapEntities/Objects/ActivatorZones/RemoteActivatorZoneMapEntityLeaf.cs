@@ -1,13 +1,14 @@
 using CommunityToolkit.Diagnostics;
 using UnityEngine;
+using VenusRootLoader.Api.Leaves.MapEntities.Objects.ActivatorZones.Enums;
 using VenusRootLoader.Registry;
 using VenusRootLoader.SourceGenerators;
 
-namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.TriggerSwitches;
+namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.ActivatorZones;
 
-public sealed class SwitchMapEntityLeafActivationTriggerZoneMapEntityLeaf : TriggerSwitchMapEntityLeaf
+public sealed class RemoteActivatorZoneMapEntityLeaf : ActivatorZoneMapEntityLeaf
 {
-    internal SwitchMapEntityLeafActivationTriggerZoneMapEntityLeaf(int gameId, string namedId, string creatorId)
+    internal RemoteActivatorZoneMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
@@ -36,9 +37,9 @@ public sealed class SwitchMapEntityLeafActivationTriggerZoneMapEntityLeaf : Trig
         }
     } = null!;
 
-    public SwitchMapEntityActivationTriggerZoneMode ActivationMode
+    public RemoteActivatorZoneMode ActivatorMode
     {
-        get => (SwitchMapEntityActivationTriggerZoneMode)InternalData[1].Value;
+        get => (RemoteActivatorZoneMode)InternalData[1].Value;
         set => InternalData[1].Value = (int)value;
     }
 
@@ -54,12 +55,12 @@ public sealed class SwitchMapEntityLeafActivationTriggerZoneMapEntityLeaf : Trig
         Vector3 triggerBoxColliderSize,
         Vector3 triggerBoxColliderCenter,
         Branch<ObjectMapEntityLeaf> mapEntityWhoseActivationIsControlledByThis,
-        SwitchMapEntityActivationTriggerZoneMode activationMode)
+        RemoteActivatorZoneMode activatorMode)
     {
         base.InitializeFromNew(startingPosition, triggerBoxColliderSize, triggerBoxColliderCenter);
         InternalData.AddRange([new(0), new(1), new(0)]);
         MapEntityWhoseActivationIsControlledByThis = mapEntityWhoseActivationIsControlledByThis;
-        ActivationMode = activationMode;
+        ActivatorMode = activatorMode;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

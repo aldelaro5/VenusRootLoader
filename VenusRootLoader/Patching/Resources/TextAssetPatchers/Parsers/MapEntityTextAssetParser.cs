@@ -8,6 +8,7 @@ using VenusRootLoader.Api.Leaves.MapEntities;
 using VenusRootLoader.Api.Leaves.MapEntities.Enemies;
 using VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects;
+using VenusRootLoader.Api.Leaves.MapEntities.Objects.ActivatorZones;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.AndBlocks;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.AndGates;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.Collectibles;
@@ -22,7 +23,6 @@ using VenusRootLoader.Api.Leaves.MapEntities.Objects.MovingPlatforms;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.RollingRocks;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.SetRespawnZones;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.Switches;
-using VenusRootLoader.Api.Leaves.MapEntities.Objects.TriggerSwitches;
 using VenusRootLoader.Extensions;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
@@ -691,7 +691,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 _ => registry.RegisterExisting<RollingRockWithoutCanonMapEntityLeaf>(id, namedId, baseGameId)
             },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TriggerSwitch, _) =>
-                registry.RegisterExisting<SwitchTriggerZoneMapEntityLeaf>(id, namedId, baseGameId),
+                registry.RegisterExisting<SelfActivatorZoneMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WindPusher, _) =>
                 registry.RegisterExisting<WindBeamZoneMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WaterSwitch, _) =>

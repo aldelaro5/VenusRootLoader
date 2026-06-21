@@ -2,11 +2,11 @@ using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
-namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.TriggerSwitches;
+namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.ActivatorZones;
 
-public abstract class TriggerSwitchMapEntityLeaf : ObjectMapEntityLeaf
+public abstract class ActivatorZoneMapEntityLeaf : ObjectMapEntityLeaf
 {
-    protected TriggerSwitchMapEntityLeaf(int gameId, string namedId, string creatorId) : base(
+    protected ActivatorZoneMapEntityLeaf(int gameId, string namedId, string creatorId) : base(
         gameId,
         namedId,
         creatorId)

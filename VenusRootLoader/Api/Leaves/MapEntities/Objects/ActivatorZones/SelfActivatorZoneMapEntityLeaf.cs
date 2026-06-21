@@ -1,18 +1,19 @@
 using UnityEngine;
+using VenusRootLoader.Api.Leaves.MapEntities.Objects.ActivatorZones.Enums;
 using VenusRootLoader.SourceGenerators;
 
-namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.TriggerSwitches;
+namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.ActivatorZones;
 
-public sealed class SwitchTriggerZoneMapEntityLeaf : TriggerSwitchMapEntityLeaf
+public sealed class SelfActivatorZoneMapEntityLeaf : ActivatorZoneMapEntityLeaf
 {
-    internal SwitchTriggerZoneMapEntityLeaf(int gameId, string namedId, string creatorId)
+    internal SelfActivatorZoneMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
     }
 
-    public SwitchTriggerZoneMode ActivationMode
+    public SelfActivatorZoneMode ActivatorMode
     {
-        get => (SwitchTriggerZoneMode)InternalData[1].Value;
+        get => (SelfActivatorZoneMode)InternalData[1].Value;
         set => InternalData[1].Value = (int)value;
     }
 
@@ -27,10 +28,10 @@ public sealed class SwitchTriggerZoneMapEntityLeaf : TriggerSwitchMapEntityLeaf
         Vector3 startingPosition,
         Vector3 triggerBoxColliderSize,
         Vector3 triggerBoxColliderCenter,
-        SwitchTriggerZoneMode activationMode)
+        SelfActivatorZoneMode activatorMode)
     {
         base.InitializeFromNew(startingPosition, triggerBoxColliderSize, triggerBoxColliderCenter);
         InternalData.AddRange([new(-1), new(1), new(0)]);
-        ActivationMode = activationMode;
+        ActivatorMode = activatorMode;
     }
 }

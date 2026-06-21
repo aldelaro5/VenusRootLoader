@@ -56,19 +56,19 @@ public sealed class PressurePlateMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
-    public bool CanBeActuatedByPlayerCollider
+    public bool CanBeActivatedByPlayerCollider
     {
         get => InternalData[0].Value == 1;
         set => InternalData[0].Value = value ? 1 : 0;
     }
 
-    public bool CanBeActuatedByEntityIceCube
+    public bool CanBeActivatedByEntityIceCube
     {
         get => InternalData[1].Value == 1;
         set => InternalData[1].Value = value ? 1 : 0;
     }
 
-    public Branch<EventLeaf>? EventToTriggerOnFirstActuation
+    public Branch<EventLeaf>? EventToTriggerOnFirstActivation
     {
         get;
         set
@@ -78,7 +78,7 @@ public sealed class PressurePlateMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
-    public Branch<FlagLeaf>? FlagActuationOverrideWhenTrue
+    public Branch<FlagLeaf>? FlagActivationOverrideWhenTrue
     {
         get;
         set
@@ -114,13 +114,13 @@ public sealed class PressurePlateMapEntityLeaf : ObjectMapEntityLeaf
         if (InternalData[2].Value >= 0)
         {
             ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
-            EventToTriggerOnFirstActuation = new(eventsRegistry.LeavesByGameIds[InternalData[2].Value]);
+            EventToTriggerOnFirstActivation = new(eventsRegistry.LeavesByGameIds[InternalData[2].Value]);
         }
 
         if (InternalActivationFlagId >= 0)
         {
             ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
-            FlagActuationOverrideWhenTrue = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagActivationOverrideWhenTrue = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
         }
 
         PressurePlateType = (MainManager.AnimIDs)(InternalAnimIdOrItemId + 1) switch

@@ -22,13 +22,13 @@ public abstract class AndBlockMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
-    public Vector3 LocalPositionWhenActuatedAfterLerp
+    public Vector3 LocalPositionWhenActivatedAfterLerp
     {
         get => InternalVectorData[0].Value;
         set => InternalVectorData[0].Value = value;
     }
 
-    public float LocalPositionLerpFactorWhenActuated
+    public float LocalPositionLerpFactorWhenActivated
     {
         get => InternalVectorData[1].Value.x;
         set => InternalVectorData[1].Value.x = value;

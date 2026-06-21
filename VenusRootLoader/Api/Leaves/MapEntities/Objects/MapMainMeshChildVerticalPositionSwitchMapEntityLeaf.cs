@@ -54,7 +54,7 @@ public sealed class MapMainMeshChildVerticalPositionSwitchMapEntityLeaf : Object
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
 
-    public Branch<FlagLeaf>? FlagSwitchActuation
+    public Branch<FlagLeaf>? FlagSwitchActivation
     {
         get;
         set
@@ -91,6 +91,6 @@ public sealed class MapMainMeshChildVerticalPositionSwitchMapEntityLeaf : Object
         ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
 
         if (InternalActivationFlagId > 0)
-            FlagSwitchActuation = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSwitchActivation = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
     }
 }

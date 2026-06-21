@@ -3,7 +3,7 @@ using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Switches;
 
-// TODO: Remember to point out in the xmldocs that the regional gets set upon actuation
+// TODO: Remember to point out in the xmldocs that the regional gets set upon activation
 public sealed class TimerSwitchMapEntityLeaf : SwitchMapEntityLeaf
 {
     internal TimerSwitchMapEntityLeaf(int gameId, string namedId, string creatorId)

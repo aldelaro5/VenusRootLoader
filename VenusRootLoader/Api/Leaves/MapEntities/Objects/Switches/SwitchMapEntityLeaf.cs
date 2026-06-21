@@ -25,7 +25,7 @@ public abstract class SwitchMapEntityLeaf : ObjectMapEntityLeaf
     public Vector3 TriggerBoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 TriggerBoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
 
-    public bool CanOnlyBeActuatedWithHornSlash
+    public bool CanOnlyBeActivatedWithHornSlash
     {
         get => InternalData[4].Value == 1;
         set => InternalData[4].Value = value ? 1 : 0;

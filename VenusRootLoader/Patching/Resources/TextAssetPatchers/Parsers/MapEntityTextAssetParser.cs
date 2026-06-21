@@ -690,8 +690,9 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 1 => registry.RegisterExisting<RollingRockCanonMapEntityLeaf>(id, namedId, baseGameId),
                 _ => registry.RegisterExisting<RollingRockWithoutCanonMapEntityLeaf>(id, namedId, baseGameId)
             },
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TriggerSwitch, _) =>
-                registry.RegisterExisting<SelfActivatorZoneMapEntityLeaf>(id, namedId, baseGameId),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TriggerSwitch, _) => int.Parse(fields[61 + 0]) == -1
+                ? registry.RegisterExisting<SelfActivatorZoneMapEntityLeaf>(id, namedId, baseGameId)
+                : registry.RegisterExisting<RemoteActivatorZoneMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WindPusher, _) =>
                 registry.RegisterExisting<WindBeamZoneMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WaterSwitch, _) =>

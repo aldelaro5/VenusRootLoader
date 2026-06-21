@@ -243,6 +243,7 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, MedalShopsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, PathNodesActionBehaviorsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, MapEntitiesArraysLengthTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, EntityIsKillLastPositionTopLevelPatcher>();
         services.AddSingleton<RootPatcher>();
 
         services.AddSingleton<IAssemblyCSharpDataCollector, AssemblyCSharpDataCollector>();

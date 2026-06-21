@@ -690,7 +690,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WindPusher, _) =>
                 registry.RegisterExisting<WindBeamZoneMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WaterSwitch, _) =>
-                registry.RegisterExisting<MapChildVerticalPositionSwitchMapEntityLeaf>(id, namedId, baseGameId),
+                registry.RegisterExisting<MapMainMeshChildVerticalPositionSwitchMapEntityLeaf>(id, namedId, baseGameId),
             (NPCControl.NPCType.Enemy, _, _) => RegisterExistingEnemy(
                 id,
                 baseGameId,

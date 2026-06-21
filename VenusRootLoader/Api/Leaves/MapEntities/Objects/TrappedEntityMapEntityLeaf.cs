@@ -37,9 +37,15 @@ public sealed class TrappedEntityMapEntityLeaf : ObjectMapEntityLeaf
         }
     }
 
+    public Vector3 TrappedEntityPositionInMap
+    {
+        get => InternalStartingPosition - Vector3.up * 11f;
+        set => InternalStartingPosition = value + Vector3.up * 11f;
+    }
+
     [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
-        Vector3 startingPosition,
+        Vector3 trappedEntityPositionInMap,
         Branch<MapEntityLeaf> trappedMapEntity)
     {
         InternalData.AddRange([new(0), new(-1)]);
@@ -50,7 +56,7 @@ public sealed class TrappedEntityMapEntityLeaf : ObjectMapEntityLeaf
         InternalBoxColSize = new(2.5f, 5f, 2.5f);
         InternalBoxColCenter = new(0f, -11.5f, 0f);
         TrappedMapEntity = trappedMapEntity;
-        EntityStartingPosition = startingPosition;
+        TrappedEntityPositionInMap = trappedEntityPositionInMap;
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

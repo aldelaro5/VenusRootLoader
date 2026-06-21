@@ -137,7 +137,7 @@ public sealed class LoadingZoneMapEntityLeaf : ObjectMapEntityLeaf
         Vector3 triggerBoxColliderSize,
         Vector3 triggerBoxColliderCenter)
     {
-        InternalData.AddRange([new(-1), new(0), new(0), new(0), new(0)]);
+        InternalData.AddRange([new(-1), new(0), new(0), new(0), new(1)]);
         for (int i = 0; i < 7; i++)
             InternalVectorData.Add(new Ref<Vector3>(Vector3.zero));
         InternalHaxBoxCol = true;

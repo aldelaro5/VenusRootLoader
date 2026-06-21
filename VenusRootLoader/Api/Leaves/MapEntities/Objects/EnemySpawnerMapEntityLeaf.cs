@@ -29,7 +29,12 @@ public sealed class EnemySpawnerMapEntityLeaf : ObjectMapEntityLeaf
     }
 
     public int FramesDelayBeforeRespawn { get => InternalData[4].Value; set => InternalData[4].Value = value; }
-    public Vector3 RespawnCenter { get => InternalVectorData[0].Value; set => InternalVectorData[0].Value = value; }
+
+    public Vector3 RespawnCenter
+    {
+        get => InternalVectorData[0].Value + Vector3.up;
+        set => InternalVectorData[0].Value = value + Vector3.down;
+    }
 
     public Vector3 RespawnRadius
     {
@@ -39,7 +44,6 @@ public sealed class EnemySpawnerMapEntityLeaf : ObjectMapEntityLeaf
 
     [MapEntityInitializeFromNew]
     internal void InitializeFromNew(
-        Vector3 startingPosition,
         Branch<EnemyEncounterMapEntityLeaf> enemyToRespawn,
         Vector3 respawnCenter,
         Vector3 respawnRadius)
@@ -49,7 +53,7 @@ public sealed class EnemySpawnerMapEntityLeaf : ObjectMapEntityLeaf
         EnemyToRespawn = enemyToRespawn;
         RespawnCenter = respawnCenter;
         RespawnRadius = respawnRadius;
-        EntityStartingPosition = startingPosition;
+        EntityStartingPosition = new(0f, -999f, 0f);
     }
 
     internal override void InitializeFromExisting(IRegistryResolver registryResolver)

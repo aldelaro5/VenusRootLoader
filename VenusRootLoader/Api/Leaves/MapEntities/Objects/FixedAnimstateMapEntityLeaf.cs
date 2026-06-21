@@ -4,6 +4,7 @@ using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
+// TODO: height and bobbing aren't supported because this is an Object and all Objects are excluded in UpdateHeight, patch the game to add support.
 public sealed class FixedAnimstateMapEntityLeaf : ObjectMapEntityLeaf
 {
     internal FixedAnimstateMapEntityLeaf(int gameId, string namedId, string creatorId)
@@ -35,12 +36,6 @@ public sealed class FixedAnimstateMapEntityLeaf : ObjectMapEntityLeaf
     public bool BoxColliderIsTrigger { get => InternalBoxColIsTrigger; set => InternalBoxColIsTrigger = value; }
     public Vector3 BoxColliderSize { get => InternalBoxColSize; set => InternalBoxColSize = value; }
     public Vector3 BoxColliderCenter { get => InternalBoxColCenter; set => InternalBoxColCenter = value; }
-
-    public float EntityInitialAltitudeFromGround { get => InternalInitialHeight; set => InternalInitialHeight = value; }
-
-    // This is not a mistake, the game mislabels them by swapping their semantics
-    public float EntityBobRangeInUnitsWhileAirborne { get => InternalBobSpeed; set => InternalBobSpeed = value; }
-    public float EntityBobSpeedWhileAirborne { get => InternalBobRange; set => InternalBobRange = value; }
 
     public float EntityCapsuleColliderRadius { get => InternalCcolRadius; set => InternalCcolRadius = value; }
     public float EntityCapsulerColliderHeight { get => InternalCcolHeight; set => InternalCcolHeight = value; }

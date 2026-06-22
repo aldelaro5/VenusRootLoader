@@ -1,4 +1,7 @@
+using CommunityToolkit.Diagnostics;
 using UnityEngine;
+using VenusRootLoader.Api.Leaves.MapEntities.Objects.Enums;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 using VenusRootLoader.SourceGenerators;
 
@@ -18,6 +21,39 @@ public sealed class CollectibleCrystalBerryMapEntityLeaf : CollectibleMapEntityL
         {
             InternalData[3].Value = value.GameId;
             field = value;
+        }
+    }
+
+    public ObjectDetectorBehavior DetectorBehavior
+    {
+        get
+        {
+            if (Modifiers.HasFlag(MapEntityModifiers.NDTCT))
+                return ObjectDetectorBehavior.NeverDetects;
+            return Modifiers.HasFlag(MapEntityModifiers.DDIST)
+                ? ObjectDetectorBehavior.MustBe20UnitsOrLessToDetect
+                : ObjectDetectorBehavior.AlwaysDetects;
+        }
+        set
+        {
+            switch (value)
+            {
+                case ObjectDetectorBehavior.AlwaysDetects:
+                    Modifiers &= ~MapEntityModifiers.NDTCT;
+                    Modifiers &= ~MapEntityModifiers.DDIST;
+                    break;
+                case ObjectDetectorBehavior.MustBe20UnitsOrLessToDetect:
+                    Modifiers &= ~MapEntityModifiers.NDTCT;
+                    Modifiers |= MapEntityModifiers.DDIST;
+                    break;
+                case ObjectDetectorBehavior.NeverDetects:
+                    Modifiers |= MapEntityModifiers.NDTCT;
+                    Modifiers &= ~MapEntityModifiers.DDIST;
+                    break;
+                default:
+                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(DetectorBehavior));
+                    break;
+            }
         }
     }
 

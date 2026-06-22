@@ -10,7 +10,7 @@ public sealed class AndBlockOnFlagsMapEntityLeaf : AndBlockMapEntityLeaf
     internal AndBlockOnFlagsMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
-        _flagInputs = new(InternalData, 1, x => new(x.GameId));
+        _flagInputs = new(InternalData, 1, x => new(-x.GameId));
     }
 
     private readonly ListRefWrapper<Branch<FlagLeaf>, int> _flagInputs;

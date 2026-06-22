@@ -23,7 +23,7 @@ public sealed class AndBlockOnFlagsMapEntityLeaf : AndBlockMapEntityLeaf
         IList<Branch<FlagLeaf>> flagInputs)
     {
         base.InitializeFromNew(startingPosition, animId);
-        InternalData.AddRange([new(-2)]);
+        InternalData.Add(new(-2));
         foreach (Branch<FlagLeaf> flagInput in flagInputs)
             FlagInputs.Add(flagInput);
     }

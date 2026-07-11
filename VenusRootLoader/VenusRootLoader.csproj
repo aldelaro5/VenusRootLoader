@@ -41,8 +41,8 @@
         <PackageReference Include="BunLabs.NAudio.Flac" Version="2.0.1"/>
         <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.4.2" />
         <PackageReference Include="HarmonyX" Version="2.16.1" PrivateAssets="none"/>
-        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.8" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="10.0.8" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.9" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="10.0.9" />
 
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.300" PrivateAssets="All" />
         <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All"/>
@@ -52,7 +52,7 @@
         <PackageReference Include="NuGet.Versioning" Version="7.6.0" />
         <PackageReference Include="PolySharp" Version="1.16.0" PrivateAssets="All" />
         <PackageReference Include="Samboy063.Tomlet" Version="6.2.0" />
-        <PackageReference Include="System.Text.Json" Version="10.0.8" />
+        <PackageReference Include="System.Text.Json" Version="10.0.9" />
         <PackageReference Include="System.ValueTuple" Version="4.6.2" PrivateAssets="All" />
         <PackageReference Include="TestableIO.System.IO.Abstractions.Analyzers" Version="2022.0.0">
             <PrivateAssets>all</PrivateAssets>

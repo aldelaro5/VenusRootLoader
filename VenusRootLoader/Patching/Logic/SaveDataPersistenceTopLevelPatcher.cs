@@ -23,6 +23,21 @@ internal sealed class SaveDataPersistenceTopLevelPatcher : ITopLevelPatcher
     public void Patch() => _harmonyTypePatcher.PatchAll(typeof(SaveDataPersistenceTopLevelPatcher));
 
     [HarmonyPrefix]
+    [HarmonyPatch(typeof(MainManager), nameof(MainManager.Load))]
+    // ReSharper disable once InconsistentNaming
+    internal static bool WriteSaveData(int file, bool lite, ref MainManager.LoadData? __result)
+    {
+        if (!lite)
+            return true;
+
+        if (!_instance._saveDataPersistence.SaveSlotExistsInVenusRootLoader(file))
+            return true;
+
+        __result = _instance._saveDataPersistence.LoadLiteSaveDataFromSlot(file);
+        return false;
+    }
+
+    [HarmonyPrefix]
     [HarmonyPatch(typeof(MainManager), nameof(MainManager.Save))]
     // ReSharper disable once InconsistentNaming
     internal static bool WriteSaveData(Vector3? savepos, ref bool __result)

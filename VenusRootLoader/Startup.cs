@@ -260,6 +260,7 @@ internal static class Startup
         services.AddSingleton<RootCollector>();
 
         services.AddSingleton<IBaseGameSaveDataSerialiser, BaseGameSaveDataSerialiser>();
+        services.AddSingleton<IBaseGameSaveDataDeserialiser, BaseGameSaveDataDeserialiser>();
         services.AddSingleton<IBudsSaveDataSerialiser, BudsSaveDataSerialiser>();
         services.AddSingleton<ISaveDataPersistence, SaveDataPersistence>();
 

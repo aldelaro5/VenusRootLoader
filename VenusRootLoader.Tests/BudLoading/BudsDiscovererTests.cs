@@ -41,6 +41,7 @@ public sealed class BudsDiscovererTests
 
     private static readonly string RootPath = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "/" : "C:\\";
     private static readonly string BudsPath = Path.Combine(RootPath, "Buds");
+    private static readonly string SaveDataPath = Path.Combine(RootPath, "SaveData");
     private static readonly string ConfigPath = Path.Combine(RootPath, "Config");
     private static readonly string LoaderPath = Path.Combine(RootPath, nameof(VenusRootLoader));
 
@@ -50,6 +51,7 @@ public sealed class BudsDiscovererTests
     private readonly BudLoaderContext _budLoaderContext = new()
     {
         BudsPath = BudsPath,
+        SaveDataPath = SaveDataPath,
         ConfigPath = ConfigPath,
         LoaderPath = LoaderPath
     };

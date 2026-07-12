@@ -11,6 +11,11 @@ public sealed class BudLoaderContext
     public required string BudsPath { get; init; }
 
     /// <summary>
+    /// The full path of the save data directory on disk.
+    /// </summary>
+    public required string SaveDataPath { get; init; }
+
+    /// <summary>
     /// The full path of the configuration directory on disk which contains all buds and <see cref="VenusRootLoader"/>'s own configuration files.
     /// </summary>
     public required string ConfigPath { get; init; }

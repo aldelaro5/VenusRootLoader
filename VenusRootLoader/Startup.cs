@@ -20,6 +20,7 @@ using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalData;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.LocalisedData;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.OrderingData;
+using VenusRootLoader.Persistence;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Unity;
 using VenusRootLoader.Unity.CustomAudioClip;
@@ -225,27 +226,6 @@ internal static class Startup
         services.AddSingleton<IResourcesArrayTypePatcher<Sprite>, RootSpritesArrayPatcher>();
         services.AddSingleton<IResourcesArrayTypePatcher<AudioClip>, RootAudioClipsArrayPatcher>();
 
-        services.AddSingleton<ITopLevelPatcher, ResourcesTopLevelPatcher>();
-        services.AddSingleton<ITopLevelPatcher, GlobalFlagsCapsTopLevelPatcher>();
-        services.AddSingleton<ITopLevelPatcher, CrystalBerriesAmountTopLevelPatcher>();
-        services.AddSingleton<ITopLevelPatcher, ItemAndMedalSpriteTopLevelPatcher>();
-        services.AddSingleton<ITopLevelPatcher, PrizeMedalsTopLevelPatcher>();
-        services.AddSingleton<ITopLevelPatcher, LibraryCapsTopLevelPatcher>();
-        services.AddSingleton<ITopLevelPatcher, EnemyEncounterCapTopLevelPatcher>();
-        services.AddSingleton<ITopLevelPatcher, EventControlExcludeIdsTopLevelPatcher>();
-        services.AddSingleton<ITopLevelPatcher, CaveOfTrialsRandomModeExclusionTopLevelPatcher>();
-        services.AddSingleton<ITopLevelPatcher, FortuneTellerHintFlagsTopLevelPatcher>();
-        services.AddSingleton<ITopLevelPatcher, RareSpyDataTopLevelPatcher>();
-        services.AddSingleton<ITopLevelPatcher, SpyDialoguePauseMenuTopLevelPatcher>();
-        services.AddSingleton<ITopLevelPatcher, AreaMapPositionsTopLevelPatcher>();
-        services.AddSingleton<ITopLevelPatcher, NonPurchasableMusicsTopLevelPatcher>();
-        services.AddSingleton<ITopLevelPatcher, UndergroundBarQuestsTopLevelPatcher>();
-        services.AddSingleton<ITopLevelPatcher, MedalShopsTopLevelPatcher>();
-        services.AddSingleton<ITopLevelPatcher, PathNodesActionBehaviorsTopLevelPatcher>();
-        services.AddSingleton<ITopLevelPatcher, MapEntitiesArraysLengthTopLevelPatcher>();
-        services.AddSingleton<ITopLevelPatcher, EntityIsKillLastPositionTopLevelPatcher>();
-        services.AddSingleton<RootPatcher>();
-
         services.AddSingleton<IAssemblyCSharpDataCollector, AssemblyCSharpDataCollector>();
         services.AddSingleton<IBaseGameCollector, EventCollector>();
         services.AddSingleton<IBaseGameCollector, DialogueBleepCollector>();
@@ -277,6 +257,31 @@ internal static class Startup
         services.AddSingleton<IBaseGameCollector, MedalShopsCollector>();
         services.AddSingleton<IBaseGameCollector, MapsCollector>();
         services.AddSingleton<RootCollector>();
+
+        services.AddSingleton<IBaseGameSaveDataSerialiser, BaseGameSaveDataSerialiser>();
+        services.AddSingleton<ISaveDataPersistence, SaveDataPersistence>();
+
+        services.AddSingleton<ITopLevelPatcher, ResourcesTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, GlobalFlagsCapsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, CrystalBerriesAmountTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, ItemAndMedalSpriteTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, PrizeMedalsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, LibraryCapsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, EnemyEncounterCapTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, EventControlExcludeIdsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, CaveOfTrialsRandomModeExclusionTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, FortuneTellerHintFlagsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, RareSpyDataTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, SpyDialoguePauseMenuTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, AreaMapPositionsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, NonPurchasableMusicsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, UndergroundBarQuestsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, MedalShopsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, PathNodesActionBehaviorsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, MapEntitiesArraysLengthTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, EntityIsKillLastPositionTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, SaveDataPersistenceTopLevelPatcher>();
+        services.AddSingleton<RootPatcher>();
 
         services.AddSingleton<IGlobalMonoBehaviourExecution, GlobalMonoBehaviourExecution>();
         services.AddSingleton<ICustomAudioClipProvider, CustomAudioClipProvider>();

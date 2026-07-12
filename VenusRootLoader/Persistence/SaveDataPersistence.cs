@@ -10,17 +10,20 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
     private readonly IFileSystem _fileSystem;
     private readonly ILogger<SaveDataPersistence> _logger;
     private readonly IBaseGameSaveDataSerialiser _baseGameSaveDataSerialiser;
+    private readonly IBudsSaveDataSerialiser _budsSaveDataSerialiser;
 
     public SaveDataPersistence(
         GameExecutionContext gameExecutionContext,
         IFileSystem fileSystem,
         ILogger<SaveDataPersistence> logger,
-        IBaseGameSaveDataSerialiser baseGameSaveDataSerialiser)
+        IBaseGameSaveDataSerialiser baseGameSaveDataSerialiser,
+        IBudsSaveDataSerialiser budsSaveDataSerialiser)
     {
         _gameExecutionContext = gameExecutionContext;
         _fileSystem = fileSystem;
         _logger = logger;
         _baseGameSaveDataSerialiser = baseGameSaveDataSerialiser;
+        _budsSaveDataSerialiser = budsSaveDataSerialiser;
     }
 
     public bool WriteSaveDataToCurrentSaveSlot(Vector3? playerPositionToSave)
@@ -30,15 +33,23 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
             _gameExecutionContext.GameDir,
             "SaveData",
             saveSlot.ToString());
-        string saveFilePath = _fileSystem.Path.Combine(saveSlotDirectory, "BaseGame.dat");
+        string baseGameSaveFilePath = _fileSystem.Path.Combine(saveSlotDirectory, "BaseGame.dat");
 
         try
         {
             if (!_fileSystem.Directory.Exists(saveSlotDirectory))
                 _fileSystem.Directory.CreateDirectory(saveSlotDirectory);
 
-            string saveData = _baseGameSaveDataSerialiser.GetSaveDataFromRuntimeState(playerPositionToSave);
-            _fileSystem.File.WriteAllText(saveFilePath, saveData);
+            string saveData = _baseGameSaveDataSerialiser.GetBaseGameSaveDataFromRuntimeState(playerPositionToSave);
+            Dictionary<string, string> budsSaveData = _budsSaveDataSerialiser.GetBudsSaveDataFromRuntimeState();
+
+            _fileSystem.File.WriteAllText(baseGameSaveFilePath, saveData);
+            foreach (KeyValuePair<string, string> budSaveData in budsSaveData)
+            {
+                string budSaveDataFilePath = _fileSystem.Path.Combine(saveSlotDirectory, $"{budSaveData.Key}.json");
+                _fileSystem.File.WriteAllText(budSaveDataFilePath, budSaveData.Value);
+            }
+
             return true;
         }
         catch (Exception e)

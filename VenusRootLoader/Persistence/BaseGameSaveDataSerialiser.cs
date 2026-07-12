@@ -69,7 +69,7 @@ internal sealed class BaseGameSaveDataSerialiser : IBaseGameSaveDataSerialiser
         _crystalBerriesLeafRegistry = crystalBerriesLeafRegistry;
     }
 
-    public string GetSaveDataFromRuntimeState(Vector3? playerPositionToSave)
+    public string GetBaseGameSaveDataFromRuntimeState(Vector3? playerPositionToSave)
     {
         StringBuilder sb = new(30_000);
         MainManager mainManager = MainManager.instance;

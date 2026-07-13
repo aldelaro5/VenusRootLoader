@@ -78,12 +78,12 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
 
         MainManager.LoadData loadData = new();
         LoadHeaderLine(baseGameSaveDataLines[0], ref loadData);
-        LoadGeneralInformationLine(baseGameSaveDataLines[2], true, ref loadData);
+        LoadGeneralInformationLine(baseGameSaveDataLines[2], ref loadData, null);
 
         return loadData;
     }
 
-    public MainManager.LoadData DeserialiseFullBaseGameSaveData(string saveData)
+    public MainManager.LoadData DeserialiseFullBaseGameSaveData(string saveData, StagingLoadData stagingLoadData)
     {
         string[] baseGameSaveDataLines = saveData.Split(StringUtils.NewlineSplitDelimiter);
         if (baseGameSaveDataLines.Length < 18)
@@ -91,23 +91,23 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
 
         MainManager.LoadData loadData = new();
         LoadHeaderLine(baseGameSaveDataLines[0], ref loadData);
-        LoadPlayerPartyLine(baseGameSaveDataLines[1]);
-        LoadGeneralInformationLine(baseGameSaveDataLines[2], false, ref loadData);
-        MainManager.instance.avaliablebadgepool = LoadMedalShopsLine(baseGameSaveDataLines[3]);
-        MainManager.instance.badgeshops = LoadMedalShopsLine(baseGameSaveDataLines[4]);
-        LoadQuestsLine(baseGameSaveDataLines[5]);
-        LoadItemsLine(baseGameSaveDataLines[6]);
-        LoadMedalsLine(baseGameSaveDataLines[7]);
-        LoadSamiraSongsLine(baseGameSaveDataLines[8]);
-        LoadStatBonusesLine(baseGameSaveDataLines[9]);
-        LoadLibraryLine(baseGameSaveDataLines[10]);
-        LoadFlagsLine(baseGameSaveDataLines[11]);
-        LoadFlagstringsLine(baseGameSaveDataLines[12]);
-        LoadFlagvarsLine(baseGameSaveDataLines[13]);
-        LoadRegionalFlagsLine(baseGameSaveDataLines[14]);
-        LoadCrystalBerriesLine(baseGameSaveDataLines[15]);
-        LoadFollowersLine(baseGameSaveDataLines[16]);
-        LoadEnemyEncountersDataLine(baseGameSaveDataLines[17]);
+        LoadPlayerPartyLine(baseGameSaveDataLines[1], stagingLoadData);
+        LoadGeneralInformationLine(baseGameSaveDataLines[2], ref loadData, stagingLoadData);
+        LoadMedalShopsLine(baseGameSaveDataLines[3], stagingLoadData.AvaliableBadgePool);
+        LoadMedalShopsLine(baseGameSaveDataLines[4], stagingLoadData.BadgeShops);
+        LoadQuestsLine(baseGameSaveDataLines[5], stagingLoadData);
+        LoadItemsLine(baseGameSaveDataLines[6], stagingLoadData);
+        LoadMedalsLine(baseGameSaveDataLines[7], stagingLoadData);
+        LoadSamiraSongsLine(baseGameSaveDataLines[8], stagingLoadData);
+        LoadStatBonusesLine(baseGameSaveDataLines[9], stagingLoadData);
+        LoadLibraryLine(baseGameSaveDataLines[10], stagingLoadData);
+        LoadFlagsLine(baseGameSaveDataLines[11], stagingLoadData);
+        LoadFlagstringsLine(baseGameSaveDataLines[12], stagingLoadData);
+        LoadFlagvarsLine(baseGameSaveDataLines[13], stagingLoadData);
+        LoadRegionalFlagsLine(baseGameSaveDataLines[14], stagingLoadData);
+        LoadCrystalBerriesLine(baseGameSaveDataLines[15], stagingLoadData);
+        LoadFollowersLine(baseGameSaveDataLines[16], stagingLoadData);
+        LoadEnemyEncountersDataLine(baseGameSaveDataLines[17], stagingLoadData);
 
         return loadData;
     }
@@ -139,10 +139,9 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
         loadData.filename = headerData[9];
     }
 
-    private void LoadPlayerPartyLine(string playerPartyLine)
+    private void LoadPlayerPartyLine(string playerPartyLine, StagingLoadData stagingLoadData)
     {
         string[] playerPartyData = playerPartyLine.Split(StringUtils.AtSymbolSplitDelimiter);
-        List<MainManager.BattleData> playerData = new();
         for (int i = 0; i < playerPartyData.Length; i++)
         {
             string[] partyMemberData = playerPartyData[i].Split(
@@ -178,14 +177,15 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
                 basedef = int.Parse(partyMemberData[7], CultureInfo.InvariantCulture),
                 entityname = MainManager.menutext[46 + animIdLeaf.GameId]
             };
-            playerData.Add(memberBattleData);
+            stagingLoadData.PlayerData.Add(memberBattleData);
+            stagingLoadData.PartyOrder.Add(memberBattleData.trueid);
         }
-
-        MainManager.instance.partyorder = playerData.Select(x => x.trueid).ToArray();
-        MainManager.instance.playerdata = playerData.ToArray();
     }
 
-    private void LoadGeneralInformationLine(string generalInformationLine, bool lite, ref MainManager.LoadData loadData)
+    private void LoadGeneralInformationLine(
+        string generalInformationLine,
+        ref MainManager.LoadData loadData,
+        StagingLoadData? stagingLoadData)
     {
         string[] generalInformationData = generalInformationLine.Split(
             StringUtils.CommaSplitDelimiter,
@@ -218,30 +218,28 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
         loadData.times = int.Parse(generalInformationData[14], CultureInfo.InvariantCulture);
         loadData.progression = int.Parse(generalInformationData[15], CultureInfo.InvariantCulture);
 
-        if (lite)
+        if (stagingLoadData is null)
             return;
 
-        MainManager mainManager = MainManager.instance;
-        mainManager.partylevel = loadData.level;
-        mainManager.partyexp = int.Parse(generalInformationData[1], CultureInfo.InvariantCulture);
-        mainManager.neededexp = int.Parse(generalInformationData[2], CultureInfo.InvariantCulture);
-        mainManager.basetp = int.Parse(generalInformationData[3], CultureInfo.InvariantCulture);
-        mainManager.tp = int.Parse(generalInformationData[4], CultureInfo.InvariantCulture);
-        mainManager.money = int.Parse(generalInformationData[5], CultureInfo.InvariantCulture);
-        mainManager.bp = int.Parse(generalInformationData[8], CultureInfo.InvariantCulture);
-        mainManager.maxbp = int.Parse(generalInformationData[9], CultureInfo.InvariantCulture);
-        mainManager.maxitems = int.Parse(generalInformationData[10], CultureInfo.InvariantCulture);
-        mainManager.maxstorage = int.Parse(generalInformationData[11], CultureInfo.InvariantCulture);
-        mainManager.clockhour = loadData.timeh;
-        mainManager.clockmin = loadData.timem;
-        mainManager.clocksec = loadData.times;
-        mainManager.areaid = loadData.areaid;
+        stagingLoadData.PartyLevel = loadData.level;
+        stagingLoadData.PartyExp = int.Parse(generalInformationData[1], CultureInfo.InvariantCulture);
+        stagingLoadData.NeededExp = int.Parse(generalInformationData[2], CultureInfo.InvariantCulture);
+        stagingLoadData.BaseTp = int.Parse(generalInformationData[3], CultureInfo.InvariantCulture);
+        stagingLoadData.Tp = int.Parse(generalInformationData[4], CultureInfo.InvariantCulture);
+        stagingLoadData.Money = int.Parse(generalInformationData[5], CultureInfo.InvariantCulture);
+        stagingLoadData.Bp = int.Parse(generalInformationData[8], CultureInfo.InvariantCulture);
+        stagingLoadData.MaxBp = int.Parse(generalInformationData[9], CultureInfo.InvariantCulture);
+        stagingLoadData.MaxItems = int.Parse(generalInformationData[10], CultureInfo.InvariantCulture);
+        stagingLoadData.MaxStorage = int.Parse(generalInformationData[11], CultureInfo.InvariantCulture);
+        stagingLoadData.ClockHour = loadData.timeh;
+        stagingLoadData.ClockMin = loadData.timem;
+        stagingLoadData.ClockSec = loadData.times;
+        stagingLoadData.AreaId = loadData.areaid;
     }
 
-    private List<int>[] LoadMedalShopsLine(string medalShopsLine)
+    private void LoadMedalShopsLine(string medalShopsLine, List<List<int>> stagingMedalShopList)
     {
         string[] medalShopsData = medalShopsLine.Split(StringUtils.AtSymbolSplitDelimiter);
-        List<List<int>> medalShopsMedalGameIds = new();
         for (int i = 0; i < medalShopsData.Length; i++)
         {
             string[] medalNamedIds = medalShopsData[i].Split(
@@ -265,16 +263,13 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
                 medalGameIds.Add(medalLeaf.GameId);
             }
 
-            medalShopsMedalGameIds.Add(medalGameIds);
+            stagingMedalShopList.Add(medalGameIds);
         }
-
-        return medalShopsMedalGameIds.ToArray();
     }
 
-    private void LoadQuestsLine(string questsLine)
+    private void LoadQuestsLine(string questsLine, StagingLoadData stagingLoadData)
     {
         string[] boardQuestData = questsLine.Split(StringUtils.AtSymbolSplitDelimiter);
-        List<List<int>> boardQuests = new();
         for (int i = 0; i < boardQuestData.Length; i++)
         {
             string[] questNamedIds = boardQuestData[i].Split(
@@ -305,16 +300,13 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
                 questGameIds.Add(questLeaf.GameId);
             }
 
-            boardQuests.Add(questGameIds);
+            stagingLoadData.BoardQuests.Add(questGameIds);
         }
-
-        MainManager.instance.boardquests = boardQuests.ToArray();
     }
 
-    private void LoadItemsLine(string itemsLine)
+    private void LoadItemsLine(string itemsLine, StagingLoadData stagingLoadData)
     {
         string[] itemsInventoryData = itemsLine.Split(StringUtils.AtSymbolSplitDelimiter);
-        List<List<int>> itemsInventory = new();
         for (int i = 0; i < itemsInventoryData.Length; i++)
         {
             string[] itemNamedIds = itemsInventoryData[i].Split(
@@ -345,18 +337,15 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
                 itemGameIds.Add(itemLeaf.GameId);
             }
 
-            itemsInventory.Add(itemGameIds);
+            stagingLoadData.Items.Add(itemGameIds);
         }
-
-        MainManager.instance.items = itemsInventory.ToArray();
     }
 
-    private void LoadMedalsLine(string medalsLine)
+    private void LoadMedalsLine(string medalsLine, StagingLoadData stagingLoadData)
     {
         string[] medalsOnHandData = medalsLine.Split(
             StringUtils.AtSymbolSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
-        List<int[]> medalsOnHand = new();
         for (int i = 0; i < medalsOnHandData.Length; i++)
         {
             string[] medalEquipData = medalsOnHandData[i].Split(StringUtils.CommaSplitDelimiter);
@@ -386,18 +375,15 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
                 animIdLeaf = null;
             }
 
-            medalsOnHand.Add([medalLeaf.GameId, animIdLeaf?.GameId ?? -2]);
+            stagingLoadData.Badges.Add([medalLeaf.GameId, animIdLeaf?.GameId ?? -2]);
         }
-
-        MainManager.instance.badges = medalsOnHand.ToList();
     }
 
-    private void LoadSamiraSongsLine(string samiraSongsLine)
+    private void LoadSamiraSongsLine(string samiraSongsLine, StagingLoadData stagingLoadData)
     {
         string[] samiraSongsData = samiraSongsLine.Split(
             StringUtils.AtSymbolSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
-        List<int[]> samiraSongs = new();
         for (int i = 0; i < samiraSongsData.Length; i++)
         {
             string[] samiraSongData = samiraSongsData[i].Split(
@@ -415,18 +401,15 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
             }
 
             int songBoughtStatus = int.Parse(samiraSongData[1], CultureInfo.InvariantCulture);
-            samiraSongs.Add([musicLeaf.GameId, songBoughtStatus]);
+            stagingLoadData.SamiraMusics.Add([musicLeaf.GameId, songBoughtStatus]);
         }
-
-        MainManager.instance.samiramusics = samiraSongs.ToList();
     }
 
-    private void LoadStatBonusesLine(string statBonusesLine)
+    private void LoadStatBonusesLine(string statBonusesLine, StagingLoadData stagingLoadData)
     {
         string[] statBonusesData = statBonusesLine.Split(
             StringUtils.AtSymbolSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
-        List<int[]> statBonuses = new();
         for (int i = 0; i < statBonusesData.Length; i++)
         {
             string[] statBonusData = statBonusesData[i].Split(
@@ -445,13 +428,11 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
 
             int bonusType = int.Parse(statBonusData[0], CultureInfo.InvariantCulture);
             int bonusAmount = int.Parse(statBonusData[1], CultureInfo.InvariantCulture);
-            statBonuses.Add([bonusType, bonusAmount, animIdLeaf.GameId]);
+            stagingLoadData.StatBonus.Add([bonusType, bonusAmount, animIdLeaf.GameId]);
         }
-
-        MainManager.instance.statbonus = statBonuses.ToList();
     }
 
-    private void LoadLibraryLine(string libraryLine)
+    private void LoadLibraryLine(string libraryLine, StagingLoadData stagingLoadData)
     {
         string[] libraryPagesData = libraryLine.Split(
             StringUtils.AtSymbolSplitDelimiter,
@@ -476,30 +457,26 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<int>(null, $"Unknown library page index: {i}")
             };
             for (int j = 0; j < baseGameAmount; j++)
-                MainManager.instance.librarystuff[i, j] = bool.Parse(libraryFlagsData[j]);
+                stagingLoadData.LibraryStuff[i].Add(bool.Parse(libraryFlagsData[j]));
         }
     }
 
-    private void LoadFlagsLine(string flagsLine)
+    private void LoadFlagsLine(string flagsLine, StagingLoadData stagingLoadData)
     {
         string[] flagsData = flagsLine.Split(
             StringUtils.CommaSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
         int baseGameAmount = _flagsLeafRegistry.LeavesByNamedIds.Values
             .Count(f => f.CreatorId == Constants.BaseGameId);
-        List<bool> flags = new();
         for (int i = 0; i < baseGameAmount; i++)
-            flags.Add(bool.Parse(flagsData[i]));
-
-        MainManager.instance.flags = flags.ToArray();
+            stagingLoadData.Flags.Add(bool.Parse(flagsData[i]));
     }
 
-    private void LoadFlagstringsLine(string flagstringsLine)
+    private void LoadFlagstringsLine(string flagstringsLine, StagingLoadData stagingLoadData)
     {
         string[] flagstringsData = flagstringsLine.Split(StringUtils.FlagstringSplitDelimiter, StringSplitOptions.None);
         int baseGameAmount = _flagstringsLeafRegistry.LeavesByNamedIds.Values
             .Count(f => f.CreatorId == Constants.BaseGameId);
-        List<string> flagstrings = new();
         for (int i = 0; i < baseGameAmount; i++)
         {
             string flagstring = i switch
@@ -509,10 +486,8 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
                 13 => GetMysteryMedalsQueueFlagstingValue(flagstringsData[i]),
                 _ => flagstringsData[i]
             };
-            flagstrings.Add(flagstring);
+            stagingLoadData.Flagstrings.Add(flagstring);
         }
-
-        MainManager.instance.flagstring = flagstrings.ToArray();
     }
 
     private string GetChapter4CaptureDataFlagstringValue(string flagstring)
@@ -627,23 +602,20 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
         return sb.ToString();
     }
 
-    private void LoadFlagvarsLine(string flagvarsLine)
+    private void LoadFlagvarsLine(string flagvarsLine, StagingLoadData stagingLoadData)
     {
         string[] flagvarsData = flagvarsLine.Split(
             StringUtils.CommaSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
         int baseGameAmount = _flagvarsLeafRegistry.LeavesByNamedIds.Values
             .Count(f => f.CreatorId == Constants.BaseGameId);
-        List<int> flagvars = new();
         for (int i = 0; i < baseGameAmount; i++)
         {
             int flagvar = i == 56
                 ? GetChompyItemFlagvarValue(flagvarsData[i])
                 : int.Parse(flagvarsData[i], CultureInfo.InvariantCulture);
-            flagvars.Add(flagvar);
+            stagingLoadData.Flagvars.Add(flagvar);
         }
-
-        MainManager.instance.flagvar = flagvars.ToArray();
     }
 
     private int GetChompyItemFlagvarValue(string flagvar)
@@ -672,39 +644,32 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
         return 0;
     }
 
-    private void LoadRegionalFlagsLine(string regionalFlagsLine)
+    private void LoadRegionalFlagsLine(string regionalFlagsLine, StagingLoadData stagingLoadData)
     {
         string[] regionalFlagsData = regionalFlagsLine.Split(
             StringUtils.CommaSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
         int baseGameAmount = 100;
-        List<bool> regionalFlags = new();
         for (int i = 0; i < baseGameAmount; i++)
-            regionalFlags.Add(bool.Parse(regionalFlagsData[i]));
-
-        MainManager.instance.regionalflags = regionalFlags.ToArray();
+            stagingLoadData.RegionalFlags.Add(bool.Parse(regionalFlagsData[i]));
     }
 
-    private void LoadCrystalBerriesLine(string crystalBerriesLine)
+    private void LoadCrystalBerriesLine(string crystalBerriesLine, StagingLoadData stagingLoadData)
     {
         string[] crystalBerriesData = crystalBerriesLine.Split(
             StringUtils.CommaSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
         int baseGameAmount = _crystalBerriesLeafRegistry.LeavesByNamedIds.Values
             .Count(f => f.CreatorId == Constants.BaseGameId);
-        List<bool> crystalBerries = new();
         for (int i = 0; i < baseGameAmount; i++)
-            crystalBerries.Add(bool.Parse(crystalBerriesData[i]));
-
-        MainManager.instance.crystalbflags = crystalBerries.ToArray();
+            stagingLoadData.CrystalBerryFlags.Add(bool.Parse(crystalBerriesData[i]));
     }
 
-    private void LoadFollowersLine(string followersLine)
+    private void LoadFollowersLine(string followersLine, StagingLoadData stagingLoadData)
     {
         string[] animIdNamedIds = followersLine.Split(
             StringUtils.CommaSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
-        List<int> followerGameIds = new();
         for (int i = 0; i < animIdNamedIds.Length; i++)
         {
             string animIdNamedId = animIdNamedIds[i];
@@ -718,13 +683,11 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
                 continue;
             }
 
-            followerGameIds.Add(animIdLeaf.GameId);
+            stagingLoadData.ExtraFollowers.Add(animIdLeaf.GameId);
         }
-
-        MainManager.instance.extrafollowers = followerGameIds.ToList();
     }
 
-    private void LoadEnemyEncountersDataLine(string enemyEncountersDataLine)
+    private void LoadEnemyEncountersDataLine(string enemyEncountersDataLine, StagingLoadData stagingLoadData)
     {
         string[] enemyEncountersData = enemyEncountersDataLine.Split(
             StringUtils.AtSymbolSplitDelimiter,
@@ -738,8 +701,7 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
                 StringSplitOptions.RemoveEmptyEntries);
             int amountSeen = int.Parse(enemyEncounterData[0], CultureInfo.InvariantCulture);
             int amountDefeated = int.Parse(enemyEncounterData[1], CultureInfo.InvariantCulture);
-            MainManager.instance.enemyencounter[i, 0] = amountSeen;
-            MainManager.instance.enemyencounter[i, 1] = amountDefeated;
+            stagingLoadData.EnemyEncounter.Add([amountSeen, amountDefeated]);
         }
     }
 }

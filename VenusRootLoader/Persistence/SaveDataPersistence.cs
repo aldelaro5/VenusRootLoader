@@ -45,7 +45,11 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
         try
         {
             string baseGameSaveData = _fileSystem.File.ReadAllText(baseGameSaveFilePath);
-            return _baseGameSaveDataDeserialiser.DeserialiseFullBaseGameSaveData(baseGameSaveData);
+            StagingLoadData stagingLoadData = new();
+            MainManager.LoadData? loadData =
+                _baseGameSaveDataDeserialiser.DeserialiseFullBaseGameSaveData(baseGameSaveData, stagingLoadData);
+            stagingLoadData.CommitToRuntimeState();
+            return loadData;
         }
         catch (Exception e)
         {

@@ -25,15 +25,20 @@ internal sealed class SaveDataPersistenceTopLevelPatcher : ITopLevelPatcher
     [HarmonyPrefix]
     [HarmonyPatch(typeof(MainManager), nameof(MainManager.Load))]
     // ReSharper disable once InconsistentNaming
-    internal static bool WriteSaveData(int file, bool lite, ref MainManager.LoadData? __result)
+    internal static bool LoadSaveData(int file, bool lite, ref MainManager.LoadData? __result)
     {
-        if (!lite)
-            return true;
-
         if (!_instance._saveDataPersistence.SaveSlotExistsInVenusRootLoader(file))
             return true;
 
-        __result = _instance._saveDataPersistence.LoadLiteSaveDataFromSlot(file);
+        if (lite)
+        {
+            __result = _instance._saveDataPersistence.LoadLiteSaveDataFromSlot(file);
+            return false;
+        }
+
+        __result = _instance._saveDataPersistence.LoadFullSaveDataFromSlot(file);
+        // This is necessary for the stats calc and HUD to work properly since the save loading effectively did a ChangeParty
+        MainManager.RebuildHUD();
         return false;
     }
 

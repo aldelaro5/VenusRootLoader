@@ -15,4 +15,5 @@ internal static class StringUtils
     internal static readonly char[] NewlineSplitDelimiter = ['\n'];
     internal static readonly char[] QuestionMarkSplitDelimiter = ['?'];
     internal static readonly char[] DashSplitDelimiter = ['-'];
+    internal static readonly string[] FlagstringSplitDelimiter = ["|SPLIT|"];
 }

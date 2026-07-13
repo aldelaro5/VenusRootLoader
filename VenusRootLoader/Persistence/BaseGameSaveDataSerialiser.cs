@@ -82,7 +82,7 @@ internal sealed class BaseGameSaveDataSerialiser : IBaseGameSaveDataSerialiser
         AppendQuestsLineStringData(sb);
         AppendItemsLineStringData(sb);
         AppendMedalsLineStringData(sb);
-        AppendMusicsLineStringData(sb);
+        AppendSamiraSongsLineStringData(sb);
         AppendStatBonusesLineStringData(sb);
         AppendLibraryLineStringData(sb);
         AppendFlagsLineStringData(sb);
@@ -259,7 +259,7 @@ internal sealed class BaseGameSaveDataSerialiser : IBaseGameSaveDataSerialiser
         sb.Append(LineFeed);
     }
 
-    private void AppendMusicsLineStringData(StringBuilder sb)
+    private void AppendSamiraSongsLineStringData(StringBuilder sb)
     {
         MainManager mainManager = MainManager.instance;
 

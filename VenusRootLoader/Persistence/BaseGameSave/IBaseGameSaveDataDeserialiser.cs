@@ -1,4 +1,4 @@
-namespace VenusRootLoader.Persistence;
+namespace VenusRootLoader.Persistence.BaseGameSave;
 
 internal interface IBaseGameSaveDataDeserialiser
 {

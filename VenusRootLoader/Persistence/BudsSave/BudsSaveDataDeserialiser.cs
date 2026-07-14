@@ -5,7 +5,7 @@ using System.Text.Json;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
 
-namespace VenusRootLoader.Persistence;
+namespace VenusRootLoader.Persistence.BudsSave;
 
 internal sealed class BudsSaveDataDeserialiser : IBudsSaveDataDeserialiser
 {

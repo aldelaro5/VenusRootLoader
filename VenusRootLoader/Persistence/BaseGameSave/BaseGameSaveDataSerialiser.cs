@@ -6,7 +6,7 @@ using VenusRootLoader.Extensions;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
-namespace VenusRootLoader.Persistence;
+namespace VenusRootLoader.Persistence.BaseGameSave;
 
 internal sealed class BaseGameSaveDataSerialiser : IBaseGameSaveDataSerialiser
 {

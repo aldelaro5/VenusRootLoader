@@ -2,6 +2,8 @@ using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 using UnityEngine;
 using VenusRootLoader.Api;
+using VenusRootLoader.Persistence.BaseGameSave;
+using VenusRootLoader.Persistence.BudsSave;
 
 namespace VenusRootLoader.Persistence;
 

@@ -1,4 +1,4 @@
-namespace VenusRootLoader.Persistence;
+namespace VenusRootLoader.Persistence.BudsSave;
 
 internal sealed class BudSaveData
 {

@@ -21,6 +21,8 @@ using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalData;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.LocalisedData;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.OrderingData;
 using VenusRootLoader.Persistence;
+using VenusRootLoader.Persistence.BaseGameSave;
+using VenusRootLoader.Persistence.BudsSave;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Unity;
 using VenusRootLoader.Unity.CustomAudioClip;

@@ -262,6 +262,7 @@ internal static class Startup
         services.AddSingleton<IBaseGameSaveDataSerialiser, BaseGameSaveDataSerialiser>();
         services.AddSingleton<IBaseGameSaveDataDeserialiser, BaseGameSaveDataDeserialiser>();
         services.AddSingleton<IBudsSaveDataSerialiser, BudsSaveDataSerialiser>();
+        services.AddSingleton<IBudsSaveDataDeserialiser, BudsSaveDataDeserialiser>();
         services.AddSingleton<ISaveDataPersistence, SaveDataPersistence>();
 
         services.AddSingleton<ITopLevelPatcher, ResourcesTopLevelPatcher>();

@@ -11,6 +11,7 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
     private readonly IFileSystem _fileSystem;
     private readonly ILogger<SaveDataPersistence> _logger;
     private readonly IBaseGameSaveDataDeserialiser _baseGameSaveDataDeserialiser;
+    private readonly IBudsSaveDataDeserialiser _budsSaveDataDeserialiser;
     private readonly IBaseGameSaveDataSerialiser _baseGameSaveDataSerialiser;
     private readonly IBudsSaveDataSerialiser _budsSaveDataSerialiser;
 
@@ -19,6 +20,7 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
         IFileSystem fileSystem,
         ILogger<SaveDataPersistence> logger,
         IBaseGameSaveDataDeserialiser baseGameSaveDataDeserialiser,
+        IBudsSaveDataDeserialiser budsSaveDataDeserialiser,
         IBaseGameSaveDataSerialiser baseGameSaveDataSerialiser,
         IBudsSaveDataSerialiser budsSaveDataSerialiser)
     {
@@ -27,6 +29,7 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
         _logger = logger;
         _baseGameSaveDataSerialiser = baseGameSaveDataSerialiser;
         _budsSaveDataSerialiser = budsSaveDataSerialiser;
+        _budsSaveDataDeserialiser = budsSaveDataDeserialiser;
         _baseGameSaveDataDeserialiser = baseGameSaveDataDeserialiser;
     }
 
@@ -45,9 +48,21 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
         try
         {
             string baseGameSaveData = _fileSystem.File.ReadAllText(baseGameSaveFilePath);
+            
             StagingLoadData stagingLoadData = new();
             MainManager.LoadData? loadData =
                 _baseGameSaveDataDeserialiser.DeserialiseFullBaseGameSaveData(baseGameSaveData, stagingLoadData);
+
+            Dictionary<string, string> budsSaveDataByIds = new();
+            foreach (string budSaveFilePath in _fileSystem.Directory.EnumerateFiles(saveSlotDirectory, "*.json"))
+            {
+                string budId = _fileSystem.Path.GetFileNameWithoutExtension(budSaveFilePath);
+                string budSaveData = _fileSystem.File.ReadAllText(budSaveFilePath);
+                budsSaveDataByIds.Add(budId, budSaveData);
+            }
+
+            _budsSaveDataDeserialiser.DeserialiseBudsSaveData(budsSaveDataByIds, stagingLoadData);
+            
             stagingLoadData.CommitToRuntimeState();
             return loadData;
         }

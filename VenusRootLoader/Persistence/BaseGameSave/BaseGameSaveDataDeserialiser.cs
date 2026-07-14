@@ -326,7 +326,7 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
                 if (!_itemsLeafRegistry.LeavesByNamedIds.TryGetValue(itemNamedId, out ItemLeaf itemLeaf))
                 {
                     _logger.LogWarning(
-                        "The {inventoryName} items inventory item index {itemIndex} is named {itemNamedId} " +
+                        "The {inventoryName} inventory item index {itemIndex} is named {itemNamedId} " +
                         "while no such ItemLeaf exists in the registry. It will be skipped, but the save file will still be loaded.",
                         inventoryName,
                         j,

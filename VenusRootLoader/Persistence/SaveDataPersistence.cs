@@ -71,8 +71,7 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
         catch (Exception e)
         {
             _logger.LogError(
-                "An error occured while loading full save data from {path}, " +
-                "this save will not be loadable in the game: {error}",
+                "An error occured while loading full save data from {path}, the game will softlock: {error}",
                 saveSlotDirectory,
                 e.ToString());
             return null;

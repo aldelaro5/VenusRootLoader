@@ -115,54 +115,50 @@ internal sealed class BudsSaveDataSerialiser : IBudsSaveDataSerialiser
     {
         return new()
         {
-            BaseGameExtensions = new()
-            {
-                MedalShops = medalShopsByCreatorId[budId].ToDictionary(
-                    medalShopLeaf => medalShopLeaf.NamedId,
-                    medalShopLeaf => new MedalShopLeafSaveData
-                    {
-                        AvailablePool = MainManager.instance.avaliablebadgepool[medalShopLeaf.GameId]
-                            .Select(medalGameId => _medalsLeafRegistry.LeavesByGameIds[medalGameId].NamedId)
-                            .ToList(),
-                        ShopStock = MainManager.instance.badgeshops[medalShopLeaf.GameId]
-                            .Select(medalGameId => _medalsLeafRegistry.LeavesByGameIds[medalGameId].NamedId)
-                            .ToList()
-                    }),
-                DiscoveryUnlocks = discoveriesByCreatorId[budId].ToDictionary(
-                    x => x.NamedId,
-                    x => MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Discoveries, x.GameId]),
-                Enemies = enemiesByCreatorId[budId].ToDictionary(
-                    x => x.NamedId,
-                    x => new EnemySaveData
-                    {
-                        IsBestiaryEntryUnlocked =
-                            MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Bestiary, x.GameId],
-                        AmountSeen = MainManager.instance.enemyencounter[x.GameId, 0],
-                        AmountDefeated = MainManager.instance.enemyencounter[x.GameId, 1]
-                    }),
-                RecipeLibraryEntryUnlocks = recipeLibraryEntriesByCreatorId[budId].ToDictionary(
-                    x => x.NamedId,
-                    x => MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Recipes, x.GameId]),
-                RecordUnlocks = recordsByCreatorId[budId].ToDictionary(
-                    x => x.NamedId,
-                    x => MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Logbook, x.GameId]),
-                AreaUnlocks = areasByCreatorId[budId].ToDictionary(
-                    x => x.NamedId,
-                    x => MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Map, x.GameId]),
-                Flags = flagsByCreatorId[budId].ToDictionary(
-                    x => x.NamedId,
-                    x => MainManager.instance.flags[x.GameId]),
-                Flagstrings = flagstringsByCreatorId[budId].ToDictionary(
-                    x => x.NamedId,
-                    x => MainManager.instance.flagstring[x.GameId]),
-                Flagvars = flagvarsByCreatorId[budId].ToDictionary(
-                    x => x.NamedId,
-                    x => MainManager.instance.flagvar[x.GameId]),
-                CrystalBerries = crystalBerriesByCreatorId[budId].ToDictionary(
-                    x => x.NamedId,
-                    x => MainManager.instance.crystalbflags[x.GameId])
-            },
-            CustomBudSaveData = new()
+            MedalShops = medalShopsByCreatorId[budId].ToDictionary(
+                medalShopLeaf => medalShopLeaf.NamedId,
+                medalShopLeaf => new MedalShopLeafSaveData
+                {
+                    AvailablePool = MainManager.instance.avaliablebadgepool[medalShopLeaf.GameId]
+                        .Select(medalGameId => _medalsLeafRegistry.LeavesByGameIds[medalGameId].NamedId)
+                        .ToList(),
+                    ShopStock = MainManager.instance.badgeshops[medalShopLeaf.GameId]
+                        .Select(medalGameId => _medalsLeafRegistry.LeavesByGameIds[medalGameId].NamedId)
+                        .ToList()
+                }),
+            DiscoveryUnlocks = discoveriesByCreatorId[budId].ToDictionary(
+                x => x.NamedId,
+                x => MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Discoveries, x.GameId]),
+            Enemies = enemiesByCreatorId[budId].ToDictionary(
+                x => x.NamedId,
+                x => new EnemySaveData
+                {
+                    IsBestiaryEntryUnlocked =
+                        MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Bestiary, x.GameId],
+                    AmountSeen = MainManager.instance.enemyencounter[x.GameId, 0],
+                    AmountDefeated = MainManager.instance.enemyencounter[x.GameId, 1]
+                }),
+            RecipeLibraryEntryUnlocks = recipeLibraryEntriesByCreatorId[budId].ToDictionary(
+                x => x.NamedId,
+                x => MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Recipes, x.GameId]),
+            RecordUnlocks = recordsByCreatorId[budId].ToDictionary(
+                x => x.NamedId,
+                x => MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Logbook, x.GameId]),
+            AreaUnlocks = areasByCreatorId[budId].ToDictionary(
+                x => x.NamedId,
+                x => MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Map, x.GameId]),
+            Flags = flagsByCreatorId[budId].ToDictionary(
+                x => x.NamedId,
+                x => MainManager.instance.flags[x.GameId]),
+            Flagstrings = flagstringsByCreatorId[budId].ToDictionary(
+                x => x.NamedId,
+                x => MainManager.instance.flagstring[x.GameId]),
+            Flagvars = flagvarsByCreatorId[budId].ToDictionary(
+                x => x.NamedId,
+                x => MainManager.instance.flagvar[x.GameId]),
+            CrystalBerries = crystalBerriesByCreatorId[budId].ToDictionary(
+                x => x.NamedId,
+                x => MainManager.instance.crystalbflags[x.GameId])
         };
     }
 

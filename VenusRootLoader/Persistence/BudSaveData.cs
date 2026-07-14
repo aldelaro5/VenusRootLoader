@@ -2,12 +2,6 @@ namespace VenusRootLoader.Persistence;
 
 internal sealed class BudSaveData
 {
-    public required BaseGameExtensions BaseGameExtensions { get; init; }
-    public required CustomBudSaveData CustomBudSaveData { get; init; }
-}
-
-internal sealed class BaseGameExtensions
-{
     public required Dictionary<string, MedalShopLeafSaveData> MedalShops { get; init; } = new();
     public required Dictionary<string, bool> DiscoveryUnlocks { get; init; } = new();
     public required Dictionary<string, EnemySaveData> Enemies { get; init; } = new();
@@ -32,5 +26,3 @@ internal sealed class EnemySaveData
     public required int AmountSeen { get; init; }
     public required int AmountDefeated { get; init; }
 }
-
-internal sealed class CustomBudSaveData;

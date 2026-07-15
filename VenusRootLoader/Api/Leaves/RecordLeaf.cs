@@ -1,9 +1,11 @@
 using UnityEngine;
 using VenusRootLoader.LeavesInternals;
+using VenusRootLoader.SourceGenerators;
 using VenusRootLoader.Unity;
 
 namespace VenusRootLoader.Api.Leaves;
 
+[ExposeFromVenus(typeof(int))]
 public sealed class RecordLeaf : Leaf, IEnemyPortraitSprite
 {
     public sealed class RecordLanguageData

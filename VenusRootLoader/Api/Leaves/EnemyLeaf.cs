@@ -1,9 +1,11 @@
 using UnityEngine;
 using VenusRootLoader.LeavesInternals;
+using VenusRootLoader.SourceGenerators;
 using VenusRootLoader.Unity;
 
 namespace VenusRootLoader.Api.Leaves;
 
+[ExposeFromVenus(null, false)]
 public sealed class EnemyLeaf : Leaf, IEnemyPortraitSprite
 {
     private const int DeathTypeKoWithReserveDuplicateId = 4;

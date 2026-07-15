@@ -1,8 +1,10 @@
 using UnityEngine;
+using VenusRootLoader.SourceGenerators;
 using VenusRootLoader.Unity;
 
 namespace VenusRootLoader.Api.Leaves;
 
+[ExposeFromVenus(typeof(MainManager.BadgeTypes))]
 public sealed class MedalLeaf : Leaf
 {
     public sealed class MedalEffect

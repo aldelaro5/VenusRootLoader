@@ -33,13 +33,13 @@ internal interface IOrderedLeavesRegistry<TLeaf>
     /// <summary>
     /// Calls <see cref="ILeavesRegistry{TLeaf}.RegisterNew"/> while also adding the ordering information of the new leaf.
     /// </summary>
-    /// <param name="namedId">The named id of the new leaf for buds to identify it.</param>
     /// <param name="creatorId">The creator id that identifies who authored the leaf.</param>
+    /// <param name="namedId">The named id of the new leaf for buds to identify it.</param>
     /// <param name="orderAfterBaseGameId">The preceding game id from the initial list that this leaf should be in the
-    /// ordering. If this is null, it means to place it before any other leaves from the initial list.</param>
+    ///     ordering. If this is null, it means to place it before any other leaves from the initial list.</param>
     /// <param name="orderPriority">The relative priority of the leaf in the ordering</param>
     /// <returns><inheritdoc cref="ILeavesRegistry{TLeaf}.RegisterNew"/></returns>
-    TLeaf RegisterNewWithOrdering(string namedId, string creatorId, int? orderAfterBaseGameId, int orderPriority);
+    TLeaf RegisterNewWithOrdering(string creatorId, string namedId, int? orderAfterBaseGameId, int orderPriority);
 
     /// <summary>
     /// Calls <see cref="ILeavesRegistry{TLeaf}.RegisterExisting"/> while also adding the ordering information of the new leaf.

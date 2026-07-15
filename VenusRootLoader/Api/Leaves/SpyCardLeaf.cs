@@ -1,6 +1,10 @@
+using VenusRootLoader.SourceGenerators;
+
 namespace VenusRootLoader.Api.Leaves;
 
 // TODO: Support attack numbers higher than 9 for Attack cards due to number sprites rendering issue in CreateCard
+// TODO: Consider correctly naming the base game's named ids
+[ExposeFromVenus(null, false)]
 public sealed class SpyCardLeaf : Leaf
 {
     public sealed class SpyCardEffect

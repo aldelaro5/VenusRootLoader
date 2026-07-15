@@ -1,7 +1,9 @@
 using UnityEngine;
+using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves;
 
+[ExposeFromVenus]
 public sealed class AreaLeaf : Leaf
 {
     public sealed class AreaLanguageData

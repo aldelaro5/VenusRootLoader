@@ -18,7 +18,7 @@ public partial class Venus
     private TMapEntity RegisterMapEntity<TMapEntity>(string namedId, MapLeaf map)
         where TMapEntity : MapEntityLeaf
     {
-        TMapEntity mapEntityLeaf = map.EntitiesRegistry.RegisterNew<TMapEntity>(namedId, BudId);
+        TMapEntity mapEntityLeaf = map.EntitiesRegistry.RegisterNew<TMapEntity>(BudId, namedId);
         mapEntityLeaf.BaseGameObjectName = namedId;
         mapEntityLeaf.Map = map;
         return mapEntityLeaf;

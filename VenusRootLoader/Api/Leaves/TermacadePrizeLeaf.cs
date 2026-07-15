@@ -1,5 +1,8 @@
+using VenusRootLoader.SourceGenerators;
+
 namespace VenusRootLoader.Api.Leaves;
 
+[ExposeFromVenus]
 public sealed class TermacadePrizeLeaf : Leaf
 {
     public enum TermacadePrizeType

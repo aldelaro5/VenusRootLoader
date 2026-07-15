@@ -20,7 +20,7 @@ internal interface ILeavesRegistry<TLeaf>
     where TLeaf : Leaf
 {
     /// <summary>
-    /// All leaves of the registry indexed by their <see cref="Leaf.NamedId"/>.
+    /// All leaves of the registry indexed by their <see cref="Leaf.EffectiveId"/>.
     /// </summary>
     IDictionary<string, TLeaf> LeavesByEffectiveIds { get; }
 
@@ -32,19 +32,19 @@ internal interface ILeavesRegistry<TLeaf>
     /// <summary>
     /// Creates a newly registered leaf to the registry with an automatically determined <see cref="Leaf.GameId"/>.
     /// </summary>
-    /// <param name="namedId">The named id of the new leaf for buds to identify it.</param>
     /// <param name="creatorId">The creator id that identifies who authored the leaf.</param>
+    /// <param name="namedId">The named id of the new leaf for buds to identify it.</param>
     /// <returns>The newly registered leaf.</returns>
-    TLeaf RegisterNew(string namedId, string creatorId);
+    TLeaf RegisterNew(string creatorId, string namedId);
 
     /// <summary>
     /// Creates a newly registered leaf using a subtype of <typeparamref name="TLeaf" /> to the registry with an automatically determined <see cref="Leaf.GameId"/>.
     /// </summary>
-    /// <param name="namedId">The named id of the new leaf for buds to identify it.</param>
     /// <param name="creatorId">The creator id that identifies who authored the leaf.</param>
+    /// <param name="namedId">The named id of the new leaf for buds to identify it.</param>
     /// <typeparam name="TSubLeaf">The leaf subtype</typeparam>
     /// <returns>The newly registered leaf.</returns>
-    TSubLeaf RegisterNew<TSubLeaf>(string namedId, string creatorId) where TSubLeaf : TLeaf;
+    TSubLeaf RegisterNew<TSubLeaf>(string creatorId, string namedId) where TSubLeaf : TLeaf;
 
     /// <summary>
     /// Creates a newly registered leaf with a predetermined <see cref="Leaf.GameId"/>.

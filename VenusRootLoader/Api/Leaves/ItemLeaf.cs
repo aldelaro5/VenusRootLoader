@@ -1,8 +1,10 @@
 using UnityEngine;
+using VenusRootLoader.SourceGenerators;
 using VenusRootLoader.Unity;
 
 namespace VenusRootLoader.Api.Leaves;
 
+[ExposeFromVenus]
 public sealed class ItemLeaf : Leaf
 {
     public sealed class ItemUse

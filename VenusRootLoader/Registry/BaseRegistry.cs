@@ -20,12 +20,12 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
 
     protected abstract int CreateNewGameId(string effectiveId);
 
-    public TLeaf RegisterNew(string namedId, string creatorId)
+    public TLeaf RegisterNew(string creatorId, string namedId)
     {
-        return RegisterNew<TLeaf>(namedId, creatorId);
+        return RegisterNew<TLeaf>(creatorId, namedId);
     }
 
-    public TSubLeaf RegisterNew<TSubLeaf>(string namedId, string creatorId) where TSubLeaf : TLeaf
+    public TSubLeaf RegisterNew<TSubLeaf>(string creatorId, string namedId) where TSubLeaf : TLeaf
     {
         EffectiveLeafId.EnsureIdPartIsValid(creatorId, nameof(Leaf.CreatorId));
         EffectiveLeafId.EnsureIdPartIsValid(namedId, nameof(Leaf.NamedId));

@@ -28,7 +28,7 @@ internal sealed class OrderedLeavesRegistry<TLeaf> : IOrderedLeavesRegistry<TLea
 
     public TLeaf RegisterNewWithOrdering(string namedId, string creatorId, int? orderAfterBaseGameId, int orderPriority)
     {
-        TLeaf leaf = Registry.RegisterNew(namedId, creatorId);
+        TLeaf leaf = Registry.RegisterNew(creatorId, namedId);
         LeavesOrderingData.Add(
             new()
             {

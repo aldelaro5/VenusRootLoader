@@ -60,14 +60,21 @@ internal static class EffectiveLeafId
         }
     }
 
-    internal static string CreateFromParts(string creatorId, string namedId) =>
-        $"{creatorId}{Constants.LeafEffectiveIdSeparator}{namedId}";
+    internal static string CreateFromParts(string creatorId, string namedId)
+    {
+        return creatorId != Constants.BaseGameCreatorId
+            ? $"{creatorId}{Constants.LeafEffectiveIdSeparator}{namedId}"
+            : namedId;
+    }
 
     internal static string CreateBaseGameEffectiveId(string namedId) =>
         $"{Constants.BaseGameCreatorId}{Constants.LeafEffectiveIdSeparator}{namedId}";
 
     internal static (string CreatorId, string NamedId) SplitParts(string effectiveId)
     {
+        if (!effectiveId.Contains(Constants.LeafEffectiveIdSeparator))
+            return (Constants.BaseGameCreatorId, effectiveId);
+
         string[] parts = effectiveId.Split(StringUtils.LeafEffectiveIdDelimiter, StringSplitOptions.RemoveEmptyEntries);
         return (parts[0], parts[1]);
     }

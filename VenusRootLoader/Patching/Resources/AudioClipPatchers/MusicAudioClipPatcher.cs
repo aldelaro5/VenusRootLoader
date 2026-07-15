@@ -28,10 +28,7 @@ internal sealed class MusicAudioClipPatcher : IAudioClipPatcher
         string clipName = path
             .Replace(TextAssetPaths.AudioMusicDirectory, string.Empty)
             .Replace("/", string.Empty);
-        // If the clip is from the base game, it won't have the creator id part in its name
-        AudioClip music = clipName.Contains(Constants.LeafEffectiveIdSeparator)
-            ? _musicRegistry.LeavesByEffectiveIds[clipName].Music
-            : _musicRegistry.LeavesByEffectiveIds[EffectiveLeafId.CreateBaseGameEffectiveId(clipName)].Music;
+        AudioClip music = _musicRegistry.LeavesByEffectiveIds[clipName].Music;
 
         // This is important because the game may use the name to discover what musicc the AudioClip is playing.
         music.name = clipName;

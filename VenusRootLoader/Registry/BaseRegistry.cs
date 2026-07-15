@@ -30,7 +30,7 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
         EffectiveLeafId.EnsureIdPartIsValid(creatorId, nameof(Leaf.CreatorId));
         EffectiveLeafId.EnsureIdPartIsValid(namedId, nameof(Leaf.NamedId));
 
-        string effectiveId = EffectiveLeafId.CreateBaseGameEffectiveId(namedId);
+        string effectiveId = EffectiveLeafId.CreateFromParts(creatorId, namedId);
         if (LeavesByEffectiveIds.ContainsKey(effectiveId))
         {
             ThrowHelper.ThrowArgumentException(
@@ -53,12 +53,8 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
     public virtual TSubLeaf RegisterExisting<TSubLeaf>(int gameId, string namedId, string creatorId)
         where TSubLeaf : TLeaf
     {
-        EffectiveLeafId.EnsureIdPartIsValid(creatorId, nameof(Leaf.CreatorId));
-        EffectiveLeafId.EnsureIdPartIsValid(namedId, nameof(Leaf.NamedId));
-
-        string effectiveId = EffectiveLeafId.CreateFromParts(creatorId, namedId);
         TSubLeaf leaf = CreateLeafInstance<TSubLeaf>(gameId, namedId, creatorId);
-        LeavesByEffectiveIds[effectiveId] = leaf;
+        LeavesByEffectiveIds[namedId] = leaf;
         LeavesByGameIds[gameId] = leaf;
         LogRegisterContent(leaf);
         return leaf;

@@ -1,6 +1,5 @@
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 using Object = UnityEngine.Object;
 
@@ -39,11 +38,7 @@ internal sealed class MapPatcher : IPrefabPatcher
                 continue;
             AudioClip originalClip = map.music[i];
             string originalClipName = originalClip.name;
-            // If the clip is from the base game, it won't have the creator id part in its name
-            AudioClip newAudioClip = originalClipName.Contains(Constants.LeafEffectiveIdSeparator)
-                ? _musicRegistry.LeavesByEffectiveIds[originalClipName].Music
-                : _musicRegistry.LeavesByEffectiveIds[EffectiveLeafId.CreateBaseGameEffectiveId(originalClipName)]
-                    .Music;
+            AudioClip newAudioClip = _musicRegistry.LeavesByEffectiveIds[originalClipName].Music;
 
             newAudioClip.name = originalClipName;
             map.music[i] = newAudioClip;

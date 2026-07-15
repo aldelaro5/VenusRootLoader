@@ -51,6 +51,8 @@ public abstract class Leaf : ILeafIdentifier
         GameId = gameId;
         NamedId = namedId;
         CreatorId = creatorId;
-        EffectiveId = EffectiveLeafId.CreateFromParts(creatorId, namedId);
+        EffectiveId = creatorId != Constants.BaseGameCreatorId
+            ? EffectiveLeafId.CreateFromParts(creatorId, namedId)
+            : namedId;
     }
 }

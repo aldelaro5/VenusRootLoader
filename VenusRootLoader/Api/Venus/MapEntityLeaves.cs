@@ -5,7 +5,6 @@ using VenusRootLoader.Api.Leaves.MapEntities.Objects;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.AndBlocks;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.MovingPlatforms;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.Switches;
-using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.SourceGenerators;
 
 // ReSharper disable CheckNamespace
@@ -31,8 +30,7 @@ public partial class Venus
         MapLeaf map,
         UnityEngine.Vector3 startingPosition)
     {
-        string effectiveId = EffectiveLeafId.CreateBaseGameEffectiveId(nameof(MainManager.AnimIDs.MessengerAnt));
-        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>().LeavesByEffectiveIds[effectiveId];
+        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>().LeavesByEffectiveIds[namedId];
         return RegisterItemsStorageNpcMapEntity(namedId, map, startingPosition, animId);
     }
 
@@ -41,8 +39,7 @@ public partial class Venus
         MapLeaf map,
         UnityEngine.Vector3 startingPosition)
     {
-        string effectiveId = EffectiveLeafId.CreateBaseGameEffectiveId(nameof(MainManager.AnimIDs.AngryPlant));
-        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>().LeavesByEffectiveIds[effectiveId];
+        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>().LeavesByEffectiveIds[namedId];
         return RegisterVenusHealingNpcMapEntity(namedId, map, startingPosition, animId);
     }
 
@@ -52,8 +49,7 @@ public partial class Venus
         UnityEngine.Vector3 startingPosition,
         IList<NegatableMapEntityActivation> entityActivationsInputs)
     {
-        string effectiveId = EffectiveLeafId.CreateBaseGameEffectiveId(nameof(MainManager.AnimIDs.PrisonGate));
-        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>().LeavesByEffectiveIds[effectiveId];
+        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>().LeavesByEffectiveIds[namedId];
         return RegisterAndBlockOnEntitiesLeafActivationMapEntity(
             namedId,
             map,
@@ -68,8 +64,7 @@ public partial class Venus
         UnityEngine.Vector3 startingPosition,
         IList<Branch<FlagLeaf>> flagInputs)
     {
-        string effectiveId = EffectiveLeafId.CreateBaseGameEffectiveId(nameof(MainManager.AnimIDs.PrisonGate));
-        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>().LeavesByEffectiveIds[effectiveId];
+        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>().LeavesByEffectiveIds[namedId];
         return RegisterAndBlockOnFlagsMapEntity(namedId, map, startingPosition, animId, flagInputs);
     }
 
@@ -79,8 +74,7 @@ public partial class Venus
         UnityEngine.Vector3 startingPosition,
         NegatableFlag flagInput)
     {
-        string effectiveId = EffectiveLeafId.CreateBaseGameEffectiveId(nameof(MainManager.AnimIDs.PrisonGate));
-        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>().LeavesByEffectiveIds[effectiveId];
+        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>().LeavesByEffectiveIds[namedId];
         return RegisterAndBlockOnSingleFlagMapEntity(namedId, map, startingPosition, animId, flagInput);
     }
 
@@ -91,8 +85,7 @@ public partial class Venus
         IList<Branch<ObjectMapEntityLeaf>> requiredEntityActivationsToMove,
         UnityEngine.Vector3 toPosition)
     {
-        string effectiveId = EffectiveLeafId.CreateBaseGameEffectiveId(nameof(MainManager.AnimIDs.AncientPlatform));
-        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>().LeavesByEffectiveIds[effectiveId];
+        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>().LeavesByEffectiveIds[namedId];
         return RegisterMovingPlatformAlongLerpMapEntity(
             namedId,
             map,
@@ -109,8 +102,7 @@ public partial class Venus
         IList<Branch<ObjectMapEntityLeaf>> requiredEntityActivationsToMove,
         IList<UnityEngine.Vector3> movementPathNodePositions)
     {
-        string effectiveId = EffectiveLeafId.CreateBaseGameEffectiveId(nameof(MainManager.AnimIDs.AncientPlatform));
-        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>().LeavesByEffectiveIds[effectiveId];
+        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>().LeavesByEffectiveIds[namedId];
         return RegisterMovingPlatformAlongPathMapEntity(
             namedId,
             map,
@@ -126,8 +118,7 @@ public partial class Venus
         UnityEngine.Vector3 startingPosition,
         Branch<EventLeaf> eventToStartWhenToggled)
     {
-        string effectiveId = EffectiveLeafId.CreateBaseGameEffectiveId(nameof(MainManager.AnimIDs.SwitchCrystal));
-        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>().LeavesByEffectiveIds[effectiveId];
+        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>().LeavesByEffectiveIds[namedId];
         return RegisterEventTriggerSwitchMapEntity(namedId, map, startingPosition, animId, eventToStartWhenToggled);
     }
 
@@ -137,8 +128,7 @@ public partial class Venus
         UnityEngine.Vector3 startingPosition,
         Branch<FlagLeaf> latchHoldFlag)
     {
-        string effectiveId = EffectiveLeafId.CreateBaseGameEffectiveId(nameof(MainManager.AnimIDs.SwitchCrystal));
-        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>().LeavesByEffectiveIds[effectiveId];
+        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>().LeavesByEffectiveIds[namedId];
         return RegisterLatchedSwitchMapEntity(namedId, map, startingPosition, animId, latchHoldFlag);
     }
 
@@ -148,8 +138,7 @@ public partial class Venus
         UnityEngine.Vector3 startingPosition,
         Branch<FlagLeaf>? linkFlag)
     {
-        string effectiveId = EffectiveLeafId.CreateBaseGameEffectiveId(nameof(MainManager.AnimIDs.SwitchCrystal));
-        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>().LeavesByEffectiveIds[effectiveId];
+        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>().LeavesByEffectiveIds[namedId];
         return RegisterLinkableToggleSwitchMapEntity(namedId, map, startingPosition, animId, linkFlag);
     }
 
@@ -159,8 +148,7 @@ public partial class Venus
         UnityEngine.Vector3 startingPosition,
         int timerInFramesBeforeAutomaticTurnOff)
     {
-        string effectiveId = EffectiveLeafId.CreateBaseGameEffectiveId(nameof(MainManager.AnimIDs.SwitchCrystal));
-        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>().LeavesByEffectiveIds[effectiveId];
+        AnimIdLeaf animId = RegistryResolver.Resolve<AnimIdLeaf>().LeavesByEffectiveIds[namedId];
         return RegisterTimerSwitchMapEntity(
             namedId,
             map,

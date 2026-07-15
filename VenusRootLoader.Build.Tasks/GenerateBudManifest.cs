@@ -15,6 +15,15 @@ namespace VenusRootLoader.Build.Tasks;
 
 public sealed class GenerateBudManifest : Task
 {
+    private const string EffectiveLeafIdSeparator = "~";
+    private const string BaseGameCreatorId = "BaseGame";
+
+    private static readonly char[] DisallowedCharactersInEffectiveIds =
+        ['<', '>', ':', '"', '/', '\\', '|', '?', '*', ','];
+
+    private static readonly string DisallowedCharactersListString =
+        string.Join(", ", DisallowedCharactersInEffectiveIds);
+
     [Required]
     public required string AssemblyFile { get; set; }
 
@@ -44,6 +53,8 @@ public sealed class GenerateBudManifest : Task
         string outputPath = Path.GetDirectoryName(AssemblyFile)!;
         if (outputPath is null)
             throw new Exception($"{AssemblyFile} has no parent directory");
+
+        EnsureBudIdIsValid(BudId);
         if (!NuGetVersion.TryParse(BudVersion, out NuGetVersion? version))
             throw new Exception($"{BudVersion} is not a valid version");
         if (BudDependencies.Any(d => d.ItemSpec == BudId))
@@ -138,5 +149,48 @@ public sealed class GenerateBudManifest : Task
             Log.LogError($"An error occurred while writing the bud manifest file:\n{e}");
             return false;
         }
+    }
+
+    private static void EnsureBudIdIsValid(string budId)
+    {
+        if (string.IsNullOrWhiteSpace(budId))
+            throw new Exception($"The {nameof(BudId)} cannot be empty or contain whitespaces.");
+
+        // Windows path restrictions
+        int indexDisallowedCharacter = budId.IndexOfAny(DisallowedCharactersInEffectiveIds);
+        if (indexDisallowedCharacter != -1)
+        {
+            throw new Exception(
+                $"The {nameof(BudId)} cannot contain any of the following characters: {DisallowedCharactersListString}");
+        }
+
+        if (budId.EndsWith("."))
+            throw new Exception($"The {nameof(BudId)} cannot end with a \".\".");
+
+        if (budId.Any(char.IsControl))
+            throw new Exception($"The {nameof(BudId)} cannot contain control characters.");
+
+        // Removes whitespace ambiguities and prevents leading or trailing whitespaces which is problematic
+        if (budId.Any(char.IsWhiteSpace))
+            throw new Exception($"The {nameof(BudId)} cannot contain whitespaces.");
+
+        // Reserved effective id separator restriction
+        if (budId.Contains(EffectiveLeafIdSeparator))
+        {
+            throw new Exception(
+                $"The {nameof(BudId)} cannot contain \"{EffectiveLeafIdSeparator}\" because it is a reserved character for internal usage");
+        }
+
+        // Reserved for base game leaves
+        if (budId == BaseGameCreatorId)
+        {
+            throw new Exception(
+                $"The {nameof(BudId)} cannot be \"{BaseGameCreatorId}\" because it is a reserved id for internal usage");
+        }
+
+        // Enum name compatibility
+        char firstCharacter = budId[0];
+        if (char.IsDigit(firstCharacter) || firstCharacter == '-' || firstCharacter == '+')
+            throw new Exception($"The {nameof(BudId)} cannot start with a digit, \"-\" or \"+\".");
     }
 }

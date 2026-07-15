@@ -71,11 +71,23 @@ public partial class Venus
     public MapDialogueLeaf GetMapDialogue(string creatorId, string namedId, MapLeaf map) =>
         map.DialoguesRegistry.Get(creatorId, namedId);
 
+    public bool TryGetMapDialogue(string creatorId, string namedId, MapLeaf map, out MapDialogueLeaf? mapDialogue) =>
+        map.DialoguesRegistry.TryGet(creatorId, namedId, out mapDialogue);
+
+    public MapDialogueLeaf GetMapDialogueFromBaseGame(string namedId, MapLeaf map) =>
+        map.DialoguesRegistry.Get(Constants.BaseGameCreatorId, namedId);
+
     public IReadOnlyCollection<MapDialogueLeaf> GetAllMapDialogues(MapLeaf map) =>
         map.DialoguesRegistry.GetAll();
 
     public MapEntityLeaf GetMapEntity(string creatorId, string namedId, MapLeaf map) =>
         map.EntitiesRegistry.Get(creatorId, namedId);
+
+    public bool TryGetMapDialogue(string creatorId, string namedId, MapLeaf map, out MapEntityLeaf? mapEntityLeaf) =>
+        map.EntitiesRegistry.TryGet(creatorId, namedId, out mapEntityLeaf);
+
+    public MapEntityLeaf GetMapEntityFromBaseGame(string namedId, MapLeaf map) =>
+        map.EntitiesRegistry.Get(Constants.BaseGameCreatorId, namedId);
 
     public IReadOnlyCollection<MapEntityLeaf> GetAllMapEntities(MapLeaf map) =>
         map.EntitiesRegistry.GetAll();

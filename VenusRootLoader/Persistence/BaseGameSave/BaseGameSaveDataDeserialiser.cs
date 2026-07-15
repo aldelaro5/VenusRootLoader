@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Text;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Extensions;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
@@ -153,14 +154,16 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
                     $"There are less than 8 fields in the base game save data player party line element index {i}");
             }
 
-            string animIdNamedId = partyMemberData[0];
-            if (!_animIdsLeafRegistry.LeavesByNamedIds.TryGetValue(animIdNamedId, out AnimIdLeaf animIdLeaf))
+            string animIdEffectiveId = partyMemberData[0];
+            if (!_animIdsLeafRegistry.LeavesByEffectiveIds.TryGetValue(animIdEffectiveId, out AnimIdLeaf animIdLeaf))
             {
+                (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(animIdEffectiveId);
                 _logger.LogWarning(
-                    "The player party member index {index} has an AnimIdLeaf named {animIdNamedId} while no such " +
-                    "AnimIdLeaf exists in the registry. It will be skipped, but the save file will still be loaded.",
+                    "The player party member index {index} has an AnimIdLeaf named {namedId} created by {creatorId} " +
+                    "while no such AnimIdLeaf exists in the registry. It will be skipped, but the save file will still be loaded.",
                     i,
-                    animIdNamedId);
+                    idParts.NamedId,
+                    idParts.CreatorId);
                 continue;
             }
 
@@ -196,18 +199,22 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
                 "There are less than 16 fields in the base game save data general information line");
         }
 
-        string mapNamedId = generalInformationData[6];
-        if (!_mapsLeafRegistry.LeavesByNamedIds.TryGetValue(mapNamedId, out MapLeaf mapLeaf))
+        string mapEffectiveId = generalInformationData[6];
+        if (!_mapsLeafRegistry.LeavesByEffectiveIds.TryGetValue(mapEffectiveId, out MapLeaf mapLeaf))
         {
+            (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(mapEffectiveId);
             ThrowHelper.ThrowInvalidDataException(
-                $"The save was done at a {nameof(MapLeaf)} named {mapNamedId} while no such {nameof(MapLeaf)} exists in the registry.");
+                $"The save was done at a {nameof(MapLeaf)} named {idParts.NamedId} created by {idParts.CreatorId} " +
+                $"while no such {nameof(MapLeaf)} exists in the registry.");
         }
 
-        string areaNamedId = generalInformationData[7];
-        if (!_areasLeafRegistry.LeavesByNamedIds.TryGetValue(areaNamedId, out AreaLeaf areaLeaf))
+        string areaEffectiveId = generalInformationData[7];
+        if (!_areasLeafRegistry.LeavesByEffectiveIds.TryGetValue(areaEffectiveId, out AreaLeaf areaLeaf))
         {
+            (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(areaEffectiveId);
             ThrowHelper.ThrowInvalidDataException(
-                $"The save was done at an {nameof(AreaLeaf)} named {areaNamedId} while no such {nameof(AreaLeaf)} exists in the registry.");
+                $"The save was done at an {nameof(AreaLeaf)} named {idParts.NamedId} created by {idParts.CreatorId} " +
+                $"while no such {nameof(AreaLeaf)} exists in the registry.");
         }
 
         loadData.level = int.Parse(generalInformationData[0], CultureInfo.InvariantCulture);
@@ -242,21 +249,23 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
         string[] medalShopsData = medalShopsLine.Split(StringUtils.AtSymbolSplitDelimiter);
         for (int i = 0; i < medalShopsData.Length; i++)
         {
-            string[] medalNamedIds = medalShopsData[i].Split(
+            string[] medalEffectiveIds = medalShopsData[i].Split(
                 StringUtils.CommaSplitDelimiter,
                 StringSplitOptions.RemoveEmptyEntries);
             List<int> medalGameIds = new();
-            for (int j = 0; j < medalNamedIds.Length; j++)
+            for (int j = 0; j < medalEffectiveIds.Length; j++)
             {
-                string medalNamedId = medalNamedIds[j];
-                if (!_medalsLeafRegistry.LeavesByNamedIds.TryGetValue(medalNamedId, out MedalLeaf medalLeaf))
+                string medalEffectiveId = medalEffectiveIds[j];
+                if (!_medalsLeafRegistry.LeavesByEffectiveIds.TryGetValue(medalEffectiveId, out MedalLeaf medalLeaf))
                 {
+                    (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(medalEffectiveId);
                     _logger.LogWarning(
-                        "The medal shop index {medalShopIndex} medal index {medalIndex} is named {medalNamedId} " +
+                        "The medal shop index {medalShopIndex} medal index {medalIndex} is named {namedId} created by {creatorId} " +
                         "while no such MedalLeaf exists in the registry. It will be skipped, but the save file will still be loaded.",
                         i,
                         j,
-                        medalNamedId);
+                        idParts.NamedId,
+                        idParts.CreatorId);
                     continue;
                 }
 
@@ -272,7 +281,7 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
         string[] boardQuestData = questsLine.Split(StringUtils.AtSymbolSplitDelimiter);
         for (int i = 0; i < boardQuestData.Length; i++)
         {
-            string[] questNamedIds = boardQuestData[i].Split(
+            string[] questEffectiveIds = boardQuestData[i].Split(
                 StringUtils.CommaSplitDelimiter,
                 StringSplitOptions.RemoveEmptyEntries);
             string boardName = i switch
@@ -283,17 +292,19 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<string>(null, $"Unknown board index: {i}")
             };
             List<int> questGameIds = new();
-            for (int j = 0; j < questNamedIds.Length; j++)
+            for (int j = 0; j < questEffectiveIds.Length; j++)
             {
-                string questNamedId = questNamedIds[j];
-                if (!_questsLeafRegistry.LeavesByNamedIds.TryGetValue(questNamedId, out QuestLeaf questLeaf))
+                string questEffectiveId = questEffectiveIds[j];
+                if (!_questsLeafRegistry.LeavesByEffectiveIds.TryGetValue(questEffectiveId, out QuestLeaf questLeaf))
                 {
+                    (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(questEffectiveId);
                     _logger.LogWarning(
-                        "The {baordName} quest board quest index {questIndex} is named {questNamedId} " +
+                        "The {baordName} quest board quest index {questIndex} is named {namedId} created by {creatorId} " +
                         "while no such QuestLeaf exists in the registry. It will be skipped, but the save file will still be loaded.",
                         boardName,
                         j,
-                        questNamedId);
+                        idParts.NamedId,
+                        idParts.CreatorId);
                     continue;
                 }
 
@@ -309,7 +320,7 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
         string[] itemsInventoryData = itemsLine.Split(StringUtils.AtSymbolSplitDelimiter);
         for (int i = 0; i < itemsInventoryData.Length; i++)
         {
-            string[] itemNamedIds = itemsInventoryData[i].Split(
+            string[] itemEffectiveIds = itemsInventoryData[i].Split(
                 StringUtils.CommaSplitDelimiter,
                 StringSplitOptions.RemoveEmptyEntries);
             string inventoryName = i switch
@@ -320,17 +331,19 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<string>(null, $"Unknown items inventory index: {i}")
             };
             List<int> itemGameIds = new();
-            for (int j = 0; j < itemNamedIds.Length; j++)
+            for (int j = 0; j < itemEffectiveIds.Length; j++)
             {
-                string itemNamedId = itemNamedIds[j];
-                if (!_itemsLeafRegistry.LeavesByNamedIds.TryGetValue(itemNamedId, out ItemLeaf itemLeaf))
+                string itemEffectiveId = itemEffectiveIds[j];
+                if (!_itemsLeafRegistry.LeavesByEffectiveIds.TryGetValue(itemEffectiveId, out ItemLeaf itemLeaf))
                 {
+                    (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(itemEffectiveId);
                     _logger.LogWarning(
-                        "The {inventoryName} inventory item index {itemIndex} is named {itemNamedId} " +
+                        "The {inventoryName} inventory item index {itemIndex} is named {namedId} created by {creatorId} " +
                         "while no such ItemLeaf exists in the registry. It will be skipped, but the save file will still be loaded.",
                         inventoryName,
                         j,
-                        itemNamedId);
+                        idParts.NamedId,
+                        idParts.CreatorId);
                     continue;
                 }
 
@@ -349,29 +362,33 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
         for (int i = 0; i < medalsOnHandData.Length; i++)
         {
             string[] medalEquipData = medalsOnHandData[i].Split(StringUtils.CommaSplitDelimiter);
-            string medalNamedId = medalEquipData[0];
-            if (!_medalsLeafRegistry.LeavesByNamedIds.TryGetValue(medalNamedId, out MedalLeaf medalLeaf))
+            string medalEffectiveId = medalEquipData[0];
+            if (!_medalsLeafRegistry.LeavesByEffectiveIds.TryGetValue(medalEffectiveId, out MedalLeaf medalLeaf))
             {
+                (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(medalEffectiveId);
                 _logger.LogWarning(
-                    "The medal index {medalIndex} is named {medalNamedId} while no such MedalLeaf exists in the registry. " +
+                    "The medal index {medalIndex} is named {namedId} created by {creatorId} while no such MedalLeaf exists in the registry. " +
                     "It will be skipped, but the save file will still be loaded.",
                     i,
-                    medalNamedId);
+                    idParts.NamedId,
+                    idParts.CreatorId);
                 continue;
             }
 
-            string? medalEquipAnimIdNamedId = !string.IsNullOrWhiteSpace(medalEquipData[1])
+            string? medalEquipAnimIdEffectiveId = !string.IsNullOrWhiteSpace(medalEquipData[1])
                 ? medalEquipData[1]
                 : null;
             AnimIdLeaf? animIdLeaf = null;
-            if (medalEquipAnimIdNamedId is not null &&
-                !_animIdsLeafRegistry.LeavesByNamedIds.TryGetValue(medalEquipAnimIdNamedId, out animIdLeaf))
+            if (medalEquipAnimIdEffectiveId is not null &&
+                !_animIdsLeafRegistry.LeavesByEffectiveIds.TryGetValue(medalEquipAnimIdEffectiveId, out animIdLeaf))
             {
+                (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(medalEquipAnimIdEffectiveId);
                 _logger.LogWarning(
-                    "The medal index {medalIndex} is equipped on someone with an AnimIdLeaf named {animIdNamedId} while " +
+                    "The medal index {medalIndex} is equipped on someone with an AnimIdLeaf named {namedId} created by {creatorId} while " +
                     "no such AnimIdLeaf exists in the registry. It will be left unequipped, but the save file will still be loaded.",
                     i,
-                    medalEquipAnimIdNamedId);
+                    idParts.NamedId,
+                    idParts.CreatorId);
                 animIdLeaf = null;
             }
 
@@ -389,14 +406,16 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
             string[] samiraSongData = samiraSongsData[i].Split(
                 StringUtils.CommaSplitDelimiter,
                 StringSplitOptions.RemoveEmptyEntries);
-            string samiraSongNamedId = samiraSongData[0];
-            if (!_musicsLeafRegistry.LeavesByNamedIds.TryGetValue(samiraSongNamedId, out MusicLeaf musicLeaf))
+            string samiraSongEffectiveId = samiraSongData[0];
+            if (!_musicsLeafRegistry.LeavesByEffectiveIds.TryGetValue(samiraSongEffectiveId, out MusicLeaf musicLeaf))
             {
+                (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(samiraSongEffectiveId);
                 _logger.LogWarning(
-                    "The samira song index {samiraSongIndex} is named {samiraSongNamedId} while no such MusicLeaf exists in the registry. " +
-                    "It will be skipped, but the save file will still be loaded.",
+                    "The samira song index {samiraSongIndex} is named {namedId} created by {creatorId} while no such " +
+                    "MusicLeaf exists in the registry. It will be skipped, but the save file will still be loaded.",
                     i,
-                    samiraSongNamedId);
+                    idParts.NamedId,
+                    idParts.CreatorId);
                 continue;
             }
 
@@ -415,14 +434,18 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
             string[] statBonusData = statBonusesData[i].Split(
                 StringUtils.CommaSplitDelimiter,
                 StringSplitOptions.RemoveEmptyEntries);
-            string targetAnimidNamedId = statBonusData[2];
-            if (!_animIdsLeafRegistry.LeavesByNamedIds.TryGetValue(targetAnimidNamedId, out AnimIdLeaf animIdLeaf))
+            string targetAnimidEffectiveId = statBonusData[2];
+            if (!_animIdsLeafRegistry.LeavesByEffectiveIds.TryGetValue(
+                    targetAnimidEffectiveId,
+                    out AnimIdLeaf animIdLeaf))
             {
+                (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(targetAnimidEffectiveId);
                 _logger.LogWarning(
-                    "The stat bonus index {statBonusIndex} index is named {targetAnimidNamedId} while no such AnimIdLeaf " +
+                    "The stat bonus index {statBonusIndex} index is named {namedId} created by {creatorId} while no such AnimIdLeaf " +
                     "exists in the registry. It will be skipped, but the save file will still be loaded.",
                     i,
-                    targetAnimidNamedId);
+                    idParts.NamedId,
+                    idParts.CreatorId);
                 continue;
             }
 
@@ -444,15 +467,15 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
                 StringSplitOptions.RemoveEmptyEntries);
             int baseGameAmount = (MainManager.LibraryPages)i switch
             {
-                MainManager.LibraryPages.Discoveries => _discoveriesLeafRegistry.LeavesByNamedIds.Values
+                MainManager.LibraryPages.Discoveries => _discoveriesLeafRegistry.LeavesByEffectiveIds.Values
                     .Count(f => f.CreatorId == Constants.BaseGameId),
-                MainManager.LibraryPages.Bestiary => _enemiesLeafRegistry.LeavesByNamedIds.Values
+                MainManager.LibraryPages.Bestiary => _enemiesLeafRegistry.LeavesByEffectiveIds.Values
                     .Count(f => f.CreatorId == Constants.BaseGameId),
-                MainManager.LibraryPages.Recipes => _recipeLibraryEntriesLeafRegistry.LeavesByNamedIds.Values
+                MainManager.LibraryPages.Recipes => _recipeLibraryEntriesLeafRegistry.LeavesByEffectiveIds.Values
                     .Count(f => f.CreatorId == Constants.BaseGameId),
-                MainManager.LibraryPages.Logbook => _recordsLeafRegistry.LeavesByNamedIds.Values
+                MainManager.LibraryPages.Logbook => _recordsLeafRegistry.LeavesByEffectiveIds.Values
                     .Count(f => f.CreatorId == Constants.BaseGameId),
-                MainManager.LibraryPages.Map => _areasLeafRegistry.LeavesByNamedIds.Values
+                MainManager.LibraryPages.Map => _areasLeafRegistry.LeavesByEffectiveIds.Values
                     .Count(f => f.CreatorId == Constants.BaseGameId),
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<int>(null, $"Unknown library page index: {i}")
             };
@@ -466,7 +489,7 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
         string[] flagsData = flagsLine.Split(
             StringUtils.CommaSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
-        int baseGameAmount = _flagsLeafRegistry.LeavesByNamedIds.Values
+        int baseGameAmount = _flagsLeafRegistry.LeavesByEffectiveIds.Values
             .Count(f => f.CreatorId == Constants.BaseGameId);
         for (int i = 0; i < baseGameAmount; i++)
             stagingLoadData.Flags.Add(bool.Parse(flagsData[i]));
@@ -475,7 +498,7 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
     private void LoadFlagstringsLine(string flagstringsLine, StagingLoadData stagingLoadData)
     {
         string[] flagstringsData = flagstringsLine.Split(StringUtils.FlagstringSplitDelimiter, StringSplitOptions.None);
-        int baseGameAmount = _flagstringsLeafRegistry.LeavesByNamedIds.Values
+        int baseGameAmount = _flagstringsLeafRegistry.LeavesByEffectiveIds.Values
             .Count(f => f.CreatorId == Constants.BaseGameId);
         for (int i = 0; i < baseGameAmount; i++)
         {
@@ -493,27 +516,29 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
     private string GetChapter4CaptureDataFlagstringValue(string flagstring)
     {
         string[] chapter4CaptureData = flagstring.Split(StringUtils.DashSplitDelimiter);
-        string[] regularItemNamedIds = chapter4CaptureData[0].Split(
+        string[] regularItemEffectiveIds = chapter4CaptureData[0].Split(
             StringUtils.CommaSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
-        string[] keyItemNamedIds = chapter4CaptureData[1].Split(
+        string[] keyItemEffectiveIds = chapter4CaptureData[1].Split(
             StringUtils.CommaSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
 
         StringBuilder sb = new();
-        for (int i = 0; i < regularItemNamedIds.Length; i++)
+        for (int i = 0; i < regularItemEffectiveIds.Length; i++)
         {
             if (i > 0)
                 sb.Append(Comma);
 
-            string itemNamedId = regularItemNamedIds[i];
-            if (!_itemsLeafRegistry.LeavesByNamedIds.TryGetValue(itemNamedId, out ItemLeaf itemLeaf))
+            string itemEffectiveId = regularItemEffectiveIds[i];
+            if (!_itemsLeafRegistry.LeavesByEffectiveIds.TryGetValue(itemEffectiveId, out ItemLeaf itemLeaf))
             {
+                (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(itemEffectiveId);
                 _logger.LogWarning(
-                    "The flagstring 8 (Chapter 4 capture data) regular item index {itemIndex} is named {itemNamedId} " +
+                    "The flagstring 8 (Chapter 4 capture data) regular item index {itemIndex} is named {namedId} created by {creatorId} " +
                     "while no such ItemLeaf exists in the registry. It will be skipped, but the save file will still be loaded.",
                     i,
-                    itemNamedId);
+                    idParts.NamedId,
+                    idParts.CreatorId);
                 continue;
             }
 
@@ -522,19 +547,21 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
 
         sb.Append(Dash);
 
-        for (int i = 0; i < keyItemNamedIds.Length; i++)
+        for (int i = 0; i < keyItemEffectiveIds.Length; i++)
         {
             if (i > 0)
                 sb.Append(Comma);
 
-            string itemNamedId = keyItemNamedIds[i];
-            if (!_itemsLeafRegistry.LeavesByNamedIds.TryGetValue(itemNamedId, out ItemLeaf itemLeaf))
+            string itemEffectiveId = keyItemEffectiveIds[i];
+            if (!_itemsLeafRegistry.LeavesByEffectiveIds.TryGetValue(itemEffectiveId, out ItemLeaf itemLeaf))
             {
+                (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(itemEffectiveId);
                 _logger.LogWarning(
-                    "The flagstring 8 (Chapter 4 capture data) key item index {itemIndex} is named {itemNamedId} " +
+                    "The flagstring 8 (Chapter 4 capture data) key item index {itemIndex} is named {namedId} created by {creatorId} " +
                     "while no such ItemLeaf exists in the registry. It will be skipped, but the save file will still be loaded.",
                     i,
-                    itemNamedId);
+                    idParts.NamedId,
+                    idParts.CreatorId);
                 continue;
             }
 
@@ -549,23 +576,27 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
 
     private string GetSavedSpyCardsDeckFlagstringValue(string flagstring)
     {
-        string[] spyCardsNamedId = flagstring.Split(
+        string[] spyCardsEffectiveId = flagstring.Split(
             StringUtils.CommaSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
         StringBuilder sb = new();
-        for (int i = 0; i < spyCardsNamedId.Length; i++)
+        for (int i = 0; i < spyCardsEffectiveId.Length; i++)
         {
             if (i > 0)
                 sb.Append(Comma);
 
-            string spyCardNamedId = spyCardsNamedId[i];
-            if (!_spyCardsLeafRegistry.LeavesByNamedIds.TryGetValue(spyCardNamedId, out SpyCardLeaf spyCardLeaf))
+            string spyCardEffectiveId = spyCardsEffectiveId[i];
+            if (!_spyCardsLeafRegistry.LeavesByEffectiveIds.TryGetValue(
+                    spyCardEffectiveId,
+                    out SpyCardLeaf spyCardLeaf))
             {
+                (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(spyCardEffectiveId);
                 _logger.LogWarning(
-                    "The flagstring 12 (saved Spy Cards deck) card index {cardIndex} is named {spyCardNamedId} " +
+                    "The flagstring 12 (saved Spy Cards deck) card index {cardIndex} is named {namedId} created by {creatorId} " +
                     "while no such SpyCardLeaf exists in the registry. It will be skipped, but the save file will still be loaded.",
                     i,
-                    spyCardNamedId);
+                    idParts.NamedId,
+                    idParts.CreatorId);
                 continue;
             }
 
@@ -586,13 +617,16 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
             if (i > 0)
                 sb.Append(Comma);
 
-            string medalNamedId = mysteryMedalsQueue[i];
-            if (!_medalsLeafRegistry.LeavesByNamedIds.TryGetValue(medalNamedId, out MedalLeaf medalLeaf))
+            string medalEffectiveId = mysteryMedalsQueue[i];
+            if (!_medalsLeafRegistry.LeavesByEffectiveIds.TryGetValue(medalEffectiveId, out MedalLeaf medalLeaf))
             {
+                // Intentionally not mentioning the position in case of spoilers
+                (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(medalEffectiveId);
                 _logger.LogWarning(
-                    "The flagstring 13 (MYSTERY? medals queue) contains a MedalLeaf named {medalNamedId} " +
+                    "The flagstring 13 (MYSTERY? medals queue) contains a MedalLeaf named {namedId} created by {creatorId} " +
                     "while no such MedalLeaf exists in the registry. It will be skipped, but the save file will still be loaded.",
-                    medalNamedId);
+                    idParts.NamedId,
+                    idParts.CreatorId);
                 continue;
             }
 
@@ -607,7 +641,7 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
         string[] flagvarsData = flagvarsLine.Split(
             StringUtils.CommaSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
-        int baseGameAmount = _flagvarsLeafRegistry.LeavesByNamedIds.Values
+        int baseGameAmount = _flagvarsLeafRegistry.LeavesByEffectiveIds.Values
             .Count(f => f.CreatorId == Constants.BaseGameId);
         for (int i = 0; i < baseGameAmount; i++)
         {
@@ -623,24 +657,27 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
         if (string.IsNullOrWhiteSpace(flagvar))
             return 0;
 
-        if (_itemsLeafRegistry.LeavesByNamedIds.TryGetValue(flagvar, out ItemLeaf itemLeaf))
+        if (_itemsLeafRegistry.LeavesByEffectiveIds.TryGetValue(flagvar, out ItemLeaf itemLeaf))
             return itemLeaf.GameId;
 
+        (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(flagvar);
         if (int.TryParse(flagvar, NumberStyles.None, CultureInfo.InvariantCulture, out int value))
         {
             _logger.LogWarning(
-                "The flagvar 56 (ItemLeaf equipped on Chompy) is named {itemNamedId} while no such ItemLeaf " +
+                "The flagvar 56 (ItemLeaf equipped on Chompy) is named {namedId} created by {creatorId} while no such ItemLeaf " +
                 "exists in the registry. The flagvar will be loaded as is since it is parsable as an integer and " +
                 "the save file will still be loaded.",
-                flagvar);
+                idParts.NamedId,
+                idParts.CreatorId);
             return value;
         }
 
         _logger.LogWarning(
-            "The flagvar 56 (ItemLeaf equipped on Chompy) is named {itemNamedId} while no such ItemLeaf " +
+            "The flagvar 56 (ItemLeaf equipped on Chompy) is named {namedId} created by {creatorId} while no such ItemLeaf " +
             "exists in the registry. The flagvar will be left with a value of 0 since it is not parsable as " +
             "an integer, but the save file will still be loaded.",
-            flagvar);
+            idParts.NamedId,
+            idParts.CreatorId);
         return 0;
     }
 
@@ -659,7 +696,7 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
         string[] crystalBerriesData = crystalBerriesLine.Split(
             StringUtils.CommaSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
-        int baseGameAmount = _crystalBerriesLeafRegistry.LeavesByNamedIds.Values
+        int baseGameAmount = _crystalBerriesLeafRegistry.LeavesByEffectiveIds.Values
             .Count(f => f.CreatorId == Constants.BaseGameId);
         for (int i = 0; i < baseGameAmount; i++)
             stagingLoadData.CrystalBerryFlags.Add(bool.Parse(crystalBerriesData[i]));
@@ -667,19 +704,21 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
 
     private void LoadFollowersLine(string followersLine, StagingLoadData stagingLoadData)
     {
-        string[] animIdNamedIds = followersLine.Split(
+        string[] animIdEffectiveIds = followersLine.Split(
             StringUtils.CommaSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
-        for (int i = 0; i < animIdNamedIds.Length; i++)
+        for (int i = 0; i < animIdEffectiveIds.Length; i++)
         {
-            string animIdNamedId = animIdNamedIds[i];
-            if (!_animIdsLeafRegistry.LeavesByNamedIds.TryGetValue(animIdNamedId, out AnimIdLeaf animIdLeaf))
+            string animIdEffectiveId = animIdEffectiveIds[i];
+            if (!_animIdsLeafRegistry.LeavesByEffectiveIds.TryGetValue(animIdEffectiveId, out AnimIdLeaf animIdLeaf))
             {
+                (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(animIdEffectiveId);
                 _logger.LogWarning(
-                    "The follower index {followerIndex}'s AnimIdLeaf is named {animIdNamedId} while no such " +
+                    "The follower index {followerIndex}'s AnimIdLeaf is named {namedId} created by {creatorId} while no such " +
                     "AnimIdLeaf exists in the registry. It will be skipped, but the save file will still be loaded.",
                     i,
-                    animIdNamedId);
+                    idParts.NamedId,
+                    idParts.CreatorId);
                 continue;
             }
 
@@ -692,7 +731,7 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
         string[] enemyEncountersData = enemyEncountersDataLine.Split(
             StringUtils.AtSymbolSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
-        int baseGameAmount = _enemiesLeafRegistry.LeavesByNamedIds.Values
+        int baseGameAmount = _enemiesLeafRegistry.LeavesByEffectiveIds.Values
             .Count(f => f.CreatorId == Constants.BaseGameId);
         for (int i = 0; i < baseGameAmount; i++)
         {

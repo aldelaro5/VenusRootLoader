@@ -97,7 +97,7 @@ internal sealed class RecipeLibraryEntryTextAssetParser : ITextAssetParser<Recip
         if (fields.Length > 1)
             leaf.Recipe.Leaf.SecondItem = new(_itemsRegistry.LeavesByGameIds[int.Parse(fields[1])]);
 
-        RecipeLeaf foundRecipe = _recipesRegistry.LeavesByNamedIds.Values
+        RecipeLeaf foundRecipe = _recipesRegistry.LeavesByEffectiveIds.Values
             .First(r => r.ResultItem == leaf.Recipe.Leaf.ResultItem &&
                         ((r.FirstItem == leaf.Recipe.Leaf.FirstItem &&
                           r.SecondItem == leaf.Recipe.Leaf.SecondItem) ||

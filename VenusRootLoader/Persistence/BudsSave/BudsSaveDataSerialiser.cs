@@ -116,21 +116,21 @@ internal sealed class BudsSaveDataSerialiser : IBudsSaveDataSerialiser
         return new()
         {
             MedalShops = medalShopsByCreatorId[budId].ToDictionary(
-                medalShopLeaf => medalShopLeaf.NamedId,
+                medalShopLeaf => medalShopLeaf.EffectiveId,
                 medalShopLeaf => new MedalShopLeafSaveData
                 {
                     AvailablePool = MainManager.instance.avaliablebadgepool[medalShopLeaf.GameId]
-                        .Select(medalGameId => _medalsLeafRegistry.LeavesByGameIds[medalGameId].NamedId)
+                        .Select(medalGameId => _medalsLeafRegistry.LeavesByGameIds[medalGameId].EffectiveId)
                         .ToList(),
                     ShopStock = MainManager.instance.badgeshops[medalShopLeaf.GameId]
-                        .Select(medalGameId => _medalsLeafRegistry.LeavesByGameIds[medalGameId].NamedId)
+                        .Select(medalGameId => _medalsLeafRegistry.LeavesByGameIds[medalGameId].EffectiveId)
                         .ToList()
                 }),
             DiscoveryUnlocks = discoveriesByCreatorId[budId].ToDictionary(
-                x => x.NamedId,
+                x => x.EffectiveId,
                 x => MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Discoveries, x.GameId]),
             Enemies = enemiesByCreatorId[budId].ToDictionary(
-                x => x.NamedId,
+                x => x.EffectiveId,
                 x => new EnemySaveData
                 {
                     IsBestiaryEntryUnlocked =
@@ -139,25 +139,25 @@ internal sealed class BudsSaveDataSerialiser : IBudsSaveDataSerialiser
                     AmountDefeated = MainManager.instance.enemyencounter[x.GameId, 1]
                 }),
             RecipeLibraryEntryUnlocks = recipeLibraryEntriesByCreatorId[budId].ToDictionary(
-                x => x.NamedId,
+                x => x.EffectiveId,
                 x => MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Recipes, x.GameId]),
             RecordUnlocks = recordsByCreatorId[budId].ToDictionary(
-                x => x.NamedId,
+                x => x.EffectiveId,
                 x => MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Logbook, x.GameId]),
             AreaUnlocks = areasByCreatorId[budId].ToDictionary(
-                x => x.NamedId,
+                x => x.EffectiveId,
                 x => MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Map, x.GameId]),
             Flags = flagsByCreatorId[budId].ToDictionary(
-                x => x.NamedId,
+                x => x.EffectiveId,
                 x => MainManager.instance.flags[x.GameId]),
             Flagstrings = flagstringsByCreatorId[budId].ToDictionary(
-                x => x.NamedId,
+                x => x.EffectiveId,
                 x => MainManager.instance.flagstring[x.GameId]),
             Flagvars = flagvarsByCreatorId[budId].ToDictionary(
-                x => x.NamedId,
+                x => x.EffectiveId,
                 x => MainManager.instance.flagvar[x.GameId]),
             CrystalBerries = crystalBerriesByCreatorId[budId].ToDictionary(
-                x => x.NamedId,
+                x => x.EffectiveId,
                 x => MainManager.instance.crystalbflags[x.GameId])
         };
     }
@@ -165,7 +165,7 @@ internal sealed class BudsSaveDataSerialiser : IBudsSaveDataSerialiser
     private static Dictionary<string, List<TLeaf>> GetLeavesByCreatorIds<TLeaf>(ILeavesRegistry<TLeaf> leavesRegistry)
         where TLeaf : Leaf
     {
-        return leavesRegistry.LeavesByNamedIds.Values
+        return leavesRegistry.LeavesByEffectiveIds.Values
             .Where(x => x.CreatorId != Constants.BaseGameId)
             .GroupBy(x => x.CreatorId)
             .ToDictionary(g => g.Key, g => g.ToList());

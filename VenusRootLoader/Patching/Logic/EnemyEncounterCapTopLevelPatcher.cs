@@ -77,11 +77,11 @@ internal sealed class EnemyEncounterCapTopLevelPatcher : ITopLevelPatcher
     }
 
     private static int GetNewEnemyEncounterCap(int originalCap) =>
-        Math.Max(originalCap, _instance._enemiesRegistry.LeavesByNamedIds.Count);
+        Math.Max(originalCap, _instance._enemiesRegistry.LeavesByEffectiveIds.Count);
 
     // The reason it needs to be the Math.Max between the 2 is because it's possible the save doesn't contain all the
     // enemy encounters in the registry. In that case, we want to load the amount of the save, but the game will still
     // use the length from our registry and leave the values to 0 seen, 0 defeated which is what we want.
     private static int GetBestEnemyEncounterAmountFromSave(int amountFromSaveFile) =>
-        Math.Max(amountFromSaveFile, _instance._enemiesRegistry.LeavesByNamedIds.Count);
+        Math.Max(amountFromSaveFile, _instance._enemiesRegistry.LeavesByEffectiveIds.Count);
 }

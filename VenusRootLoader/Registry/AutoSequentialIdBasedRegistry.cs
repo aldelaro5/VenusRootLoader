@@ -30,7 +30,7 @@ internal sealed class AutoSequentialIdBasedRegistry<TLeaf> : BaseRegistry<TLeaf>
         _nextAutoIncrementId = firstGameId;
     }
 
-    protected override int CreateNewGameId(string namedId, string creatorId)
+    protected override int CreateNewGameId(string effectiveId)
     {
         int newGameId = _nextAutoIncrementId;
         _nextAutoIncrementId = _idSequenceDirection switch

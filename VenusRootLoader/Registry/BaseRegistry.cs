@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.LeavesInternals;
 
 namespace VenusRootLoader.Registry;
 
@@ -14,10 +15,10 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
 
     protected BaseRegistry(ILogger logger) => _logger = logger;
 
-    public IDictionary<string, TLeaf> LeavesByNamedIds { get; } = new Dictionary<string, TLeaf>();
+    public IDictionary<string, TLeaf> LeavesByEffectiveIds { get; } = new Dictionary<string, TLeaf>();
     public IDictionary<int, TLeaf> LeavesByGameIds { get; } = new Dictionary<int, TLeaf>();
 
-    protected abstract int CreateNewGameId(string namedId, string creatorId);
+    protected abstract int CreateNewGameId(string effectiveId);
 
     public TLeaf RegisterNew(string namedId, string creatorId)
     {
@@ -26,10 +27,19 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
 
     public TSubLeaf RegisterNew<TSubLeaf>(string namedId, string creatorId) where TSubLeaf : TLeaf
     {
-        EnsureNamedIdIsFree(namedId);
-        int gameId = CreateNewGameId(namedId, creatorId);
+        EffectiveLeafId.EnsureIdPartIsValid(creatorId, nameof(Leaf.CreatorId));
+        EffectiveLeafId.EnsureIdPartIsValid(namedId, nameof(Leaf.NamedId));
+
+        string effectiveId = EffectiveLeafId.CreateBaseGameEffectiveId(namedId);
+        if (LeavesByEffectiveIds.ContainsKey(effectiveId))
+        {
+            ThrowHelper.ThrowArgumentException(
+                $"The creator {creatorId} already created a leaf named {namedId} in the {_registryName} registry");
+        }
+
+        int gameId = CreateNewGameId(effectiveId);
         TSubLeaf leaf = CreateLeafInstance<TSubLeaf>(gameId, namedId, creatorId);
-        LeavesByNamedIds[namedId] = leaf;
+        LeavesByEffectiveIds[effectiveId] = leaf;
         LeavesByGameIds[gameId] = leaf;
         LogRegisterContent(leaf);
         return leaf;
@@ -43,8 +53,12 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
     public virtual TSubLeaf RegisterExisting<TSubLeaf>(int gameId, string namedId, string creatorId)
         where TSubLeaf : TLeaf
     {
+        EffectiveLeafId.EnsureIdPartIsValid(creatorId, nameof(Leaf.CreatorId));
+        EffectiveLeafId.EnsureIdPartIsValid(namedId, nameof(Leaf.NamedId));
+
+        string effectiveId = EffectiveLeafId.CreateFromParts(creatorId, namedId);
         TSubLeaf leaf = CreateLeafInstance<TSubLeaf>(gameId, namedId, creatorId);
-        LeavesByNamedIds[namedId] = leaf;
+        LeavesByEffectiveIds[effectiveId] = leaf;
         LeavesByGameIds[gameId] = leaf;
         LogRegisterContent(leaf);
         return leaf;
@@ -69,26 +83,21 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
             null);
     }
 
-    public TLeaf Get(string namedId) => EnsureNamedIdExists(namedId);
-    public IReadOnlyCollection<TLeaf> GetAll() => LeavesByNamedIds.Values.ToList().AsReadOnly();
-
-    private void EnsureNamedIdIsFree(string namedId)
+    public TLeaf Get(string creatorId, string namedId)
     {
-        if (LeavesByNamedIds.ContainsKey(namedId))
-        {
-            ThrowHelper.ThrowArgumentException(
-                nameof(namedId),
-                $"\"{namedId}\" already exists in the {_registryName} registry");
-        }
+        string effectiveId = EffectiveLeafId.CreateFromParts(creatorId, namedId);
+        return GetByEffectiveIdWithThrow(effectiveId);
     }
 
-    private TLeaf EnsureNamedIdExists(string namedId)
+    public IReadOnlyCollection<TLeaf> GetAll() => LeavesByEffectiveIds.Values.ToList().AsReadOnly();
+
+    private TLeaf GetByEffectiveIdWithThrow(string effectiveId)
     {
-        if (!LeavesByNamedIds.TryGetValue(namedId, out TLeaf content))
+        if (!LeavesByEffectiveIds.TryGetValue(effectiveId, out TLeaf content))
         {
             return ThrowHelper.ThrowArgumentException<TLeaf>(
-                nameof(namedId),
-                $"\"{namedId}\" does not exist in the {_registryName} registry");
+                nameof(effectiveId),
+                $"\"{effectiveId}\" does not exist in the {_registryName} registry");
         }
 
         return content;

@@ -149,7 +149,7 @@ internal static class Startup
 
         services.AddLocalizedTextAssetPatcher<CommonDialogueLeaf, CommonDialogueLocalizedTextAssetParser>(
             [TextAssetPaths.DataLocalizedCommonDialoguesPathSuffix],
-            r => r.LeavesByNamedIds.Values.OrderBy(l => l.InternalGameIndex));
+            r => r.LeavesByEffectiveIds.Values.OrderBy(l => l.InternalGameIndex));
 
         services.AddLocalizedTextAssetPatcher<MenuTextLeaf, MenuTextLocalizedTextAssetParser>(
             [TextAssetPaths.DataLocalizedMenuTextsPathSuffix]);

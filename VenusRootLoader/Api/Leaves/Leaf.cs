@@ -1,3 +1,5 @@
+using VenusRootLoader.LeavesInternals;
+
 namespace VenusRootLoader.Api.Leaves;
 
 /// <summary>
@@ -42,10 +44,13 @@ public abstract class Leaf : ILeafIdentifier
     /// </summary>
     public string CreatorId { get; }
 
+    internal string EffectiveId { get; }
+
     private protected Leaf(int gameId, string namedId, string creatorId)
     {
         GameId = gameId;
         NamedId = namedId;
         CreatorId = creatorId;
+        EffectiveId = EffectiveLeafId.CreateFromParts(creatorId, namedId);
     }
 }

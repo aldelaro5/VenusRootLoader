@@ -45,7 +45,7 @@ internal sealed class OrderingTextAssetPatcher<TLeaf> : IOrderingTextAssetPatche
 
     public TextAsset PatchTextAsset(string path, TextAsset original)
     {
-        bool registryHasData = _orderedLeaves.Registry.LeavesByNamedIds.Count > 0;
+        bool registryHasData = _orderedLeaves.Registry.LeavesByEffectiveIds.Count > 0;
         if (!registryHasData)
             return original;
 

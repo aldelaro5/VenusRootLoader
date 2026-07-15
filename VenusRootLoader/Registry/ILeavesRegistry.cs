@@ -22,7 +22,7 @@ internal interface ILeavesRegistry<TLeaf>
     /// <summary>
     /// All leaves of the registry indexed by their <see cref="Leaf.NamedId"/>.
     /// </summary>
-    IDictionary<string, TLeaf> LeavesByNamedIds { get; }
+    IDictionary<string, TLeaf> LeavesByEffectiveIds { get; }
 
     /// <summary>
     /// All leaves of the registry indexed by their <see cref="Leaf.GameId"/>.
@@ -68,10 +68,11 @@ internal interface ILeavesRegistry<TLeaf>
     /// <summary>
     /// Obtains a leaf from the registry.
     /// </summary>
+    /// <param name="creatorId">The creator id of the leaf.</param>
     /// <param name="namedId">The named id of the leaf.</param>
     /// <returns>The leaf if found.</returns>
     /// <exception cref="ArgumentException">Thrown if the leaf doesn't exist.</exception>
-    TLeaf Get(string namedId);
+    TLeaf Get(string creatorId, string namedId);
 
     /// <summary>
     /// Obtains a read only copy of a collection containing all the leaves in the registry.

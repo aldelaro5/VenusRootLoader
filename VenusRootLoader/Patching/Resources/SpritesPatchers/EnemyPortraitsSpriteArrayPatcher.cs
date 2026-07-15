@@ -71,16 +71,16 @@ internal sealed class EnemyPortraitsSpriteArrayPatcher : ISpriteArrayPatcher
     private void CloneSpriteDuplicates()
     {
         IEnumerable<IEnemyPortraitSprite> discoveryLeaves = _discoveriesRegistry
-            .LeavesByNamedIds
+            .LeavesByEffectiveIds
             .Values;
         IEnumerable<IEnemyPortraitSprite> enemiesLeaves = _enemiesRegistry
-            .LeavesByNamedIds
+            .LeavesByEffectiveIds
             .Values;
         IEnumerable<IEnemyPortraitSprite> recordsLeaves = _recordsRegistry
-            .LeavesByNamedIds
+            .LeavesByEffectiveIds
             .Values;
         IEnumerable<IEnemyPortraitSprite> questsLeaves = _questsRegistry
-            .LeavesByNamedIds
+            .LeavesByEffectiveIds
             .Values;
         List<IEnemyPortraitSprite> allLeavesWithPortraitSprite =
             discoveryLeaves
@@ -106,7 +106,7 @@ internal sealed class EnemyPortraitsSpriteArrayPatcher : ISpriteArrayPatcher
         where T : Leaf, IEnemyPortraitSprite
     {
         ICollection<T> leaves = registry
-            .LeavesByNamedIds
+            .LeavesByEffectiveIds
             .Values;
         List<T> leavesWithDefinedSprites = leaves
             .Where(l => l.EnemyPortraitsSpriteIndex is not null)

@@ -48,7 +48,7 @@ internal sealed class MapEntitiesTextAssetPatcher : IMapEntityTextAssetPatcher
 
     public TextAsset PatchMapEntityTextAsset(string path, TextAsset original)
     {
-        bool registryHasData = _mapsRegistry.LeavesByNamedIds.Count > 0;
+        bool registryHasData = _mapsRegistry.LeavesByEffectiveIds.Count > 0;
         if (!registryHasData)
             return original;
 

@@ -1,4 +1,3 @@
-using CommunityToolkit.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching;
@@ -28,31 +27,9 @@ internal sealed class EnumBasedRegistry<TLeaf, TEnum> : BaseRegistry<TLeaf>
     public override TSubLeaf RegisterExisting<TSubLeaf>(int gameId, string namedId, string creatorId) =>
         base.RegisterExisting<TSubLeaf>(gameId + _offsetEnumValueToGameId, namedId, creatorId);
 
-    protected override int CreateNewGameId(string namedId, string creatorId)
+    protected override int CreateNewGameId(string effectiveId)
     {
-        EnsureNamedIdIsValidEnumName(namedId);
-        int enumValue = _enumPatcher.AddCustomEnumName(typeof(TEnum), namedId);
+        int enumValue = _enumPatcher.AddCustomEnumName(typeof(TEnum), effectiveId);
         return enumValue + _offsetEnumValueToGameId;
-    }
-
-    // These checks were gathered by a look at Mono's Enum implementations and figuring out what isn't allowed in an enum
-    // value name. While C# might enforce some restrictions, they aren't the same than the ones enforced at runtime which
-    // this is what these checks focus on.
-    private static void EnsureNamedIdIsValidEnumName(string namedId)
-    {
-        Guard.IsNotNullOrWhiteSpace(namedId);
-        if (namedId.Trim() != namedId)
-            ThrowHelper.ThrowArgumentException(nameof(namedId), $"\"{namedId}\" cannot start or end with whitespaces");
-
-        char firstChar = namedId[0];
-        if (char.IsDigit(firstChar) || firstChar == '-' || firstChar == '+')
-        {
-            ThrowHelper.ThrowArgumentException(
-                nameof(namedId),
-                $"\"{namedId}\" cannot have its first character be a digit, \"-\" or \"+\"");
-        }
-
-        if (namedId.Contains(','))
-            ThrowHelper.ThrowArgumentException(nameof(namedId), $"\"{namedId}\" cannot contain any commas (\",\")");
     }
 }

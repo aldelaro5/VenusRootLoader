@@ -44,14 +44,14 @@ internal sealed class MapDialoguesTextAssetPatcher : IMapDialoguesTextAssetPatch
 
     public TextAsset PatchMapDialoguesTextAsset(int languageId, string path, TextAsset original)
     {
-        bool registryHasData = _mapsRegistry.LeavesByNamedIds.Count > 0;
+        bool registryHasData = _mapsRegistry.LeavesByEffectiveIds.Count > 0;
         if (!registryHasData)
             return original;
 
         int mapNameStart = path.LastIndexOf('/') + 1;
         string mapName = path[mapNameStart..];
 
-        MapLeaf leaf = _mapsRegistry.LeavesByNamedIds[mapName];
+        MapLeaf leaf = _mapsRegistry.LeavesByEffectiveIds[mapName];
         List<string> newLines = leaf.DialoguesRegistry.LeavesByGameIds.Values
             .Select(d => d.LocalizedText[languageId])
             .ToList();

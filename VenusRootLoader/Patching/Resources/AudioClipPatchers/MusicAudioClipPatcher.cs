@@ -1,5 +1,6 @@
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
@@ -24,12 +25,16 @@ internal sealed class MusicAudioClipPatcher : IAudioClipPatcher
 
     public AudioClip PatchAudioClip(string path, AudioClip original)
     {
-        string namedId = path
+        string clipName = path
             .Replace(TextAssetPaths.AudioMusicDirectory, string.Empty)
             .Replace("/", string.Empty);
-        AudioClip music = _musicRegistry.LeavesByNamedIds[namedId].Music;
+        // If the clip is from the base game, it won't have the creator id part in its name
+        AudioClip music = clipName.Contains(Constants.LeafEffectiveIdSeparator)
+            ? _musicRegistry.LeavesByEffectiveIds[clipName].Music
+            : _musicRegistry.LeavesByEffectiveIds[EffectiveLeafId.CreateBaseGameEffectiveId(clipName)].Music;
+
         // This is important because the game may use the name to discover what musicc the AudioClip is playing.
-        music.name = namedId;
+        music.name = clipName;
         return music;
     }
 }

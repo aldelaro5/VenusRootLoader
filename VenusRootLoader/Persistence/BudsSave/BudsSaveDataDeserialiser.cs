@@ -172,16 +172,16 @@ internal sealed class BudsSaveDataDeserialiser : IBudsSaveDataDeserialiser
     private void LoadMedalShop(MedalShopLeafSaveData data, StagingLoadData loadData, MedalShopLeaf leaf)
     {
         List<int> availableBadgePoolGameIds = new();
-        foreach (string medalNamedId in data.AvailablePool)
+        foreach (string medalEffectiveId in data.AvailablePool)
         {
-            if (!_medalsLeafRegistry.LeavesByNamedIds.TryGetValue(medalNamedId, out MedalLeaf medalLeaf))
+            if (!_medalsLeafRegistry.LeavesByEffectiveIds.TryGetValue(medalEffectiveId, out MedalLeaf medalLeaf))
             {
                 _logger.LogWarning(
                     "The MedalShopLeaf named {medalShopNamedId} has a MedalLeaf named " +
                     "{medalNamedId} in its available pool while no such MedalLeaf exists in the registry. " +
                     "It will be skipped, but the save will still be loaded.",
                     leaf.NamedId,
-                    medalNamedId);
+                    medalEffectiveId);
                 continue;
             }
 
@@ -189,16 +189,16 @@ internal sealed class BudsSaveDataDeserialiser : IBudsSaveDataDeserialiser
         }
 
         List<int> shopStockGameIds = new();
-        foreach (string medalNamedId in data.ShopStock)
+        foreach (string medalEffectiveId in data.ShopStock)
         {
-            if (!_medalsLeafRegistry.LeavesByNamedIds.TryGetValue(medalNamedId, out MedalLeaf medalLeaf))
+            if (!_medalsLeafRegistry.LeavesByEffectiveIds.TryGetValue(medalEffectiveId, out MedalLeaf medalLeaf))
             {
                 _logger.LogWarning(
                     "The MedalShopLeaf named {medalShopNamedId} has a MedalLeaf named " +
                     "{medalNamedId} in its shop stock while no such MedalLeaf exists in the registry. " +
                     "It will be skipped, but the save will still be loaded.",
                     leaf.NamedId,
-                    medalNamedId);
+                    medalEffectiveId);
                 continue;
             }
 
@@ -221,9 +221,9 @@ internal sealed class BudsSaveDataDeserialiser : IBudsSaveDataDeserialiser
         Dictionary<int, TSaveData> dataByGameIds = new();
         foreach (KeyValuePair<string, TSaveData> data in dataByNamedIds)
         {
-            if (!leavesRegistry.LeavesByNamedIds.TryGetValue(
+            if (!leavesRegistry.LeavesByEffectiveIds.TryGetValue(
                     data.Key,
-                    out TLeaf medalShopLeaf))
+                    out TLeaf leaf))
             {
                 _logger.LogWarning(
                     "The {leafTypeName} named {namedId} does not exists in the registry. " +
@@ -233,10 +233,10 @@ internal sealed class BudsSaveDataDeserialiser : IBudsSaveDataDeserialiser
                 continue;
             }
 
-            dataByGameIds.Add(medalShopLeaf.GameId, data.Value);
+            dataByGameIds.Add(leaf.GameId, data.Value);
         }
 
-        int baseGameAmount = leavesRegistry.LeavesByNamedIds.Values
+        int baseGameAmount = leavesRegistry.LeavesByEffectiveIds.Values
             .Count(x => x.CreatorId == Constants.BaseGameId);
         for (int i = baseGameAmount; i < leavesRegistry.LeavesByGameIds.Values.Count; i++)
         {

@@ -51,7 +51,7 @@ internal sealed class EventControlExcludeIdsTopLevelPatcher : ITopLevelPatcher
 
     private static IEnumerable<int> GetNewExcludeIds(IEnumerable<int> original)
     {
-        List<EnemyLeaf> allEnemies = _instance._orderedEnemiesRegistry.Registry.LeavesByNamedIds.Values.ToList();
+        List<EnemyLeaf> allEnemies = _instance._orderedEnemiesRegistry.Registry.LeavesByEffectiveIds.Values.ToList();
         List<EnemyLeaf> enemiesInBestiary = _instance._orderedEnemiesRegistry.GetOrderedLeaves().ToList();
 
         return allEnemies

@@ -16,4 +16,5 @@ internal static class StringUtils
     internal static readonly char[] QuestionMarkSplitDelimiter = ['?'];
     internal static readonly char[] DashSplitDelimiter = ['-'];
     internal static readonly string[] FlagstringSplitDelimiter = ["|SPLIT|"];
+    internal static readonly string[] LeafEffectiveIdDelimiter = [Constants.LeafEffectiveIdSeparator];
 }

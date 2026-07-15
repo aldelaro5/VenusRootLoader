@@ -71,7 +71,7 @@ internal sealed class GlobalFlagsCapsTopLevelPatcher : ITopLevelPatcher
         return matcher.Instructions();
     }
 
-    private static int GetNewFlagsCap() => _instance._flagsLeafRegistry.LeavesByNamedIds.Count;
-    private static int GetNewFlagvarsCap() => _instance._flagvarsLeafRegistry.LeavesByNamedIds.Count;
-    private static int GetNewFlagstringsCap() => _instance._flagstringsLeafRegistry.LeavesByNamedIds.Count;
+    private static int GetNewFlagsCap() => _instance._flagsLeafRegistry.LeavesByEffectiveIds.Count;
+    private static int GetNewFlagvarsCap() => _instance._flagvarsLeafRegistry.LeavesByEffectiveIds.Count;
+    private static int GetNewFlagstringsCap() => _instance._flagstringsLeafRegistry.LeavesByEffectiveIds.Count;
 }

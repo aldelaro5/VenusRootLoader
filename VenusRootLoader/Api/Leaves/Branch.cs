@@ -6,6 +6,7 @@ public readonly struct Branch<TLeaf> : ILeafIdentifier, IEquatable<Branch<TLeaf>
     public int GameId => Leaf.GameId;
     public string NamedId => Leaf.NamedId;
     public string CreatorId => Leaf.CreatorId;
+    internal string EffectiveId => Leaf.EffectiveId;
 
     internal TLeaf Leaf { get; }
 

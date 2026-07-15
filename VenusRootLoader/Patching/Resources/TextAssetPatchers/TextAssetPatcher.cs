@@ -63,7 +63,7 @@ internal sealed class TextAssetPatcher<TLeaf> : ITextAssetPatcher
 
     public TextAsset PatchTextAsset(string path, TextAsset original)
     {
-        bool registryHasData = _registry.LeavesByNamedIds.Count > 0;
+        bool registryHasData = _registry.LeavesByEffectiveIds.Count > 0;
         if (!registryHasData)
             return original;
 

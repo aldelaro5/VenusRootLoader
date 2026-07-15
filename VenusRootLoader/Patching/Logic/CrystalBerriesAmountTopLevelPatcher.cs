@@ -89,11 +89,11 @@ internal sealed class CrystalBerriesAmountTopLevelPatcher : ITopLevelPatcher
         return matcher.Instructions();
     }
 
-    private static int GetNewCrystalBerriesCap() => _instance._crystalBerriesLeafRegistry.LeavesByNamedIds.Count;
+    private static int GetNewCrystalBerriesCap() => _instance._crystalBerriesLeafRegistry.LeavesByEffectiveIds.Count;
 
     // The reason it needs to be the Math.Max between the 2 is because it's possible the save doesn't contain all the
     // Crystal Berries in the registry. In that case, we want to load the amount of the save, but the game will still
     // use the length from our registry and leave the values to false which is what we want.
     private static int GetBestCrystalBerriesAmountFromSave(int amountFromSaveFile) =>
-        Math.Max(amountFromSaveFile, _instance._crystalBerriesLeafRegistry.LeavesByNamedIds.Count);
+        Math.Max(amountFromSaveFile, _instance._crystalBerriesLeafRegistry.LeavesByEffectiveIds.Count);
 }

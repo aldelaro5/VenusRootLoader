@@ -58,7 +58,7 @@ internal sealed class RareSpyDataTopLevelPatcher : ITopLevelPatcher
     private static void ChangeRareSpyDataEnemies(List<int> rareSpyDataEnemyIds)
     {
         rareSpyDataEnemyIds.Clear();
-        List<int> newRareSpyDateEnemyIds = _instance._enemiesRegistry.LeavesByNamedIds.Values
+        List<int> newRareSpyDateEnemyIds = _instance._enemiesRegistry.LeavesByEffectiveIds.Values
             .Where(l => l.IsRareSpyData)
             .Select(l => l.GameId)
             .ToList();

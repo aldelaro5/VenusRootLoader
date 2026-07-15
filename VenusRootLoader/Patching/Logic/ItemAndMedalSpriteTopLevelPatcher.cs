@@ -47,10 +47,10 @@ internal sealed class ItemAndMedalSpriteTopLevelPatcher : ITopLevelPatcher
     [HarmonyPatch(typeof(MainManager), nameof(MainManager.LoadItemSprites))]
     private static bool InsertCustomItemSpriteHandler()
     {
-        Sprite[] itemsSprites = _instance._itemLeafRegistry.LeavesByNamedIds.Values
+        Sprite[] itemsSprites = _instance._itemLeafRegistry.LeavesByEffectiveIds.Values
             .Select(i => i.Sprite)
             .ToArray();
-        Sprite[] medalsSprites = _instance._medalLeafRegistry.LeavesByNamedIds.Values
+        Sprite[] medalsSprites = _instance._medalLeafRegistry.LeavesByEffectiveIds.Values
             .Select(i => i.Sprite)
             .ToArray();
 

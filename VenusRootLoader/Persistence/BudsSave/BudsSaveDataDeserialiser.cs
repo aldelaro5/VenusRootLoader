@@ -237,7 +237,7 @@ internal sealed class BudsSaveDataDeserialiser : IBudsSaveDataDeserialiser
         }
 
         int baseGameAmount = leavesRegistry.LeavesByEffectiveIds.Values
-            .Count(x => x.CreatorId == Constants.BaseGameId);
+            .Count(x => x.CreatorId == Constants.BaseGameCreatorId);
         for (int i = baseGameAmount; i < leavesRegistry.LeavesByGameIds.Values.Count; i++)
         {
             TLeaf leaf = leavesRegistry.LeavesByGameIds[i];

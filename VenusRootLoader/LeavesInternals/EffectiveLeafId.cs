@@ -64,7 +64,7 @@ internal static class EffectiveLeafId
         $"{creatorId}{Constants.LeafEffectiveIdSeparator}{namedId}";
 
     internal static string CreateBaseGameEffectiveId(string namedId) =>
-        $"{Constants.BaseGameId}{Constants.LeafEffectiveIdSeparator}{namedId}";
+        $"{Constants.BaseGameCreatorId}{Constants.LeafEffectiveIdSeparator}{namedId}";
 
     internal static (string CreatorId, string NamedId) SplitParts(string effectiveId)
     {

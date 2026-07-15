@@ -72,7 +72,7 @@ internal sealed class OrderedLeavesRegistry<TLeaf> : IOrderedLeavesRegistry<TLea
                 ? -1
                 : BaseGameIdsToOrderingIndex[baseGameGroup.Key.Value])
             .SelectMany(baseGameGroup => baseGameGroup
-                .OrderBy(lod => lod.Leaf.CreatorId == Constants.BaseGameId
+                .OrderBy(lod => lod.Leaf.CreatorId == Constants.BaseGameCreatorId
                     ? -1
                     : CreatorOrderingPriorities[lod.Leaf.CreatorId])
                 .ThenBy(lod => lod.Priority)

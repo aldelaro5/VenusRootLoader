@@ -468,15 +468,15 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
             int baseGameAmount = (MainManager.LibraryPages)i switch
             {
                 MainManager.LibraryPages.Discoveries => _discoveriesLeafRegistry.LeavesByEffectiveIds.Values
-                    .Count(f => f.CreatorId == Constants.BaseGameId),
+                    .Count(f => f.CreatorId == Constants.BaseGameCreatorId),
                 MainManager.LibraryPages.Bestiary => _enemiesLeafRegistry.LeavesByEffectiveIds.Values
-                    .Count(f => f.CreatorId == Constants.BaseGameId),
+                    .Count(f => f.CreatorId == Constants.BaseGameCreatorId),
                 MainManager.LibraryPages.Recipes => _recipeLibraryEntriesLeafRegistry.LeavesByEffectiveIds.Values
-                    .Count(f => f.CreatorId == Constants.BaseGameId),
+                    .Count(f => f.CreatorId == Constants.BaseGameCreatorId),
                 MainManager.LibraryPages.Logbook => _recordsLeafRegistry.LeavesByEffectiveIds.Values
-                    .Count(f => f.CreatorId == Constants.BaseGameId),
+                    .Count(f => f.CreatorId == Constants.BaseGameCreatorId),
                 MainManager.LibraryPages.Map => _areasLeafRegistry.LeavesByEffectiveIds.Values
-                    .Count(f => f.CreatorId == Constants.BaseGameId),
+                    .Count(f => f.CreatorId == Constants.BaseGameCreatorId),
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<int>(null, $"Unknown library page index: {i}")
             };
             for (int j = 0; j < baseGameAmount; j++)
@@ -490,7 +490,7 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
             StringUtils.CommaSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
         int baseGameAmount = _flagsLeafRegistry.LeavesByEffectiveIds.Values
-            .Count(f => f.CreatorId == Constants.BaseGameId);
+            .Count(f => f.CreatorId == Constants.BaseGameCreatorId);
         for (int i = 0; i < baseGameAmount; i++)
             stagingLoadData.Flags.Add(bool.Parse(flagsData[i]));
     }
@@ -499,7 +499,7 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
     {
         string[] flagstringsData = flagstringsLine.Split(StringUtils.FlagstringSplitDelimiter, StringSplitOptions.None);
         int baseGameAmount = _flagstringsLeafRegistry.LeavesByEffectiveIds.Values
-            .Count(f => f.CreatorId == Constants.BaseGameId);
+            .Count(f => f.CreatorId == Constants.BaseGameCreatorId);
         for (int i = 0; i < baseGameAmount; i++)
         {
             string flagstring = i switch
@@ -642,7 +642,7 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
             StringUtils.CommaSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
         int baseGameAmount = _flagvarsLeafRegistry.LeavesByEffectiveIds.Values
-            .Count(f => f.CreatorId == Constants.BaseGameId);
+            .Count(f => f.CreatorId == Constants.BaseGameCreatorId);
         for (int i = 0; i < baseGameAmount; i++)
         {
             int flagvar = i == 56
@@ -697,7 +697,7 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
             StringUtils.CommaSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
         int baseGameAmount = _crystalBerriesLeafRegistry.LeavesByEffectiveIds.Values
-            .Count(f => f.CreatorId == Constants.BaseGameId);
+            .Count(f => f.CreatorId == Constants.BaseGameCreatorId);
         for (int i = 0; i < baseGameAmount; i++)
             stagingLoadData.CrystalBerryFlags.Add(bool.Parse(crystalBerriesData[i]));
     }
@@ -732,7 +732,7 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
             StringUtils.AtSymbolSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
         int baseGameAmount = _enemiesLeafRegistry.LeavesByEffectiveIds.Values
-            .Count(f => f.CreatorId == Constants.BaseGameId);
+            .Count(f => f.CreatorId == Constants.BaseGameCreatorId);
         for (int i = 0; i < baseGameAmount; i++)
         {
             string[] enemyEncounterData = enemyEncountersData[i].Split(

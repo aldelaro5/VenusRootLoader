@@ -317,7 +317,7 @@ internal sealed class BaseGameSaveDataSerialiser : IBaseGameSaveDataSerialiser
                     nameof(MainManager.LibraryPages))
             };
 
-            int baseGameLeavesAmount = libraryPageLeaves.Count(l => l.CreatorId == Constants.BaseGameId);
+            int baseGameLeavesAmount = libraryPageLeaves.Count(l => l.CreatorId == Constants.BaseGameCreatorId);
             for (int j = 0; j < 256; j++)
             {
                 if (j > 0)
@@ -338,7 +338,7 @@ internal sealed class BaseGameSaveDataSerialiser : IBaseGameSaveDataSerialiser
         MainManager mainManager = MainManager.instance;
 
         int baseGameAmount = _flagsLeafRegistry.LeavesByEffectiveIds.Values
-            .Count(f => f.CreatorId == Constants.BaseGameId);
+            .Count(f => f.CreatorId == Constants.BaseGameCreatorId);
         for (int i = 0; i < baseGameAmount; i++)
         {
             if (i > 0)
@@ -354,7 +354,7 @@ internal sealed class BaseGameSaveDataSerialiser : IBaseGameSaveDataSerialiser
         MainManager mainManager = MainManager.instance;
 
         int baseGameAmount = _flagstringsLeafRegistry.LeavesByEffectiveIds.Values
-            .Count(f => f.CreatorId == Constants.BaseGameId);
+            .Count(f => f.CreatorId == Constants.BaseGameCreatorId);
         for (int i = 0; i < baseGameAmount; i++)
         {
             if (i > 0)
@@ -457,7 +457,7 @@ internal sealed class BaseGameSaveDataSerialiser : IBaseGameSaveDataSerialiser
         MainManager mainManager = MainManager.instance;
 
         int baseGameAmount = _flagvarsLeafRegistry.LeavesByEffectiveIds.Values
-            .Count(f => f.CreatorId == Constants.BaseGameId);
+            .Count(f => f.CreatorId == Constants.BaseGameCreatorId);
         for (int i = 0; i < baseGameAmount; i++)
         {
             if (i > 0)
@@ -501,7 +501,7 @@ internal sealed class BaseGameSaveDataSerialiser : IBaseGameSaveDataSerialiser
         MainManager mainManager = MainManager.instance;
 
         int baseGameAmount = _crystalBerriesLeafRegistry.LeavesByEffectiveIds.Values
-            .Count(f => f.CreatorId == Constants.BaseGameId);
+            .Count(f => f.CreatorId == Constants.BaseGameCreatorId);
         for (int i = 0; i < baseGameAmount; i++)
         {
             if (i > 0)
@@ -533,7 +533,7 @@ internal sealed class BaseGameSaveDataSerialiser : IBaseGameSaveDataSerialiser
         MainManager mainManager = MainManager.instance;
 
         int baseGameAmount = _enemiesLeafRegistry.LeavesByEffectiveIds.Values
-            .Count(f => f.CreatorId == Constants.BaseGameId);
+            .Count(f => f.CreatorId == Constants.BaseGameCreatorId);
         for (int i = 0; i < 256; i++)
         {
             if (i > 0)

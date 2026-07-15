@@ -166,7 +166,7 @@ internal sealed class BudsSaveDataSerialiser : IBudsSaveDataSerialiser
         where TLeaf : Leaf
     {
         return leavesRegistry.LeavesByEffectiveIds.Values
-            .Where(x => x.CreatorId != Constants.BaseGameId)
+            .Where(x => x.CreatorId != Constants.BaseGameCreatorId)
             .GroupBy(x => x.CreatorId)
             .ToDictionary(g => g.Key, g => g.ToList());
     }

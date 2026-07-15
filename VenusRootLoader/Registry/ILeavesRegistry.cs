@@ -75,6 +75,16 @@ internal interface ILeavesRegistry<TLeaf>
     TLeaf Get(string creatorId, string namedId);
 
     /// <summary>
+    /// Obtains a leaf from the registry.
+    /// </summary>
+    /// <param name="creatorId">The creator id of the leaf.</param>
+    /// <param name="namedId">The named id of the leaf.</param>
+    /// <param name="leaf">When this method returns, the leaf associated with the specified <paramref name="namedId"/> and <paramref name="creatorId"/>,
+    /// if the leaf is found; otherwise, null. This parameter is passed uninitialized.</param>
+    /// <returns>True if the leaf is found, false otherwise.</returns>
+    bool TryGet(string creatorId, string namedId, out TLeaf? leaf);
+
+    /// <summary>
     /// Obtains a read only copy of a collection containing all the leaves in the registry.
     /// </summary>
     /// <returns>A collection containing all the leaves of the registry.</returns>

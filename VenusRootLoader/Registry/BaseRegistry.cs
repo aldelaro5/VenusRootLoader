@@ -86,22 +86,30 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
     public TLeaf Get(string creatorId, string namedId)
     {
         string effectiveId = EffectiveLeafId.CreateFromParts(creatorId, namedId);
-        return GetByEffectiveIdWithThrow(effectiveId);
-    }
-
-    public IReadOnlyCollection<TLeaf> GetAll() => LeavesByEffectiveIds.Values.ToList().AsReadOnly();
-
-    private TLeaf GetByEffectiveIdWithThrow(string effectiveId)
-    {
-        if (!LeavesByEffectiveIds.TryGetValue(effectiveId, out TLeaf content))
+        if (!LeavesByEffectiveIds.TryGetValue(effectiveId, out TLeaf leaf))
         {
             return ThrowHelper.ThrowArgumentException<TLeaf>(
                 nameof(effectiveId),
-                $"\"{effectiveId}\" does not exist in the {_registryName} registry");
+                $"{effectiveId} does not exist in the {_registryName} registry");
         }
 
-        return content;
+        return leaf;
     }
+
+    public bool TryGet(string creatorId, string namedId, out TLeaf? leaf)
+    {
+        string effectiveId = EffectiveLeafId.CreateFromParts(creatorId, namedId);
+        if (!LeavesByEffectiveIds.TryGetValue(effectiveId, out TLeaf value))
+        {
+            leaf = null;
+            return false;
+        }
+
+        leaf = value;
+        return true;
+    }
+
+    public IReadOnlyCollection<TLeaf> GetAll() => LeavesByEffectiveIds.Values.ToList().AsReadOnly();
 
     private void LogRegisterContent(TLeaf leaf)
     {

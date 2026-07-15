@@ -85,7 +85,7 @@ public class VenusLeafRegistryApiSourceGenerator : IIncrementalGenerator
                 return RegistryResolver.Resolve<{{leafTypeName}}>().Get(creatorId, namedId);
             }
 
-            public {{leafTypeName}} GetBaseGame{{leafEntityTypeNameWithoutLeafSuffix}}(string namedId)
+            public {{leafTypeName}} Get{{leafEntityTypeNameWithoutLeafSuffix}}FromBaseGame(string namedId)
             {
                 return RegistryResolver.Resolve<{{leafTypeName}}>().Get(Constants.BaseGameCreatorId, namedId);
             }

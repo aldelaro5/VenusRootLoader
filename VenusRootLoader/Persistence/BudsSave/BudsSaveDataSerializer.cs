@@ -82,17 +82,16 @@ internal sealed class BudsSaveDataSerializer : IBudsSaveDataSerializer
         foreach (string budId in allBudsWithSaveData)
         {
             BudSaveData budSaveData = GetBudSaveDataFromRuntimeState(
-                budId,
-                medalShopsByCreatorId,
-                discoveriesByCreatorId,
-                enemiesByCreatorId,
-                recipeLibraryEntriesByCreatorId,
-                recordsByCreatorId,
-                areasByCreatorId,
-                flagsByCreatorId,
-                flagstringsByCreatorId,
-                flagvarsByCreatorId,
-                crystalBerriesByCreatorId);
+                GetNormalizedLeavesList(budId, medalShopsByCreatorId),
+                GetNormalizedLeavesList(budId, discoveriesByCreatorId),
+                GetNormalizedLeavesList(budId, enemiesByCreatorId),
+                GetNormalizedLeavesList(budId, recipeLibraryEntriesByCreatorId),
+                GetNormalizedLeavesList(budId, recordsByCreatorId),
+                GetNormalizedLeavesList(budId, areasByCreatorId),
+                GetNormalizedLeavesList(budId, flagsByCreatorId),
+                GetNormalizedLeavesList(budId, flagstringsByCreatorId),
+                GetNormalizedLeavesList(budId, flagvarsByCreatorId),
+                GetNormalizedLeavesList(budId, crystalBerriesByCreatorId));
             string jsonBudSaveData = JsonSerializer.Serialize(budSaveData, _serializerOptions);
             budsSaveData.Add(budId, jsonBudSaveData);
         }
@@ -101,21 +100,20 @@ internal sealed class BudsSaveDataSerializer : IBudsSaveDataSerializer
     }
 
     private BudSaveData GetBudSaveDataFromRuntimeState(
-        string budId,
-        Dictionary<string, List<MedalShopLeaf>> medalShopsByCreatorId,
-        Dictionary<string, List<DiscoveryLeaf>> discoveriesByCreatorId,
-        Dictionary<string, List<EnemyLeaf>> enemiesByCreatorId,
-        Dictionary<string, List<RecipeLibraryEntryLeaf>> recipeLibraryEntriesByCreatorId,
-        Dictionary<string, List<RecordLeaf>> recordsByCreatorId,
-        Dictionary<string, List<AreaLeaf>> areasByCreatorId,
-        Dictionary<string, List<FlagLeaf>> flagsByCreatorId,
-        Dictionary<string, List<FlagstringLeaf>> flagstringsByCreatorId,
-        Dictionary<string, List<FlagvarLeaf>> flagvarsByCreatorId,
-        Dictionary<string, List<CrystalBerryLeaf>> crystalBerriesByCreatorId)
+        List<MedalShopLeaf> medalShopLeaves,
+        List<DiscoveryLeaf> discoveryLeaves,
+        List<EnemyLeaf> enemyLeaves,
+        List<RecipeLibraryEntryLeaf> recipeLibraryEntryLeaves,
+        List<RecordLeaf> recordLeaves,
+        List<AreaLeaf> areaLeaves,
+        List<FlagLeaf> flagLeaves,
+        List<FlagstringLeaf> flagstringLeaves,
+        List<FlagvarLeaf> flagvarLeaves,
+        List<CrystalBerryLeaf> crystalBerryLeaves)
     {
         return new()
         {
-            MedalShops = medalShopsByCreatorId[budId].ToDictionary(
+            MedalShops = medalShopLeaves.ToDictionary(
                 medalShopLeaf => medalShopLeaf.NamedId,
                 medalShopLeaf => new MedalShopLeafSaveData
                 {
@@ -126,10 +124,10 @@ internal sealed class BudsSaveDataSerializer : IBudsSaveDataSerializer
                         .Select(medalGameId => _medalsLeafRegistry.LeavesByGameIds[medalGameId].EffectiveId)
                         .ToList()
                 }),
-            DiscoveryUnlocks = discoveriesByCreatorId[budId].ToDictionary(
+            DiscoveryUnlocks = discoveryLeaves.ToDictionary(
                 x => x.NamedId,
                 x => MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Discoveries, x.GameId]),
-            Enemies = enemiesByCreatorId[budId].ToDictionary(
+            Enemies = enemyLeaves.ToDictionary(
                 x => x.NamedId,
                 x => new EnemySaveData
                 {
@@ -138,28 +136,38 @@ internal sealed class BudsSaveDataSerializer : IBudsSaveDataSerializer
                     AmountSeen = MainManager.instance.enemyencounter[x.GameId, 0],
                     AmountDefeated = MainManager.instance.enemyencounter[x.GameId, 1]
                 }),
-            RecipeLibraryEntryUnlocks = recipeLibraryEntriesByCreatorId[budId].ToDictionary(
+            RecipeLibraryEntryUnlocks = recipeLibraryEntryLeaves.ToDictionary(
                 x => x.NamedId,
                 x => MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Recipes, x.GameId]),
-            RecordUnlocks = recordsByCreatorId[budId].ToDictionary(
+            RecordUnlocks = recordLeaves.ToDictionary(
                 x => x.NamedId,
                 x => MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Logbook, x.GameId]),
-            AreaUnlocks = areasByCreatorId[budId].ToDictionary(
+            AreaUnlocks = areaLeaves.ToDictionary(
                 x => x.NamedId,
                 x => MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Map, x.GameId]),
-            Flags = flagsByCreatorId[budId].ToDictionary(
+            Flags = flagLeaves.ToDictionary(
                 x => x.NamedId,
                 x => MainManager.instance.flags[x.GameId]),
-            Flagstrings = flagstringsByCreatorId[budId].ToDictionary(
+            Flagstrings = flagstringLeaves.ToDictionary(
                 x => x.NamedId,
                 x => MainManager.instance.flagstring[x.GameId]),
-            Flagvars = flagvarsByCreatorId[budId].ToDictionary(
+            Flagvars = flagvarLeaves.ToDictionary(
                 x => x.NamedId,
                 x => MainManager.instance.flagvar[x.GameId]),
-            CrystalBerries = crystalBerriesByCreatorId[budId].ToDictionary(
+            CrystalBerries = crystalBerryLeaves.ToDictionary(
                 x => x.NamedId,
                 x => MainManager.instance.crystalbflags[x.GameId])
         };
+    }
+
+    private static List<TLeaf> GetNormalizedLeavesList<TLeaf>(
+        string budId,
+        Dictionary<string, List<TLeaf>> leavesByCreatorId)
+        where TLeaf : Leaf
+    {
+        return leavesByCreatorId.TryGetValue(budId, out List<TLeaf> leaves)
+            ? leaves
+            : [];
     }
 
     private static Dictionary<string, List<TLeaf>> GetLeavesByCreatorIds<TLeaf>(ILeavesRegistry<TLeaf> leavesRegistry)

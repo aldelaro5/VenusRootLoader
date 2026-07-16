@@ -261,6 +261,7 @@ internal static class Startup
         services.AddSingleton<IBaseGameCollector, MapsCollector>();
         services.AddSingleton<RootCollector>();
 
+        services.AddSingleton<IGameDataRuntimeState, GameDataRuntimeState>();
         services.AddSingleton<IBaseGameSaveDataSerializer, BaseGameSaveDataSerializer>();
         services.AddSingleton<IBaseGameSaveDataDeserializer, BaseGameSaveDataDeserializer>();
         services.AddSingleton<IBudsSaveDataSerializer, BudsSaveDataSerializer>();

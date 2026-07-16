@@ -8,6 +8,7 @@ internal sealed class BudsSaveDataSerializer : IBudsSaveDataSerializer
 {
     private readonly JsonSerializerOptions _serializerOptions = new() { WriteIndented = true };
 
+    private readonly IGameDataRuntimeState _gameDataRuntimeState;
     private readonly ILeavesRegistry<MedalShopLeaf> _medalShopsLeafRegistry;
     private readonly ILeavesRegistry<MedalLeaf> _medalsLeafRegistry;
     private readonly ILeavesRegistry<DiscoveryLeaf> _discoveriesLeafRegistry;
@@ -21,6 +22,7 @@ internal sealed class BudsSaveDataSerializer : IBudsSaveDataSerializer
     private readonly ILeavesRegistry<CrystalBerryLeaf> _crystalBerriesLeafRegistry;
 
     public BudsSaveDataSerializer(
+        IGameDataRuntimeState gameDataRuntimeState,
         ILeavesRegistry<MedalShopLeaf> medalShopsLeafRegistry,
         ILeavesRegistry<MedalLeaf> medalsLeafRegistry,
         ILeavesRegistry<DiscoveryLeaf> discoveriesLeafRegistry,
@@ -33,6 +35,7 @@ internal sealed class BudsSaveDataSerializer : IBudsSaveDataSerializer
         ILeavesRegistry<FlagvarLeaf> flagvarsLeafRegistry,
         ILeavesRegistry<CrystalBerryLeaf> crystalBerriesLeafRegistry)
     {
+        _gameDataRuntimeState = gameDataRuntimeState;
         _medalShopsLeafRegistry = medalShopsLeafRegistry;
         _medalsLeafRegistry = medalsLeafRegistry;
         _discoveriesLeafRegistry = discoveriesLeafRegistry;
@@ -117,46 +120,46 @@ internal sealed class BudsSaveDataSerializer : IBudsSaveDataSerializer
                 medalShopLeaf => medalShopLeaf.NamedId,
                 medalShopLeaf => new MedalShopLeafSaveData
                 {
-                    AvailablePool = MainManager.instance.avaliablebadgepool[medalShopLeaf.GameId]
+                    AvailablePool = _gameDataRuntimeState.AvailableBadgePool[medalShopLeaf.GameId]
                         .Select(medalGameId => _medalsLeafRegistry.LeavesByGameIds[medalGameId].EffectiveId)
                         .ToList(),
-                    ShopStock = MainManager.instance.badgeshops[medalShopLeaf.GameId]
+                    ShopStock = _gameDataRuntimeState.BadgeShops[medalShopLeaf.GameId]
                         .Select(medalGameId => _medalsLeafRegistry.LeavesByGameIds[medalGameId].EffectiveId)
                         .ToList()
                 }),
             DiscoveryUnlocks = discoveryLeaves.ToDictionary(
                 x => x.NamedId,
-                x => MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Discoveries, x.GameId]),
+                x => _gameDataRuntimeState.LibraryStuff[(int)MainManager.LibraryPages.Discoveries, x.GameId]),
             Enemies = enemyLeaves.ToDictionary(
                 x => x.NamedId,
                 x => new EnemySaveData
                 {
                     IsBestiaryEntryUnlocked =
-                        MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Bestiary, x.GameId],
-                    AmountSeen = MainManager.instance.enemyencounter[x.GameId, 0],
-                    AmountDefeated = MainManager.instance.enemyencounter[x.GameId, 1]
+                        _gameDataRuntimeState.LibraryStuff[(int)MainManager.LibraryPages.Bestiary, x.GameId],
+                    AmountSeen = _gameDataRuntimeState.EnemyEncounter[x.GameId, 0],
+                    AmountDefeated = _gameDataRuntimeState.EnemyEncounter[x.GameId, 1]
                 }),
             RecipeLibraryEntryUnlocks = recipeLibraryEntryLeaves.ToDictionary(
                 x => x.NamedId,
-                x => MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Recipes, x.GameId]),
+                x => _gameDataRuntimeState.LibraryStuff[(int)MainManager.LibraryPages.Recipes, x.GameId]),
             RecordUnlocks = recordLeaves.ToDictionary(
                 x => x.NamedId,
-                x => MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Logbook, x.GameId]),
+                x => _gameDataRuntimeState.LibraryStuff[(int)MainManager.LibraryPages.Logbook, x.GameId]),
             AreaUnlocks = areaLeaves.ToDictionary(
                 x => x.NamedId,
-                x => MainManager.instance.librarystuff[(int)MainManager.LibraryPages.Map, x.GameId]),
+                x => _gameDataRuntimeState.LibraryStuff[(int)MainManager.LibraryPages.Map, x.GameId]),
             Flags = flagLeaves.ToDictionary(
                 x => x.NamedId,
-                x => MainManager.instance.flags[x.GameId]),
+                x => _gameDataRuntimeState.Flags[x.GameId]),
             Flagstrings = flagstringLeaves.ToDictionary(
                 x => x.NamedId,
-                x => MainManager.instance.flagstring[x.GameId]),
+                x => _gameDataRuntimeState.Flagstring[x.GameId]),
             Flagvars = flagvarLeaves.ToDictionary(
                 x => x.NamedId,
-                x => MainManager.instance.flagvar[x.GameId]),
+                x => _gameDataRuntimeState.Flagvar[x.GameId]),
             CrystalBerries = crystalBerryLeaves.ToDictionary(
                 x => x.NamedId,
-                x => MainManager.instance.crystalbflags[x.GameId])
+                x => _gameDataRuntimeState.CrystalBFlags[x.GameId])
         };
     }
 

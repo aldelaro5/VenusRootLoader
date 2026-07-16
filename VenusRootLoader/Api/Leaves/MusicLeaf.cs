@@ -1,6 +1,5 @@
 using UnityEngine;
 using VenusRootLoader.SourceGenerators;
-using static VenusRootLoader.Unity.SharedAssets;
 
 namespace VenusRootLoader.Api.Leaves;
 
@@ -11,7 +10,8 @@ public sealed class MusicLeaf : Leaf
     {
     }
 
-    public AudioClip Music { get; set; } = CreateDummyAudioClip();
+    // TODO: Receive as a mandatory parameter to Venus
+    public AudioClip Music { get; set; } = null!;
     public float? LoopEndTimestampInSeconds { get; set; }
     public float? LoopStartTimestampInSeconds { get; set; }
     public bool CanBePurchasedFromSamira { get; set; } = true;

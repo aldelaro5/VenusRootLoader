@@ -8,7 +8,7 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Persistence.BaseGameSave;
 
-internal sealed class BaseGameSaveDataSerialiser : IBaseGameSaveDataSerialiser
+internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
 {
     private const char LineFeed = '\n';
     private const char Comma = ',';
@@ -33,7 +33,7 @@ internal sealed class BaseGameSaveDataSerialiser : IBaseGameSaveDataSerialiser
     private readonly ILeavesRegistry<FlagvarLeaf> _flagvarsLeafRegistry;
     private readonly ILeavesRegistry<CrystalBerryLeaf> _crystalBerriesLeafRegistry;
 
-    public BaseGameSaveDataSerialiser(
+    public BaseGameSaveDataSerializer(
         ILeavesRegistry<AnimIdLeaf> animIdsLeafRegistry,
         ILeavesRegistry<MapLeaf> mapsLeafRegistry,
         ILeavesRegistry<AreaLeaf> areasLeafRegistry,

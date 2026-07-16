@@ -4,7 +4,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Persistence.BudsSave;
 
-internal sealed class BudsSaveDataSerialiser : IBudsSaveDataSerialiser
+internal sealed class BudsSaveDataSerializer : IBudsSaveDataSerializer
 {
     private readonly JsonSerializerOptions _serializerOptions = new() { WriteIndented = true };
 
@@ -20,7 +20,7 @@ internal sealed class BudsSaveDataSerialiser : IBudsSaveDataSerialiser
     private readonly ILeavesRegistry<FlagvarLeaf> _flagvarsLeafRegistry;
     private readonly ILeavesRegistry<CrystalBerryLeaf> _crystalBerriesLeafRegistry;
 
-    public BudsSaveDataSerialiser(
+    public BudsSaveDataSerializer(
         ILeavesRegistry<MedalShopLeaf> medalShopsLeafRegistry,
         ILeavesRegistry<MedalLeaf> medalsLeafRegistry,
         ILeavesRegistry<DiscoveryLeaf> discoveriesLeafRegistry,

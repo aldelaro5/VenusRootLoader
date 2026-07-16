@@ -9,43 +9,44 @@ namespace VenusRootLoader.Persistence;
 
 internal sealed class SaveDataPersistence : ISaveDataPersistence
 {
+    private const string BaseGameDataFileName = "BaseGame.dat";
     private readonly BudLoaderContext _budLoaderContext;
     private readonly IFileSystem _fileSystem;
     private readonly ILogger<SaveDataPersistence> _logger;
-    private readonly IBaseGameSaveDataDeserialiser _baseGameSaveDataDeserialiser;
-    private readonly IBudsSaveDataDeserialiser _budsSaveDataDeserialiser;
-    private readonly IBaseGameSaveDataSerialiser _baseGameSaveDataSerialiser;
-    private readonly IBudsSaveDataSerialiser _budsSaveDataSerialiser;
+    private readonly IBaseGameSaveDataDeserializer _baseGameSaveDataDeserializer;
+    private readonly IBudsSaveDataDeserializer _budsSaveDataDeserializer;
+    private readonly IBaseGameSaveDataSerializer _baseGameSaveDataSerializer;
+    private readonly IBudsSaveDataSerializer _budsSaveDataSerializer;
 
     public SaveDataPersistence(
         BudLoaderContext budLoaderContext,
         IFileSystem fileSystem,
         ILogger<SaveDataPersistence> logger,
-        IBaseGameSaveDataDeserialiser baseGameSaveDataDeserialiser,
-        IBudsSaveDataDeserialiser budsSaveDataDeserialiser,
-        IBaseGameSaveDataSerialiser baseGameSaveDataSerialiser,
-        IBudsSaveDataSerialiser budsSaveDataSerialiser)
+        IBaseGameSaveDataDeserializer baseGameSaveDataDeserializer,
+        IBudsSaveDataDeserializer budsSaveDataDeserializer,
+        IBaseGameSaveDataSerializer baseGameSaveDataSerializer,
+        IBudsSaveDataSerializer budsSaveDataSerializer)
     {
         _budLoaderContext = budLoaderContext;
         _fileSystem = fileSystem;
         _logger = logger;
-        _baseGameSaveDataSerialiser = baseGameSaveDataSerialiser;
-        _budsSaveDataSerialiser = budsSaveDataSerialiser;
-        _budsSaveDataDeserialiser = budsSaveDataDeserialiser;
-        _baseGameSaveDataDeserialiser = baseGameSaveDataDeserialiser;
+        _baseGameSaveDataSerializer = baseGameSaveDataSerializer;
+        _budsSaveDataSerializer = budsSaveDataSerializer;
+        _budsSaveDataDeserializer = budsSaveDataDeserializer;
+        _baseGameSaveDataDeserializer = baseGameSaveDataDeserializer;
     }
 
     public bool SaveSlotExistsInVenusRootLoader(int saveSlot)
     {
         string saveSlotDirectory = _fileSystem.Path.Combine(_budLoaderContext.SaveDataPath, saveSlot.ToString());
-        string baseGameSaveFilePath = _fileSystem.Path.Combine(saveSlotDirectory, "BaseGame.dat");
+        string baseGameSaveFilePath = _fileSystem.Path.Combine(saveSlotDirectory, BaseGameDataFileName);
         return _fileSystem.File.Exists(baseGameSaveFilePath);
     }
 
     public MainManager.LoadData? LoadFullSaveDataFromSlot(int saveSlot)
     {
         string saveSlotDirectory = _fileSystem.Path.Combine(_budLoaderContext.SaveDataPath, saveSlot.ToString());
-        string baseGameSaveFilePath = _fileSystem.Path.Combine(saveSlotDirectory, "BaseGame.dat");
+        string baseGameSaveFilePath = _fileSystem.Path.Combine(saveSlotDirectory, BaseGameDataFileName);
 
         try
         {
@@ -53,7 +54,7 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
             
             StagingLoadData stagingLoadData = new();
             MainManager.LoadData? loadData =
-                _baseGameSaveDataDeserialiser.DeserialiseFullBaseGameSaveData(baseGameSaveData, stagingLoadData);
+                _baseGameSaveDataDeserializer.DeserializeFullBaseGameSaveData(baseGameSaveData, stagingLoadData);
 
             Dictionary<string, string> budsSaveDataByIds = new();
             foreach (string budSaveFilePath in _fileSystem.Directory.EnumerateFiles(saveSlotDirectory, "*.json"))
@@ -63,7 +64,7 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
                 budsSaveDataByIds.Add(budId, budSaveData);
             }
 
-            _budsSaveDataDeserialiser.DeserialiseBudsSaveData(budsSaveDataByIds, stagingLoadData);
+            _budsSaveDataDeserializer.DeserializeBudsSaveData(budsSaveDataByIds, stagingLoadData);
             
             stagingLoadData.CommitToRuntimeState();
             return loadData;
@@ -81,12 +82,12 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
     public MainManager.LoadData? LoadLiteSaveDataFromSlot(int saveSlot)
     {
         string saveSlotDirectory = _fileSystem.Path.Combine(_budLoaderContext.SaveDataPath, saveSlot.ToString());
-        string baseGameSaveFilePath = _fileSystem.Path.Combine(saveSlotDirectory, "BaseGame.dat");
+        string baseGameSaveFilePath = _fileSystem.Path.Combine(saveSlotDirectory, BaseGameDataFileName);
 
         try
         {
             string baseGameSaveData = _fileSystem.File.ReadAllText(baseGameSaveFilePath);
-            return _baseGameSaveDataDeserialiser.DeserialiseLiteBaseGameSaveData(baseGameSaveData);
+            return _baseGameSaveDataDeserializer.DeserializeLiteBaseGameSaveData(baseGameSaveData);
         }
         catch (Exception e)
         {
@@ -105,12 +106,12 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
         string saveSlotDirectory = _fileSystem.Path.Combine(_budLoaderContext.SaveDataPath, saveSlot.ToString());
         string temporarySaveSlotDirectory = saveSlotDirectory + "temp";
         string backupSaveSlotDirectory = saveSlotDirectory + "backup";
-        string baseGameSaveFilePath = _fileSystem.Path.Combine(temporarySaveSlotDirectory, "BaseGame.dat");
+        string baseGameSaveFilePath = _fileSystem.Path.Combine(temporarySaveSlotDirectory, BaseGameDataFileName);
 
         try
         {
-            string saveData = _baseGameSaveDataSerialiser.GetBaseGameSaveDataFromRuntimeState(playerPositionToSave);
-            Dictionary<string, string> budsSaveData = _budsSaveDataSerialiser.GetBudsSaveDataFromRuntimeState();
+            string saveData = _baseGameSaveDataSerializer.GetBaseGameSaveDataFromRuntimeState(playerPositionToSave);
+            Dictionary<string, string> budsSaveData = _budsSaveDataSerializer.GetBudsSaveDataFromRuntimeState();
 
             if (_fileSystem.Directory.Exists(temporarySaveSlotDirectory))
                 _fileSystem.Directory.Delete(temporarySaveSlotDirectory);

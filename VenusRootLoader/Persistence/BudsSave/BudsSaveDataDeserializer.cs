@@ -7,9 +7,9 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Persistence.BudsSave;
 
-internal sealed class BudsSaveDataDeserialiser : IBudsSaveDataDeserialiser
+internal sealed class BudsSaveDataDeserializer : IBudsSaveDataDeserializer
 {
-    private readonly ILogger<BudsSaveDataDeserialiser> _logger;
+    private readonly ILogger<BudsSaveDataDeserializer> _logger;
     private readonly ILeavesRegistry<MedalShopLeaf> _medalShopsLeafRegistry;
     private readonly ILeavesRegistry<MedalLeaf> _medalsLeafRegistry;
     private readonly ILeavesRegistry<DiscoveryLeaf> _discoveriesLeafRegistry;
@@ -22,8 +22,8 @@ internal sealed class BudsSaveDataDeserialiser : IBudsSaveDataDeserialiser
     private readonly ILeavesRegistry<FlagvarLeaf> _flagvarsLeafRegistry;
     private readonly ILeavesRegistry<CrystalBerryLeaf> _crystalBerriesLeafRegistry;
 
-    public BudsSaveDataDeserialiser(
-        ILogger<BudsSaveDataDeserialiser> logger,
+    public BudsSaveDataDeserializer(
+        ILogger<BudsSaveDataDeserializer> logger,
         ILeavesRegistry<MedalShopLeaf> medalShopsLeafRegistry,
         ILeavesRegistry<MedalLeaf> medalsLeafRegistry,
         ILeavesRegistry<DiscoveryLeaf> discoveriesLeafRegistry,
@@ -50,7 +50,7 @@ internal sealed class BudsSaveDataDeserialiser : IBudsSaveDataDeserialiser
         _crystalBerriesLeafRegistry = crystalBerriesLeafRegistry;
     }
 
-    public void DeserialiseBudsSaveData(Dictionary<string, string> budsSaveDataByIds, StagingLoadData stagingLoadData)
+    public void DeserializeBudsSaveData(Dictionary<string, string> budsSaveDataByIds, StagingLoadData stagingLoadData)
     {
         BudSaveData allBudsSaveData = new()
         {

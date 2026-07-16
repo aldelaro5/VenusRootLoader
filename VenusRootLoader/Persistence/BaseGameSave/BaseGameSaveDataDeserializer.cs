@@ -10,12 +10,12 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Persistence.BaseGameSave;
 
-internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialiser
+internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializer
 {
     private const char Comma = ',';
     private const char Dash = '-';
 
-    private readonly ILogger<BaseGameSaveDataDeserialiser> _logger;
+    private readonly ILogger<BaseGameSaveDataDeserializer> _logger;
     private readonly ILeavesRegistry<AnimIdLeaf> _animIdsLeafRegistry;
     private readonly ILeavesRegistry<MapLeaf> _mapsLeafRegistry;
     private readonly ILeavesRegistry<AreaLeaf> _areasLeafRegistry;
@@ -33,8 +33,8 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
     private readonly ILeavesRegistry<FlagvarLeaf> _flagvarsLeafRegistry;
     private readonly ILeavesRegistry<CrystalBerryLeaf> _crystalBerriesLeafRegistry;
 
-    public BaseGameSaveDataDeserialiser(
-        ILogger<BaseGameSaveDataDeserialiser> logger,
+    public BaseGameSaveDataDeserializer(
+        ILogger<BaseGameSaveDataDeserializer> logger,
         ILeavesRegistry<AnimIdLeaf> animIdsLeafRegistry,
         ILeavesRegistry<MapLeaf> mapsLeafRegistry,
         ILeavesRegistry<AreaLeaf> areasLeafRegistry,
@@ -71,7 +71,7 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
         _crystalBerriesLeafRegistry = crystalBerriesLeafRegistry;
     }
 
-    public MainManager.LoadData DeserialiseLiteBaseGameSaveData(string saveData)
+    public MainManager.LoadData DeserializeLiteBaseGameSaveData(string saveData)
     {
         string[] baseGameSaveDataLines = saveData.Split(StringUtils.NewlineSplitDelimiter);
         if (baseGameSaveDataLines.Length < 3)
@@ -84,7 +84,7 @@ internal sealed class BaseGameSaveDataDeserialiser : IBaseGameSaveDataDeserialis
         return loadData;
     }
 
-    public MainManager.LoadData DeserialiseFullBaseGameSaveData(string saveData, StagingLoadData stagingLoadData)
+    public MainManager.LoadData DeserializeFullBaseGameSaveData(string saveData, StagingLoadData stagingLoadData)
     {
         string[] baseGameSaveDataLines = saveData.Split(StringUtils.NewlineSplitDelimiter);
         if (baseGameSaveDataLines.Length < 18)

@@ -201,7 +201,7 @@ public sealed class BudLoaderTests
         _budsLoadOrderEnumerator.EnumerateBudsWithFulfilledDependencies(null!).ReturnsForAnyArgs(buds);
         _assemblyLoader.LoadFromPath(null!).ReturnsForAnyArgs(x =>
         {
-            byte[] assemblyBytes = _fileSystem.File.ReadAllBytes((string)x[0]);
+            byte[] assemblyBytes = _fileSystem.File.ReadAllBytes((string)x[0]!);
             return Assembly.Load(assemblyBytes);
         });
 
@@ -241,7 +241,7 @@ public sealed class BudLoaderTests
         _budsLoadOrderEnumerator.EnumerateBudsWithFulfilledDependencies(null!).ReturnsForAnyArgs(buds);
         _assemblyLoader.LoadFromPath(null!).ReturnsForAnyArgs(x =>
         {
-            byte[] assemblyBytes = _fileSystem.File.ReadAllBytes((string)x[0]);
+            byte[] assemblyBytes = _fileSystem.File.ReadAllBytes((string)x[0]!);
             return Assembly.Load(assemblyBytes);
         });
         _mainCalledAndReturned = false;
@@ -291,7 +291,7 @@ public sealed class BudLoaderTests
         _budsLoadOrderEnumerator.EnumerateBudsWithFulfilledDependencies(null!).ReturnsForAnyArgs(buds);
         _assemblyLoader.LoadFromPath(null!).ReturnsForAnyArgs(x =>
         {
-            byte[] assemblyBytes = _fileSystem.File.ReadAllBytes((string)x[0]);
+            byte[] assemblyBytes = _fileSystem.File.ReadAllBytes((string)x[0]!);
             return Assembly.Load(assemblyBytes);
         });
         _budConfigManager.GetConfigPathForBud(null!).ReturnsForAnyArgs(x => Path.Combine(ConfigPath, $"{x[0]}.toml"));
@@ -334,7 +334,7 @@ public sealed class BudLoaderTests
         _budsLoadOrderEnumerator.EnumerateBudsWithFulfilledDependencies(null!).ReturnsForAnyArgs(buds);
         _assemblyLoader.LoadFromPath(null!).ReturnsForAnyArgs(x =>
         {
-            byte[] assemblyBytes = _fileSystem.File.ReadAllBytes((string)x[0]);
+            byte[] assemblyBytes = _fileSystem.File.ReadAllBytes((string)x[0]!);
             return Assembly.Load(assemblyBytes);
         });
         _budConfigManager.GetConfigPathForBud(null!).ReturnsForAnyArgs(x => Path.Combine(ConfigPath, $"{x[0]}.toml"));

@@ -151,7 +151,7 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
             mainManager.flags[345],
             mainManager.flags[347],
             mainManager.flags[346],
-            mainManager.flags[555],
+            mainManager.flags[555]
         ];
 
         sb.AppendInvariant(mainManager.partylevel).Append(Comma);

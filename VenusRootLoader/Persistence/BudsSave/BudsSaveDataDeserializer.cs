@@ -52,37 +52,7 @@ internal sealed class BudsSaveDataDeserializer : IBudsSaveDataDeserializer
 
     public void DeserializeBudsSaveData(Dictionary<string, string> budsSaveDataByIds, StagingLoadData stagingLoadData)
     {
-        BudSaveData allBudsSaveData = new()
-        {
-            MedalShops = new(),
-            DiscoveryUnlocks = new(),
-            Enemies = new(),
-            RecipeLibraryEntryUnlocks = new(),
-            RecordUnlocks = new(),
-            AreaUnlocks = new(),
-            Flags = new(),
-            Flagstrings = new(),
-            Flagvars = new(),
-            CrystalBerries = new()
-        };
-
-        foreach (KeyValuePair<string, string> budSave in budsSaveDataByIds)
-        {
-            BudSaveData? budSaveData = JsonSerializer.Deserialize<BudSaveData>(budSave.Value);
-            if (budSaveData == null)
-                ThrowHelper.ThrowInvalidDataException("The bud save data deserialised to null");
-
-            allBudsSaveData.MedalShops.AddRange(budSaveData.MedalShops);
-            allBudsSaveData.DiscoveryUnlocks.AddRange(budSaveData.DiscoveryUnlocks);
-            allBudsSaveData.Enemies.AddRange(budSaveData.Enemies);
-            allBudsSaveData.RecipeLibraryEntryUnlocks.AddRange(budSaveData.RecipeLibraryEntryUnlocks);
-            allBudsSaveData.RecordUnlocks.AddRange(budSaveData.RecordUnlocks);
-            allBudsSaveData.AreaUnlocks.AddRange(budSaveData.AreaUnlocks);
-            allBudsSaveData.Flags.AddRange(budSaveData.Flags);
-            allBudsSaveData.Flagstrings.AddRange(budSaveData.Flagstrings);
-            allBudsSaveData.Flagvars.AddRange(budSaveData.Flagvars);
-            allBudsSaveData.CrystalBerries.AddRange(budSaveData.CrystalBerries);
-        }
+        BudSaveData allBudsSaveData = RemapAndMergeAllBudsSaveData(budsSaveDataByIds);
 
         LoadDictionarySaveDataMatchingLeaves(
             allBudsSaveData.MedalShops,
@@ -167,6 +137,52 @@ internal sealed class BudsSaveDataDeserializer : IBudsSaveDataDeserializer
             stagingLoadData,
             (loadData, _) => loadData.CrystalBerryFlags.Add(false),
             (loadData, data, _) => loadData.CrystalBerryFlags.Add(data));
+    }
+
+    private static BudSaveData RemapAndMergeAllBudsSaveData(Dictionary<string, string> budsSaveDataByIds)
+    {
+        BudSaveData allBudsSaveData = new()
+        {
+            MedalShops = new(),
+            DiscoveryUnlocks = new(),
+            Enemies = new(),
+            RecipeLibraryEntryUnlocks = new(),
+            RecordUnlocks = new(),
+            AreaUnlocks = new(),
+            Flags = new(),
+            Flagstrings = new(),
+            Flagvars = new(),
+            CrystalBerries = new()
+        };
+
+        foreach (KeyValuePair<string, string> budSave in budsSaveDataByIds)
+        {
+            BudSaveData? budSaveData = JsonSerializer.Deserialize<BudSaveData>(budSave.Value);
+            if (budSaveData == null)
+                ThrowHelper.ThrowInvalidDataException("The bud save data deserialised to null");
+
+            allBudsSaveData.MedalShops.AddRange(RemapSaveDataDictionary(budSave.Key, budSaveData.MedalShops));
+            allBudsSaveData.DiscoveryUnlocks.AddRange(
+                RemapSaveDataDictionary(budSave.Key, budSaveData.DiscoveryUnlocks));
+            allBudsSaveData.Enemies.AddRange(RemapSaveDataDictionary(budSave.Key, budSaveData.Enemies));
+            allBudsSaveData.RecipeLibraryEntryUnlocks.AddRange(
+                RemapSaveDataDictionary(budSave.Key, budSaveData.RecipeLibraryEntryUnlocks));
+            allBudsSaveData.RecordUnlocks.AddRange(RemapSaveDataDictionary(budSave.Key, budSaveData.RecordUnlocks));
+            allBudsSaveData.AreaUnlocks.AddRange(RemapSaveDataDictionary(budSave.Key, budSaveData.AreaUnlocks));
+            allBudsSaveData.Flags.AddRange(RemapSaveDataDictionary(budSave.Key, budSaveData.Flags));
+            allBudsSaveData.Flagstrings.AddRange(RemapSaveDataDictionary(budSave.Key, budSaveData.Flagstrings));
+            allBudsSaveData.Flagvars.AddRange(RemapSaveDataDictionary(budSave.Key, budSaveData.Flagvars));
+            allBudsSaveData.CrystalBerries.AddRange(RemapSaveDataDictionary(budSave.Key, budSaveData.CrystalBerries));
+        }
+
+        return allBudsSaveData;
+    }
+
+    private static Dictionary<string, T> RemapSaveDataDictionary<T>(
+        string creatorId,
+        Dictionary<string, T> dataByNamedId)
+    {
+        return dataByNamedId.ToDictionary(x => $"{creatorId}{Constants.LeafEffectiveIdSeparator}{x.Key}", x => x.Value);
     }
 
     private void LoadMedalShop(MedalShopLeafSaveData data, StagingLoadData loadData, MedalShopLeaf leaf)

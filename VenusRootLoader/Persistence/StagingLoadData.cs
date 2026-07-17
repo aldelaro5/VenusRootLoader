@@ -2,37 +2,37 @@ namespace VenusRootLoader.Persistence;
 
 internal sealed class StagingLoadData
 {
-    internal List<int> PartyOrder { get; } = new();
-    internal List<MainManager.BattleData> PlayerData { get; } = new();
-    internal int PartyLevel { get; set; }
-    internal int PartyExp { get; set; }
-    internal int NeededExp { get; set; }
-    internal int BaseTp { get; set; }
-    internal int Tp { get; set; }
-    internal int Money { get; set; }
-    internal int Bp { get; set; }
-    internal int MaxBp { get; set; }
-    internal int MaxItems { get; set; }
-    internal int MaxStorage { get; set; }
-    internal int ClockHour { get; set; }
-    internal int ClockMin { get; set; }
-    internal int ClockSec { get; set; }
-    internal int AreaId { get; set; }
-    internal List<List<int>> AvaliableBadgePool { get; } = new();
-    internal List<List<int>> BadgeShops { get; } = new();
-    internal List<List<int>> BoardQuests { get; } = new();
-    internal List<List<int>> Items { get; } = new();
-    internal List<int[]> Badges { get; } = new();
-    internal List<int[]> SamiraMusics { get; } = new();
-    internal List<int[]> StatBonus { get; } = new();
-    internal List<bool>[] LibraryStuff { get; } = [new(), new(), new(), new(), new()];
-    internal List<bool> Flags { get; } = new();
-    internal List<string> Flagstrings { get; } = new();
-    internal List<int> Flagvars { get; } = new();
-    internal List<bool> RegionalFlags { get; } = new();
-    internal List<bool> CrystalBerryFlags { get; } = new();
-    internal List<int> ExtraFollowers { get; } = new();
-    internal List<int[]> EnemyEncounter { get; } = new();
+    public List<int> PartyOrder { get; } = new();
+    public List<MainManager.BattleData> PlayerData { get; } = new();
+    public int PartyLevel { get; set; }
+    public int PartyExp { get; set; }
+    public int NeededExp { get; set; }
+    public int BaseTp { get; set; }
+    public int Tp { get; set; }
+    public int Money { get; set; }
+    public int Bp { get; set; }
+    public int MaxBp { get; set; }
+    public int MaxItems { get; set; }
+    public int MaxStorage { get; set; }
+    public int ClockHour { get; set; }
+    public int ClockMin { get; set; }
+    public int ClockSec { get; set; }
+    public int AreaId { get; set; }
+    public List<List<int>> AvaliableBadgePool { get; } = new();
+    public List<List<int>> BadgeShops { get; } = new();
+    public List<List<int>> BoardQuests { get; } = new();
+    public List<List<int>> Items { get; } = new();
+    public List<int[]> Badges { get; } = new();
+    public List<int[]> SamiraMusics { get; } = new();
+    public List<int[]> StatBonus { get; } = new();
+    public List<bool>[] LibraryStuff { get; } = [new(), new(), new(), new(), new()];
+    public List<bool> Flags { get; } = new();
+    public List<string> Flagstrings { get; } = new();
+    public List<int> Flagvars { get; } = new();
+    public List<bool> RegionalFlags { get; } = new();
+    public List<bool> CrystalBerryFlags { get; } = new();
+    public List<int> ExtraFollowers { get; } = new();
+    public List<int[]> EnemyEncounter { get; } = new();
 
     internal void CommitToRuntimeState()
     {

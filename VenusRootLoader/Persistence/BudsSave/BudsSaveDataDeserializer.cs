@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using MonoMod.Utils;
 using System.Text.Json;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Persistence.BudsSave;
@@ -159,7 +160,10 @@ internal sealed class BudsSaveDataDeserializer : IBudsSaveDataDeserializer
         {
             BudSaveData? budSaveData = JsonSerializer.Deserialize<BudSaveData>(budSave.Value);
             if (budSaveData == null)
-                ThrowHelper.ThrowInvalidDataException("The bud save data deserialised to null");
+            {
+                ThrowHelper.ThrowInvalidDataException(
+                    $"The bud save data of the bud {budSave.Key} deserialized to null");
+            }
 
             allBudsSaveData.MedalShops.AddRange(RemapSaveDataDictionary(budSave.Key, budSaveData.MedalShops));
             allBudsSaveData.DiscoveryUnlocks.AddRange(
@@ -192,12 +196,14 @@ internal sealed class BudsSaveDataDeserializer : IBudsSaveDataDeserializer
         {
             if (!_medalsLeafRegistry.LeavesByEffectiveIds.TryGetValue(medalEffectiveId, out MedalLeaf medalLeaf))
             {
+                (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(medalEffectiveId);
                 _logger.LogWarning(
-                    "The MedalShopLeaf named {medalShopNamedId} has a MedalLeaf named " +
-                    "{medalNamedId} in its available pool while no such MedalLeaf exists in the registry. " +
+                    "The MedalShopLeaf named {medalShopNamedId} has a MedalLeaf named {medalNamedId} created by {medalCreatorId} " +
+                    "in its available pool while no such MedalLeaf exists in the registry. " +
                     "It will be skipped, but the save will still be loaded.",
                     leaf.NamedId,
-                    medalEffectiveId);
+                    idParts.NamedId,
+                    idParts.CreatorId);
                 continue;
             }
 
@@ -209,12 +215,14 @@ internal sealed class BudsSaveDataDeserializer : IBudsSaveDataDeserializer
         {
             if (!_medalsLeafRegistry.LeavesByEffectiveIds.TryGetValue(medalEffectiveId, out MedalLeaf medalLeaf))
             {
+                (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(medalEffectiveId);
                 _logger.LogWarning(
-                    "The MedalShopLeaf named {medalShopNamedId} has a MedalLeaf named " +
-                    "{medalNamedId} in its shop stock while no such MedalLeaf exists in the registry. " +
+                    "The MedalShopLeaf named {medalShopNamedId} has a MedalLeaf named {medalNamedId} created by {medalCreatorId} " +
+                    "in its shop stock while no such MedalLeaf exists in the registry. " +
                     "It will be skipped, but the save will still be loaded.",
                     leaf.NamedId,
-                    medalEffectiveId);
+                    idParts.NamedId,
+                    idParts.CreatorId);
                 continue;
             }
 
@@ -241,11 +249,13 @@ internal sealed class BudsSaveDataDeserializer : IBudsSaveDataDeserializer
                     data.Key,
                     out TLeaf leaf))
             {
+                (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(data.Key);
                 _logger.LogWarning(
-                    "The {leafTypeName} named {namedId} does not exists in the registry. " +
+                    "The {leafTypeName} named {namedId} created by {creatorId} does not exists in the registry. " +
                     "It will be skipped, but the save will still be loaded.",
                     leafTypeName,
-                    data.Key);
+                    idParts.NamedId,
+                    idParts.CreatorId);
                 continue;
             }
 

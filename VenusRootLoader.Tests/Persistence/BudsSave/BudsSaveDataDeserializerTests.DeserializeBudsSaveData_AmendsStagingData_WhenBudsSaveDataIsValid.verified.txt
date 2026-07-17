@@ -1,0 +1,62 @@
+﻿{
+  AvaliableBadgePool: [
+    [
+      2,
+      1
+    ]
+  ],
+  BadgeShops: [
+    [
+      1,
+      2
+    ]
+  ],
+  LibraryStuff: [
+    [
+      false,
+      true
+    ],
+    [
+      false,
+      true
+    ],
+    [
+      false,
+      true
+    ],
+    [
+      false,
+      true
+    ],
+    [
+      false,
+      true
+    ]
+  ],
+  Flags: [
+    false,
+    true
+  ],
+  Flagstrings: [
+    ,
+    SomeValue
+  ],
+  Flagvars: [
+    0,
+    5
+  ],
+  CrystalBerryFlags: [
+    false,
+    true
+  ],
+  EnemyEncounter: [
+    [
+      0,
+      0
+    ],
+    [
+      1,
+      2
+    ]
+  ]
+}

@@ -681,7 +681,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
         return 0;
     }
 
-    private void LoadRegionalFlagsLine(string regionalFlagsLine, StagingLoadData stagingLoadData)
+    private static void LoadRegionalFlagsLine(string regionalFlagsLine, StagingLoadData stagingLoadData)
     {
         string[] regionalFlagsData = regionalFlagsLine.Split(
             StringUtils.CommaSplitDelimiter,

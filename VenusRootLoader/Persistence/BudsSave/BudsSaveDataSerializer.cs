@@ -176,7 +176,7 @@ internal sealed class BudsSaveDataSerializer : IBudsSaveDataSerializer
     private static Dictionary<string, List<TLeaf>> GetLeavesByCreatorIds<TLeaf>(ILeavesRegistry<TLeaf> leavesRegistry)
         where TLeaf : Leaf
     {
-        return leavesRegistry.LeavesByEffectiveIds.Values
+        return leavesRegistry.LeavesByGameIds.Values
             .Where(x => x.CreatorId != Constants.BaseGameCreatorId)
             .GroupBy(x => x.CreatorId)
             .ToDictionary(g => g.Key, g => g.ToList());

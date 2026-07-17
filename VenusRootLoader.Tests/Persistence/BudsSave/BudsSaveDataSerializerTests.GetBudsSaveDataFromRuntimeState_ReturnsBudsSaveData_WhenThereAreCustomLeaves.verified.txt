@@ -1,0 +1,98 @@
+﻿{
+  bud1:
+{
+  "MedalShops": {
+    "CustomShop": {
+      "AvailablePool": [
+        "bud1~CustomMedal1"
+      ],
+      "ShopStock": [
+        "bud1~CustomMedal2"
+      ]
+    }
+  },
+  "DiscoveryUnlocks": {
+    "CustomDiscovery": true
+  },
+  "Enemies": {},
+  "RecipeLibraryEntryUnlocks": {},
+  "RecordUnlocks": {},
+  "AreaUnlocks": {},
+  "Flags": {},
+  "Flagstrings": {},
+  "Flagvars": {},
+  "CrystalBerries": {}
+},
+  bud2:
+{
+  "MedalShops": {},
+  "DiscoveryUnlocks": {},
+  "Enemies": {
+    "CustomEnemy": {
+      "IsBestiaryEntryUnlocked": true,
+      "AmountSeen": 1,
+      "AmountDefeated": 2
+    }
+  },
+  "RecipeLibraryEntryUnlocks": {
+    "CustomRecipeLibraryEntry": true
+  },
+  "RecordUnlocks": {},
+  "AreaUnlocks": {},
+  "Flags": {},
+  "Flagstrings": {},
+  "Flagvars": {},
+  "CrystalBerries": {}
+},
+  bud3:
+{
+  "MedalShops": {},
+  "DiscoveryUnlocks": {},
+  "Enemies": {},
+  "RecipeLibraryEntryUnlocks": {},
+  "RecordUnlocks": {
+    "CustomRecord": true
+  },
+  "AreaUnlocks": {
+    "CustomArea": true
+  },
+  "Flags": {},
+  "Flagstrings": {},
+  "Flagvars": {},
+  "CrystalBerries": {}
+},
+  bud4:
+{
+  "MedalShops": {},
+  "DiscoveryUnlocks": {},
+  "Enemies": {},
+  "RecipeLibraryEntryUnlocks": {},
+  "RecordUnlocks": {},
+  "AreaUnlocks": {},
+  "Flags": {
+    "CustomFlag": true
+  },
+  "Flagstrings": {
+    "CustomFlagstring": "SomeValue"
+  },
+  "Flagvars": {},
+  "CrystalBerries": {}
+},
+  bud5:
+{
+  "MedalShops": {},
+  "DiscoveryUnlocks": {},
+  "Enemies": {},
+  "RecipeLibraryEntryUnlocks": {},
+  "RecordUnlocks": {},
+  "AreaUnlocks": {},
+  "Flags": {},
+  "Flagstrings": {},
+  "Flagvars": {
+    "CustomFlagvar": 5
+  },
+  "CrystalBerries": {
+    "CustomCrystalBerry": true
+  }
+}
+}

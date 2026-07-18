@@ -47,7 +47,7 @@ internal sealed class SaveDataPersistenceTopLevelPatcher : ITopLevelPatcher
     // ReSharper disable once InconsistentNaming
     internal static bool WriteSaveData(Vector3? savepos, ref bool __result)
     {
-        __result = _instance._saveDataPersistence.WriteSaveDataToCurrentSaveSlot(savepos);
+        __result = _instance._saveDataPersistence.WriteSaveDataToSaveSlot(MainManager.saveslot, savepos);
         return false;
     }
 }

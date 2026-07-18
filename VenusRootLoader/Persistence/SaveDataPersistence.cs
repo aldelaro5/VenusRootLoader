@@ -46,6 +46,27 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
         return _fileSystem.File.Exists(baseGameSaveFilePath);
     }
 
+    public MainManager.LoadData? LoadLiteSaveDataFromSlot(int saveSlot)
+    {
+        string saveSlotDirectory = _fileSystem.Path.Combine(_budLoaderContext.SaveDataPath, saveSlot.ToString());
+        string baseGameSaveFilePath = _fileSystem.Path.Combine(saveSlotDirectory, BaseGameDataFileName);
+
+        try
+        {
+            string baseGameSaveData = _fileSystem.File.ReadAllText(baseGameSaveFilePath);
+            return _baseGameSaveDataDeserializer.DeserializeLiteBaseGameSaveData(baseGameSaveData);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(
+                e,
+                "An error occured while loading lite save data from {path}, " +
+                "this save will not be loadable in the game.\n",
+                saveSlotDirectory);
+            return null;
+        }
+    }
+
     public MainManager.LoadData? LoadFullSaveDataFromSlot(int saveSlot)
     {
         string saveSlotDirectory = _fileSystem.Path.Combine(_budLoaderContext.SaveDataPath, saveSlot.ToString());
@@ -75,37 +96,15 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
         catch (Exception e)
         {
             _logger.LogError(
-                "An error occured while loading full save data from {path}, the game will softlock: {error}",
-                saveSlotDirectory,
-                e.ToString());
+                e,
+                "An error occured while loading full save data from {path}, the game will softlock.\n",
+                saveSlotDirectory);
             return null;
         }
     }
 
-    public MainManager.LoadData? LoadLiteSaveDataFromSlot(int saveSlot)
+    public bool WriteSaveDataToSaveSlot(int saveSlot, Vector3? playerPositionToSave)
     {
-        string saveSlotDirectory = _fileSystem.Path.Combine(_budLoaderContext.SaveDataPath, saveSlot.ToString());
-        string baseGameSaveFilePath = _fileSystem.Path.Combine(saveSlotDirectory, BaseGameDataFileName);
-
-        try
-        {
-            string baseGameSaveData = _fileSystem.File.ReadAllText(baseGameSaveFilePath);
-            return _baseGameSaveDataDeserializer.DeserializeLiteBaseGameSaveData(baseGameSaveData);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(
-                "An error occured while loading lite save data from {path}, " +
-                "this save will not be loadable in the game: {error}",
-                saveSlotDirectory,
-                e.ToString());
-            return null;
-        }
-    }
-
-    public bool WriteSaveDataToCurrentSaveSlot(Vector3? playerPositionToSave)
-    {
-        int saveSlot = MainManager.saveslot;
         string saveSlotDirectory = _fileSystem.Path.Combine(_budLoaderContext.SaveDataPath, saveSlot.ToString());
         string temporarySaveSlotDirectory = saveSlotDirectory + "temp";
         string backupSaveSlotDirectory = saveSlotDirectory + "backup";
@@ -143,9 +142,9 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
         catch (Exception e)
         {
             _logger.LogError(
-                "An error occured while writing save data to {path}: {error}",
-                saveSlotDirectory,
-                e.ToString());
+                e,
+                "An error occured while writing save data to {path}\n",
+                saveSlotDirectory);
             return false;
         }
     }

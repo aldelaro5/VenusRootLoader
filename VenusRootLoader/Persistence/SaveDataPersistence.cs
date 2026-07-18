@@ -11,6 +11,7 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
 {
     private const string BaseGameDataFileName = "BaseGame.dat";
     private readonly BudLoaderContext _budLoaderContext;
+    private readonly IGameDataRuntimeState _gameDataRuntimeState;
     private readonly IFileSystem _fileSystem;
     private readonly ILogger<SaveDataPersistence> _logger;
     private readonly IBaseGameSaveDataDeserializer _baseGameSaveDataDeserializer;
@@ -20,6 +21,7 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
 
     public SaveDataPersistence(
         BudLoaderContext budLoaderContext,
+        IGameDataRuntimeState gameDataRuntimeState,
         IFileSystem fileSystem,
         ILogger<SaveDataPersistence> logger,
         IBaseGameSaveDataDeserializer baseGameSaveDataDeserializer,
@@ -28,6 +30,7 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
         IBudsSaveDataSerializer budsSaveDataSerializer)
     {
         _budLoaderContext = budLoaderContext;
+        _gameDataRuntimeState = gameDataRuntimeState;
         _fileSystem = fileSystem;
         _logger = logger;
         _baseGameSaveDataSerializer = baseGameSaveDataSerializer;
@@ -65,8 +68,8 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
             }
 
             _budsSaveDataDeserializer.DeserializeBudsSaveData(budsSaveDataByIds, stagingLoadData);
-            
-            stagingLoadData.CommitToRuntimeState();
+
+            stagingLoadData.CommitToRuntimeState(_gameDataRuntimeState);
             return loadData;
         }
         catch (Exception e)

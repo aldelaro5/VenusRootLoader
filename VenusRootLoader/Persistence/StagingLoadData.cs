@@ -3,7 +3,7 @@ namespace VenusRootLoader.Persistence;
 internal sealed class StagingLoadData
 {
     public List<int> PartyOrder { get; } = new();
-    public List<MainManager.BattleData> PlayerData { get; } = new();
+    public List<PartyMemberRuntimeState> PlayerData { get; } = new();
     public int PartyLevel { get; set; }
     public int PartyExp { get; set; }
     public int NeededExp { get; set; }
@@ -34,48 +34,47 @@ internal sealed class StagingLoadData
     public List<int> ExtraFollowers { get; } = new();
     public List<int[]> EnemyEncounter { get; } = new();
 
-    internal void CommitToRuntimeState()
+    internal void CommitToRuntimeState(IGameDataRuntimeState runtimeState)
     {
-        MainManager mainManager = MainManager.instance;
-        mainManager.partyorder = PartyOrder.ToArray();
-        mainManager.playerdata = PlayerData.ToArray();
-        mainManager.partylevel = PartyLevel;
-        mainManager.partyexp = PartyExp;
-        mainManager.neededexp = NeededExp;
-        mainManager.basetp = BaseTp;
-        mainManager.tp = Tp;
-        mainManager.money = Money;
-        mainManager.bp = Bp;
-        mainManager.maxbp = MaxBp;
-        mainManager.maxitems = MaxItems;
-        mainManager.maxstorage = MaxStorage;
-        mainManager.clockhour = ClockHour;
-        mainManager.clockmin = ClockMin;
-        mainManager.clocksec = ClockSec;
-        mainManager.areaid = AreaId;
-        mainManager.avaliablebadgepool = AvaliableBadgePool.ToArray();
-        mainManager.badgeshops = BadgeShops.ToArray();
-        mainManager.boardquests = BoardQuests.ToArray();
-        mainManager.items = Items.ToArray();
-        mainManager.badges = Badges.ToList();
-        mainManager.samiramusics = SamiraMusics.ToList();
-        mainManager.statbonus = StatBonus.ToList();
+        runtimeState.PartyOrder = PartyOrder.ToArray();
+        runtimeState.PlayerData = PlayerData;
+        runtimeState.PartyLevel = PartyLevel;
+        runtimeState.PartyExp = PartyExp;
+        runtimeState.NeededExp = NeededExp;
+        runtimeState.BaseTp = BaseTp;
+        runtimeState.Tp = Tp;
+        runtimeState.Money = Money;
+        runtimeState.Bp = Bp;
+        runtimeState.MaxBp = MaxBp;
+        runtimeState.MaxItems = MaxItems;
+        runtimeState.MaxStorage = MaxStorage;
+        runtimeState.ClockHour = ClockHour;
+        runtimeState.ClockMin = ClockMin;
+        runtimeState.ClockSec = ClockSec;
+        runtimeState.MapAreaId = AreaId;
+        runtimeState.AvailableBadgePool = AvaliableBadgePool.ToArray();
+        runtimeState.BadgeShops = BadgeShops.ToArray();
+        runtimeState.BoardQuests = BoardQuests.ToArray();
+        runtimeState.Items = Items.ToArray();
+        runtimeState.Badges = Badges.ToList();
+        runtimeState.SamiraMusics = SamiraMusics.ToList();
+        runtimeState.StatBonus = StatBonus.ToList();
 
-        mainManager.librarystuff = new bool[LibraryStuff.Length, Math.Max(256, LibraryStuff.Max(x => x.Count))];
+        runtimeState.LibraryStuff = new bool[LibraryStuff.Length, Math.Max(256, LibraryStuff.Max(x => x.Count))];
         for (int i = 0; i < LibraryStuff.Length; i++)
         for (int j = 0; j < LibraryStuff[i].Count; j++)
-            mainManager.librarystuff[i, j] = LibraryStuff[i][j];
+            runtimeState.LibraryStuff[i, j] = LibraryStuff[i][j];
 
-        mainManager.flags = Flags.ToArray();
-        mainManager.flagstring = Flagstrings.ToArray();
-        mainManager.flagvar = Flagvars.ToArray();
-        mainManager.regionalflags = RegionalFlags.ToArray();
-        mainManager.crystalbflags = CrystalBerryFlags.ToArray();
-        mainManager.extrafollowers = ExtraFollowers.ToList();
+        runtimeState.Flags = Flags.ToArray();
+        runtimeState.Flagstring = Flagstrings.ToArray();
+        runtimeState.Flagvar = Flagvars.ToArray();
+        runtimeState.RegionalFlags = RegionalFlags.ToArray();
+        runtimeState.CrystalBFlags = CrystalBerryFlags.ToArray();
+        runtimeState.ExtraFollowers = ExtraFollowers.ToList();
 
-        mainManager.enemyencounter = new int[Math.Max(256, EnemyEncounter.Count), 2];
+        runtimeState.EnemyEncounter = new int[Math.Max(256, EnemyEncounter.Count), 2];
         for (int i = 0; i < EnemyEncounter.Count; i++)
         for (int j = 0; j < EnemyEncounter[i].Length; j++)
-            mainManager.enemyencounter[i, j] = EnemyEncounter[i][j];
+            runtimeState.EnemyEncounter[i, j] = EnemyEncounter[i][j];
     }
 }

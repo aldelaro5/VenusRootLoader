@@ -46,6 +46,15 @@
         <ProjectReference Include="..\VenusRootLoader\VenusRootLoader.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <None Update="Persistence/BaseGameSave/TestFiles/MinimalValidData.txt">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="Persistence/BaseGameSave/TestFiles/FullValidData.txt">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
     <Target Name="CopyBugFablesLibs" AfterTargets="Build">
         <ItemGroup>
             <UnityEngineLibs Include="$(SolutionDir)External/BugFables.GameLibs/UnityEngine/*.*"/>

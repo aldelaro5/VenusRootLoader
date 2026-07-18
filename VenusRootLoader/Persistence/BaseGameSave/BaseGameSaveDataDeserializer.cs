@@ -142,7 +142,9 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
 
     private void LoadPlayerPartyLine(string playerPartyLine, StagingLoadData stagingLoadData)
     {
-        string[] playerPartyData = playerPartyLine.Split(StringUtils.AtSymbolSplitDelimiter);
+        string[] playerPartyData = playerPartyLine.Split(
+            StringUtils.AtSymbolSplitDelimiter,
+            StringSplitOptions.RemoveEmptyEntries);
         for (int i = 0; i < playerPartyData.Length; i++)
         {
             string[] partyMemberData = playerPartyData[i].Split(
@@ -167,21 +169,20 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
                 continue;
             }
 
-            MainManager.BattleData memberBattleData = new()
+            PartyMemberRuntimeState memberBattleData = new()
             {
-                trueid = animIdLeaf.GameId,
-                animid = animIdLeaf.GameId,
-                hp = int.Parse(partyMemberData[1], CultureInfo.InvariantCulture),
-                maxhp = int.Parse(partyMemberData[2], CultureInfo.InvariantCulture),
-                basehp = int.Parse(partyMemberData[3], CultureInfo.InvariantCulture),
-                atk = int.Parse(partyMemberData[4], CultureInfo.InvariantCulture),
-                baseatk = int.Parse(partyMemberData[5], CultureInfo.InvariantCulture),
-                def = int.Parse(partyMemberData[6], CultureInfo.InvariantCulture),
-                basedef = int.Parse(partyMemberData[7], CultureInfo.InvariantCulture),
-                entityname = MainManager.menutext[46 + animIdLeaf.GameId]
+                Trueid = animIdLeaf.GameId,
+                Animid = animIdLeaf.GameId,
+                Hp = int.Parse(partyMemberData[1], CultureInfo.InvariantCulture),
+                Maxhp = int.Parse(partyMemberData[2], CultureInfo.InvariantCulture),
+                Basehp = int.Parse(partyMemberData[3], CultureInfo.InvariantCulture),
+                Atk = int.Parse(partyMemberData[4], CultureInfo.InvariantCulture),
+                Baseatk = int.Parse(partyMemberData[5], CultureInfo.InvariantCulture),
+                Def = int.Parse(partyMemberData[6], CultureInfo.InvariantCulture),
+                Basedef = int.Parse(partyMemberData[7], CultureInfo.InvariantCulture),
             };
             stagingLoadData.PlayerData.Add(memberBattleData);
-            stagingLoadData.PartyOrder.Add(memberBattleData.trueid);
+            stagingLoadData.PartyOrder.Add(memberBattleData.Trueid);
         }
     }
 
@@ -504,9 +505,15 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
         {
             string flagstring = i switch
             {
-                8 => GetChapter4CaptureDataFlagstringValue(flagstringsData[i]),
-                12 => GetSavedSpyCardsDeckFlagstringValue(flagstringsData[i]),
-                13 => GetMysteryMedalsQueueFlagstingValue(flagstringsData[i]),
+                8 => !string.IsNullOrWhiteSpace(flagstringsData[i])
+                    ? GetChapter4CaptureDataFlagstringValue(flagstringsData[i])
+                    : flagstringsData[i],
+                12 => !string.IsNullOrWhiteSpace(flagstringsData[i])
+                    ? GetSavedSpyCardsDeckFlagstringValue(flagstringsData[i])
+                    : flagstringsData[i],
+                13 => !string.IsNullOrWhiteSpace(flagstringsData[i])
+                    ? GetMysteryMedalsQueueFlagstingValue(flagstringsData[i])
+                    : flagstringsData[i],
                 _ => flagstringsData[i]
             };
             stagingLoadData.Flagstrings.Add(flagstring);
@@ -526,9 +533,6 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
         StringBuilder sb = new();
         for (int i = 0; i < regularItemEffectiveIds.Length; i++)
         {
-            if (i > 0)
-                sb.Append(Comma);
-
             string itemEffectiveId = regularItemEffectiveIds[i];
             if (!_itemsLeafRegistry.LeavesByEffectiveIds.TryGetValue(itemEffectiveId, out ItemLeaf itemLeaf))
             {
@@ -542,6 +546,9 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
                 continue;
             }
 
+            if (i > 0)
+                sb.Append(Comma);
+
             sb.AppendInvariant(itemLeaf.GameId);
         }
 
@@ -549,9 +556,6 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
 
         for (int i = 0; i < keyItemEffectiveIds.Length; i++)
         {
-            if (i > 0)
-                sb.Append(Comma);
-
             string itemEffectiveId = keyItemEffectiveIds[i];
             if (!_itemsLeafRegistry.LeavesByEffectiveIds.TryGetValue(itemEffectiveId, out ItemLeaf itemLeaf))
             {
@@ -564,6 +568,9 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
                     idParts.CreatorId);
                 continue;
             }
+
+            if (i > 0)
+                sb.Append(Comma);
 
             sb.AppendInvariant(itemLeaf.GameId);
         }
@@ -582,9 +589,6 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
         StringBuilder sb = new();
         for (int i = 0; i < spyCardsEffectiveId.Length; i++)
         {
-            if (i > 0)
-                sb.Append(Comma);
-
             string spyCardEffectiveId = spyCardsEffectiveId[i];
             if (!_spyCardsLeafRegistry.LeavesByEffectiveIds.TryGetValue(
                     spyCardEffectiveId,
@@ -600,6 +604,9 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
                 continue;
             }
 
+            if (i > 0)
+                sb.Append(Comma);
+
             sb.AppendInvariant(spyCardLeaf.GameId);
         }
 
@@ -614,9 +621,6 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
         StringBuilder sb = new();
         for (int i = 0; i < mysteryMedalsQueue.Length; i++)
         {
-            if (i > 0)
-                sb.Append(Comma);
-
             string medalEffectiveId = mysteryMedalsQueue[i];
             if (!_medalsLeafRegistry.LeavesByEffectiveIds.TryGetValue(medalEffectiveId, out MedalLeaf medalLeaf))
             {
@@ -630,6 +634,9 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
                 continue;
             }
 
+            if (i > 0)
+                sb.Append(Comma);
+
             sb.AppendInvariant(medalLeaf.GameId);
         }
 
@@ -638,9 +645,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
 
     private void LoadFlagvarsLine(string flagvarsLine, StagingLoadData stagingLoadData)
     {
-        string[] flagvarsData = flagvarsLine.Split(
-            StringUtils.CommaSplitDelimiter,
-            StringSplitOptions.RemoveEmptyEntries);
+        string[] flagvarsData = flagvarsLine.Split(StringUtils.CommaSplitDelimiter);
         int baseGameAmount = _flagvarsLeafRegistry.LeavesByEffectiveIds.Values
             .Count(f => f.CreatorId == Constants.BaseGameCreatorId);
         for (int i = 0; i < baseGameAmount; i++)
@@ -660,18 +665,16 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
         if (_itemsLeafRegistry.LeavesByEffectiveIds.TryGetValue(flagvar, out ItemLeaf itemLeaf))
             return itemLeaf.GameId;
 
-        (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(flagvar);
         if (int.TryParse(flagvar, NumberStyles.None, CultureInfo.InvariantCulture, out int value))
         {
             _logger.LogWarning(
-                "The flagvar 56 (ItemLeaf equipped on Chompy) is named {namedId} created by {creatorId} while no such ItemLeaf " +
-                "exists in the registry. The flagvar will be loaded as is since it is parsable as an integer and " +
-                "the save file will still be loaded.",
-                idParts.NamedId,
-                idParts.CreatorId);
+                "The flagvar 56 (ItemLeaf equipped on Chompy) has a value of {value} which isn't an ItemLeaf that exists in the registry. " +
+                "The flagvar will be loaded as is since it is parsable as an integer and the save file will still be loaded.",
+                value);
             return value;
         }
 
+        (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(flagvar);
         _logger.LogWarning(
             "The flagvar 56 (ItemLeaf equipped on Chompy) is named {namedId} created by {creatorId} while no such ItemLeaf " +
             "exists in the registry. The flagvar will be left with a value of 0 since it is not parsable as " +

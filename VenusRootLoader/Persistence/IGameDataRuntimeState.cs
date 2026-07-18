@@ -5,9 +5,10 @@ namespace VenusRootLoader.Persistence;
 internal interface IGameDataRuntimeState
 {
     Vector3 PlayerPosition { get; set; }
-    MainManager.BattleData[] PlayerData { get; set; }
-    MainManager.Areas MapAreaId { get; set; }
-    string MapName { get; set; }
+    int[] PartyOrder { get; set; }
+    List<PartyMemberRuntimeState> PlayerData { get; set; }
+    int MapAreaId { get; set; }
+    string MapName { get; }
     int PartyLevel { get; set; }
     int PartyExp { get; set; }
     int NeededExp { get; set; }
@@ -38,6 +39,19 @@ internal interface IGameDataRuntimeState
     int[,] EnemyEncounter { get; set; }
 }
 
+internal sealed class PartyMemberRuntimeState
+{
+    public int Trueid { get; init; }
+    public int Animid { get; init; }
+    public int Hp { get; init; }
+    public int Maxhp { get; init; }
+    public int Basehp { get; init; }
+    public int Atk { get; init; }
+    public int Baseatk { get; init; }
+    public int Def { get; init; }
+    public int Basedef { get; init; }
+}
+
 internal sealed class GameDataRuntimeState : IGameDataRuntimeState
 {
     public Vector3 PlayerPosition
@@ -46,14 +60,43 @@ internal sealed class GameDataRuntimeState : IGameDataRuntimeState
         set => MainManager.player.transform.position = value;
     }
 
-    public MainManager.BattleData[] PlayerData
+    public int[] PartyOrder
     {
-        get => MainManager.instance.playerdata;
-        set => MainManager.instance.playerdata = value;
+        get => MainManager.instance.partyorder;
+        set => MainManager.instance.partyorder = value;
     }
 
-    public MainManager.Areas MapAreaId { get => MainManager.map.areaid; set => MainManager.map.areaid = value; }
-    public string MapName { get => MainManager.map.name; set => MainManager.map.name = value; }
+    public List<PartyMemberRuntimeState> PlayerData
+    {
+        get => MainManager.instance.playerdata.Select(x => new PartyMemberRuntimeState
+        {
+            Trueid = x.trueid,
+            Animid = x.animid,
+            Hp = x.hp,
+            Maxhp = x.maxhp,
+            Basehp = x.basehp,
+            Atk = x.atk,
+            Baseatk = x.baseatk,
+            Def = x.def,
+            Basedef = x.basedef
+        }).ToList();
+        set => MainManager.instance.playerdata = value.Select(x => new MainManager.BattleData
+        {
+            trueid = x.Trueid,
+            animid = x.Animid,
+            hp = x.Hp,
+            maxhp = x.Maxhp,
+            basehp = x.Basehp,
+            atk = x.Atk,
+            baseatk = x.Baseatk,
+            def = x.Def,
+            basedef = x.Basedef,
+            entityname = MainManager.menutext[46 + x.Trueid]
+        }).ToArray();
+    }
+
+    public int MapAreaId { get => MainManager.instance.areaid; set => MainManager.instance.areaid = value; }
+    public string MapName => MainManager.map.name;
     public int PartyLevel { get => MainManager.instance.partylevel; set => MainManager.instance.partylevel = value; }
     public int PartyExp { get => MainManager.instance.partyexp; set => MainManager.instance.partyexp = value; }
     public int NeededExp { get => MainManager.instance.neededexp; set => MainManager.instance.neededexp = value; }

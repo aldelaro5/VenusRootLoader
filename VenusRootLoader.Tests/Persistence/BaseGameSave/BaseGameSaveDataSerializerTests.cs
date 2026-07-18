@@ -85,7 +85,7 @@ public sealed class BaseGameSaveDataSerializerTests
 
         _gameDataRuntimeState.PlayerPosition.Returns(new Vector3(4, 5, 6));
         _gameDataRuntimeState.PlayerData.Returns([]);
-        _gameDataRuntimeState.MapAreaId.Returns(area);
+        _gameDataRuntimeState.MapAreaId.Returns((int)area);
         _gameDataRuntimeState.MapName.Returns(((int)map).ToString());
         _gameDataRuntimeState.PartyLevel.Returns(5);
         _gameDataRuntimeState.PartyExp.Returns(6);
@@ -305,28 +305,28 @@ public sealed class BaseGameSaveDataSerializerTests
         [
             new()
             {
-                trueid = 0,
-                hp = 1,
-                maxhp = 2,
-                basehp = 3,
-                atk = 4,
-                baseatk = 5,
-                def = 6,
-                basedef = 7
+                Trueid = 0,
+                Hp = 1,
+                Maxhp = 2,
+                Basehp = 3,
+                Atk = 4,
+                Baseatk = 5,
+                Def = 6,
+                Basedef = 7
             },
             new()
             {
-                trueid = 1,
-                hp = 8,
-                maxhp = 9,
-                basehp = 10,
-                atk = 11,
-                baseatk = 12,
-                def = 13,
-                basedef = 14
+                Trueid = 1,
+                Hp = 8,
+                Maxhp = 9,
+                Basehp = 10,
+                Atk = 11,
+                Baseatk = 12,
+                Def = 13,
+                Basedef = 14
             }
         ]);
-        _gameDataRuntimeState.MapAreaId.Returns(area);
+        _gameDataRuntimeState.MapAreaId.Returns((int)area);
         _gameDataRuntimeState.MapName.Returns(((int)map).ToString());
         _gameDataRuntimeState.PartyLevel.Returns(5);
         _gameDataRuntimeState.PartyExp.Returns(6);

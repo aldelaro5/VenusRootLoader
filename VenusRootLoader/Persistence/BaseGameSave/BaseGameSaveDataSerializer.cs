@@ -118,22 +118,22 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
 
     private void AppendPlayerPartyMemberStatsLineStringData(StringBuilder sb)
     {
-        for (int i = 0; i < _gameDataRuntimeState.PlayerData.Length; i++)
+        for (int i = 0; i < _gameDataRuntimeState.PlayerData.Count; i++)
         {
             if (i > 0)
                 sb.Append(AtSymbol);
 
-            MainManager.BattleData battleData = _gameDataRuntimeState.PlayerData[i];
-            string animIdEffectiveId = _animIdsLeafRegistry.LeavesByGameIds[battleData.trueid].EffectiveId;
+            PartyMemberRuntimeState battleData = _gameDataRuntimeState.PlayerData[i];
+            string animIdEffectiveId = _animIdsLeafRegistry.LeavesByGameIds[battleData.Trueid].EffectiveId;
 
             sb.AppendInvariant(animIdEffectiveId).Append(Comma);
-            sb.AppendInvariant(battleData.hp).Append(Comma);
-            sb.AppendInvariant(battleData.maxhp).Append(Comma);
-            sb.AppendInvariant(battleData.basehp).Append(Comma);
-            sb.AppendInvariant(battleData.atk).Append(Comma);
-            sb.AppendInvariant(battleData.baseatk).Append(Comma);
-            sb.AppendInvariant(battleData.def).Append(Comma);
-            sb.AppendInvariant(battleData.basedef);
+            sb.AppendInvariant(battleData.Hp).Append(Comma);
+            sb.AppendInvariant(battleData.Maxhp).Append(Comma);
+            sb.AppendInvariant(battleData.Basehp).Append(Comma);
+            sb.AppendInvariant(battleData.Atk).Append(Comma);
+            sb.AppendInvariant(battleData.Baseatk).Append(Comma);
+            sb.AppendInvariant(battleData.Def).Append(Comma);
+            sb.AppendInvariant(battleData.Basedef);
         }
 
         sb.Append(LineFeed);
@@ -141,7 +141,7 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
 
     private void AppendGeneralInformationLineStringData(StringBuilder sb)
     {
-        string areaEffectiveId = _areasLeafRegistry.LeavesByGameIds[(int)_gameDataRuntimeState.MapAreaId].EffectiveId;
+        string areaEffectiveId = _areasLeafRegistry.LeavesByGameIds[_gameDataRuntimeState.MapAreaId].EffectiveId;
         string mapEffectiveId = _mapsLeafRegistry.LeavesByGameIds[int.Parse(_gameDataRuntimeState.MapName)].EffectiveId;
         List<bool> progressIconFlags =
         [

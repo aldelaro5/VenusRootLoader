@@ -72,7 +72,7 @@ internal sealed class MapEntitiesTextAssetPatcher : IMapEntityTextAssetPatcher
 
         // Some game data relies on having a trailing LF for the parsing to work correctly
         StringBuilder sb = new(string.Join("\n", newLines));
-        if (original.text.EndsWith("\n"))
+        if (original != null && original.text.EndsWith("\n"))
             sb.Append('\n');
 
         string text = sb.ToString();

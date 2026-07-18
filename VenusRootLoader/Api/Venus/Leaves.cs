@@ -11,6 +11,18 @@ public partial class Venus
 {
     // These registry methods are too specialized to be source generated
 
+    public MapLeaf RegisterMap(string namedId)
+    {
+        MapLeaf mapLeaf = RegistryResolver.Resolve<MapLeaf>().RegisterNew(BudId, namedId);
+        mapLeaf.DialoguesRegistry = new AutoSequentialIdBasedRegistry<MapDialogueLeaf>(
+            LoggerFactory.CreateLogger($"Maps.{mapLeaf.NamedId}_{nameof(MapLeaf.DialoguesRegistry)}"),
+            IdSequenceDirection.Increment);
+        mapLeaf.EntitiesRegistry = new AutoSequentialIdBasedRegistry<MapEntityLeaf>(
+            LoggerFactory.CreateLogger($"Maps.{mapLeaf.NamedId}_{nameof(MapLeaf.EntitiesRegistry)}"),
+            IdSequenceDirection.Increment);
+        return mapLeaf;
+    }
+
     public EnemyLeaf RegisterSpyableEnemy(
         string namedId,
         MainManager.Enemies? orderAfterInBestiary,

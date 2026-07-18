@@ -51,7 +51,7 @@ internal sealed class OrderingTextAssetPatcher<TLeaf> : IOrderingTextAssetPatche
 
         // Some game data relies on having a trailing LF for the parsing to work correctly
         StringBuilder sb = new(_parser.GetTextAssetString(_orderedLeaves));
-        if (original.text.EndsWith("\n"))
+        if (original != null && original.text.EndsWith("\n"))
             sb.Append('\n');
 
         string text = sb.ToString();

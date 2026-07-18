@@ -17,6 +17,7 @@ public sealed partial class Venus
     internal readonly IRegistryResolver RegistryResolver;
     internal readonly IGlobalMonoBehaviourExecution GlobalMonoBehaviourExecution;
     internal readonly ICustomAudioClipProvider CustomAudioClipProvider;
+    internal readonly ILoggerFactory LoggerFactory;
     internal readonly ILogger<Venus> Logger;
 
     internal Venus(
@@ -24,12 +25,14 @@ public sealed partial class Venus
         IRegistryResolver registryResolver,
         IGlobalMonoBehaviourExecution globalMonoBehaviourExecution,
         ICustomAudioClipProvider customAudioClipProvider,
+        ILoggerFactory loggerFactory,
         ILogger<Venus> logger)
     {
         BudId = budId;
         RegistryResolver = registryResolver;
         GlobalMonoBehaviourExecution = globalMonoBehaviourExecution;
         CustomAudioClipProvider = customAudioClipProvider;
+        LoggerFactory = loggerFactory;
         Logger = logger;
     }
 }

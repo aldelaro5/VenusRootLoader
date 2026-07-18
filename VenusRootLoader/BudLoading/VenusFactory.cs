@@ -26,17 +26,20 @@ internal sealed class VenusFactory : IVenusFactory
     private readonly IRegistryResolver _registryResolver;
     private readonly IGlobalMonoBehaviourExecution _globalMonoBehaviourExecution;
     private readonly ICustomAudioClipProvider _customAudioClipProvider;
+    private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger<Venus> _logger;
 
     public VenusFactory(
         IRegistryResolver registryResolver,
         IGlobalMonoBehaviourExecution globalMonoBehaviourExecution,
         ICustomAudioClipProvider customAudioClipProvider,
+        ILoggerFactory loggerFactory,
         ILogger<Venus> logger)
     {
         _registryResolver = registryResolver;
         _globalMonoBehaviourExecution = globalMonoBehaviourExecution;
         _customAudioClipProvider = customAudioClipProvider;
+        _loggerFactory = loggerFactory;
         _logger = logger;
     }
 
@@ -45,5 +48,6 @@ internal sealed class VenusFactory : IVenusFactory
         _registryResolver,
         _globalMonoBehaviourExecution,
         _customAudioClipProvider,
+        _loggerFactory,
         _logger);
 }

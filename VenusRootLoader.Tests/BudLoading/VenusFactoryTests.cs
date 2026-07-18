@@ -18,6 +18,7 @@ public sealed class VenusFactoryTests
         Substitute.For<ICustomAudioClipProvider>();
 
     private readonly IRegistryResolver _registryResolver = Substitute.For<IRegistryResolver>();
+    private readonly ILoggerFactory _loggerFactory = Substitute.For<ILoggerFactory>();
     private readonly ILogger<Venus> _logger = Substitute.For<ILogger<Venus>>();
 
     private readonly VenusFactory _sut;
@@ -26,6 +27,7 @@ public sealed class VenusFactoryTests
         _registryResolver,
         _globalMonoBehaviourExecution,
         _customAudioClipProvider,
+        _loggerFactory,
         _logger);
 
     [Fact]

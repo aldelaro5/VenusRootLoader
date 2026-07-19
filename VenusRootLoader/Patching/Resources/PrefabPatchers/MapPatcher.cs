@@ -42,7 +42,7 @@ internal sealed class MapPatcher : IPrefabPatcher
     {
         GameObject prefab = map.PrefabInstantiator!(map);
         prefab.name = map.GameId.ToString();
-        MapControl mapControl = prefab.GetComponent<MapControl>();
+        MapControl mapControl = prefab.AddComponent<MapControl>();
         mapControl.mapid = (MainManager.Maps)map.GameId;
         mapControl.insidetypes ??= [];
         mapControl.preloadobjs ??= [];

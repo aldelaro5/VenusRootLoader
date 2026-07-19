@@ -2,8 +2,8 @@ using System.Collections;
 
 namespace VenusRootLoader.Api;
 
-public class ReadOnlyListWithCreate<T> : IReadOnlyList<T>
-    where T : IIdentifiable, new()
+internal sealed class ReadOnlyListWithCreate<T> : IReadOnlyList<T>
+    where T : IIdentifiable
 {
     internal List<T> UnderlyingList { get; } = new();
 
@@ -12,9 +12,9 @@ public class ReadOnlyListWithCreate<T> : IReadOnlyList<T>
     public IEnumerator<T> GetEnumerator() => UnderlyingList.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public T CreateNew()
+    internal T CreateNew(Func<int, T> createNew)
     {
-        T item = new() { Id = Count };
+        T item = createNew(Count);
         UnderlyingList.Add(item);
         return item;
     }

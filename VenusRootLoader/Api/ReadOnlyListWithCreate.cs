@@ -3,9 +3,8 @@ using System.Collections;
 namespace VenusRootLoader.Api;
 
 internal sealed class ReadOnlyListWithCreate<T> : IReadOnlyList<T>
-    where T : IIdentifiable
 {
-    internal List<T> UnderlyingList { get; } = new();
+    private List<T> UnderlyingList { get; } = new();
 
     public int Count => UnderlyingList.Count;
     public T this[int index] => UnderlyingList[index];

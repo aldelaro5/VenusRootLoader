@@ -37,6 +37,8 @@
 
     <ItemGroup>
         <PackageReference Include="AsmResolver.DotNet" Version="6.0.0" />
+        <PackageReference Include="AssetsTools.NET" Version="3.0.4"/>
+        <PackageReference Include="AssetsTools.NET.MonoCecil" Version="3.0.4"/>
         <PackageReference Include="BugFables.GameLibs" Version="120.0.0" PrivateAssets="none"/>
         <PackageReference Include="BunLabs.NAudio.Flac" Version="2.0.1"/>
         <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.4.2" />

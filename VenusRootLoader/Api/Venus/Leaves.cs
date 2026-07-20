@@ -11,11 +11,16 @@ public partial class Venus
 {
     // These registry methods are too specialized to be source generated
 
-    public MapLeaf RegisterMap(string namedId, Branch<AreaLeaf> area, Branch<DialogueLeaf> spyDialogue)
+    public MapLeaf RegisterMap(
+        string namedId,
+        Branch<AreaLeaf> area,
+        Branch<DialogueLeaf> spyDialogue,
+        Branch<MusicLeaf>? defaultMapMusic)
     {
         MapLeaf mapLeaf = RegistryResolver.Resolve<MapLeaf>().RegisterNew(BudId, namedId);
         mapLeaf.Area = area;
         mapLeaf.SpyDialogue = spyDialogue;
+        mapLeaf.AddMusicToMap(defaultMapMusic);
         mapLeaf.DialoguesRegistry = new AutoSequentialIdBasedRegistry<MapDialogueLeaf>(
             LoggerFactory.CreateLogger($"Maps.{mapLeaf.NamedId}_{nameof(MapLeaf.DialoguesRegistry)}"),
             IdSequenceDirection.Increment);

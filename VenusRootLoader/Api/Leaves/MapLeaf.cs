@@ -4,6 +4,9 @@ using VenusRootLoader.Api.Leaves.MapEntities;
 using VenusRootLoader.Registry;
 using VenusRootLoader.SourceGenerators;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable CollectionNeverQueried.Global
+
 namespace VenusRootLoader.Api.Leaves;
 
 // TODO: Figure out the Unity prefab tooling
@@ -62,11 +65,10 @@ public sealed class MapLeaf : Leaf
     public Color DefaultBattleTransitionLeavesColor { get; set; } = Color.green;
     public bool DisableMusicChangeWhenEnteringBattle { get; set; }
 
-    public Branch<MusicLeaf>? DefaultMusic { get; set; }
-    internal ReadOnlyListWithCreate<MapMusic> InternalMusicsAvailable { get; } = new();
+    private ReadOnlyListWithCreate<MapMusic> InternalMusicsAvailable { get; } = new();
     public IReadOnlyList<MapMusic> MusicsAvailable => InternalMusicsAvailable;
-    public bool KeepsExistingMusicPlaying { get; set; }
-    public List<MapConditionalMusicRule> ConditionalMusicRules { get; } = new();
+    public bool KeepsExistingMusicPlayingOnLoad { get; set; }
+    public List<MapMusicSelectionCondition> MusicSelectionConditions { get; } = new();
 
     public List<MapInside> Insides { get; } = new();
     public bool ForceRestoreCameraWhenExitingAnyInsideTransitionZone { get; set; }
@@ -75,7 +77,8 @@ public sealed class MapLeaf : Leaf
     public float FadingSpeedWhenEnteringOrExitingAnInside { get; set; } = 0.2f;
 
     public Branch<DialogueLeaf> SpyDialogue { get; set; }
-    public List<AnimIdLeaf> FollowersAnimIdAllowed { get; } = new();
+
+    public List<AnimIdLeaf> FollowerAnimIdsAllowed { get; } = new();
 
     public float MaximumYFollowerDistanceBeforeTeleport
     {
@@ -92,10 +95,13 @@ public sealed class MapLeaf : Leaf
     // TODO: Patch out the Hazard logic and instead, have the collector set this to -150f
     public float AllEntitiesYPositionLowerBoundLimitBeforeRespawn { get; set; } = -50f;
     public bool IsFrozenMap { get; set; }
+
+    // TODO: Recheck these 2 to name them better
     public bool MapEntitiesHaveRestrictedActiveRange { get; set; }
+    public bool MapEntitiesAreKeptActive { get; set; }
 
     public string? MainMapTransformOverridePrefabPath { get; set; }
-    public List<DiscoveryLeaf> DiscoveriesAvailableInMap { get; } = new();
+    public List<DiscoveryLeaf> DetectableDiscoveriesByDetectorMedal { get; } = new();
     public Branch<MapLeaf>? MapWhoProvidesEntitiesAndDialogues { get; set; }
     public float TimeInFramesOnLoadBeforeUpdatingFadersAndLoadingZonesEnablement { get; set; } = 20f;
     public bool DisallowAntCompassUsage { get; set; }
@@ -108,7 +114,11 @@ public sealed class MapLeaf : Leaf
     internal ILeavesRegistry<MapDialogueLeaf> DialoguesRegistry { get; set; } = null!;
 
     public MapMusic AddMusicToMap(Branch<MusicLeaf>? music) =>
-        InternalMusicsAvailable.CreateNew(id => new MapMusic(id) { Music = music });
+        InternalMusicsAvailable.CreateNew(id => new MapMusic(id)
+        {
+            Music = music,
+            Map = this
+        });
 }
 
 public sealed class MapCameraMoveAlongCircleConfiguration
@@ -123,17 +133,28 @@ public sealed class MapCameraMoveAlongCircleConfiguration
     }
 }
 
-public sealed class MapMusic : IIdentifiable
+public sealed class MapMusic
 {
-    public int Id { get; internal init; }
-    public required Branch<MusicLeaf>? Music { get; init; }
-    internal MapMusic(int id) => Id = id;
+    public int MusicIdInMap { get; }
+    public required Branch<MapLeaf> Map { get; init; }
+    public required Branch<MusicLeaf>? Music { get; set; }
+    internal MapMusic(int musicIdInMap) => MusicIdInMap = musicIdInMap;
 }
 
-public sealed class MapConditionalMusicRule
+public sealed class MapMusicSelectionCondition
 {
     public required Branch<FlagLeaf>? RequiredFlag { get; set; }
-    public required MapMusic MapMusic { get; set; }
+
+    public required MapMusic MapMusic
+    {
+        get;
+        set
+        {
+            if (field is not null)
+                Guard.IsEqualTo(value.Map, field.Map);
+            field = value;
+        }
+    }
 }
 
 public sealed class MapInside

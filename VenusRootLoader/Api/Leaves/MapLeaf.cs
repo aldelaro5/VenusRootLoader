@@ -17,8 +17,17 @@ public sealed class MapLeaf : Leaf
 
     public Branch<AreaLeaf> Area { get; set; }
 
-    public Vector3? DefaultCameraPositionOffsetFromTargetOverride { get; set; }
-    public Vector3? DefaultCameraAnglesOffsetFromTargetOverride { get; set; }
+    public Vector3? DefaultCameraPositionOffsetFromTargetOverride
+    {
+        get => field?.magnitude <= 0.2 ? null : field;
+        set => field = value is null || value.Value.magnitude <= 0.2f ? null : value;
+    }
+
+    public Vector3? DefaultCameraAnglesOffsetFromTargetOverride
+    {
+        get => field?.magnitude <= 0.2 ? null : field;
+        set => field = value is null || value.Value.magnitude <= 0.2f ? null : value;
+    }
     public Vector3 DefaultCameraLowerBounds { get; set; } = new(-999.0f, -999.0f, -999.0f);
     public Vector3 DefaultCameraUpperBounds { get; set; } = new(999.0f, 999.0f, 999.0f);
     public MapCameraMoveAlongCircleConfiguration? CameraMoveAlongCircleConfiguration { get; set; }
@@ -106,7 +115,12 @@ public sealed class MapCameraMoveAlongCircleConfiguration
 {
     public Vector3 InitialCircleCenter { get; set; }
     public bool CameraFollowsTargetInYAxis { get; set; }
-    public float? CameraMaxRadiusFromCenterPointAllowed { get; set; }
+
+    public float? CameraMaxRadiusFromCenterPointAllowed
+    {
+        get => field is null or <= 0 ? null : field;
+        set => field = value is null or <= 0 ? null : value;
+    }
 }
 
 public sealed class MapMusic : IIdentifiable

@@ -87,7 +87,7 @@ public sealed class MapLeaf : Leaf
 
     public string? MainMapTransformOverridePrefabPath { get; set; }
     public List<DiscoveryLeaf> DiscoveriesAvailableInMap { get; } = new();
-    public Branch<MapLeaf>? MapWhoProvidesEntitesAndDialogues { get; set; }
+    public Branch<MapLeaf>? MapWhoProvidesEntitiesAndDialogues { get; set; }
     public float TimeInFramesOnLoadBeforeUpdatingFadersAndLoadingZonesEnablement { get; set; } = 20f;
     public bool DisallowAntCompassUsage { get; set; }
     public List<MapAutoEvent> AutomaticallyTriggeredEventsAfterLoad { get; } = new();

@@ -61,6 +61,7 @@ internal sealed class MapPatcher : IPrefabPatcher
         mapControl.entitysprite ??= new();
         mapControl.musicflags ??= [];
         mapControl.commandlines ??= [];
+        Object.Destroy(prefab, 0.001f);
         return prefab;
     }
 

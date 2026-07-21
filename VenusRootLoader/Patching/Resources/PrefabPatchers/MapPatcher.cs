@@ -11,12 +11,10 @@ namespace VenusRootLoader.Patching.Resources.PrefabPatchers;
 internal sealed class MapPatcher : IPrefabPatcher
 {
     private readonly ILeavesRegistry<MapLeaf> _mapRegistry;
-    private readonly ILeavesRegistry<MusicLeaf> _musicRegistry;
 
-    public MapPatcher(string[] subPaths, ILeavesRegistry<MapLeaf> mapRegistry, ILeavesRegistry<MusicLeaf> musicRegistry)
+    public MapPatcher(string[] subPaths, ILeavesRegistry<MapLeaf> mapRegistry)
     {
         SubPaths = subPaths;
-        _musicRegistry = musicRegistry;
         _mapRegistry = mapRegistry;
     }
 
@@ -27,23 +25,118 @@ internal sealed class MapPatcher : IPrefabPatcher
         int mapEffectiveIdStart = path.LastIndexOf('/') + 1;
         string mapEffectiveId = path[mapEffectiveIdStart..];
         MapLeaf map = _mapRegistry.LeavesByEffectiveIds[mapEffectiveId];
-        if (map.PrefabInstantiator is not null)
+        if (original == null)
             return PrepareCustomMap(map);
 
-        GameObject gameObject = (GameObject)original;
-        MapControl mapControl = gameObject.GetComponent<MapControl>();
-
-        PatchMusic(mapControl);
-
+        GameObject mapPrefab = (GameObject)original;
+        MapControl mapControl = mapPrefab.GetComponent<MapControl>();
+        PatchMapControl(map, mapPrefab, mapControl);
+        mapPrefab.name = map.GameId.ToString();
         return original;
     }
 
     private static GameObject PrepareCustomMap(MapLeaf map)
     {
-        GameObject prefab = map.PrefabInstantiator!(map);
-        prefab.name = map.GameId.ToString();
-        MapControl mapControl = prefab.AddComponent<MapControl>();
+        GameObject mapPrefab = map.PrefabInstantiator!(map);
+        MapControl mapControl = mapPrefab.AddComponent<MapControl>();
+        PatchMapControl(map, mapPrefab, mapControl);
+        mapPrefab.name = map.GameId.ToString();
+        Object.Destroy(mapPrefab, 0.001f);
+        return mapPrefab;
+    }
+
+    private static void PatchMapControl(MapLeaf map, GameObject mapPrefab, MapControl mapControl)
+    {
         mapControl.mapid = (MainManager.Maps)map.GameId;
+        mapControl.areaid = (MainManager.Areas)map.Area.GameId;
+
+        mapControl.camoffset = map.DefaultCameraPositionOffsetFromTargetOverride ?? Vector3.zero;
+        mapControl.camangle = map.DefaultCameraAnglesOffsetFromTargetOverride ?? Vector3.zero;
+        mapControl.camlimitneg = map.DefaultCameraLowerBounds;
+        mapControl.camlimitpos = map.DefaultCameraUpperBounds;
+        mapControl.rotatecam = map.CameraMoveAroundCircleConfiguration is not null;
+        mapControl.centralpoint = map.CameraMoveAroundCircleConfiguration?.InitialCircleCenter ?? Vector3.zero;
+        mapControl.tieYtoplayer = map.CameraMoveAroundCircleConfiguration?.CameraFollowsTargetInYAxis ?? false;
+        mapControl.tetherdistance =
+            map.CameraMoveAroundCircleConfiguration?.CameraMaxRadiusFromCenterPointAllowed ?? -1f;
+
+        mapControl.fogend = map.InitialFogEndDistance;
+        mapControl.fogcolor = map.InitialFogColor;
+        mapControl.screeneffect = map.HasSunRaysTopRightScreenEffect
+            ? MapControl.ScreenEffects.SunRaysTopRight
+            : MapControl.ScreenEffects.None;
+        mapControl.skyboxmat = map.SkyboxMaterial;
+        mapControl.globallight = map.InitialAmbientLightColor;
+        mapControl.windintensity = map.WindIntensity;
+        mapControl.faderchange = map.ForceAllFadersToFadeInsteadOfCulling;
+        mapControl.skycolor = map.AllFadersFadingTint;
+
+        mapControl.battlemap = map.DefaultBattleMap;
+        mapControl.battleleaftype = map.BattleTransition;
+        mapControl.expmulti = map.ExpMultiplier;
+        mapControl.battleleafcolor = map.DefaultBattleTransitionLeavesColor;
+        mapControl.nobattlemusic = map.DisableMusicChangeWhenEnteringBattle;
+
+        mapControl.music = map.MusicsAvailable
+            .Select(x => x.Music?.Leaf.Music ?? null)
+            .ToArray();
+        for (int i = 0; i < mapControl.music.Length; i++)
+        {
+            AudioClip audioClip = mapControl.music[i];
+            if (audioClip != null)
+                audioClip.name = map.MusicsAvailable[i].Music?.EffectiveId ?? "";
+        }
+
+        mapControl.keepmusic = map.KeepsExistingMusicPlayingOnLoad;
+        mapControl.musicflags = map.MusicSelectionConditions
+            .Select(x => new Vector2Int(x.RequiredFlag?.GameId ?? -1, x.MapMusic.MusicIdInMap))
+            .ToArray();
+
+        mapControl.insides = map.Insides
+            .Select(x => mapPrefab.transform.Find(x.GameObjectPathInPrefab).gameObject)
+            .ToArray();
+        mapControl.insidetypes = map.Insides
+            .Select(x => x.TransitionWhenEnteringOrExiting)
+            .ToArray();
+        mapControl.tieinsidedoorentities = map.ForceRestoreCameraWhenExitingAnyInsideTransitionZone;
+        mapControl.hideinsides = map.DisablesInsideWhenCurrentInsideIsDifferent;
+        mapControl.setinsidecenter = map.SetCameraTargetToCurrentInsideWhileInside;
+        mapControl.fadingspeed = map.FadingSpeedWhenEnteringOrExitingAnInside;
+
+        mapControl.tattleid = map.SpyDialogue.GameId;
+
+        mapControl.canfollowID = map.FollowerAnimIdsAllowed
+            .Select(x => x.GameId)
+            .ToArray();
+        mapControl.followerylimit = map.MaximumYFollowerDistanceBeforeTeleport;
+
+        mapControl.ylimit = map.AllEntitiesYPositionLowerBoundLimitBeforeRespawn;
+        mapControl.icemap = map.IsFrozenMap;
+        mapControl.limitbehavior = map.MapEntitiesHaveRestrictedActiveRange;
+        mapControl.keepobjectsactive = map.MapEntitiesAreKeptActive;
+
+        if (map.MainMapTransformOverridePrefabPath is not null)
+            mapControl.mainmesh = mapPrefab.transform.Find(map.MainMapTransformOverridePrefabPath);
+        if (mapControl.mainmesh == null && mapPrefab.transform.childCount == 0)
+            mapControl.mainmesh = mapPrefab.transform;
+        mapControl.discoveryids = map.DetectableDiscoveriesByDetectorMedal
+            .Select(x => x.GameId)
+            .ToArray();
+        mapControl.readdatafromothermap = (MainManager.Maps)(map.MapWhoProvidesEntitiesAndDialogues?.GameId ?? 0);
+        mapControl.alivetime = map.TimeInFramesOnLoadBeforeUpdatingFadersAndLoadingZonesEnablement;
+        mapControl.cantcompass = map.DisallowAntCompassUsage;
+        mapControl.autoevent = map.AutomaticallyTriggeredEventsAfterLoad
+            .Select(x => new Vector2(x.AlreadyTriggeredFlag.GameId, x.EventToTriggerWhenFlagIsFalse.GameId))
+            .ToArray();
+        mapControl.eventPointers = map.EventsGameObjectPrefabPaths
+            .Select(x => mapPrefab.transform.Find(x).gameObject)
+            .ToArray();
+
+        SimulateUnityCollectionDeserialisationLogic(mapControl);
+    }
+
+    private static void SimulateUnityCollectionDeserialisationLogic(MapControl mapControl)
+    {
         mapControl.insidetypes ??= [];
         mapControl.preloadobjs ??= [];
         mapControl.eventPointers ??= [];
@@ -61,22 +154,5 @@ internal sealed class MapPatcher : IPrefabPatcher
         mapControl.entitysprite ??= new();
         mapControl.musicflags ??= [];
         mapControl.commandlines ??= [];
-        Object.Destroy(prefab, 0.001f);
-        return prefab;
-    }
-
-    private void PatchMusic(MapControl map)
-    {
-        for (int i = 0; i < map.music.Length; i++)
-        {
-            if (map.music[i] == null)
-                continue;
-            AudioClip originalClip = map.music[i];
-            string originalClipName = originalClip.name;
-            AudioClip newAudioClip = _musicRegistry.LeavesByEffectiveIds[originalClipName].Music;
-
-            newAudioClip.name = originalClipName;
-            map.music[i] = newAudioClip;
-        }
     }
 }

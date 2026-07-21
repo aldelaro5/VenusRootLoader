@@ -33,7 +33,7 @@ public sealed class MapLeaf : Leaf
     }
     public Vector3 DefaultCameraLowerBounds { get; set; } = new(-999.0f, -999.0f, -999.0f);
     public Vector3 DefaultCameraUpperBounds { get; set; } = new(999.0f, 999.0f, 999.0f);
-    public MapCameraMoveAlongCircleConfiguration? CameraMoveAlongCircleConfiguration { get; set; }
+    public MapCameraMoveAroundCircleConfiguration? CameraMoveAroundCircleConfiguration { get; set; }
 
     public float InitialFogEndDistance { get; set; } = 300f;
     public Color InitialFogColor { get; set; } = Color.white;
@@ -121,7 +121,7 @@ public sealed class MapLeaf : Leaf
         });
 }
 
-public sealed class MapCameraMoveAlongCircleConfiguration
+public sealed class MapCameraMoveAroundCircleConfiguration
 {
     public Vector3 InitialCircleCenter { get; set; }
     public bool CameraFollowsTargetInYAxis { get; set; }

@@ -105,10 +105,7 @@ internal static class Startup
         services.AddSingleton<IRegistryResolver, RegistryResolver>();
 
         services.AddSingleton<IPrefabPatcher, MapPatcher>(provider =>
-            new(
-                [TextAssetPaths.PrefabsMapsDirectory],
-                provider.GetRequiredService<ILeavesRegistry<MapLeaf>>(),
-                provider.GetRequiredService<ILeavesRegistry<MusicLeaf>>()));
+            new([TextAssetPaths.PrefabsMapsDirectory], provider.GetRequiredService<ILeavesRegistry<MapLeaf>>()));
 
         services.AddSingleton<ISpriteArrayPatcher, EnemyPortraitsSpriteArrayPatcher>(provider =>
             new(

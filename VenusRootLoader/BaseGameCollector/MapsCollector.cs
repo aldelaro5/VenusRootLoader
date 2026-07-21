@@ -288,7 +288,7 @@ internal sealed class MapsCollector : IBaseGameCollector
 
         mapLeaf.DefaultCameraPositionOffsetFromTargetOverride =
             ExtractVector3FromAssetValueField(mapControlBaseField[nameof(MapControl.camoffset)]);
-        mapLeaf.DefaultCameraPositionOffsetFromTargetOverride =
+        mapLeaf.DefaultCameraAnglesOffsetFromTargetOverride =
             ExtractVector3FromAssetValueField(mapControlBaseField[nameof(MapControl.camangle)]);
         mapLeaf.DefaultCameraLowerBounds =
             ExtractVector3FromAssetValueField(mapControlBaseField[nameof(MapControl.camlimitneg)]);
@@ -296,7 +296,7 @@ internal sealed class MapsCollector : IBaseGameCollector
             ExtractVector3FromAssetValueField(mapControlBaseField[nameof(MapControl.camlimitpos)]);
         if (mapControlBaseField[nameof(MapControl.rotatecam)].AsBool)
         {
-            mapLeaf.CameraMoveAlongCircleConfiguration = new()
+            mapLeaf.CameraMoveAroundCircleConfiguration = new()
             {
                 InitialCircleCenter =
                     ExtractVector3FromAssetValueField(mapControlBaseField[nameof(MapControl.centralpoint)]),
@@ -539,21 +539,21 @@ internal sealed class MapsCollector : IBaseGameCollector
             ThrowHelper.ThrowInvalidDataException("Can't find the GameObject of a Transform");
         }
 
-        pathPartsStack.Push(gameObjectBaseField["m_Name"].AsString);
-
         if (TryGetBaseFieldFromReference(
                 transformBaseField["m_Father"],
                 resourcesFileInstance,
                 manager,
                 out AssetTypeValueField? parentTransformBaseField))
         {
+            pathPartsStack.Push(gameObjectBaseField["m_Name"].AsString);
             return GetTransformPathFromRoot(parentTransformBaseField, resourcesFileInstance, manager, pathPartsStack);
         }
 
         StringBuilder sb = new();
         while (pathPartsStack.Count > 0)
         {
-            sb.Append('/');
+            if (sb.Length > 0)
+                sb.Append('/');
             sb.Append(pathPartsStack.Pop());
         }
 
@@ -578,11 +578,9 @@ internal sealed class MapsCollector : IBaseGameCollector
 
         string name = gameObjectBaseField["m_Name"].AsString;
         if (name == mapLeaf.NamedId)
-            return $"/{name}";
+            return "";
         if (mapLeaf.GameId != (int)MainManager.Maps.BugariaCommercial)
-            return $"/{mapLeaf.NamedId}/{name}";
-
-        pathPartsStack.Push(name);
+            return $"{name}";
 
         if (TryGetBaseFieldFromReference(
                 transformBaseField["m_Father"],
@@ -590,13 +588,15 @@ internal sealed class MapsCollector : IBaseGameCollector
                 manager,
                 out AssetTypeValueField? parentTransformBaseField))
         {
+            pathPartsStack.Push(name);
             return GetTransformPathFromRoot(parentTransformBaseField, resourcesFileInstance, manager, pathPartsStack);
         }
 
         StringBuilder sb = new();
         while (pathPartsStack.Count > 0)
         {
-            sb.Append('/');
+            if (sb.Length > 0)
+                sb.Append('/');
             sb.Append(pathPartsStack.Pop());
         }
 

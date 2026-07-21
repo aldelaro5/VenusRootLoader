@@ -473,8 +473,6 @@ internal sealed class MapsCollector : IBaseGameCollector
         int readFromOtherMapGameId = mapControlBaseField[nameof(MapControl.readdatafromothermap)].AsInt;
         if (readFromOtherMapGameId > 0)
             mapLeaf.MapWhoProvidesEntitiesAndDialogues = _mapsRegistry.LeavesByGameIds[readFromOtherMapGameId];
-        mapLeaf.TimeInFramesOnLoadBeforeUpdatingFadersAndLoadingZonesEnablement =
-            mapControlBaseField[nameof(MapControl.alivetime)].AsFloat;
         mapLeaf.DisallowAntCompassUsage = mapControlBaseField[nameof(MapControl.cantcompass)].AsBool;
 
         AssetTypeValueField autoEventsArray = mapControlBaseField[nameof(MapControl.autoevent)][nameof(Array)];

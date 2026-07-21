@@ -123,7 +123,6 @@ internal sealed class MapPatcher : IPrefabPatcher
             .Select(x => x.GameId)
             .ToArray();
         mapControl.readdatafromothermap = (MainManager.Maps)(map.MapWhoProvidesEntitiesAndDialogues?.GameId ?? 0);
-        mapControl.alivetime = map.TimeInFramesOnLoadBeforeUpdatingFadersAndLoadingZonesEnablement;
         mapControl.cantcompass = map.DisallowAntCompassUsage;
         mapControl.autoevent = map.AutomaticallyTriggeredEventsAfterLoad
             .Select(x => new Vector2(x.AlreadyTriggeredFlag.GameId, x.EventToTriggerWhenFlagIsFalse.GameId))

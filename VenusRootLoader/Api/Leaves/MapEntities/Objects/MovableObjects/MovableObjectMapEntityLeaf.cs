@@ -26,13 +26,15 @@ public abstract class MovableObjectMapEntityLeaf : ObjectMapEntityLeaf
     {
         if (InternalData.Count < 4)
         {
-            for (int i = 0; i < 4 - InternalData.Count; i++)
+            int count = InternalData.Count;
+            for (int i = 0; i < 4 - count; i++)
                 InternalData.Add(new Ref<int>(0));
         }
 
         if (InternalVectorData.Count < 2)
         {
-            for (int i = 0; i < 2 - InternalVectorData.Count; i++)
+            int count = InternalVectorData.Count;
+            for (int i = 0; i < 2 - count; i++)
                 InternalVectorData.Add(new Ref<Vector3>(Vector3.zero));
         }
     }

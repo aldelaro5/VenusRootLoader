@@ -63,7 +63,8 @@ public sealed class TrappedEntityMapEntityLeaf : ObjectMapEntityLeaf
     {
         if (InternalData.Count < 2)
         {
-            for (int i = 0; i < 2 - InternalData.Count; i++)
+            int count = InternalData.Count;
+            for (int i = 0; i < 2 - count; i++)
                 InternalData.Add(new Ref<int>(-1));
         }
 

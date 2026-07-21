@@ -28,7 +28,8 @@ public sealed class StealthSpotWhileAsleepBehavior : MapEntityBehavior
 
         if (MapEntityLeaf.InternalBattleEnemyIds.Count < 2)
         {
-            for (int i = 0; i < 2 - MapEntityLeaf.InternalBattleEnemyIds.Count; i++)
+            int count = MapEntityLeaf.InternalBattleEnemyIds.Count;
+            for (int i = 0; i < 2 - count; i++)
                 MapEntityLeaf.InternalBattleEnemyIds.Add(new Ref<int>(0));
         }
     }

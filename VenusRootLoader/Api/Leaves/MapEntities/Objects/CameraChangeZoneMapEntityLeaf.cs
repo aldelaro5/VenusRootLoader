@@ -163,13 +163,15 @@ public sealed class CameraChangeZoneMapEntityLeaf : ObjectMapEntityLeaf
     {
         if (InternalData.Count < 8)
         {
-            for (int i = 0; i < 8 - InternalData.Count; i++)
+            int count = InternalData.Count;
+            for (int i = 0; i < 8 - count; i++)
                 InternalData.Add(new Ref<int>(0));
         }
 
         if (InternalVectorData.Count < 6)
         {
-            for (int i = 0; i < 6 - InternalVectorData.Count; i++)
+            int count = InternalVectorData.Count;
+            for (int i = 0; i < 6 - count; i++)
                 InternalVectorData.Add(new Ref<Vector3>(Vector3.zero));
         }
     }

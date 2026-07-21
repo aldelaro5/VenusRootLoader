@@ -89,7 +89,8 @@ public sealed class WindBeamZoneMapEntityLeaf : ObjectMapEntityLeaf
     {
         if (InternalVectorData.Count < 3)
         {
-            for (int i = 0; i < 3 - InternalVectorData.Count; i++)
+            int count = InternalVectorData.Count;
+            for (int i = 0; i < 3 - count; i++)
                 InternalVectorData.Add(new Ref<Vector3>(Vector3.zero));
         }
 

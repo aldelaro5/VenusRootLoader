@@ -47,7 +47,8 @@ public abstract class SwitchMapEntityLeaf : ObjectMapEntityLeaf
     {
         if (InternalData.Count < 5)
         {
-            for (int i = 0; i < 5 - InternalData.Count; i++)
+            int count = InternalData.Count;
+            for (int i = 0; i < 5 - count; i++)
                 InternalData.Add(new Ref<int>(0));
         }
 

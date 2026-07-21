@@ -50,7 +50,8 @@ public abstract class RollingRockMapEntityLeaf : ObjectMapEntityLeaf
     {
         if (InternalData.Count < 4)
         {
-            for (int i = 0; i < 4 - InternalData.Count; i++)
+            int count = InternalData.Count;
+            for (int i = 0; i < 4 - count; i++)
                 InternalData.Add(new Ref<int>(-1));
         }
     }

@@ -85,7 +85,8 @@ public sealed class RotatingPlatformMapEntityLeaf : ObjectMapEntityLeaf
     {
         if (InternalDialogues.Count < 3)
         {
-            for (int i = 0; i < 3 - InternalDialogues.Count; i++)
+            int count = InternalDialogues.Count;
+            for (int i = 0; i < 3 - count; i++)
                 InternalDialogues.Add(new Ref<Vector3>(Vector3.zero));
         }
 

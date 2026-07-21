@@ -155,13 +155,15 @@ public sealed class LoadingZoneMapEntityLeaf : ObjectMapEntityLeaf
     {
         if (InternalData.Count < 5)
         {
-            for (int i = 0; i < 5 - InternalData.Count; i++)
+            int count = InternalData.Count;
+            for (int i = 0; i < 5 - count; i++)
                 InternalData.Add(new Ref<int>(0));
         }
 
         if (InternalVectorData.Count < 7)
         {
-            for (int i = 0; i < 7 - InternalVectorData.Count; i++)
+            int count = InternalVectorData.Count;
+            for (int i = 0; i < 7 - count; i++)
                 InternalVectorData.Add(new Ref<Vector3>(Vector3.zero));
         }
 

@@ -57,7 +57,8 @@ public sealed class EventTriggerZoneMapEntityLeaf : EventTriggerMapEntityLeaf
     {
         if (InternalData.Count < 3)
         {
-            for (int i = 0; i < 3 - InternalData.Count; i++)
+            int count = InternalData.Count;
+            for (int i = 0; i < 3 - count; i++)
                 InternalData.Add(new Ref<int>(0));
         }
 

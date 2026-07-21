@@ -81,13 +81,15 @@ public sealed class GeyserMapEntityLeaf : ObjectMapEntityLeaf
     {
         if (InternalData.Count < 3)
         {
-            for (int i = 0; i < 3 - InternalData.Count; i++)
+            int count = InternalData.Count;
+            for (int i = 0; i < 3 - count; i++)
                 InternalData.Add(new Ref<int>(-1));
         }
 
         if (InternalData.Count < 5)
         {
-            for (int i = 0; i < 5 - InternalData.Count; i++)
+            int count = InternalData.Count;
+            for (int i = 0; i < 5 - count; i++)
                 InternalData.Add(new Ref<int>(0));
         }
 

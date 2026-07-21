@@ -102,13 +102,15 @@ public sealed class InsideTransitionZoneMapEntityLeaf : ObjectMapEntityLeaf
     {
         if (InternalData.Count < 2)
         {
-            for (int i = 0; i < 2 - InternalData.Count; i++)
+            int count = InternalData.Count;
+            for (int i = 0; i < 2 - count; i++)
                 InternalData.Add(new Ref<int>(-1));
         }
 
         if (InternalVectorData.Count < 8)
         {
-            for (int i = 0; i < 8 - InternalVectorData.Count; i++)
+            int count = InternalVectorData.Count;
+            for (int i = 0; i < 8 - count; i++)
                 InternalVectorData.Add(new Ref<Vector3>(Vector3.zero));
         }
 

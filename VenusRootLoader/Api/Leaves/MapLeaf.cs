@@ -39,7 +39,6 @@ public sealed class MapLeaf : Leaf
     public Color InitialFogColor { get; set; } = Color.white;
     public bool HasSunRaysTopRightScreenEffect { get; set; }
 
-    // TODO: Consider adding SkyBoxLeaf
     public Material? SkyboxMaterial { get; set; }
     public Color InitialAmbientLightColor { get; set; } = Color.gray;
     public float WindIntensity { get; set; } = 0.2f;
@@ -96,9 +95,8 @@ public sealed class MapLeaf : Leaf
     public float AllEntitiesYPositionLowerBoundLimitBeforeRespawn { get; set; } = -50f;
     public bool IsFrozenMap { get; set; }
 
-    // TODO: Recheck these 2 to name them better
     public bool MapEntitiesHaveRestrictedActiveRange { get; set; }
-    public bool MapEntitiesAreKeptActive { get; set; }
+    public bool MapEntitiesAndEmoticonsAreActiveWhenOutOfRange { get; set; }
 
     public string? MainMapTransformOverridePrefabPath { get; set; }
     public List<DiscoveryLeaf> DetectableDiscoveriesByDetectorMedal { get; } = new();

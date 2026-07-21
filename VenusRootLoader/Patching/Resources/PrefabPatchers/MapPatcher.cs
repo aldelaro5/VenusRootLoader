@@ -113,7 +113,7 @@ internal sealed class MapPatcher : IPrefabPatcher
         mapControl.ylimit = map.AllEntitiesYPositionLowerBoundLimitBeforeRespawn;
         mapControl.icemap = map.IsFrozenMap;
         mapControl.limitbehavior = map.MapEntitiesHaveRestrictedActiveRange;
-        mapControl.keepobjectsactive = map.MapEntitiesAreKeptActive;
+        mapControl.keepobjectsactive = map.MapEntitiesAndEmoticonsAreActiveWhenOutOfRange;
 
         if (map.MainMapTransformOverridePrefabPath is not null)
             mapControl.mainmesh = mapPrefab.transform.Find(map.MainMapTransformOverridePrefabPath);

@@ -447,7 +447,8 @@ internal sealed class MapsCollector : IBaseGameCollector
             mapControlBaseField[nameof(MapControl.ylimit)].AsFloat;
         mapLeaf.IsFrozenMap = mapControlBaseField[nameof(MapControl.icemap)].AsBool;
         mapLeaf.MapEntitiesHaveRestrictedActiveRange = mapControlBaseField[nameof(MapControl.limitbehavior)].AsBool;
-        mapLeaf.MapEntitiesAreKeptActive = mapControlBaseField[nameof(MapControl.keepobjectsactive)].AsBool;
+        mapLeaf.MapEntitiesAndEmoticonsAreActiveWhenOutOfRange =
+            mapControlBaseField[nameof(MapControl.keepobjectsactive)].AsBool;
 
         if (TryGetBaseFieldFromReference(
                 mapControlBaseField[nameof(MapControl.mainmesh)],

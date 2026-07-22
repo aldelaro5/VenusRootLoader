@@ -287,6 +287,7 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, PathNodesActionBehaviorsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, MapEntitiesArraysLengthTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, EntityIsKillLastPositionTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, MemoryAllocationsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, SaveDataPersistenceTopLevelPatcher>();
         services.AddSingleton<RootPatcher>();
 

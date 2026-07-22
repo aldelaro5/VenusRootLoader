@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Extensions.DependencyInjection;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
+using UnityEngine;
 using VenusRootLoader.BaseGameCollector;
 using VenusRootLoader.BudLoading;
 using VenusRootLoader.Logging;
@@ -41,6 +42,8 @@ internal static class Entry
 
             RootCollector gameDataCollector = host.GetRequiredService<RootCollector>();
             gameDataCollector.CollectAndRegisterBaseGameData(Constants.BaseGameCreatorId);
+
+            Resources.UnloadUnusedAssets();
 
             RootPatcher patcher = host.GetRequiredService<RootPatcher>();
             patcher.RunAllTopLevelPatchers();

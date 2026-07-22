@@ -8,9 +8,9 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class SkillsCollector : IBaseGameCollector
 {
-    private static readonly string[] SkillsData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataSkillsPath);
+    private readonly string[] _skillsData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataSkillsPath);
 
-    private static readonly Dictionary<int, string[]> SkillsLanguageData =
+    private readonly Dictionary<int, string[]> _skillsLanguageData =
         RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedSkillsPathSuffix);
 
     private readonly string[] _skillNamedIds = Enum.GetNames(typeof(MainManager.Skills)).ToArray();
@@ -40,7 +40,7 @@ internal sealed class SkillsCollector : IBaseGameCollector
             SkillLeaf skillLeaf = _skillsRegistry.RegisterExisting(i, _skillNamedIds[i], baseGameId);
             _skillTextAssetParser.FromTextAssetSerializedString(
                 TextAssetPaths.DataSkillsPath,
-                SkillsData[i],
+                _skillsData[i],
                 skillLeaf);
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
@@ -48,7 +48,7 @@ internal sealed class SkillsCollector : IBaseGameCollector
                 _skillLocalizedTextAssetParser.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedSkillsPathSuffix,
                     j,
-                    SkillsLanguageData[j][i],
+                    _skillsLanguageData[j][i],
                     skillLeaf);
             }
         }

@@ -8,12 +8,12 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class SpyCardsCollector : IBaseGameCollector
 {
-    private static readonly string[] SpyCardsData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataSpyCardsPath);
+    private readonly string[] _spyCardsData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataSpyCardsPath);
 
-    private static readonly string SpyCardsOrderingData =
+    private readonly string _spyCardsOrderingData =
         RootCollector.ReadWholeTextAsset(TextAssetPaths.DataSpyCardsOrderingPath);
 
-    private static readonly Dictionary<int, string[]> SpyCardsLanguageData =
+    private readonly Dictionary<int, string[]> _spyCardsLanguageData =
         RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedSpyCardsPathSuffix);
 
     private readonly ILogger<SpyCardsCollector> _logger;
@@ -38,13 +38,13 @@ internal sealed class SpyCardsCollector : IBaseGameCollector
 
     public void CollectBaseGameData(string baseGameId)
     {
-        int spyCardAmount = SpyCardsData.Length;
+        int spyCardAmount = _spyCardsData.Length;
         for (int i = 0; i < spyCardAmount; i++)
         {
             SpyCardLeaf spyCardLeaf = _orderedRegistry.RegisterExistingWithOrdering(i, i.ToString(), baseGameId);
             _spyCardTextAssetParser.FromTextAssetSerializedString(
                 TextAssetPaths.DataSpyCardsPath,
-                SpyCardsData[i],
+                _spyCardsData[i],
                 spyCardLeaf);
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
@@ -52,12 +52,12 @@ internal sealed class SpyCardsCollector : IBaseGameCollector
                 _spyCardLocalizedTextAssetParser.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedSpyCardsPathSuffix,
                     j,
-                    SpyCardsLanguageData[j][i],
+                    _spyCardsLanguageData[j][i],
                     spyCardLeaf);
             }
         }
 
-        _spyCardOrderingTextAssetParser.FromTextAssetString(SpyCardsOrderingData, _orderedRegistry);
+        _spyCardOrderingTextAssetParser.FromTextAssetString(_spyCardsOrderingData, _orderedRegistry);
         _logger.LogInformation("Collected and registered {SpyCardsAmount} base game spy cards", spyCardAmount);
     }
 }

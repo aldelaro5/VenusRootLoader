@@ -12,7 +12,7 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class CrystalBerriesCollector : IBaseGameCollector
 {
-    private static readonly Dictionary<int, string[]> FortuneTeller0LanguageData =
+    private readonly Dictionary<int, string[]> _fortuneTeller0LanguageData =
         RootCollector.ReadLocalizedTestAssetLines(
             TextAssetPaths.DataLocalizedCrystalBerryFortuneTellerHintsPathSuffix);
 
@@ -41,7 +41,7 @@ internal sealed class CrystalBerriesCollector : IBaseGameCollector
                 _crystalBerryLanguageDataSerializer.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedCrystalBerryFortuneTellerHintsPathSuffix,
                     j,
-                    FortuneTeller0LanguageData[j][i],
+                    _fortuneTeller0LanguageData[j][i],
                     crystalBerryLeaf);
             }
         }

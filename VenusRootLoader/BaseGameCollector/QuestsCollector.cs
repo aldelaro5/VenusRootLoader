@@ -14,15 +14,15 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class QuestsCollector : IBaseGameCollector
 {
-    private static readonly string[] BoardData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataQuestsPath);
+    private readonly string[] _boardData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataQuestsPath);
 
-    private static readonly string[] ChecksData =
+    private readonly string[] _checksData =
         RootCollector.ReadTextAssetLines(TextAssetPaths.DataQuestsRequirementsPath);
 
     private readonly Sprite[] _enemyPortraitsSprites = Resources.LoadAll<Sprite>(
         $"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesEnemyPortraitsPath}");
 
-    private static readonly Dictionary<int, string[]> QuestsLanguageData =
+    private readonly Dictionary<int, string[]> _questsLanguageData =
         RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedQuestsPathSuffix);
 
     private readonly string[] _questNamedIds = Enum.GetNames(typeof(MainManager.BoardQuests)).ToArray();
@@ -51,10 +51,13 @@ internal sealed class QuestsCollector : IBaseGameCollector
         for (int i = 0; i < _questNamedIds.Length; i++)
         {
             QuestLeaf questLeaf = _questsRegistry.RegisterExisting(i, _questNamedIds[i], baseGameId);
-            _questTextAssetParser.FromTextAssetSerializedString(TextAssetPaths.DataQuestsPath, BoardData[i], questLeaf);
+            _questTextAssetParser.FromTextAssetSerializedString(
+                TextAssetPaths.DataQuestsPath,
+                _boardData[i],
+                questLeaf);
             _questTextAssetParser.FromTextAssetSerializedString(
                 TextAssetPaths.DataQuestsRequirementsPath,
-                ChecksData[i],
+                _checksData[i],
                 questLeaf);
             IEnemyPortraitSprite enemyPortraitSprite = questLeaf;
             questLeaf.CanOnlyBeTakenAtUndergroundBar = bountyQuestsGameIds.Contains(i);
@@ -65,7 +68,7 @@ internal sealed class QuestsCollector : IBaseGameCollector
                 _questLocalizedTextAssetParser.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedQuestsPathSuffix,
                     j,
-                    QuestsLanguageData[j][i],
+                    _questsLanguageData[j][i],
                     questLeaf);
             }
         }

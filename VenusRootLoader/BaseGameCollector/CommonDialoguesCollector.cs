@@ -8,7 +8,7 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class CommonDialoguesCollector : IBaseGameCollector
 {
-    private static readonly Dictionary<int, string[]> CommonDialoguesLanguageData =
+    private readonly Dictionary<int, string[]> _commonDialoguesLanguageData =
         RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedCommonDialoguesPathSuffix);
 
     private readonly ILogger<CommonDialoguesCollector> _logger;
@@ -27,7 +27,7 @@ internal sealed class CommonDialoguesCollector : IBaseGameCollector
 
     public void CollectBaseGameData(string baseGameId)
     {
-        int commonDialoguesAmount = CommonDialoguesLanguageData.Values.First().Length;
+        int commonDialoguesAmount = _commonDialoguesLanguageData.Values.First().Length;
         for (int i = 0; i < commonDialoguesAmount; i++)
         {
             // Common dialogues do have 0 indexed sequental game ids, but we actually want to use their dialogue ids
@@ -40,7 +40,7 @@ internal sealed class CommonDialoguesCollector : IBaseGameCollector
                 _commonDialogueLanguageDataSerializer.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedCommonDialoguesPathSuffix,
                     j,
-                    CommonDialoguesLanguageData[j][i],
+                    _commonDialoguesLanguageData[j][i],
                     commonDialogueLeaf);
             }
         }

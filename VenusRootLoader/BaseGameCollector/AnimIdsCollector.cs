@@ -8,7 +8,7 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class AnimIdsCollector : IBaseGameCollector
 {
-    private static readonly string[] AnimIdsData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataAnimIdsPath);
+    private readonly string[] _animIdsData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataAnimIdsPath);
 
     private readonly string[] _animIdNamedIds = Enum.GetNames(typeof(MainManager.AnimIDs)).ToArray();
 
@@ -34,7 +34,7 @@ internal sealed class AnimIdsCollector : IBaseGameCollector
             AnimIdLeaf animIdLeaf = _animIdsRegistry.RegisterExisting(i, itemNamedId, baseGameId);
             _animIdTextAssetParser.FromTextAssetSerializedString(
                 TextAssetPaths.DataAnimIdsPath,
-                AnimIdsData[i],
+                _animIdsData[i],
                 animIdLeaf);
         }
 

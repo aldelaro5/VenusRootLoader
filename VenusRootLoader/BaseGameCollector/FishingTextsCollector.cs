@@ -8,7 +8,7 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class FishingTextsCollector : IBaseGameCollector
 {
-    private static readonly Dictionary<int, string[]> FishingTextsLanguageData =
+    private readonly Dictionary<int, string[]> _fishingTextsLanguageData =
         RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedFishingTextsPathSuffix);
 
     private readonly ILogger<FishingTextsCollector> _logger;
@@ -27,7 +27,7 @@ internal sealed class FishingTextsCollector : IBaseGameCollector
 
     public void CollectBaseGameData(string baseGameId)
     {
-        int fishingTextsAmount = FishingTextsLanguageData.Values.First().Length;
+        int fishingTextsAmount = _fishingTextsLanguageData.Values.First().Length;
         for (int i = 0; i < fishingTextsAmount; i++)
         {
             FishingTextLeaf fishingTextLeaf = _fishingTextsRegistry.RegisterExisting(i, i.ToString(), baseGameId);
@@ -36,7 +36,7 @@ internal sealed class FishingTextsCollector : IBaseGameCollector
                 _fishingTextLocalizedTextAssetParser.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedFishingTextsPathSuffix,
                     j,
-                    FishingTextsLanguageData[j][i],
+                    _fishingTextsLanguageData[j][i],
                     fishingTextLeaf);
             }
         }

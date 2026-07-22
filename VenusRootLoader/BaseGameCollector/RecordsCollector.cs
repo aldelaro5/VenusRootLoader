@@ -10,10 +10,10 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class RecordsCollector : IBaseGameCollector
 {
-    private static readonly string RecordsOrderingData =
+    private readonly string _recordsOrderingData =
         RootCollector.ReadWholeTextAsset(TextAssetPaths.DataRecordsOrderingPath);
 
-    private static readonly Dictionary<int, string[]> RecordsLanguageData =
+    private readonly Dictionary<int, string[]> _recordsLanguageData =
         RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedRecordsPathSuffix);
 
     private readonly Sprite[] _enemyPortraitsSprites = Resources.LoadAll<Sprite>(
@@ -38,7 +38,7 @@ internal sealed class RecordsCollector : IBaseGameCollector
 
     public void CollectBaseGameData(string baseGameId)
     {
-        int recordsAmount = RecordsOrderingData
+        int recordsAmount = _recordsOrderingData
             .Split('\n')
             .Length;
         for (int i = 0; i < recordsAmount; i++)
@@ -50,12 +50,12 @@ internal sealed class RecordsCollector : IBaseGameCollector
                 _recordsLanguageDataSerializer.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedRecordsPathSuffix,
                     j,
-                    RecordsLanguageData[j][i],
+                    _recordsLanguageData[j][i],
                     recordLeaf);
             }
         }
 
-        _recordsOrderingDataSerializer.FromTextAssetString(RecordsOrderingData, _orderedRegistry);
+        _recordsOrderingDataSerializer.FromTextAssetString(_recordsOrderingData, _orderedRegistry);
         foreach (RecordLeaf leaf in _orderedRegistry.Registry.LeavesByGameIds.Values)
         {
             IEnemyPortraitSprite enemyPortraitStuff = leaf;

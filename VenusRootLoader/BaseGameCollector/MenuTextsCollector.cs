@@ -8,7 +8,7 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class MenuTextsCollector : IBaseGameCollector
 {
-    private static readonly Dictionary<int, string[]> MenuTextsLanguageData =
+    private readonly Dictionary<int, string[]> _menuTextsLanguageData =
         RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedMenuTextsPathSuffix);
 
     private readonly ILogger<MenuTextsCollector> _logger;
@@ -27,7 +27,7 @@ internal sealed class MenuTextsCollector : IBaseGameCollector
 
     public void CollectBaseGameData(string baseGameId)
     {
-        int menuTextsAmount = MenuTextsLanguageData.Values.First().Length;
+        int menuTextsAmount = _menuTextsLanguageData.Values.First().Length;
         for (int i = 0; i < menuTextsAmount; i++)
         {
             MenuTextLeaf menuTextLeaf = _menuTextsRegistry.RegisterExisting(i, i.ToString(), baseGameId);
@@ -36,7 +36,7 @@ internal sealed class MenuTextsCollector : IBaseGameCollector
                 _menuTextLanguageDataSerializer.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedMenuTextsPathSuffix,
                     j,
-                    MenuTextsLanguageData[j][i],
+                    _menuTextsLanguageData[j][i],
                     menuTextLeaf);
             }
         }

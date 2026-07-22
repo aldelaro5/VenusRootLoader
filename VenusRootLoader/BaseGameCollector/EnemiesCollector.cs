@@ -15,12 +15,12 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class EnemiesCollector : IBaseGameCollector
 {
-    private static readonly string[] EnemiesData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataEnemiesPath);
+    private readonly string[] _enemiesData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataEnemiesPath);
 
-    private static readonly string EnemiesOrderingData =
+    private readonly string _enemiesOrderingData =
         RootCollector.ReadWholeTextAsset(TextAssetPaths.DataBestiaryEntriesOrderingPath);
 
-    private static readonly Dictionary<int, string[]> EnemiesLanguageData =
+    private readonly Dictionary<int, string[]> _enemiesLanguageData =
         RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedBestiaryEntriesPathSuffix);
 
     private readonly string[] _enemyNamedIds = Enum.GetNames(typeof(MainManager.Enemies)).ToArray();
@@ -53,7 +53,7 @@ internal sealed class EnemiesCollector : IBaseGameCollector
 
     public void CollectBaseGameData(string baseGameId)
     {
-        _enemyOrderingTextAssetParser.FromTextAssetString(EnemiesOrderingData, _orderedRegistry);
+        _enemyOrderingTextAssetParser.FromTextAssetString(_enemiesOrderingData, _orderedRegistry);
 
         for (int i = 0; i < _enemyNamedIds.Length; i++)
         {
@@ -133,7 +133,7 @@ internal sealed class EnemiesCollector : IBaseGameCollector
             EnemyLeaf enemyLeaf = _orderedRegistry.Registry.LeavesByGameIds[i];
             _enemyTextAssetParser.FromTextAssetSerializedString(
                 TextAssetPaths.DataEnemiesPath,
-                EnemiesData[i],
+                _enemiesData[i],
                 enemyLeaf);
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
@@ -141,7 +141,7 @@ internal sealed class EnemiesCollector : IBaseGameCollector
                 _enemyLocalizedTextAssetParser.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedBestiaryEntriesPathSuffix,
                     j,
-                    EnemiesLanguageData[j][i],
+                    _enemiesLanguageData[j][i],
                     enemyLeaf);
             }
 

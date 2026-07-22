@@ -17,19 +17,14 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class MapsCollector : IBaseGameCollector
 {
-    private static readonly string[] MapNamedIds = Enum.GetNames(typeof(MainManager.Maps)).ToArray();
+    private readonly string[] _mapNamedIds = Enum.GetNames(typeof(MainManager.Maps)).ToArray();
 
-    private static readonly Dictionary<int, (string[] Names, string[] Data)> MapsEntityData =
-        Enumerable.Range(0, MapNamedIds.Length)
-            .ToDictionary(
-                x => x,
-                x => (RootCollector.ReadTextAssetLines($"{TextAssetPaths.DataMapEntitiesDirectory}/Names/{x}Names"),
-                    RootCollector.ReadTextAssetLines($"{TextAssetPaths.DataMapEntitiesDirectory}/{x}")));
+    private readonly Dictionary<int, (string[] Names, string[] Data)> _mapsEntityData;
 
-    private static readonly string[] TestRoomTextData =
+    private readonly string[] _testRoomTextData =
         RootCollector.ReadTextAssetLines(TextAssetPaths.DataTestRoomMapDialoguesPath);
-    
-    private static readonly Dictionary<string, Dictionary<int, string[]>> MapsDialogues = new();
+
+    private readonly Dictionary<string, Dictionary<int, string[]>> _mapsDialogues = new();
 
     private readonly AssetsManager _assetsManager = new();
     private readonly AssetsFileInstance _resourcesFileInstance;
@@ -88,9 +83,9 @@ internal sealed class MapsCollector : IBaseGameCollector
         _registryResolver = registryResolver;
         _gameExecutionContext = gameExecutionContext;
 
-        foreach (string mapName in MapNamedIds)
+        foreach (string mapName in _mapNamedIds)
         {
-            MapsDialogues[mapName] = new();
+            _mapsDialogues[mapName] = new();
             for (int i = 0; i < RootCollector.LanguageDisplayNames.Length; i++)
             {
                 string[] itemLanguageData = Resources
@@ -98,9 +93,15 @@ internal sealed class MapsCollector : IBaseGameCollector
                         $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataDialoguesLocalizedMapsDirectory}/{mapName}")
                     .text
                     .Split(StringUtils.NewlineSplitDelimiter);
-                MapsDialogues[mapName].Add(i, itemLanguageData);
+                _mapsDialogues[mapName].Add(i, itemLanguageData);
             }
         }
+
+        _mapsEntityData = Enumerable.Range(0, _mapNamedIds.Length)
+            .ToDictionary(
+                x => x,
+                x => (RootCollector.ReadTextAssetLines($"{TextAssetPaths.DataMapEntitiesDirectory}/Names/{x}Names"),
+                    RootCollector.ReadTextAssetLines($"{TextAssetPaths.DataMapEntitiesDirectory}/{x}")));
 
         _assemblyCSharpFileName = _fileSystem.Path.GetFileName(typeof(MapControl).Assembly.Location);
         _gameBundlePath = _fileSystem.Path.Combine(_gameExecutionContext.DataDir, "data.unity3d");
@@ -170,10 +171,10 @@ internal sealed class MapsCollector : IBaseGameCollector
 
     public void CollectBaseGameData(string baseGameId)
     {
-        for (int i = 0; i < MapNamedIds.Length; i++)
+        for (int i = 0; i < _mapNamedIds.Length; i++)
         {
-            (string[] Names, string[] Data) mapEntityData = MapsEntityData[i];
-            MapLeaf mapLeaf = _mapsRegistry.RegisterExisting(i, MapNamedIds[i], baseGameId);
+            (string[] Names, string[] Data) mapEntityData = _mapsEntityData[i];
+            MapLeaf mapLeaf = _mapsRegistry.RegisterExisting(i, _mapNamedIds[i], baseGameId);
             mapLeaf.EntitiesRegistry = new AutoSequentialIdBasedRegistry<MapEntityLeaf>(
                 _loggerFactory.CreateLogger($"Maps.{mapLeaf.NamedId}_{nameof(MapLeaf.EntitiesRegistry)}"),
                 IdSequenceDirection.Increment);
@@ -195,18 +196,18 @@ internal sealed class MapsCollector : IBaseGameCollector
 
             if (i == 0)
             {
-                for (int j = 0; j < TestRoomTextData.Length; j++)
+                for (int j = 0; j < _testRoomTextData.Length; j++)
                 {
                     MapDialogueLeaf mapDialogueLeaf =
                         mapLeaf.DialoguesRegistry.RegisterExisting(j, j.ToString(), baseGameId);
                     mapDialogueLeaf.Map = mapLeaf;
-                    mapDialogueLeaf.LocalizedText[0] = TestRoomTextData[j];
+                    mapDialogueLeaf.LocalizedText[0] = _testRoomTextData[j];
                 }
 
                 continue;
             }
 
-            for (int j = 0; j < MapsDialogues[mapLeaf.NamedId].Values.Max(x => x.Length); j++)
+            for (int j = 0; j < _mapsDialogues[mapLeaf.NamedId].Values.Max(x => x.Length); j++)
             {
                 MapDialogueLeaf mapDialogueLeaf =
                     mapLeaf.DialoguesRegistry.RegisterExisting(j, j.ToString(), baseGameId);
@@ -215,10 +216,10 @@ internal sealed class MapsCollector : IBaseGameCollector
 
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
-                for (int k = 0; k < MapsDialogues[mapLeaf.NamedId][j].Length; k++)
+                for (int k = 0; k < _mapsDialogues[mapLeaf.NamedId][j].Length; k++)
                 {
                     MapDialogueLeaf mapDialogueLeaf = mapLeaf.DialoguesRegistry.LeavesByGameIds[k];
-                    mapDialogueLeaf.LocalizedText[j] = MapsDialogues[mapLeaf.NamedId][j][k];
+                    mapDialogueLeaf.LocalizedText[j] = _mapsDialogues[mapLeaf.NamedId][j][k];
                 }
             }
         }
@@ -251,7 +252,7 @@ internal sealed class MapsCollector : IBaseGameCollector
         _assetsManager.UnloadAll(true);
         _logger.LogInformation(
             "Collected and registered {MapsAmount} base game maps",
-            MapNamedIds.Length);
+            _mapNamedIds.Length);
     }
 
 

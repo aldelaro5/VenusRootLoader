@@ -10,10 +10,10 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class DiscoveriesCollector : IBaseGameCollector
 {
-    private static readonly string DiscoveriesOrderingData =
+    private readonly string _discoveriesOrderingData =
         RootCollector.ReadWholeTextAsset(TextAssetPaths.DataDiscoveriesOrderingPath);
 
-    private static readonly Dictionary<int, string[]> DiscoveriesLanguageData =
+    private readonly Dictionary<int, string[]> _discoveriesLanguageData =
         RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedDiscoveriesPathSuffix);
 
     private readonly Sprite[] _enemyPortraitsSprites = Resources.LoadAll<Sprite>(
@@ -38,7 +38,7 @@ internal sealed class DiscoveriesCollector : IBaseGameCollector
 
     public void CollectBaseGameData(string baseGameId)
     {
-        int discoveriesAmount = DiscoveriesOrderingData
+        int discoveriesAmount = _discoveriesOrderingData
             .Split('\n')
             .Length;
         for (int i = 0; i < discoveriesAmount; i++)
@@ -50,12 +50,12 @@ internal sealed class DiscoveriesCollector : IBaseGameCollector
                 _discoveriesLanguageDataSerializer.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedDiscoveriesPathSuffix,
                     j,
-                    DiscoveriesLanguageData[j][i],
+                    _discoveriesLanguageData[j][i],
                     discoveryLeaf);
             }
         }
 
-        _discoveriesOrderingDataSerializer.FromTextAssetString(DiscoveriesOrderingData, _orderedRegistry);
+        _discoveriesOrderingDataSerializer.FromTextAssetString(_discoveriesOrderingData, _orderedRegistry);
         foreach (DiscoveryLeaf leaf in _orderedRegistry.Registry.LeavesByGameIds.Values)
         {
             IEnemyPortraitSprite enemyPortraitSprite = leaf;

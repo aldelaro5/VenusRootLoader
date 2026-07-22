@@ -8,7 +8,7 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class RecipesCollector : IBaseGameCollector
 {
-    private static readonly string[] RecipesData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataRecipesPath);
+    private readonly string[] _recipesData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataRecipesPath);
 
     private readonly ILogger<RecipesCollector> _logger;
     private readonly ILeavesRegistry<RecipeLeaf> _recipesRegistry;
@@ -26,13 +26,13 @@ internal sealed class RecipesCollector : IBaseGameCollector
 
     public void CollectBaseGameData(string baseGameId)
     {
-        for (int i = 0; i < RecipesData.Length; i++)
+        for (int i = 0; i < _recipesData.Length; i++)
         {
-            string recipe = RecipesData[i];
+            string recipe = _recipesData[i];
             RecipeLeaf recipeLeaf = _recipesRegistry.RegisterExisting(i, i.ToString(), baseGameId);
             _recipeTextAssetParser.FromTextAssetSerializedString(TextAssetPaths.DataRecipesPath, recipe, recipeLeaf);
         }
 
-        _logger.LogInformation("Collected and registered {RecipesAmount} base game recipes", RecipesData.Length);
+        _logger.LogInformation("Collected and registered {RecipesAmount} base game recipes", _recipesData.Length);
     }
 }

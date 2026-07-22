@@ -14,14 +14,14 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class MusicsCollector : IBaseGameCollector
 {
-    private static readonly string[] LoopPointsData =
+    private readonly string[] _loopPointsData =
         RootCollector.ReadTextAssetLines(TextAssetPaths.DataMusicLoopPointsPath);
 
-    private static readonly Dictionary<string, AudioClip> MusicAudioClipsByName = Resources
+    private readonly Dictionary<string, AudioClip> _musicAudioClipsByName = Resources
         .LoadAll<AudioClip>($"{TextAssetPaths.RootAudioPathPrefix}{TextAssetPaths.AudioMusicDirectory}")
         .ToDictionary(a => a.name, a => a);
 
-    private static readonly Dictionary<int, string[]> MusicsLanguageData =
+    private readonly Dictionary<int, string[]> _musicsLanguageData =
         RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedMusicNamesPathSuffix);
 
     private readonly string[] _musicNamedIds = Enum.GetNames(typeof(MainManager.Musics)).ToArray();
@@ -66,22 +66,22 @@ internal sealed class MusicsCollector : IBaseGameCollector
             MusicLeaf musicLeaf = _musicRegistry.RegisterExisting(i, _musicNamedIds[i], baseGameId);
             _musicTextAssetParser.FromTextAssetSerializedString(
                 TextAssetPaths.DataMusicLoopPointsPath,
-                LoopPointsData[i],
+                _loopPointsData[i],
                 musicLeaf);
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _musicLocalizedTextAssetParser.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedMusicNamesPathSuffix,
                     j,
-                    MusicsLanguageData[j][i],
+                    _musicsLanguageData[j][i],
                     musicLeaf);
             }
 
             // Some music have an enum value so they technically exist, but they don't have an actual AudioClip to back them.
             // Those are considered unused and should also be excluded from Samira as the game implicitly does it.
-            bool hasBackingAudioClip = MusicAudioClipsByName.ContainsKey(musicLeaf.NamedId);
+            bool hasBackingAudioClip = _musicAudioClipsByName.ContainsKey(musicLeaf.NamedId);
             if (hasBackingAudioClip)
-                musicLeaf.Music = MusicAudioClipsByName[musicLeaf.NamedId];
+                musicLeaf.Music = _musicAudioClipsByName[musicLeaf.NamedId];
             musicLeaf.CanBePurchasedFromSamira = hasBackingAudioClip && !nonPurchasableMusicGameIds.Contains(i);
         }
 

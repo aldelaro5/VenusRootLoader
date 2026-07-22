@@ -11,7 +11,7 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class MedalShopsCollector : IBaseGameCollector
 {
-    private static readonly string[] BaseGameMedalShopNamedIds = ["Merab", "Shades"];
+    private readonly string[] _baseGameMedalShopNamedIds = ["Merab", "Shades"];
 
     private readonly ILogger<MedalShopsCollector> _logger;
     private readonly ILeavesRegistry<MedalShopLeaf> _medalShopsRegistry;
@@ -42,7 +42,7 @@ internal sealed class MedalShopsCollector : IBaseGameCollector
         for (int i = 0; i < medalShopsAmount; i++)
         {
             MedalShopLeaf medalShopLeaf =
-                _medalShopsRegistry.RegisterExisting(i, BaseGameMedalShopNamedIds[i], baseGameId);
+                _medalShopsRegistry.RegisterExisting(i, _baseGameMedalShopNamedIds[i], baseGameId);
             medalShopLeaf.StartingMedalsStock.AddRange(medalShopsStartingStock[i]);
             medalShopLeaf.BoughtAllStockFlag = medalShopsBoughtAllStockFlags[i];
         }

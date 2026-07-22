@@ -15,7 +15,7 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class MedalFortuneTellerHintCollector : IBaseGameCollector
 {
-    private static readonly Dictionary<int, string[]> MedalFortuneTellerHintsLanguageData =
+    private readonly Dictionary<int, string[]> _medalFortuneTellerHintsLanguageData =
         RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedMedalFortuneTellerHintsPathSuffix);
 
     private readonly ILogger<MedalFortuneTellerHintCollector> _logger;
@@ -42,7 +42,7 @@ internal sealed class MedalFortuneTellerHintCollector : IBaseGameCollector
     {
         int[] flags = CollectMedalObtainedFlagGameIds();
 
-        int medalFortuneTellerHintsAmount = MedalFortuneTellerHintsLanguageData.Values.First().Length;
+        int medalFortuneTellerHintsAmount = _medalFortuneTellerHintsLanguageData.Values.First().Length;
         for (int i = 0; i < medalFortuneTellerHintsAmount; i++)
         {
             MedalFortuneTellerHintLeaf medalFortuneTellerHintLeaf =
@@ -53,7 +53,7 @@ internal sealed class MedalFortuneTellerHintCollector : IBaseGameCollector
                 _localizedTextAssetParser.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedMedalFortuneTellerHintsPathSuffix,
                     j,
-                    MedalFortuneTellerHintsLanguageData[j][i],
+                    _medalFortuneTellerHintsLanguageData[j][i],
                     medalFortuneTellerHintLeaf);
             }
         }

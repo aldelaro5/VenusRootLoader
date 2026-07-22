@@ -8,7 +8,7 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class RankBonusesCollector : IBaseGameCollector
 {
-    private static readonly string[] RankBonusesData =
+    private readonly string[] _rankBonusesData =
         RootCollector.ReadTextAssetLines(TextAssetPaths.DataRankBonusesPath);
 
     private readonly ILogger<RankBonusesCollector> _logger;
@@ -27,9 +27,9 @@ internal sealed class RankBonusesCollector : IBaseGameCollector
 
     public void CollectBaseGameData(string baseGameId)
     {
-        for (int i = 0; i < RankBonusesData.Length; i++)
+        for (int i = 0; i < _rankBonusesData.Length; i++)
         {
-            string rankBonusString = RankBonusesData[i];
+            string rankBonusString = _rankBonusesData[i];
             RankBonusLeaf rankBonusLeaf =
                 _rankBonusesRegistry.RegisterExisting(i, i.ToString(), baseGameId);
             _rankBonusTextAssetParser.FromTextAssetSerializedString(
@@ -40,6 +40,6 @@ internal sealed class RankBonusesCollector : IBaseGameCollector
 
         _logger.LogInformation(
             "Collected and registered {RankBonusesAmount} base game rank bonuses",
-            RankBonusesData.Length);
+            _rankBonusesData.Length);
     }
 }

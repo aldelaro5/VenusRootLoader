@@ -8,7 +8,7 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class SpyCardsTextsCollector : IBaseGameCollector
 {
-    private static readonly Dictionary<int, string[]> SpyCardsTextsLanguageData =
+    private readonly Dictionary<int, string[]> _spyCardsTextsLanguageData =
         RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedSpyCardsTextsPathSuffix);
 
     private readonly ILogger<SpyCardsTextsCollector> _logger;
@@ -27,7 +27,7 @@ internal sealed class SpyCardsTextsCollector : IBaseGameCollector
 
     public void CollectBaseGameData(string baseGameId)
     {
-        int spyCardsTextsAmount = SpyCardsTextsLanguageData.Values.First().Length;
+        int spyCardsTextsAmount = _spyCardsTextsLanguageData.Values.First().Length;
         for (int i = 0; i < spyCardsTextsAmount; i++)
         {
             SpyCardsTextLeaf spyCardsTextLeaf = _spyCardsTextsRegistry.RegisterExisting(i, i.ToString(), baseGameId);
@@ -36,7 +36,7 @@ internal sealed class SpyCardsTextsCollector : IBaseGameCollector
                 _spyCardsTextLocalizedTextAssetParser.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedSpyCardsTextsPathSuffix,
                     j,
-                    SpyCardsTextsLanguageData[j][i],
+                    _spyCardsTextsLanguageData[j][i],
                     spyCardsTextLeaf);
             }
         }

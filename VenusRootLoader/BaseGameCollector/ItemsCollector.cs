@@ -13,9 +13,9 @@ internal sealed class ItemsCollector : IBaseGameCollector
     // index that separates these 2 regions so we need to hardcode this too.
     private const int ItemsSpritesAmountInItems0 = 176;
 
-    private static readonly string[] ItemsData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataItemsPath);
+    private readonly string[] _itemsData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataItemsPath);
 
-    private static readonly Dictionary<int, string[]> ItemsLanguageData =
+    private readonly Dictionary<int, string[]> _itemsLanguageData =
         RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedItemsPathSuffix);
 
     private readonly string[] _itemNamedIds = Enum.GetNames(typeof(MainManager.Items))
@@ -45,12 +45,12 @@ internal sealed class ItemsCollector : IBaseGameCollector
         _itemLanguageDataSerializer = itemLanguageDataSerializer;
 
         // Workaround a game bug where not all languages has the last line about BigBerry
-        for (int i = 0; i < ItemsLanguageData.Count; i++)
+        for (int i = 0; i < _itemsLanguageData.Count; i++)
         {
-            string[] itemLanguageData = ItemsLanguageData[i];
+            string[] itemLanguageData = _itemsLanguageData[i];
             if (itemLanguageData.Length != _itemNamedIds.Length)
                 itemLanguageData = itemLanguageData.Append("RESERVED@Desc@Desc@a").ToArray();
-            ItemsLanguageData[i] = itemLanguageData;
+            _itemsLanguageData[i] = itemLanguageData;
         }
     }
 
@@ -60,7 +60,7 @@ internal sealed class ItemsCollector : IBaseGameCollector
         {
             string itemNamedId = _itemNamedIds[i];
             ItemLeaf itemLeaf = _leavesRegistry.RegisterExisting(i, itemNamedId, baseGameId);
-            _itemDataSerializer.FromTextAssetSerializedString(TextAssetPaths.DataItemsPath, ItemsData[i], itemLeaf);
+            _itemDataSerializer.FromTextAssetSerializedString(TextAssetPaths.DataItemsPath, _itemsData[i], itemLeaf);
             itemLeaf.WrappedSprite.Sprite = i < ItemsSpritesAmountInItems0
                 ? _items0Sprites[i]
                 : _items1Sprites[i - ItemsSpritesAmountInItems0];
@@ -70,7 +70,7 @@ internal sealed class ItemsCollector : IBaseGameCollector
                 _itemLanguageDataSerializer.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedItemsPathSuffix,
                     j,
-                    ItemsLanguageData[j][i],
+                    _itemsLanguageData[j][i],
                     itemLeaf);
             }
         }

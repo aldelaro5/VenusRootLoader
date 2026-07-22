@@ -13,12 +13,12 @@ internal sealed class MedalsCollector : IBaseGameCollector
     // index that separates these 2 regions so we need to hardcode this too.
     private const int FirstMedalSpriteIndexInItems0 = 176;
 
-    private static readonly string[] MedalsData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataMedalsPath);
+    private readonly string[] _medalsData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataMedalsPath);
 
-    private static readonly string MedalsOrderingData =
+    private readonly string _medalsOrderingData =
         RootCollector.ReadWholeTextAsset(TextAssetPaths.DataMedalsOrderingPath);
 
-    private static readonly Dictionary<int, string[]> MedalsLanguageData =
+    private readonly Dictionary<int, string[]> _medalsLanguageData =
         RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedMedalPathSuffix);
 
     private readonly string[] _badgeNamedIds = Enum.GetNames(typeof(MainManager.BadgeTypes)).ToArray();
@@ -55,7 +55,10 @@ internal sealed class MedalsCollector : IBaseGameCollector
         {
             string medalNamedId = _badgeNamedIds[i];
             MedalLeaf medalLeaf = _orderedRegistry.RegisterExistingWithOrdering(i, medalNamedId, baseGameId);
-            _medalDataSerializer.FromTextAssetSerializedString(TextAssetPaths.DataMedalsPath, MedalsData[i], medalLeaf);
+            _medalDataSerializer.FromTextAssetSerializedString(
+                TextAssetPaths.DataMedalsPath,
+                _medalsData[i],
+                medalLeaf);
             medalLeaf.WrappedSprite.Sprite = medalLeaf.Items1SpriteIndex == -1
                 ? _items0Sprites[i + FirstMedalSpriteIndexInItems0]
                 : _items1Sprites[medalLeaf.Items1SpriteIndex];
@@ -65,12 +68,12 @@ internal sealed class MedalsCollector : IBaseGameCollector
                 _medalLanguageDataSerializer.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedMedalPathSuffix,
                     j,
-                    MedalsLanguageData[j][i],
+                    _medalsLanguageData[j][i],
                     medalLeaf);
             }
         }
 
-        _medalOrderingDataSerializer.FromTextAssetString(MedalsOrderingData, _orderedRegistry);
+        _medalOrderingDataSerializer.FromTextAssetString(_medalsOrderingData, _orderedRegistry);
         _logger.LogInformation("Collected and registered {MedalsAmount} base game medals", _badgeNamedIds.Length);
     }
 }

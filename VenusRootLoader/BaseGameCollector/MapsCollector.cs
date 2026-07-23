@@ -9,6 +9,7 @@ using UnityEngine;
 using VenusRootLoader.Api;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Api.Leaves.MapEntities;
+using VenusRootLoader.Api.Unity.AssetLoading;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
@@ -175,6 +176,7 @@ internal sealed class MapsCollector : IBaseGameCollector
         {
             (string[] Names, string[] Data) mapEntityData = _mapsEntityData[i];
             MapLeaf mapLeaf = _mapsRegistry.RegisterExisting(i, _mapNamedIds[i], baseGameId);
+            mapLeaf.PrefabLoader = new AssetLoaderFromResources<GameObject>($"prefabs/maps/{mapLeaf.NamedId}");
             mapLeaf.EntitiesRegistry = new AutoSequentialIdBasedRegistry<MapEntityLeaf>(
                 _loggerFactory.CreateLogger($"Maps.{mapLeaf.NamedId}_{nameof(MapLeaf.EntitiesRegistry)}"),
                 IdSequenceDirection.Increment);

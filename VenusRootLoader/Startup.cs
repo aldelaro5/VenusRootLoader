@@ -104,9 +104,6 @@ internal static class Startup
         services.AddEnumBasedLeavesRegistry<MapLeaf, MainManager.Maps>();
         services.AddSingleton<IRegistryResolver, RegistryResolver>();
 
-        services.AddSingleton<IPrefabPatcher, MapPatcher>(provider =>
-            new([TextAssetPaths.PrefabsMapsDirectory], provider.GetRequiredService<ILeavesRegistry<MapLeaf>>()));
-
         services.AddSingleton<ISpriteArrayPatcher, EnemyPortraitsSpriteArrayPatcher>(provider =>
             new(
                 [TextAssetPaths.SpritesEnemyPortraitsPath],
@@ -288,6 +285,7 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, MapEntitiesArraysLengthTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, EntityIsKillLastPositionTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, MemoryAllocationsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, MapsLoadingTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, SaveDataPersistenceTopLevelPatcher>();
         services.AddSingleton<RootPatcher>();
 

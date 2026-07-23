@@ -1,5 +1,7 @@
+using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Api.Leaves.MapEntities;
+using VenusRootLoader.Api.Unity.AssetLoading;
 using VenusRootLoader.Registry;
 
 // ReSharper disable CheckNamespace
@@ -13,11 +15,13 @@ public partial class Venus
 
     public MapLeaf RegisterMap(
         string namedId,
+        IAssetLoader<GameObject> prefabLoader,
         Branch<AreaLeaf> area,
         Branch<DialogueLeaf> spyDialogue,
         Branch<MusicLeaf>? defaultMapMusic)
     {
         MapLeaf mapLeaf = RegistryResolver.Resolve<MapLeaf>().RegisterNew(BudId, namedId);
+        mapLeaf.PrefabLoader = prefabLoader;
         mapLeaf.Area = area;
         mapLeaf.SpyDialogue = spyDialogue;
         mapLeaf.AddMusicToMap(defaultMapMusic);

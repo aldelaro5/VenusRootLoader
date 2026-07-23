@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves.MapEntities;
+using VenusRootLoader.Api.Unity.AssetLoading;
 using VenusRootLoader.Registry;
 using VenusRootLoader.SourceGenerators;
 
@@ -105,7 +106,7 @@ public sealed class MapLeaf : Leaf
     public List<MapAutoEvent> AutomaticallyTriggeredEventsAfterLoad { get; } = new();
     public List<string> EventsGameObjectPrefabPaths { get; } = new();
 
-    public Func<MapLeaf, GameObject>? PrefabInstantiator { get; set; }
+    public IAssetLoader<GameObject> PrefabLoader { get; set; } = null!;
 
     internal ILeavesRegistry<MapEntityLeaf> EntitiesRegistry { get; set; } = null!;
     internal ILeavesRegistry<MapDialogueLeaf> DialoguesRegistry { get; set; } = null!;

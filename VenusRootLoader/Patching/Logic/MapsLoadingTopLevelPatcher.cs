@@ -1,47 +1,83 @@
+using HarmonyLib;
+using System.Reflection;
+using System.Reflection.Emit;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
 using Object = UnityEngine.Object;
 
-namespace VenusRootLoader.Patching.Resources.PrefabPatchers;
+namespace VenusRootLoader.Patching.Logic;
 
 /// <summary>
-/// An <see cref="IPrefabPatcher"/> that patches maps prefabs from the game.
+/// This patcher allows to load base game and custom maps by not just redirecting the prefab from the resources, but also
+/// to take over the instantiation part of it. The latter is what makes this patch necessary instead of a simple resources
+/// redirection because it prevents having the original prefab being kept in the not saved special scene for custom maps.
+/// This happens for custom maps because some fields in <see cref="MapControl"/> needs to be set that references children
+/// of the prefab and setting these fields causes Unity to hold on to the resources since something holds a reference to it.
+/// This can lead to leaking maps memory so to prevent this, we instantiate the moment we have a prefab and only after deal with
+/// the <see cref="MapControl"/>.
+/// <p>
+/// It patches the following:
+/// <list type="bullet">
+/// <item><see cref="MainManager.LoadMap(int)"/>: Replace both the Resources.Load and Instantiate call to let us return our own map prefab.</item>
+/// </list>
+/// </p>
 /// </summary>
-internal sealed class MapPatcher : IPrefabPatcher
+internal sealed class MapsLoadingTopLevelPatcher : ITopLevelPatcher
 {
-    private readonly ILeavesRegistry<MapLeaf> _mapRegistry;
+    private static MapsLoadingTopLevelPatcher _instance = null!;
 
-    public MapPatcher(string[] subPaths, ILeavesRegistry<MapLeaf> mapRegistry)
+    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
+    private readonly ILeavesRegistry<MapLeaf> _mapsRegistry;
+
+    public MapsLoadingTopLevelPatcher(
+        IHarmonyTypePatcher harmonyTypePatcher,
+        ILeavesRegistry<MapLeaf> mapsRegistry)
     {
-        SubPaths = subPaths;
-        _mapRegistry = mapRegistry;
+        _instance = this;
+        _harmonyTypePatcher = harmonyTypePatcher;
+        _mapsRegistry = mapsRegistry;
     }
 
-    public string[] SubPaths { get; }
+    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(MapsLoadingTopLevelPatcher));
 
-    public Object PatchPrefab(string path, Object original)
+    [HarmonyTranspiler]
+    [HarmonyPatch(typeof(MainManager), nameof(MainManager.LoadMap), typeof(int))]
+    private static IEnumerable<CodeInstruction> RedirectMapPrefabs(
+        IEnumerable<CodeInstruction> instructions,
+        ILGenerator generator)
     {
-        int mapEffectiveIdStart = path.LastIndexOf('/') + 1;
-        string mapEffectiveId = path[mapEffectiveIdStart..];
-        MapLeaf map = _mapRegistry.LeavesByEffectiveIds[mapEffectiveId];
-        if (original == null)
-            return PrepareCustomMap(map);
+        CodeMatcher matcher = new(instructions, generator);
+        MethodInfo resourcesLoadMethod = typeof(UnityEngine.Resources)
+            .GetMethods(BindingFlags.Static | BindingFlags.Public)
+            .Single(x => x.Name == nameof(UnityEngine.Resources.Load)
+                         && x is { ContainsGenericParameters: false, ReturnParameter: not null }
+                         && x.GetParameters().Length == 1);
 
-        GameObject mapPrefab = (GameObject)original;
+        matcher.MatchStartForward(CodeMatch.Calls(resourcesLoadMethod));
+        while (matcher.Instruction.opcode != OpCodes.Isinst)
+            matcher.SetInstructionAndAdvance(Code.Nop);
+        matcher.SetInstruction(Transpilers.EmitDelegate(PatchMapPrefab));
+
+        return matcher.Instructions();
+    }
+
+    private static GameObject PatchMapPrefab(string resourcesPath)
+    {
+        int mapEffectiveIdStart = resourcesPath.LastIndexOf('/') + 1;
+        string mapEffectiveId = resourcesPath[mapEffectiveIdStart..];
+        MapLeaf map = _instance._mapsRegistry.LeavesByEffectiveIds[mapEffectiveId];
+        GameObject mapPrefab = map.PrefabLoader.LoadAsset();
+        // It is normally -1, but if it's not, it would mean that the loader already created the prefab in the Main scene
+        // so we don't need to instantiate it.
+        if (mapPrefab.gameObject.scene.buildIndex == -1)
+            mapPrefab = Object.Instantiate(mapPrefab);
+
         MapControl mapControl = mapPrefab.GetComponent<MapControl>();
+        // This will be the case for custom maps since we're creating a new one.
+        if (mapControl == null)
+            mapControl = mapPrefab.AddComponent<MapControl>();
         PatchMapControl(map, mapPrefab, mapControl);
-        mapPrefab.name = map.GameId.ToString();
-        return original;
-    }
-
-    private static GameObject PrepareCustomMap(MapLeaf map)
-    {
-        GameObject mapPrefab = map.PrefabInstantiator!(map);
-        MapControl mapControl = mapPrefab.AddComponent<MapControl>();
-        PatchMapControl(map, mapPrefab, mapControl);
-        mapPrefab.name = map.GameId.ToString();
-        Object.Destroy(mapPrefab, 0.001f);
         return mapPrefab;
     }
 
@@ -92,9 +128,10 @@ internal sealed class MapPatcher : IPrefabPatcher
             .Select(x => new Vector2Int(x.RequiredFlag?.GameId ?? -1, x.MapMusic.MusicIdInMap))
             .ToArray();
 
-        mapControl.insides = map.Insides
-            .Select(x => mapPrefab.transform.Find(x.GameObjectPathInPrefab).gameObject)
-            .ToArray();
+        List<GameObject> insides = new();
+        foreach (MapInside x in map.Insides)
+            insides.Add(mapPrefab.transform.Find(x.GameObjectPathInPrefab).gameObject);
+        mapControl.insides = insides.ToArray();
         mapControl.insidetypes = map.Insides
             .Select(x => x.TransitionWhenEnteringOrExiting)
             .ToArray();
@@ -127,13 +164,18 @@ internal sealed class MapPatcher : IPrefabPatcher
         mapControl.autoevent = map.AutomaticallyTriggeredEventsAfterLoad
             .Select(x => new Vector2(x.AlreadyTriggeredFlag.GameId, x.EventToTriggerWhenFlagIsFalse.GameId))
             .ToArray();
-        mapControl.eventPointers = map.EventsGameObjectPrefabPaths
-            .Select(x => mapPrefab.transform.Find(x).gameObject)
+
+        List<GameObject> eventPointers = new();
+        foreach (string x in map.EventsGameObjectPrefabPaths)
+            eventPointers.Add(mapPrefab.transform.Find(x).gameObject);
+        mapControl.eventPointers = eventPointers
             .ToArray();
 
         SimulateUnityCollectionDeserialisationLogic(mapControl);
     }
 
+    // If a collection is serialized via the inspector, it's impossible it deserialized to null, and it will instead be an empty
+    // collection. Since it's possible we're creating the MapControl, we need to simulate what Unity would have done for compatibility.
     private static void SimulateUnityCollectionDeserialisationLogic(MapControl mapControl)
     {
         mapControl.insidetypes ??= [];

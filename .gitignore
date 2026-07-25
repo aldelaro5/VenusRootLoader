@@ -288,6 +288,9 @@ __pycache__/
 # Verify
 *.received.*
 
+# Unity
+*.user.meta
+
 # Unity TestProject
 .VenusRootLoader/Data/UnityTestProject/Library
 .VenusRootLoader/Data/UnityTestProject/Temp

@@ -78,7 +78,7 @@ public sealed class MapLeaf : Leaf
 
     public Branch<DialogueLeaf> SpyDialogue { get; set; }
 
-    public List<AnimIdLeaf> FollowerAnimIdsAllowed { get; } = new();
+    public List<Branch<AnimIdLeaf>> FollowerAnimIdsAllowed { get; } = new();
 
     public float MaximumYFollowerDistanceBeforeTeleport
     {
@@ -100,7 +100,7 @@ public sealed class MapLeaf : Leaf
     public bool MapEntitiesAndEmoticonsAreActiveWhenOutOfRange { get; set; }
 
     public string? MainMapTransformOverridePrefabPath { get; set; }
-    public List<DiscoveryLeaf> DetectableDiscoveriesByDetectorMedal { get; } = new();
+    public List<Branch<DiscoveryLeaf>> DetectableDiscoveriesByDetectorMedal { get; } = new();
     public Branch<MapLeaf>? MapWhoProvidesEntitiesAndDialogues { get; set; }
     public bool DisallowAntCompassUsage { get; set; }
     public List<MapAutoEvent> AutomaticallyTriggeredEventsAfterLoad { get; } = new();

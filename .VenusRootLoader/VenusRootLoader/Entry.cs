@@ -47,7 +47,7 @@ internal static class Entry
 
             RootPatcher patcher = host.GetRequiredService<RootPatcher>();
             patcher.RunAllTopLevelPatchers();
-            
+
             BudLoader loader = host.GetRequiredService<BudLoader>();
             loader.LoadAllBuds();
         }

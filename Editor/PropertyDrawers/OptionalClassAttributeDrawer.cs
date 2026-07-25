@@ -1,11 +1,10 @@
-using Attributes;
 using UnityEditor;
 using UnityEngine;
 
-namespace Editor
+namespace Editor.Attributes
 {
     [CustomPropertyDrawer(typeof(OptionalClassFieldAttribute))]
-    public class OptionalClassAttributeDrawer : PropertyDrawer
+    public sealed class OptionalClassAttributeDrawer : PropertyDrawer
     {
         private OptionalClassFieldAttribute OptionalClassFieldAttribute =>
             (OptionalClassFieldAttribute)attribute;
@@ -61,6 +60,7 @@ namespace Editor
                 totalHeight += propertyHeight;
                 totalHeight += EditorGUIUtility.standardVerticalSpacing;
             }
+
             EditorGUI.indentLevel--;
         }
 
@@ -80,6 +80,7 @@ namespace Editor
                 totalHeight += EditorGUIUtility.standardVerticalSpacing;
                 totalHeight += EditorGUI.GetPropertyHeight(childProperty);
             }
+
             return totalHeight;
         }
     }

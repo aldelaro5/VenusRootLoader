@@ -1,4 +1,4 @@
-namespace Enums
+namespace Editor.Attributes
 {
     public enum Maps
     {

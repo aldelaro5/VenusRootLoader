@@ -1,12 +1,11 @@
 using System.Reflection;
-using Attributes;
 using UnityEditor;
 using UnityEngine;
 
-namespace Editor
+namespace Editor.Attributes
 {
     [CustomPropertyDrawer(typeof(PrefabAssetPathAttribute))]
-    public class PrefabAssetPathAttributeDrawer : PropertyDrawer
+    public sealed class PrefabAssetPathAttributeDrawer : PropertyDrawer
     {
         private PrefabAssetPathAttribute PrefabAssetPathAttribute =>
             (PrefabAssetPathAttribute)attribute;

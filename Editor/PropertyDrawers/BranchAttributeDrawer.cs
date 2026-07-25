@@ -1,14 +1,12 @@
 using System;
 using System.Linq;
-using Attributes;
-using Enums;
 using UnityEditor;
 using UnityEngine;
 
-namespace Editor
+namespace Editor.Attributes
 {
     [CustomPropertyDrawer(typeof(BranchAttribute))]
-    public class BranchAttributeDrawer : PropertyDrawer
+    public sealed class BranchAttributeDrawer : PropertyDrawer
     {
         private BranchAttribute BranchAttribute => (BranchAttribute)attribute;
 
@@ -26,7 +24,7 @@ namespace Editor
                 return;
             }
 
-            if (baseGameEnumType != null && !baseGameEnumType.IsEnum )
+            if (baseGameEnumType != null && !baseGameEnumType.IsEnum)
             {
                 EditorGUI.LabelField(
                     position,
@@ -116,7 +114,7 @@ namespace Editor
                 if (!propertyHasValue.boolValue)
                     return;
             }
-            
+
             EditorGUI.indentLevel++;
             Rect enumFieldPosition = new Rect(
                 position.x,

@@ -1,10 +1,10 @@
 using System;
 using UnityEngine;
 
-namespace Attributes
+namespace Editor.Attributes
 {
     [AttributeUsage(AttributeTargets.Field)]
-    public class PrefabAssetPathAttribute : PropertyAttribute
+    public sealed class PrefabAssetPathAttribute : PropertyAttribute
     {
         public readonly string FieldNamePrefab;
 

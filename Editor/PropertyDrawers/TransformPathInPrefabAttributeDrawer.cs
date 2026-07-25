@@ -3,17 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
-using Attributes;
 using UnityEditor;
 using UnityEngine;
 
-namespace Editor
+namespace Editor.Attributes
 {
     [CustomPropertyDrawer(typeof(TransformPathInPrefabAttribute))]
-    public class TransformPathInPrefabAttributeDrawer : PropertyDrawer
+    public sealed class TransformPathInPrefabAttributeDrawer : PropertyDrawer
     {
         private const string NoPrefabErrorMessage = "Assign the main prefab first.";
-        private static readonly char[] DotSplitSeparator = {'.'};
+        private static readonly char[] DotSplitSeparator = { '.' };
 
         private TransformPathInPrefabAttribute TransformPathInPrefabAttribute =>
             (TransformPathInPrefabAttribute)attribute;
@@ -69,6 +68,7 @@ namespace Editor
                     EditorGUI.LabelField(position, label.text, NoPrefabErrorMessage);
                     return;
                 }
+
                 prefabField.SetValue(property.serializedObject.targetObject, prefab);
             }
 
@@ -157,7 +157,7 @@ namespace Editor
                 instance = field.GetValue(instance);
                 type = field.FieldType;
             }
-            
+
             return instance;
         }
 

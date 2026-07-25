@@ -1,10 +1,10 @@
 using System;
 using UnityEngine;
 
-namespace Attributes
+namespace Editor.Attributes
 {
     [AttributeUsage(AttributeTargets.Field)]
-    public class MinAttribute : PropertyAttribute
+    public sealed class MinAttribute : PropertyAttribute
     {
         /// <summary>
         ///   <para>The minimum allowed value.</para>

@@ -1,10 +1,10 @@
 using System;
 using UnityEngine;
 
-namespace Attributes
+namespace Editor.Attributes
 {
     [AttributeUsage(AttributeTargets.Field)]
-    public class TransformPathInPrefabAttribute : PropertyAttribute
+    public sealed class TransformPathInPrefabAttribute : PropertyAttribute
     {
         public readonly string FieldNameTransform;
         public readonly string FieldNamePrefab;

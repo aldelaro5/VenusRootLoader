@@ -1,10 +1,10 @@
 using System;
 using UnityEngine;
 
-namespace Attributes
+namespace Editor.Attributes
 {
     [AttributeUsage(AttributeTargets.Field)]
-    public class OptionalClassFieldAttribute : PropertyAttribute
+    public sealed class OptionalClassFieldAttribute : PropertyAttribute
     {
         public readonly string FieldNameHasValue;
 

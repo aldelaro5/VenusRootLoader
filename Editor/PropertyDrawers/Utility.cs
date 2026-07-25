@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Editor
+namespace Editor.Attributes
 {
     public static class Utility
     {
@@ -23,6 +23,7 @@ namespace Editor
                 property = null;
                 return false;
             }
+
             if (property.propertyType != validType)
             {
                 EditorGUI.LabelField(
@@ -32,7 +33,7 @@ namespace Editor
                 property = null;
                 return false;
             }
-            
+
             return true;
         }
 
@@ -54,6 +55,7 @@ namespace Editor
                 property = null;
                 return false;
             }
+
             if (property.propertyType != validType)
             {
                 EditorGUI.LabelField(
@@ -63,7 +65,7 @@ namespace Editor
                 property = null;
                 return false;
             }
-            
+
             return true;
         }
     }

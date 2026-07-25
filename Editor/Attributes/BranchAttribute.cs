@@ -1,10 +1,10 @@
 using System;
 using UnityEngine;
 
-namespace Attributes
+namespace Editor.Attributes
 {
     [AttributeUsage(AttributeTargets.Field)]
-    public class BranchAttribute : PropertyAttribute
+    public sealed class BranchAttribute : PropertyAttribute
     {
         public readonly Type BaseGameEnum;
         public readonly int BaseGameMinValue;

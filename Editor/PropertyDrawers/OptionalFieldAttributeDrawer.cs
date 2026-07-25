@@ -1,11 +1,10 @@
-using Attributes;
 using UnityEditor;
 using UnityEngine;
 
-namespace Editor
+namespace Editor.Attributes
 {
     [CustomPropertyDrawer(typeof(OptionalFieldAttribute))]
-    public class OptionalFieldAttributeDrawer : PropertyDrawer
+    public sealed class OptionalFieldAttributeDrawer : PropertyDrawer
     {
         private OptionalFieldAttribute OptionalFieldAttribute => (OptionalFieldAttribute)attribute;
 
@@ -57,7 +56,10 @@ namespace Editor
             {
                 valueFieldPosition.x += 16f;
                 valueFieldPosition.width -= 16f;
-                Vector3 vector3Field = EditorGUI.Vector3Field(valueFieldPosition, GUIContent.none, property.vector3Value);
+                Vector3 vector3Field = EditorGUI.Vector3Field(
+                    valueFieldPosition,
+                    GUIContent.none,
+                    property.vector3Value);
                 if (!EditorGUI.EndChangeCheck())
                     return;
 

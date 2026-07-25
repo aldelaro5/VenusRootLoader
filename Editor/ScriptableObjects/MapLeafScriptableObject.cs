@@ -6,7 +6,7 @@ using UnityEngine;
 // TODO: Add tooltips
 
 [CreateAssetMenu(fileName = "NewMap", menuName = "MapLeaf", order = 0)]
-public class MapLeafScriptableObject : ScriptableObject
+public sealed class MapLeafScriptableObject : ScriptableObject
 {
     [NonSerialized]
     public GameObject InternalPrefab = null;

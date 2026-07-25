@@ -1,0 +1,31 @@
+namespace Enums
+{
+    public enum Areas
+    {
+        BugariaOutskirts,
+        BugariaCity,
+        Snakemouth,
+        Desert,
+        GoldenHills,
+        GoldenWay,
+        GoldenSettlement,
+        BarrenLands,
+        FarGrasslands,
+        WildGrasslands,
+        DefiantRoot,
+        SandCastle,
+        Beehive,
+        HoneyFactory,
+        RubberPrison,
+        GiantLair,
+        MetalLake,
+        MetalIsland,
+        TermiteCity,
+        WaspKingdom,
+        BanditHideout,
+        StreamMountain,
+        ChomperCaves,
+        FishingVillage,
+        UpperSnakemouth
+    }
+}

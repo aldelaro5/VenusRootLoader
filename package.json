@@ -1,0 +1,14 @@
+{
+  "name": "com.aldelaro5.venusrootloader",
+  "version": "0.0.1",
+  "displayName": "VenusRootLoader",
+  "description": "Unity tooling needed for VenusRootLoader, a Bug Fables modloader.",
+  "unity": "2018.4",
+  "release": "12f1",
+  "author": {
+    "name": "aldelaro5",
+    "url": "https://github.com/aldelaro5/VenusRootLoader"
+  },
+  "license": "MIT",
+  "hideInEditor": false
+}

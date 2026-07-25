@@ -54,7 +54,6 @@ artifacts/
 *_p.c
 *_i.h
 *.ilk
-*.meta
 *.obj
 *.pch
 *.pdb
@@ -292,5 +291,6 @@ __pycache__/
 # Unity TestProject
 .VenusRootLoader/Data/UnityTestProject/Library
 .VenusRootLoader/Data/UnityTestProject/Temp
+.VenusRootLoader/Data/UnityTestProject/**/*.meta
 .VenusRootLoader/Output
 .VenusRootLoader/Tool

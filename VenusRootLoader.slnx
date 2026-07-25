@@ -7,23 +7,22 @@
     <File Path=".github/workflows/dotnet-ci.yml" />
     <File Path=".gitignore" />
     <File Path=".gitmodules" />
-    <File Path="Directory.Build.props" />
     <File Path="README.md" />
   </Folder>
-  <Project Path="VenusRootLoader.Bootstrap/VenusRootLoader.Bootstrap.csproj">
+  <Project Path=".VenusRootLoader/VenusRootLoader.Bootstrap/VenusRootLoader.Bootstrap.csproj">
     <Platform Project="x64" />
   </Project>
-    <Project Path="VenusRootLoader.Bootstrap.Tests/VenusRootLoader.Bootstrap.Tests.csproj">
+    <Project Path=".VenusRootLoader/VenusRootLoader.Bootstrap.Tests/VenusRootLoader.Bootstrap.Tests.csproj">
         <Platform Project="x64" />
   </Project>
-    <Project Path="VenusRootLoader.Preloader/VenusRootLoader.Preloader.csproj" />
-    <Project Path="VenusRootLoader.SourceGenerators/VenusRootLoader.SourceGenerators.csproj"/>
-  <Project Path="VenusRootLoader.Tests/VenusRootLoader.Tests.csproj" />
-    <Project Path="VenusRootLoader/VenusRootLoader.csproj" />
-  <Project Path="VenusRootLoader.Build.Tasks.Tests/VenusRootLoader.Build.Tasks.Tests.csproj" />
-    <Project Path="VenusRootLoader.Build.Tasks\VenusRootLoader.Build.Tasks.csproj">
+    <Project Path=".VenusRootLoader/VenusRootLoader.Preloader/VenusRootLoader.Preloader.csproj" />
+    <Project Path=".VenusRootLoader/VenusRootLoader.SourceGenerators/VenusRootLoader.SourceGenerators.csproj" />
+  <Project Path=".VenusRootLoader/VenusRootLoader.Tests/VenusRootLoader.Tests.csproj" />
+    <Project Path=".VenusRootLoader/VenusRootLoader/VenusRootLoader.csproj" />
+  <Project Path=".VenusRootLoader/VenusRootLoader.Build.Tasks.Tests/VenusRootLoader.Build.Tasks.Tests.csproj" />
+    <Project Path=".VenusRootLoader/VenusRootLoader.Build.Tasks\VenusRootLoader.Build.Tasks.csproj">
         <Platform Project="x64" />
     </Project>
-    <Project Path="VenusRootLoader.Analyzers.Tests/VenusRootLoader.Analyzers.Tests.csproj" />
-    <Project Path="VenusRootLoader.Analyzers/VenusRootLoader.Analyzers.csproj" />
+    <Project Path=".VenusRootLoader/VenusRootLoader.Analyzers.Tests/VenusRootLoader.Analyzers.Tests.csproj" />
+    <Project Path=".VenusRootLoader/VenusRootLoader.Analyzers/VenusRootLoader.Analyzers.csproj" />
 </Solution>

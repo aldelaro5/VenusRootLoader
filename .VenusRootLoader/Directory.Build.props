@@ -9,7 +9,7 @@
         <AnalysisLevel>latest</AnalysisLevel>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <InvariantGlobalization>true</InvariantGlobalization>
-        <BuildDir>$(SolutionDir)/Output/$(Configuration)/</BuildDir>
+        <BuildDir>$(SolutionDir)/.VenusRootLoader/Output/$(Configuration)/</BuildDir>
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 
@@ -28,13 +28,13 @@
 
     <Target Name="CopyUnityjitBcl" AfterTargets="Build">
         <ItemGroup>
-            <UnityjitMonoBclFiles Include="$(SolutionDir)/UnityJitMonoBcl/**/*.*"/>
+            <UnityjitMonoBclFiles Include="$(SolutionDir)/.VenusRootLoader/UnityJitMonoBcl/**/*.*"/>
         </ItemGroup>
         <Copy ContinueOnError="false" SourceFiles="@(UnityjitMonoBclFiles)" DestinationFolder="$(BuildDir)/UnityJitMonoBcl"/>
     </Target>
 
     <Target Name="CopyClassDataTpk" AfterTargets="Build">
-        <Copy ContinueOnError="false" SourceFiles="$(SolutionDir)Data/classdata.tpk" DestinationFolder="$(BuildDir)/VenusRootLoader"/>
+        <Copy ContinueOnError="false" SourceFiles="$(SolutionDir)/.VenusRootLoader/Data/classdata.tpk" DestinationFolder="$(BuildDir)/VenusRootLoader"/>
     </Target>
 
     <Target Name="CopyToBugFables" AfterTargets="PostBuild" Condition="Exists($(BugFablesDir))">

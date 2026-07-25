@@ -290,7 +290,7 @@ __pycache__/
 *.received.*
 
 # Unity TestProject
-Data/UnityTestProject/Library
-Data/UnityTestProject/Temp
-Output
-Tool
+.VenusRootLoader/Data/UnityTestProject/Library
+.VenusRootLoader/Data/UnityTestProject/Temp
+.VenusRootLoader/Output
+.VenusRootLoader/Tool

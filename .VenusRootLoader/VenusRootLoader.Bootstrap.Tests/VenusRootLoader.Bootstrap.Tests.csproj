@@ -48,10 +48,10 @@
 
     <Target Name="CopyTestFiles" AfterTargets="Build">
         <ItemGroup>
-            <UnityCompiledProjectFiles Include="$(SolutionDir)/Data/UnityCompiledTestProject/*/**"/>
-            <UnityCompiledProjectFiles Include="$(SolutionDir)/Data/UnityCompiledTestProject/*"/>
-            <UnityCompiledProjectFilesDev Include="$(SolutionDir)/Data/UnityCompiledTestProjectDev/*/**"/>
-            <UnityCompiledProjectFilesDev Include="$(SolutionDir)/Data/UnityCompiledTestProjectDev/*"/>
+            <UnityCompiledProjectFiles Include="$(SolutionDir)/.VenusRootLoader/Data/UnityCompiledTestProject/*/**"/>
+            <UnityCompiledProjectFiles Include="$(SolutionDir)/.VenusRootLoader/Data/UnityCompiledTestProject/*"/>
+            <UnityCompiledProjectFilesDev Include="$(SolutionDir)/.VenusRootLoader/Data/UnityCompiledTestProjectDev/*/**"/>
+            <UnityCompiledProjectFilesDev Include="$(SolutionDir)/.VenusRootLoader/Data/UnityCompiledTestProjectDev/*"/>
         </ItemGroup>
         <ItemGroup>
             <BuiltProject Include="$(BuildDir)/*/**"/>

@@ -24,7 +24,7 @@
         <PackageProjectUrl>https://github.com/aldelaro5/VenusRootLoader</PackageProjectUrl>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageOutputPath>$(SolutionDir)Packages/$(Configuration)/</PackageOutputPath>
+        <PackageOutputPath>$(SolutionDir)/.VenusRootLoader/Packages/$(Configuration)/</PackageOutputPath>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <IncludeReferencedProjects>true</IncludeReferencedProjects>
@@ -80,9 +80,9 @@
         <Content Include="$(SolutionDir)/README.md" PackagePath="README.md" Visible="false"/>
         <Content Include="Build\VenusRootLoader.props" PackagePath="build/VenusRootLoader.props"/>
         <Content Include="Build\VenusRootLoader.targets" PackagePath="build/VenusRootLoader.targets"/>
-        <Content Include="$(SolutionDir)/VenusRootLoader.Build.Tasks/bin/$(Configuration)/VenusRootLoader.Build.Tasks.dll" PackagePath="build" Visible="false"/>
-        <Content Include="$(SolutionDir)/VenusRootLoader.Analyzers/bin/$(Configuration)/VenusRootLoader.Analyzers.dll" PackagePath="analyzers" Visible="false"/>
-        <Content Include="$(SolutionDir)/VenusRootLoader.Analyzers/bin/$(Configuration)/VenusRootLoader.Analyzers.deps.json" PackagePath="analyzers" Visible="false"/>
+        <Content Include="$(SolutionDir)/.VenusRootLoader/VenusRootLoader.Build.Tasks/bin/$(Configuration)/VenusRootLoader.Build.Tasks.dll" PackagePath="build" Visible="false"/>
+        <Content Include="$(SolutionDir)/.VenusRootLoader/VenusRootLoader.Analyzers/bin/$(Configuration)/VenusRootLoader.Analyzers.dll" PackagePath="analyzers" Visible="false"/>
+        <Content Include="$(SolutionDir)/.VenusRootLoader/VenusRootLoader.Analyzers/bin/$(Configuration)/VenusRootLoader.Analyzers.deps.json" PackagePath="analyzers" Visible="false"/>
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="Build">

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using Editor.Attributes;
 using UnityEngine;
 
+#pragma warning disable CS0169 // The field is never used
+#pragma warning disable CS0414 // The field is assigned but its value is never used
+
 // TODO: Add tooltips
 
 [CreateAssetMenu(fileName = "NewMap", menuName = "MapLeaf", order = 0)]

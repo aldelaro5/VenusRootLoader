@@ -129,7 +129,7 @@ internal sealed class MapsLoadingTopLevelPatcher : ITopLevelPatcher
             .ToArray();
 
         List<GameObject> insides = new();
-        foreach (MapInside x in map.Insides)
+        foreach (Api.Leaves.MapInside x in map.Insides)
             insides.Add(mapPrefab.transform.Find(x.GameObjectPathInPrefab).gameObject);
         mapControl.insides = insides.ToArray();
         mapControl.insidetypes = map.Insides

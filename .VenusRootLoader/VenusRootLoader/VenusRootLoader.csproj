@@ -74,6 +74,7 @@
             <OutputItemType>Analyzer</OutputItemType>
             <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
         </ProjectReference>
+        <ProjectReference Include="..\VenusRootLoader.Unity\VenusRootLoader.Unity.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -27,5 +27,5 @@
     </Project>
     <Project Path=".VenusRootLoader/VenusRootLoader.Analyzers.Tests/VenusRootLoader.Analyzers.Tests.csproj" />
     <Project Path=".VenusRootLoader/VenusRootLoader.Analyzers/VenusRootLoader.Analyzers.csproj" />
-  <Project Path=".VenusRootLoader\VenusRootLoader.Unity\VenusRootLoader.Unity.csproj" />
+  <Project Path=".VenusRootLoader\VenusRootLoader.Unity.Runtime\VenusRootLoader.Unity.Runtime.csproj" />
 </Solution>

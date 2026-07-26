@@ -5,8 +5,9 @@ using System.Reflection;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
+using VenusRootLoader.Unity.Runtime.Attributes;
 
-namespace Editor.Attributes
+namespace Editor.PropertyDrawers
 {
     [CustomPropertyDrawer(typeof(TransformPathInPrefabAttribute))]
     public sealed class TransformPathInPrefabAttributeDrawer : PropertyDrawer

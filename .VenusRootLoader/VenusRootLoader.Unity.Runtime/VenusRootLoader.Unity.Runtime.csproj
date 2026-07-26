@@ -14,8 +14,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Include="../../Editor/Attributes/*.cs" LinkBase="Attributes" />
-      <Compile Include="../../Editor/Enums/*.cs" LinkBase="Enums" />
-      <Compile Include="../../Editor/ScriptableObjects/*.cs" LinkBase="ScriptableObjects" />
+        <Compile Include="../../Runtime/**/*.cs" LinkBase="Runtime"/>
     </ItemGroup>
 </Project>

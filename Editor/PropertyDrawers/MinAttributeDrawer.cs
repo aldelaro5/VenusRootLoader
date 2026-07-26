@@ -1,7 +1,8 @@
 using UnityEditor;
 using UnityEngine;
+using MinAttribute = VenusRootLoader.Unity.Runtime.Attributes.MinAttribute;
 
-namespace Editor.Attributes
+namespace Editor.PropertyDrawers
 {
     [CustomPropertyDrawer(typeof(MinAttribute))]
     public sealed class MinAttributeDrawer : PropertyDrawer

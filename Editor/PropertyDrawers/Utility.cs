@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Editor.Attributes
+namespace Editor.PropertyDrawers
 {
     public static class Utility
     {

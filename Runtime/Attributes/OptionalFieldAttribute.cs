@@ -1,14 +1,14 @@
 using System;
 using UnityEngine;
 
-namespace Editor.Attributes
+namespace VenusRootLoader.Unity.Runtime.Attributes
 {
     [AttributeUsage(AttributeTargets.Field)]
-    public sealed class OptionalClassFieldAttribute : PropertyAttribute
+    public sealed class OptionalFieldAttribute : PropertyAttribute
     {
         public readonly string FieldNameHasValue;
 
-        public OptionalClassFieldAttribute(string fieldNameHasValue)
+        public OptionalFieldAttribute(string fieldNameHasValue)
         {
             FieldNameHasValue = fieldNameHasValue;
         }

@@ -1,8 +1,9 @@
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using VenusRootLoader.Unity.Runtime.Attributes;
 
-namespace Editor.Attributes
+namespace Editor.PropertyDrawers
 {
     [CustomPropertyDrawer(typeof(PrefabAssetPathAttribute))]
     public sealed class PrefabAssetPathAttributeDrawer : PropertyDrawer

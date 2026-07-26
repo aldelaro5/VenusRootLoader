@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Editor.Attributes
+namespace VenusRootLoader.Unity.Runtime.Attributes
 {
     [AttributeUsage(AttributeTargets.Field)]
     public sealed class BranchAttribute : PropertyAttribute

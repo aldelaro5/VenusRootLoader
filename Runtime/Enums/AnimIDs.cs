@@ -1,4 +1,4 @@
-namespace Editor.Attributes
+namespace VenusRootLoader.Unity.Runtime.Enums
 {
     public enum AnimIDs
     {

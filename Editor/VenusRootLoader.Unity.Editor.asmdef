@@ -1,0 +1,16 @@
+{
+    "name": "VenusRootLoader.Unity.Editor",
+    "references": [
+        "VenusRootLoader.Unity.Runtime"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
+}

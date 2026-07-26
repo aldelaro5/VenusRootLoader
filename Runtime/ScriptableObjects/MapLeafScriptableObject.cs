@@ -75,7 +75,7 @@ namespace VenusRootLoader.Unity.Runtime.ScriptableObjects
         public Color DefaultBattleTransitionLeavesColor = Color.green;
 
         [Space]
-        [global::VenusRootLoader.Unity.Runtime.Attributes.MinAttribute(0)]
+        [Attributes.MinAttribute(0)]
         public float ExpMultiplier = 1.0f;
 
         public bool DisableMusicChangeWhenEnteringBattle;
@@ -105,7 +105,7 @@ namespace VenusRootLoader.Unity.Runtime.ScriptableObjects
         [Branch(typeof(AnimIDs))]
         public List<Branch> FollowerAnimIdsAllowed;
 
-        [global::VenusRootLoader.Unity.Runtime.Attributes.MinAttribute(0)]
+        [Attributes.MinAttribute(0)]
         public float MaximumYFollowerDistanceBeforeTeleport = 20.0f;
 
         [Header("Miscellaneous settings")]
@@ -149,7 +149,7 @@ namespace VenusRootLoader.Unity.Runtime.ScriptableObjects
         public bool CameraMaxRadiusFromCenterPointAllowedHasValue = true;
 
         [OptionalField(nameof(CameraMaxRadiusFromCenterPointAllowedHasValue))]
-        [global::VenusRootLoader.Unity.Runtime.Attributes.MinAttribute(float.Epsilon)]
+        [Attributes.MinAttribute(float.Epsilon)]
         public float CameraMaxRadiusFromCenterPointAllowed = float.Epsilon;
     }
 
@@ -163,7 +163,7 @@ namespace VenusRootLoader.Unity.Runtime.ScriptableObjects
         [Branch(0, 749, nameof(RequiredFlagHasValue))]
         public Branch RequiredFlag;
 
-        [global::VenusRootLoader.Unity.Runtime.Attributes.MinAttribute(0)]
+        [Attributes.MinAttribute(0)]
         public int MusicIndexInMap;
     }
 

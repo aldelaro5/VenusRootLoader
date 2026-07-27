@@ -180,6 +180,7 @@ internal sealed class GlobalManagersPatchers : IGlobalManagersPatchers
         string originalBundleVersion = ReadBundleVersion(manager, assetsFileInstance, assetFile);
         if (!bundleWasPatched && modifiedBundleExists && originalBundleVersion == modifiedBundleVersion)
         {
+            _logger.LogDebug("\tThe modified bundle is already up to date, closing the AssetsManager");
             manager.UnloadAll(true);
             _hasModifiedBundle = true;
             return;

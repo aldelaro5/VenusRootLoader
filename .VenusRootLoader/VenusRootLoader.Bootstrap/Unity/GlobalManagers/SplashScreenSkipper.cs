@@ -35,11 +35,13 @@ internal sealed class SplashScreenSkipper : IHostedService
         AssetsFileInstance globalManagersFileInstance,
         AssetsFile globalManagersFile)
     {
+        _logger.LogDebug("\tReading PlayerSettings.m_ShowUnitySplashScreen");
         AssetFileInfo playerSettingAsset = globalManagersFile.GetAssetInfo(1);
         AssetTypeValueField playerSettingsTypeValueField =
             assetsManager.GetBaseField(globalManagersFileInstance, playerSettingAsset);
         bool showSplashScreen = playerSettingsTypeValueField["m_ShowUnitySplashScreen"].AsBool;
-        return showSplashScreen == _enableSkipper;
+        _logger.LogDebug("\tRead {value}, skipper is enabled: {enabled}", showSplashScreen, _enableSkipper);
+        return (showSplashScreen && _enableSkipper) || (!showSplashScreen && !_enableSkipper);
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
@@ -49,13 +51,13 @@ internal sealed class SplashScreenSkipper : IHostedService
         AssetsFileInstance assetsFileInstance,
         AssetsFile assetFile)
     {
-        _logger.LogDebug("\tSetting PlayerSettings.m_ShowUnitySplashScreen to false");
+        _logger.LogDebug("\tSetting PlayerSettings.m_ShowUnitySplashScreen to {value}", !_enableSkipper);
         AssetFileInfo playerSettingAsset = assetFile.GetAssetInfo(1);
         AssetTypeValueField playerSettingsTypeValueField = manager.GetBaseField(assetsFileInstance, playerSettingAsset);
         playerSettingsTypeValueField["m_ShowUnitySplashScreen"].AsBool = !_enableSkipper;
         playerSettingAsset.SetNewData(playerSettingsTypeValueField);
 
-        _logger.LogDebug("\tSetting BuildSettings.hasPROVersion to true");
+        _logger.LogDebug("\tSetting BuildSettings.hasPROVersion to {value}", _enableSkipper);
         AssetFileInfo buildSettingAsset = assetFile.GetAssetInfo(11);
         AssetTypeValueField buildSettingsTypeValueField = manager.GetBaseField(assetsFileInstance, buildSettingAsset);
         buildSettingsTypeValueField["hasPROVersion"].AsBool = _enableSkipper;

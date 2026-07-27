@@ -15,10 +15,10 @@ using Windows.Win32.Storage.FileSystem;
 
 namespace VenusRootLoader.Bootstrap.Tests.Unity;
 
-[Collection(nameof(SplashScreenSkipperTests))]
-public sealed class SplashScreenSkipperTests : IDisposable
+[Collection(nameof(GlobalManagersPatchersTests))]
+public sealed class GlobalManagersPatchersTests : IDisposable
 {
-    private readonly ILogger<SplashScreenSkipper> _logger = Substitute.For<ILogger<SplashScreenSkipper>>();
+    private readonly ILogger<GlobalManagersPatchers> _logger = Substitute.For<ILogger<GlobalManagersPatchers>>();
     private readonly IOptions<GlobalSettings> _globalSettings = Substitute.For<IOptions<GlobalSettings>>();
     private readonly IWin32 _win32 = Substitute.For<IWin32>();
     private readonly IFileSystem _fileSystem = new FileSystem();
@@ -34,7 +34,7 @@ public sealed class SplashScreenSkipperTests : IDisposable
     private readonly string _dataUnity3dPath;
     private readonly string _pathModifiedBundle;
 
-    public SplashScreenSkipperTests()
+    public GlobalManagersPatchersTests()
     {
         string gameDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "TestInstall");
         _globalSettings.Value.Returns(_globalSettingsValue);
@@ -63,7 +63,7 @@ public sealed class SplashScreenSkipperTests : IDisposable
 
     private void StartService()
     {
-        var sut = new SplashScreenSkipper(
+        var sut = new GlobalManagersPatchers(
             _logger,
             _createFileWSharedHooker,
             _gameExecutionContext,

@@ -11,6 +11,7 @@ using VenusRootLoader.Bootstrap.Settings;
 using VenusRootLoader.Bootstrap.Settings.LogProvider;
 using VenusRootLoader.Bootstrap.Shared;
 using VenusRootLoader.Bootstrap.Unity;
+using VenusRootLoader.Bootstrap.Unity.GlobalManagers;
 using ValidateLoggingSettings = VenusRootLoader.Bootstrap.Settings.ValidateLoggingSettings;
 
 namespace VenusRootLoader.Bootstrap;
@@ -104,6 +105,7 @@ internal static class Startup
         builder.Services.AddHostedService<StandardStreamsProtector>();
         builder.Services.AddSingleton<ICreateFileWSharedHooker, CreateFileWSharedHooker>();
         builder.Services.AddHostedService<PlayerLogsMirroring>();
+        builder.Services.AddSingleton<IGlobalManagersPatchers, GlobalManagersPatchers>();
         builder.Services.AddHostedService<SplashScreenSkipper>();
         builder.Services.AddSingleton<IPlayerConnectionDiscovery, PlayerConnectionDiscovery>();
         builder.Services.AddSingleton<ISdbWinePathTranslator, SdbWinePathTranslator>();

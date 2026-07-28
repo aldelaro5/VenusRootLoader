@@ -12,8 +12,8 @@ namespace VenusRootLoader.Bootstrap.Unity.GlobalManagers;
 internal interface IGlobalManagersPatchers
 {
     void RegisterPatcher(
-        GlobalManagersPatchers.CreateBundlePredicate predicate,
-        GlobalManagersPatchers.PatchGlobalManagers patcher);
+        GlobalManagersPatchers.ShouldPatch predicate,
+        GlobalManagersPatchers.Patch patcher);
 }
 
 /// <summary>
@@ -29,15 +29,13 @@ internal sealed class GlobalManagersPatchers : IGlobalManagersPatchers
 {
     private static bool _hasModifiedBundle;
 
-    public delegate bool CreateBundlePredicate(
+    public delegate bool ShouldPatch(
         AssetsManager assetsManager,
-        AssetsFileInstance globalManagersFileInstance,
-        AssetsFile globalManagersFile);
+        AssetsFileInstance globalManagersFileInstance);
 
-    public delegate void PatchGlobalManagers(
+    public delegate void Patch(
         AssetsManager assetsManager,
-        AssetsFileInstance globalManagersFileInstance,
-        AssetsFile globalManagersFile);
+        AssetsFileInstance globalManagersFileInstance);
 
     private readonly IFileSystem _fileSystem;
     private readonly string _modifiedGameBundlePath;
@@ -48,7 +46,7 @@ internal sealed class GlobalManagersPatchers : IGlobalManagersPatchers
     private readonly ICreateFileWSharedHooker _createFileWSharedHooker;
     private readonly GameExecutionContext _gameExecutionContext;
 
-    private readonly List<(CreateBundlePredicate predicate, PatchGlobalManagers Patcher)> _globalManagersHooks = new();
+    private readonly List<(ShouldPatch predicate, Patch Patcher)> _globalManagersHooks = new();
 
     public unsafe GlobalManagersPatchers(
         ILogger<GlobalManagersPatchers> logger,
@@ -73,7 +71,7 @@ internal sealed class GlobalManagersPatchers : IGlobalManagersPatchers
         _createFileWSharedHooker.RegisterHook(nameof(GlobalManagersPatchers), IsGameBundleFile, HookFileHandle);
     }
 
-    public void RegisterPatcher(CreateBundlePredicate predicate, PatchGlobalManagers patcher) =>
+    public void RegisterPatcher(ShouldPatch predicate, Patch patcher) =>
         _globalManagersHooks.Add((predicate, patcher));
 
     private bool IsGameBundleFile(string filename) =>
@@ -127,27 +125,24 @@ internal sealed class GlobalManagersPatchers : IGlobalManagersPatchers
         manager.LoadClassPackage(_classDataTpkPath);
 
         string modifiedBundleVersion = "";
-        bool modifiedBundleExists = _fileSystem.File.Exists(_modifiedGameBundlePath);
+        AssetsFileInstance? modifiedAssetsFileInstance = null;
         List<bool> runPatchers = new();
-        if (modifiedBundleExists)
+        if (_fileSystem.File.Exists(_modifiedGameBundlePath))
         {
             _logger.LogDebug("\tLoading the modified bundle file");
             BundleFileInstance modifiedBundleInstance = manager.LoadBundleFile(_modifiedGameBundlePath);
 
             _logger.LogDebug("\tLoading the modified globalmanagers assets file");
-            AssetsFileInstance modifiedAssetsFileInstance = manager.LoadAssetsFileFromBundle(modifiedBundleInstance, 0);
-            AssetsFile modifiedAssetFile = modifiedAssetsFileInstance.file;
+            modifiedAssetsFileInstance = manager.LoadAssetsFileFromBundle(modifiedBundleInstance, 0);
 
-            LoadClassDatabase(manager, modifiedAssetFile);
+            LoadClassDatabase(manager, modifiedAssetsFileInstance.file);
 
-            modifiedBundleVersion = ReadBundleVersion(manager, modifiedAssetsFileInstance, modifiedAssetFile);
-            foreach ((CreateBundlePredicate predicate, PatchGlobalManagers Hook) patcher in _globalManagersHooks)
+            modifiedBundleVersion = ReadBundleVersion(manager, modifiedAssetsFileInstance);
+            foreach ((ShouldPatch predicate, Patch Hook) patcher in _globalManagersHooks)
             {
-                bool runPatcher = patcher.predicate(manager, modifiedAssetsFileInstance, modifiedAssetFile);
+                bool runPatcher = patcher.predicate(manager, modifiedAssetsFileInstance);
                 runPatchers.Add(runPatcher);
             }
-
-            manager.UnloadAll();
         }
         else
         {
@@ -160,25 +155,17 @@ internal sealed class GlobalManagersPatchers : IGlobalManagersPatchers
         AssetBundleFile bundleFile = bundleInstance.file;
 
         _logger.LogDebug("\tLoading the original globalmanagers assets file");
-        AssetsFileInstance assetsFileInstance = manager.LoadAssetsFileFromBundle(bundleInstance, 0);
-        AssetsFile assetFile = assetsFileInstance.file;
+        AssetsFileInstance originalAssetsFileInstance = manager.LoadAssetsFileFromBundle(bundleInstance, 0);
+        AssetsFile originalAssetFile = originalAssetsFileInstance.file;
 
         if (manager.ClassDatabase is null)
-            LoadClassDatabase(manager, assetFile);
+            LoadClassDatabase(manager, originalAssetFile);
 
-        bool bundleWasPatched = false;
-        for (int i = 0; i < _globalManagersHooks.Count; i++)
-        {
-            (CreateBundlePredicate predicate, PatchGlobalManagers Hook) patcher = _globalManagersHooks[i];
-            if (!runPatchers[i])
-                continue;
-
-            patcher.Hook(manager, assetsFileInstance, assetFile);
-            bundleWasPatched = true;
-        }
-
-        string originalBundleVersion = ReadBundleVersion(manager, assetsFileInstance, assetFile);
-        if (!bundleWasPatched && modifiedBundleExists && originalBundleVersion == modifiedBundleVersion)
+        string originalBundleVersion = ReadBundleVersion(manager, originalAssetsFileInstance);
+        bool patchesNeedsToRun = runPatchers.Any(x => x);
+        if (!patchesNeedsToRun
+            && modifiedAssetsFileInstance is not null
+            && originalBundleVersion == modifiedBundleVersion)
         {
             _logger.LogDebug("\tThe modified bundle is already up to date, closing the AssetsManager");
             manager.UnloadAll(true);
@@ -186,13 +173,46 @@ internal sealed class GlobalManagersPatchers : IGlobalManagersPatchers
             return;
         }
 
+        AssetsFileInstance assetsFileInstance = patchesNeedsToRun && modifiedAssetsFileInstance is not null
+            ? modifiedAssetsFileInstance
+            : originalAssetsFileInstance;
+        for (int i = 0; i < _globalManagersHooks.Count; i++)
+        {
+            (ShouldPatch predicate, Patch Hook) patcher = _globalManagersHooks[i];
+            if (!runPatchers[i])
+                continue;
+
+            patcher.Hook(manager, assetsFileInstance);
+        }
+
+        GenerateModifiedGameBundle(manager, bundleFile, assetsFileInstance, _modifiedGameBundlePath);
+
+        _logger.LogDebug("\tClosing the AssetsManager");
+        manager.UnloadAll(true);
+
+        _logger.LogInformation(
+            "Modified bundle file written successfully at {ModifiedGameBundlePath}",
+            _modifiedGameBundlePath);
+
+        _hasModifiedBundle = true;
+    }
+
+    private void GenerateModifiedGameBundle(
+        AssetsManager manager,
+        AssetBundleFile originalBundleFile,
+        AssetsFileInstance newGlobalManagersInstance,
+        string modifiedGameBundlePath)
+    {
         _logger.LogDebug("\tSetting the new globalmanagers data in the bundle");
-        bundleFile.BlockAndDirInfo.DirectoryInfos[0].SetNewData(assetFile);
+        originalBundleFile.BlockAndDirInfo.DirectoryInfos[0].SetNewData(newGlobalManagersInstance.file);
 
         _logger.LogDebug("\tWriting the modified bundle file");
         string uncompressedBundlePath = _modifiedGameBundlePath + ".uncompressed";
         using (AssetsFileWriter writer = new(uncompressedBundlePath))
-            bundleFile.Write(writer);
+            originalBundleFile.Write(writer);
+
+        _logger.LogDebug("\tClosing the modified bundle file (if it exists)...");
+        manager.UnloadBundleFile(modifiedGameBundlePath);
 
         _logger.LogDebug("\tCompressing the modified bundle file...");
         AssetBundleFile newUncompressedBundle = new();
@@ -202,15 +222,6 @@ internal sealed class GlobalManagersPatchers : IGlobalManagersPatchers
         newUncompressedBundle.Close();
 
         _fileSystem.File.Delete(uncompressedBundlePath);
-
-        _logger.LogDebug("\tClosing the AssetsManager");
-        manager.UnloadAll();
-
-        _logger.LogInformation(
-            "Modified bundle file written successfully at {ModifiedGameBundlePath}",
-            _modifiedGameBundlePath);
-
-        _hasModifiedBundle = true;
     }
 
     private void LoadClassDatabase(AssetsManager manager, AssetsFile globalManagersAssetFile)
@@ -221,11 +232,10 @@ internal sealed class GlobalManagersPatchers : IGlobalManagersPatchers
 
     private string ReadBundleVersion(
         AssetsManager manager,
-        AssetsFileInstance globalManagersInstance,
-        AssetsFile globalManagersAssetFile)
+        AssetsFileInstance globalManagersInstance)
     {
         _logger.LogDebug("\tReading PlayerSettings.bundleVersion");
-        AssetFileInfo playerSettingAsset = globalManagersAssetFile.GetAssetInfo(1);
+        AssetFileInfo playerSettingAsset = globalManagersInstance.file.GetAssetInfo(1);
         AssetTypeValueField playerSettingsTypeValueField =
             manager.GetBaseField(globalManagersInstance, playerSettingAsset);
 

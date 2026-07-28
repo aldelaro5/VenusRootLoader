@@ -66,11 +66,10 @@ internal sealed class AssembliesListAppender : IHostedService
 
     private bool ShouldPatchAssembliesList(
         AssetsManager manager,
-        AssetsFileInstance globalManagersFileInstance,
-        AssetsFile globalManagersFile)
+        AssetsFileInstance globalManagersFileInstance)
     {
         _logger.LogDebug("\tReading MonoManager.m_AssemblyNames");
-        AssetFileInfo monoManagerAsset = globalManagersFile.GetAssetInfo(6);
+        AssetFileInfo monoManagerAsset = globalManagersFileInstance.file.GetAssetInfo(6);
         AssetTypeValueField monoMangerBaseField = manager.GetBaseField(globalManagersFileInstance, monoManagerAsset);
         AssetTypeValueField assemblyNamesArray = monoMangerBaseField["m_AssemblyNames"][nameof(Array)];
         HashSet<string> additionalAssemblyNames = new();
@@ -82,22 +81,37 @@ internal sealed class AssembliesListAppender : IHostedService
             additionalAssemblyNames.Add(assemblyName);
         }
 
-        _logger.LogDebug(
+        _logger.LogTrace(
             "\tRead the following assemblies:\n{assemblyNames}",
             string.Join("\n", additionalAssemblyNames));
-        return !additionalAssemblyNames.SetEquals(_assemblyNames);
+        bool shouldPatchAssembliesList = !additionalAssemblyNames.SetEquals(_assemblyNames);
+        if (shouldPatchAssembliesList)
+            _logger.LogDebug("\tWill be patching");
+        return shouldPatchAssembliesList;
     }
 
     private void ChangeAssembliesList(
         AssetsManager manager,
-        AssetsFileInstance globalManagersFileInstance,
-        AssetsFile globalManagersFile)
+        AssetsFileInstance globalManagersFileInstance)
     {
         _logger.LogDebug("\tAppending MonoManager.m_AssemblyNames");
-        AssetFileInfo monoManagerAsset = globalManagersFile.GetAssetInfo(6);
+        AssetFileInfo monoManagerAsset = globalManagersFileInstance.file.GetAssetInfo(6);
         AssetTypeValueField monoMangerBaseField = manager.GetBaseField(globalManagersFileInstance, monoManagerAsset);
         AssetTypeValueField assemblyNamesArray = monoMangerBaseField["m_AssemblyNames"][nameof(Array)];
+
+        HashSet<string> allAssemblyNames = new();
+        foreach (AssetTypeValueField assemblyNameField in assemblyNamesArray)
+        {
+            string assemblyName = assemblyNameField.AsString;
+            if (assemblyName.StartsWith("UnityEngine") || assemblyName.StartsWith("Assembly-CSharp"))
+                allAssemblyNames.Add(assemblyName);
+        }
+
         foreach (string assemblyName in _assemblyNames)
+            allAssemblyNames.Add(assemblyName);
+
+        assemblyNamesArray.Children.Clear();
+        foreach (string assemblyName in allAssemblyNames)
         {
             AssetTypeValueField newArrayItem = ValueBuilder.DefaultValueFieldFromArrayTemplate(assemblyNamesArray);
             newArrayItem.AsString = assemblyName;

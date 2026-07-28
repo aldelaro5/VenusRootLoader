@@ -32,34 +32,36 @@ internal sealed class SplashScreenSkipper : IHostedService
 
     private bool ShouldSkipSplashScreen(
         AssetsManager assetsManager,
-        AssetsFileInstance globalManagersFileInstance,
-        AssetsFile globalManagersFile)
+        AssetsFileInstance globalManagersFileInstance)
     {
         _logger.LogDebug("\tReading PlayerSettings.m_ShowUnitySplashScreen");
-        AssetFileInfo playerSettingAsset = globalManagersFile.GetAssetInfo(1);
+        AssetFileInfo playerSettingAsset = globalManagersFileInstance.file.GetAssetInfo(1);
         AssetTypeValueField playerSettingsTypeValueField =
             assetsManager.GetBaseField(globalManagersFileInstance, playerSettingAsset);
         bool showSplashScreen = playerSettingsTypeValueField["m_ShowUnitySplashScreen"].AsBool;
-        _logger.LogDebug("\tRead {value}, skipper is enabled: {enabled}", showSplashScreen, _enableSkipper);
-        return (showSplashScreen && _enableSkipper) || (!showSplashScreen && !_enableSkipper);
+        bool shouldSkipSplashScreen = (showSplashScreen && _enableSkipper) || (!showSplashScreen && !_enableSkipper);
+        if (shouldSkipSplashScreen)
+            _logger.LogDebug($"\tWill be patching");
+        return shouldSkipSplashScreen;
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     private void EditSplashScreenSettings(
         AssetsManager manager,
-        AssetsFileInstance assetsFileInstance,
-        AssetsFile assetFile)
+        AssetsFileInstance globalManagersFileInstance)
     {
         _logger.LogDebug("\tSetting PlayerSettings.m_ShowUnitySplashScreen to {value}", !_enableSkipper);
-        AssetFileInfo playerSettingAsset = assetFile.GetAssetInfo(1);
-        AssetTypeValueField playerSettingsTypeValueField = manager.GetBaseField(assetsFileInstance, playerSettingAsset);
+        AssetFileInfo playerSettingAsset = globalManagersFileInstance.file.GetAssetInfo(1);
+        AssetTypeValueField playerSettingsTypeValueField =
+            manager.GetBaseField(globalManagersFileInstance, playerSettingAsset);
         playerSettingsTypeValueField["m_ShowUnitySplashScreen"].AsBool = !_enableSkipper;
         playerSettingAsset.SetNewData(playerSettingsTypeValueField);
 
         _logger.LogDebug("\tSetting BuildSettings.hasPROVersion to {value}", _enableSkipper);
-        AssetFileInfo buildSettingAsset = assetFile.GetAssetInfo(11);
-        AssetTypeValueField buildSettingsTypeValueField = manager.GetBaseField(assetsFileInstance, buildSettingAsset);
+        AssetFileInfo buildSettingAsset = globalManagersFileInstance.file.GetAssetInfo(11);
+        AssetTypeValueField buildSettingsTypeValueField =
+            manager.GetBaseField(globalManagersFileInstance, buildSettingAsset);
         buildSettingsTypeValueField["hasPROVersion"].AsBool = _enableSkipper;
         buildSettingAsset.SetNewData(buildSettingsTypeValueField);
     }

@@ -64,13 +64,14 @@ public partial class Venus
 
     private static string GetEffectiveIdFromScriptableObjectBranch(Branch scriptableObjectBranch, string mapCreatorId)
     {
-        string creatorId = scriptableObjectBranch.CreatorKind switch
+        return scriptableObjectBranch.CreatorKind switch
         {
-            BranchCreatorKind.BaseGame => Constants.BaseGameCreatorId,
-            BranchCreatorKind.SameAsThisAsset => mapCreatorId,
-            BranchCreatorKind.Custom => scriptableObjectBranch.CustomCreatorId,
+            BranchCreatorKind.BaseGame => scriptableObjectBranch.NamedId,
+            BranchCreatorKind.SameAsThisAsset =>
+                $"{mapCreatorId}{Constants.LeafEffectiveIdSeparator}{scriptableObjectBranch.NamedId}",
+            BranchCreatorKind.Custom =>
+                $"{scriptableObjectBranch.CustomCreatorId}{Constants.LeafEffectiveIdSeparator}{scriptableObjectBranch.NamedId}",
             _ => ThrowHelper.ThrowArgumentException<string>(nameof(Branch.CreatorKind))
         };
-        return $"{creatorId}{Constants.LeafEffectiveIdSeparator}{scriptableObjectBranch.NamedId}";
     }
 }

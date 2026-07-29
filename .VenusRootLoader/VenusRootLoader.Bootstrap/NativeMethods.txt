@@ -18,3 +18,5 @@ GetConsoleMode
 SetConsoleMode
 FreeConsole
 CompareObjectHandles
+PathFileExistsW
+GetFileAttributesExW

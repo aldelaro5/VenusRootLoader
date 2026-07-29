@@ -84,4 +84,11 @@ internal sealed class Win32 : IWin32
 
     public BOOL CompareObjectHandles(HANDLE hFirstObjectHandle, HANDLE hSecondObjectHandle) =>
         PInvoke.CompareObjectHandles(hFirstObjectHandle, hSecondObjectHandle);
+
+    public BOOL PathFileExists(PCWSTR pszPath) => PInvoke.PathFileExists(pszPath);
+
+    public unsafe BOOL GetFileAttributesExW(
+        PCWSTR lpFileName,
+        GET_FILEEX_INFO_LEVELS fInfoLevelId,
+        void* lpFileInformation) => PInvoke.GetFileAttributesEx(lpFileName, fInfoLevelId, lpFileInformation);
 }

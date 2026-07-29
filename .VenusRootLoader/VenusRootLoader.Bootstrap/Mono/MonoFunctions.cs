@@ -29,7 +29,12 @@ public sealed class MonoFunctions : IMonoFunctions
             NativeLibrary.GetExportDelegate<IMonoFunctions.DomainAssemblyOpenFn>(handle, "mono_domain_assembly_open");
         AssemblyGetImage =
             NativeLibrary.GetExportDelegate<IMonoFunctions.AssemblyGetImageFn>(handle, "mono_assembly_get_image");
-        ClassFromName = NativeLibrary.GetExportDelegate<IMonoFunctions.ClassFromNameFn>(handle, "mono_class_from_name");
+        ImageOpenFromDataWithName =
+            NativeLibrary.GetExportDelegate<IMonoFunctions.ImageOpenFromDataWithNameFn>(
+                handle,
+                "mono_image_open_from_data_with_name");
+        ClassFromName =
+            NativeLibrary.GetExportDelegate<IMonoFunctions.ClassFromNameFn>(handle, "mono_class_from_name");
         ClassGetMethodFromName =
             NativeLibrary.GetExportDelegate<IMonoFunctions.ClassGetMethodFromNameFn>(
                 handle,
@@ -54,4 +59,5 @@ public sealed class MonoFunctions : IMonoFunctions
     public IMonoFunctions.ClassGetMethodFromNameFn ClassGetMethodFromName { get; private set; } = null!;
     public IMonoFunctions.DomainSetConfigFn DomainSetConfig { get; private set; } = null!;
     public IMonoFunctions.DebugEnabledFn DebugEnabled { get; private set; } = null!;
+    public IMonoFunctions.ImageOpenFromDataWithNameFn ImageOpenFromDataWithName { get; private set; } = null!;
 }

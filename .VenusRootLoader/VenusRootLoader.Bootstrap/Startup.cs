@@ -107,7 +107,7 @@ internal static class Startup
         builder.Services.AddHostedService<PlayerLogsMirroring>();
         builder.Services.AddSingleton<IGlobalManagersPatchers, GlobalManagersPatchers>();
         builder.Services.AddHostedService<SplashScreenSkipper>();
-        builder.Services.AddHostedService<AssembliesListAppender>();
+        builder.Services.AddSingleton<IAssembliesListAppender, AssembliesListAppender>();
         builder.Services.AddSingleton<IPlayerConnectionDiscovery, PlayerConnectionDiscovery>();
         builder.Services.AddSingleton<ISdbWinePathTranslator, SdbWinePathTranslator>();
         builder.Services.AddSingleton<IMonoFunctions, MonoFunctions>();

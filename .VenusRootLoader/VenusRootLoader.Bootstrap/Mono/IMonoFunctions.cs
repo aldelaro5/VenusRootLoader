@@ -16,6 +16,14 @@ public interface IMonoFunctions
         MonoDebugFormatDebugger
     }
 
+    enum MonoImageOpenStatus
+    {
+        MonoImageOk,
+        MonoImageErrorErrno,
+        MonoImageMissingAssemblyRef,
+        MonoImageImageInvalid
+    }
+
     void Initialize(HMODULE handle);
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -92,4 +100,15 @@ public interface IMonoFunctions
     delegate bool DebugEnabledFn();
 
     DebugEnabledFn DebugEnabled { get; }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+    unsafe delegate nint ImageOpenFromDataWithNameFn(
+        byte* data,
+        uint dataLen,
+        bool needCopy,
+        ref MonoImageOpenStatus status,
+        bool refOnly,
+        string name);
+
+    ImageOpenFromDataWithNameFn ImageOpenFromDataWithName { get; }
 }

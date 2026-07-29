@@ -42,4 +42,10 @@ public interface IWin32
     BOOL GetConsoleMode(HANDLE hConsoleHandle, Pointer<CONSOLE_MODE> lpMode);
     BOOL SetConsoleMode(HANDLE hConsoleHandle, CONSOLE_MODE dwMode);
     BOOL CompareObjectHandles(HANDLE hFirstObjectHandle, HANDLE hSecondObjectHandle);
+    BOOL PathFileExists(PCWSTR pszPath);
+
+    unsafe BOOL GetFileAttributesExW(
+        PCWSTR lpFileName,
+        GET_FILEEX_INFO_LEVELS fInfoLevelId,
+        void* lpFileInformation);
 }

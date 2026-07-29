@@ -9,6 +9,7 @@ using VenusRootLoader.Bootstrap.Logging;
 using VenusRootLoader.Bootstrap.Settings;
 using VenusRootLoader.Bootstrap.Shared;
 using VenusRootLoader.Bootstrap.Unity;
+using VenusRootLoader.Bootstrap.Unity.GlobalManagers;
 using Windows.Win32.Foundation;
 
 namespace VenusRootLoader.Bootstrap.Mono;
@@ -36,6 +37,7 @@ internal sealed class MonoInitializer : IHostedService
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     private delegate nint GetProcAddressFn(HMODULE handle, PCSTR symbol);
+
     private static GetProcAddressFn _hookGetProcAddressDelegate = null!;
 
     private bool _runtimeInitialised;
@@ -49,9 +51,11 @@ internal sealed class MonoInitializer : IHostedService
     private const string MonoDebugArgsStart = "--debugger-agent=transport=dt_socket,server=y,address=";
     private const string MonoDebugNoSuspendArg = ",suspend=n";
 
+    private static string _managedDirectoryPath = string.Empty;
     private static IMonoFunctions.JitInitVersionFn _monoInitDetourFn = null!;
     private static IMonoFunctions.JitParseOptionsFn _jitParseOptionsDetourFn = null!;
     private static IMonoFunctions.DebugInitFn _debugInitDetourFn = null!;
+    private static IMonoFunctions.ImageOpenFromDataWithNameFn _imageOpenFromDataWithNameDetourFn = null!;
 
     private readonly Dictionary<string, nint> _symbolRedirects;
 
@@ -64,11 +68,12 @@ internal sealed class MonoInitializer : IHostedService
     private readonly IPlayerConnectionDiscovery _playerConnectionDiscovery;
     private readonly ISdbWinePathTranslator _sdbWinePathTranslator;
     private readonly IMonoInitLifeCycleEvents _monoInitLifeCycleEvents;
+    private readonly IAssembliesListAppender _assembliesListAppender;
     private readonly nint _logFunctionPtr;
     private readonly nint _gameExecutionContextPtr;
     private readonly nint _basePathPtr;
 
-    public MonoInitializer(
+    public unsafe MonoInitializer(
         ILogger<MonoInitializer> logger,
         IPltHooksManager pltHooksManager,
         GameExecutionContext gameExecutionContext,
@@ -79,7 +84,8 @@ internal sealed class MonoInitializer : IHostedService
         IHostEnvironment hostEnvironment,
         IWin32 win32,
         IFileSystem fileSystem,
-        IMonoFunctions monoFunctions)
+        IMonoFunctions monoFunctions,
+        IAssembliesListAppender assembliesListAppender)
     {
         _logger = logger;
         _pltHooksManager = pltHooksManager;
@@ -88,6 +94,7 @@ internal sealed class MonoInitializer : IHostedService
         _win32 = win32;
         _fileSystem = fileSystem;
         _monoFunctions = monoFunctions;
+        _assembliesListAppender = assembliesListAppender;
 
         _gameExecutionContext = gameExecutionContext;
         _playerConnectionDiscovery = playerConnectionDiscovery;
@@ -98,18 +105,45 @@ internal sealed class MonoInitializer : IHostedService
         _gameExecutionContextPtr = Marshal.AllocHGlobal(Marshal.SizeOf<GameExecutionContext>());
         Marshal.StructureToPtr(_gameExecutionContext, _gameExecutionContextPtr, false);
 
+        _managedDirectoryPath = _fileSystem.Path.Combine(_gameExecutionContext.DataDir, "Managed");
         _basePathPtr = Marshal.StringToHGlobalUni(hostEnvironment.ContentRootPath);
-        
+
         _hookGetProcAddressDelegate = HookGetProcAddress;
         _monoInitDetourFn = MonoJitInitDetour;
         _jitParseOptionsDetourFn = MonoJitParseOptionsDetour;
         _debugInitDetourFn = MonoDebugInitDetour;
+        _imageOpenFromDataWithNameDetourFn = MonoImageOpenFromDataWithNameDetour;
         _symbolRedirects = new Dictionary<string, IntPtr>
         {
             { "mono_jit_init_version", Marshal.GetFunctionPointerForDelegate(_monoInitDetourFn) },
             { "mono_jit_parse_options", Marshal.GetFunctionPointerForDelegate(_jitParseOptionsDetourFn) },
             { "mono_debug_init", Marshal.GetFunctionPointerForDelegate(_debugInitDetourFn) },
+            {
+                "mono_image_open_from_data_with_name",
+                Marshal.GetFunctionPointerForDelegate(_imageOpenFromDataWithNameDetourFn)
+            }
         };
+    }
+
+    // See IAssembliesListAppender for why this is required.
+    private unsafe nint MonoImageOpenFromDataWithNameDetour(
+        byte* data,
+        uint dataLen,
+        bool needCopy,
+        ref IMonoFunctions.MonoImageOpenStatus status,
+        bool refOnly,
+        string name)
+    {
+        if (!name.StartsWith(_managedDirectoryPath))
+            return _monoFunctions.ImageOpenFromDataWithName(data, dataLen, needCopy, ref status, refOnly, name);
+
+        string fileName = _fileSystem.Path.GetFileName(name);
+        if (!_assembliesListAppender.AssemblyNames.TryGetValue(fileName, out string? redirectedPath))
+            return _monoFunctions.ImageOpenFromDataWithName(data, dataLen, needCopy, ref status, refOnly, name);
+
+        _logger.LogDebug("Redirecting the image load of {original} to {redirectedPath}", name, redirectedPath);
+        _logger.LogDebug(dataLen.ToString());
+        return _monoFunctions.ImageOpenFromDataWithName(data, dataLen, needCopy, ref status, refOnly, redirectedPath);
     }
 
     public Task StartAsync(CancellationToken cancellationToken)

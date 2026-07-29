@@ -51,7 +51,6 @@ internal sealed class MonoInitializer : IHostedService
     private const string MonoDebugArgsStart = "--debugger-agent=transport=dt_socket,server=y,address=";
     private const string MonoDebugNoSuspendArg = ",suspend=n";
 
-    private static string _managedDirectoryPath = string.Empty;
     private static IMonoFunctions.JitInitVersionFn _monoInitDetourFn = null!;
     private static IMonoFunctions.JitParseOptionsFn _jitParseOptionsDetourFn = null!;
     private static IMonoFunctions.DebugInitFn _debugInitDetourFn = null!;
@@ -104,8 +103,6 @@ internal sealed class MonoInitializer : IHostedService
 
         _gameExecutionContextPtr = Marshal.AllocHGlobal(Marshal.SizeOf<GameExecutionContext>());
         Marshal.StructureToPtr(_gameExecutionContext, _gameExecutionContextPtr, false);
-
-        _managedDirectoryPath = _fileSystem.Path.Combine(_gameExecutionContext.DataDir, "Managed");
         _basePathPtr = Marshal.StringToHGlobalUni(hostEnvironment.ContentRootPath);
 
         _hookGetProcAddressDelegate = HookGetProcAddress;
@@ -125,7 +122,6 @@ internal sealed class MonoInitializer : IHostedService
         };
     }
 
-    // See IAssembliesListAppender for why this is required.
     private unsafe nint MonoImageOpenFromDataWithNameDetour(
         byte* data,
         uint dataLen,
@@ -134,16 +130,13 @@ internal sealed class MonoInitializer : IHostedService
         bool refOnly,
         string name)
     {
-        if (!name.StartsWith(_managedDirectoryPath))
-            return _monoFunctions.ImageOpenFromDataWithName(data, dataLen, needCopy, ref status, refOnly, name);
-
-        string fileName = _fileSystem.Path.GetFileName(name);
-        if (!_assembliesListAppender.AssemblyNames.TryGetValue(fileName, out string? redirectedPath))
-            return _monoFunctions.ImageOpenFromDataWithName(data, dataLen, needCopy, ref status, refOnly, name);
-
-        _logger.LogDebug("Redirecting the image load of {original} to {redirectedPath}", name, redirectedPath);
-        _logger.LogDebug(dataLen.ToString());
-        return _monoFunctions.ImageOpenFromDataWithName(data, dataLen, needCopy, ref status, refOnly, redirectedPath);
+        return _monoFunctions.ImageOpenFromDataWithName(
+            data,
+            dataLen,
+            needCopy,
+            ref status,
+            refOnly,
+            _assembliesListAppender.OnMonoImageOpenFromDataWithName(name));
     }
 
     public Task StartAsync(CancellationToken cancellationToken)

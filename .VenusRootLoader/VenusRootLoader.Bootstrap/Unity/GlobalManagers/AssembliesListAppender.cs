@@ -37,9 +37,11 @@ namespace VenusRootLoader.Bootstrap.Unity.GlobalManagers;
 internal interface IAssembliesListAppender
 {
     /// <summary>
-    /// The list of assemblies that this service will append to the MonoManager.
+    /// Called when mono_image_open_from_data_with_name happens to redirect an assembly's path from its original.
     /// </summary>
-    Dictionary<string, string> AssemblyNames { get; }
+    /// <param name="originalName">The original assembly path.</param>
+    /// <returns>The redirected assembly path</returns>
+    string OnMonoImageOpenFromDataWithName(string originalName);
 }
 
 /// <inheritdoc/>
@@ -68,7 +70,7 @@ internal sealed class AssembliesListAppender : IAssembliesListAppender
     private readonly IPltHooksManager _pltHooksManager;
     private readonly ICreateFileWSharedHooker _createFileWSharedHooker;
 
-    public Dictionary<string, string> AssemblyNames { get; } = new();
+    private readonly Dictionary<string, string> _assemblyNames = new();
 
     public unsafe AssembliesListAppender(
         ILogger<AssembliesListAppender> logger,
@@ -121,11 +123,11 @@ internal sealed class AssembliesListAppender : IAssembliesListAppender
         string venusRootLoaderUnityRuntimeAssemblyPath = fileSystem.Path.Combine(
             venusRootLoaderDirectory,
             VenusRootLoaderUnityRuntimeFilename);
-        AssemblyNames.Add(VenusRootLoaderUnityRuntimeFilename, venusRootLoaderUnityRuntimeAssemblyPath);
+        _assemblyNames.Add(VenusRootLoaderUnityRuntimeFilename, venusRootLoaderUnityRuntimeAssemblyPath);
 
         _logger.LogTrace(
             "\tFound the following assemblies:\n{assemblyNames}",
-            string.Join('\n', AssemblyNames.Select(x => $"{x.Key}: {x.Value}")));
+            string.Join('\n', _assemblyNames.Select(x => $"{x.Key}: {x.Value}")));
     }
 
     private void AddAssemblyNamesFromDirectoryRecursively(IFileSystem fileSystem, string budsDirectory)
@@ -141,7 +143,7 @@ internal sealed class AssembliesListAppender : IAssembliesListAppender
         foreach (string dllOrExeFile in dllFiles.Concat(exeFiles))
         {
             string fileName = _fileSystem.Path.GetFileName(dllOrExeFile);
-            if (AssemblyNames.ContainsKey(fileName))
+            if (_assemblyNames.ContainsKey(fileName))
                 continue;
 
             // The try catch flow is required, this is the best way to safely check the file is a .NET assembly
@@ -149,7 +151,7 @@ internal sealed class AssembliesListAppender : IAssembliesListAppender
             try
             {
                 AssemblyName.GetAssemblyName(dllOrExeFile);
-                AssemblyNames.Add(fileName, dllOrExeFile);
+                _assemblyNames.Add(fileName, dllOrExeFile);
             }
             catch (BadImageFormatException)
             {
@@ -171,7 +173,7 @@ internal sealed class AssembliesListAppender : IAssembliesListAppender
         foreach (string dllOrExeFile in dllFiles.Concat(exeFiles))
         {
             string fileName = _fileSystem.Path.GetFileName(dllOrExeFile);
-            AssemblyNames.Remove(fileName);
+            _assemblyNames.Remove(fileName);
         }
     }
 
@@ -182,7 +184,7 @@ internal sealed class AssembliesListAppender : IAssembliesListAppender
 
         string path = pszPath.ToString();
         string fileName = _fileSystem.Path.GetFileName(path);
-        if (AssemblyNames.ContainsKey(fileName))
+        if (_assemblyNames.ContainsKey(fileName))
             return true;
 
         return _win32.PathFileExists(pszPath);
@@ -194,7 +196,7 @@ internal sealed class AssembliesListAppender : IAssembliesListAppender
             return false;
 
         string fileName = _fileSystem.Path.GetFileName(path);
-        return AssemblyNames.ContainsKey(fileName);
+        return _assemblyNames.ContainsKey(fileName);
     }
 
     private unsafe void HookFileHandle(
@@ -209,7 +211,7 @@ internal sealed class AssembliesListAppender : IAssembliesListAppender
     {
         string path = lpFileName.ToString();
         string fileName = _fileSystem.Path.GetFileName(path);
-        string redirectedPath = AssemblyNames[fileName];
+        string redirectedPath = _assemblyNames[fileName];
 
         _logger.LogTrace(
             "Redirecting {originalPath} Unity's Managed assembly to {redirectedPath}",
@@ -238,7 +240,7 @@ internal sealed class AssembliesListAppender : IAssembliesListAppender
 
         string path = lpFileName.ToString();
         string fileName = _fileSystem.Path.GetFileName(path);
-        if (!AssemblyNames.TryGetValue(fileName, out string? redirectedPath))
+        if (!_assemblyNames.TryGetValue(fileName, out string? redirectedPath))
             return _win32.GetFileAttributesExW(lpFileName, fInfoLevelId, lpFileInformation);
 
         _logger.LogTrace(
@@ -247,6 +249,27 @@ internal sealed class AssembliesListAppender : IAssembliesListAppender
             redirectedPath);
         fixed (char* fileNamePtr = redirectedPath)
             return _win32.GetFileAttributesExW(fileNamePtr, fInfoLevelId, lpFileInformation);
+    }
+
+    public string OnMonoImageOpenFromDataWithName(string originalName)
+    {
+        if (!originalName.StartsWith(_managedDirectoryPath))
+            return originalName;
+
+        string fileName = _fileSystem.Path.GetFileName(originalName);
+        if (!_assemblyNames.Remove(fileName, out string? redirectedPath))
+            return originalName;
+
+        if (_assemblyNames.Count == 0)
+        {
+            _pltHooksManager.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, "PathFileExistsW");
+            _pltHooksManager.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, "GetFileAttributesExW");
+            _createFileWSharedHooker.UnregisterHook(nameof(AssembliesListAppender));
+        }
+
+        _logger.LogDebug(_assemblyNames.Count.ToString());
+        _logger.LogDebug("Redirecting the image load of {original} to {redirectedPath}", originalName, redirectedPath);
+        return redirectedPath;
     }
 
     private bool ShouldPatchAssembliesList(
@@ -269,7 +292,7 @@ internal sealed class AssembliesListAppender : IAssembliesListAppender
         _logger.LogTrace(
             "\tRead the following assemblies:\n{assemblyNames}",
             string.Join("\n", additionalAssemblyNames));
-        bool shouldPatchAssembliesList = !additionalAssemblyNames.SetEquals(AssemblyNames.Keys.ToHashSet());
+        bool shouldPatchAssembliesList = !additionalAssemblyNames.SetEquals(_assemblyNames.Keys.ToHashSet());
         if (shouldPatchAssembliesList)
             _logger.LogDebug("\tWill be patching");
         return shouldPatchAssembliesList;
@@ -292,7 +315,7 @@ internal sealed class AssembliesListAppender : IAssembliesListAppender
                 allAssemblyNames.Add(assemblyName);
         }
 
-        foreach (string assemblyName in AssemblyNames.Keys)
+        foreach (string assemblyName in _assemblyNames.Keys)
             allAssemblyNames.Add(assemblyName);
 
         assemblyNamesArray.Children.Clear();

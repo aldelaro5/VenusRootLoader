@@ -70,10 +70,9 @@ internal sealed class MapEntitiesTextAssetPatcher : IMapEntityTextAssetPatcher
         IEnumerable<string> newLines = leaf.EntitiesRegistry.LeavesByGameIds.Values
             .Select(mapEntity => _parser.GetTextAssetSerializedString(path, mapEntity));
 
-        // Some game data relies on having a trailing LF for the parsing to work correctly
         StringBuilder sb = new(string.Join("\n", newLines));
-        if (original != null && original.text.EndsWith("\n"))
-            sb.Append('\n');
+        // The game always expects a trailing LF.
+        sb.Append('\n');
 
         string text = sb.ToString();
         if (_logger.IsEnabled(LogLevel.Trace))

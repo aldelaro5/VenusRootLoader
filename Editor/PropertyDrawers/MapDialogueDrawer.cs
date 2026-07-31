@@ -36,10 +36,10 @@ namespace Editor.PropertyDrawers
             if (EditorGUI.EndChangeCheck())
                 dialogueBranch.DialogueKind = dialogueKind;
 
+            float y = enumFieldPosition.y + enumFieldPosition.height + EditorGUIUtility.standardVerticalSpacing;
             Rect creatorKindPosition = new Rect(
                 position.x,
-                expanderPosition.y + expanderPosition.height +
-                EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing,
+                y,
                 position.width - position.width * 0.40f,
                 EditorGUIUtility.singleLineHeight);
             EditorGUI.BeginChangeCheck();
@@ -51,36 +51,18 @@ namespace Editor.PropertyDrawers
                     dialogueBranch.Dialogue.CreatorKind);
                 if (EditorGUI.EndChangeCheck())
                     dialogueBranch.Dialogue.CreatorKind = creatorKind;
+                y += creatorKindPosition.height + EditorGUIUtility.standardVerticalSpacing;
             }
             else
             {
-                int oldCreatorKind = (int)dialogueBranch.Dialogue.CreatorKind;
-                if (oldCreatorKind == 0)
-                    oldCreatorKind = 1;
-                int enumValue = EditorGUI.IntPopup(
-                    creatorKindPosition,
-                    "Creator Id",
-                    oldCreatorKind,
-                    new[]
-                    {
-                        "Same As This Asset",
-                        nameof(BranchCreatorKind.Custom)
-                    },
-                    new[]
-                    {
-                        1,
-                        2
-                    });
-                if (EditorGUI.EndChangeCheck())
-                    dialogueBranch.Dialogue.CreatorKind = (BranchCreatorKind)enumValue;
+                dialogueBranch.Dialogue.CreatorKind = BranchCreatorKind.SameAsThisAsset;
             }
 
             if (dialogueBranch.Dialogue.CreatorKind == BranchCreatorKind.Custom)
             {
                 Rect creatorIdFieldPosition = new Rect(
                     position.x + creatorKindPosition.width,
-                    expanderPosition.y + expanderPosition.height + EditorGUIUtility.singleLineHeight +
-                    EditorGUIUtility.standardVerticalSpacing,
+                    creatorKindPosition.y,
                     position.width - creatorKindPosition.width,
                     EditorGUIUtility.singleLineHeight);
                 EditorGUI.BeginChangeCheck();
@@ -93,8 +75,7 @@ namespace Editor.PropertyDrawers
 
             Rect namedIdFieldPosition = new Rect(
                 position.x,
-                expanderPosition.y + expanderPosition.height +
-                (EditorGUIUtility.standardVerticalSpacing + EditorGUIUtility.singleLineHeight) * 2f,
+                y,
                 position.width,
                 EditorGUIUtility.singleLineHeight);
 
@@ -128,7 +109,14 @@ namespace Editor.PropertyDrawers
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             if (property.isExpanded)
-                return EditorGUIUtility.singleLineHeight * 4f + EditorGUIUtility.standardVerticalSpacing * 3f;
+            {
+                DialogueBranch dialogueBranch =
+                    (DialogueBranch)fieldInfo.GetValue(property.serializedObject.targetObject);
+                int numberLines = dialogueBranch.DialogueKind == MapDialogueKind.Common ? 4 : 3;
+                return EditorGUIUtility.singleLineHeight * numberLines +
+                       EditorGUIUtility.standardVerticalSpacing * (numberLines - 1);
+            }
+
             return EditorGUIUtility.singleLineHeight;
         }
     }

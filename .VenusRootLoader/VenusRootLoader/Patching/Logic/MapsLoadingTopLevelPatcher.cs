@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 using Object = UnityEngine.Object;
 
@@ -129,7 +130,7 @@ internal sealed class MapsLoadingTopLevelPatcher : ITopLevelPatcher
             .ToArray();
 
         List<GameObject> insides = new();
-        foreach (Api.Leaves.MapInside x in map.Insides)
+        foreach (MapInside x in map.Insides)
             insides.Add(mapPrefab.transform.Find(x.GameObjectPathInPrefab).gameObject);
         mapControl.insides = insides.ToArray();
         mapControl.insidetypes = map.Insides
@@ -140,7 +141,8 @@ internal sealed class MapsLoadingTopLevelPatcher : ITopLevelPatcher
         mapControl.setinsidecenter = map.SetCameraTargetToCurrentInsideWhileInside;
         mapControl.fadingspeed = map.FadingSpeedWhenEnteringOrExitingAnInside;
 
-        mapControl.tattleid = map.SpyDialogue.GameId;
+        mapControl.tattleid = map.DialoguesRegistry.LeavesByEffectiveIds
+            [EffectiveLeafId.CreateFromParts(map.SpyDialogue.CreatorId, map.SpyDialogue.NamedId)].GameId;
 
         mapControl.canfollowID = map.FollowerAnimIdsAllowed
             .Select(x => x.GameId)

@@ -151,9 +151,7 @@ public partial class Venus
         mapLeaf.SpyDialogue = scriptableObject.SpyDialogue.DialogueKind == MapDialogueKind.Common
             ? RegistryResolver.Resolve<CommonDialogueLeaf>().LeavesByEffectiveIds[
                 GetEffectiveIdFromScriptableObjectBranch(scriptableObject.SpyDialogue.Dialogue, BudId)]
-            : mapLeaf.DialoguesRegistry.LeavesByEffectiveIds[GetEffectiveIdFromScriptableObjectBranch(
-                scriptableObject.SpyDialogue.Dialogue,
-                BudId)];
+            : CreateMapDialogueBranch(scriptableObject.SpyDialogue.Dialogue);
 
         foreach (Branch branch in scriptableObject.FollowerAnimIdsAllowed)
         {
@@ -205,6 +203,16 @@ public partial class Venus
             mapLeaf.EventsGameObjectPrefabPaths.Add(mapEventTransform.Transform);
 
         return mapLeaf;
+    }
+
+    // TODO: Need branches to lazily resolve leaves
+    private Branch<DialogueLeaf> CreateMapDialogueBranch(Branch dialogueBranch)
+    {
+        string creatorId = dialogueBranch.CreatorKind == BranchCreatorKind.Custom
+            ? dialogueBranch.CustomCreatorId
+            : BudId;
+        MapDialogueLeaf mapDialogueLeaf = new(-1, dialogueBranch.NamedId, creatorId);
+        return mapDialogueLeaf;
     }
 
     private static string GetEffectiveIdFromScriptableObjectBranch(Branch scriptableObjectBranch, string mapCreatorId)

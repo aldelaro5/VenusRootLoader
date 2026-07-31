@@ -109,8 +109,7 @@ namespace VenusRootLoader.Unity.Runtime.ScriptableObjects
         public float MaximumYFollowerDistanceBeforeTeleport = 20.0f;
 
         [Header("Miscellaneous settings")]
-        [Branch(-203)]
-        public Branch SpyDialogue;
+        public DialogueBranch SpyDialogue;
 
         [NonSerialized]
         public Transform InternalMainMapTransformOverride = null;
@@ -180,6 +179,15 @@ namespace VenusRootLoader.Unity.Runtime.ScriptableObjects
         public string Transform;
 
         public InsideType TransitionWhenEnteringOrExiting;
+    }
+
+    [Serializable]
+    public sealed class DialogueBranch
+    {
+        public MapDialogueKind DialogueKind;
+
+        [Branch(-203)]
+        public Branch Dialogue;
     }
 
     [Serializable]

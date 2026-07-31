@@ -52,6 +52,12 @@ public partial class Venus
         }
 
         MapLeaf mapLeaf = RegistryResolver.Resolve<MapLeaf>().RegisterNew(BudId, namedId);
+        mapLeaf.DialoguesRegistry = new AutoSequentialIdBasedRegistry<MapDialogueLeaf>(
+            LoggerFactory.CreateLogger($"Maps.{mapLeaf.NamedId}_{nameof(MapLeaf.DialoguesRegistry)}"),
+            IdSequenceDirection.Increment);
+        mapLeaf.EntitiesRegistry = new AutoSequentialIdBasedRegistry<MapEntityLeaf>(
+            LoggerFactory.CreateLogger($"Maps.{mapLeaf.NamedId}_{nameof(MapLeaf.EntitiesRegistry)}"),
+            IdSequenceDirection.Increment);
         mapLeaf.PrefabLoader = new AssetLoaderFromBundle<GameObject>(assetBundle, scriptableObject.Prefab);
 
         mapLeaf.Area = RegistryResolver.Resolve<AreaLeaf>()
@@ -142,8 +148,12 @@ public partial class Venus
         mapLeaf.SetCameraTargetToCurrentInsideWhileInside = scriptableObject.SetCameraTargetToCurrentInsideWhileInside;
         mapLeaf.FadingSpeedWhenEnteringOrExitingAnInside = scriptableObject.FadingSpeedWhenEnteringOrExitingAnInside;
 
-        // TODO: Properly support this
-        mapLeaf.SpyDialogue = RegistryResolver.Resolve<CommonDialogueLeaf>().LeavesByGameIds[-1];
+        mapLeaf.SpyDialogue = scriptableObject.SpyDialogue.DialogueKind == MapDialogueKind.Common
+            ? RegistryResolver.Resolve<CommonDialogueLeaf>().LeavesByEffectiveIds[
+                GetEffectiveIdFromScriptableObjectBranch(scriptableObject.SpyDialogue.Dialogue, BudId)]
+            : mapLeaf.DialoguesRegistry.LeavesByEffectiveIds[GetEffectiveIdFromScriptableObjectBranch(
+                scriptableObject.SpyDialogue.Dialogue,
+                BudId)];
 
         foreach (Branch branch in scriptableObject.FollowerAnimIdsAllowed)
         {
@@ -194,12 +204,6 @@ public partial class Venus
         foreach (MapEventTransform mapEventTransform in scriptableObject.EventsTransform)
             mapLeaf.EventsGameObjectPrefabPaths.Add(mapEventTransform.Transform);
 
-        mapLeaf.DialoguesRegistry = new AutoSequentialIdBasedRegistry<MapDialogueLeaf>(
-            LoggerFactory.CreateLogger($"Maps.{mapLeaf.NamedId}_{nameof(MapLeaf.DialoguesRegistry)}"),
-            IdSequenceDirection.Increment);
-        mapLeaf.EntitiesRegistry = new AutoSequentialIdBasedRegistry<MapEntityLeaf>(
-            LoggerFactory.CreateLogger($"Maps.{mapLeaf.NamedId}_{nameof(MapLeaf.EntitiesRegistry)}"),
-            IdSequenceDirection.Increment);
         return mapLeaf;
     }
 

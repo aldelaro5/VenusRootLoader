@@ -49,6 +49,7 @@ public sealed class SdbWinePathTranslator : ISdbWinePathTranslator
     private readonly ILogger<SdbWinePathTranslator> _logger;
 
     private const int MessageHeaderLength = 11;
+    private const int PacketIdIndex = 4;
     private const int CommandSetByteIndex = 9;
     private const int CommandIdByteIndex = 10;
     private const byte AssemblyCommandSet = 21;
@@ -58,7 +59,8 @@ public sealed class SdbWinePathTranslator : ISdbWinePathTranslator
 
     private static readonly SdbSetCommand CommandAssemblyGetLocation = new(AssemblyCommandSet, 1);
     private static readonly SdbSetCommand CommandModuleGetInfo = new(SdbModuleCommandSet, 1);
-    private SdbSetCommand _lastSetCommandWithFilePath = new(byte.MaxValue, byte.MaxValue);
+
+    private readonly Dictionary<int, SdbSetCommand> _setCommandsToTranslateReply = new();
 
     public SdbWinePathTranslator(
         ILogger<SdbWinePathTranslator> logger,
@@ -78,9 +80,37 @@ public sealed class SdbWinePathTranslator : ISdbWinePathTranslator
         _pltHooksManager.InstallHook(monoModuleFilename, nameof(_win32.recv), _hookRecvFnDelegate);
     }
 
+    /// <summary>
+    /// Calls wine_get_unix_file_name on Kernel32.dll which is exposed by Wine to convert a DOS path into a UNIX path
+    /// </summary>
+    /// <param name="dosW">The DOS path to convert.</param>
+    /// <returns>The UNIX path</returns>
+    public static unsafe string? WineGetUnixFileName(string dosW)
+    {
+        fixed (char* lpProcNameLocal = dosW)
+        {
+            Marshal.SetLastSystemError(0);
+            char* retVal = LocalExternFunction(lpProcNameLocal);
+            Marshal.SetLastPInvokeError(Marshal.GetLastSystemError());
+
+            nint ptr = new(retVal);
+            string? ptrToStringUTF8 = Marshal.PtrToStringUTF8(ptr);
+            if (ptrToStringUTF8 is null)
+                return null;
+
+            // The documentation in Wine's source code says the caller needs to free the buffer.
+            NativeMemory.Free(retVal);
+            return ptrToStringUTF8;
+        }
+
+        [DllImport("KERNEL32.dll", ExactSpelling = true, EntryPoint = "wine_get_unix_file_name"),
+         DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+        static extern char* LocalExternFunction(PCWSTR lpModuleName);
+    }
+
     private unsafe int HookRecvFnDelegate(SOCKET s, PSTR buf, int len, SEND_RECV_FLAGS flags)
     {
-        var length = _win32.recv(s, buf, len, flags);
+        int length = _win32.recv(s, buf, len, flags);
         if (length < MessageHeaderLength)
             return length;
 
@@ -88,12 +118,13 @@ public sealed class SdbWinePathTranslator : ISdbWinePathTranslator
         if (ret != CommandAssemblyGetLocation && ret != CommandModuleGetInfo)
             return length;
 
-        _lastSetCommandWithFilePath = ret;
+        int id = BinaryPrimitives.ReverseEndianness(Marshal.ReadInt32((nint)buf.Value, PacketIdIndex));
+        _setCommandsToTranslateReply.Add(id, ret);
 
         if (!_logger.IsEnabled(LogLevel.Trace))
             return length;
 
-        var bytes = new byte[length];
+        byte[] bytes = new byte[length];
         Marshal.Copy((nint)buf.Value, bytes, 0, length);
         PrintPacket("RECV", bytes);
 
@@ -102,23 +133,29 @@ public sealed class SdbWinePathTranslator : ISdbWinePathTranslator
 
     private unsafe int HookSendFnDelegate(SOCKET s, PCSTR buf, int len, SEND_RECV_FLAGS flags)
     {
-        if (_lastSetCommandWithFilePath.Set == byte.MaxValue)
+        if (_setCommandsToTranslateReply.Count == 0 || len < MessageHeaderLength)
+            return _win32.send(s, buf, len, flags);
+        int id = BinaryPrimitives.ReverseEndianness(Marshal.ReadInt32((nint)buf.Value, PacketIdIndex));
+        if (!_setCommandsToTranslateReply.Remove(id, out SdbSetCommand sdbSetCommand))
             return _win32.send(s, buf, len, flags);
 
-        // We always remove the first 2 characters of the Wine path (typically the "Z:" part)
-        var lengthNewPacket = len - 2;
-        var modifiedBytesPtr = Marshal.AllocHGlobal(lengthNewPacket);
-        var isGetInfo = _lastSetCommandWithFilePath == CommandModuleGetInfo;
+        bool isGetInfo = sdbSetCommand == CommandModuleGetInfo;
 
         // For an assembly get location, the path is the only data while for a module get info, it's the third string
         // in the packet (it is preceded by the image basename and the scope name which we don't need to touch)
-        var fullNameStringInfo = GetStringInfoInPacketData(buf, isGetInfo ? 2 : 0);
+        (int Length, int StartIndex) fullNameStringInfo = GetStringInfoInPacketData(buf, isGetInfo ? 2 : 0);
 
-        // Converts the Wine path into a Linux path. It's a rudimentary approach, but it works: truncate the first 2
-        // characters (so no "Z:" drive part) and replace all backslashes with slashes. In most default cases, this will
-        // result in the valid path on the Linux system of the file
-        var chars = Encoding.ASCII.GetString(buf.Value + fullNameStringInfo.Index, fullNameStringInfo.Length);
-        chars = chars.Substring(2).Replace('\\', '/');
+        // Converts the Wine path into a Unix path.
+        string winePath = Encoding.ASCII.GetString(
+            buf.Value + fullNameStringInfo.StartIndex,
+            fullNameStringInfo.Length);
+
+        string? unixPath = WineGetUnixFileName(winePath);
+        if (unixPath == null)
+            return _win32.send(s, buf, len, flags);
+
+        int lengthNewPacket = len - winePath.Length + unixPath.Length;
+        nint modifiedBytesPtr = Marshal.AllocHGlobal(lengthNewPacket);
 
         // All int in the packet must be in big endian and since we are changing the length of the packet, we need to write
         // that new length at the start of the header
@@ -128,41 +165,43 @@ public sealed class SdbWinePathTranslator : ISdbWinePathTranslator
         Buffer.MemoryCopy(
             buf.Value + sizeof(int),
             (void*)(modifiedBytesPtr + sizeof(int)),
-            fullNameStringInfo.Index - sizeof(int) * 2,
-            fullNameStringInfo.Index - sizeof(int) * 2);
+            fullNameStringInfo.StartIndex - sizeof(int) * 2,
+            fullNameStringInfo.StartIndex - sizeof(int) * 2);
 
         // Write the new length of the string first which is needed because all strings are its length followed by the content
         // (without a null termination needed)
         Marshal.WriteInt32(
-            modifiedBytesPtr + fullNameStringInfo.Index - sizeof(int),
-            BinaryPrimitives.ReverseEndianness(chars.Length));
+            modifiedBytesPtr + fullNameStringInfo.StartIndex - sizeof(int),
+            BinaryPrimitives.ReverseEndianness(unixPath.Length));
 
         // Finally, write the new string
-        Marshal.Copy(Encoding.ASCII.GetBytes(chars), 0, modifiedBytesPtr + fullNameStringInfo.Index, chars.Length);
+        Marshal.Copy(
+            Encoding.ASCII.GetBytes(unixPath),
+            0,
+            modifiedBytesPtr + fullNameStringInfo.StartIndex,
+            unixPath.Length);
 
         // Since module get info contains data after the path, we need to copy the data over so we don't touch it
         if (isGetInfo)
         {
             Buffer.MemoryCopy(
-                buf.Value + fullNameStringInfo.Index + chars.Length + 2,
-                (void*)(modifiedBytesPtr + fullNameStringInfo.Index + chars.Length),
-                len - fullNameStringInfo.Length - fullNameStringInfo.Index,
-                len - fullNameStringInfo.Length - fullNameStringInfo.Index);
+                buf.Value + fullNameStringInfo.StartIndex + fullNameStringInfo.Length,
+                (void*)(modifiedBytesPtr + fullNameStringInfo.StartIndex + unixPath.Length),
+                len - fullNameStringInfo.Length - fullNameStringInfo.StartIndex,
+                len - fullNameStringInfo.Length - fullNameStringInfo.StartIndex);
         }
 
         if (_logger.IsEnabled(LogLevel.Trace))
         {
-            var bytes = new byte[len];
+            byte[] bytes = new byte[len];
             Marshal.Copy((nint)buf.Value, bytes, 0, len);
-            var modifiedBytes = new byte[lengthNewPacket];
+            byte[] modifiedBytes = new byte[lengthNewPacket];
             Marshal.Copy(modifiedBytesPtr, modifiedBytes, 0, lengthNewPacket);
             PrintPacket("SEND-ORIG", bytes);
             PrintPacket("SEND-EDIT", modifiedBytes);
         }
 
-        var result = _win32.send(s, new((byte*)modifiedBytesPtr), lengthNewPacket, flags);
-        _lastSetCommandWithFilePath.Set = byte.MaxValue;
-        _lastSetCommandWithFilePath.Id = byte.MaxValue;
+        int result = _win32.send(s, new((byte*)modifiedBytesPtr), lengthNewPacket, flags);
         Marshal.FreeHGlobal(modifiedBytesPtr);
         return result;
     }
@@ -174,11 +213,11 @@ public sealed class SdbWinePathTranslator : ISdbWinePathTranslator
     /// <param name="packet">The pointer to the buffer of the entire packet</param>
     /// <param name="stringIndexInData">The 0 based index of the string in the sequence</param>
     /// <returns>A tuple containing the length and index of the string</returns>
-    private static unsafe (int Length, int Index) GetStringInfoInPacketData(PCSTR packet, int stringIndexInData)
+    private static unsafe (int Length, int StartIndex) GetStringInfoInPacketData(PCSTR packet, int stringIndexInData)
     {
-        var index = MessageHeaderLength;
-        var length = 0;
-        for (var i = 0; i <= stringIndexInData; i++)
+        int index = MessageHeaderLength;
+        int length = 0;
+        for (int i = 0; i <= stringIndexInData; i++)
         {
             index += length;
             // All int in the packet must be in big endian and all strings are its length followed by the content
@@ -192,16 +231,16 @@ public sealed class SdbWinePathTranslator : ISdbWinePathTranslator
 
     private void PrintPacket(string prefix, byte[] modifiedBytes)
     {
-        var sbBin = new StringBuilder();
-        foreach (var b in modifiedBytes)
+        StringBuilder sbBin = new();
+        foreach (byte b in modifiedBytes)
         {
             sbBin.Append(b.ToString("X2"));
         }
 
         _logger.LogTrace("{prefix}(BIN): {packetBin}", prefix, sbBin.ToString());
-        var ascii = Encoding.ASCII.GetString(modifiedBytes);
-        var sbAscii = new StringBuilder();
-        foreach (var b in ascii)
+        string ascii = Encoding.ASCII.GetString(modifiedBytes);
+        StringBuilder sbAscii = new();
+        foreach (char b in ascii)
         {
             sbAscii.Append(' ');
             sbAscii.Append(b);

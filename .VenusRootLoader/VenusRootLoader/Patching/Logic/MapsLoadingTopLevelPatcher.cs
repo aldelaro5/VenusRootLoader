@@ -141,8 +141,11 @@ internal sealed class MapsLoadingTopLevelPatcher : ITopLevelPatcher
         mapControl.setinsidecenter = map.SetCameraTargetToCurrentInsideWhileInside;
         mapControl.fadingspeed = map.FadingSpeedWhenEnteringOrExitingAnInside;
 
-        mapControl.tattleid = map.DialoguesRegistry.LeavesByEffectiveIds
-            [EffectiveLeafId.CreateFromParts(map.SpyDialogue.CreatorId, map.SpyDialogue.NamedId)].GameId;
+        mapControl.tattleid = map.SpyDialogue.Leaf is MapDialogueLeaf
+            ? map.DialoguesRegistry.LeavesByEffectiveIds[EffectiveLeafId.CreateFromParts(
+                map.SpyDialogue.CreatorId,
+                map.SpyDialogue.NamedId)].GameId
+            : map.SpyDialogue.GameId;
 
         mapControl.canfollowID = map.FollowerAnimIdsAllowed
             .Select(x => x.GameId)

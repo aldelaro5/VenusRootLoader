@@ -421,7 +421,7 @@ public sealed class BudLoaderTests
 
         using FileSystemStream assemblyStream = _fileSystem.File.Create(Path.Combine(BudsPath, budId, assemblyName));
         assemblyDefinition.WriteManifest(assemblyStream);
-        assemblyDefinition.Write("/home/aldelaro5/assembly.dll");
+        assemblyDefinition.Write(Path.Combine(Environment.CurrentDirectory, "assembly.dll"));
 
         BudInfo bud = new()
         {

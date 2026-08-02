@@ -81,7 +81,7 @@
       // NOTE: Native Unity logs can be very verbose and constantly spam messages. Only use "Trace" for complex diagnostics.
       "UNITY": "Debug",
       "Maps": "Warning",
-      "VenusRootLoader.Bootstrap": "Warning",
+      "VenusRootLoader.Bootstrap": "Information",
       "VenusRootLoader.Bootstrap.Mono": "Information",
       "VenusRootLoader.AppDomainEventsHandler": "Information",
       "VenusRootLoader.Logging.HarmonyLogger": "Warning",

@@ -123,7 +123,6 @@ internal sealed class MonoInitializer
 
     public void HookMonoInitialization()
     {
-        _logger.LogInformation("Bootstrapping Mono...");
         _pltHooksManager.InstallHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             "GetProcAddress",
@@ -169,13 +168,13 @@ internal sealed class MonoInitializer
 
         _runtimeInitialised = true;
 
-        _logger.LogInformation("Redirecting {Symbol}", symbol);
+        _logger.LogDebug("Redirecting {Symbol}", symbol);
         return detourAddress;
     }
 
     private void RetrieveMonoExports(HMODULE handle)
     {
-        _logger.LogInformation("Loading Mono exports");
+        _logger.LogDebug("Loading Mono exports");
         _monoFunctions.Initialize(handle);
     }
 
@@ -254,17 +253,17 @@ internal sealed class MonoInitializer
     private void SetupMonoConfigs()
     {
         string configFile = $"{Environment.ProcessPath}.config";
-        _logger.LogInformation(
+        _logger.LogDebug(
             $"Setting Mono Config paths: base_dir: {_gameExecutionContext.GameDir}, config_file_name: {configFile}");
         _monoFunctions.DomainSetConfig(Domain, _gameExecutionContext.GameDir, configFile);
 
-        _logger.LogInformation("Parsing default Mono config");
+        _logger.LogDebug("Parsing default Mono config");
         _monoFunctions.ConfigParse(null);
     }
 
     private void SetMonoMainThreadToCurrentThread()
     {
-        _logger.LogInformation("Setting Mono Main Thread");
+        _logger.LogDebug("Setting Mono Main Thread");
         _monoFunctions.ThreadSetMain(_monoFunctions.ThreadCurrent());
     }
 

@@ -78,7 +78,7 @@ internal sealed class RootGlobalManagersPatcher
             }
         }
 
-        _logger.LogInformation("Redirecting game bundle to {ModifiedGameBundlePath}", _modifiedGameBundlePath);
+        _logger.LogDebug("Redirecting game bundle to {ModifiedGameBundlePath}", _modifiedGameBundlePath);
         fixed (char* fileNamePtr = _modifiedGameBundlePath)
         {
             originalHandle = _win32.CreateFile(
@@ -94,7 +94,7 @@ internal sealed class RootGlobalManagersPatcher
 
     private void EditGameBundle(string originalGameBundlePath)
     {
-        _logger.LogInformation(
+        _logger.LogDebug(
             "Using AssetTools.NET to create a modified game bundle using the one from {gameBundlePath}...",
             originalGameBundlePath);
 
@@ -163,6 +163,7 @@ internal sealed class RootGlobalManagersPatcher
             patcher.Patch(manager, assetsFileInstance);
         }
 
+        _logger.LogInformation("Generating a modified data.unity3d bundle");
         GenerateModifiedGameBundle(manager, bundleFile, assetsFileInstance, _modifiedGameBundlePath);
 
         _logger.LogDebug("\tClosing the AssetsManager");

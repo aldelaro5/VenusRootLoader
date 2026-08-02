@@ -6,17 +6,18 @@ namespace VenusRootLoader.Bootstrap.Shared;
 
 using ModulePltHook = (nint ptr, Dictionary<string, nint> originalHookedFunc);
 
+/// <summary>
+/// This service manages hooks done using the PltHook library that's statically linked in the bootstrap. It supports
+/// tracking multiple module filenames each containing one or more hooks. In <see cref="LogLevel.Trace"/> logs, it will
+/// log all active hooks after each hook and unhook.
+/// </summary>
 public interface IPltHooksManager
 {
     void InstallHook<T>(string fileName, string functionName, T hook) where T : Delegate;
     void UninstallHook(string fileName, string functionName);
 }
 
-/// <summary>
-/// This service manages hooks done using the PltHook library that's statically linked in the bootstrap. It supports
-/// tracking multiple module filenames each containing one or more hooks. In <see cref="LogLevel.Trace"/> logs, it will
-/// log all active hooks after each hook and unhook.
-/// </summary>
+/// <inheritdoc/>
 public sealed class PltHooksManager : IPltHooksManager
 {
     private readonly IFileSystem _fileSystem;
@@ -48,7 +49,7 @@ public sealed class PltHooksManager : IPltHooksManager
 
             _openedPltHooksByFilename.Add(fileName, newModuleHook);
             moduleHook = newModuleHook;
-            _logger.LogInformation($"plthook_open: Opened with filename {fileName} successfully");
+            _logger.LogDebug($"plthook_open: Opened with filename {fileName} successfully");
         }
 
         nint addressOriginal = nint.Zero;
@@ -64,7 +65,7 @@ public sealed class PltHooksManager : IPltHooksManager
         }
 
         moduleHook.originalHookedFunc[functionName] = addressOriginal;
-        _logger.LogInformation($"plthook_replace: Plt hooked {functionName} successfully");
+        _logger.LogDebug($"plthook_replace: Plt hooked {functionName} successfully");
 
         if (_logger.IsEnabled(LogLevel.Trace))
             LogAllActiveHooks();
@@ -87,7 +88,7 @@ public sealed class PltHooksManager : IPltHooksManager
         }
 
         moduleHook.originalHookedFunc.Remove(functionName);
-        _logger.LogInformation(
+        _logger.LogDebug(
             "Uninstalled hook with filename {FileName} and function {FunctionName} successfully",
             fileName,
             functionName);
@@ -100,7 +101,7 @@ public sealed class PltHooksManager : IPltHooksManager
         }
 
         _pltHook.PlthookClose(moduleHook.ptr);
-        _logger.LogInformation($"plthook_close: Closed with filename {fileName}");
+        _logger.LogDebug($"plthook_close: Closed with filename {fileName}");
         _openedPltHooksByFilename.Remove(fileName);
 
         if (_logger.IsEnabled(LogLevel.Trace))

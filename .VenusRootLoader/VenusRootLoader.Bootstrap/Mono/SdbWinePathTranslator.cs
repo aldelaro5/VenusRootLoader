@@ -76,6 +76,7 @@ public sealed class SdbWinePathTranslator : ISdbWinePathTranslator
 
     public void Setup(string monoModuleFilename)
     {
+        _logger.LogInformation("Translating assemblies paths for Wine");
         _pltHooksManager.InstallHook(monoModuleFilename, nameof(_win32.send), _hookSendFnDelegate);
         _pltHooksManager.InstallHook(monoModuleFilename, nameof(_win32.recv), _hookRecvFnDelegate);
     }

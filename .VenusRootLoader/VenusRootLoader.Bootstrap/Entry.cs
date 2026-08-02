@@ -47,17 +47,27 @@ internal sealed class Entry
                 customContentRootPath,
                 args);
             IOptions<GlobalSettings>? globalSettings = serviceProvider.GetService<IOptions<GlobalSettings>>();
+            HWND consoleWindow = PInvoke.GetConsoleWindow();
             if (globalSettings!.Value.DisableVrl!.Value)
+            {
+                PInvoke.FreeConsole();
+                PInvoke.DestroyWindow(consoleWindow);
                 return;
+            }
 
             // Since we have to attach a new console window due to loader lock restrictions,
             // we have to always attach one, but hide it until we find that it should be shown.
             // In case we didn't want the console, we simply detach it so no logging can happen to it
             IOptions<LoggingSettings>? loggingSettings = serviceProvider.GetService<IOptions<LoggingSettings>>();
             if (loggingSettings!.Value.ConsoleLoggerSettings.Enable!.Value)
-                PInvoke.ShowWindow(PInvoke.GetConsoleWindow(), SHOW_WINDOW_CMD.SW_SHOW);
+            {
+                PInvoke.ShowWindow(consoleWindow, SHOW_WINDOW_CMD.SW_SHOW);
+            }
             else
+            {
                 PInvoke.FreeConsole();
+                PInvoke.DestroyWindow(consoleWindow);
+            }
 
             ManagedLogsRelay.Init(serviceProvider.GetRequiredService<ILoggerFactory>());
 

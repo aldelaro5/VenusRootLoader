@@ -20,3 +20,4 @@ FreeConsole
 CompareObjectHandles
 PathFileExistsW
 GetFileAttributesExW
+DestroyWindow

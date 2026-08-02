@@ -1,2 +1,5 @@
-﻿*.txt text eol=crlf
-*.cs text eol=crlf
+﻿* text eol=lf
+* text eol=lf
+
+*.dll binary
+*.tpk binary

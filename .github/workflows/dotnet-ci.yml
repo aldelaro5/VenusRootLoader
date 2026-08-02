@@ -63,23 +63,22 @@ jobs:
           extract: true
       - name: Add xwin to path
         run: echo "$GITHUB_WORKSPACE/xwin/$(basename -s .tar.gz ${{ fromJson(steps.xwin.outputs.downloaded_files)[0] }})" >> $GITHUB_PATH
-      - name: Install wine
+      - name: Install mono
         run: |
-          sudo dpkg --add-architecture i386
-          sudo apt-get update
-          sudo apt-get install -y wine
-          sudo apt-get install wine32:i386
-      - name: Configure wine
-        run: xvfb-run winecfg /v win11
+          sudo apt install ca-certificates gnupg
+          sudo gpg --homedir /tmp --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/mono-official-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+          sudo chmod +r /usr/share/keyrings/mono-official-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/mono-official-archive-keyring.gpg] https://download.mono-project.com/repo/ubuntu stable-focal main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+          sudo apt update
+          sudo apt install mono-devel
       - name: Check environment
         run: |
           dotnet --version
           xwin -V
           clang-cl -v
-          wine --version
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
         run: dotnet build --no-restore
       - name: Run tests
-        run: xvfb-run dotnet test --no-build --verbosity normal
+        run: dotnet test --no-build --verbosity normal

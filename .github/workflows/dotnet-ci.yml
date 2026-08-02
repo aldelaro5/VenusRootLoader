@@ -21,7 +21,7 @@ jobs:
       - name: Install LLVM and Clang
         uses: KyleMayes/install-llvm-action@v2
         with:
-          version: "20.1.4"
+          version: "21.1.8"
       - name: Add LLVM to path
         run: echo "$GITHUB_WORKSPACE\$env:LLVM_PATH\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
       - name: Check environment
@@ -49,9 +49,9 @@ jobs:
       - name: Install LLVM and Clang
         uses: KyleMayes/install-llvm-action@v2
         with:
-          version: "20.1.4"
+          version: "21.1.8"
       - name: Add LLVM to path
-        run:  echo "$LLVM_PATH/bin" >> $GITHUB_PATH
+        run: echo "$LLVM_PATH/bin" >> $GITHUB_PATH
       - name: Download xwin
         id: xwin
         uses: robinraju/release-downloader@v1

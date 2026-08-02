@@ -12,6 +12,7 @@ using VenusRootLoader.Bootstrap.Settings;
 using VenusRootLoader.Bootstrap.Shared;
 using VenusRootLoader.Bootstrap.Tests.TestHelpers;
 using VenusRootLoader.Bootstrap.Unity;
+using VenusRootLoader.Bootstrap.Unity.GlobalManagers;
 using Windows.Win32.Foundation;
 
 namespace VenusRootLoader.Bootstrap.Tests.Mono;
@@ -33,6 +34,7 @@ public sealed class MonoInitializerTests
     private readonly ISdbWinePathTranslator _sdbWinePathTranslator = Substitute.For<ISdbWinePathTranslator>();
     private readonly IMonoFunctions _monoFunctions = Substitute.For<IMonoFunctions>();
     private readonly IMonoInitLifeCycleEvents _monoInitLifeCycleEvents = Substitute.For<IMonoInitLifeCycleEvents>();
+    private readonly IAssembliesListAppender _assembliesListAppender = Substitute.For<IAssembliesListAppender>();
     private readonly TestPltHookManager _pltHooksManager = new();
     private readonly MockFileSystem _fileSystem = new();
 
@@ -70,7 +72,8 @@ public sealed class MonoInitializerTests
             _hostEnvironment,
             _win32,
             _fileSystem,
-            _monoFunctions);
+            _monoFunctions,
+            _assembliesListAppender);
         sut.StartAsync(TestContext.Current.CancellationToken);
         Environment.SetEnvironmentVariable("DNSPY_UNITY_DBG2", null);
     }

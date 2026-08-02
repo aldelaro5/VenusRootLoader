@@ -179,6 +179,7 @@ public sealed class SdbWinePathTranslatorTests
         _win32.recv(default, default, 0, default).ReturnsForAnyArgs(messageRecv.Length);
         _win32.send(default, default, 0, default).ReturnsForAnyArgs(messageSendModified.Length)
             .AndDoes(c => Marshal.Copy((nint)c.ArgAt<PCSTR>(1).Value, bytes, 0, messageSendModified.Length));
+        _win32.WineGetUnixFileName("").ReturnsForAnyArgs(assemblyLocationModified);
 
         var (resultRecv, resultSend) = SimulateRecvSendHooks(
             monoModuleFilename,
@@ -199,6 +200,8 @@ public sealed class SdbWinePathTranslatorTests
             Arg.Any<PCSTR>(),
             messageSendModified.Length,
             default);
+        _win32.Received(1).WineGetUnixFileName(
+            assemblyLocationOriginal);
         bytes.Should().Equal(messageSendModified);
     }
 
@@ -230,6 +233,7 @@ public sealed class SdbWinePathTranslatorTests
         _win32.recv(default, default, 0, default).ReturnsForAnyArgs(messageRecv.Length);
         _win32.send(default, default, 0, default).ReturnsForAnyArgs(messageSendModified.Length)
             .AndDoes(c => Marshal.Copy((nint)c.ArgAt<PCSTR>(1).Value, bytes, 0, messageSendModified.Length));
+        _win32.WineGetUnixFileName("").ReturnsForAnyArgs(assemblyLocationModified);
 
         var (resultRecv, resultSend) = SimulateRecvSendHooks(
             monoModuleFilename,
@@ -250,6 +254,8 @@ public sealed class SdbWinePathTranslatorTests
             Arg.Any<PCSTR>(),
             messageSendModified.Length,
             default);
+        _win32.Received(1).WineGetUnixFileName(
+            assemblyLocationOriginal);
         bytes.Should().Equal(messageSendModified);
     }
 

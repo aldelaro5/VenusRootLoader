@@ -48,4 +48,11 @@ public interface IWin32
         PCWSTR lpFileName,
         GET_FILEEX_INFO_LEVELS fInfoLevelId,
         void* lpFileInformation);
+
+    /// <summary>
+    /// Calls wine_get_unix_file_name on Kernel32.dll which is exposed by Wine to convert a DOS path into a UNIX path
+    /// </summary>
+    /// <param name="dosW">The DOS path to convert.</param>
+    /// <returns>The UNIX path</returns>
+    string? WineGetUnixFileName(string dosW);
 }

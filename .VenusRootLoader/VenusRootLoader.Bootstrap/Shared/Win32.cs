@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Networking.WinSock;
@@ -91,4 +92,27 @@ internal sealed class Win32 : IWin32
         PCWSTR lpFileName,
         GET_FILEEX_INFO_LEVELS fInfoLevelId,
         void* lpFileInformation) => PInvoke.GetFileAttributesEx(lpFileName, fInfoLevelId, lpFileInformation);
+
+    public unsafe string? WineGetUnixFileName(string dosW)
+    {
+        fixed (char* lpProcNameLocal = dosW)
+        {
+            Marshal.SetLastSystemError(0);
+            char* retVal = LocalExternFunction(lpProcNameLocal);
+            Marshal.SetLastPInvokeError(Marshal.GetLastSystemError());
+
+            nint ptr = new(retVal);
+            string? ptrToStringUTF8 = Marshal.PtrToStringUTF8(ptr);
+            if (ptrToStringUTF8 is null)
+                return null;
+
+            // The documentation in Wine's source code says the caller needs to free the buffer.
+            NativeMemory.Free(retVal);
+            return ptrToStringUTF8;
+        }
+
+        [DllImport("KERNEL32.dll", ExactSpelling = true, EntryPoint = "wine_get_unix_file_name"),
+         DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+        static extern char* LocalExternFunction(PCWSTR lpModuleName);
+    }
 }

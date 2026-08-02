@@ -80,34 +80,6 @@ public sealed class SdbWinePathTranslator : ISdbWinePathTranslator
         _pltHooksManager.InstallHook(monoModuleFilename, nameof(_win32.recv), _hookRecvFnDelegate);
     }
 
-    /// <summary>
-    /// Calls wine_get_unix_file_name on Kernel32.dll which is exposed by Wine to convert a DOS path into a UNIX path
-    /// </summary>
-    /// <param name="dosW">The DOS path to convert.</param>
-    /// <returns>The UNIX path</returns>
-    public static unsafe string? WineGetUnixFileName(string dosW)
-    {
-        fixed (char* lpProcNameLocal = dosW)
-        {
-            Marshal.SetLastSystemError(0);
-            char* retVal = LocalExternFunction(lpProcNameLocal);
-            Marshal.SetLastPInvokeError(Marshal.GetLastSystemError());
-
-            nint ptr = new(retVal);
-            string? ptrToStringUTF8 = Marshal.PtrToStringUTF8(ptr);
-            if (ptrToStringUTF8 is null)
-                return null;
-
-            // The documentation in Wine's source code says the caller needs to free the buffer.
-            NativeMemory.Free(retVal);
-            return ptrToStringUTF8;
-        }
-
-        [DllImport("KERNEL32.dll", ExactSpelling = true, EntryPoint = "wine_get_unix_file_name"),
-         DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-        static extern char* LocalExternFunction(PCWSTR lpModuleName);
-    }
-
     private unsafe int HookRecvFnDelegate(SOCKET s, PSTR buf, int len, SEND_RECV_FLAGS flags)
     {
         int length = _win32.recv(s, buf, len, flags);
@@ -150,7 +122,7 @@ public sealed class SdbWinePathTranslator : ISdbWinePathTranslator
             buf.Value + fullNameStringInfo.StartIndex,
             fullNameStringInfo.Length);
 
-        string? unixPath = WineGetUnixFileName(winePath);
+        string? unixPath = _win32.WineGetUnixFileName(winePath);
         if (unixPath == null)
             return _win32.send(s, buf, len, flags);
 

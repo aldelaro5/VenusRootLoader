@@ -109,8 +109,8 @@ public sealed class ConsoleLogger : ILogger
         TimeProvider timeProvider,
         IConsole console)
     {
-        var simplifiedCategoryName = categoryName;
-        var lastDotIndex = categoryName.LastIndexOf('.');
+        string simplifiedCategoryName = categoryName;
+        int lastDotIndex = categoryName.LastIndexOf('.');
         if (lastDotIndex > -1)
             simplifiedCategoryName = categoryName[(lastDotIndex + 1)..];
 
@@ -143,8 +143,8 @@ public sealed class ConsoleLogger : ILogger
         if (!IsEnabled(logLevel))
             return;
 
-        var time = _timeProvider.GetLocalNow().ToString("HH:mm:ss.fff");
-        var legacyCategoryColor = _legacyCategoryColor ?? ConsoleColor.Cyan;
+        string time = _timeProvider.GetLocalNow().ToString("HH:mm:ss.fff");
+        ConsoleColor legacyCategoryColor = _legacyCategoryColor ?? ConsoleColor.Cyan;
 
         string message = formatter(state, exception);
         if (exception is not null)
@@ -174,7 +174,7 @@ public sealed class ConsoleLogger : ILogger
             return;
         }
 
-        var categoryColor = _categoryColor ?? Color.Cyan;
+        Color categoryColor = _categoryColor ?? Color.Cyan;
 
         if (_renderingMode == ConsoleLogProvider.RenderingMode.AnsiColors)
         {

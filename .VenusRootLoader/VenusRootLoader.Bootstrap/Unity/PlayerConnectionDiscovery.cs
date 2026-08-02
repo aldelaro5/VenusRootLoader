@@ -89,9 +89,9 @@ public sealed class PlayerConnectionDiscovery : IDisposable, IPlayerConnectionDi
         string? dnSpyEnv = Environment.GetEnvironmentVariable("DNSPY_UNITY_DBG2");
         if (dnSpyEnv is not null)
         {
-            var arguments = dnSpyEnv.Split(',');
-            var addressArgument = arguments.Single(x => x.StartsWith("address=")).TrimStart("address=").ToString();
-            var addressParts = addressArgument.Split(':');
+            string[] arguments = dnSpyEnv.Split(',');
+            string addressArgument = arguments.Single(x => x.StartsWith("address=")).TrimStart("address=").ToString();
+            string[] addressParts = addressArgument.Split(':');
             addressToUse = IPAddress.Parse(addressParts[0]);
             portToUse = ushort.Parse(addressParts[1]);
             _logger.LogInformation(
@@ -101,7 +101,7 @@ public sealed class PlayerConnectionDiscovery : IDisposable, IPlayerConnectionDi
         }
 
         StringBuilder sb = new();
-        var ipAddressString = addressToUse.ToString();
+        string ipAddressString = addressToUse.ToString();
         // This wouldn't be used unless [Flags] has its 4th bit set (8 in decimal) so we can set both to force the IP. This
         // is used in the loopback IP case explained below
         sb.Append($"[IP] {ipAddressString} ");
@@ -112,7 +112,7 @@ public sealed class PlayerConnectionDiscovery : IDisposable, IPlayerConnectionDi
         // so the LAN IP wouldn't work while it otherwise would. We special case it so we force the IP instead of letting
         // the IDE assume it can take the same IP the message originated from. Interestingly, bit 8 isn't used by this
         // Unity version, but IDEs can still support it
-        var flags = ipAddressString == IPAddress.Loopback.ToString()
+        string flags = ipAddressString == IPAddress.Loopback.ToString()
             ? FlagsTakeIpFromMessage
             : FlagsTakeIpFromSource;
         // A dev build of UnityPlayer.dll normally sends 2 which according to Resharper-Unity means that the player supports
@@ -158,10 +158,10 @@ public sealed class PlayerConnectionDiscovery : IDisposable, IPlayerConnectionDi
         _socket.Ttl = 31;
         _socket.MulticastLoopback = true;
 
-        var broadcastIp = IPAddress.Parse(IpMessageDestination);
+        IPAddress broadcastIp = IPAddress.Parse(IpMessageDestination);
         _endPoint = new IPEndPoint(broadcastIp, PortMessageDestination);
 
-        var timer = new Timer(1000);
+        Timer timer = new(1000);
         timer.Elapsed += TimerOnElapsed;
         timer.Start();
 
@@ -174,7 +174,7 @@ public sealed class PlayerConnectionDiscovery : IDisposable, IPlayerConnectionDi
 
     private void TimerOnElapsed(object? sender, ElapsedEventArgs e)
     {
-        var bytesSent = _socket?.SendTo(_messageBuffer, SocketFlags.None, _endPoint!);
+        int? bytesSent = _socket?.SendTo(_messageBuffer, SocketFlags.None, _endPoint!);
         _logger.LogTrace("Sent message to socket of length {bytesSent}: {message}", bytesSent, _message);
     }
 

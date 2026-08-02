@@ -150,8 +150,8 @@ internal sealed class MonoInitializer
 
     private unsafe nint HookGetProcAddress(HMODULE handle, PCSTR symbol)
     {
-        var originalSymbolAddress = _win32.GetProcAddress(handle, symbol);
-        if (!_symbolRedirects.TryGetValue(symbol.ToString(), out var detourAddress))
+        FARPROC originalSymbolAddress = _win32.GetProcAddress(handle, symbol);
+        if (!_symbolRedirects.TryGetValue(symbol.ToString(), out IntPtr detourAddress))
             return originalSymbolAddress;
 
         if (!_runtimeInitialised)
@@ -162,7 +162,7 @@ internal sealed class MonoInitializer
                 fixed (char* monoFileNamePtr = new char[2048])
                 {
                     _win32.GetModuleFileName(handle, new PWSTR(monoFileNamePtr), 2048);
-                    var monoFileName = Marshal.PtrToStringUni((nint)monoFileNamePtr)!;
+                    string monoFileName = Marshal.PtrToStringUni((nint)monoFileNamePtr)!;
                     _sdbWinePathTranslator.Setup(monoFileName);
                 }
             }
@@ -353,16 +353,16 @@ internal sealed class MonoInitializer
     private unsafe void TransitionToMonoManagedSide(ManagedEntryPointInfo entryPointInfo)
     {
         _logger.LogInformation("Loading entrypoint assembly");
-        var assembly = _monoFunctions.DomainAssemblyOpen(Domain, entryPointInfo.AssemblyPath);
+        IntPtr assembly = _monoFunctions.DomainAssemblyOpen(Domain, entryPointInfo.AssemblyPath);
         if (assembly == 0)
         {
             _logger.LogCritical("Failed to load the entrypoint assembly into the Mono domain");
             return;
         }
 
-        var image = _monoFunctions.AssemblyGetImage(assembly);
-        var interopClass = _monoFunctions.ClassFromName(image, entryPointInfo.Namespace, entryPointInfo.ClassName);
-        var initMethod = _monoFunctions.ClassGetMethodFromName(interopClass, entryPointInfo.MethodName, 3);
+        IntPtr image = _monoFunctions.AssemblyGetImage(assembly);
+        IntPtr interopClass = _monoFunctions.ClassFromName(image, entryPointInfo.Namespace, entryPointInfo.ClassName);
+        IntPtr initMethod = _monoFunctions.ClassGetMethodFromName(interopClass, entryPointInfo.MethodName, 3);
 
         nint ex = 0;
 
@@ -370,7 +370,7 @@ internal sealed class MonoInitializer
                gameExecutionContextPtr = &_gameExecutionContextPtr,
                basePathPtr = &_basePathPtr)
         {
-            var initArgs = stackalloc void*[]
+            void** initArgs = stackalloc void*[]
             {
                 logFunctionPtr,
                 gameExecutionContextPtr,

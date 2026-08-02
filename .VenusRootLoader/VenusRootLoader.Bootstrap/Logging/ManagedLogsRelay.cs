@@ -19,7 +19,7 @@ public static class ManagedLogsRelay
 
     private static void RelayLogFromManaged(string message, string category, LogLevel logLevel)
     {
-        var logger = _loggerFactory.CreateLogger(category);
+        ILogger logger = _loggerFactory.CreateLogger(category);
         logger.Log(logLevel, message);
     }
 }

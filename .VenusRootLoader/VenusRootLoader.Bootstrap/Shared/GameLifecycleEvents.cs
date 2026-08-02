@@ -19,7 +19,7 @@ public sealed class MonoInitLifeCycleEvents : IMonoInitLifeCycleEvents
 
     public void Publish(object sender)
     {
-        foreach (var listener in _events)
+        foreach (EventHandler listener in _events)
             listener(sender, EventArgs.Empty);
     }
 }

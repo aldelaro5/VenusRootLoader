@@ -103,9 +103,9 @@ internal sealed class PlayerLogsMirroring
         uint* lpNumberOfBytesWritten,
         NativeOverlapped* lpOverlapped)
     {
-        var writeToPlayerLog = _win32.CompareObjectHandles(_playerLogHandle, hFile);
-        var writeToStandardHandles = _win32.CompareObjectHandles(hFile, _outputHandle) ||
-                                     _win32.CompareObjectHandles(hFile, _errorHandle);
+        BOOL writeToPlayerLog = _win32.CompareObjectHandles(_playerLogHandle, hFile);
+        bool writeToStandardHandles = _win32.CompareObjectHandles(hFile, _outputHandle) ||
+                                      _win32.CompareObjectHandles(hFile, _errorHandle);
         if (!writeToPlayerLog && !writeToStandardHandles)
         {
             return _win32.WriteFile(

@@ -35,11 +35,11 @@ public sealed class DiskFileLoggerProvider : ILoggerProvider
 
         try
         {
-            var logsDirectory = _fileSystem.Path.Combine(bootstrapEnvironment.BasePath, "Logs");
+            string logsDirectory = _fileSystem.Path.Combine(bootstrapEnvironment.BasePath, "Logs");
             if (!_fileSystem.Directory.Exists(logsDirectory))
                 _fileSystem.Directory.CreateDirectory(logsDirectory);
             PurgeOldLogFiles(logsDirectory, _diskFileLoggerSettings.MaxFilesToKeep!.Value);
-            var latestLogFilePath = _fileSystem.Path.Combine(logsDirectory, "latest.log");
+            string latestLogFilePath = _fileSystem.Path.Combine(logsDirectory, "latest.log");
             FreeLatestLogFilePath(latestLogFilePath);
             _logWriter =
                 new(_fileSystem.File.Open(latestLogFilePath, FileMode.Create, FileAccess.Write)) { AutoFlush = true };
@@ -67,7 +67,7 @@ public sealed class DiskFileLoggerProvider : ILoggerProvider
 
     private void PurgeOldLogFiles(string logsDirectory, int maxLogFiles)
     {
-        var filesTooOld = _fileSystem.Directory
+        List<string> filesTooOld = _fileSystem.Directory
             .GetFiles(logsDirectory, "*.log")
             .OrderByDescending(_fileSystem.File.GetCreationTimeUtc)
             .Skip(maxLogFiles - 1)
@@ -80,8 +80,8 @@ public sealed class DiskFileLoggerProvider : ILoggerProvider
         if (!_fileSystem.File.Exists(latestLogFilePath))
             return;
 
-        var localCreationDateTime = _fileSystem.File.GetCreationTime(latestLogFilePath);
-        var logsDirectory = _fileSystem.Path.GetDirectoryName(latestLogFilePath)!;
+        DateTime localCreationDateTime = _fileSystem.File.GetCreationTime(latestLogFilePath);
+        string logsDirectory = _fileSystem.Path.GetDirectoryName(latestLogFilePath)!;
         _fileSystem.File.Move(
             latestLogFilePath,
             _fileSystem.Path.Combine(logsDirectory, $"{localCreationDateTime:yyyy-MM-dd_HH-mm-ss}.log"));

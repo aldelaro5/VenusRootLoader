@@ -37,7 +37,7 @@ public sealed class PltHooksManager : IPltHooksManager
 
     public unsafe void InstallHook<T>(string fileName, string functionName, T hook) where T : Delegate
     {
-        if (!_openedPltHooksByFilename.TryGetValue(fileName, out var moduleHook))
+        if (!_openedPltHooksByFilename.TryGetValue(fileName, out ModulePltHook moduleHook))
         {
             ModulePltHook newModuleHook = (nint.Zero, new Dictionary<string, nint>());
             if (!_pltHook.PlthookOpen(new(&newModuleHook.ptr), fileName))
@@ -72,13 +72,13 @@ public sealed class PltHooksManager : IPltHooksManager
 
     public unsafe void UninstallHook(string fileName, string functionName)
     {
-        if (!_openedPltHooksByFilename.TryGetValue(fileName, out var moduleHook))
+        if (!_openedPltHooksByFilename.TryGetValue(fileName, out ModulePltHook moduleHook))
             return;
 
-        if (!moduleHook.originalHookedFunc.TryGetValue(functionName, out var originalHookedFunc))
+        if (!moduleHook.originalHookedFunc.TryGetValue(functionName, out IntPtr originalHookedFunc))
             return;
 
-        var oldFunc = nint.Zero;
+        IntPtr oldFunc = nint.Zero;
         if (!_pltHook.PlthookReplace(moduleHook.ptr, functionName, originalHookedFunc, new(&oldFunc)))
         {
             _logger.LogError(
@@ -110,10 +110,10 @@ public sealed class PltHooksManager : IPltHooksManager
     private void LogAllActiveHooks()
     {
         _logger.LogTrace("All active hooks:");
-        foreach (var moduleHook in _openedPltHooksByFilename)
+        foreach (KeyValuePair<string, ModulePltHook> moduleHook in _openedPltHooksByFilename)
         {
             _logger.LogTrace("\t{fileName}", _fileSystem.Path.GetFileName(moduleHook.Key));
-            foreach (var functionHook in moduleHook.Value.originalHookedFunc.Keys)
+            foreach (string functionHook in moduleHook.Value.originalHookedFunc.Keys)
                 _logger.LogTrace("\t\t{functionName}", functionHook);
         }
     }

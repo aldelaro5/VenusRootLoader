@@ -26,21 +26,21 @@ public sealed class CustomEnvironmentVariablesConfigurationProvider : Configurat
 
     private void Load(IDictionary envVariables)
     {
-        var data = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase);
 
         IDictionaryEnumerator e = envVariables.GetEnumerator();
         try
         {
             while (e.MoveNext())
             {
-                var key = (string)e.Entry.Key;
-                var value = (string?)e.Entry.Value;
+                string key = (string)e.Entry.Key;
+                string? value = (string?)e.Entry.Value;
 
                 if (!key.StartsWith(_prefix, StringComparison.OrdinalIgnoreCase))
                     continue;
 
                 key = key.Substring(_prefix.Length);
-                if (!_environmentVariablesMapping.TryGetValue(key, out var configKey))
+                if (!_environmentVariablesMapping.TryGetValue(key, out string? configKey))
                     continue;
 
                 data[configKey] = value;

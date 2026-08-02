@@ -24,8 +24,8 @@ public sealed class DiskFileLogger : ILogger
 
     public DiskFileLogger(string categoryName, StreamWriter logWriter, TimeProvider timeProvider)
     {
-        var simplifiedCategoryName = categoryName;
-        var lastDotIndex = categoryName.LastIndexOf('.');
+        string simplifiedCategoryName = categoryName;
+        int lastDotIndex = categoryName.LastIndexOf('.');
         if (lastDotIndex > -1)
             simplifiedCategoryName = categoryName[(lastDotIndex + 1)..];
 
@@ -44,7 +44,7 @@ public sealed class DiskFileLogger : ILogger
         if (!IsEnabled(logLevel))
             return;
 
-        var time = _timeProvider.GetLocalNow().ToString("HH:mm:ss.fff");
+        string time = _timeProvider.GetLocalNow().ToString("HH:mm:ss.fff");
 
         string message = formatter(state, exception);
         if (exception is not null)

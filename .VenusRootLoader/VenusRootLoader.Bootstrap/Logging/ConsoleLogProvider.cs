@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using VenusRootLoader.Bootstrap.Settings.LogProvider;
 using VenusRootLoader.Bootstrap.Shared;
+using Windows.Win32.Foundation;
 using Windows.Win32.System.Console;
 
 namespace VenusRootLoader.Bootstrap.Logging;
@@ -52,8 +53,8 @@ public sealed class ConsoleLogProvider : ILoggerProvider
         }
         else
         {
-            var outHandle = win32.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
-            var errHandle = win32.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
+            HANDLE outHandle = win32.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
+            HANDLE errHandle = win32.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
             CONSOLE_MODE outMode;
             CONSOLE_MODE errMode;
             win32.GetConsoleMode(outHandle, new(&outMode));

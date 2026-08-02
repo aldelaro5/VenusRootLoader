@@ -109,13 +109,13 @@ public sealed class CreateFileWSharedHooker : ICreateFileWSharedHooker
         FILE_FLAGS_AND_ATTRIBUTES dwFlagsAndAttributes,
         HANDLE hTemplateFile)
     {
-        foreach (var hookWithPredicate in _fileHandlesHooks.Values)
+        foreach ((Func<string, bool> predicate, CreateFileWHook Hook) hookWithPredicate in _fileHandlesHooks.Values)
         {
             if (!hookWithPredicate.predicate(lpFileName.ToString()))
                 continue;
 
             hookWithPredicate.Hook(
-                out var fileHandle,
+                out HANDLE fileHandle,
                 lpFileName,
                 dwDesiredAccess,
                 dwShareMode,

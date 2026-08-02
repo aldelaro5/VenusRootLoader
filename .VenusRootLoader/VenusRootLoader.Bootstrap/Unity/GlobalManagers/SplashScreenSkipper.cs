@@ -7,6 +7,15 @@ using VenusRootLoader.Bootstrap.Settings;
 
 namespace VenusRootLoader.Bootstrap.Unity.GlobalManagers;
 
+/// <summary>
+/// <para>
+/// This service implements a way to skip the Unity splash screen that pops when the game window appears, but before the
+/// game boots. It involves intercepting the opening of the game bundle (data.unity3d file) to create a modified version
+/// using AssetTools.NET. The modified version will have 2 fields edited in the globalmanagers assets file which determine
+/// if the splash screen should execute or not. The downside of this is the bundle needs to be saved on disk so we cache it
+/// inside the VenusRootLoader folder to not consume more disk space for further boots.
+/// </para>
+/// </summary>
 internal sealed class SplashScreenSkipper : IHostedService
 {
     private readonly ILogger<SplashScreenSkipper> _logger;

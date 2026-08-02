@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.IO.Abstractions;
@@ -25,7 +24,7 @@ namespace VenusRootLoader.Bootstrap.Mono;
 /// to call the original or not
 /// </para>
 /// </summary>
-internal sealed class MonoInitializer : IHostedService
+internal sealed class MonoInitializer
 {
     private struct ManagedEntryPointInfo
     {
@@ -80,7 +79,6 @@ internal sealed class MonoInitializer : IHostedService
         IPlayerConnectionDiscovery playerConnectionDiscovery,
         ISdbWinePathTranslator sdbWinePathTranslator,
         IMonoInitLifeCycleEvents monoInitLifeCycleEvents,
-        IHostEnvironment hostEnvironment,
         IWin32 win32,
         IFileSystem fileSystem,
         IMonoFunctions monoFunctions,
@@ -103,7 +101,7 @@ internal sealed class MonoInitializer : IHostedService
 
         _gameExecutionContextPtr = Marshal.AllocHGlobal(Marshal.SizeOf<GameExecutionContext>());
         Marshal.StructureToPtr(_gameExecutionContext, _gameExecutionContextPtr, false);
-        _basePathPtr = Marshal.StringToHGlobalUni(hostEnvironment.ContentRootPath);
+        _basePathPtr = Marshal.StringToHGlobalUni(gameExecutionContext.BaseDir);
 
         _hookGetProcAddressDelegate = HookGetProcAddress;
         _monoInitDetourFn = MonoJitInitDetour;
@@ -122,6 +120,15 @@ internal sealed class MonoInitializer : IHostedService
         };
     }
 
+    public void HookMonoInitialization()
+    {
+        _logger.LogInformation("Bootstrapping Mono...");
+        _pltHooksManager.InstallHook(
+            _gameExecutionContext.UnityPlayerDllFileName,
+            "GetProcAddress",
+            _hookGetProcAddressDelegate);
+    }
+
     private unsafe nint MonoImageOpenFromDataWithNameDetour(
         byte* data,
         uint dataLen,
@@ -138,18 +145,6 @@ internal sealed class MonoInitializer : IHostedService
             refOnly,
             _assembliesListAppender.OnMonoImageOpenFromDataWithName(name));
     }
-
-    public Task StartAsync(CancellationToken cancellationToken)
-    {
-        _logger.LogInformation("Bootstrapping Mono...");
-        _pltHooksManager.InstallHook(
-            _gameExecutionContext.UnityPlayerDllFileName,
-            "GetProcAddress",
-            _hookGetProcAddressDelegate);
-        return Task.CompletedTask;
-    }
-
-    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     private unsafe nint HookGetProcAddress(HMODULE handle, PCSTR symbol)
     {

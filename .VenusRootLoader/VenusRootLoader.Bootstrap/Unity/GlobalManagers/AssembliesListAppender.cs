@@ -1,6 +1,5 @@
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 using System.Reflection;
@@ -44,8 +43,8 @@ internal interface IAssembliesListAppender
     string OnMonoImageOpenFromDataWithName(string originalName);
 }
 
-/// <inheritdoc/>
-internal sealed class AssembliesListAppender : IAssembliesListAppender
+/// <inheritdoc cref="IAssembliesListAppender"/>
+internal sealed class AssembliesListAppender : IGlobalManagersPatcher, IAssembliesListAppender
 {
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode)]
     private delegate BOOL PathFileExistsFn(PCWSTR pszPath);
@@ -66,7 +65,6 @@ internal sealed class AssembliesListAppender : IAssembliesListAppender
     private readonly GameExecutionContext _gameExecutionContext;
     private readonly IWin32 _win32;
     private readonly IFileSystem _fileSystem;
-    private readonly IGlobalManagersPatchers _globalManagersHooks;
     private readonly IPltHooksManager _pltHooksManager;
     private readonly ICreateFileWSharedHooker _createFileWSharedHooker;
 
@@ -76,22 +74,19 @@ internal sealed class AssembliesListAppender : IAssembliesListAppender
         ILogger<AssembliesListAppender> logger,
         GameExecutionContext gameExecutionContext,
         IWin32 win32,
-        IHostEnvironment hostEnvironment,
         IFileSystem fileSystem,
-        IGlobalManagersPatchers globalManagersHooks,
         IPltHooksManager pltHooksManager,
         ICreateFileWSharedHooker createFileWSharedHooker)
     {
         _logger = logger;
         _gameExecutionContext = gameExecutionContext;
         _fileSystem = fileSystem;
-        _globalManagersHooks = globalManagersHooks;
         _pltHooksManager = pltHooksManager;
         _createFileWSharedHooker = createFileWSharedHooker;
         _win32 = win32;
         _managedDirectoryPath = _fileSystem.Path.Combine(_gameExecutionContext.DataDir, "Managed");
 
-        PopulateAssembliesList(hostEnvironment, fileSystem);
+        PopulateAssembliesList(gameExecutionContext, fileSystem);
 
         _hookPathFileExistsDelegate = HookPathFileExistsW;
         _hookGetFileAttributesExDelegate = HookGetFileAttributesEx;
@@ -104,14 +99,71 @@ internal sealed class AssembliesListAppender : IAssembliesListAppender
             "GetFileAttributesExW",
             _hookGetFileAttributesExDelegate);
         _createFileWSharedHooker.RegisterHook(nameof(AssembliesListAppender), IsCustomAssemblyFile, HookFileHandle);
-        _globalManagersHooks.RegisterPatcher(ShouldPatchAssembliesList, ChangeAssembliesList);
     }
 
-    private void PopulateAssembliesList(IHostEnvironment hostEnvironment, IFileSystem fileSystem)
+    public bool ShouldPatch(AssetsManager assetsManager, AssetsFileInstance globalManagersFileInstance)
     {
-        string budsDirectory = fileSystem.Path.Combine(hostEnvironment.ContentRootPath, "Buds");
+        _logger.LogDebug("\tReading MonoManager.m_AssemblyNames");
+        AssetFileInfo monoManagerAsset = globalManagersFileInstance.file.GetAssetInfo(6);
+        AssetTypeValueField monoMangerBaseField =
+            assetsManager.GetBaseField(globalManagersFileInstance, monoManagerAsset);
+        AssetTypeValueField assemblyNamesArray = monoMangerBaseField["m_AssemblyNames"][nameof(Array)];
+        HashSet<string> additionalAssemblyNames = new();
+        foreach (AssetTypeValueField assemblyNameField in assemblyNamesArray)
+        {
+            string assemblyName = assemblyNameField.AsString;
+            if (assemblyName.StartsWith("UnityEngine") || assemblyName.StartsWith("Assembly-CSharp"))
+                continue;
+            additionalAssemblyNames.Add(assemblyName);
+        }
+
+        _logger.LogTrace(
+            "\tRead the following assemblies:\n{assemblyNames}",
+            string.Join("\n", additionalAssemblyNames));
+        bool shouldPatchAssembliesList = !additionalAssemblyNames.SetEquals(_assemblyNames.Keys.ToHashSet());
+        if (shouldPatchAssembliesList)
+            _logger.LogDebug("\tWill be patching");
+        return shouldPatchAssembliesList;
+    }
+
+    public void Patch(AssetsManager assetsManager, AssetsFileInstance globalManagersFileInstance)
+    {
+        _logger.LogDebug("\tAppending MonoManager.m_AssemblyNames");
+        AssetFileInfo monoManagerAsset = globalManagersFileInstance.file.GetAssetInfo(6);
+        AssetTypeValueField monoMangerBaseField =
+            assetsManager.GetBaseField(globalManagersFileInstance, monoManagerAsset);
+        AssetTypeValueField assemblyNamesArray = monoMangerBaseField["m_AssemblyNames"][nameof(Array)];
+
+        HashSet<string> allAssemblyNames = new();
+        foreach (AssetTypeValueField assemblyNameField in assemblyNamesArray)
+        {
+            string assemblyName = assemblyNameField.AsString;
+            if (assemblyName.StartsWith("UnityEngine") || assemblyName.StartsWith("Assembly-CSharp"))
+                allAssemblyNames.Add(assemblyName);
+        }
+
+        foreach (string assemblyName in _assemblyNames.Keys)
+            allAssemblyNames.Add(assemblyName);
+
+        assemblyNamesArray.Children.Clear();
+        foreach (string assemblyName in allAssemblyNames)
+        {
+            AssetTypeValueField newArrayItem = ValueBuilder.DefaultValueFieldFromArrayTemplate(assemblyNamesArray);
+            newArrayItem.AsString = assemblyName;
+            assemblyNamesArray.Children.Add(newArrayItem);
+        }
+
+        _logger.LogTrace(
+            "\tWriting the following assemblies:\n{assemblyNames}",
+            string.Join("\n", assemblyNamesArray.Children.Select(x => x.AsString)));
+        monoManagerAsset.SetNewData(monoMangerBaseField);
+    }
+
+    private void PopulateAssembliesList(GameExecutionContext gameExecutionContext, IFileSystem fileSystem)
+    {
+        string budsDirectory = fileSystem.Path.Combine(gameExecutionContext.BaseDir, "Buds");
         string venusRootLoaderDirectory = fileSystem.Path.Combine(
-            hostEnvironment.ContentRootPath,
+            gameExecutionContext.BaseDir,
             "VenusRootLoader");
 
         // We want all buds assemblies except the ones we already have so we take priority over them.
@@ -267,68 +319,7 @@ internal sealed class AssembliesListAppender : IAssembliesListAppender
             _createFileWSharedHooker.UnregisterHook(nameof(AssembliesListAppender));
         }
 
-        _logger.LogDebug(_assemblyNames.Count.ToString());
         _logger.LogDebug("Redirecting the image load of {original} to {redirectedPath}", originalName, redirectedPath);
         return redirectedPath;
-    }
-
-    private bool ShouldPatchAssembliesList(
-        AssetsManager manager,
-        AssetsFileInstance globalManagersFileInstance)
-    {
-        _logger.LogDebug("\tReading MonoManager.m_AssemblyNames");
-        AssetFileInfo monoManagerAsset = globalManagersFileInstance.file.GetAssetInfo(6);
-        AssetTypeValueField monoMangerBaseField = manager.GetBaseField(globalManagersFileInstance, monoManagerAsset);
-        AssetTypeValueField assemblyNamesArray = monoMangerBaseField["m_AssemblyNames"][nameof(Array)];
-        HashSet<string> additionalAssemblyNames = new();
-        foreach (AssetTypeValueField assemblyNameField in assemblyNamesArray)
-        {
-            string assemblyName = assemblyNameField.AsString;
-            if (assemblyName.StartsWith("UnityEngine") || assemblyName.StartsWith("Assembly-CSharp"))
-                continue;
-            additionalAssemblyNames.Add(assemblyName);
-        }
-
-        _logger.LogTrace(
-            "\tRead the following assemblies:\n{assemblyNames}",
-            string.Join("\n", additionalAssemblyNames));
-        bool shouldPatchAssembliesList = !additionalAssemblyNames.SetEquals(_assemblyNames.Keys.ToHashSet());
-        if (shouldPatchAssembliesList)
-            _logger.LogDebug("\tWill be patching");
-        return shouldPatchAssembliesList;
-    }
-
-    private void ChangeAssembliesList(
-        AssetsManager manager,
-        AssetsFileInstance globalManagersFileInstance)
-    {
-        _logger.LogDebug("\tAppending MonoManager.m_AssemblyNames");
-        AssetFileInfo monoManagerAsset = globalManagersFileInstance.file.GetAssetInfo(6);
-        AssetTypeValueField monoMangerBaseField = manager.GetBaseField(globalManagersFileInstance, monoManagerAsset);
-        AssetTypeValueField assemblyNamesArray = monoMangerBaseField["m_AssemblyNames"][nameof(Array)];
-
-        HashSet<string> allAssemblyNames = new();
-        foreach (AssetTypeValueField assemblyNameField in assemblyNamesArray)
-        {
-            string assemblyName = assemblyNameField.AsString;
-            if (assemblyName.StartsWith("UnityEngine") || assemblyName.StartsWith("Assembly-CSharp"))
-                allAssemblyNames.Add(assemblyName);
-        }
-
-        foreach (string assemblyName in _assemblyNames.Keys)
-            allAssemblyNames.Add(assemblyName);
-
-        assemblyNamesArray.Children.Clear();
-        foreach (string assemblyName in allAssemblyNames)
-        {
-            AssetTypeValueField newArrayItem = ValueBuilder.DefaultValueFieldFromArrayTemplate(assemblyNamesArray);
-            newArrayItem.AsString = assemblyName;
-            assemblyNamesArray.Children.Add(newArrayItem);
-        }
-
-        _logger.LogTrace(
-            "\tWriting the following assemblies:\n{assemblyNames}",
-            string.Join("\n", assemblyNamesArray.Children.Select(x => x.AsString)));
-        monoManagerAsset.SetNewData(monoMangerBaseField);
     }
 }

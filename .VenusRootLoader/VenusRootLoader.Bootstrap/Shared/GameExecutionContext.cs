@@ -13,4 +13,5 @@ public sealed class GameExecutionContext
     public required string DataDir { get; init; }
     public required string UnityPlayerDllFileName { get; init; }
     public required bool IsWine { get; init; }
+    public required string BaseDir { get; init; }
 }

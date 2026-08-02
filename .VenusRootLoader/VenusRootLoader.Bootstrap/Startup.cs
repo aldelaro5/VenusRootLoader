@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.IO.Abstractions;
@@ -42,112 +41,77 @@ internal static class Startup
         ["DEBUGGER_SUSPEND_BOOT"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.SuspendOnBoot)}"
     };
 
-    internal static IHost BuildHost(GameExecutionContext gameExecutionContext)
+    internal static ServiceProvider BuildServiceProvider(GameExecutionContext gameExecutionContext, string[] args)
     {
-        var builder = Host.CreateEmptyApplicationBuilder(
-            new()
-            {
-                DisableDefaults = true,
-                ApplicationName = "VenusRootLoader",
-                Args = [],
-                EnvironmentName = "Development",
-                ContentRootPath = gameExecutionContext.GameDir,
-                Configuration = new()
-            });
+        IServiceCollection services = new ServiceCollection();
+        IConfigurationManager configurationManager = new ConfigurationManager();
 
-        var fileSystem = new FileSystem();
-        var sanitisedArgs = SanitiseCommandLineArguments();
-        SetCustomContentRootPathIfProvided(builder.Environment, sanitisedArgs, fileSystem);
-
-        builder.Configuration.AddJsonFile(
-            fileSystem.Path.Combine(builder.Environment.ContentRootPath, "Config", "config.jsonc"));
-        builder.Configuration.AddCustomEnvironmentVariables("VRL_", EnvironmentVariablesConfigMapping);
-        builder.Configuration.AddCommandLine(
-            sanitisedArgs.ToArray(),
+        FileSystem fileSystem = new();
+        configurationManager.AddJsonFile(
+            fileSystem.Path.Combine(gameExecutionContext.BaseDir, "Config", "config.jsonc"));
+        configurationManager.AddCustomEnvironmentVariables("VRL_", EnvironmentVariablesConfigMapping);
+        configurationManager.AddCommandLine(
+            args,
             EnvironmentVariablesConfigMapping
                 .ToDictionary(key => $"--{key.Key.ToLower().Replace('_', '-')}", value => value.Value));
 
-        builder.Services.AddSingleton<IValidateOptions<GlobalSettings>, ValidateGlobalSettings>();
-        builder.Services.AddOptions<GlobalSettings>()
+        services.AddSingleton<IConfiguration>(configurationManager);
+
+        services.AddSingleton<IValidateOptions<GlobalSettings>, ValidateGlobalSettings>();
+        services.AddOptions<GlobalSettings>()
             .BindConfiguration(string.Empty);
 
         // We want to get out as early as possible if needed because it prevents any other services to start
-        if (builder.Configuration.GetValue<bool>(nameof(GlobalSettings.DisableVrl)))
-            return builder.Build();
+        if (configurationManager.GetValue<bool>(nameof(GlobalSettings.DisableVrl)))
+            return services.BuildServiceProvider();
 
-        builder.Logging.AddConfiguration(builder.Configuration.GetRequiredSection("Logging"));
-        builder.Logging.Services.AddSingleton<ILoggerProvider, ConsoleLogProvider>();
-        builder.Logging.Services.AddSingleton<ILoggerProvider, DiskFileLoggerProvider>();
+        services.AddLogging(builder =>
+        {
+            builder.AddConfiguration(configurationManager.GetRequiredSection("Logging"));
+            builder.Services.AddSingleton<ILoggerProvider, ConsoleLogProvider>();
+            builder.Services.AddSingleton<ILoggerProvider, DiskFileLoggerProvider>();
+        });
 
-        builder.Services.AddSingleton<IValidateOptions<LoggingSettings>, ValidateLoggingSettings>();
-        builder.Services.AddOptions<LoggingSettings>()
+        services.AddSingleton<IValidateOptions<LoggingSettings>, ValidateLoggingSettings>();
+        services.AddOptions<LoggingSettings>()
             .BindConfiguration(nameof(LoggingSettings), options => options.ErrorOnUnknownConfiguration = true);
-        builder.Services.AddOptions<ConsoleLoggerSettings>()
+        services.AddOptions<ConsoleLoggerSettings>()
             .BindConfiguration(
                 $"{nameof(LoggingSettings)}:{nameof(ConsoleLoggerSettings)}",
                 options => options.ErrorOnUnknownConfiguration = true);
-        builder.Services.AddOptions<DiskFileLoggerSettings>()
+        services.AddOptions<DiskFileLoggerSettings>()
             .BindConfiguration(
                 $"{nameof(LoggingSettings)}:{nameof(DiskFileLoggerSettings)}",
                 options => options.ErrorOnUnknownConfiguration = true);
 
-        builder.Services.AddSingleton<IValidateOptions<MonoDebuggerSettings>, ValidateMonoDebuggerSettings>();
-        builder.Services.AddOptions<MonoDebuggerSettings>()
+        services.AddSingleton<IValidateOptions<MonoDebuggerSettings>, ValidateMonoDebuggerSettings>();
+        services.AddOptions<MonoDebuggerSettings>()
             .BindConfiguration(nameof(MonoDebuggerSettings), options => options.ErrorOnUnknownConfiguration = true);
 
-        builder.Services.AddSingleton(TimeProvider.System);
-        builder.Services.AddSingleton<IFileSystem, FileSystem>();
-        builder.Services.AddSingleton<IWin32, Win32>();
-        builder.Services.AddSingleton<GameExecutionContext>(_ => gameExecutionContext);
-        builder.Services.AddSingleton<IPltHooksManager, PltHooksManager>(sp =>
+        services.AddSingleton(TimeProvider.System);
+        services.AddSingleton<IFileSystem, FileSystem>();
+        services.AddSingleton<IWin32, Win32>();
+        services.AddSingleton<GameExecutionContext>(_ => gameExecutionContext);
+
+        services.AddSingleton<IPltHooksManager, PltHooksManager>(sp =>
             new PltHooksManager(sp.GetRequiredService<ILogger<PltHooksManager>>(), new PltHook(), new FileSystem()));
-        builder.Services.AddSingleton<IMonoInitLifeCycleEvents, MonoInitLifeCycleEvents>();
-        builder.Services.AddHostedService<StandardStreamsProtector>();
-        builder.Services.AddSingleton<ICreateFileWSharedHooker, CreateFileWSharedHooker>();
-        builder.Services.AddHostedService<PlayerLogsMirroring>();
-        builder.Services.AddSingleton<IGlobalManagersPatchers, GlobalManagersPatchers>();
-        builder.Services.AddHostedService<SplashScreenSkipper>();
-        builder.Services.AddSingleton<IAssembliesListAppender, AssembliesListAppender>();
-        builder.Services.AddSingleton<IPlayerConnectionDiscovery, PlayerConnectionDiscovery>();
-        builder.Services.AddSingleton<ISdbWinePathTranslator, SdbWinePathTranslator>();
-        builder.Services.AddSingleton<IMonoFunctions, MonoFunctions>();
-        builder.Services.AddHostedService<MonoInitializer>();
+        services.AddSingleton<IMonoInitLifeCycleEvents, MonoInitLifeCycleEvents>();
+        services.AddSingleton<StandardStreamsProtector>();
 
-        return builder.Build();
-    }
+        services.AddSingleton<ICreateFileWSharedHooker, CreateFileWSharedHooker>();
+        services.AddSingleton<PlayerLogsMirroring>();
 
-    private static void SetCustomContentRootPathIfProvided(
-        IHostEnvironment hostEnvironment,
-        List<string> args,
-        FileSystem fileSystem)
-    {
-        var baseDirEnv = Environment.GetEnvironmentVariable("VRL_BASE_DIRECTORY");
-        if (!string.IsNullOrWhiteSpace(baseDirEnv) && fileSystem.Directory.Exists(baseDirEnv))
-            hostEnvironment.ContentRootPath = baseDirEnv;
+        services.AddSingleton<IGlobalManagersPatcher, SplashScreenSkipper>();
+        services.AddSingleton<AssembliesListAppender>();
+        services.AddSingleton<IAssembliesListAppender>(x => x.GetRequiredService<AssembliesListAppender>());
+        services.AddSingleton<IGlobalManagersPatcher>(x => x.GetRequiredService<AssembliesListAppender>());
+        services.AddSingleton<RootGlobalManagersPatcher>();
 
-        var baseDirArgIndex = args.IndexOf("--base-directory");
-        if (baseDirArgIndex == -1)
-            return;
-        if (baseDirArgIndex + 1 >= args.Count)
-            return;
-        if (!string.IsNullOrWhiteSpace(args[baseDirArgIndex + 1]))
-            hostEnvironment.ContentRootPath = args[baseDirArgIndex + 1];
-    }
+        services.AddSingleton<IPlayerConnectionDiscovery, PlayerConnectionDiscovery>();
+        services.AddSingleton<ISdbWinePathTranslator, SdbWinePathTranslator>();
+        services.AddSingleton<IMonoFunctions, MonoFunctions>();
+        services.AddSingleton<MonoInitializer>();
 
-    private static List<string> SanitiseCommandLineArguments()
-    {
-        var args = Environment.GetCommandLineArgs();
-        List<string> sanitisedArgs = new();
-        for (int i = 0; i < args.Length - 1; i++)
-        {
-            var arg = args[i];
-            if (!arg.StartsWith("--"))
-                continue;
-
-            sanitisedArgs.Add(arg);
-            sanitisedArgs.Add(args[i + 1]);
-        }
-
-        return sanitisedArgs;
+        return services.BuildServiceProvider();
     }
 }

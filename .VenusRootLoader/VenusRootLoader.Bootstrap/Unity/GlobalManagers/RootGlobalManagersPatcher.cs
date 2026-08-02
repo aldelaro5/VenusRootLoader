@@ -9,38 +9,23 @@ using Windows.Win32.Storage.FileSystem;
 
 namespace VenusRootLoader.Bootstrap.Unity.GlobalManagers;
 
-internal interface IGlobalManagersPatchers
-{
-    void RegisterPatcher(
-        GlobalManagersPatchers.ShouldPatch predicate,
-        GlobalManagersPatchers.Patch patcher);
-}
-
-internal sealed class GlobalManagersPatchers : IGlobalManagersPatchers
+internal sealed class RootGlobalManagersPatcher
 {
     private static bool _hasModifiedBundle;
-
-    public delegate bool ShouldPatch(
-        AssetsManager assetsManager,
-        AssetsFileInstance globalManagersFileInstance);
-
-    public delegate void Patch(
-        AssetsManager assetsManager,
-        AssetsFileInstance globalManagersFileInstance);
 
     private readonly IFileSystem _fileSystem;
     private readonly string _modifiedGameBundlePath;
     private readonly string _classDataTpkPath;
 
     private readonly IWin32 _win32;
-    private readonly ILogger<GlobalManagersPatchers> _logger;
+    private readonly ILogger<RootGlobalManagersPatcher> _logger;
     private readonly ICreateFileWSharedHooker _createFileWSharedHooker;
     private readonly GameExecutionContext _gameExecutionContext;
+    private readonly List<IGlobalManagersPatcher> _globalManagersPatchers;
 
-    private readonly List<(ShouldPatch predicate, Patch Patcher)> _globalManagersHooks = new();
-
-    public unsafe GlobalManagersPatchers(
-        ILogger<GlobalManagersPatchers> logger,
+    public RootGlobalManagersPatcher(
+        IEnumerable<IGlobalManagersPatcher> globalManagersPatchers,
+        ILogger<RootGlobalManagersPatcher> logger,
         ICreateFileWSharedHooker createFileWSharedHooker,
         GameExecutionContext gameExecutionContext,
         IWin32 win32,
@@ -48,6 +33,7 @@ internal sealed class GlobalManagersPatchers : IGlobalManagersPatchers
     {
         _logger = logger;
         _fileSystem = fileSystem;
+        _globalManagersPatchers = globalManagersPatchers.ToList();
         _gameExecutionContext = gameExecutionContext;
         _win32 = win32;
         _createFileWSharedHooker = createFileWSharedHooker;
@@ -59,11 +45,12 @@ internal sealed class GlobalManagersPatchers : IGlobalManagersPatchers
             _gameExecutionContext.GameDir,
             "VenusRootLoader",
             "classdata.tpk");
-        _createFileWSharedHooker.RegisterHook(nameof(GlobalManagersPatchers), IsGameBundleFile, HookFileHandle);
     }
 
-    public void RegisterPatcher(ShouldPatch predicate, Patch patcher) =>
-        _globalManagersHooks.Add((predicate, patcher));
+    public unsafe void SetupPatchers()
+    {
+        _createFileWSharedHooker.RegisterHook(nameof(RootGlobalManagersPatcher), IsGameBundleFile, HookFileHandle);
+    }
 
     private bool IsGameBundleFile(string filename) =>
         filename == _fileSystem.Path.Combine(_gameExecutionContext.DataDir, "data.unity3d");
@@ -129,15 +116,15 @@ internal sealed class GlobalManagersPatchers : IGlobalManagersPatchers
             LoadClassDatabase(manager, modifiedAssetsFileInstance.file);
 
             modifiedBundleVersion = ReadBundleVersion(manager, modifiedAssetsFileInstance);
-            foreach ((ShouldPatch predicate, Patch Hook) patcher in _globalManagersHooks)
+            foreach (IGlobalManagersPatcher patcher in _globalManagersPatchers)
             {
-                bool runPatcher = patcher.predicate(manager, modifiedAssetsFileInstance);
+                bool runPatcher = patcher.ShouldPatch(manager, modifiedAssetsFileInstance);
                 runPatchers.Add(runPatcher);
             }
         }
         else
         {
-            for (int i = 0; i < _globalManagersHooks.Count; i++)
+            for (int i = 0; i < _globalManagersPatchers.Count; i++)
                 runPatchers.Add(true);
         }
 
@@ -167,13 +154,13 @@ internal sealed class GlobalManagersPatchers : IGlobalManagersPatchers
         AssetsFileInstance assetsFileInstance = patchesNeedsToRun && modifiedAssetsFileInstance is not null
             ? modifiedAssetsFileInstance
             : originalAssetsFileInstance;
-        for (int i = 0; i < _globalManagersHooks.Count; i++)
+        for (int i = 0; i < _globalManagersPatchers.Count; i++)
         {
-            (ShouldPatch predicate, Patch Hook) patcher = _globalManagersHooks[i];
+            IGlobalManagersPatcher patcher = _globalManagersPatchers[i];
             if (!runPatchers[i])
                 continue;
 
-            patcher.Hook(manager, assetsFileInstance);
+            patcher.Patch(manager, assetsFileInstance);
         }
 
         GenerateModifiedGameBundle(manager, bundleFile, assetsFileInstance, _modifiedGameBundlePath);

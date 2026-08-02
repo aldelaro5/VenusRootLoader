@@ -1,9 +1,9 @@
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using System.IO.Abstractions;
 using VenusRootLoader.Bootstrap.Settings.LogProvider;
+using VenusRootLoader.Bootstrap.Shared;
 
 namespace VenusRootLoader.Bootstrap.Logging;
 
@@ -23,7 +23,7 @@ public sealed class DiskFileLoggerProvider : ILoggerProvider
 
     public DiskFileLoggerProvider(
         IOptions<DiskFileLoggerSettings> loggingSettings,
-        IHostEnvironment hostEnvironment,
+        GameExecutionContext gameExecutionContext,
         IFileSystem fileSystem,
         TimeProvider timeProvider)
     {
@@ -35,7 +35,7 @@ public sealed class DiskFileLoggerProvider : ILoggerProvider
 
         try
         {
-            var logsDirectory = _fileSystem.Path.Combine(hostEnvironment.ContentRootPath, "Logs");
+            var logsDirectory = _fileSystem.Path.Combine(gameExecutionContext.BaseDir, "Logs");
             if (!_fileSystem.Directory.Exists(logsDirectory))
                 _fileSystem.Directory.CreateDirectory(logsDirectory);
             PurgeOldLogFiles(logsDirectory, _diskFileLoggerSettings.MaxFilesToKeep!.Value);

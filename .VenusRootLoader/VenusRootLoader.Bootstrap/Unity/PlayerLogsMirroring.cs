@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
 using VenusRootLoader.Bootstrap.Shared;
@@ -13,7 +12,7 @@ namespace VenusRootLoader.Bootstrap.Unity;
 /// This service contains all the machinery needed to fully capture and mirror stdout, stderr and Unity's player logs
 /// into our logs
 /// </summary>
-internal sealed class PlayerLogsMirroring : IHostedService
+internal sealed class PlayerLogsMirroring
 {
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     private unsafe delegate int WriteFileFn(
@@ -53,8 +52,16 @@ internal sealed class PlayerLogsMirroring : IHostedService
         _monoInitLifeCycleEvents = monoInitLifeCycleEvents;
         _win32 = win32;
         _disableMirroring = !_logger.IsEnabled(LogLevel.Trace);
-
         _hookWriteFileDelegate = HookWriteFile;
+    }
+
+    public unsafe void MirrorLogs()
+    {
+        _outputHandle = _win32.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
+        _errorHandle = _win32.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
+
+        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "WriteFile", _hookWriteFileDelegate);
+        _createFileWSharedHooker.RegisterHook(nameof(PlayerLogsMirroring), IsUnityPlayerLogFilename, HookFileHandle);
         _monoInitLifeCycleEvents.Subscribe(OnGameLifecycle);
     }
 
@@ -63,19 +70,7 @@ internal sealed class PlayerLogsMirroring : IHostedService
         _createFileWSharedHooker.UnregisterHook(nameof(PlayerLogsMirroring));
     }
 
-    public unsafe Task StartAsync(CancellationToken cancellationToken)
-    {
-        _outputHandle = _win32.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
-        _errorHandle = _win32.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
-
-        _pltHooksManager.InstallHook(_gameExecutionContext.UnityPlayerDllFileName, "WriteFile", _hookWriteFileDelegate);
-        _createFileWSharedHooker.RegisterHook(nameof(PlayerLogsMirroring), IsUnityPlayerLogFilename, HookFileHandle);
-        return Task.CompletedTask;
-    }
-
-    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-
-    private bool IsUnityPlayerLogFilename(string lpFilename) =>
+    private static bool IsUnityPlayerLogFilename(string lpFilename) =>
         lpFilename.EndsWith("Player.log") || lpFilename.EndsWith("output_log.txt");
 
     private unsafe void HookFileHandle(

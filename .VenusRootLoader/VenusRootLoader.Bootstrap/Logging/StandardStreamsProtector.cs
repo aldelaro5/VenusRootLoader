@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
 using VenusRootLoader.Bootstrap.Shared;
@@ -12,7 +11,7 @@ namespace VenusRootLoader.Bootstrap.Logging;
 /// redirect these streams to their own logs (it might even be possible for Unity to still use the console, but it can
 /// still reset the streams to different handles!). This is achieved with a CloseHandle PltHook.
 /// </summary>
-internal sealed class StandardStreamsProtector : IHostedService
+internal sealed class StandardStreamsProtector
 {
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     private delegate BOOL CloseHandleFn(HANDLE hObject);
@@ -43,7 +42,7 @@ internal sealed class StandardStreamsProtector : IHostedService
         _hookCloseHandleDelegate = HookCloseHandle;
     }
 
-    public Task StartAsync(CancellationToken cancellationToken)
+    public void ProtectStreams()
     {
         _outputHandle = _win32.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
         _errorHandle = _win32.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
@@ -53,7 +52,6 @@ internal sealed class StandardStreamsProtector : IHostedService
             "CloseHandle",
             _hookCloseHandleDelegate);
         _monoInitLifeCycleEvents.Subscribe(OnGameLifecycle);
-        return Task.CompletedTask;
     }
 
     // By this point, we know the streams are safe so we can unhook ourselves
@@ -61,8 +59,6 @@ internal sealed class StandardStreamsProtector : IHostedService
     {
         _pltHooksManager.UninstallHook(_gameExecutionContext.UnityPlayerDllFileName, "CloseHandle");
     }
-
-    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     private BOOL HookCloseHandle(HANDLE hObject)
     {

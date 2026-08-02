@@ -6,7 +6,6 @@
         <Nullable>enable</Nullable>
         <OutputType>Exe</OutputType>
         <RootNamespace>VenusRootLoader.Build.Tasks.Tests</RootNamespace>
-        <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
     </PropertyGroup>
 
     <ItemGroup>
@@ -18,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AwesomeAssertions" Version="9.4.0" />
+        <PackageReference Include="AwesomeAssertions" Version="9.4.0"/>
         <PackageReference Include="AwesomeAssertions.Analyzers" Version="9.0.8">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -32,12 +31,13 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.9.0" />
-        <PackageReference Include="xunit.v3.mtp-v2" Version="3.2.2" />
+        <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.9.0"/>
+        <PackageReference Include="Microsoft.Testing.Extensions.Telemetry" Version="2.3.3"/>
+        <PackageReference Include="xunit.v3.mtp-v2" Version="3.2.2"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\VenusRootLoader.Build.Tasks\VenusRootLoader.Build.Tasks.csproj" />
+        <ProjectReference Include="..\VenusRootLoader.Build.Tasks\VenusRootLoader.Build.Tasks.csproj"/>
     </ItemGroup>
 
 </Project>

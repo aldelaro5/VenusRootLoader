@@ -6,7 +6,6 @@
         <Nullable>enable</Nullable>
         <OutputType>Exe</OutputType>
         <RootNamespace>VenusRootLoader.Bootstrap.Tests</RootNamespace>
-        <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
     </PropertyGroup>
 
     <ItemGroup>
@@ -39,28 +38,12 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="TestableIO.System.IO.Abstractions.TestingHelpers" Version="22.2.0"/>
+        <PackageReference Include="Microsoft.Testing.Extensions.Telemetry" Version="2.3.3"/>
         <PackageReference Include="xunit.v3.mtp-v2" Version="3.2.2"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\VenusRootLoader.Bootstrap\VenusRootLoader.Bootstrap.csproj"/>
     </ItemGroup>
-
-    <!--    <Target Name="CopyTestFiles" AfterTargets="Build">-->
-    <!--        <ItemGroup>-->
-    <!--            <UnityCompiledProjectFiles Include="$(SolutionDir)/.VenusRootLoader/Data/UnityCompiledTestProject/*/**"/>-->
-    <!--            <UnityCompiledProjectFiles Include="$(SolutionDir)/.VenusRootLoader/Data/UnityCompiledTestProject/*"/>-->
-    <!--            <UnityCompiledProjectFilesDev Include="$(SolutionDir)/.VenusRootLoader/Data/UnityCompiledTestProjectDev/*/**"/>-->
-    <!--            <UnityCompiledProjectFilesDev Include="$(SolutionDir)/.VenusRootLoader/Data/UnityCompiledTestProjectDev/*"/>-->
-    <!--        </ItemGroup>-->
-    <!--        <ItemGroup>-->
-    <!--            <BuiltProject Include="$(BuildDir)/*/**"/>-->
-    <!--            <BuiltProject Include="$(BuildDir)/*"/>-->
-    <!--        </ItemGroup>-->
-    <!--        <Copy ContinueOnError="false" SourceFiles="@(UnityCompiledProjectFiles)" DestinationFolder="$(OutputPath)/TestInstall/%(RecursiveDir)"/>-->
-    <!--        <Copy ContinueOnError="false" SourceFiles="@(BuiltProject)" DestinationFolder="$(OutputPath)/TestInstall/%(RecursiveDir)"/>-->
-    <!--        <Copy ContinueOnError="false" SourceFiles="@(UnityCompiledProjectFilesDev)" DestinationFolder="$(OutputPath)/TestInstallDevBuild/%(RecursiveDir)"/>-->
-    <!--        <Copy ContinueOnError="false" SourceFiles="@(BuiltProject)" DestinationFolder="$(OutputPath)/TestInstallDevBuild/%(RecursiveDir)"/>-->
-    <!--    </Target>-->
 
 </Project>

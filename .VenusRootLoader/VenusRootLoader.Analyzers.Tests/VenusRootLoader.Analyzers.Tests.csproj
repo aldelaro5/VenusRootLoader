@@ -3,8 +3,8 @@
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
-        <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
         <NoWarn>NU1701;NU1702;MSB3277</NoWarn>
+        <OutputType>Exe</OutputType>
     </PropertyGroup>
 
     <ItemGroup>
@@ -12,20 +12,17 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.6.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.6.0"/>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing.XUnit" Version="1.1.2"/>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.6.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.6.0"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1"/>
-        <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.9.0" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
-        <PackageReference Include="xunit.v3.mtp-v2" Version="3.2.2" />
+        <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.9.0"/>
+        <PackageReference Include="Microsoft.Testing.Extensions.Telemetry" Version="2.3.3"/>
+        <PackageReference Include="xunit.v3.mtp-v2" Version="3.2.2"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\VenusRootLoader.Analyzers\VenusRootLoader.Analyzers.csproj" />
+        <ProjectReference Include="..\VenusRootLoader.Analyzers\VenusRootLoader.Analyzers.csproj"/>
         <ProjectReference Include="..\VenusRootLoader\VenusRootLoader.csproj"/>
     </ItemGroup>
 

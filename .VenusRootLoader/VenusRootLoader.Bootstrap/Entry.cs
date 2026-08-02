@@ -16,6 +16,7 @@ using VenusRootLoader.Bootstrap.Unity.GlobalManagers;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
+using Environment = System.Environment;
 
 [assembly: InternalsVisibleTo("VenusRootLoader.Bootstrap.Tests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
@@ -37,9 +38,14 @@ internal sealed class Entry
             if (!ShouldResumeEntry(out GameExecutionContext? gameExecutionContext, out string[]? args))
                 return;
 
+            string? customContentRootPath = SetCustomContentRootPathIfProvided(args);
+            customContentRootPath ??= gameExecutionContext.GameDir;
             SetupWindowsConsole();
 
-            ServiceProvider serviceProvider = Startup.BuildServiceProvider(gameExecutionContext, args);
+            ServiceProvider serviceProvider = Startup.BuildServiceProvider(
+                gameExecutionContext,
+                customContentRootPath,
+                args);
             IOptions<GlobalSettings>? globalSettings = serviceProvider.GetService<IOptions<GlobalSettings>>();
             if (globalSettings!.Value.DisableVrl!.Value)
                 return;
@@ -56,7 +62,7 @@ internal sealed class Entry
             ManagedLogsRelay.Init(serviceProvider.GetRequiredService<ILoggerFactory>());
 
             logger = serviceProvider.GetRequiredService<ILogger<Entry>>();
-            logger.LogInformation("Using base directory {BaseDir}", gameExecutionContext.BaseDir);
+            logger.LogInformation("Using base directory {BaseDir}", customContentRootPath);
 
             StandardStreamsProtector standardStreamsProtector =
                 serviceProvider.GetRequiredService<StandardStreamsProtector>();
@@ -112,15 +118,13 @@ internal sealed class Entry
         FARPROC wineGetVersion = PInvoke.GetProcAddress(hModNtDll, "wine_get_version");
         bool isWine = wineGetVersion != FARPROC.Null;
         List<string> sanitisedArgs = SanitiseCommandLineArguments();
-        string? customContentRootPath = SetCustomContentRootPathIfProvided(sanitisedArgs);
 
         gameExecutionContext = new()
         {
             GameDir = gameDir,
             DataDir = dataDir,
             UnityPlayerDllFileName = unityPlayerDllFileName,
-            IsWine = isWine,
-            BaseDir = customContentRootPath ?? gameDir
+            IsWine = isWine
         };
 
         args = sanitisedArgs.ToArray();
@@ -148,7 +152,7 @@ internal sealed class Entry
         "System.IO.Abstractions",
         "IO0003:Replace Directory class with IFileSystem.Directory for improved testability")]
     private static string? SetCustomContentRootPathIfProvided(
-        List<string> args)
+        string[] args)
     {
         string? customBasePath = null;
         string? baseDirEnv = Environment.GetEnvironmentVariable("VRL_BASE_DIRECTORY");
@@ -156,7 +160,7 @@ internal sealed class Entry
             customBasePath = baseDirEnv;
 
         int baseDirArgIndex = args.IndexOf("--base-directory");
-        if (baseDirArgIndex == -1 || baseDirArgIndex + 1 >= args.Count)
+        if (baseDirArgIndex == -1 || baseDirArgIndex + 1 >= args.Length)
             return customBasePath;
 
         if (!string.IsNullOrWhiteSpace(args[baseDirArgIndex + 1]))

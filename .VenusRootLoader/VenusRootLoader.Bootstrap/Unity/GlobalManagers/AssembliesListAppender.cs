@@ -73,6 +73,7 @@ internal sealed class AssembliesListAppender : IGlobalManagersPatcher, IAssembli
     public unsafe AssembliesListAppender(
         ILogger<AssembliesListAppender> logger,
         GameExecutionContext gameExecutionContext,
+        BootstrapEnvironment bootstrapEnvironment,
         IWin32 win32,
         IFileSystem fileSystem,
         IPltHooksManager pltHooksManager,
@@ -86,7 +87,7 @@ internal sealed class AssembliesListAppender : IGlobalManagersPatcher, IAssembli
         _win32 = win32;
         _managedDirectoryPath = _fileSystem.Path.Combine(_gameExecutionContext.DataDir, "Managed");
 
-        PopulateAssembliesList(gameExecutionContext, fileSystem);
+        PopulateAssembliesList(bootstrapEnvironment, gameExecutionContext, fileSystem);
 
         _hookPathFileExistsDelegate = HookPathFileExistsW;
         _hookGetFileAttributesExDelegate = HookGetFileAttributesEx;
@@ -159,11 +160,14 @@ internal sealed class AssembliesListAppender : IGlobalManagersPatcher, IAssembli
         monoManagerAsset.SetNewData(monoMangerBaseField);
     }
 
-    private void PopulateAssembliesList(GameExecutionContext gameExecutionContext, IFileSystem fileSystem)
+    private void PopulateAssembliesList(
+        BootstrapEnvironment bootstrapEnvironment,
+        GameExecutionContext gameExecutionContext,
+        IFileSystem fileSystem)
     {
-        string budsDirectory = fileSystem.Path.Combine(gameExecutionContext.BaseDir, "Buds");
+        string budsDirectory = fileSystem.Path.Combine(bootstrapEnvironment.BasePath, "Buds");
         string venusRootLoaderDirectory = fileSystem.Path.Combine(
-            gameExecutionContext.BaseDir,
+            gameExecutionContext.GameDir,
             "VenusRootLoader");
 
         // We want all buds assemblies except the ones we already have so we take priority over them.

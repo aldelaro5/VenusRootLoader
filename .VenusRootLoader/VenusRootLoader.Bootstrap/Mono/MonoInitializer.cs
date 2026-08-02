@@ -10,6 +10,7 @@ using VenusRootLoader.Bootstrap.Shared;
 using VenusRootLoader.Bootstrap.Unity;
 using VenusRootLoader.Bootstrap.Unity.GlobalManagers;
 using Windows.Win32.Foundation;
+using Environment = System.Environment;
 
 namespace VenusRootLoader.Bootstrap.Mono;
 
@@ -75,6 +76,7 @@ internal sealed class MonoInitializer
         ILogger<MonoInitializer> logger,
         IPltHooksManager pltHooksManager,
         GameExecutionContext gameExecutionContext,
+        BootstrapEnvironment bootstrapEnvironment,
         IOptions<MonoDebuggerSettings> debuggerSettings,
         IPlayerConnectionDiscovery playerConnectionDiscovery,
         ISdbWinePathTranslator sdbWinePathTranslator,
@@ -101,7 +103,7 @@ internal sealed class MonoInitializer
 
         _gameExecutionContextPtr = Marshal.AllocHGlobal(Marshal.SizeOf<GameExecutionContext>());
         Marshal.StructureToPtr(_gameExecutionContext, _gameExecutionContextPtr, false);
-        _basePathPtr = Marshal.StringToHGlobalUni(gameExecutionContext.BaseDir);
+        _basePathPtr = Marshal.StringToHGlobalUni(bootstrapEnvironment.BasePath);
 
         _hookGetProcAddressDelegate = HookGetProcAddress;
         _monoInitDetourFn = MonoJitInitDetour;

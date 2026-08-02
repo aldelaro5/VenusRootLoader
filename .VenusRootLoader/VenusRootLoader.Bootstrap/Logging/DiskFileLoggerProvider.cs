@@ -23,7 +23,7 @@ public sealed class DiskFileLoggerProvider : ILoggerProvider
 
     public DiskFileLoggerProvider(
         IOptions<DiskFileLoggerSettings> loggingSettings,
-        GameExecutionContext gameExecutionContext,
+        BootstrapEnvironment bootstrapEnvironment,
         IFileSystem fileSystem,
         TimeProvider timeProvider)
     {
@@ -35,7 +35,7 @@ public sealed class DiskFileLoggerProvider : ILoggerProvider
 
         try
         {
-            var logsDirectory = _fileSystem.Path.Combine(gameExecutionContext.BaseDir, "Logs");
+            var logsDirectory = _fileSystem.Path.Combine(bootstrapEnvironment.BasePath, "Logs");
             if (!_fileSystem.Directory.Exists(logsDirectory))
                 _fileSystem.Directory.CreateDirectory(logsDirectory);
             PurgeOldLogFiles(logsDirectory, _diskFileLoggerSettings.MaxFilesToKeep!.Value);

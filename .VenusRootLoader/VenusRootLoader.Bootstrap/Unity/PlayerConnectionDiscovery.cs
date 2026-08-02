@@ -7,6 +7,7 @@ using System.Timers;
 using VenusRootLoader.Bootstrap.Shared;
 using Windows.Win32.Foundation;
 using Windows.Win32.Networking.WinSock;
+using Environment = System.Environment;
 using Timer = System.Timers.Timer;
 
 namespace VenusRootLoader.Bootstrap.Unity;

@@ -41,14 +41,17 @@ internal static class Startup
         ["DEBUGGER_SUSPEND_BOOT"] = $"{nameof(MonoDebuggerSettings)}:{nameof(MonoDebuggerSettings.SuspendOnBoot)}"
     };
 
-    internal static ServiceProvider BuildServiceProvider(GameExecutionContext gameExecutionContext, string[] args)
+    internal static ServiceProvider BuildServiceProvider(
+        GameExecutionContext gameExecutionContext,
+        string basePath,
+        string[] args)
     {
         IServiceCollection services = new ServiceCollection();
         IConfigurationManager configurationManager = new ConfigurationManager();
 
         FileSystem fileSystem = new();
         configurationManager.AddJsonFile(
-            fileSystem.Path.Combine(gameExecutionContext.BaseDir, "Config", "config.jsonc"));
+            fileSystem.Path.Combine(basePath, "Config", "config.jsonc"));
         configurationManager.AddCustomEnvironmentVariables("VRL_", EnvironmentVariablesConfigMapping);
         configurationManager.AddCommandLine(
             args,
@@ -92,6 +95,7 @@ internal static class Startup
         services.AddSingleton<IFileSystem, FileSystem>();
         services.AddSingleton<IWin32, Win32>();
         services.AddSingleton<GameExecutionContext>(_ => gameExecutionContext);
+        services.AddSingleton<BootstrapEnvironment>(_ => new() { BasePath = basePath });
 
         services.AddSingleton<IPltHooksManager, PltHooksManager>(sp =>
             new PltHooksManager(sp.GetRequiredService<ILogger<PltHooksManager>>(), new PltHook(), new FileSystem()));

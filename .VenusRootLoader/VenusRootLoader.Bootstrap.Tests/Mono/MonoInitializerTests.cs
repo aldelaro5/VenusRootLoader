@@ -86,7 +86,7 @@ public sealed class MonoInitializerTests
         HMODULE moduleHandle = (HMODULE)Random.Shared.Next();
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
 
-        IntPtr result = (nint)_pltHooksManager.SimulateHook(
+        nint result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
@@ -111,7 +111,7 @@ public sealed class MonoInitializerTests
         HMODULE moduleHandle = (HMODULE)Random.Shared.Next();
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
 
-        IntPtr result = (nint)_pltHooksManager.SimulateHook(
+        nint result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
@@ -142,7 +142,7 @@ public sealed class MonoInitializerTests
         _win32.WhenForAnyArgs(x => x.GetModuleFileName(Arg.Any<HMODULE>(), Arg.Any<PWSTR>(), Arg.Any<uint>()))
             .Do(c => Marshal.Copy(monoFileNameBytes, 0, (nint)c.ArgAt<PWSTR>(1).Value, monoFileNameBytes.Length));
 
-        IntPtr result = (nint)_pltHooksManager.SimulateHook(
+        nint result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
@@ -161,19 +161,19 @@ public sealed class MonoInitializerTests
     {
         _sut.HookMonoInitialization();
 
-        IntPtr domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
-        IntPtr runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
+        nint domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
+        nint runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
         PCSTR symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_init_version");
         FARPROC symbolAddress = (FARPROC)Random.Shared.Next();
         HMODULE moduleHandle = (HMODULE)Random.Shared.Next();
-        IntPtr receivedDomainNamePtr = nint.Zero;
-        IntPtr receivedRuntimeVersionPtr = nint.Zero;
+        nint receivedDomainNamePtr = nint.Zero;
+        nint receivedRuntimeVersionPtr = nint.Zero;
         int expectedReturn = Random.Shared.Next();
         string assemblyRootDir = "rootdir";
         string receivedMonoAssembliesPath = "";
         string expectedMonoAssembliesPath =
             $"{Path.Combine(_gameExecutionContext.GameDir, "UnityJitMonoBcl")};{assemblyRootDir}";
-        IntPtr monoThreadCurrent = Random.Shared.Next();
+        nint monoThreadCurrent = Random.Shared.Next();
         nint receivedMonoThreadSetMain = nint.Zero;
         (int argc, string[] argv) receivedArgs = default;
         nint receivedSetConfigDomain = nint.Zero;
@@ -200,7 +200,7 @@ public sealed class MonoInitializerTests
         _monoFunctions.SetAssembliesPath.Returns(path => receivedMonoAssembliesPath = path);
         _monoFunctions.DomainAssemblyOpen.Returns((_, _) => Random.Shared.Next());
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
-        IntPtr detourPtr = (nint)_pltHooksManager.SimulateHook(
+        nint detourPtr = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
@@ -208,7 +208,7 @@ public sealed class MonoInitializerTests
         IMonoFunctions.JitInitVersionFn detour =
             Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitInitVersionFn>(detourPtr);
 
-        IntPtr result = detour(domainNamePtr, runtimeVersionPtr);
+        nint result = detour(domainNamePtr, runtimeVersionPtr);
 
         result.Should().Be(expectedReturn);
         receivedDomainNamePtr.Should().Be(domainNamePtr);
@@ -246,8 +246,8 @@ public sealed class MonoInitializerTests
         _debuggerSettingsValue.Enable = true;
         _sut.HookMonoInitialization();
 
-        IntPtr domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
-        IntPtr runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
+        nint domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
+        nint runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
         PCSTR symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_init_version");
         FARPROC symbolAddress = (FARPROC)Random.Shared.Next();
         HMODULE moduleHandle = (HMODULE)Random.Shared.Next();
@@ -261,7 +261,7 @@ public sealed class MonoInitializerTests
         _monoFunctions.JitParseOptions.Returns((argc, argv) => receivedArgs = ((int)argc, argv));
         _monoFunctions.DomainAssemblyOpen.Returns((_, _) => Random.Shared.Next());
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
-        IntPtr detourPtr = (nint)_pltHooksManager.SimulateHook(
+        nint detourPtr = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
@@ -287,8 +287,8 @@ public sealed class MonoInitializerTests
         _debuggerSettingsValue.Enable = true;
         _sut.HookMonoInitialization();
 
-        IntPtr domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
-        IntPtr runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
+        nint domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
+        nint runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
         PCSTR jitInitSymbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_init_version");
         PCSTR debugInitSymbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_debug_init");
         FARPROC symbolAddress = (FARPROC)Random.Shared.Next();
@@ -303,12 +303,12 @@ public sealed class MonoInitializerTests
         _monoFunctions.JitParseOptions.Returns((argc, argv) => receivedArgs = ((int)argc, argv));
         _monoFunctions.DomainAssemblyOpen.Returns((_, _) => Random.Shared.Next());
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
-        IntPtr jitInitDetourPtr = (nint)_pltHooksManager.SimulateHook(
+        nint jitInitDetourPtr = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
             jitInitSymbolPtr)!;
-        IntPtr debugInitDetourPtr = (nint)_pltHooksManager.SimulateHook(
+        nint debugInitDetourPtr = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
@@ -338,13 +338,13 @@ public sealed class MonoInitializerTests
     {
         _sut.HookMonoInitialization();
 
-        IntPtr domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
-        IntPtr runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
+        nint domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
+        nint runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
         PCSTR symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_init_version");
         FARPROC symbolAddress = (FARPROC)Random.Shared.Next();
         HMODULE moduleHandle = (HMODULE)Random.Shared.Next();
-        IntPtr receivedDomainNamePtr = nint.Zero;
-        IntPtr receivedRuntimeVersionPtr = nint.Zero;
+        nint receivedDomainNamePtr = nint.Zero;
+        nint receivedRuntimeVersionPtr = nint.Zero;
         int expectedReturn = Random.Shared.Next();
 
         _monoFunctions.JitInitVersion.Returns((domainName, runtimeVersion) =>
@@ -355,7 +355,7 @@ public sealed class MonoInitializerTests
         });
         _monoFunctions.DomainAssemblyOpen.Returns((_, _) => Random.Shared.Next());
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
-        IntPtr detourPtr = (nint)_pltHooksManager.SimulateHook(
+        nint detourPtr = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
@@ -364,7 +364,7 @@ public sealed class MonoInitializerTests
             Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitInitVersionFn>(detourPtr);
 
         detour(domainNamePtr, runtimeVersionPtr);
-        IntPtr result = detour(domainNamePtr, runtimeVersionPtr);
+        nint result = detour(domainNamePtr, runtimeVersionPtr);
 
         result.Should().Be(expectedReturn);
         receivedDomainNamePtr.Should().Be(domainNamePtr);
@@ -381,12 +381,12 @@ public sealed class MonoInitializerTests
     {
         _sut.HookMonoInitialization();
 
-        IntPtr domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
-        IntPtr runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
+        nint domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
+        nint runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
         PCSTR symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_init_version");
         HMODULE moduleHandle = (HMODULE)Random.Shared.Next();
         _monoFunctions.DomainAssemblyOpen.Returns((_, _) => nint.Zero);
-        IntPtr detourPtr = (nint)_pltHooksManager.SimulateHook(
+        nint detourPtr = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
@@ -394,7 +394,7 @@ public sealed class MonoInitializerTests
         IMonoFunctions.JitInitVersionFn detour =
             Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitInitVersionFn>(detourPtr);
 
-        IntPtr result = detour(domainNamePtr, runtimeVersionPtr);
+        nint result = detour(domainNamePtr, runtimeVersionPtr);
 
         _monoFunctions.ReceivedWithAnyArgs(1).DomainAssemblyOpen(result, Arg.Any<string>());
         _monoFunctions.DidNotReceiveWithAnyArgs().RuntimeInvoke(
@@ -421,7 +421,7 @@ public sealed class MonoInitializerTests
         (int argc, string[] args) receivedArgs = default;
         _monoFunctions.JitParseOptions.Returns((argc, argv) => receivedArgs = ((int)argc, argv));
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
-        IntPtr result = (nint)_pltHooksManager.SimulateHook(
+        nint result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
@@ -454,7 +454,7 @@ public sealed class MonoInitializerTests
         (int argc, string[] args) receivedArgs = default;
         _monoFunctions.JitParseOptions.Returns((argc, argv) => receivedArgs = ((int)argc, argv));
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
-        IntPtr result = (nint)_pltHooksManager.SimulateHook(
+        nint result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
@@ -489,7 +489,7 @@ public sealed class MonoInitializerTests
         (int argc, string[] args) receivedArgs = default;
         _monoFunctions.JitParseOptions.Returns((argc, argv) => receivedArgs = ((int)argc, argv));
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
-        IntPtr result = (nint)_pltHooksManager.SimulateHook(
+        nint result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
@@ -524,7 +524,7 @@ public sealed class MonoInitializerTests
         (int argc, string[] args) receivedArgs = default;
         _monoFunctions.JitParseOptions.Returns((argc, argv) => receivedArgs = ((int)argc, argv));
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
-        IntPtr result = (nint)_pltHooksManager.SimulateHook(
+        nint result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
@@ -545,8 +545,8 @@ public sealed class MonoInitializerTests
         _debuggerSettingsValue.Enable = true;
         _sut.HookMonoInitialization();
 
-        IntPtr domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
-        IntPtr runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
+        nint domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
+        nint runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
         PCSTR jitParseOptionSymbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_parse_options");
         PCSTR jitInitSymbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_init_version");
         FARPROC symbolAddress = (FARPROC)Random.Shared.Next();
@@ -555,12 +555,12 @@ public sealed class MonoInitializerTests
         (int argc, string[] args) receivedArgs = default;
         _monoFunctions.JitParseOptions.Returns((argc, argv) => receivedArgs = ((int)argc, argv));
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
-        IntPtr detourJitParseOptionsPtr = (nint)_pltHooksManager.SimulateHook(
+        nint detourJitParseOptionsPtr = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
             jitParseOptionSymbolPtr)!;
-        IntPtr detourJitInitPtr = (nint)_pltHooksManager.SimulateHook(
+        nint detourJitInitPtr = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
@@ -592,7 +592,7 @@ public sealed class MonoInitializerTests
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
         int receivedFormat = -1;
         _monoFunctions.DebugInit.Returns(format => receivedFormat = (int)format);
-        IntPtr result = (nint)_pltHooksManager.SimulateHook(
+        nint result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,

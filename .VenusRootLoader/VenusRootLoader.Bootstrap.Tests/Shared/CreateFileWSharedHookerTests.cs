@@ -41,7 +41,7 @@ public sealed class CreateFileWSharedHookerTests
                 Arg.Any<HANDLE>())
             .ReturnsForAnyArgs(expectedReturn);
 
-        IntPtr result = (nint)_pltHooksManager.SimulateHook(
+        nint result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             "CreateFileW",
             fileNamePtr,
@@ -86,7 +86,7 @@ public sealed class CreateFileWSharedHookerTests
         _sut.RegisterHook(hookedFileName1, _ => false, (out handle, _, _, _, _, _, _, _) => handle = HANDLE.Null);
         _sut.RegisterHook(hookedFileName2, _ => false, (out handle, _, _, _, _, _, _, _) => handle = HANDLE.Null);
         _sut.RegisterHook(hookedFileName3, _ => false, (out handle, _, _, _, _, _, _, _) => handle = HANDLE.Null);
-        IntPtr result = (nint)_pltHooksManager.SimulateHook(
+        nint result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             "CreateFileW",
             fileNamePtr,
@@ -132,7 +132,7 @@ public sealed class CreateFileWSharedHookerTests
         _sut.RegisterHook(hookedFileName1, _ => false, (out handle, _, _, _, _, _, _, _) => handle = unexpectedReturn);
         _sut.RegisterHook(hookedFileName2, _ => true, (out handle, _, _, _, _, _, _, _) => handle = expectedReturn);
         _sut.RegisterHook(hookedFileName3, _ => false, (out handle, _, _, _, _, _, _, _) => handle = unexpectedReturn);
-        IntPtr result = (nint)_pltHooksManager.SimulateHook(
+        nint result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             "CreateFileW",
             fileNamePtr,
@@ -180,7 +180,7 @@ public sealed class CreateFileWSharedHookerTests
         _sut.RegisterHook(hookedFileName3, _ => false, (out handle, _, _, _, _, _, _, _) => handle = unexpectedReturn);
 
         _sut.UnregisterHook(hookedFileName1);
-        IntPtr result = (nint)_pltHooksManager.SimulateHook(
+        nint result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             "CreateFileW",
             fileNamePtr,

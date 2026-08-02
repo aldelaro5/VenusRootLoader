@@ -109,7 +109,7 @@ internal sealed class MonoInitializer
         _jitParseOptionsDetourFn = MonoJitParseOptionsDetour;
         _debugInitDetourFn = MonoDebugInitDetour;
         _imageOpenFromDataWithNameDetourFn = MonoImageOpenFromDataWithNameDetour;
-        _symbolRedirects = new Dictionary<string, IntPtr>
+        _symbolRedirects = new Dictionary<string, nint>
         {
             { "mono_jit_init_version", Marshal.GetFunctionPointerForDelegate(_monoInitDetourFn) },
             { "mono_jit_parse_options", Marshal.GetFunctionPointerForDelegate(_jitParseOptionsDetourFn) },
@@ -149,7 +149,7 @@ internal sealed class MonoInitializer
     private unsafe nint HookGetProcAddress(HMODULE handle, PCSTR symbol)
     {
         FARPROC originalSymbolAddress = _win32.GetProcAddress(handle, symbol);
-        if (!_symbolRedirects.TryGetValue(symbol.ToString(), out IntPtr detourAddress))
+        if (!_symbolRedirects.TryGetValue(symbol.ToString(), out nint detourAddress))
             return originalSymbolAddress;
 
         if (!_runtimeInitialised)
@@ -351,16 +351,16 @@ internal sealed class MonoInitializer
     private unsafe void TransitionToMonoManagedSide(ManagedEntryPointInfo entryPointInfo)
     {
         _logger.LogInformation("Loading entrypoint assembly");
-        IntPtr assembly = _monoFunctions.DomainAssemblyOpen(Domain, entryPointInfo.AssemblyPath);
+        nint assembly = _monoFunctions.DomainAssemblyOpen(Domain, entryPointInfo.AssemblyPath);
         if (assembly == 0)
         {
             _logger.LogCritical("Failed to load the entrypoint assembly into the Mono domain");
             return;
         }
 
-        IntPtr image = _monoFunctions.AssemblyGetImage(assembly);
-        IntPtr interopClass = _monoFunctions.ClassFromName(image, entryPointInfo.Namespace, entryPointInfo.ClassName);
-        IntPtr initMethod = _monoFunctions.ClassGetMethodFromName(interopClass, entryPointInfo.MethodName, 3);
+        nint image = _monoFunctions.AssemblyGetImage(assembly);
+        nint interopClass = _monoFunctions.ClassFromName(image, entryPointInfo.Namespace, entryPointInfo.ClassName);
+        nint initMethod = _monoFunctions.ClassGetMethodFromName(interopClass, entryPointInfo.MethodName, 3);
 
         nint ex = 0;
 

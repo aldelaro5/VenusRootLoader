@@ -76,10 +76,10 @@ public sealed class PltHooksManager : IPltHooksManager
         if (!_openedPltHooksByFilename.TryGetValue(fileName, out ModulePltHook moduleHook))
             return;
 
-        if (!moduleHook.originalHookedFunc.TryGetValue(functionName, out IntPtr originalHookedFunc))
+        if (!moduleHook.originalHookedFunc.TryGetValue(functionName, out nint originalHookedFunc))
             return;
 
-        IntPtr oldFunc = nint.Zero;
+        nint oldFunc = nint.Zero;
         if (!_pltHook.PlthookReplace(moduleHook.ptr, functionName, originalHookedFunc, new(&oldFunc)))
         {
             _logger.LogError(

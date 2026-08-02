@@ -133,7 +133,7 @@ public sealed class PltHooksManagerTests
         string functionName = "functionName";
         Action hook = () => { };
         string errorString = "error";
-        IntPtr errorStringPtr = Marshal.StringToHGlobalUni(errorString);
+        nint errorStringPtr = Marshal.StringToHGlobalUni(errorString);
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -169,7 +169,7 @@ public sealed class PltHooksManagerTests
         string functionName = "functionName";
         Action hook = () => { };
         string errorString = "<some error>";
-        IntPtr errorStringPtr = Marshal.StringToHGlobalAnsi(errorString);
+        nint errorStringPtr = Marshal.StringToHGlobalAnsi(errorString);
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -382,7 +382,7 @@ public sealed class PltHooksManagerTests
         string functionName = "functionName";
         Action hook = () => { };
         string errorString = "<some error>";
-        IntPtr errorStringPtr = Marshal.StringToHGlobalAnsi(errorString);
+        nint errorStringPtr = Marshal.StringToHGlobalAnsi(errorString);
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),

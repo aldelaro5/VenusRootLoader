@@ -115,15 +115,21 @@ public sealed class BudLoaderTests
         _budConfigManager.DidNotReceiveWithAnyArgs().Load(null!, null!);
     }
 
+    public sealed class MainExceptionTest
+    {
+        internal static readonly Exception TestException = new("An exception");
+        public static void MainExceptionThrow() => throw TestException;
+    }
+
     [Fact]
     public void LoadAllBuds_DoesNothingAndLogsError_WhenDependencySorterThrowsAnException()
     {
         Exception exception = new("An exception");
         string budId = "aBudId";
         _fileSystem.Directory.CreateDirectory(Path.Combine(BudsPath, budId));
-        MethodInfo mainMethod = typeof(BudLoaderTests).GetMethod(
-            nameof(MainExceptionThrow),
-            BindingFlags.Static | BindingFlags.NonPublic)!;
+        MethodInfo mainMethod = typeof(MainExceptionTest).GetMethod(
+            nameof(MainExceptionTest.MainExceptionThrow),
+            BindingFlags.Static | BindingFlags.Public)!;
         BudInfo[] buds = [CreateBud(budId, mainMethod)];
 
         _budsDiscoverer.DiscoverAllBudsFromDisk().ReturnsForAnyArgs(buds);
@@ -153,9 +159,9 @@ public sealed class BudLoaderTests
     {
         Exception exception = new("An exception");
         string budId = "aBudId";
-        MethodInfo mainMethod = typeof(BudLoaderTests).GetMethod(
-            nameof(MainExceptionThrow),
-            BindingFlags.Static | BindingFlags.NonPublic)!;
+        MethodInfo mainMethod = typeof(MainExceptionTest).GetMethod(
+            nameof(MainExceptionTest.MainExceptionThrow),
+            BindingFlags.Static | BindingFlags.Public)!;
         BudInfo[] buds = [CreateBud(budId, mainMethod)];
 
         _budsDiscoverer.DiscoverAllBudsFromDisk().ReturnsForAnyArgs(buds);
@@ -182,16 +188,13 @@ public sealed class BudLoaderTests
         _budConfigManager.DidNotReceiveWithAnyArgs().Load(null!, null!);
     }
 
-    private static readonly Exception TestException = new("An exception");
-    internal static void MainExceptionThrow() => throw TestException;
-
     [Fact]
     public void LoadAllBuds_MarkBudAsFailed_WhenBudMainThrowsAnException()
     {
         string budId = "aBudId";
-        MethodInfo exceptionThrowMethod = typeof(BudLoaderTests).GetMethod(
-            nameof(MainExceptionThrow),
-            BindingFlags.Static | BindingFlags.NonPublic)!;
+        MethodInfo exceptionThrowMethod = typeof(MainExceptionTest).GetMethod(
+            nameof(MainExceptionTest.MainExceptionThrow),
+            BindingFlags.Static | BindingFlags.Public)!;
         BudInfo[] buds = [CreateBud(budId, exceptionThrowMethod)];
 
         _budsDiscoverer.DiscoverAllBudsFromDisk().ReturnsForAnyArgs(buds);
@@ -207,7 +210,7 @@ public sealed class BudLoaderTests
 
         _sut.LoadAllBuds();
 
-        TestUtility.AssertErrorLogs(_logger, 1, TestException.Message);
+        TestUtility.AssertErrorLogs(_logger, 1, MainExceptionTest.TestException.Message);
 
         _budsDiscoverer.Received(1).DiscoverAllBudsFromDisk();
         _budsValidator.Received(1).RemoveInvalidBuds(buds);
@@ -222,16 +225,19 @@ public sealed class BudLoaderTests
         _budConfigManager.DidNotReceiveWithAnyArgs().Load(null!, null!);
     }
 
-    private static bool _mainCalledAndReturned;
-    internal static void MainNormal() => _mainCalledAndReturned = true;
+    public sealed class MainTest
+    {
+        internal static bool MainCalledAndReturned;
+        public static void MainNormal() => MainCalledAndReturned = true;
+    }
 
     [Fact]
     public void LoadAllBuds_LoadBud_WhenBudLoadsSuccessfully()
     {
         string budId = "aBudId";
-        MethodInfo exceptionThrowMethod = typeof(BudLoaderTests).GetMethod(
-            nameof(MainNormal),
-            BindingFlags.Static | BindingFlags.NonPublic)!;
+        MethodInfo exceptionThrowMethod = typeof(MainTest).GetMethod(
+            nameof(MainTest.MainNormal),
+            BindingFlags.Static | BindingFlags.Public)!;
         BudInfo[] buds = [CreateBud(budId, exceptionThrowMethod)];
 
         _budsDiscoverer.DiscoverAllBudsFromDisk().ReturnsForAnyArgs(buds);
@@ -244,12 +250,12 @@ public sealed class BudLoaderTests
             byte[] assemblyBytes = _fileSystem.File.ReadAllBytes((string)x[0]!);
             return Assembly.Load(assemblyBytes);
         });
-        _mainCalledAndReturned = false;
+        MainTest.MainCalledAndReturned = false;
 
         _sut.LoadAllBuds();
 
         TestUtility.AssertErrorLogs(_logger, 0);
-        _mainCalledAndReturned.Should().BeTrue();
+        MainTest.MainCalledAndReturned.Should().BeTrue();
 
         _budsDiscoverer.Received(1).DiscoverAllBudsFromDisk();
         _budsValidator.Received(1).RemoveInvalidBuds(buds);
@@ -270,18 +276,21 @@ public sealed class BudLoaderTests
         public int SomeIntValue { get; set; }
     }
 
-    internal static object DefaultConfigGetter() => new DefaultConfigTest { SomeIntValue = 5 };
+    public sealed class DefaultConfigGetterTest
+    {
+        public static object DefaultConfigGetter() => new DefaultConfigTest { SomeIntValue = 5 };
+    }
 
     [Fact]
     public void LoadAllBuds_LoadBudAndSaveDefaultConfig_WhenBudLoadSuccessfullyAndHasDefaultConfigData()
     {
         const string budId = "aBudId";
-        MethodInfo exceptionThrowMethod = typeof(BudLoaderTests).GetMethod(
-            nameof(MainNormal),
-            BindingFlags.Static | BindingFlags.NonPublic)!;
-        MethodInfo defaultConfigGetter = typeof(BudLoaderTests).GetMethod(
-            nameof(DefaultConfigGetter),
-            BindingFlags.Static | BindingFlags.NonPublic)!;
+        MethodInfo exceptionThrowMethod = typeof(MainTest).GetMethod(
+            nameof(MainTest.MainNormal),
+            BindingFlags.Static | BindingFlags.Public)!;
+        MethodInfo defaultConfigGetter = typeof(DefaultConfigGetterTest).GetMethod(
+            nameof(DefaultConfigGetterTest.DefaultConfigGetter),
+            BindingFlags.Static | BindingFlags.Public)!;
         BudInfo[] buds = [CreateBud(budId, exceptionThrowMethod, defaultConfigGetter)];
 
         _budsDiscoverer.DiscoverAllBudsFromDisk().ReturnsForAnyArgs(buds);
@@ -295,12 +304,12 @@ public sealed class BudLoaderTests
             return Assembly.Load(assemblyBytes);
         });
         _budConfigManager.GetConfigPathForBud(null!).ReturnsForAnyArgs(x => Path.Combine(ConfigPath, $"{x[0]}.toml"));
-        _mainCalledAndReturned = false;
+        MainTest.MainCalledAndReturned = false;
 
         _sut.LoadAllBuds();
 
         TestUtility.AssertErrorLogs(_logger, 0);
-        _mainCalledAndReturned.Should().BeTrue();
+        MainTest.MainCalledAndReturned.Should().BeTrue();
 
         _budsDiscoverer.Received(1).DiscoverAllBudsFromDisk();
         _budsValidator.Received(1).RemoveInvalidBuds(buds);
@@ -319,12 +328,12 @@ public sealed class BudLoaderTests
     public void LoadAllBuds_LoadBudAndLoadConfigFile_WhenBudLoadSuccessfullyAndHasConfigFile()
     {
         const string budId = "aBudId";
-        MethodInfo exceptionThrowMethod = typeof(BudLoaderTests).GetMethod(
-            nameof(MainNormal),
-            BindingFlags.Static | BindingFlags.NonPublic)!;
-        MethodInfo defaultConfigGetter = typeof(BudLoaderTests).GetMethod(
-            nameof(DefaultConfigGetter),
-            BindingFlags.Static | BindingFlags.NonPublic)!;
+        MethodInfo exceptionThrowMethod = typeof(MainTest).GetMethod(
+            nameof(MainTest.MainNormal),
+            BindingFlags.Static | BindingFlags.Public)!;
+        MethodInfo defaultConfigGetter = typeof(DefaultConfigGetterTest).GetMethod(
+            nameof(DefaultConfigGetterTest.DefaultConfigGetter),
+            BindingFlags.Static | BindingFlags.Public)!;
         BudInfo[] buds = [CreateBud(budId, exceptionThrowMethod, defaultConfigGetter)];
 
         _budsDiscoverer.DiscoverAllBudsFromDisk().ReturnsForAnyArgs(buds);
@@ -339,12 +348,12 @@ public sealed class BudLoaderTests
         });
         _budConfigManager.GetConfigPathForBud(null!).ReturnsForAnyArgs(x => Path.Combine(ConfigPath, $"{x[0]}.toml"));
         _fileSystem.File.CreateText(Path.Combine(ConfigPath, $"{budId}.toml")).Close();
-        _mainCalledAndReturned = false;
+        MainTest.MainCalledAndReturned = false;
 
         _sut.LoadAllBuds();
 
         TestUtility.AssertErrorLogs(_logger, 0);
-        _mainCalledAndReturned.Should().BeTrue();
+        MainTest.MainCalledAndReturned.Should().BeTrue();
 
         _budsDiscoverer.Received(1).DiscoverAllBudsFromDisk();
         _budsValidator.Received(1).RemoveInvalidBuds(buds);

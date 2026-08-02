@@ -33,7 +33,7 @@ public sealed class ConsoleLogProvider : ILoggerProvider
     private readonly RenderingMode _renderingMode;
 
     public unsafe ConsoleLogProvider(
-        GameExecutionContext gameExecutionContext,
+        IGameExecutionContext gameExecutionContext,
         IOptions<ConsoleLoggerSettings> loggingSettings,
         IWin32 win32,
         TimeProvider timeProvider)

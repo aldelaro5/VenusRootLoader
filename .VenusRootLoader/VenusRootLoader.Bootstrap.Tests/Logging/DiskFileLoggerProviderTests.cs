@@ -1,5 +1,5 @@
 using AwesomeAssertions;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Time.Testing;
@@ -7,6 +7,7 @@ using NSubstitute;
 using System.IO.Abstractions.TestingHelpers;
 using VenusRootLoader.Bootstrap.Logging;
 using VenusRootLoader.Bootstrap.Settings.LogProvider;
+using VenusRootLoader.Bootstrap.Shared;
 
 namespace VenusRootLoader.Bootstrap.Tests.Logging;
 
@@ -16,7 +17,7 @@ public sealed class DiskFileLoggerProviderTests
         Substitute.For<IOptions<DiskFileLoggerSettings>>();
 
     private readonly FakeTimeProvider _timeProvider = new();
-    private readonly IHostEnvironment _hostEnvironment = Substitute.For<IHostEnvironment>();
+    private readonly IBootstrapEnvironment _bootstrapEnvironment = Substitute.For<IBootstrapEnvironment>();
     private readonly MockFileSystem _fileSystem = new();
 
     [Fact]
@@ -29,8 +30,12 @@ public sealed class DiskFileLoggerProviderTests
                 MaxFilesToKeep = 5
             });
 
-        var sut = new DiskFileLoggerProvider(_diskFileLoggerSettings, _hostEnvironment, _fileSystem, _timeProvider);
-        var logger = sut.CreateLogger("Test");
+        DiskFileLoggerProvider sut = new DiskFileLoggerProvider(
+            _diskFileLoggerSettings,
+            _bootstrapEnvironment,
+            _fileSystem,
+            _timeProvider);
+        ILogger logger = sut.CreateLogger("Test");
 
         logger.Should().BeOfType<NullLogger>();
     }
@@ -38,12 +43,12 @@ public sealed class DiskFileLoggerProviderTests
     [Fact]
     public void CreateLogger_ReturnsNullLogger_WhenLogFileIsAlreadyOpened()
     {
-        var rootPath = Path.Combine(Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()), "root");
-        var existingLogPath = Path.Combine(
+        string rootPath = Path.Combine(Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()), "root");
+        string existingLogPath = Path.Combine(
             rootPath,
             "Logs",
             "latest.log");
-        var existingLogsContent = "existing logs";
+        string existingLogsContent = "existing logs";
 
         _diskFileLoggerSettings.Value.Returns(
             new DiskFileLoggerSettings
@@ -51,11 +56,15 @@ public sealed class DiskFileLoggerProviderTests
                 Enable = true,
                 MaxFilesToKeep = 5
             });
-        _hostEnvironment.ContentRootPath.Returns(rootPath);
+        _bootstrapEnvironment.BasePath.Returns(rootPath);
         _fileSystem.AddFile(existingLogPath, new(existingLogsContent) { AllowedFileShare = FileShare.None });
 
-        var sut = new DiskFileLoggerProvider(_diskFileLoggerSettings, _hostEnvironment, _fileSystem, _timeProvider);
-        var logger = sut.CreateLogger("Test");
+        DiskFileLoggerProvider sut = new DiskFileLoggerProvider(
+            _diskFileLoggerSettings,
+            _bootstrapEnvironment,
+            _fileSystem,
+            _timeProvider);
+        ILogger logger = sut.CreateLogger("Test");
 
         logger.Should().BeOfType<NullLogger>();
         _fileSystem.AllFiles.Should().HaveCount(1);
@@ -65,8 +74,8 @@ public sealed class DiskFileLoggerProviderTests
     [Fact]
     public void CreateLogger_ReturnsDiskFileLoggerWithCorrectFilename_WhenDiskFileLoggingIsEnabled()
     {
-        var rootPath = Path.Combine(Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()), "root");
-        var expectedPath = Path.Combine(
+        string rootPath = Path.Combine(Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()), "root");
+        string expectedPath = Path.Combine(
             rootPath,
             "Logs",
             "latest.log");
@@ -77,14 +86,14 @@ public sealed class DiskFileLoggerProviderTests
                 Enable = true,
                 MaxFilesToKeep = 5
             });
-        _hostEnvironment.ContentRootPath.Returns(rootPath);
+        _bootstrapEnvironment.BasePath.Returns(rootPath);
 
-        using var sut = new DiskFileLoggerProvider(
+        using DiskFileLoggerProvider sut = new DiskFileLoggerProvider(
             _diskFileLoggerSettings,
-            _hostEnvironment,
+            _bootstrapEnvironment,
             _fileSystem,
             _timeProvider);
-        var logger = sut.CreateLogger("Test");
+        ILogger logger = sut.CreateLogger("Test");
 
         logger.Should().BeOfType<DiskFileLogger>();
         _fileSystem.AllFiles.Should().ContainSingle(expectedPath);
@@ -93,18 +102,18 @@ public sealed class DiskFileLoggerProviderTests
     [Fact]
     public void CreateLogger_ReturnsDiskFileLoggerAfterOrganisingLogFiles_WhenALogFileExistsAlready()
     {
-        var rootPath = Path.Combine(Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()), "root");
-        var latestLogPath = Path.Combine(
+        string rootPath = Path.Combine(Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()), "root");
+        string latestLogPath = Path.Combine(
             rootPath,
             "Logs",
             "latest.log");
-        var existingLogsContent = "existing logs";
-        var olderLogFileTimeStamp = new DateTime(2025, 6, 15, 12, 30, 30);
-        var olderLogPath = Path.Combine(
+        string existingLogsContent = "existing logs";
+        DateTime olderLogFileTimeStamp = new DateTime(2025, 6, 15, 12, 30, 30);
+        string olderLogPath = Path.Combine(
             rootPath,
             "Logs",
             $"{olderLogFileTimeStamp:yyyy-MM-dd_HH-mm-ss}.log");
-        var currentTime = DateTimeOffset.Now;
+        DateTimeOffset currentTime = DateTimeOffset.Now;
 
         _diskFileLoggerSettings.Value.Returns(
             new DiskFileLoggerSettings
@@ -112,19 +121,19 @@ public sealed class DiskFileLoggerProviderTests
                 Enable = true,
                 MaxFilesToKeep = 5
             });
-        _hostEnvironment.ContentRootPath.Returns(rootPath);
+        _bootstrapEnvironment.BasePath.Returns(rootPath);
         _fileSystem.AddFile(latestLogPath, new(existingLogsContent));
         _fileSystem.File.SetCreationTime(latestLogPath, olderLogFileTimeStamp);
 
         _timeProvider.SetLocalTimeZone(TimeZoneInfo.Utc);
         _timeProvider.SetUtcNow(currentTime);
 
-        using var sut = new DiskFileLoggerProvider(
+        using DiskFileLoggerProvider sut = new DiskFileLoggerProvider(
             _diskFileLoggerSettings,
-            _hostEnvironment,
+            _bootstrapEnvironment,
             _fileSystem,
             _timeProvider);
-        var logger = sut.CreateLogger("Test");
+        ILogger logger = sut.CreateLogger("Test");
 
         logger.Should().BeOfType<DiskFileLogger>();
         _fileSystem.AllFiles.Should().ContainSingle(p => p == olderLogPath);
@@ -144,19 +153,19 @@ public sealed class DiskFileLoggerProviderTests
     [Fact]
     public void CreateLogger_ReturnsDiskFileLoggerAfterDeletingOldFiles_WhenTheAmountOfFilesExceedsTheLimit()
     {
-        var rootPath = Path.Combine(Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()), "root");
-        var latestLogPath = Path.Combine(
+        string rootPath = Path.Combine(Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()), "root");
+        string latestLogPath = Path.Combine(
             rootPath,
             "Logs",
             "latest.log");
-        var newerLogContent = "newer logs";
-        var olderLogContent = "older logs";
-        var newerLogTimeStamp = new DateTime(2025, 6, 15, 12, 30, 30);
-        var newerLogPath = Path.Combine(
+        string newerLogContent = "newer logs";
+        string olderLogContent = "older logs";
+        DateTime newerLogTimeStamp = new DateTime(2025, 6, 15, 12, 30, 30);
+        string newerLogPath = Path.Combine(
             rootPath,
             "Logs",
             $"{newerLogTimeStamp:yyyy-MM-dd_HH-mm-ss}.log");
-        var currentTime = DateTimeOffset.Now;
+        DateTimeOffset currentTime = DateTimeOffset.Now;
 
         _diskFileLoggerSettings.Value.Returns(
             new DiskFileLoggerSettings
@@ -164,7 +173,7 @@ public sealed class DiskFileLoggerProviderTests
                 Enable = true,
                 MaxFilesToKeep = 2
             });
-        _hostEnvironment.ContentRootPath.Returns(rootPath);
+        _bootstrapEnvironment.BasePath.Returns(rootPath);
         _fileSystem.AddFile(latestLogPath, new(newerLogContent));
         _fileSystem.AddFile(newerLogPath, new(olderLogContent));
         _fileSystem.File.SetCreationTime(latestLogPath, newerLogTimeStamp);
@@ -173,12 +182,12 @@ public sealed class DiskFileLoggerProviderTests
         _timeProvider.SetLocalTimeZone(TimeZoneInfo.Utc);
         _timeProvider.SetUtcNow(currentTime);
 
-        using var sut = new DiskFileLoggerProvider(
+        using DiskFileLoggerProvider sut = new DiskFileLoggerProvider(
             _diskFileLoggerSettings,
-            _hostEnvironment,
+            _bootstrapEnvironment,
             _fileSystem,
             _timeProvider);
-        var logger = sut.CreateLogger("Test");
+        ILogger logger = sut.CreateLogger("Test");
 
         logger.Should().BeOfType<DiskFileLogger>();
         _fileSystem.AllFiles.Should().HaveCount(2);

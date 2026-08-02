@@ -75,7 +75,7 @@ public sealed class SdbWinePathTranslatorTests
         string assemblyLocationString = @"Z:\Bug Fables_Data\Managed\Assembly-CSharp.dll";
         int packetLengthRecv = Random.Shared.Next(1, MessageHeaderLength);
 
-        using var streamRecv = new MemoryStream();
+        using MemoryStream streamRecv = new MemoryStream();
         BinaryWriter writerRecv = new(streamRecv);
         for (int i = 0; i < packetLengthRecv; i++)
             writerRecv.Write((byte)Random.Shared.Next());
@@ -93,7 +93,7 @@ public sealed class SdbWinePathTranslatorTests
         _win32.recv(default, default, 0, default).ReturnsForAnyArgs(packetLengthRecv);
         _win32.send(default, default, 0, default).ReturnsForAnyArgs(messageSend.Length);
 
-        var (resultRecv, resultSend) = SimulateRecvSendHooks(
+        (int resultRecv, int resultSend) = SimulateRecvSendHooks(
             monoModuleFilename,
             messageRecvPStr,
             messageRecv,
@@ -134,7 +134,7 @@ public sealed class SdbWinePathTranslatorTests
         _win32.recv(default, default, 0, default).ReturnsForAnyArgs(messageRecv.Length);
         _win32.send(default, default, 0, default).ReturnsForAnyArgs(messageSend.Length);
 
-        var (resultRecv, resultSend) = SimulateRecvSendHooks(
+        (int resultRecv, int resultSend) = SimulateRecvSendHooks(
             monoModuleFilename,
             messageRecvPStr,
             messageRecv,
@@ -162,18 +162,18 @@ public sealed class SdbWinePathTranslatorTests
         string assemblyLocationOriginal = @"Z:\Bug Fables_Data\Managed\Assembly-CSharp.dll";
         string assemblyLocationModified = "/Bug Fables_Data/Managed/Assembly-CSharp.dll";
 
-        var messageRecv = BuildReceivePacket(AssemblyCommandSet);
+        byte[] messageRecv = BuildReceivePacket(AssemblyCommandSet);
         byte* messageRecvPtr = stackalloc byte[messageRecv.Length];
         PSTR messageRecvPStr = new(messageRecvPtr);
         Marshal.Copy(messageRecv, 0, (nint)messageRecvPtr, messageRecv.Length);
 
-        var messageSendOriginal = BuildAssemblyGetLocationSendPacket(assemblyLocationOriginal);
+        byte[] messageSendOriginal = BuildAssemblyGetLocationSendPacket(assemblyLocationOriginal);
         byte* messageSendOriginalPtr = stackalloc byte[messageSendOriginal.Length];
         PCSTR messageSendOriginalPStr = new(messageSendOriginalPtr);
         Marshal.Copy(messageSendOriginal, 0, (nint)messageSendOriginalPtr, messageSendOriginal.Length);
 
-        var messageSendModified = BuildAssemblyGetLocationSendPacket(assemblyLocationModified);
-        var bytes = new byte[messageSendModified.Length];
+        byte[] messageSendModified = BuildAssemblyGetLocationSendPacket(assemblyLocationModified);
+        byte[] bytes = new byte[messageSendModified.Length];
 
         _sut.Setup(monoModuleFilename);
         _win32.recv(default, default, 0, default).ReturnsForAnyArgs(messageRecv.Length);
@@ -181,7 +181,7 @@ public sealed class SdbWinePathTranslatorTests
             .AndDoes(c => Marshal.Copy((nint)c.ArgAt<PCSTR>(1).Value, bytes, 0, messageSendModified.Length));
         _win32.WineGetUnixFileName("").ReturnsForAnyArgs(assemblyLocationModified);
 
-        var (resultRecv, resultSend) = SimulateRecvSendHooks(
+        (int resultRecv, int resultSend) = SimulateRecvSendHooks(
             monoModuleFilename,
             messageRecvPStr,
             messageRecv,
@@ -216,18 +216,28 @@ public sealed class SdbWinePathTranslatorTests
         string guid = Guid.NewGuid().ToString();
         int id = Random.Shared.Next();
 
-        var messageRecv = BuildReceivePacket(SdbModuleCommandSet);
+        byte[] messageRecv = BuildReceivePacket(SdbModuleCommandSet);
         byte* messageRecvPtr = stackalloc byte[messageRecv.Length];
         PSTR messageRecvPStr = new(messageRecvPtr);
         Marshal.Copy(messageRecv, 0, (nint)messageRecvPtr, messageRecv.Length);
 
-        var messageSendOriginal = BuildModuleGetInfoSendPacket(baseName, scopeName, assemblyLocationOriginal, guid, id);
+        byte[] messageSendOriginal = BuildModuleGetInfoSendPacket(
+            baseName,
+            scopeName,
+            assemblyLocationOriginal,
+            guid,
+            id);
         byte* messageSendOriginalPtr = stackalloc byte[messageSendOriginal.Length];
         PCSTR messageSendOriginalPStr = new(messageSendOriginalPtr);
         Marshal.Copy(messageSendOriginal, 0, (nint)messageSendOriginalPtr, messageSendOriginal.Length);
 
-        var messageSendModified = BuildModuleGetInfoSendPacket(baseName, scopeName, assemblyLocationModified, guid, id);
-        var bytes = new byte[messageSendModified.Length];
+        byte[] messageSendModified = BuildModuleGetInfoSendPacket(
+            baseName,
+            scopeName,
+            assemblyLocationModified,
+            guid,
+            id);
+        byte[] bytes = new byte[messageSendModified.Length];
 
         _sut.Setup(monoModuleFilename);
         _win32.recv(default, default, 0, default).ReturnsForAnyArgs(messageRecv.Length);
@@ -235,7 +245,7 @@ public sealed class SdbWinePathTranslatorTests
             .AndDoes(c => Marshal.Copy((nint)c.ArgAt<PCSTR>(1).Value, bytes, 0, messageSendModified.Length));
         _win32.WineGetUnixFileName("").ReturnsForAnyArgs(assemblyLocationModified);
 
-        var (resultRecv, resultSend) = SimulateRecvSendHooks(
+        (int resultRecv, int resultSend) = SimulateRecvSendHooks(
             monoModuleFilename,
             messageRecvPStr,
             messageRecv,
@@ -261,7 +271,7 @@ public sealed class SdbWinePathTranslatorTests
 
     private static byte[] BuildReceivePacket(byte commandSet)
     {
-        using var streamRecv = new MemoryStream();
+        using MemoryStream streamRecv = new MemoryStream();
         BinaryWriter writerRecv = new(streamRecv);
         writerRecv.Write(BinaryPrimitives.ReverseEndianness(MessageHeaderLength));
         writerRecv.Write(0);
@@ -274,7 +284,7 @@ public sealed class SdbWinePathTranslatorTests
 
     private static byte[] BuildAssemblyGetLocationSendPacket(string fullPath)
     {
-        using var streamSend = new MemoryStream();
+        using MemoryStream streamSend = new MemoryStream();
         BinaryWriter writerSend = new(streamSend);
         writerSend.Write(BinaryPrimitives.ReverseEndianness(MessageHeaderLength + sizeof(int) + fullPath.Length));
         writerSend.Write(0);
@@ -294,7 +304,7 @@ public sealed class SdbWinePathTranslatorTests
         string guid,
         int id)
     {
-        using var streamSend = new MemoryStream();
+        using MemoryStream streamSend = new MemoryStream();
         BinaryWriter writerSend = new(streamSend);
         int lenghtPacket = MessageHeaderLength +
                            sizeof(int) +

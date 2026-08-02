@@ -13,11 +13,12 @@ public sealed class CustomEnvironmentVariablesConfigurationProviderTests
     [Fact]
     public void Load_SetCorrectConfigData_WhenCalled()
     {
-        var prefix = "PREFIX_";
-        var configKey = "ConfigKey";
-        var value = "true";
-        var mappings = new Dictionary<string, string> { ["EXIST"] = configKey };
-        var sut = new CustomEnvironmentVariablesConfigurationProvider(prefix, mappings);
+        string prefix = "PREFIX_";
+        string configKey = "ConfigKey";
+        string value = "true";
+        Dictionary<string, string> mappings = new Dictionary<string, string> { ["EXIST"] = configKey };
+        CustomEnvironmentVariablesConfigurationProvider sut =
+            new CustomEnvironmentVariablesConfigurationProvider(prefix, mappings);
         Environment.SetEnvironmentVariable("NO_PREFIX", value);
         Environment.SetEnvironmentVariable($"{prefix}DOES_NOT_EXIST", value);
         Environment.SetEnvironmentVariable($"{prefix}EXIST", value);

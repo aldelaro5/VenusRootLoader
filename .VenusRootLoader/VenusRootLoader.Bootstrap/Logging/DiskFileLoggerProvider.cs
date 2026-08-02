@@ -23,7 +23,7 @@ public sealed class DiskFileLoggerProvider : ILoggerProvider
 
     public DiskFileLoggerProvider(
         IOptions<DiskFileLoggerSettings> loggingSettings,
-        BootstrapEnvironment bootstrapEnvironment,
+        IBootstrapEnvironment bootstrapEnvironment,
         IFileSystem fileSystem,
         TimeProvider timeProvider)
     {

@@ -20,14 +20,14 @@ internal sealed class RootGlobalManagersPatcher
     private readonly IWin32 _win32;
     private readonly ILogger<RootGlobalManagersPatcher> _logger;
     private readonly ICreateFileWSharedHooker _createFileWSharedHooker;
-    private readonly GameExecutionContext _gameExecutionContext;
+    private readonly IGameExecutionContext _gameExecutionContext;
     private readonly List<IGlobalManagersPatcher> _globalManagersPatchers;
 
     public RootGlobalManagersPatcher(
         IEnumerable<IGlobalManagersPatcher> globalManagersPatchers,
         ILogger<RootGlobalManagersPatcher> logger,
         ICreateFileWSharedHooker createFileWSharedHooker,
-        GameExecutionContext gameExecutionContext,
+        IGameExecutionContext gameExecutionContext,
         IWin32 win32,
         IFileSystem fileSystem)
     {

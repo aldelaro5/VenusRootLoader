@@ -34,10 +34,9 @@ public sealed class StandardStreamsProtectorTests
         _win32);
 
     [Fact]
-    public async Task StartAsync_SetupHooks_WhenCalled()
+    public void ProtectStreams_SetupHooks_WhenCalled()
     {
-        await _sut.StartAsync(CancellationToken.None);
-
+        _sut.ProtectStreams();
         _win32.Received(1).GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
         _win32.Received(1).GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
         _pltHookManager.Hooks.Should()
@@ -45,18 +44,18 @@ public sealed class StandardStreamsProtectorTests
     }
 
     [Fact]
-    public async Task CloseHandleHook_CallsOriginal_WhenHandleIsNotStdoutOrStderr()
+    public void CloseHandleHook_CallsOriginal_WhenHandleIsNotStdoutOrStderr()
     {
-        var stdOutHandle = (HANDLE)Random.Shared.Next();
-        var stdErrHandle = (HANDLE)Random.Shared.Next();
-        var receivedHandle = (HANDLE)Random.Shared.Next();
-        var expectedResult = (BOOL)(Random.Shared.Next() % 2 == 0);
+        HANDLE stdOutHandle = (HANDLE)Random.Shared.Next();
+        HANDLE stdErrHandle = (HANDLE)Random.Shared.Next();
+        HANDLE receivedHandle = (HANDLE)Random.Shared.Next();
+        BOOL expectedResult = Random.Shared.Next() % 2 == 0;
 
         _win32.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE).Returns(stdOutHandle);
         _win32.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE).Returns(stdErrHandle);
         _win32.CloseHandle(Arg.Any<HANDLE>()).Returns(expectedResult);
 
-        await _sut.StartAsync(CancellationToken.None);
+        _sut.ProtectStreams();
         BOOL result = (BOOL)_pltHookManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(IWin32.CloseHandle),
@@ -69,14 +68,14 @@ public sealed class StandardStreamsProtectorTests
     [Theory]
     [InlineData(STD_HANDLE.STD_OUTPUT_HANDLE)]
     [InlineData(STD_HANDLE.STD_ERROR_HANDLE)]
-    public async Task CloseHandleHook_ReturnsTrueWithoutCallingOriginal_WhenHandleIsStdoutOrStderr(STD_HANDLE stdHandle)
+    public void CloseHandleHook_ReturnsTrueWithoutCallingOriginal_WhenHandleIsStdoutOrStderr(STD_HANDLE stdHandle)
     {
-        var stdOutHandle = (HANDLE)Random.Shared.Next();
-        var stdErrHandle = (HANDLE)Random.Shared.Next();
-        var receivedHandle = stdHandle == STD_HANDLE.STD_OUTPUT_HANDLE
+        HANDLE stdOutHandle = (HANDLE)Random.Shared.Next();
+        HANDLE stdErrHandle = (HANDLE)Random.Shared.Next();
+        HANDLE receivedHandle = stdHandle == STD_HANDLE.STD_OUTPUT_HANDLE
             ? stdOutHandle
             : stdErrHandle;
-        var expectedResult = (BOOL)(Random.Shared.Next() % 2 == 0);
+        BOOL expectedResult = Random.Shared.Next() % 2 == 0;
 
         _win32.GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE).Returns(stdOutHandle);
         _win32.GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE).Returns(stdErrHandle);
@@ -86,7 +85,7 @@ public sealed class StandardStreamsProtectorTests
                 Arg.Any<HANDLE>())
             .ReturnsForAnyArgs(c => (BOOL)(c.ArgAt<HANDLE>(0) == c.ArgAt<HANDLE>(1)));
 
-        await _sut.StartAsync(CancellationToken.None);
+        _sut.ProtectStreams();
         BOOL result = (BOOL)_pltHookManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(IWin32.CloseHandle),
@@ -97,9 +96,9 @@ public sealed class StandardStreamsProtectorTests
     }
 
     [Fact]
-    public async Task OnGameLifeCycle_UninstallPltHook_WhenMonoInitialisedEventReceived()
+    public void OnGameLifeCycle_UninstallPltHook_WhenMonoInitialisedEventReceived()
     {
-        await _sut.StartAsync(CancellationToken.None);
+        _sut.ProtectStreams();
 
         _monoInitLifeCycleEvents.Publish(this);
 

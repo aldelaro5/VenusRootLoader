@@ -19,16 +19,16 @@ public sealed class DiskFileLoggerTests
     [InlineData(LogLevel.Critical, "!")]
     public void Log_LogsWithTheCorrectInformation_WhenCalled(LogLevel logLevel, string levelMoniker)
     {
-        var timeStamp = DateTimeOffset.Now;
+        DateTimeOffset timeStamp = DateTimeOffset.Now;
         _timeProvider.AdjustTime(timeStamp);
-        var category = "Some category";
-        var message = "Some logging message";
-        var stream = new MemoryStream();
-        var writer = new StreamWriter(stream) { AutoFlush = true };
+        string category = "Some category";
+        string message = "Some logging message";
+        MemoryStream stream = new MemoryStream();
+        StreamWriter writer = new StreamWriter(stream) { AutoFlush = true };
 
         DiskFileLogger sut = new(category, writer, _timeProvider);
         sut.Log(logLevel, message);
-        var result = Encoding.UTF8.GetString(stream.ToArray());
+        string result = Encoding.UTF8.GetString(stream.ToArray());
 
         result.Should().Contain(timeStamp.ToString("HH:mm:ss.fff"));
         result.Should().Contain($"[{levelMoniker}]");
@@ -41,12 +41,12 @@ public sealed class DiskFileLoggerTests
     [InlineData("first.second.third", "third")]
     public void Log_LogsWithSimplifiedCategory_WhenItContainsDots(string category, string expected)
     {
-        var stream = new MemoryStream();
-        var writer = new StreamWriter(stream) { AutoFlush = true };
+        MemoryStream stream = new MemoryStream();
+        StreamWriter writer = new StreamWriter(stream) { AutoFlush = true };
 
         DiskFileLogger sut = new(category, writer, _timeProvider);
         sut.LogInformation("Some logging message");
-        var result = Encoding.UTF8.GetString(stream.ToArray());
+        string result = Encoding.UTF8.GetString(stream.ToArray());
 
         result.Should().Contain(expected);
         result.Should().NotContain(category);
@@ -55,14 +55,14 @@ public sealed class DiskFileLoggerTests
     [Fact]
     public void Log_LogsWithMessageAndException_WhenLoggingException()
     {
-        var message = "Some logging message";
-        var exception = new Exception("Some exception message");
-        var stream = new MemoryStream();
-        var writer = new StreamWriter(stream) { AutoFlush = true };
+        string message = "Some logging message";
+        Exception exception = new Exception("Some exception message");
+        MemoryStream stream = new MemoryStream();
+        StreamWriter writer = new StreamWriter(stream) { AutoFlush = true };
 
         DiskFileLogger sut = new("Some category", writer, _timeProvider);
         sut.LogInformation(exception, message);
-        var result = Encoding.UTF8.GetString(stream.ToArray());
+        string result = Encoding.UTF8.GetString(stream.ToArray());
 
         result.Should().Contain(message);
         result.Should().Contain(exception.ToString());

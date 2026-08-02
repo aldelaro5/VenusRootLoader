@@ -21,12 +21,12 @@ public sealed class CustomEnvironmentVariablesConfigurationSourceTests
     [Fact]
     public void Build_GivesCorrectBuilder_WhenCalled()
     {
-        var sut = new CustomEnvironmentVariablesConfigurationSource
+        CustomEnvironmentVariablesConfigurationSource sut = new CustomEnvironmentVariablesConfigurationSource
         {
             Prefix = "PREFIX_",
             EnvironmentVariablesMapping = new Dictionary<string, string> { ["a"] = "b" }
         };
-        var result = sut.Build(_configuration);
+        IConfigurationProvider result = sut.Build(_configuration);
 
         result.Should().BeOfType<CustomEnvironmentVariablesConfigurationProvider>();
         CustomEnvVarConfigProviderPrefix((CustomEnvironmentVariablesConfigurationProvider)result)

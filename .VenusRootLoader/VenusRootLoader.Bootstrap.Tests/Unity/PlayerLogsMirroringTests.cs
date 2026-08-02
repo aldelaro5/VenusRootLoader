@@ -42,29 +42,26 @@ public sealed class PlayerLogsMirroringTests
         IsWine = false
     };
 
+    private readonly PlayerLogsMirroring _sut;
+
     public PlayerLogsMirroringTests()
     {
         _loggerFactory.CreateLogger(Arg.Any<string>()).Returns(_logger);
         _loggingSettings.Value.Returns(_loggingSettingsValue);
-    }
 
-    private void StartService()
-    {
-        var sut = new PlayerLogsMirroring(
+        _sut = new PlayerLogsMirroring(
             _loggerFactory,
             _pltHooksManager,
             _createFileWSharedHooker,
             _gameExecutionContext,
             _monoInitLifeCycleEvents,
             _win32);
-        sut.StartAsync(TestContext.Current.CancellationToken);
     }
 
     [Fact]
-    public void StartAsync_SetupHooks_WhenCalled()
+    public void MirrorLogs_SetupHooks_WhenCalled()
     {
-        StartService();
-
+        _sut.MirrorLogs();
         _win32.Received(1).GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
         _win32.Received(1).GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE);
         _pltHooksManager.Hooks.Should()
@@ -77,8 +74,8 @@ public sealed class PlayerLogsMirroringTests
     [InlineData("things/Player.log")]
     public unsafe void CreateFileHook_UnregistersHook_WhenCalledWithPlayerLogsFilename(string filename)
     {
-        StartService();
-        var fileNamePtr = (char*)Marshal.StringToHGlobalUni(filename);
+        _sut.MirrorLogs();
+        char* fileNamePtr = (char*)Marshal.StringToHGlobalUni(filename);
         _createFileWSharedHooker.SimulateHook(fileNamePtr);
 
         _pltHooksManager.Hooks.Should().NotContainKey((_gameExecutionContext.UnityPlayerDllFileName, "CreateFileW"));
@@ -97,9 +94,9 @@ public sealed class PlayerLogsMirroringTests
     [Fact]
     public unsafe void CreateFileHook_DoesNotUnregistersHook_WhenCalledWithoutPlayerLogsFilename()
     {
-        StartService();
-        var filename = "SomeOtherFiles.txt";
-        var fileNamePtr = (char*)Marshal.StringToHGlobalUni(filename);
+        _sut.MirrorLogs();
+        string filename = "SomeOtherFiles.txt";
+        char* fileNamePtr = (char*)Marshal.StringToHGlobalUni(filename);
 
         _createFileWSharedHooker.SimulateHook(fileNamePtr);
 
@@ -111,11 +108,11 @@ public sealed class PlayerLogsMirroringTests
     [Fact]
     public unsafe void WriteFileHook_CallsOriginalWithoutLogging_WhenHandleIsNotPlayerLogFileOrStdHandle()
     {
-        StartService();
-        var filename = "output_log.txt";
-        var fileNamePtr = (char*)Marshal.StringToHGlobalUni(filename);
-        var handleReceived = (HANDLE)Random.Shared.Next();
-        var expectedReturn = (BOOL)(Random.Shared.Next() == 0);
+        _sut.MirrorLogs();
+        string filename = "output_log.txt";
+        char* fileNamePtr = (char*)Marshal.StringToHGlobalUni(filename);
+        HANDLE handleReceived = (HANDLE)Random.Shared.Next();
+        BOOL expectedReturn = Random.Shared.Next() == 0;
         _createFileWSharedHooker.SimulateHook(fileNamePtr);
 
         _win32.WriteFile(
@@ -126,7 +123,7 @@ public sealed class PlayerLogsMirroringTests
                 Arg.Any<Pointer<NativeOverlapped>>())
             .ReturnsForAnyArgs(expectedReturn);
 
-        var result = (int)_pltHooksManager.SimulateHook(
+        int result = (int)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.WriteFile),
             handleReceived,
@@ -154,11 +151,11 @@ public sealed class PlayerLogsMirroringTests
     public unsafe void WriteFileHook_CallsOriginalWithoutLogging_WhenLogMirroringIsDisabledAndHandleIsPlayerLogFile()
     {
         _logger.ControlLevel(LogLevel.Trace, false);
-        StartService();
-        var filename = "output_log.txt";
-        var fileNamePtr = (char*)Marshal.StringToHGlobalUni(filename);
-        var handlePlayerLogFile = (HANDLE)Random.Shared.Next();
-        var expectedReturn = (BOOL)(Random.Shared.Next() == 0);
+        _sut.MirrorLogs();
+        string filename = "output_log.txt";
+        char* fileNamePtr = (char*)Marshal.StringToHGlobalUni(filename);
+        HANDLE handlePlayerLogFile = (HANDLE)Random.Shared.Next();
+        BOOL expectedReturn = Random.Shared.Next() == 0;
         _win32.CreateFile(
                 Arg.Any<PCWSTR>(),
                 Arg.Any<uint>(),
@@ -177,7 +174,7 @@ public sealed class PlayerLogsMirroringTests
                 Arg.Any<Pointer<NativeOverlapped>>())
             .ReturnsForAnyArgs(expectedReturn);
 
-        var result = (int)_pltHooksManager.SimulateHook(
+        int result = (int)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.WriteFile),
             handlePlayerLogFile,
@@ -204,13 +201,13 @@ public sealed class PlayerLogsMirroringTests
     [Fact]
     public unsafe void WriteFileHook_CallsOriginalWithLogging_WhenLogMirroringIsEnabledAndHandleIsPlayerLogFile()
     {
-        StartService();
-        var filename = "output_log.txt";
-        var message = "Some logging message\r\n";
-        var fileNamePtr = (PCWSTR)(char*)Marshal.StringToHGlobalUni(filename);
-        var messagePtr = (byte*)Marshal.StringToHGlobalAnsi(message);
-        var handlePlayerLogFile = (HANDLE)Random.Shared.Next();
-        var expectedReturn = (BOOL)(Random.Shared.Next() == 0);
+        _sut.MirrorLogs();
+        string filename = "output_log.txt";
+        string message = "Some logging message\r\n";
+        PCWSTR fileNamePtr = (char*)Marshal.StringToHGlobalUni(filename);
+        byte* messagePtr = (byte*)Marshal.StringToHGlobalAnsi(message);
+        HANDLE handlePlayerLogFile = (HANDLE)Random.Shared.Next();
+        BOOL expectedReturn = Random.Shared.Next() == 0;
         _win32.CreateFile(
                 Arg.Any<PCWSTR>(),
                 Arg.Any<uint>(),
@@ -233,7 +230,7 @@ public sealed class PlayerLogsMirroringTests
                 Arg.Any<HANDLE>())
             .ReturnsForAnyArgs(c => (BOOL)(c.ArgAt<HANDLE>(0) == c.ArgAt<HANDLE>(1)));
 
-        var result = (int)_pltHooksManager.SimulateHook(
+        int result = (int)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.WriteFile),
             handlePlayerLogFile,
@@ -271,15 +268,15 @@ public sealed class PlayerLogsMirroringTests
         STD_HANDLE stdHandle)
     {
         _logger.ControlLevel(LogLevel.Trace, false);
-        var handle = (HANDLE)Random.Shared.Next();
+        HANDLE handle = (HANDLE)Random.Shared.Next();
         _win32.GetStdHandle(stdHandle).Returns(handle);
         _win32.CompareObjectHandles(
                 Arg.Any<HANDLE>(),
                 Arg.Any<HANDLE>())
             .ReturnsForAnyArgs(c => (BOOL)(c.ArgAt<HANDLE>(0) == c.ArgAt<HANDLE>(1)));
-        StartService();
+        _sut.MirrorLogs();
 
-        var result = (int)_pltHooksManager.SimulateHook(
+        int result = (int)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.WriteFile),
             handle,
@@ -299,17 +296,17 @@ public sealed class PlayerLogsMirroringTests
     public unsafe void WriteFileHook_DoesNotCallsOriginalWithLogging_WhenLogMirroringIsEnabledAndHandleIsStdHandle(
         STD_HANDLE stdHandle)
     {
-        var handle = (HANDLE)Random.Shared.Next();
+        HANDLE handle = (HANDLE)Random.Shared.Next();
         _win32.GetStdHandle(stdHandle).Returns(handle);
-        StartService();
+        _sut.MirrorLogs();
 
-        var message = "Some logging message\r\n";
-        var messagePtr = (byte*)Marshal.StringToHGlobalAnsi(message);
+        string message = "Some logging message\r\n";
+        byte* messagePtr = (byte*)Marshal.StringToHGlobalAnsi(message);
         _win32.CompareObjectHandles(
                 Arg.Any<HANDLE>(),
                 Arg.Any<HANDLE>())
             .ReturnsForAnyArgs(c => (BOOL)(c.ArgAt<HANDLE>(0) == c.ArgAt<HANDLE>(1)));
-        var result = (int)_pltHooksManager.SimulateHook(
+        int result = (int)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.WriteFile),
             handle,
@@ -330,8 +327,8 @@ public sealed class PlayerLogsMirroringTests
     [Fact]
     public unsafe void OnGameLifeCycle_UninstallPltHook_WhenMonoInitialisedEventReceived()
     {
-        StartService();
-        var fileNamePtr = (char*)Marshal.StringToHGlobalUni("output_log.txt");
+        _sut.MirrorLogs();
+        char* fileNamePtr = (char*)Marshal.StringToHGlobalUni("output_log.txt");
         _createFileWSharedHooker.SimulateHook(fileNamePtr);
 
         _monoInitLifeCycleEvents.Publish(this);

@@ -102,12 +102,12 @@ public sealed class PltHooksManagerTests
 
         int fileNameAmount = 0;
         int functionNameAmount = 0;
-        foreach (var fileName in fileNames)
+        foreach (string fileName in fileNames)
         {
             fileNameAmount++;
-            for (var j = 0; j < functionNames.Length; j++)
+            for (int j = 0; j < functionNames.Length; j++)
             {
-                var functionName = functionNames[j];
+                string functionName = functionNames[j];
                 functionNameAmount++;
                 _sut.InstallHook(fileName, functionName, hook);
                 if (j == 0)
@@ -133,7 +133,7 @@ public sealed class PltHooksManagerTests
         string functionName = "functionName";
         Action hook = () => { };
         string errorString = "error";
-        var errorStringPtr = Marshal.StringToHGlobalUni(errorString);
+        IntPtr errorStringPtr = Marshal.StringToHGlobalUni(errorString);
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -169,7 +169,7 @@ public sealed class PltHooksManagerTests
         string functionName = "functionName";
         Action hook = () => { };
         string errorString = "<some error>";
-        var errorStringPtr = Marshal.StringToHGlobalAnsi(errorString);
+        IntPtr errorStringPtr = Marshal.StringToHGlobalAnsi(errorString);
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),
@@ -382,7 +382,7 @@ public sealed class PltHooksManagerTests
         string functionName = "functionName";
         Action hook = () => { };
         string errorString = "<some error>";
-        var errorStringPtr = Marshal.StringToHGlobalAnsi(errorString);
+        IntPtr errorStringPtr = Marshal.StringToHGlobalAnsi(errorString);
 
         _pltHookSub.PlthookOpen(
                 Arg.Any<Pointer<nint>>(),

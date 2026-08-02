@@ -18,7 +18,7 @@ public sealed class TestPltHookManager : IPltHooksManager
 
     public object? SimulateHook(string fileName, string functionName, params object?[]? args)
     {
-        return Hooks.TryGetValue((fileName, functionName), out var hook)
+        return Hooks.TryGetValue((fileName, functionName), out Delegate? hook)
             ? hook.DynamicInvoke(args)
             : null;
     }

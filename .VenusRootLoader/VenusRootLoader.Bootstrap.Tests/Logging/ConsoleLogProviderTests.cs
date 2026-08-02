@@ -1,4 +1,5 @@
 using AwesomeAssertions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NSubstitute;
@@ -31,7 +32,7 @@ public sealed class ConsoleLogProviderTests
                 Enable = false,
                 LogWithColors = true
             });
-        var gameExecutionContext = new GameExecutionContext
+        GameExecutionContext gameExecutionContext = new GameExecutionContext
         {
             GameDir = "",
             DataDir = "",
@@ -39,8 +40,12 @@ public sealed class ConsoleLogProviderTests
             IsWine = false
         };
 
-        using var sut = new ConsoleLogProvider(gameExecutionContext, _consoleLoggerOptions, _win32, _timeProvider);
-        var logger = sut.CreateLogger("category");
+        using ConsoleLogProvider sut = new ConsoleLogProvider(
+            gameExecutionContext,
+            _consoleLoggerOptions,
+            _win32,
+            _timeProvider);
+        ILogger logger = sut.CreateLogger("category");
 
         logger.Should().BeOfType<NullLogger>();
     }
@@ -54,7 +59,7 @@ public sealed class ConsoleLogProviderTests
                 Enable = true,
                 LogWithColors = false
             });
-        var gameExecutionContext = new GameExecutionContext
+        GameExecutionContext gameExecutionContext = new GameExecutionContext
         {
             GameDir = "",
             DataDir = "",
@@ -62,8 +67,12 @@ public sealed class ConsoleLogProviderTests
             IsWine = false
         };
 
-        using var sut = new ConsoleLogProvider(gameExecutionContext, _consoleLoggerOptions, _win32, _timeProvider);
-        var logger = sut.CreateLogger("category");
+        using ConsoleLogProvider sut = new ConsoleLogProvider(
+            gameExecutionContext,
+            _consoleLoggerOptions,
+            _win32,
+            _timeProvider);
+        ILogger logger = sut.CreateLogger("category");
 
         logger.Should().BeOfType<ConsoleLogger>();
         ConsoleLogProviderRenderingMode((ConsoleLogger)logger)
@@ -76,14 +85,14 @@ public sealed class ConsoleLogProviderTests
     public void CreateLogger_ReturnsConsoleLoggerWithLegacyColors_WhenColorsAreEnabledAndAnsiIsNotSupported(
         STD_HANDLE stdHandleWithoutAnsi)
     {
-        var handleWithoutAnsi = (HANDLE)Random.Shared.Next();
+        HANDLE handleWithoutAnsi = (HANDLE)Random.Shared.Next();
         _consoleLoggerOptions.Value.Returns(
             new ConsoleLoggerSettings
             {
                 Enable = true,
                 LogWithColors = true
             });
-        var gameExecutionContext = new GameExecutionContext
+        GameExecutionContext gameExecutionContext = new GameExecutionContext
         {
             GameDir = "",
             DataDir = "",
@@ -94,8 +103,12 @@ public sealed class ConsoleLogProviderTests
         _win32.GetStdHandle(stdHandleWithoutAnsi).Returns(handleWithoutAnsi);
         _win32.SetConsoleMode(handleWithoutAnsi, Arg.Any<CONSOLE_MODE>()).Returns((BOOL)false);
 
-        using var sut = new ConsoleLogProvider(gameExecutionContext, _consoleLoggerOptions, _win32, _timeProvider);
-        var logger = sut.CreateLogger("category");
+        using ConsoleLogProvider sut = new ConsoleLogProvider(
+            gameExecutionContext,
+            _consoleLoggerOptions,
+            _win32,
+            _timeProvider);
+        ILogger logger = sut.CreateLogger("category");
 
         logger.Should().BeOfType<ConsoleLogger>();
         ConsoleLogProviderRenderingMode((ConsoleLogger)logger)
@@ -105,15 +118,15 @@ public sealed class ConsoleLogProviderTests
     [Fact]
     public void CreateLogger_ReturnsConsoleLoggerWithLegacyColors_WhenUsingWine()
     {
-        var stdOutHandle = (HANDLE)Random.Shared.Next();
-        var stdErrHandle = (HANDLE)Random.Shared.Next();
+        HANDLE stdOutHandle = (HANDLE)Random.Shared.Next();
+        HANDLE stdErrHandle = (HANDLE)Random.Shared.Next();
         _consoleLoggerOptions.Value.Returns(
             new ConsoleLoggerSettings
             {
                 Enable = true,
                 LogWithColors = true
             });
-        var gameExecutionContext = new GameExecutionContext
+        GameExecutionContext gameExecutionContext = new GameExecutionContext
         {
             GameDir = "",
             DataDir = "",
@@ -125,8 +138,12 @@ public sealed class ConsoleLogProviderTests
         _win32.SetConsoleMode(stdOutHandle, Arg.Any<CONSOLE_MODE>()).Returns((BOOL)true);
         _win32.SetConsoleMode(stdErrHandle, Arg.Any<CONSOLE_MODE>()).Returns((BOOL)true);
 
-        using var sut = new ConsoleLogProvider(gameExecutionContext, _consoleLoggerOptions, _win32, _timeProvider);
-        var logger = sut.CreateLogger("category");
+        using ConsoleLogProvider sut = new ConsoleLogProvider(
+            gameExecutionContext,
+            _consoleLoggerOptions,
+            _win32,
+            _timeProvider);
+        ILogger logger = sut.CreateLogger("category");
 
         logger.Should().BeOfType<ConsoleLogger>();
         ConsoleLogProviderRenderingMode((ConsoleLogger)logger)
@@ -136,15 +153,15 @@ public sealed class ConsoleLogProviderTests
     [Fact]
     public void CreateLogger_ReturnsConsoleLoggerWithAnsiColors_WhenSupportedAndNotUsingWine()
     {
-        var stdOutHandle = (HANDLE)Random.Shared.Next();
-        var stdErrHandle = (HANDLE)Random.Shared.Next();
+        HANDLE stdOutHandle = (HANDLE)Random.Shared.Next();
+        HANDLE stdErrHandle = (HANDLE)Random.Shared.Next();
         _consoleLoggerOptions.Value.Returns(
             new ConsoleLoggerSettings
             {
                 Enable = true,
                 LogWithColors = true
             });
-        var gameExecutionContext = new GameExecutionContext
+        GameExecutionContext gameExecutionContext = new GameExecutionContext
         {
             GameDir = "",
             DataDir = "",
@@ -156,8 +173,12 @@ public sealed class ConsoleLogProviderTests
         _win32.SetConsoleMode(stdOutHandle, Arg.Any<CONSOLE_MODE>()).Returns((BOOL)true);
         _win32.SetConsoleMode(stdErrHandle, Arg.Any<CONSOLE_MODE>()).Returns((BOOL)true);
 
-        using var sut = new ConsoleLogProvider(gameExecutionContext, _consoleLoggerOptions, _win32, _timeProvider);
-        var logger = sut.CreateLogger("category");
+        using ConsoleLogProvider sut = new ConsoleLogProvider(
+            gameExecutionContext,
+            _consoleLoggerOptions,
+            _win32,
+            _timeProvider);
+        ILogger logger = sut.CreateLogger("category");
 
         logger.Should().BeOfType<ConsoleLogger>();
         ConsoleLogProviderRenderingMode((ConsoleLogger)logger)

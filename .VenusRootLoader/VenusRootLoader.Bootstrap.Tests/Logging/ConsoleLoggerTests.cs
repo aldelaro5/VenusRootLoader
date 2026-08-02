@@ -25,14 +25,14 @@ public sealed class ConsoleLoggerTests
     [InlineData(LogLevel.Critical, "!")]
     public void Log_LogsWithTheCorrectInformation_WhenCalled(LogLevel logLevel, string levelMoniker)
     {
-        var timeStamp = DateTimeOffset.Now;
+        DateTimeOffset timeStamp = DateTimeOffset.Now;
         _timeProvider.AdjustTime(timeStamp);
-        var category = "Some category";
-        var message = "Some logging message";
+        string category = "Some category";
+        string message = "Some logging message";
 
         ConsoleLogger sut = new(category, ConsoleLogProvider.RenderingMode.NoColors, _timeProvider, _console);
         sut.Log(logLevel, message);
-        var result = _writer.ToString();
+        string result = _writer.ToString();
 
         result.Should().Contain(timeStamp.ToString("HH:mm:ss.fff"));
         result.Should().Contain($"[{levelMoniker}]");
@@ -47,7 +47,7 @@ public sealed class ConsoleLoggerTests
     {
         ConsoleLogger sut = new(category, ConsoleLogProvider.RenderingMode.NoColors, _timeProvider, _console);
         sut.LogInformation("Some logging message");
-        var result = _writer.ToString();
+        string result = _writer.ToString();
 
         result.Should().Contain(expected);
         result.Should().NotContain(category);
@@ -56,12 +56,12 @@ public sealed class ConsoleLoggerTests
     [Fact]
     public void Log_LogsWithMessageAndException_WhenLoggingException()
     {
-        var message = "Some logging message";
-        var exception = new Exception("Some exception message");
+        string message = "Some logging message";
+        Exception exception = new Exception("Some exception message");
 
         ConsoleLogger sut = new("Some category", ConsoleLogProvider.RenderingMode.NoColors, _timeProvider, _console);
         sut.LogInformation(exception, message);
-        var result = _writer.ToString();
+        string result = _writer.ToString();
 
         result.Should().Contain(message);
         result.Should().Contain(exception.ToString());
@@ -84,15 +84,15 @@ public sealed class ConsoleLoggerTests
         string levelMoniker,
         Color levelColor)
     {
-        var timeStamp = DateTimeOffset.Now;
-        var timeStampString = timeStamp.ToString("HH:mm:ss.fff");
+        DateTimeOffset timeStamp = DateTimeOffset.Now;
+        string timeStampString = timeStamp.ToString("HH:mm:ss.fff");
         _timeProvider.AdjustTime(timeStamp);
-        var category = "Some category";
-        var message = "Some logging message";
+        string category = "Some category";
+        string message = "Some logging message";
 
         ConsoleLogger sut = new(category, ConsoleLogProvider.RenderingMode.AnsiColors, _timeProvider, _console);
         sut.Log(logLevel, message);
-        var result = _writer.ToString();
+        string result = _writer.ToString();
 
         result.Should().Contain($"[{timeStampString}]");
         result.Should().Contain($"[{levelMoniker.Pastel(levelColor)}]");
@@ -112,14 +112,14 @@ public sealed class ConsoleLoggerTests
     [MemberData(nameof(LogCategoriesTestDataAnsi))]
     public void Log_LogsCategoryWithTheCorrectColors_WhenCalledInAnsiMode(string categoryName, Color levelColor)
     {
-        var simplifiedCategoryName = categoryName;
-        var lastDotIndex = categoryName.LastIndexOf('.');
+        string simplifiedCategoryName = categoryName;
+        int lastDotIndex = categoryName.LastIndexOf('.');
         if (lastDotIndex > -1)
             simplifiedCategoryName = categoryName[(lastDotIndex + 1)..];
 
         ConsoleLogger sut = new(categoryName, ConsoleLogProvider.RenderingMode.AnsiColors, _timeProvider, _console);
         sut.LogInformation("Some logging message");
-        var result = _writer.ToString();
+        string result = _writer.ToString();
 
         result.Should().Contain($"[{simplifiedCategoryName.Pastel(levelColor)}]");
     }
@@ -142,15 +142,15 @@ public sealed class ConsoleLoggerTests
         ConsoleColor levelColor)
     {
         _console.WriteLegacyColorMarkers = true;
-        var timeStamp = DateTimeOffset.Now;
-        var timeStampString = timeStamp.ToString("HH:mm:ss.fff");
+        DateTimeOffset timeStamp = DateTimeOffset.Now;
+        string timeStampString = timeStamp.ToString("HH:mm:ss.fff");
         _timeProvider.AdjustTime(timeStamp);
-        var category = "Some category";
-        var message = "Some logging message";
+        string category = "Some category";
+        string message = "Some logging message";
 
         ConsoleLogger sut = new(category, ConsoleLogProvider.RenderingMode.LegacyColors, _timeProvider, _console);
         sut.Log(logLevel, message);
-        var result = _writer.ToString();
+        string result = _writer.ToString();
 
         result.Should().Contain($"~~[{timeStampString}]");
         result.Should().Contain($"[~{levelColor.ToString()}~{levelMoniker}~~]");
@@ -175,14 +175,14 @@ public sealed class ConsoleLoggerTests
         ConsoleColor levelColor)
     {
         _console.WriteLegacyColorMarkers = true;
-        var simplifiedCategoryName = categoryName;
-        var lastDotIndex = categoryName.LastIndexOf('.');
+        string simplifiedCategoryName = categoryName;
+        int lastDotIndex = categoryName.LastIndexOf('.');
         if (lastDotIndex > -1)
             simplifiedCategoryName = categoryName[(lastDotIndex + 1)..];
 
         ConsoleLogger sut = new(categoryName, ConsoleLogProvider.RenderingMode.LegacyColors, _timeProvider, _console);
         sut.LogInformation("Some logging message");
-        var result = _writer.ToString();
+        string result = _writer.ToString();
 
         result.Should().Contain($"[~{levelColor.ToString()}~{simplifiedCategoryName}~~]");
     }

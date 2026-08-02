@@ -37,23 +37,27 @@ public sealed class PlayerConnectionDiscoveryTests
     [Fact]
     public void StartDiscoveryWithOwnSocket_OpensUdpSocketAndSendCorrectMessageEverySecond_WhenCalled()
     {
-        var broadcastIp = IPAddress.Parse("225.0.0.222");
-        using var client = new UdpClient(54997);
+        IPAddress broadcastIp = IPAddress.Parse("225.0.0.222");
+        using UdpClient client = new UdpClient(54997);
         client.Client.ReceiveTimeout = 2000;
         client.JoinMulticastGroup(broadcastIp);
-        var remoteEp = new IPEndPoint(broadcastIp, 0);
-        var ip =
+        IPEndPoint remoteEp = new IPEndPoint(broadcastIp, 0);
+        string ip =
             $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
-        var port = (ushort)Random.Shared.Next();
+        ushort port = (ushort)Random.Shared.Next();
 
-        using var sut = new PlayerConnectionDiscovery(_logger, _pltHooksManager, _gameExecutionContext, _win32);
+        using PlayerConnectionDiscovery sut = new PlayerConnectionDiscovery(
+            _logger,
+            _pltHooksManager,
+            _gameExecutionContext,
+            _win32);
         sut.StartDiscoveryWithOwnSocket(ip, port);
 
         for (int i = 0; i < 3; i++)
         {
-            var messageBytes = client.Receive(ref remoteEp);
+            byte[] messageBytes = client.Receive(ref remoteEp);
             messageBytes.Length.Should().BeGreaterThan(0);
-            var message = Encoding.UTF8.GetString(messageBytes);
+            string message = Encoding.UTF8.GetString(messageBytes);
 
             message.Should().StartWith($"[IP] {ip} ");
             message.Should().MatchRegex($".*{Regex.Escape("[Port]")} 55[0-5][0-9][0-9].* ");
@@ -71,25 +75,29 @@ public sealed class PlayerConnectionDiscoveryTests
     [Fact]
     public void StartDiscoveryWithOwnSocket_SendsMessageWithDnSpyDebugConfig_WhenCalledWithDnSpyEnvironmentVariableSet()
     {
-        var broadcastIp = IPAddress.Parse("225.0.0.222");
-        using var client = new UdpClient(54997);
+        IPAddress broadcastIp = IPAddress.Parse("225.0.0.222");
+        using UdpClient client = new UdpClient(54997);
         client.Client.ReceiveTimeout = 2000;
         client.JoinMulticastGroup(broadcastIp);
-        var remoteEp = new IPEndPoint(broadcastIp, 0);
-        var ip =
+        IPEndPoint remoteEp = new IPEndPoint(broadcastIp, 0);
+        string ip =
             $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
-        var port = (ushort)Random.Shared.Next();
-        var dnSpyIp =
+        ushort port = (ushort)Random.Shared.Next();
+        string dnSpyIp =
             $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
-        var dnSpyPort = (ushort)Random.Shared.Next();
+        ushort dnSpyPort = (ushort)Random.Shared.Next();
         Environment.SetEnvironmentVariable("DNSPY_UNITY_DBG2", $"stuff,address={dnSpyIp}:{dnSpyPort},things");
 
-        using var sut = new PlayerConnectionDiscovery(_logger, _pltHooksManager, _gameExecutionContext, _win32);
+        using PlayerConnectionDiscovery sut = new PlayerConnectionDiscovery(
+            _logger,
+            _pltHooksManager,
+            _gameExecutionContext,
+            _win32);
         sut.StartDiscoveryWithOwnSocket(ip, port);
 
-        var messageBytes = client.Receive(ref remoteEp);
+        byte[] messageBytes = client.Receive(ref remoteEp);
         messageBytes.Length.Should().BeGreaterThan(0);
-        var message = Encoding.UTF8.GetString(messageBytes);
+        string message = Encoding.UTF8.GetString(messageBytes);
 
         message.Should().StartWith($"[IP] {dnSpyIp} ");
         message.Should().NotStartWith($"[IP] {ip} ");
@@ -100,9 +108,9 @@ public sealed class PlayerConnectionDiscoveryTests
     [Fact]
     public unsafe void StartDiscoveryWithSendToHook_OverridesMessageToSend_WhenSendToIsCalled()
     {
-        var ip =
+        string ip =
             $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
-        var port = (ushort)Random.Shared.Next();
+        ushort port = (ushort)Random.Shared.Next();
         PCSTR receivedBuffer = default;
         int receivedLength = 0;
         _win32.sendto(
@@ -119,9 +127,13 @@ public sealed class PlayerConnectionDiscoveryTests
                 receivedLength = c.ArgAt<int>(2);
             });
 
-        using var sut = new PlayerConnectionDiscovery(_logger, _pltHooksManager, _gameExecutionContext, _win32);
+        using PlayerConnectionDiscovery sut = new PlayerConnectionDiscovery(
+            _logger,
+            _pltHooksManager,
+            _gameExecutionContext,
+            _win32);
         sut.StartDiscoveryWithSendToHook(ip, port);
-        var result = (int)_pltHooksManager.SimulateHook(
+        int result = (int)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.sendto),
             default(SOCKET),
@@ -134,7 +146,7 @@ public sealed class PlayerConnectionDiscoveryTests
         result.Should().Be(1);
         receivedLength.Should().NotBe(0);
         receivedBuffer.Should().NotBe(default(PCSTR));
-        var message = Marshal.PtrToStringAnsi((nint)receivedBuffer.Value, receivedLength);
+        string message = Marshal.PtrToStringAnsi((nint)receivedBuffer.Value, receivedLength);
 
         message.Should().StartWith($"[IP] {ip} ");
         message.Should().MatchRegex($".*{Regex.Escape("[Port]")} 55[0-5][0-9][0-9].* ");
@@ -152,12 +164,12 @@ public sealed class PlayerConnectionDiscoveryTests
     public unsafe void
         StartDiscoveryWithSendToHook_OverridesMessageToSendWithDnSpyDebugConfig_WhenCalledWithDnSpyEnvironmentVariableSet()
     {
-        var ip =
+        string ip =
             $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
-        var port = (ushort)Random.Shared.Next();
-        var dnSpyIp =
+        ushort port = (ushort)Random.Shared.Next();
+        string dnSpyIp =
             $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
-        var dnSpyPort = (ushort)Random.Shared.Next();
+        ushort dnSpyPort = (ushort)Random.Shared.Next();
         Environment.SetEnvironmentVariable("DNSPY_UNITY_DBG2", $"stuff,address={dnSpyIp}:{dnSpyPort},things");
         PCSTR receivedBuffer = default;
         int receivedLength = 0;
@@ -175,9 +187,13 @@ public sealed class PlayerConnectionDiscoveryTests
                 receivedLength = c.ArgAt<int>(2);
             });
 
-        using var sut = new PlayerConnectionDiscovery(_logger, _pltHooksManager, _gameExecutionContext, _win32);
+        using PlayerConnectionDiscovery sut = new PlayerConnectionDiscovery(
+            _logger,
+            _pltHooksManager,
+            _gameExecutionContext,
+            _win32);
         sut.StartDiscoveryWithSendToHook(ip, port);
-        var result = (int)_pltHooksManager.SimulateHook(
+        int result = (int)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.sendto),
             default(SOCKET),
@@ -190,7 +206,7 @@ public sealed class PlayerConnectionDiscoveryTests
         result.Should().Be(1);
         receivedLength.Should().NotBe(0);
         receivedBuffer.Should().NotBe(default(PCSTR));
-        var message = Marshal.PtrToStringAnsi((nint)receivedBuffer.Value, receivedLength);
+        string message = Marshal.PtrToStringAnsi((nint)receivedBuffer.Value, receivedLength);
 
         message.Should().StartWith($"[IP] {dnSpyIp} ");
         message.Should().NotStartWith($"[IP] {ip} ");

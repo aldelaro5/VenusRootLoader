@@ -60,7 +60,7 @@ public sealed class PlayerConnectionDiscovery : IDisposable, IPlayerConnectionDi
     private readonly IWin32 _win32;
     private readonly ILogger<PlayerConnectionDiscovery> _logger;
     private readonly IPltHooksManager _pltHooksManager;
-    private readonly GameExecutionContext _gameExecutionContext;
+    private readonly IGameExecutionContext _gameExecutionContext;
 
     private Socket? _socket;
     private IPEndPoint? _endPoint;
@@ -71,7 +71,7 @@ public sealed class PlayerConnectionDiscovery : IDisposable, IPlayerConnectionDi
     public unsafe PlayerConnectionDiscovery(
         ILogger<PlayerConnectionDiscovery> logger,
         IPltHooksManager pltHooksManager,
-        GameExecutionContext gameExecutionContext,
+        IGameExecutionContext gameExecutionContext,
         IWin32 win32)
     {
         _logger = logger;

@@ -62,7 +62,7 @@ internal sealed class MonoInitializer
     private readonly IWin32 _win32;
     private readonly IPltHooksManager _pltHooksManager;
     private readonly ILogger _logger;
-    private readonly GameExecutionContext _gameExecutionContext;
+    private readonly IGameExecutionContext _gameExecutionContext;
     private readonly MonoDebuggerSettings _debuggerSettings;
     private readonly IPlayerConnectionDiscovery _playerConnectionDiscovery;
     private readonly ISdbWinePathTranslator _sdbWinePathTranslator;
@@ -75,8 +75,8 @@ internal sealed class MonoInitializer
     public unsafe MonoInitializer(
         ILogger<MonoInitializer> logger,
         IPltHooksManager pltHooksManager,
-        GameExecutionContext gameExecutionContext,
-        BootstrapEnvironment bootstrapEnvironment,
+        IGameExecutionContext gameExecutionContext,
+        IBootstrapEnvironment bootstrapEnvironment,
         IOptions<MonoDebuggerSettings> debuggerSettings,
         IPlayerConnectionDiscovery playerConnectionDiscovery,
         ISdbWinePathTranslator sdbWinePathTranslator,
@@ -101,8 +101,7 @@ internal sealed class MonoInitializer
 
         _logFunctionPtr = Marshal.GetFunctionPointerForDelegate(ManagedLogsRelay.RelayLogFunction);
 
-        _gameExecutionContextPtr = Marshal.AllocHGlobal(Marshal.SizeOf<GameExecutionContext>());
-        Marshal.StructureToPtr(_gameExecutionContext, _gameExecutionContextPtr, false);
+        _gameExecutionContextPtr = _gameExecutionContext.GetPointer();
         _basePathPtr = Marshal.StringToHGlobalUni(bootstrapEnvironment.BasePath);
 
         _hookGetProcAddressDelegate = HookGetProcAddress;

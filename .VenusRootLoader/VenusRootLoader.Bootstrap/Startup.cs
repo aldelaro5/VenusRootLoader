@@ -94,8 +94,8 @@ internal static class Startup
         services.AddSingleton(TimeProvider.System);
         services.AddSingleton<IFileSystem, FileSystem>();
         services.AddSingleton<IWin32, Win32>();
-        services.AddSingleton<GameExecutionContext>(_ => gameExecutionContext);
-        services.AddSingleton<BootstrapEnvironment>(_ => new() { BasePath = basePath });
+        services.AddSingleton<IGameExecutionContext, GameExecutionContext>(_ => gameExecutionContext);
+        services.AddSingleton<IBootstrapEnvironment, BootstrapEnvironment>(_ => new() { BasePath = basePath });
 
         services.AddSingleton<IPltHooksManager, PltHooksManager>(sp =>
             new PltHooksManager(sp.GetRequiredService<ILogger<PltHooksManager>>(), new PltHook(), new FileSystem()));

@@ -59,13 +59,13 @@ public sealed class CreateFileWSharedHooker : ICreateFileWSharedHooker
 
     private readonly IWin32 _win32;
     private readonly IPltHooksManager _pltHooksManager;
-    private readonly GameExecutionContext _gameExecutionContext;
+    private readonly IGameExecutionContext _gameExecutionContext;
 
     private readonly Dictionary<string, (Func<string, bool> predicate, CreateFileWHook Hook)> _fileHandlesHooks = new();
 
     public unsafe CreateFileWSharedHooker(
         IPltHooksManager pltHooksManager,
-        GameExecutionContext gameExecutionContext,
+        IGameExecutionContext gameExecutionContext,
         IWin32 win32)
     {
         _pltHooksManager = pltHooksManager;

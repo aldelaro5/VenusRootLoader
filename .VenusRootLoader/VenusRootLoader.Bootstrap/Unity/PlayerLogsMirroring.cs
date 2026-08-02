@@ -32,16 +32,14 @@ internal sealed class PlayerLogsMirroring
     private readonly IPltHooksManager _pltHooksManager;
     private readonly ILogger _logger;
     private readonly ICreateFileWSharedHooker _createFileWSharedHooker;
-    private readonly GameExecutionContext _gameExecutionContext;
+    private readonly IGameExecutionContext _gameExecutionContext;
     private readonly IMonoInitLifeCycleEvents _monoInitLifeCycleEvents;
-
-    private readonly bool _disableMirroring;
 
     public unsafe PlayerLogsMirroring(
         ILoggerFactory loggerFactory,
         IPltHooksManager pltHooksManager,
         ICreateFileWSharedHooker createFileWSharedHooker,
-        GameExecutionContext gameExecutionContext,
+        IGameExecutionContext gameExecutionContext,
         IMonoInitLifeCycleEvents monoInitLifeCycleEvents,
         IWin32 win32)
     {
@@ -51,7 +49,6 @@ internal sealed class PlayerLogsMirroring
         _gameExecutionContext = gameExecutionContext;
         _monoInitLifeCycleEvents = monoInitLifeCycleEvents;
         _win32 = win32;
-        _disableMirroring = !_logger.IsEnabled(LogLevel.Trace);
         _hookWriteFileDelegate = HookWriteFile;
     }
 
@@ -116,7 +113,7 @@ internal sealed class PlayerLogsMirroring
                 new(lpOverlapped));
         }
 
-        if (_disableMirroring)
+        if (!_logger.IsEnabled(LogLevel.Trace))
         {
             if (writeToStandardHandles)
                 return 1;

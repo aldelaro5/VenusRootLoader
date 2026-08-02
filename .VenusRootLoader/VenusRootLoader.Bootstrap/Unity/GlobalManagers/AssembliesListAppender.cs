@@ -62,7 +62,7 @@ internal sealed class AssembliesListAppender : IGlobalManagersPatcher, IAssembli
     private static string _managedDirectoryPath = string.Empty;
 
     private readonly ILogger<AssembliesListAppender> _logger;
-    private readonly GameExecutionContext _gameExecutionContext;
+    private readonly IGameExecutionContext _gameExecutionContext;
     private readonly IWin32 _win32;
     private readonly IFileSystem _fileSystem;
     private readonly IPltHooksManager _pltHooksManager;
@@ -72,8 +72,8 @@ internal sealed class AssembliesListAppender : IGlobalManagersPatcher, IAssembli
 
     public unsafe AssembliesListAppender(
         ILogger<AssembliesListAppender> logger,
-        GameExecutionContext gameExecutionContext,
-        BootstrapEnvironment bootstrapEnvironment,
+        IGameExecutionContext gameExecutionContext,
+        IBootstrapEnvironment bootstrapEnvironment,
         IWin32 win32,
         IFileSystem fileSystem,
         IPltHooksManager pltHooksManager,
@@ -161,8 +161,8 @@ internal sealed class AssembliesListAppender : IGlobalManagersPatcher, IAssembli
     }
 
     private void PopulateAssembliesList(
-        BootstrapEnvironment bootstrapEnvironment,
-        GameExecutionContext gameExecutionContext,
+        IBootstrapEnvironment bootstrapEnvironment,
+        IGameExecutionContext gameExecutionContext,
         IFileSystem fileSystem)
     {
         string budsDirectory = fileSystem.Path.Combine(bootstrapEnvironment.BasePath, "Buds");

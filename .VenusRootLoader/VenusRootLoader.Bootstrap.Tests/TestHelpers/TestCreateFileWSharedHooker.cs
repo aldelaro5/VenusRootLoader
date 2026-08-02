@@ -22,11 +22,12 @@ public sealed class TestCreateFileWSharedHooker : ICreateFileWSharedHooker
 
     public unsafe HANDLE? SimulateHook(PCWSTR fileName)
     {
-        foreach (var hook in Hooks)
+        foreach (KeyValuePair<string, (Func<string, bool> Predicate, CreateFileWSharedHooker.CreateFileWHook Hook)> hook
+                 in Hooks)
         {
             if (!hook.Value.Predicate(fileName.ToString()))
                 continue;
-            hook.Value.Hook(out var handle, fileName, 0u, default, null, default, default, default);
+            hook.Value.Hook(out HANDLE handle, fileName, 0u, default, null, default, default, default);
             return handle;
         }
 

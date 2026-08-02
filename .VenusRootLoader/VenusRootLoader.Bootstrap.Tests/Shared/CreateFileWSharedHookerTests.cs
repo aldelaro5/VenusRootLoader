@@ -29,8 +29,8 @@ public sealed class CreateFileWSharedHookerTests
     [Fact]
     public unsafe void CreateFileWHook_CallsOriginal_WhenNoFileHooksAreRegistered()
     {
-        var expectedReturn = (HANDLE)Random.Shared.Next();
-        var fileNamePtr = (PCWSTR)(char*)Marshal.StringToHGlobalAnsi("someFile");
+        HANDLE expectedReturn = (HANDLE)Random.Shared.Next();
+        PCWSTR fileNamePtr = (char*)Marshal.StringToHGlobalAnsi("someFile");
         _win32.CreateFile(
                 Arg.Any<PCWSTR>(),
                 Arg.Any<uint>(),
@@ -41,7 +41,7 @@ public sealed class CreateFileWSharedHookerTests
                 Arg.Any<HANDLE>())
             .ReturnsForAnyArgs(expectedReturn);
 
-        var result = (nint)_pltHooksManager.SimulateHook(
+        IntPtr result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             "CreateFileW",
             fileNamePtr,
@@ -68,11 +68,11 @@ public sealed class CreateFileWSharedHookerTests
     [Fact]
     public unsafe void CreateFileWHook_CallsOriginal_WhenAllFileHooksPredicatesReturnsFalse()
     {
-        var expectedReturn = (HANDLE)Random.Shared.Next();
-        var fileNamePtr = (PCWSTR)(char*)Marshal.StringToHGlobalAnsi("someFile");
-        var hookedFileName1 = "file1";
-        var hookedFileName2 = "file2";
-        var hookedFileName3 = "file3";
+        HANDLE expectedReturn = (HANDLE)Random.Shared.Next();
+        PCWSTR fileNamePtr = (char*)Marshal.StringToHGlobalAnsi("someFile");
+        string hookedFileName1 = "file1";
+        string hookedFileName2 = "file2";
+        string hookedFileName3 = "file3";
         _win32.CreateFile(
                 Arg.Any<PCWSTR>(),
                 Arg.Any<uint>(),
@@ -86,7 +86,7 @@ public sealed class CreateFileWSharedHookerTests
         _sut.RegisterHook(hookedFileName1, _ => false, (out handle, _, _, _, _, _, _, _) => handle = HANDLE.Null);
         _sut.RegisterHook(hookedFileName2, _ => false, (out handle, _, _, _, _, _, _, _) => handle = HANDLE.Null);
         _sut.RegisterHook(hookedFileName3, _ => false, (out handle, _, _, _, _, _, _, _) => handle = HANDLE.Null);
-        var result = (nint)_pltHooksManager.SimulateHook(
+        IntPtr result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             "CreateFileW",
             fileNamePtr,
@@ -113,12 +113,12 @@ public sealed class CreateFileWSharedHookerTests
     [Fact]
     public unsafe void CreateFileWHook_CallsHooksWhosePredicateReturnsTrue_WhenSuchHooksExists()
     {
-        var unexpectedReturn = (HANDLE)Random.Shared.Next();
-        var expectedReturn = (HANDLE)Random.Shared.Next();
-        var fileNamePtr = (PCWSTR)(char*)Marshal.StringToHGlobalAnsi("someFile");
-        var hookedFileName1 = "file1";
-        var hookedFileName2 = "file2";
-        var hookedFileName3 = "file3";
+        HANDLE unexpectedReturn = (HANDLE)Random.Shared.Next();
+        HANDLE expectedReturn = (HANDLE)Random.Shared.Next();
+        PCWSTR fileNamePtr = (char*)Marshal.StringToHGlobalAnsi("someFile");
+        string hookedFileName1 = "file1";
+        string hookedFileName2 = "file2";
+        string hookedFileName3 = "file3";
         _win32.CreateFile(
                 Arg.Any<PCWSTR>(),
                 Arg.Any<uint>(),
@@ -132,7 +132,7 @@ public sealed class CreateFileWSharedHookerTests
         _sut.RegisterHook(hookedFileName1, _ => false, (out handle, _, _, _, _, _, _, _) => handle = unexpectedReturn);
         _sut.RegisterHook(hookedFileName2, _ => true, (out handle, _, _, _, _, _, _, _) => handle = expectedReturn);
         _sut.RegisterHook(hookedFileName3, _ => false, (out handle, _, _, _, _, _, _, _) => handle = unexpectedReturn);
-        var result = (nint)_pltHooksManager.SimulateHook(
+        IntPtr result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             "CreateFileW",
             fileNamePtr,
@@ -159,12 +159,12 @@ public sealed class CreateFileWSharedHookerTests
     [Fact]
     public unsafe void CreateFileWHook_DoesNotCallHook_WhenItWasUnregistered()
     {
-        var unexpectedReturn = (HANDLE)Random.Shared.Next();
-        var expectedReturn = (HANDLE)Random.Shared.Next();
-        var fileNamePtr = (PCWSTR)(char*)Marshal.StringToHGlobalAnsi("someFile");
-        var hookedFileName1 = "file1";
-        var hookedFileName2 = "file2";
-        var hookedFileName3 = "file3";
+        HANDLE unexpectedReturn = (HANDLE)Random.Shared.Next();
+        HANDLE expectedReturn = (HANDLE)Random.Shared.Next();
+        PCWSTR fileNamePtr = (char*)Marshal.StringToHGlobalAnsi("someFile");
+        string hookedFileName1 = "file1";
+        string hookedFileName2 = "file2";
+        string hookedFileName3 = "file3";
         _win32.CreateFile(
                 Arg.Any<PCWSTR>(),
                 Arg.Any<uint>(),
@@ -180,7 +180,7 @@ public sealed class CreateFileWSharedHookerTests
         _sut.RegisterHook(hookedFileName3, _ => false, (out handle, _, _, _, _, _, _, _) => handle = unexpectedReturn);
 
         _sut.UnregisterHook(hookedFileName1);
-        var result = (nint)_pltHooksManager.SimulateHook(
+        IntPtr result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             "CreateFileW",
             fileNamePtr,
@@ -207,8 +207,8 @@ public sealed class CreateFileWSharedHookerTests
     [Fact]
     public unsafe void UnregisterHook_RemovesCreateFileWHook_WhenLastHookIsUnregistered()
     {
-        var fileNamePtr = (PCWSTR)(char*)Marshal.StringToHGlobalAnsi("someFile");
-        var hookedFileName1 = "file1";
+        PCWSTR fileNamePtr = (char*)Marshal.StringToHGlobalAnsi("someFile");
+        string hookedFileName1 = "file1";
         _win32.CreateFile(
                 Arg.Any<PCWSTR>(),
                 Arg.Any<uint>(),
@@ -221,7 +221,7 @@ public sealed class CreateFileWSharedHookerTests
 
         _sut.RegisterHook(hookedFileName1, _ => true, (out handle, _, _, _, _, _, _, _) => handle = HANDLE.Null);
         _sut.UnregisterHook(hookedFileName1);
-        var result = _pltHooksManager.SimulateHook(
+        object result = _pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             "CreateFileW",
             fileNamePtr,

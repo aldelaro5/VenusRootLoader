@@ -1,5 +1,4 @@
 using AwesomeAssertions;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Options;
@@ -26,7 +25,7 @@ public sealed class MonoInitializerTests
         _debuggerSettings = Substitute.For<IOptions<MonoDebuggerSettings>>();
 
     private readonly IWin32 _win32 = Substitute.For<IWin32>();
-    private readonly IHostEnvironment _hostEnvironment = Substitute.For<IHostEnvironment>();
+    private readonly IBootstrapEnvironment _bootstrapEnvironment = Substitute.For<IBootstrapEnvironment>();
 
     private readonly IPlayerConnectionDiscovery _playerConnectionDiscovery =
         Substitute.For<IPlayerConnectionDiscovery>();
@@ -37,6 +36,7 @@ public sealed class MonoInitializerTests
     private readonly IAssembliesListAppender _assembliesListAppender = Substitute.For<IAssembliesListAppender>();
     private readonly TestPltHookManager _pltHooksManager = new();
     private readonly MockFileSystem _fileSystem = new();
+    private IGameExecutionContext _gameExecutionContext = Substitute.For<IGameExecutionContext>();
 
     private readonly MonoDebuggerSettings _debuggerSettingsValue = new()
     {
@@ -46,43 +46,31 @@ public sealed class MonoInitializerTests
         SuspendOnBoot = false
     };
 
-    private GameExecutionContext _gameExecutionContext = new()
-    {
-        GameDir = "Game",
-        DataDir = "",
-        UnityPlayerDllFileName = "UnityPlayer.dll",
-        IsWine = false
-    };
+    private readonly MonoInitializer _sut;
 
     public MonoInitializerTests()
     {
+        Environment.SetEnvironmentVariable("DNSPY_UNITY_DBG2", null);
         _debuggerSettings.Value.Returns(_debuggerSettingsValue);
-    }
-
-    private void StartService()
-    {
-        var sut = new MonoInitializer(
+        _sut = new(
             _logger,
             _pltHooksManager,
             _gameExecutionContext,
+            _bootstrapEnvironment,
             _debuggerSettings,
             _playerConnectionDiscovery,
             _sdbWinePathTranslator,
             _monoInitLifeCycleEvents,
-            _hostEnvironment,
             _win32,
             _fileSystem,
             _monoFunctions,
             _assembliesListAppender);
-        sut.StartAsync(TestContext.Current.CancellationToken);
-        Environment.SetEnvironmentVariable("DNSPY_UNITY_DBG2", null);
     }
 
     [Fact]
-    public void StartAsync_InstallsGetProcAddressHook_WhenCalled()
+    public void HookMonoInitialization_InstallsGetProcAddressHook_WhenCalled()
     {
-        StartService();
-
+        _sut.HookMonoInitialization();
         _pltHooksManager.Hooks.Should()
             .ContainKey((_gameExecutionContext.UnityPlayerDllFileName, nameof(_win32.GetProcAddress)));
     }
@@ -90,15 +78,15 @@ public sealed class MonoInitializerTests
     [Fact]
     public unsafe void GetProcAddressHook_ReturnOriginalResult_WhenSymbolIsNotOfInterest()
     {
-        StartService();
+        _sut.HookMonoInitialization();
 
-        var symbol = "SomeFunction";
-        var symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi(symbol);
-        var symbolAddress = (FARPROC)Random.Shared.Next();
-        var moduleHandle = (HMODULE)Random.Shared.Next();
+        string symbol = "SomeFunction";
+        PCSTR symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi(symbol);
+        FARPROC symbolAddress = (FARPROC)Random.Shared.Next();
+        HMODULE moduleHandle = (HMODULE)Random.Shared.Next();
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
 
-        var result = (nint)_pltHooksManager.SimulateHook(
+        IntPtr result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
@@ -116,14 +104,14 @@ public sealed class MonoInitializerTests
     [InlineData("mono_debug_init")]
     public unsafe void GetProcAddressHook_CallsOriginalAndModifyReturn_WhenSymbolIsOfInterest(string symbol)
     {
-        StartService();
+        _sut.HookMonoInitialization();
 
-        var symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi(symbol);
-        var symbolAddress = (FARPROC)Random.Shared.Next();
-        var moduleHandle = (HMODULE)Random.Shared.Next();
+        PCSTR symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi(symbol);
+        FARPROC symbolAddress = (FARPROC)Random.Shared.Next();
+        HMODULE moduleHandle = (HMODULE)Random.Shared.Next();
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
 
-        var result = (nint)_pltHooksManager.SimulateHook(
+        IntPtr result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
@@ -142,25 +130,19 @@ public sealed class MonoInitializerTests
     public unsafe void GetProcAddressHook_SetupSdbTranslator_WhenSymbolIsOfInterestWithDebuggingOnWine(string symbol)
     {
         _debuggerSettingsValue.Enable = true;
-        _gameExecutionContext = new()
-        {
-            GameDir = "",
-            DataDir = "",
-            UnityPlayerDllFileName = "UnityPlayer.dll",
-            IsWine = true
-        };
-        StartService();
+        _gameExecutionContext.IsWine.ReturnsForAnyArgs(true);
+        _sut.HookMonoInitialization();
 
-        var monoFileName = "mono-2.0-bdwgc.dll";
-        var monoFileNameBytes = Encoding.Unicode.GetBytes(monoFileName);
-        var symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi(symbol);
-        var symbolAddress = (FARPROC)Random.Shared.Next();
-        var moduleHandle = (HMODULE)Random.Shared.Next();
+        string monoFileName = "mono-2.0-bdwgc.dll";
+        byte[] monoFileNameBytes = Encoding.Unicode.GetBytes(monoFileName);
+        PCSTR symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi(symbol);
+        FARPROC symbolAddress = (FARPROC)Random.Shared.Next();
+        HMODULE moduleHandle = (HMODULE)Random.Shared.Next();
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).ReturnsForAnyArgs(symbolAddress);
         _win32.WhenForAnyArgs(x => x.GetModuleFileName(Arg.Any<HMODULE>(), Arg.Any<PWSTR>(), Arg.Any<uint>()))
             .Do(c => Marshal.Copy(monoFileNameBytes, 0, (nint)c.ArgAt<PWSTR>(1).Value, monoFileNameBytes.Length));
 
-        var result = (nint)_pltHooksManager.SimulateHook(
+        IntPtr result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
@@ -177,21 +159,21 @@ public sealed class MonoInitializerTests
     [Fact]
     public unsafe void MonoJitInitDetour_ConfiguresMonoCorrectly_WhenCalled()
     {
-        StartService();
+        _sut.HookMonoInitialization();
 
-        var domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
-        var runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
-        var symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_init_version");
-        var symbolAddress = (FARPROC)Random.Shared.Next();
-        var moduleHandle = (HMODULE)Random.Shared.Next();
-        var receivedDomainNamePtr = nint.Zero;
-        var receivedRuntimeVersionPtr = nint.Zero;
-        var expectedReturn = Random.Shared.Next();
-        var assemblyRootDir = "rootdir";
-        var receivedMonoAssembliesPath = "";
-        var expectedMonoAssembliesPath =
+        IntPtr domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
+        IntPtr runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
+        PCSTR symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_init_version");
+        FARPROC symbolAddress = (FARPROC)Random.Shared.Next();
+        HMODULE moduleHandle = (HMODULE)Random.Shared.Next();
+        IntPtr receivedDomainNamePtr = nint.Zero;
+        IntPtr receivedRuntimeVersionPtr = nint.Zero;
+        int expectedReturn = Random.Shared.Next();
+        string assemblyRootDir = "rootdir";
+        string receivedMonoAssembliesPath = "";
+        string expectedMonoAssembliesPath =
             $"{Path.Combine(_gameExecutionContext.GameDir, "UnityJitMonoBcl")};{assemblyRootDir}";
-        var monoThreadCurrent = (nint)Random.Shared.Next();
+        IntPtr monoThreadCurrent = Random.Shared.Next();
         nint receivedMonoThreadSetMain = nint.Zero;
         (int argc, string[] argv) receivedArgs = default;
         nint receivedSetConfigDomain = nint.Zero;
@@ -218,14 +200,15 @@ public sealed class MonoInitializerTests
         _monoFunctions.SetAssembliesPath.Returns(path => receivedMonoAssembliesPath = path);
         _monoFunctions.DomainAssemblyOpen.Returns((_, _) => Random.Shared.Next());
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
-        var detourPtr = (nint)_pltHooksManager.SimulateHook(
+        IntPtr detourPtr = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
             symbolPtr)!;
-        var detour = Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitInitVersionFn>(detourPtr);
+        IMonoFunctions.JitInitVersionFn detour =
+            Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitInitVersionFn>(detourPtr);
 
-        var result = detour(domainNamePtr, runtimeVersionPtr);
+        IntPtr result = detour(domainNamePtr, runtimeVersionPtr);
 
         result.Should().Be(expectedReturn);
         receivedDomainNamePtr.Should().Be(domainNamePtr);
@@ -261,29 +244,30 @@ public sealed class MonoInitializerTests
     public unsafe void MonoJitInitDetour_ConfiguresDebuggingCorrectly_WhenCalledAndDebugInitWasNotCalled()
     {
         _debuggerSettingsValue.Enable = true;
-        StartService();
+        _sut.HookMonoInitialization();
 
-        var domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
-        var runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
-        var symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_init_version");
-        var symbolAddress = (FARPROC)Random.Shared.Next();
-        var moduleHandle = (HMODULE)Random.Shared.Next();
+        IntPtr domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
+        IntPtr runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
+        PCSTR symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_init_version");
+        FARPROC symbolAddress = (FARPROC)Random.Shared.Next();
+        HMODULE moduleHandle = (HMODULE)Random.Shared.Next();
         (int argc, string[] args) receivedArgs = default;
-        var expectedArgs = GetArgsFromString(
+        (int argc, string[] argv) expectedArgs = GetArgsFromString(
             $"--debugger-agent=transport=dt_socket,server=y,address=" +
             $"{_debuggerSettings.Value.IpAddress}:{_debuggerSettings.Value.Port}" +
             ",suspend=n");
-        var receivedFormat = IMonoFunctions.MonoDebugFormat.MonoDebugFormatNone;
+        IMonoFunctions.MonoDebugFormat receivedFormat = IMonoFunctions.MonoDebugFormat.MonoDebugFormatNone;
         _monoFunctions.DebugInit.Returns(format => receivedFormat = format);
         _monoFunctions.JitParseOptions.Returns((argc, argv) => receivedArgs = ((int)argc, argv));
         _monoFunctions.DomainAssemblyOpen.Returns((_, _) => Random.Shared.Next());
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
-        var detourPtr = (nint)_pltHooksManager.SimulateHook(
+        IntPtr detourPtr = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
             symbolPtr)!;
-        var detour = Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitInitVersionFn>(detourPtr);
+        IMonoFunctions.JitInitVersionFn detour =
+            Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitInitVersionFn>(detourPtr);
 
         detour(domainNamePtr, runtimeVersionPtr);
 
@@ -301,36 +285,38 @@ public sealed class MonoInitializerTests
     public unsafe void MonoJitInitDetour_ConfiguresDebuggingCorrectly_WhenCalledAfterDebugInit()
     {
         _debuggerSettingsValue.Enable = true;
-        StartService();
+        _sut.HookMonoInitialization();
 
-        var domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
-        var runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
-        var jitInitSymbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_init_version");
-        var debugInitSymbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_debug_init");
-        var symbolAddress = (FARPROC)Random.Shared.Next();
-        var moduleHandle = (HMODULE)Random.Shared.Next();
+        IntPtr domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
+        IntPtr runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
+        PCSTR jitInitSymbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_init_version");
+        PCSTR debugInitSymbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_debug_init");
+        FARPROC symbolAddress = (FARPROC)Random.Shared.Next();
+        HMODULE moduleHandle = (HMODULE)Random.Shared.Next();
         (int argc, string[] args) receivedArgs = default;
-        var expectedArgs = GetArgsFromString(
+        (int argc, string[] argv) expectedArgs = GetArgsFromString(
             $"--debugger-agent=transport=dt_socket,server=y,address=" +
             $"{_debuggerSettings.Value.IpAddress}:{_debuggerSettings.Value.Port}" +
             ",suspend=n");
-        var receivedFormat = IMonoFunctions.MonoDebugFormat.MonoDebugFormatNone;
+        IMonoFunctions.MonoDebugFormat receivedFormat = IMonoFunctions.MonoDebugFormat.MonoDebugFormatNone;
         _monoFunctions.DebugInit.Returns(format => receivedFormat = format);
         _monoFunctions.JitParseOptions.Returns((argc, argv) => receivedArgs = ((int)argc, argv));
         _monoFunctions.DomainAssemblyOpen.Returns((_, _) => Random.Shared.Next());
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
-        var jitInitDetourPtr = (nint)_pltHooksManager.SimulateHook(
+        IntPtr jitInitDetourPtr = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
             jitInitSymbolPtr)!;
-        var debugInitDetourPtr = (nint)_pltHooksManager.SimulateHook(
+        IntPtr debugInitDetourPtr = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
             debugInitSymbolPtr)!;
-        var jitInitDetour = Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitInitVersionFn>(jitInitDetourPtr);
-        var debugInitDetour = Marshal.GetDelegateForFunctionPointer<IMonoFunctions.DebugInitFn>(debugInitDetourPtr);
+        IMonoFunctions.JitInitVersionFn jitInitDetour =
+            Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitInitVersionFn>(jitInitDetourPtr);
+        IMonoFunctions.DebugInitFn debugInitDetour =
+            Marshal.GetDelegateForFunctionPointer<IMonoFunctions.DebugInitFn>(debugInitDetourPtr);
 
         debugInitDetour(IMonoFunctions.MonoDebugFormat.MonoDebugFormatMono);
         jitInitDetour(domainNamePtr, runtimeVersionPtr);
@@ -350,16 +336,16 @@ public sealed class MonoInitializerTests
     [Fact]
     public unsafe void MonoJitInitDetour_CallsOriginalWithoutConfiguringMonoTwice_WhenCalledTwice()
     {
-        StartService();
+        _sut.HookMonoInitialization();
 
-        var domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
-        var runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
-        var symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_init_version");
-        var symbolAddress = (FARPROC)Random.Shared.Next();
-        var moduleHandle = (HMODULE)Random.Shared.Next();
-        var receivedDomainNamePtr = nint.Zero;
-        var receivedRuntimeVersionPtr = nint.Zero;
-        var expectedReturn = Random.Shared.Next();
+        IntPtr domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
+        IntPtr runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
+        PCSTR symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_init_version");
+        FARPROC symbolAddress = (FARPROC)Random.Shared.Next();
+        HMODULE moduleHandle = (HMODULE)Random.Shared.Next();
+        IntPtr receivedDomainNamePtr = nint.Zero;
+        IntPtr receivedRuntimeVersionPtr = nint.Zero;
+        int expectedReturn = Random.Shared.Next();
 
         _monoFunctions.JitInitVersion.Returns((domainName, runtimeVersion) =>
         {
@@ -369,15 +355,16 @@ public sealed class MonoInitializerTests
         });
         _monoFunctions.DomainAssemblyOpen.Returns((_, _) => Random.Shared.Next());
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
-        var detourPtr = (nint)_pltHooksManager.SimulateHook(
+        IntPtr detourPtr = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
             symbolPtr)!;
-        var detour = Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitInitVersionFn>(detourPtr);
+        IMonoFunctions.JitInitVersionFn detour =
+            Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitInitVersionFn>(detourPtr);
 
         detour(domainNamePtr, runtimeVersionPtr);
-        var result = detour(domainNamePtr, runtimeVersionPtr);
+        IntPtr result = detour(domainNamePtr, runtimeVersionPtr);
 
         result.Should().Be(expectedReturn);
         receivedDomainNamePtr.Should().Be(domainNamePtr);
@@ -392,21 +379,22 @@ public sealed class MonoInitializerTests
     [Fact]
     public unsafe void MonoJitInitDetour_Logs_WhenOpeningEntryPointAssemblyFailed()
     {
-        StartService();
+        _sut.HookMonoInitialization();
 
-        var domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
-        var runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
-        var symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_init_version");
-        var moduleHandle = (HMODULE)Random.Shared.Next();
+        IntPtr domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
+        IntPtr runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
+        PCSTR symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_init_version");
+        HMODULE moduleHandle = (HMODULE)Random.Shared.Next();
         _monoFunctions.DomainAssemblyOpen.Returns((_, _) => nint.Zero);
-        var detourPtr = (nint)_pltHooksManager.SimulateHook(
+        IntPtr detourPtr = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
             symbolPtr)!;
-        var detour = Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitInitVersionFn>(detourPtr);
+        IMonoFunctions.JitInitVersionFn detour =
+            Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitInitVersionFn>(detourPtr);
 
-        var result = detour(domainNamePtr, runtimeVersionPtr);
+        IntPtr result = detour(domainNamePtr, runtimeVersionPtr);
 
         _monoFunctions.ReceivedWithAnyArgs(1).DomainAssemblyOpen(result, Arg.Any<string>());
         _monoFunctions.DidNotReceiveWithAnyArgs().RuntimeInvoke(
@@ -424,21 +412,22 @@ public sealed class MonoInitializerTests
     [Fact]
     public unsafe void MonoJitParseOptionsDetour_CallsOriginal_WhenDebuggerIsDisabled()
     {
-        StartService();
+        _sut.HookMonoInitialization();
 
-        var symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_parse_options");
-        var symbolAddress = (FARPROC)Random.Shared.Next();
-        var moduleHandle = (HMODULE)Random.Shared.Next();
-        var originalArgs = GetArgsFromString("stuff things");
+        PCSTR symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_parse_options");
+        FARPROC symbolAddress = (FARPROC)Random.Shared.Next();
+        HMODULE moduleHandle = (HMODULE)Random.Shared.Next();
+        (int argc, string[] argv) originalArgs = GetArgsFromString("stuff things");
         (int argc, string[] args) receivedArgs = default;
         _monoFunctions.JitParseOptions.Returns((argc, argv) => receivedArgs = ((int)argc, argv));
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
-        var result = (nint)_pltHooksManager.SimulateHook(
+        IntPtr result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
             symbolPtr)!;
-        var detour = Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitParseOptionsFn>(result);
+        IMonoFunctions.JitParseOptionsFn detour =
+            Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitParseOptionsFn>(result);
 
         detour(originalArgs.argc, originalArgs.argv);
 
@@ -450,27 +439,28 @@ public sealed class MonoInitializerTests
     [Fact]
     public unsafe void MonoJitParseOptionsDetour_CallsOriginalWithDnSpyArgs_WhenDnSpyEnvVarIsSetAndDebuggerIsDisabled()
     {
-        StartService();
+        _sut.HookMonoInitialization();
 
-        var symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_parse_options");
-        var symbolAddress = (FARPROC)Random.Shared.Next();
-        var moduleHandle = (HMODULE)Random.Shared.Next();
-        var originalArgs = GetArgsFromString("stuff things");
-        var dnSpyIp =
+        PCSTR symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_parse_options");
+        FARPROC symbolAddress = (FARPROC)Random.Shared.Next();
+        HMODULE moduleHandle = (HMODULE)Random.Shared.Next();
+        (int argc, string[] argv) originalArgs = GetArgsFromString("stuff things");
+        string dnSpyIp =
             $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
-        var dnSpyPort = (ushort)Random.Shared.Next();
-        var dnSpyEnvVar = $"things,address={dnSpyIp}:{dnSpyPort},stuff";
-        var expectedArgs = GetArgsFromString($"stuff things {dnSpyEnvVar}");
+        ushort dnSpyPort = (ushort)Random.Shared.Next();
+        string dnSpyEnvVar = $"things,address={dnSpyIp}:{dnSpyPort},stuff";
+        (int argc, string[] argv) expectedArgs = GetArgsFromString($"stuff things {dnSpyEnvVar}");
         Environment.SetEnvironmentVariable("DNSPY_UNITY_DBG2", dnSpyEnvVar);
         (int argc, string[] args) receivedArgs = default;
         _monoFunctions.JitParseOptions.Returns((argc, argv) => receivedArgs = ((int)argc, argv));
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
-        var result = (nint)_pltHooksManager.SimulateHook(
+        IntPtr result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
             symbolPtr)!;
-        var detour = Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitParseOptionsFn>(result);
+        IMonoFunctions.JitParseOptionsFn detour =
+            Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitParseOptionsFn>(result);
 
         detour(originalArgs.argc, originalArgs.argv);
 
@@ -486,25 +476,26 @@ public sealed class MonoInitializerTests
     {
         _debuggerSettingsValue.Enable = true;
         _debuggerSettingsValue.SuspendOnBoot = withSuspend;
-        StartService();
+        _sut.HookMonoInitialization();
 
-        var symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_parse_options");
-        var symbolAddress = (FARPROC)Random.Shared.Next();
-        var moduleHandle = (HMODULE)Random.Shared.Next();
-        var originalArgs = GetArgsFromString("stuff things");
-        var debugArgs = $"--debugger-agent=transport=dt_socket,server=y,address=" +
-                        $"{_debuggerSettings.Value.IpAddress}:{_debuggerSettings.Value.Port}" +
-                        $"{(withSuspend ? "" : ",suspend=n")}";
-        var expectedArgs = GetArgsFromString($"stuff things {debugArgs}");
+        PCSTR symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_parse_options");
+        FARPROC symbolAddress = (FARPROC)Random.Shared.Next();
+        HMODULE moduleHandle = (HMODULE)Random.Shared.Next();
+        (int argc, string[] argv) originalArgs = GetArgsFromString("stuff things");
+        string debugArgs = $"--debugger-agent=transport=dt_socket,server=y,address=" +
+                           $"{_debuggerSettings.Value.IpAddress}:{_debuggerSettings.Value.Port}" +
+                           $"{(withSuspend ? "" : ",suspend=n")}";
+        (int argc, string[] argv) expectedArgs = GetArgsFromString($"stuff things {debugArgs}");
         (int argc, string[] args) receivedArgs = default;
         _monoFunctions.JitParseOptions.Returns((argc, argv) => receivedArgs = ((int)argc, argv));
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
-        var result = (nint)_pltHooksManager.SimulateHook(
+        IntPtr result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
             symbolPtr)!;
-        var detour = Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitParseOptionsFn>(result);
+        IMonoFunctions.JitParseOptionsFn detour =
+            Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitParseOptionsFn>(result);
 
         detour(originalArgs.argc, originalArgs.argv);
 
@@ -518,27 +509,28 @@ public sealed class MonoInitializerTests
         MonoJitParseOptionsDetour_OverridesDebugArgsWithDnSpyDebugArgs_WhenDnSpyEnvVarIsSetAndDebuggerIsEnabled()
     {
         _debuggerSettingsValue.Enable = true;
-        StartService();
+        _sut.HookMonoInitialization();
 
-        var symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_parse_options");
-        var symbolAddress = (FARPROC)Random.Shared.Next();
-        var moduleHandle = (HMODULE)Random.Shared.Next();
-        var originalArgs = GetArgsFromString("stuff things");
-        var dnSpyIp =
+        PCSTR symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_parse_options");
+        FARPROC symbolAddress = (FARPROC)Random.Shared.Next();
+        HMODULE moduleHandle = (HMODULE)Random.Shared.Next();
+        (int argc, string[] argv) originalArgs = GetArgsFromString("stuff things");
+        string dnSpyIp =
             $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
-        var dnSpyPort = (ushort)Random.Shared.Next();
-        var dnSpyEnvVar = $"things,address={dnSpyIp}:{dnSpyPort},stuff";
-        var expectedArgs = GetArgsFromString($"stuff things {dnSpyEnvVar}");
+        ushort dnSpyPort = (ushort)Random.Shared.Next();
+        string dnSpyEnvVar = $"things,address={dnSpyIp}:{dnSpyPort},stuff";
+        (int argc, string[] argv) expectedArgs = GetArgsFromString($"stuff things {dnSpyEnvVar}");
         Environment.SetEnvironmentVariable("DNSPY_UNITY_DBG2", dnSpyEnvVar);
         (int argc, string[] args) receivedArgs = default;
         _monoFunctions.JitParseOptions.Returns((argc, argv) => receivedArgs = ((int)argc, argv));
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
-        var result = (nint)_pltHooksManager.SimulateHook(
+        IntPtr result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
             symbolPtr)!;
-        var detour = Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitParseOptionsFn>(result);
+        IMonoFunctions.JitParseOptionsFn detour =
+            Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitParseOptionsFn>(result);
 
         detour(originalArgs.argc, originalArgs.argv);
 
@@ -551,31 +543,32 @@ public sealed class MonoInitializerTests
     public unsafe void MonoJitParseOptionsDetour_CallsOriginal_WhenCalledAfterMonoJitInitWhileDebuggerIsEnabled()
     {
         _debuggerSettingsValue.Enable = true;
-        StartService();
+        _sut.HookMonoInitialization();
 
-        var domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
-        var runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
-        var jitParseOptionSymbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_parse_options");
-        var jitInitSymbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_init_version");
-        var symbolAddress = (FARPROC)Random.Shared.Next();
-        var moduleHandle = (HMODULE)Random.Shared.Next();
-        var originalArgs = GetArgsFromString("stuff things");
+        IntPtr domainNamePtr = Marshal.StringToHGlobalAnsi("Unity Root Domain");
+        IntPtr runtimeVersionPtr = Marshal.StringToHGlobalAnsi("v4.0.30319");
+        PCSTR jitParseOptionSymbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_parse_options");
+        PCSTR jitInitSymbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_jit_init_version");
+        FARPROC symbolAddress = (FARPROC)Random.Shared.Next();
+        HMODULE moduleHandle = (HMODULE)Random.Shared.Next();
+        (int argc, string[] argv) originalArgs = GetArgsFromString("stuff things");
         (int argc, string[] args) receivedArgs = default;
         _monoFunctions.JitParseOptions.Returns((argc, argv) => receivedArgs = ((int)argc, argv));
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
-        var detourJitParseOptionsPtr = (nint)_pltHooksManager.SimulateHook(
+        IntPtr detourJitParseOptionsPtr = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
             jitParseOptionSymbolPtr)!;
-        var detourJitInitPtr = (nint)_pltHooksManager.SimulateHook(
+        IntPtr detourJitInitPtr = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
             jitInitSymbolPtr)!;
-        var detourJitParseOptions =
+        IMonoFunctions.JitParseOptionsFn detourJitParseOptions =
             Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitParseOptionsFn>(detourJitParseOptionsPtr);
-        var detourJitInit = Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitInitVersionFn>(detourJitInitPtr);
+        IMonoFunctions.JitInitVersionFn detourJitInit =
+            Marshal.GetDelegateForFunctionPointer<IMonoFunctions.JitInitVersionFn>(detourJitInitPtr);
 
         detourJitInit(domainNamePtr, runtimeVersionPtr);
         detourJitParseOptions(originalArgs.argc, originalArgs.argv);
@@ -590,21 +583,21 @@ public sealed class MonoInitializerTests
     [Fact]
     public unsafe void MonoDebugInitDetour_CallsOriginal_WhenCalled()
     {
-        StartService();
+        _sut.HookMonoInitialization();
 
-        var symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_debug_init");
-        var symbolAddress = (FARPROC)Random.Shared.Next();
-        var moduleHandle = (HMODULE)Random.Shared.Next();
-        var debugFormat = (IMonoFunctions.MonoDebugFormat)Random.Shared.Next(3);
+        PCSTR symbolPtr = (PCSTR)(byte*)Marshal.StringToHGlobalAnsi("mono_debug_init");
+        FARPROC symbolAddress = (FARPROC)Random.Shared.Next();
+        HMODULE moduleHandle = (HMODULE)Random.Shared.Next();
+        IMonoFunctions.MonoDebugFormat debugFormat = (IMonoFunctions.MonoDebugFormat)Random.Shared.Next(3);
         _win32.GetProcAddress(Arg.Any<HMODULE>(), Arg.Any<PCSTR>()).Returns(symbolAddress);
-        var receivedFormat = -1;
+        int receivedFormat = -1;
         _monoFunctions.DebugInit.Returns(format => receivedFormat = (int)format);
-        var result = (nint)_pltHooksManager.SimulateHook(
+        IntPtr result = (nint)_pltHooksManager.SimulateHook(
             _gameExecutionContext.UnityPlayerDllFileName,
             nameof(_win32.GetProcAddress),
             moduleHandle,
             symbolPtr)!;
-        var detour = Marshal.GetDelegateForFunctionPointer<IMonoFunctions.DebugInitFn>(result);
+        IMonoFunctions.DebugInitFn detour = Marshal.GetDelegateForFunctionPointer<IMonoFunctions.DebugInitFn>(result);
 
         detour(debugFormat);
 
@@ -615,7 +608,7 @@ public sealed class MonoInitializerTests
 
     private (int argc, string[] argv) GetArgsFromString(string args)
     {
-        var splitArgs = args.Split(' ').Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+        string[] splitArgs = args.Split(' ').Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
         return (splitArgs.Length, splitArgs);
     }
 }

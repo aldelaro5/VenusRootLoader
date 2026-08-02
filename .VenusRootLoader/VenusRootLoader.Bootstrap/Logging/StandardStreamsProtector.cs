@@ -20,7 +20,7 @@ internal sealed class StandardStreamsProtector
 
     private readonly IWin32 _win32;
     private readonly IPltHooksManager _pltHooksManager;
-    private readonly GameExecutionContext _gameExecutionContext;
+    private readonly IGameExecutionContext _gameExecutionContext;
     private readonly ILogger _logger;
     private readonly IMonoInitLifeCycleEvents _monoInitLifeCycleEvents;
 
@@ -30,7 +30,7 @@ internal sealed class StandardStreamsProtector
     public StandardStreamsProtector(
         ILogger<StandardStreamsProtector> logger,
         IPltHooksManager pltHooksManager,
-        GameExecutionContext gameExecutionContext,
+        IGameExecutionContext gameExecutionContext,
         IMonoInitLifeCycleEvents monoInitLifeCycleEvents,
         IWin32 win32)
     {

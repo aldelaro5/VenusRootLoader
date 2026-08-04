@@ -88,11 +88,11 @@ public sealed class MedalShopMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
             ShelvedMedalPositions.Add(shelvedMedalPosition);
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        base.InitializeFromExisting(registryResolver);
-        ILeavesRegistry<MedalShopLeaf> medalShopsRegistry = registryResolver.Resolve<MedalShopLeaf>();
-        ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
+        base.InitializeFromExisting();
+        ILeavesRegistry<MedalShopLeaf> medalShopsRegistry = RegistryResolver.Resolve<MedalShopLeaf>();
+        ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = RegistryResolver.Resolve<CommonDialogueLeaf>();
 
         _shelvedMedalPositions.SynchronizeFromExistingData(InternalVectorData.Select(x => x.Value).ToList());
         AssociatedMedalShop = new(medalShopsRegistry.LeavesByGameIds[(int)InternalDialogues[9].Value.x]);

@@ -1,6 +1,5 @@
 using UnityEngine;
 using VenusRootLoader.LeavesInternals;
-using VenusRootLoader.Registry;
 using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -77,7 +76,7 @@ public sealed class GeyserMapEntityLeaf : ObjectMapEntityLeaf
         EntityStartingPosition = startingPosition;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
         if (InternalData.Count < 3)
         {

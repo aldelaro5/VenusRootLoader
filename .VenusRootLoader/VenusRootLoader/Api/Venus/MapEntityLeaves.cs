@@ -5,6 +5,7 @@ using VenusRootLoader.Api.Leaves.MapEntities.Objects;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.AndBlocks;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.MovingPlatforms;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.Switches;
+using VenusRootLoader.Registry;
 using VenusRootLoader.SourceGenerators;
 
 // ReSharper disable CheckNamespace

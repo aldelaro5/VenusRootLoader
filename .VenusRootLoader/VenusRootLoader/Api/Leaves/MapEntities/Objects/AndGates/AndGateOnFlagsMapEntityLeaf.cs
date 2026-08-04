@@ -24,9 +24,9 @@ public sealed class AndGateOnFlagsMapEntityLeaf : AndGateMapEntityLeaf
             FlagInputs.Add(flagInput);
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+        ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
 
         _flagInputs.SynchronizeFromExistingData(
             InternalData

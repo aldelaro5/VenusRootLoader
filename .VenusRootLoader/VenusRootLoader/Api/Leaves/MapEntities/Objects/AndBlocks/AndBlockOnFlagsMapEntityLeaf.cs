@@ -28,10 +28,10 @@ public sealed class AndBlockOnFlagsMapEntityLeaf : AndBlockMapEntityLeaf
             FlagInputs.Add(flagInput);
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        base.InitializeFromExisting(registryResolver);
-        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+        base.InitializeFromExisting();
+        ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
 
         _flagInputs.SynchronizeFromExistingData(
             InternalData

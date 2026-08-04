@@ -1,5 +1,4 @@
 using UnityEngine;
-using VenusRootLoader.Registry;
 using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -29,5 +28,5 @@ public sealed class ResetCameraZoneMapEntityLeaf : ObjectMapEntityLeaf
         EntityStartingPosition = startingPosition;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver) { }
+    internal override void InitializeFromExisting() { }
 }

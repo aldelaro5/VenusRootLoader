@@ -100,12 +100,12 @@ public abstract class EnemyEncounterMapEntityLeaf : MapEntityLeaf
             EnemiesFormationInBattle.Add(enemies);
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        ILeavesRegistry<EnemyLeaf> enemiesRegistry = registryResolver.Resolve<EnemyLeaf>();
-        ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
+        ILeavesRegistry<EnemyLeaf> enemiesRegistry = RegistryResolver.Resolve<EnemyLeaf>();
+        ILeavesRegistry<AnimIdLeaf> animIdsRegistry = RegistryResolver.Resolve<AnimIdLeaf>();
 
-        BehaviorSystem.InitializeBehaviorFromExisting(registryResolver);
+        BehaviorSystem.InitializeBehaviorFromExisting();
 
         AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
 

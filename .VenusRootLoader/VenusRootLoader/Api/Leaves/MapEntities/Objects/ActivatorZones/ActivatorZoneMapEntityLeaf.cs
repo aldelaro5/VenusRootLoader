@@ -40,7 +40,7 @@ public abstract class ActivatorZoneMapEntityLeaf : ObjectMapEntityLeaf
         EntityStartingPosition = startingPosition;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
         if (InternalData.Count < 3)
         {
@@ -51,7 +51,7 @@ public abstract class ActivatorZoneMapEntityLeaf : ObjectMapEntityLeaf
 
         if (InternalActivationFlagId > 0)
         {
-            ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+            ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
             FlagSetToTrueWhenTriggered = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
         }
     }

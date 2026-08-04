@@ -31,11 +31,11 @@ public sealed class EnemyEncounterDroppingItemsMapEntityLeaf : EnemyEncounterMap
         DefeatAnimation = NPCControl.DeathType.SpinSmoke;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        base.InitializeFromExisting(registryResolver);
-        ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
-        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+        base.InitializeFromExisting();
+        ILeavesRegistry<ItemLeaf> itemsRegistry = RegistryResolver.Resolve<ItemLeaf>();
+        ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
 
         _itemsDropPoolWhenDefeated.SynchronizeFromExistingData(
             InternalVectorData.Select(itemDrop => new EnemyItemDrop

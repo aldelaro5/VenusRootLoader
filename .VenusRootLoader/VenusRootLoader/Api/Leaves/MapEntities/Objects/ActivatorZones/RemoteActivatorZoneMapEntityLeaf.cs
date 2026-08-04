@@ -1,7 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.ActivatorZones.Enums;
-using VenusRootLoader.Registry;
 using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.ActivatorZones;
@@ -63,9 +62,9 @@ public sealed class RemoteActivatorZoneMapEntityLeaf : ActivatorZoneMapEntityLea
         ActivatorMode = activatorMode;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        base.InitializeFromExisting(registryResolver);
+        base.InitializeFromExisting();
         MapEntityWhoseActivationIsControlledByThis =
             (Branch<ObjectMapEntityLeaf>)Map.Leaf.EntitiesRegistry.LeavesByGameIds[Math.Abs(InternalData[0].Value)]!;
     }

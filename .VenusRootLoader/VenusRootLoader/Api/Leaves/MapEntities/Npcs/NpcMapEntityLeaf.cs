@@ -96,12 +96,12 @@ public abstract class NpcMapEntityLeaf : MapEntityLeaf
         InternalRadius = 1.25f;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
-        ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
+        ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
+        ILeavesRegistry<AnimIdLeaf> animIdsRegistry = RegistryResolver.Resolve<AnimIdLeaf>();
 
-        BehaviorSystem.InitializeBehaviorFromExisting(registryResolver);
+        BehaviorSystem.InitializeBehaviorFromExisting();
 
         AnimId = InternalAnimIdOrItemId >= 0
             ? new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId])
@@ -109,14 +109,14 @@ public abstract class NpcMapEntityLeaf : MapEntityLeaf
 
         _conditionalEmoticons.SynchronizeFromExistingData(
             InternalEmoticonFlags
-            .Skip(1)
-            .Select(emoticon => new NpcConditionalEmoticon
-            {
-                RequiredFlag = (int)emoticon.Value.x >= 0
-                    ? new(flagsRegistry.LeavesByGameIds[(int)emoticon.Value.x])
-                    : null,
-                Emoticon = (NpcEmoticon)(int)emoticon.Value.y,
-            })
-            .ToList());
+                .Skip(1)
+                .Select(emoticon => new NpcConditionalEmoticon
+                {
+                    RequiredFlag = (int)emoticon.Value.x >= 0
+                        ? new(flagsRegistry.LeavesByGameIds[(int)emoticon.Value.x])
+                        : null,
+                    Emoticon = (NpcEmoticon)(int)emoticon.Value.y,
+                })
+                .ToList());
     }
 }

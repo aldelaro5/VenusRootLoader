@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Logging;
 using VenusRootLoader.Api;
-using VenusRootLoader.Registry;
 using VenusRootLoader.Unity;
 using VenusRootLoader.Unity.CustomAudioClip;
 using Venus = VenusRootLoader.Api.Venus;
@@ -23,20 +22,17 @@ internal interface IVenusFactory
 /// <inheritdoc/>
 internal sealed class VenusFactory : IVenusFactory
 {
-    private readonly IRegistryResolver _registryResolver;
     private readonly IGlobalMonoBehaviourExecution _globalMonoBehaviourExecution;
     private readonly ICustomAudioClipProvider _customAudioClipProvider;
     private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger<Venus> _logger;
 
     public VenusFactory(
-        IRegistryResolver registryResolver,
         IGlobalMonoBehaviourExecution globalMonoBehaviourExecution,
         ICustomAudioClipProvider customAudioClipProvider,
         ILoggerFactory loggerFactory,
         ILogger<Venus> logger)
     {
-        _registryResolver = registryResolver;
         _globalMonoBehaviourExecution = globalMonoBehaviourExecution;
         _customAudioClipProvider = customAudioClipProvider;
         _loggerFactory = loggerFactory;
@@ -45,7 +41,6 @@ internal sealed class VenusFactory : IVenusFactory
 
     public Venus CreateVenusForBud(string budId) => new(
         budId,
-        _registryResolver,
         _globalMonoBehaviourExecution,
         _customAudioClipProvider,
         _loggerFactory,

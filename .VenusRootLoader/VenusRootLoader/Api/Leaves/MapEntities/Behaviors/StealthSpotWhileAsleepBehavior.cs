@@ -34,9 +34,9 @@ public sealed class StealthSpotWhileAsleepBehavior : MapEntityBehavior
         }
     }
 
-    internal void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal void InitializeFromExisting()
     {
-        ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
+        ILeavesRegistry<EventLeaf> eventsRegistry = RegistryResolver.Resolve<EventLeaf>();
 
         EventToStartWhenSpottingPlayer = MapEntityLeaf.InternalBattleEnemyIds[0].Value >= 0
             ? new(eventsRegistry.LeavesByGameIds[MapEntityLeaf.InternalBattleEnemyIds[0].Value])

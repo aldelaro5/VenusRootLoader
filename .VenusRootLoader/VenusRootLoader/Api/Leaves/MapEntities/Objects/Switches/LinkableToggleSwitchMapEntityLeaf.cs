@@ -38,10 +38,10 @@ public sealed class LinkableToggleSwitchMapEntityLeaf : SwitchMapEntityLeaf
         LinkFlag = linkFlag;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        base.InitializeFromExisting(registryResolver);
-        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+        base.InitializeFromExisting();
+        ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
         if (InternalActivationFlagId > 0)
             LinkFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
     }

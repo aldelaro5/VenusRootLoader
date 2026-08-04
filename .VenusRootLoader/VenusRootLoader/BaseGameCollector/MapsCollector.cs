@@ -49,7 +49,6 @@ internal sealed class MapsCollector : IBaseGameCollector
     private readonly ILeavesRegistry<DiscoveryLeaf> _discoveriesRegistry;
     private readonly ILeavesRegistry<EventLeaf> _eventsRegistry;
     private readonly IMapEntityTextAssetParser _mapEntityTextAssetParser;
-    private readonly IRegistryResolver _registryResolver;
 
     public MapsCollector(
         GameExecutionContext gameExecutionContext,
@@ -65,8 +64,7 @@ internal sealed class MapsCollector : IBaseGameCollector
         ILeavesRegistry<AnimIdLeaf> animIdsRegistry,
         ILeavesRegistry<DiscoveryLeaf> discoveriesRegistry,
         ILeavesRegistry<EventLeaf> eventsRegistry,
-        IMapEntityTextAssetParser mapEntityTextAssetParser,
-        IRegistryResolver registryResolver)
+        IMapEntityTextAssetParser mapEntityTextAssetParser)
     {
         _budLoaderContext = budLoaderContext;
         _fileSystem = fileSystem;
@@ -81,7 +79,6 @@ internal sealed class MapsCollector : IBaseGameCollector
         _discoveriesRegistry = discoveriesRegistry;
         _eventsRegistry = eventsRegistry;
         _mapEntityTextAssetParser = mapEntityTextAssetParser;
-        _registryResolver = registryResolver;
         _gameExecutionContext = gameExecutionContext;
 
         foreach (string mapName in _mapNamedIds)
@@ -240,7 +237,8 @@ internal sealed class MapsCollector : IBaseGameCollector
                     mapEntity.InternalDialogues.Clear();
                     mapEntity.InternalDialogues.Add(new(new(-1, 0, 0)));
                 }
-                mapEntity.InitializeFromExisting(_registryResolver);
+
+                mapEntity.InitializeFromExisting();
             }
 
             // Needs to be done here since we need all MapLeaf to be registered

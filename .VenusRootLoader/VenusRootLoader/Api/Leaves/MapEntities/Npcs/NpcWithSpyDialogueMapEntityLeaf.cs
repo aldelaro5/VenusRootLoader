@@ -66,10 +66,10 @@ public abstract class NpcWithSpyDialogueMapEntityLeaf : NpcMapEntityLeaf
         SpyDialogue = spyDialogue;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        base.InitializeFromExisting(registryResolver);
-        ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
+        base.InitializeFromExisting();
+        ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = RegistryResolver.Resolve<CommonDialogueLeaf>();
 
         if (InternalSpyDialogueId != -1)
         {

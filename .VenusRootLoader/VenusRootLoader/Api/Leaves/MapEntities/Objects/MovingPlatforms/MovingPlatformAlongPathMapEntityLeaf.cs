@@ -1,7 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using UnityEngine;
 using VenusRootLoader.LeavesInternals;
-using VenusRootLoader.Registry;
 using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.MovingPlatforms;
@@ -46,9 +45,9 @@ public sealed class MovingPlatformAlongPathMapEntityLeaf : MovingPlatformMapEnti
             MovementPathNodePositions.Add(movementPathNodePosition);
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        base.InitializeFromExisting(registryResolver);
+        base.InitializeFromExisting();
         _movementPathNodePositions.SynchronizeFromExistingData(
             InternalVectorData.Select(x => x.Value)
                 .ToList());

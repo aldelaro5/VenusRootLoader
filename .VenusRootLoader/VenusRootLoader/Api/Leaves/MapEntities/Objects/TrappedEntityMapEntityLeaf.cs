@@ -59,7 +59,7 @@ public sealed class TrappedEntityMapEntityLeaf : ObjectMapEntityLeaf
         TrappedEntityPositionInMap = trappedEntityPositionInMap;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
         if (InternalData.Count < 2)
         {
@@ -68,7 +68,7 @@ public sealed class TrappedEntityMapEntityLeaf : ObjectMapEntityLeaf
                 InternalData.Add(new Ref<int>(-1));
         }
 
-        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+        ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
 
         if (InternalData[1].Value > -1)
             FlagSetWhenEntityGetsUntrapped = new(flagsRegistry.LeavesByGameIds[InternalData[1].Value]);

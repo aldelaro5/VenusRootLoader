@@ -57,7 +57,7 @@ public sealed class DialogueTriggerZoneMapEntityLeaf : DialogueTriggerMapEntityL
         EntityStartingPosition = startingPosition;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
         if (InternalData.Count < 3)
         {
@@ -66,8 +66,8 @@ public sealed class DialogueTriggerZoneMapEntityLeaf : DialogueTriggerMapEntityL
                 InternalData.Add(new Ref<int>(0));
         }
 
-        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
-        ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
+        ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
+        ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = RegistryResolver.Resolve<CommonDialogueLeaf>();
 
         if (InternalActivationFlagId > 0)
             FlagSetToTrueWhenTriggered = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);

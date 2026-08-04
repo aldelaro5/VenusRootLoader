@@ -102,7 +102,6 @@ internal static class Startup
         services.AddAutoSequentialIdBasedLeavesRegistryWithOrdering<SpyCardLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<MedalShopLeaf>();
         services.AddEnumBasedLeavesRegistry<MapLeaf, MainManager.Maps>();
-        services.AddSingleton<IRegistryResolver, RegistryResolver>();
 
         services.AddSingleton<ISpriteArrayPatcher, EnemyPortraitsSpriteArrayPatcher>(provider =>
             new(
@@ -301,6 +300,9 @@ internal static class Startup
         services.AddSingleton<IAssemblyLoader, AssemblyLoader>();
         services.AddSingleton<BudLoader>();
 
-        return services.BuildServiceProvider();
+        ServiceProvider serviceProvider = services.BuildServiceProvider();
+        RegistryResolver.Init(serviceProvider);
+
+        return serviceProvider;
     }
 }

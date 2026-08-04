@@ -86,13 +86,13 @@ public sealed class DigSpotItemMapEntityLeaf : DigSpotMapEntityLeaf
         IsHiddenItemAKeyItem = isHiddenItemAKeyItem;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        base.InitializeFromExisting(registryResolver);
-        ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
+        base.InitializeFromExisting();
+        ILeavesRegistry<ItemLeaf> itemsRegistry = RegistryResolver.Resolve<ItemLeaf>();
         ItemHiddenInside = new(itemsRegistry.LeavesByGameIds[InternalData[2].Value]);
 
-        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+        ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
         FlagSetToTrueWhenCollectingItem = InternalActivationFlagId switch
         {
             > 0 => new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]),

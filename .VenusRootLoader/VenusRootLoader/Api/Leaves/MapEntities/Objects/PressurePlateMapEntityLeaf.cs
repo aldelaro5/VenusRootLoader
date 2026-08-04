@@ -103,7 +103,7 @@ public sealed class PressurePlateMapEntityLeaf : ObjectMapEntityLeaf
         EntityStartingPosition = startingPosition;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
         if (InternalData.Count < 3)
         {
@@ -114,13 +114,13 @@ public sealed class PressurePlateMapEntityLeaf : ObjectMapEntityLeaf
 
         if (InternalData[2].Value >= 0)
         {
-            ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
+            ILeavesRegistry<EventLeaf> eventsRegistry = RegistryResolver.Resolve<EventLeaf>();
             EventToTriggerOnFirstActivation = new(eventsRegistry.LeavesByGameIds[InternalData[2].Value]);
         }
 
         if (InternalActivationFlagId >= 0)
         {
-            ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+            ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
             FlagActivationOverrideWhenTrue = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
         }
 

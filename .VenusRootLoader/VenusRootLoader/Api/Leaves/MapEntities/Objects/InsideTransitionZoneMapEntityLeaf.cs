@@ -98,7 +98,7 @@ public sealed class InsideTransitionZoneMapEntityLeaf : ObjectMapEntityLeaf
         EntityStartingPosition = startingPosition;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
         if (InternalData.Count < 2)
         {
@@ -114,8 +114,8 @@ public sealed class InsideTransitionZoneMapEntityLeaf : ObjectMapEntityLeaf
                 InternalVectorData.Add(new Ref<Vector3>(Vector3.zero));
         }
 
-        ILeavesRegistry<MusicLeaf> musicRegistry = registryResolver.Resolve<MusicLeaf>();
-        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+        ILeavesRegistry<MusicLeaf> musicRegistry = RegistryResolver.Resolve<MusicLeaf>();
+        ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
         MusicOverrideWhileInside = InternalData[1].Value == -1
             ? null
             : new(musicRegistry.LeavesByGameIds[InternalData[1].Value]);

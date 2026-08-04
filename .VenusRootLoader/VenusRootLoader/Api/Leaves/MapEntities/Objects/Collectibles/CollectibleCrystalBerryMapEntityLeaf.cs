@@ -65,10 +65,10 @@ public sealed class CollectibleCrystalBerryMapEntityLeaf : CollectibleMapEntityL
         CrystalBerry = crystalBerry;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        base.InitializeFromExisting(registryResolver);
-        ILeavesRegistry<CrystalBerryLeaf> crystalBerriesRegistry = registryResolver.Resolve<CrystalBerryLeaf>();
+        base.InitializeFromExisting();
+        ILeavesRegistry<CrystalBerryLeaf> crystalBerriesRegistry = RegistryResolver.Resolve<CrystalBerryLeaf>();
 
         CrystalBerry = new(crystalBerriesRegistry.LeavesByGameIds[InternalData[3].Value]);
     }

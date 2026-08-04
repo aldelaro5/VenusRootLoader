@@ -35,10 +35,10 @@ public sealed class LatchedSwitchMapEntityLeaf : SwitchMapEntityLeaf
         LatchHoldFlag = latchHoldFlag;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        base.InitializeFromExisting(registryResolver);
-        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+        base.InitializeFromExisting();
+        ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
         LatchHoldFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
     }
 }

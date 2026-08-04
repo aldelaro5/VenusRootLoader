@@ -43,7 +43,7 @@ public abstract class SwitchMapEntityLeaf : ObjectMapEntityLeaf
         EntityStartingPosition = startingPosition;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
         if (InternalData.Count < 5)
         {
@@ -52,7 +52,7 @@ public abstract class SwitchMapEntityLeaf : ObjectMapEntityLeaf
                 InternalData.Add(new Ref<int>(0));
         }
 
-        ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
+        ILeavesRegistry<AnimIdLeaf> animIdsRegistry = RegistryResolver.Resolve<AnimIdLeaf>();
         if (InternalAnimIdOrItemId > 0)
             AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
     }

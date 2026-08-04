@@ -52,7 +52,7 @@ public abstract class AndBlockMapEntityLeaf : ObjectMapEntityLeaf
         AnimId = animId;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
         if (InternalVectorData.Count < 3)
         {
@@ -61,7 +61,7 @@ public abstract class AndBlockMapEntityLeaf : ObjectMapEntityLeaf
                 InternalVectorData.Add(new Ref<Vector3>(Vector3.zero));
         }
 
-        ILeavesRegistry<AnimIdLeaf> animIdRegistry = registryResolver.Resolve<AnimIdLeaf>();
+        ILeavesRegistry<AnimIdLeaf> animIdRegistry = RegistryResolver.Resolve<AnimIdLeaf>();
 
         if (InternalAnimIdOrItemId >= 0)
             AnimId = new(animIdRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);

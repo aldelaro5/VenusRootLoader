@@ -83,16 +83,16 @@ public sealed class CollectibleItemMapEntityLeaf : CollectibleMapEntityLeaf
         IsAKeyItem = isKeyItem;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        base.InitializeFromExisting(registryResolver);
+        base.InitializeFromExisting();
         if (InternalData.Count < 2)
             InternalData.Add(new(-1));
         if (InternalData.Count < 3)
             InternalData.Add(new(0));
 
-        ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
-        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+        ILeavesRegistry<ItemLeaf> itemsRegistry = RegistryResolver.Resolve<ItemLeaf>();
+        ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
 
         Item = new(itemsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
         if (InternalActivationFlagId > 0)

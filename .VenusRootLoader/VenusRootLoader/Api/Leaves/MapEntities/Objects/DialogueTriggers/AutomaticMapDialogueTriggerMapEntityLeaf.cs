@@ -1,5 +1,4 @@
 using CommunityToolkit.Diagnostics;
-using VenusRootLoader.Registry;
 using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.DialogueTriggers;
@@ -32,7 +31,7 @@ public sealed class AutomaticMapDialogueTriggerMapEntityLeaf : DialogueTriggerMa
         EntityStartingPosition = new(0f, -999f, 0f);
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
         MapDialogueLineIdToImmediatelyProcessOnMapLoad =
             Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalData[0].Value];

@@ -56,10 +56,10 @@ public sealed class EnemyEncounterDroppingKeyItemMapEntityLeaf : EnemyEncounterM
         DefeatAnimation = NPCControl.DeathType.SpinSmoke;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        base.InitializeFromExisting(registryResolver);
-        ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
+        base.InitializeFromExisting();
+        ILeavesRegistry<ItemLeaf> itemsRegistry = RegistryResolver.Resolve<ItemLeaf>();
 
         KeyItemDroppedWhenDefeated = new(itemsRegistry.LeavesByGameIds[(int)InternalVectorData[0].Value.x]);
     }

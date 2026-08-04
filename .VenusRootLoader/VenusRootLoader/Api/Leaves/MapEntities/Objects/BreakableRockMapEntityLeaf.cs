@@ -38,11 +38,11 @@ public sealed class BreakableRockMapEntityLeaf : ObjectMapEntityLeaf
         EntityStartingPosition = startingPosition;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
         if (InternalActivationFlagId > 0)
         {
-            ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+            ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
             FlagSetToTrueWhenRockBreaks = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
         }
     }

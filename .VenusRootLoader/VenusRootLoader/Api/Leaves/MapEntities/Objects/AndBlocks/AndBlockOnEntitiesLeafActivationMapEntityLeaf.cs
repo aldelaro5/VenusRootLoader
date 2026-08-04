@@ -28,17 +28,18 @@ public sealed class AndBlockOnEntitiesLeafActivationMapEntityLeaf : AndBlockMapE
             EntityActivationsInputs.Add(entityActivationInput);
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        base.InitializeFromExisting(registryResolver);
-        MapLeaf map = registryResolver.Resolve<MapLeaf>().LeavesByGameIds[Map.GameId];
+        base.InitializeFromExisting();
+        MapLeaf map = RegistryResolver.Resolve<MapLeaf>().LeavesByGameIds[Map.GameId];
 
         _entityActivationsInputs.SynchronizeFromExistingData(
             InternalData
                 .Skip(1)
                 .Select(x => new NegatableMapEntityActivation
                 {
-                    MapEntity = (Branch<ObjectMapEntityLeaf>)map.EntitiesRegistry.LeavesByGameIds[Math.Abs(x.Value)]!,
+                    MapEntity =
+                        (Branch<ObjectMapEntityLeaf>)map.EntitiesRegistry.LeavesByGameIds[Math.Abs(x.Value)]!,
                     IsActivationValueNegated = x.Value < 0
                 })
                 .ToList());

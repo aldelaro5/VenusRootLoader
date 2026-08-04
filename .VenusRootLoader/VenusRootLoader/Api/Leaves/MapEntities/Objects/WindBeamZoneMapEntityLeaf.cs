@@ -1,7 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using UnityEngine;
 using VenusRootLoader.LeavesInternals;
-using VenusRootLoader.Registry;
 using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -85,7 +84,7 @@ public sealed class WindBeamZoneMapEntityLeaf : ObjectMapEntityLeaf
         EntityStartingPosition = startingPosition;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
         if (InternalVectorData.Count < 3)
         {

@@ -94,9 +94,9 @@ public sealed class IceRadiusSwitchMapEntityLeaf : ObjectMapEntityLeaf
         AnimId = animId;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+        ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
 
         if (InternalActivationFlagId > 0)
             FlagSwitchActivation = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);

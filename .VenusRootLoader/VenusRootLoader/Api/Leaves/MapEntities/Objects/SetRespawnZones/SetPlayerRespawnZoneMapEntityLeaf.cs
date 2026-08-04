@@ -1,6 +1,5 @@
 using CommunityToolkit.Diagnostics;
 using UnityEngine;
-using VenusRootLoader.Registry;
 using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.SetRespawnZones;
@@ -43,7 +42,7 @@ public sealed class SetPlayerRespawnZoneMapEntityLeaf : ObjectMapEntityLeaf
         InternalVectorData.Add(new(respawnPositionToSetWhenTriggered));
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
     }
 }

@@ -42,11 +42,11 @@ public sealed class EventTriggerSwitchMapEntityLeaf : SwitchMapEntityLeaf
         EventToStartWhenToggled = eventToStartWhenToggled;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        base.InitializeFromExisting(registryResolver);
-        ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
-        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+        base.InitializeFromExisting();
+        ILeavesRegistry<EventLeaf> eventsRegistry = RegistryResolver.Resolve<EventLeaf>();
+        ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
 
         EventToStartWhenToggled = new(eventsRegistry.LeavesByGameIds[InternalData[1].Value]);
         if (InternalActivationFlagId > 0)

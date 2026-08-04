@@ -39,13 +39,13 @@ public sealed class DigSpotMedalMapEntityLeaf : DigSpotMapEntityLeaf
         MedalHiddenInside = medalHiddenInside;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        base.InitializeFromExisting(registryResolver);
-        ILeavesRegistry<MedalLeaf> medalsRegistry = registryResolver.Resolve<MedalLeaf>();
+        base.InitializeFromExisting();
+        ILeavesRegistry<MedalLeaf> medalsRegistry = RegistryResolver.Resolve<MedalLeaf>();
         MedalHiddenInside = new(medalsRegistry.LeavesByGameIds[InternalData[2].Value]);
 
-        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+        ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
         FlagSetToTrueWhenCollectingMedal = InternalActivationFlagId switch
         {
             > 0 => new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]),

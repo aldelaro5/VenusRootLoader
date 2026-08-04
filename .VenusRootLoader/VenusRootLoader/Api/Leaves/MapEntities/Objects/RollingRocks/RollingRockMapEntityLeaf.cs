@@ -1,6 +1,5 @@
 using UnityEngine;
 using VenusRootLoader.LeavesInternals;
-using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.RollingRocks;
 
@@ -46,7 +45,7 @@ public abstract class RollingRockMapEntityLeaf : ObjectMapEntityLeaf
         EntityStartingPosition = startingPosition;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
         if (InternalData.Count < 4)
         {

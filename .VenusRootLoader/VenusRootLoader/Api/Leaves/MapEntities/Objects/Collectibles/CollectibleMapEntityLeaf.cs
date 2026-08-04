@@ -32,9 +32,9 @@ public abstract class CollectibleMapEntityLeaf : ObjectMapEntityLeaf
         EntityStartingPosition = startingPosition;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
+        ILeavesRegistry<EventLeaf> eventsRegistry = RegistryResolver.Resolve<EventLeaf>();
 
         if (InternalData[1].Value > -1)
             EventToStartWhenCollected = new(eventsRegistry.LeavesByGameIds[InternalData[1].Value]);

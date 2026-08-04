@@ -53,9 +53,9 @@ public sealed class FixedAnimstateMapEntityLeaf : ObjectMapEntityLeaf
         EntityStartingPosition = startingPosition;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
+        ILeavesRegistry<AnimIdLeaf> animIdsRegistry = RegistryResolver.Resolve<AnimIdLeaf>();
         AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
     }
 }

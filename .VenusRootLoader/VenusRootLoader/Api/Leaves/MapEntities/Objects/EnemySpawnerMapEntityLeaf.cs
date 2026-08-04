@@ -1,7 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves.MapEntities.Enemies;
-using VenusRootLoader.Registry;
 using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
@@ -56,7 +55,7 @@ public sealed class EnemySpawnerMapEntityLeaf : ObjectMapEntityLeaf
         EntityStartingPosition = new(0f, -999f, 0f);
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
         EnemyToRespawn =
             (Branch<EnemyEncounterMapEntityLeaf>)Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0].Value]!;

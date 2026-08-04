@@ -34,26 +34,26 @@ public sealed class TalkingNpcMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
             ConditionalDialogues.Add(conditionalDialogue);
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        base.InitializeFromExisting(registryResolver);
+        base.InitializeFromExisting();
         InteractIconIsQuestionMark = OriginalInteraction == NPCControl.Interaction.Check;
-        
-        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
-        ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = registryResolver.Resolve<CommonDialogueLeaf>();
+
+        ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
+        ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = RegistryResolver.Resolve<CommonDialogueLeaf>();
 
         _conditionalDialogues.SynchronizeFromExistingData(
             InternalDialogues
-            .Select(dialogue => new NpcConditionalDialogue
-            {
-                RequiredFlag = dialogue.Value.x < 0
-                    ? null
-                    : new(flagsRegistry.LeavesByGameIds[(int)dialogue.Value.x]),
-                Dialogue = (int)dialogue.Value.y < 0
-                    ? commonDialoguesRegistry.LeavesByGameIds[(int)dialogue.Value.y]
-                    : Map.Leaf.DialoguesRegistry.LeavesByGameIds[(int)dialogue.Value.y],
-                DefaultIdleAnimstateWhenSelected = (int)dialogue.Value.z
-            })
-            .ToList());
+                .Select(dialogue => new NpcConditionalDialogue
+                {
+                    RequiredFlag = dialogue.Value.x < 0
+                        ? null
+                        : new(flagsRegistry.LeavesByGameIds[(int)dialogue.Value.x]),
+                    Dialogue = (int)dialogue.Value.y < 0
+                        ? commonDialoguesRegistry.LeavesByGameIds[(int)dialogue.Value.y]
+                        : Map.Leaf.DialoguesRegistry.LeavesByGameIds[(int)dialogue.Value.y],
+                    DefaultIdleAnimstateWhenSelected = (int)dialogue.Value.z
+                })
+                .ToList());
     }
 }

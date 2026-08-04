@@ -81,7 +81,7 @@ public sealed class RotatingPlatformMapEntityLeaf : ObjectMapEntityLeaf
             MovementNodeEulerAngles.Add(movementNodeEulerAngle);
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
         if (InternalDialogues.Count < 3)
         {
@@ -90,7 +90,7 @@ public sealed class RotatingPlatformMapEntityLeaf : ObjectMapEntityLeaf
                 InternalDialogues.Add(new Ref<Vector3>(Vector3.zero));
         }
 
-        ILeavesRegistry<AnimIdLeaf> animIdsRegistry = registryResolver.Resolve<AnimIdLeaf>();
+        ILeavesRegistry<AnimIdLeaf> animIdsRegistry = RegistryResolver.Resolve<AnimIdLeaf>();
         AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
 
         _requiredEntityActivationsToMove.SynchronizeFromExistingData(

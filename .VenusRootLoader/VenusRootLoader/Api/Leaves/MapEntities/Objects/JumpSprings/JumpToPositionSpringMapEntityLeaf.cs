@@ -1,6 +1,5 @@
 using CommunityToolkit.Diagnostics;
 using UnityEngine;
-using VenusRootLoader.Registry;
 using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.JumpSprings;
@@ -56,7 +55,7 @@ public sealed class JumpToPositionSpringMapEntityLeaf : JumpSpringMapEntityLeaf
         PositionToGoWhenUsingSpring = positionToGoWhenUsingSpring;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
         if (InternalVectorData.Count < 3)
             InternalVectorData.Add(new(Vector3.right));

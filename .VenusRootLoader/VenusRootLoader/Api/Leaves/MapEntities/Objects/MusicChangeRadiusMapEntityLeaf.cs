@@ -60,9 +60,9 @@ public sealed class MusicChangeRadiusMapEntityLeaf : ObjectMapEntityLeaf
         EntityStartingPosition = startingPosition;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        ILeavesRegistry<MusicLeaf> musicsRegistry = registryResolver.Resolve<MusicLeaf>();
+        ILeavesRegistry<MusicLeaf> musicsRegistry = RegistryResolver.Resolve<MusicLeaf>();
         MusicWhenInRange = new(musicsRegistry.LeavesByGameIds[InternalData[2].Value]);
     }
 }

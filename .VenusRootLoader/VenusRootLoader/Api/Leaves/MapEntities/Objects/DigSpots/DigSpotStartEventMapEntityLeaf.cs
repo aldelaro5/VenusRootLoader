@@ -29,10 +29,10 @@ public sealed class DigSpotStartEventMapEntityLeaf : DigSpotMapEntityLeaf
         EventToStartWhenEmergingFromDigging = eventToStartWhenEmergingFromDigging;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        base.InitializeFromExisting(registryResolver);
-        ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
+        base.InitializeFromExisting();
+        ILeavesRegistry<EventLeaf> eventsRegistry = RegistryResolver.Resolve<EventLeaf>();
         EventToStartWhenEmergingFromDigging = new(eventsRegistry.LeavesByGameIds[InternalData[1].Value]);
     }
 }

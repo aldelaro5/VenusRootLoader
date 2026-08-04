@@ -151,7 +151,7 @@ public sealed class LoadingZoneMapEntityLeaf : ObjectMapEntityLeaf
         EntityStartingPosition = startingPosition;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
         if (InternalData.Count < 5)
         {
@@ -167,8 +167,8 @@ public sealed class LoadingZoneMapEntityLeaf : ObjectMapEntityLeaf
                 InternalVectorData.Add(new Ref<Vector3>(Vector3.zero));
         }
 
-        ILeavesRegistry<MapLeaf> mapsRegistry = registryResolver.Resolve<MapLeaf>();
-        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+        ILeavesRegistry<MapLeaf> mapsRegistry = RegistryResolver.Resolve<MapLeaf>();
+        ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
         Map = new(mapsRegistry.LeavesByGameIds[InternalData[0].Value]);
 
         if (InternalActivationFlagId > 0)

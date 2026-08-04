@@ -1,5 +1,4 @@
 using UnityEngine;
-using VenusRootLoader.Registry;
 using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.JumpSprings;
@@ -26,5 +25,5 @@ public sealed class JumpUpSpringMapEntityLeaf : JumpSpringMapEntityLeaf
         JumpHeightOverrideWhenUsingSpring = jumpHeightOverrideWhenUsingSpring;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver) { }
+    internal override void InitializeFromExisting() { }
 }

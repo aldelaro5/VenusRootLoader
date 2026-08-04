@@ -76,16 +76,16 @@ public sealed class CollectibleMedalMapEntityLeaf : CollectibleMapEntityLeaf
         Medal = medal;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        base.InitializeFromExisting(registryResolver);
+        base.InitializeFromExisting();
         if (InternalData.Count < 2)
             InternalData.Add(new(-1));
         if (InternalData.Count < 3)
             InternalData.Add(new(0));
 
-        ILeavesRegistry<MedalLeaf> medalsRegistry = registryResolver.Resolve<MedalLeaf>();
-        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+        ILeavesRegistry<MedalLeaf> medalsRegistry = RegistryResolver.Resolve<MedalLeaf>();
+        ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
 
         Medal = new(medalsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
         if (InternalActivationFlagId > 0)

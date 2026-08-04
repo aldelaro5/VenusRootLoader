@@ -56,12 +56,12 @@ public sealed class RollingRockCanonMapEntityLeaf : RollingRockMapEntityLeaf
         InternalData.AddRange([new(0), new(0), new(1), new(-1)]);
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        base.InitializeFromExisting(registryResolver);
+        base.InitializeFromExisting();
         if (InternalData[3].Value != -1)
         {
-            MapLeaf map = registryResolver.Resolve<MapLeaf>().LeavesByGameIds[Map.GameId];
+            MapLeaf map = RegistryResolver.Resolve<MapLeaf>().LeavesByGameIds[Map.GameId];
             RequiredMapEntityActivationForShooting = new()
             {
                 MapEntity =

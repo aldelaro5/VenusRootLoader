@@ -1,5 +1,4 @@
 using UnityEngine;
-using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Crystals;
 
@@ -24,5 +23,5 @@ public abstract class CrystalMapEntityLeaf : ObjectMapEntityLeaf
         InternalAnimIdOrItemId = (int)MainManager.AnimIDs.SavePoint - 1;
     }
 
-    internal sealed override void InitializeFromExisting(IRegistryResolver registryResolver) { }
+    internal sealed override void InitializeFromExisting() { }
 }

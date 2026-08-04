@@ -1,6 +1,5 @@
 using UnityEngine;
 using VenusRootLoader.LeavesInternals;
-using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.MovableObjects;
 
@@ -22,7 +21,7 @@ public abstract class MovableObjectMapEntityLeaf : ObjectMapEntityLeaf
         EntityStartingPosition = startingPosition;
     }
 
-    internal sealed override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal sealed override void InitializeFromExisting()
     {
         if (InternalData.Count < 4)
         {

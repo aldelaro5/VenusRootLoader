@@ -34,21 +34,22 @@ public sealed class AndGateOnEntitiesLeafActivationMapEntityLeaf : AndGateMapEnt
             EntityActivationsInputs.Add(entityActivationsInput);
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
         if (InternalData[0].Value > -1)
         {
-            ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
+            ILeavesRegistry<EventLeaf> eventsRegistry = RegistryResolver.Resolve<EventLeaf>();
             OneShotEventOutputOverride = new(eventsRegistry.LeavesByGameIds[InternalData[0].Value]);
         }
 
-        MapLeaf map = registryResolver.Resolve<MapLeaf>().LeavesByGameIds[Map.GameId];
+        MapLeaf map = RegistryResolver.Resolve<MapLeaf>().LeavesByGameIds[Map.GameId];
         _entityActivationsInputs.SynchronizeFromExistingData(
             InternalData
                 .Skip(1)
                 .Select(x => new NegatableMapEntityActivation
                 {
-                    MapEntity = (Branch<ObjectMapEntityLeaf>)map.EntitiesRegistry.LeavesByGameIds[Math.Abs(x.Value)]!,
+                    MapEntity =
+                        (Branch<ObjectMapEntityLeaf>)map.EntitiesRegistry.LeavesByGameIds[Math.Abs(x.Value)]!,
                     IsActivationValueNegated = x.Value < 0
                 })
                 .ToList());

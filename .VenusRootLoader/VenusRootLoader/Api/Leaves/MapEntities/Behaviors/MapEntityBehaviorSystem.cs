@@ -1,7 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves.MapEntities.Behaviors.Enums;
-using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Behaviors;
 
@@ -14,13 +13,13 @@ public sealed class MapEntityBehaviorSystem
 
     internal MapEntityBehaviorSystem(MapEntityLeaf entityLeaf) { _mapEntityLeaf = entityLeaf; }
 
-    internal void InitializeBehaviorFromExisting(IRegistryResolver registryResolver)
+    internal void InitializeBehaviorFromExisting()
     {
-        InitializeBehaviorFromExisting(BehaviorKind.OutOfRange, registryResolver);
-        InitializeBehaviorFromExisting(BehaviorKind.InRange, registryResolver);
+        InitializeBehaviorFromExisting(BehaviorKind.OutOfRange);
+        InitializeBehaviorFromExisting(BehaviorKind.InRange);
     }
 
-    private void InitializeBehaviorFromExisting(BehaviorKind kind, IRegistryResolver registryResolver)
+    private void InitializeBehaviorFromExisting(BehaviorKind kind)
     {
         NPCControl.ActionBehaviors internalType = kind switch
         {
@@ -29,7 +28,7 @@ public sealed class MapEntityBehaviorSystem
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<NPCControl.ActionBehaviors>(nameof(kind))
         };
 
-        MapEntityBehavior? behavior = MapExistingInternalBehaviorType(kind, internalType, registryResolver);
+        MapEntityBehavior? behavior = MapExistingInternalBehaviorType(kind, internalType);
 
         switch (kind)
         {
@@ -47,8 +46,7 @@ public sealed class MapEntityBehaviorSystem
 
     private MapEntityBehavior? MapExistingInternalBehaviorType(
         BehaviorKind kind,
-        NPCControl.ActionBehaviors internalType,
-        IRegistryResolver registryResolver)
+        NPCControl.ActionBehaviors internalType)
     {
         return internalType switch
         {
@@ -61,7 +59,9 @@ public sealed class MapEntityBehaviorSystem
             NPCControl.ActionBehaviors.FaceAwayFromPlayer => new FaceDirectionMapEntityBehavior(_mapEntityLeaf, kind),
             NPCControl.ActionBehaviors.TurnFixedInterval => new SpriteFlipMapEntityBehavior(_mapEntityLeaf, kind),
             NPCControl.ActionBehaviors.Disguise => new DisguiseMapEntityBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.DisguiseOnce => new DisguiseOnceBeforeWanderMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.DisguiseOnce => new DisguiseOnceBeforeWanderMapEntityBehavior(
+                _mapEntityLeaf,
+                kind),
             NPCControl.ActionBehaviors.FaceAhead => new FaceDirectionMapEntityBehavior(_mapEntityLeaf, kind),
             NPCControl.ActionBehaviors.FaceBehind => new FaceDirectionMapEntityBehavior(_mapEntityLeaf, kind),
             NPCControl.ActionBehaviors.FaceUp => new FaceDirectionMapEntityBehavior(_mapEntityLeaf, kind),
@@ -72,15 +72,17 @@ public sealed class MapEntityBehaviorSystem
                 _mapEntityLeaf,
                 kind),
             NPCControl.ActionBehaviors.ShootProjectile => new ShootProjectileMapEntityBehavior(_mapEntityLeaf, kind),
-            NPCControl.ActionBehaviors.ChargeAndAttack => new ChaseAndAttackPlayerMapEntityBehavior(_mapEntityLeaf, kind),
+            NPCControl.ActionBehaviors.ChargeAndAttack => new ChaseAndAttackPlayerMapEntityBehavior(
+                _mapEntityLeaf,
+                kind),
             NPCControl.ActionBehaviors.Unmoveable => new UnmovableWhenDizzyMapEntityBehavior(_mapEntityLeaf, kind),
             NPCControl.ActionBehaviors.ChargeAttackUnderground => new ChaseAndAttackPlayerMapEntityBehavior(
                 _mapEntityLeaf,
                 kind),
             NPCControl.ActionBehaviors.WanderUnderground => new WanderMapEntityBehavior(_mapEntityLeaf, kind),
             NPCControl.ActionBehaviors.StealthAI => (int)_mapEntityLeaf.InternalOutOfRangeActionFrequency == 5555
-                ? CreateNewStealthSpotWhileAsleepBehaviorFromExisting(registryResolver)
-                : CreateNewStealthSpotBehaviorFromExisting(registryResolver),
+                ? CreateNewStealthSpotWhileAsleepBehaviorFromExisting()
+                : CreateNewStealthSpotBehaviorFromExisting(),
             NPCControl.ActionBehaviors.SetPathJump => new MoveAlongPathMapEntityBehavior(_mapEntityLeaf, kind),
             NPCControl.ActionBehaviors.ChangeSpriteInRandius => new ChangeAnimstateInRadiusMapEntityBehavior(
                 _mapEntityLeaf),
@@ -99,18 +101,17 @@ public sealed class MapEntityBehaviorSystem
         };
     }
 
-    private StealthSpotWhileAsleepBehavior CreateNewStealthSpotWhileAsleepBehaviorFromExisting(
-        IRegistryResolver registryResolver)
+    private StealthSpotWhileAsleepBehavior CreateNewStealthSpotWhileAsleepBehaviorFromExisting()
     {
         StealthSpotWhileAsleepBehavior behavior = new(_mapEntityLeaf);
-        behavior.InitializeFromExisting(registryResolver);
+        behavior.InitializeFromExisting();
         return behavior;
     }
 
-    private StealthSpotBehavior CreateNewStealthSpotBehaviorFromExisting(IRegistryResolver registryResolver)
+    private StealthSpotBehavior CreateNewStealthSpotBehaviorFromExisting()
     {
         StealthSpotBehavior behavior = new(_mapEntityLeaf);
-        behavior.InitializeFromExisting(registryResolver);
+        behavior.InitializeFromExisting();
         return behavior;
     }
 

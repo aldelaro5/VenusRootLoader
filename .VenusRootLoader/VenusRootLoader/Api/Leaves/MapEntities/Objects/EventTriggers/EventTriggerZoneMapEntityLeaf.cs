@@ -53,7 +53,7 @@ public sealed class EventTriggerZoneMapEntityLeaf : EventTriggerMapEntityLeaf
         EntityStartingPosition = startingPosition;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
         if (InternalData.Count < 3)
         {
@@ -62,8 +62,8 @@ public sealed class EventTriggerZoneMapEntityLeaf : EventTriggerMapEntityLeaf
                 InternalData.Add(new Ref<int>(0));
         }
 
-        ILeavesRegistry<EventLeaf> eventsRegistry = registryResolver.Resolve<EventLeaf>();
-        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+        ILeavesRegistry<EventLeaf> eventsRegistry = RegistryResolver.Resolve<EventLeaf>();
+        ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
         EventToStartWhenTriggered = new(eventsRegistry.LeavesByGameIds[InternalData[0].Value]);
 
         if (InternalActivationFlagId > 0)

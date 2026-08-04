@@ -1,5 +1,4 @@
 using UnityEngine;
-using VenusRootLoader.Registry;
 using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.SetRespawnZones;
@@ -20,7 +19,7 @@ public sealed class IndependantRespawnZoneMapEntityLeaf : ObjectMapEntityLeaf
         InternalVectorData.Add(new(Vector3.zero));
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
         if (InternalVectorData.Count == 0)
             InternalVectorData.Add(new(Vector3.zero));

@@ -35,16 +35,16 @@ public sealed class CuttableGrassWithItemDropsMapEntityLeaf : CuttableGrassMapEn
             ItemsDroppedWhenCut.Add(item);
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        ILeavesRegistry<ItemLeaf> itemsRegistry = registryResolver.Resolve<ItemLeaf>();
-        ILeavesRegistry<FlagLeaf> flagsRegistry = registryResolver.Resolve<FlagLeaf>();
+        ILeavesRegistry<ItemLeaf> itemsRegistry = RegistryResolver.Resolve<ItemLeaf>();
+        ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
 
         _itemsDroppedWhenCut.SynchronizeFromExistingData(
             InternalVectorData
                 .Select(v => v.Value.x < 0
-                ? (Branch<ItemLeaf>?)null
-                : new Branch<ItemLeaf>(itemsRegistry.LeavesByGameIds[(int)v.Value.x]))
+                    ? (Branch<ItemLeaf>?)null
+                    : new Branch<ItemLeaf>(itemsRegistry.LeavesByGameIds[(int)v.Value.x]))
                 .ToList());
 
         if (InternalActivationFlagId >= 0)

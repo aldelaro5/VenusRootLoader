@@ -65,10 +65,10 @@ public sealed class DigSpotCrystalBerryMapEntityLeaf : DigSpotMapEntityLeaf
         CrystalBerryHiddenInside = crystalBerryHiddenInside;
     }
 
-    internal override void InitializeFromExisting(IRegistryResolver registryResolver)
+    internal override void InitializeFromExisting()
     {
-        base.InitializeFromExisting(registryResolver);
-        ILeavesRegistry<CrystalBerryLeaf> crystalBerriesRegistry = registryResolver.Resolve<CrystalBerryLeaf>();
+        base.InitializeFromExisting();
+        ILeavesRegistry<CrystalBerryLeaf> crystalBerriesRegistry = RegistryResolver.Resolve<CrystalBerryLeaf>();
         CrystalBerryHiddenInside = new(crystalBerriesRegistry.LeavesByGameIds[InternalData[1].Value]);
     }
 }

@@ -22,7 +22,7 @@ public sealed class TrappedEntityMapEntityLeaf : ObjectMapEntityLeaf
         get;
         set
         {
-            InternalData[0].Value = value.GameId;
+            InternalData[0].Value = value.Resolve().GameId;
             field = value;
         }
     }
@@ -32,7 +32,7 @@ public sealed class TrappedEntityMapEntityLeaf : ObjectMapEntityLeaf
         get;
         set
         {
-            InternalData[1].Value = value?.GameId ?? -1;
+            InternalData[1].Value = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }
@@ -73,6 +73,6 @@ public sealed class TrappedEntityMapEntityLeaf : ObjectMapEntityLeaf
         if (InternalData[1].Value > -1)
             FlagSetWhenEntityGetsUntrapped = new(flagsRegistry.LeavesByGameIds[InternalData[1].Value]);
 
-        TrappedMapEntity = Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0].Value];
+        TrappedMapEntity = Map.Resolve().EntitiesRegistry.LeavesByGameIds[InternalData[0].Value];
     }
 }

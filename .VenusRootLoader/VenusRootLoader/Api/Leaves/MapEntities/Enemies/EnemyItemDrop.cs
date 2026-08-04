@@ -13,7 +13,7 @@ public sealed class EnemyItemDrop
         get;
         set
         {
-            Vector3Ref.Value.x = value?.GameId ?? -1;
+            Vector3Ref.Value.x = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }
@@ -23,7 +23,7 @@ public sealed class EnemyItemDrop
         get;
         set
         {
-            Vector3Ref.Value.y = value?.GameId ?? -1;
+            Vector3Ref.Value.y = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }

@@ -12,7 +12,7 @@ public sealed class NpcConditionalEmoticon
         get;
         set
         {
-            Vector2Ref.Value.x = value?.GameId ?? -1;
+            Vector2Ref.Value.x = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }

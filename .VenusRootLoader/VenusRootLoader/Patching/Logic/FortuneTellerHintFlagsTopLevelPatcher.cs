@@ -63,10 +63,10 @@ internal sealed class FortuneTellerHintFlagsTopLevelPatcher : ITopLevelPatcher
     private static int[][] GetNewFortuneTallerHintFlagsArray(int[][] original) =>
     [
         _instance._loreBooksRegistry.LeavesByGameIds.Values
-            .Select(l => l.LoreBookObtainedFlag.GameId)
+            .Select(l => l.LoreBookObtainedFlag.Resolve().GameId)
             .ToArray(),
         _instance._medalFortuneTellerHintsRegistry.LeavesByGameIds.Values
-            .Select(l => l.MedalObtainedFlag.GameId)
+            .Select(l => l.MedalObtainedFlag.Resolve().GameId)
             .ToArray()
     ];
 }

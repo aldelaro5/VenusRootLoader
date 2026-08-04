@@ -18,7 +18,7 @@ public sealed class RotatingPlatformMapEntityLeaf : ObjectMapEntityLeaf
     internal RotatingPlatformMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
-        _requiredEntityActivationsToMove = new(InternalData, 0, x => new(x.GameId));
+        _requiredEntityActivationsToMove = new(InternalData, 0, x => new(x.Resolve().GameId));
         _movementNodeEulerAngles = new(InternalVectorData, 0, x => new(x));
     }
 
@@ -29,7 +29,7 @@ public sealed class RotatingPlatformMapEntityLeaf : ObjectMapEntityLeaf
         get;
         set
         {
-            InternalAnimIdOrItemId = value.GameId;
+            InternalAnimIdOrItemId = value.Resolve().GameId;
             field = value;
         }
     }
@@ -97,7 +97,7 @@ public sealed class RotatingPlatformMapEntityLeaf : ObjectMapEntityLeaf
             InternalData
                 .Select(x =>
                     new Branch<ObjectMapEntityLeaf>(
-                        (ObjectMapEntityLeaf)Map.Leaf.EntitiesRegistry.LeavesByGameIds[x.Value]))
+                        (ObjectMapEntityLeaf)Map.Resolve().EntitiesRegistry.LeavesByGameIds[x.Value]))
                 .ToList());
 
         _movementNodeEulerAngles.SynchronizeFromExistingData(

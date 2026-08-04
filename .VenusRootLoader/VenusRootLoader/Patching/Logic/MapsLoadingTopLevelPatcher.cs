@@ -85,7 +85,7 @@ internal sealed class MapsLoadingTopLevelPatcher : ITopLevelPatcher
     private static void PatchMapControl(MapLeaf map, GameObject mapPrefab, MapControl mapControl)
     {
         mapControl.mapid = (MainManager.Maps)map.GameId;
-        mapControl.areaid = (MainManager.Areas)map.Area.GameId;
+        mapControl.areaid = (MainManager.Areas)map.Area.Resolve().GameId;
 
         mapControl.camoffset = map.DefaultCameraPositionOffsetFromTargetOverride ?? Vector3.zero;
         mapControl.camangle = map.DefaultCameraAnglesOffsetFromTargetOverride ?? Vector3.zero;
@@ -115,7 +115,7 @@ internal sealed class MapsLoadingTopLevelPatcher : ITopLevelPatcher
         mapControl.nobattlemusic = map.DisableMusicChangeWhenEnteringBattle;
 
         mapControl.music = map.MusicsAvailable
-            .Select(x => x.Music?.Leaf.Music ?? null)
+            .Select(x => x.Music?.Resolve().Music ?? null)
             .ToArray();
         for (int i = 0; i < mapControl.music.Length; i++)
         {
@@ -126,7 +126,7 @@ internal sealed class MapsLoadingTopLevelPatcher : ITopLevelPatcher
 
         mapControl.keepmusic = map.KeepsExistingMusicPlayingOnLoad;
         mapControl.musicflags = map.MusicSelectionConditions
-            .Select(x => new Vector2Int(x.RequiredFlag?.GameId ?? -1, x.MapMusic.MusicIdInMap))
+            .Select(x => new Vector2Int(x.RequiredFlag?.Resolve().GameId ?? -1, x.MapMusic.MusicIdInMap))
             .ToArray();
 
         List<GameObject> insides = new();
@@ -141,14 +141,14 @@ internal sealed class MapsLoadingTopLevelPatcher : ITopLevelPatcher
         mapControl.setinsidecenter = map.SetCameraTargetToCurrentInsideWhileInside;
         mapControl.fadingspeed = map.FadingSpeedWhenEnteringOrExitingAnInside;
 
-        mapControl.tattleid = map.SpyDialogue.Leaf is MapDialogueLeaf
+        mapControl.tattleid = map.SpyDialogue.Resolve() is MapDialogueLeaf
             ? map.DialoguesRegistry.LeavesByEffectiveIds[EffectiveLeafId.CreateFromParts(
                 map.SpyDialogue.CreatorId,
                 map.SpyDialogue.NamedId)].GameId
-            : map.SpyDialogue.GameId;
+            : map.SpyDialogue.Resolve().GameId;
 
         mapControl.canfollowID = map.FollowerAnimIdsAllowed
-            .Select(x => x.GameId)
+            .Select(x => x.Resolve().GameId)
             .ToArray();
         mapControl.followerylimit = map.MaximumYFollowerDistanceBeforeTeleport;
 
@@ -162,12 +162,15 @@ internal sealed class MapsLoadingTopLevelPatcher : ITopLevelPatcher
         if (mapControl.mainmesh == null && mapPrefab.transform.childCount == 0)
             mapControl.mainmesh = mapPrefab.transform;
         mapControl.discoveryids = map.DetectableDiscoveriesByDetectorMedal
-            .Select(x => x.GameId)
+            .Select(x => x.Resolve().GameId)
             .ToArray();
-        mapControl.readdatafromothermap = (MainManager.Maps)(map.MapWhoProvidesEntitiesAndDialogues?.GameId ?? 0);
+        mapControl.readdatafromothermap =
+            (MainManager.Maps)(map.MapWhoProvidesEntitiesAndDialogues?.Resolve().GameId ?? 0);
         mapControl.cantcompass = map.DisallowAntCompassUsage;
         mapControl.autoevent = map.AutomaticallyTriggeredEventsAfterLoad
-            .Select(x => new Vector2(x.AlreadyTriggeredFlag.GameId, x.EventToTriggerWhenFlagIsFalse.GameId))
+            .Select(x => new Vector2(
+                x.AlreadyTriggeredFlag.Resolve().GameId,
+                x.EventToTriggerWhenFlagIsFalse.Resolve().GameId))
             .ToArray();
 
         List<GameObject> eventPointers = new();

@@ -19,7 +19,7 @@ public sealed class CollectibleCrystalBerryMapEntityLeaf : CollectibleMapEntityL
         get;
         set
         {
-            InternalData[3].Value = value.GameId;
+            InternalData[3].Value = value.Resolve().GameId;
             field = value;
         }
     }

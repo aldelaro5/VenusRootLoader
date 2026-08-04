@@ -157,7 +157,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         sb.Append('}');
 
         List<int> allRequires = GetListPaddedWithOriginalArray(
-            mapEntityLeaf.RequiredFlags.Select(r => r.GameId).ToList(),
+            mapEntityLeaf.RequiredFlags.Select(r => r.Resolve().GameId).ToList(),
             mapEntityLeaf.OriginalRequires);
         foreach (int require in allRequires)
         {
@@ -170,8 +170,8 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
 
         List<int> allLimitsValues = mapEntityLeaf.LimitedToFlags
             .Select(l => l.FailsWholeExistConditionWhenFlagIsTrue
-                ? -l.Flag.GameId
-                : l.Flag.GameId)
+                ? -l.Flag.Resolve().GameId
+                : l.Flag.Resolve().GameId)
             .ToList();
         List<int> allLimits = GetListPaddedWithOriginalArray(allLimitsValues, mapEntityLeaf.OriginalLimits);
         foreach (int limit in allLimits)

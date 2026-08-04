@@ -17,7 +17,7 @@ public abstract class AndBlockMapEntityLeaf : ObjectMapEntityLeaf
         get;
         set
         {
-            InternalAnimIdOrItemId = value.GameId;
+            InternalAnimIdOrItemId = value.Resolve().GameId;
             field = value;
         }
     }

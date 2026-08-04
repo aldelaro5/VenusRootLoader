@@ -19,7 +19,7 @@ public sealed class CollectibleItemMapEntityLeaf : CollectibleMapEntityLeaf
         get;
         set
         {
-            InternalAnimIdOrItemId = value.GameId;
+            InternalAnimIdOrItemId = value.Resolve().GameId;
             field = value;
         }
     }
@@ -35,7 +35,7 @@ public sealed class CollectibleItemMapEntityLeaf : CollectibleMapEntityLeaf
         get;
         set
         {
-            InternalActivationFlagId = value?.GameId ?? -1;
+            InternalActivationFlagId = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }

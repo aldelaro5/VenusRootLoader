@@ -15,10 +15,10 @@ public sealed class AutomaticMapDialogueTriggerMapEntityLeaf : DialogueTriggerMa
         get;
         set
         {
-            if (value.Leaf.AssociatedMap != Map)
+            if (value.Resolve().AssociatedMap != Map)
                 ThrowHelper.ThrowInvalidOperationException($"This map dialogue must be in the {Map.NamedId} map");
 
-            InternalData[0].Value = value.GameId;
+            InternalData[0].Value = value.Resolve().GameId;
             field = value;
         }
     }
@@ -34,6 +34,6 @@ public sealed class AutomaticMapDialogueTriggerMapEntityLeaf : DialogueTriggerMa
     internal override void InitializeFromExisting()
     {
         MapDialogueLineIdToImmediatelyProcessOnMapLoad =
-            Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalData[0].Value];
+            Map.Resolve().DialoguesRegistry.LeavesByGameIds[InternalData[0].Value];
     }
 }

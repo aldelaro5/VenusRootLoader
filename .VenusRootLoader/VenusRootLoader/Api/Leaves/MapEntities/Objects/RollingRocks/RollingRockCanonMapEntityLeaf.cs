@@ -17,7 +17,7 @@ public sealed class RollingRockCanonMapEntityLeaf : RollingRockMapEntityLeaf
         get;
         set
         {
-            if (value?.MapEntity.Leaf.Map is { } map && map != Map)
+            if (value?.MapEntity.Resolve().Map is { } map && map != Map)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(
                     nameof(RequiredMapEntityActivationForShooting),
@@ -61,7 +61,7 @@ public sealed class RollingRockCanonMapEntityLeaf : RollingRockMapEntityLeaf
         base.InitializeFromExisting();
         if (InternalData[3].Value != -1)
         {
-            MapLeaf map = RegistryResolver.Resolve<MapLeaf>().LeavesByGameIds[Map.GameId];
+            MapLeaf map = RegistryResolver.Resolve<MapLeaf>().LeavesByGameIds[Map.Resolve().GameId];
             RequiredMapEntityActivationForShooting = new()
             {
                 MapEntity =

@@ -23,7 +23,7 @@ public abstract class NpcMapEntityLeaf : MapEntityLeaf
         get;
         set
         {
-            InternalAnimIdOrItemId = value?.GameId ?? -1;
+            InternalAnimIdOrItemId = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }

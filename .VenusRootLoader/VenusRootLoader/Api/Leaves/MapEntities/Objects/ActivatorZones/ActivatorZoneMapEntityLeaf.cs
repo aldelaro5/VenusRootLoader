@@ -23,7 +23,7 @@ public abstract class ActivatorZoneMapEntityLeaf : ObjectMapEntityLeaf
         get;
         set
         {
-            InternalActivationFlagId = value?.GameId ?? -1;
+            InternalActivationFlagId = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }

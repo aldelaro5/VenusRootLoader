@@ -66,13 +66,21 @@ internal interface ILeavesRegistry<TLeaf>
     TSubLeaf RegisterExisting<TSubLeaf>(int gameId, string namedId, string creatorId) where TSubLeaf : TLeaf;
 
     /// <summary>
-    /// Obtains a leaf from the registry.
+    /// Obtains a leaf from the registry using the parts of an effective id.
     /// </summary>
     /// <param name="creatorId">The creator id of the leaf.</param>
     /// <param name="namedId">The named id of the leaf.</param>
     /// <returns>The leaf if found.</returns>
     /// <exception cref="ArgumentException">Thrown if the leaf doesn't exist.</exception>
     TLeaf Get(string creatorId, string namedId);
+
+    /// <summary>
+    /// Obtains a leaf from the registry using an effective id.
+    /// </summary>
+    /// <param name="effectiveId">The effective id of the leaf.</param>
+    /// <returns>The leaf if found.</returns>
+    /// <exception cref="ArgumentException">Thrown if the leaf doesn't exist.</exception>
+    TLeaf GetByEffectiveId(string effectiveId);
 
     /// <summary>
     /// Obtains a leaf from the registry.

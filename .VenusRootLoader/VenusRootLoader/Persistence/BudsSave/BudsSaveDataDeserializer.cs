@@ -62,7 +62,7 @@ internal sealed class BudsSaveDataDeserializer : IBudsSaveDataDeserializer
             stagingLoadData,
             (loadData, leaf) =>
             {
-                List<int> startingStock = leaf.StartingMedalsStock.Select(m => m.GameId).ToList();
+                List<int> startingStock = leaf.StartingMedalsStock.Select(m => m.Resolve().GameId).ToList();
                 loadData.AvaliableBadgePool.Add(startingStock);
                 loadData.BadgeShops.Add(startingStock);
             },

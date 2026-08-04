@@ -16,14 +16,14 @@ public sealed class JumpToPositionSpringMapEntityLeaf : JumpSpringMapEntityLeaf
         get;
         set
         {
-            if (value is not null && value.Value.Leaf.Map != Map)
+            if (value is not null && value.Value.Resolve().Map != Map)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(
                     nameof(InsideTransitionToTriggerWhenUsingSpring),
                     $"The entity is not in the {Map.NamedId} map which is required");
             }
 
-            InternalData[2].Value = value?.GameId ?? -1;
+            InternalData[2].Value = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }
@@ -63,7 +63,8 @@ public sealed class JumpToPositionSpringMapEntityLeaf : JumpSpringMapEntityLeaf
         if (InternalData[2].Value >= 0)
         {
             InsideTransitionToTriggerWhenUsingSpring =
-                Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[2].Value] is InsideTransitionZoneMapEntityLeaf
+                Map.Resolve().EntitiesRegistry.LeavesByGameIds[InternalData[2].Value] is
+                    InsideTransitionZoneMapEntityLeaf
                     insideTransition
                     ? new(insideTransition)
                     : null;

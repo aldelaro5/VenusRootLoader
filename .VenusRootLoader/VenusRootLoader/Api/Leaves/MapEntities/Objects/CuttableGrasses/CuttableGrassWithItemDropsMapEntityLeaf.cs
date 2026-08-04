@@ -10,7 +10,10 @@ public sealed class CuttableGrassWithItemDropsMapEntityLeaf : CuttableGrassMapEn
     internal CuttableGrassWithItemDropsMapEntityLeaf(int gameId, string namedId, string creatorId)
         : base(gameId, namedId, creatorId)
     {
-        _itemsDroppedWhenCut = new(InternalVectorData, 0, x => new(new(x?.GameId ?? -1, x is null ? 1 : 0, 0)));
+        _itemsDroppedWhenCut = new(
+            InternalVectorData,
+            0,
+            x => new(new(x?.Resolve().GameId ?? -1, x is null ? 1 : 0, 0)));
     }
 
     private readonly ListRefWrapper<Branch<ItemLeaf>?, Vector3> _itemsDroppedWhenCut;
@@ -21,7 +24,7 @@ public sealed class CuttableGrassWithItemDropsMapEntityLeaf : CuttableGrassMapEn
         get;
         set
         {
-            InternalActivationFlagId = value?.GameId ?? -1;
+            InternalActivationFlagId = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }

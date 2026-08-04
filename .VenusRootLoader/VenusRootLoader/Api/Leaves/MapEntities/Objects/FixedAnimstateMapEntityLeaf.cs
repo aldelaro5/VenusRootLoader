@@ -19,7 +19,7 @@ public sealed class FixedAnimstateMapEntityLeaf : ObjectMapEntityLeaf
         get;
         set
         {
-            InternalAnimIdOrItemId = value.GameId;
+            InternalAnimIdOrItemId = value.Resolve().GameId;
             field = value;
         }
     }

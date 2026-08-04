@@ -27,7 +27,7 @@ internal sealed class AnimIdTextAssetParser : ITextAssetParser<AnimIdLeaf>
         sb.Append(',');
         sb.Append(leaf.BleepPitch);
         sb.Append(',');
-        sb.Append(leaf.BleepId.GameId);
+        sb.Append(leaf.BleepId.Resolve().GameId);
         sb.Append(',');
         sb.Append(leaf.IsModelEntity);
         sb.Append(',');

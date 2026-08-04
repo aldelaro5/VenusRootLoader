@@ -17,7 +17,7 @@ public abstract class SwitchMapEntityLeaf : ObjectMapEntityLeaf
         get;
         set
         {
-            InternalAnimIdOrItemId = value?.GameId ?? -1;
+            InternalAnimIdOrItemId = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }

@@ -26,35 +26,35 @@ internal sealed class RecipeLibraryEntryTextAssetParser : ITextAssetParser<Recip
     public string GetTextAssetSerializedString(string subPath, RecipeLibraryEntryLeaf leaf)
     {
         if (subPath.Equals(CookOrderSubPath, StringComparison.OrdinalIgnoreCase))
-            return leaf.Recipe.Leaf.ResultItem.GameId.ToString();
+            return leaf.Recipe.Resolve().ResultItem.Resolve().GameId.ToString();
 
         if (!subPath.Equals(CookLibrarySubPath, StringComparison.OrdinalIgnoreCase))
             return ThrowHelper.ThrowInvalidDataException<string>($"This parser doesn't support the subPath {subPath}");
 
         StringBuilder sb = new();
         // This is the special incompatible recipe.
-        if (leaf.Recipe.Leaf.FirstItem is null &&
-            leaf.Recipe.Leaf.SecondItem is null)
+        if (leaf.Recipe.Resolve().FirstItem is null &&
+            leaf.Recipe.Resolve().SecondItem is null)
         {
             sb.Append("-1@");
             return sb.ToString();
         }
 
-        if (leaf.Recipe.Leaf.FirstItem is not null && leaf.Recipe.Leaf.SecondItem is not null)
+        if (leaf.Recipe.Resolve().FirstItem is not null && leaf.Recipe.Resolve().SecondItem is not null)
         {
             sb.Append(
                 leaf.OriginalItemsHaveInvertedOrder
-                    ? leaf.Recipe.Leaf.SecondItem.Value.GameId
-                    : leaf.Recipe.Leaf.FirstItem.Value.GameId);
+                    ? leaf.Recipe.Resolve().SecondItem!.Value.Resolve().GameId
+                    : leaf.Recipe.Resolve().FirstItem!.Value.Resolve().GameId);
             sb.Append(',');
             sb.Append(
                 leaf.OriginalItemsHaveInvertedOrder
-                    ? leaf.Recipe.Leaf.FirstItem.Value.GameId
-                    : leaf.Recipe.Leaf.SecondItem.Value.GameId);
+                    ? leaf.Recipe.Resolve().FirstItem!.Value.Resolve().GameId
+                    : leaf.Recipe.Resolve().SecondItem!.Value.Resolve().GameId);
         }
         else
         {
-            sb.Append(leaf.Recipe.Leaf.FirstItem!.Value.GameId);
+            sb.Append(leaf.Recipe.Resolve().FirstItem!.Value.Resolve().GameId);
         }
 
         if (leaf.OriginalEndsWithAtSymbol)
@@ -69,7 +69,7 @@ internal sealed class RecipeLibraryEntryTextAssetParser : ITextAssetParser<Recip
             // We assume this will be read first so we need to have a blank leaf to receive the other TextAsset info
             // before we can fully resolve it.
             leaf.Recipe = new(new(-1, "", ""));
-            leaf.Recipe.Leaf.ResultItem = new(_itemsRegistry.LeavesByGameIds[int.Parse(text)]);
+            leaf.Recipe.Resolve().ResultItem = new(_itemsRegistry.LeavesByGameIds[int.Parse(text)]);
             return;
         }
 
@@ -87,24 +87,24 @@ internal sealed class RecipeLibraryEntryTextAssetParser : ITextAssetParser<Recip
             {
                 FirstItem = null,
                 SecondItem = null,
-                ResultItem = leaf.Recipe.Leaf.ResultItem
+                ResultItem = leaf.Recipe.Resolve().ResultItem
             };
             leaf.Recipe = new(incompatibleRecipeLeaf);
             return;
         }
 
-        leaf.Recipe.Leaf.FirstItem = new(_itemsRegistry.LeavesByGameIds[firstItem]);
+        leaf.Recipe.Resolve().FirstItem = new(_itemsRegistry.LeavesByGameIds[firstItem]);
         if (fields.Length > 1)
-            leaf.Recipe.Leaf.SecondItem = new(_itemsRegistry.LeavesByGameIds[int.Parse(fields[1])]);
+            leaf.Recipe.Resolve().SecondItem = new(_itemsRegistry.LeavesByGameIds[int.Parse(fields[1])]);
 
         RecipeLeaf foundRecipe = _recipesRegistry.LeavesByEffectiveIds.Values
-            .First(r => r.ResultItem == leaf.Recipe.Leaf.ResultItem &&
-                        ((r.FirstItem == leaf.Recipe.Leaf.FirstItem &&
-                          r.SecondItem == leaf.Recipe.Leaf.SecondItem) ||
-                         (r.FirstItem == leaf.Recipe.Leaf.SecondItem &&
-                          r.SecondItem == leaf.Recipe.Leaf.FirstItem)));
-        leaf.OriginalItemsHaveInvertedOrder = foundRecipe.FirstItem == leaf.Recipe.Leaf.SecondItem &&
-                                              foundRecipe.SecondItem == leaf.Recipe.Leaf.FirstItem;
+            .First(r => r.ResultItem == leaf.Recipe.Resolve().ResultItem &&
+                        ((r.FirstItem == leaf.Recipe.Resolve().FirstItem &&
+                          r.SecondItem == leaf.Recipe.Resolve().SecondItem) ||
+                         (r.FirstItem == leaf.Recipe.Resolve().SecondItem &&
+                          r.SecondItem == leaf.Recipe.Resolve().FirstItem)));
+        leaf.OriginalItemsHaveInvertedOrder = foundRecipe.FirstItem == leaf.Recipe.Resolve().SecondItem &&
+                                              foundRecipe.SecondItem == leaf.Recipe.Resolve().FirstItem;
         leaf.Recipe = new(foundRecipe);
     }
 }

@@ -18,7 +18,7 @@ public sealed class LatchedSwitchMapEntityLeaf : SwitchMapEntityLeaf
         get;
         set
         {
-            InternalActivationFlagId = value.GameId;
+            InternalActivationFlagId = value.Resolve().GameId;
             field = value;
         }
     }

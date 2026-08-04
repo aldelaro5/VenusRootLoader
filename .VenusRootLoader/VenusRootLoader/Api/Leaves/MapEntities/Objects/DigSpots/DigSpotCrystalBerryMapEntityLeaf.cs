@@ -19,7 +19,7 @@ public sealed class DigSpotCrystalBerryMapEntityLeaf : DigSpotMapEntityLeaf
         get;
         set
         {
-            InternalData[1].Value = value.GameId;
+            InternalData[1].Value = value.Resolve().GameId;
             field = value;
         }
     }

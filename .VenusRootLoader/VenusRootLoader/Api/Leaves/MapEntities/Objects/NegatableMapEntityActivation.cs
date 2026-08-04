@@ -22,10 +22,10 @@ public sealed class NegatableMapEntityActivation
         set
         {
             field = value;
-            if (MapEntity.Leaf is not null)
+            if (MapEntity.Resolve() is not null)
                 IntRef.Value = EffectiveValue;
         }
     }
 
-    internal int EffectiveValue => MapEntity.GameId * (IsActivationValueNegated ? -1 : 1);
+    internal int EffectiveValue => MapEntity.Resolve().GameId * (IsActivationValueNegated ? -1 : 1);
 }

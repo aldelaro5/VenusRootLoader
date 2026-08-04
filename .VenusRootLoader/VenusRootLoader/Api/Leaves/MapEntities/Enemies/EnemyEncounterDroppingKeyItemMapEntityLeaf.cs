@@ -19,7 +19,7 @@ public sealed class EnemyEncounterDroppingKeyItemMapEntityLeaf : EnemyEncounterM
         get;
         set
         {
-            InternalVectorData[0].Value.x = value.GameId;
+            InternalVectorData[0].Value.x = value.Resolve().GameId;
             field = value;
         }
     }
@@ -29,7 +29,7 @@ public sealed class EnemyEncounterDroppingKeyItemMapEntityLeaf : EnemyEncounterM
         get => LimitedToFlags[0].Flag;
         set
         {
-            InternalActivationFlagId = value.GameId;
+            InternalActivationFlagId = value.Resolve().GameId;
             LimitedToFlags[0].Flag = value;
         }
     }

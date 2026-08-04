@@ -90,7 +90,7 @@ internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
         sb.Append('@');
         sb.Append(CamelCaseBoolIfNeeded(targetingParameters.onlyFrontEnemy, leaf.OriginalBoolCasing, false));
         sb.Append('@');
-        sb.Append(leaf.ActionCommandHelpText?.GameId ?? -1);
+        sb.Append(leaf.ActionCommandHelpText?.Resolve().GameId ?? -1);
         sb.Append('@');
         sb.Append(CamelCaseBoolIfNeeded(targetingParameters.onlyPlayersAlive, leaf.OriginalBoolCasing, false));
         sb.Append('@');

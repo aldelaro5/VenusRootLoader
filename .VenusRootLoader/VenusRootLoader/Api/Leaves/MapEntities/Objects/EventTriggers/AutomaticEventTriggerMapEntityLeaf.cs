@@ -15,7 +15,7 @@ public sealed class AutomaticEventTriggerMapEntityLeaf : EventTriggerMapEntityLe
         get;
         set
         {
-            InternalData[0].Value = value.GameId;
+            InternalData[0].Value = value.Resolve().GameId;
             field = value;
         }
     }

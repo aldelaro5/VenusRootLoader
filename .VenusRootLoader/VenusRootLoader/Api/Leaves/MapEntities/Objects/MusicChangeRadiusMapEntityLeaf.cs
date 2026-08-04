@@ -24,7 +24,7 @@ public sealed class MusicChangeRadiusMapEntityLeaf : ObjectMapEntityLeaf
         get;
         set
         {
-            InternalData[2].Value = value.GameId;
+            InternalData[2].Value = value.Resolve().GameId;
             field = value;
         }
     }

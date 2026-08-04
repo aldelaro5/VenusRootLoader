@@ -20,13 +20,13 @@ public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
         get;
         set
         {
-            if (value.Leaf.Map != Map)
+            if (value.Resolve().Map != Map)
             {
                 ThrowHelper.ThrowInvalidOperationException(
                     $"The caretaker map entity must be on the {Map.NamedId} map");
             }
 
-            InternalData[0].Value = value.GameId;
+            InternalData[0].Value = value.Resolve().GameId;
             field = value;
         }
     }
@@ -36,10 +36,10 @@ public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
         get;
         set
         {
-            if (value.Leaf.AssociatedMap is not null && value.Leaf.AssociatedMap != Map)
+            if (value.Resolve().AssociatedMap is not null && value.Resolve().AssociatedMap != Map)
                 ThrowHelper.ThrowInvalidOperationException($"This map dialogue must be in the {Map.NamedId} map");
 
-            InternalData[1].Value = value.GameId;
+            InternalData[1].Value = value.Resolve().GameId;
             field = value;
         }
     }
@@ -49,7 +49,7 @@ public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
         get;
         set
         {
-            InternalData[2].Value = value?.GameId ?? -1;
+            InternalData[2].Value = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }
@@ -138,9 +138,9 @@ public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
                 flagsRegistry.LeavesByGameIds[InternalData[2].Value];
 
         BoardCaretakerNpc =
-            (Branch<NpcMapEntityLeaf>)Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0].Value]!;
+            (Branch<NpcMapEntityLeaf>)Map.Resolve().EntitiesRegistry.LeavesByGameIds[InternalData[0].Value]!;
         BoardCaretakerDialogueWhenQuestIsSelected = InternalData[1].Value < 0
             ? commonDialoguesRegistry.LeavesByGameIds[InternalData[1].Value]
-            : Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalData[1].Value];
+            : Map.Resolve().DialoguesRegistry.LeavesByGameIds[InternalData[1].Value];
     }
 }

@@ -19,7 +19,7 @@ public sealed class IceRadiusSwitchMapEntityLeaf : ObjectMapEntityLeaf
         get;
         set
         {
-            InternalAnimIdOrItemId = value.GameId;
+            InternalAnimIdOrItemId = value.Resolve().GameId;
             field = value;
         }
     }
@@ -29,7 +29,7 @@ public sealed class IceRadiusSwitchMapEntityLeaf : ObjectMapEntityLeaf
         get;
         set
         {
-            InternalData[1].Value = value?.GameId ?? -1;
+            InternalData[1].Value = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }
@@ -72,7 +72,7 @@ public sealed class IceRadiusSwitchMapEntityLeaf : ObjectMapEntityLeaf
         get;
         set
         {
-            InternalActivationFlagId = value?.GameId ?? -1;
+            InternalActivationFlagId = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }
@@ -102,6 +102,6 @@ public sealed class IceRadiusSwitchMapEntityLeaf : ObjectMapEntityLeaf
             FlagSwitchActivation = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
 
         if (InternalData[1].Value != -1)
-            ParentMapEntity = Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[1].Value];
+            ParentMapEntity = Map.Resolve().EntitiesRegistry.LeavesByGameIds[InternalData[1].Value];
     }
 }

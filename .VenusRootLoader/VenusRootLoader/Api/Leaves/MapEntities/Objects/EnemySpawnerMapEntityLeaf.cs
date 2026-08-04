@@ -19,10 +19,10 @@ public sealed class EnemySpawnerMapEntityLeaf : ObjectMapEntityLeaf
         get;
         set
         {
-            if (value.Leaf.Map != Map)
+            if (value.Resolve().Map != Map)
                 ThrowHelper.ThrowInvalidOperationException($"This map enemy must be in the {Map.NamedId} map");
 
-            InternalData[0].Value = value.GameId;
+            InternalData[0].Value = value.Resolve().GameId;
             field = value;
         }
     }
@@ -58,6 +58,6 @@ public sealed class EnemySpawnerMapEntityLeaf : ObjectMapEntityLeaf
     internal override void InitializeFromExisting()
     {
         EnemyToRespawn =
-            (Branch<EnemyEncounterMapEntityLeaf>)Map.Leaf.EntitiesRegistry.LeavesByGameIds[InternalData[0].Value]!;
+            (Branch<EnemyEncounterMapEntityLeaf>)Map.Resolve().EntitiesRegistry.LeavesByGameIds[InternalData[0].Value]!;
     }
 }

@@ -17,24 +17,24 @@ public sealed class RemoteActivatorZoneMapEntityLeaf : ActivatorZoneMapEntityLea
         get;
         set
         {
-            if (value.Leaf.Map != Map)
+            if (value.Resolve().Map != Map)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(
                     nameof(MapEntityWhoseActivationIsControlledByThis),
                     $"The entity is not in the {Map.NamedId} map which is required");
             }
 
-            if (value.GameId == GameId)
+            if (value.Resolve().GameId == GameId)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(
                     nameof(MapEntityWhoseActivationIsControlledByThis),
                     "The entity controlled cannot be the entity itself");
             }
 
-            InternalData[0].Value = value.GameId;
+            InternalData[0].Value = value.Resolve().GameId;
             field = value;
         }
-    } = null!;
+    }
 
     public RemoteActivatorZoneMode ActivatorMode
     {
@@ -66,6 +66,7 @@ public sealed class RemoteActivatorZoneMapEntityLeaf : ActivatorZoneMapEntityLea
     {
         base.InitializeFromExisting();
         MapEntityWhoseActivationIsControlledByThis =
-            (Branch<ObjectMapEntityLeaf>)Map.Leaf.EntitiesRegistry.LeavesByGameIds[Math.Abs(InternalData[0].Value)]!;
+            (Branch<ObjectMapEntityLeaf>)Map.Resolve().EntitiesRegistry
+                .LeavesByGameIds[Math.Abs(InternalData[0].Value)]!;
     }
 }

@@ -79,7 +79,7 @@ internal sealed class EnemyTextAssetParser : ITextAssetParser<EnemyLeaf>
 
         sb.Append(leaf.Weight);
         sb.Append(',');
-        sb.Append(leaf.BaseEnemyId?.GameId ?? -1);
+        sb.Append(leaf.BaseEnemyId?.Resolve().GameId ?? -1);
         sb.Append(',');
         sb.Append(leaf.EventIdOnDeath ?? -1);
         sb.Append(',');
@@ -102,7 +102,7 @@ internal sealed class EnemyTextAssetParser : ITextAssetParser<EnemyLeaf>
         if (enemies.Count == 0)
             sb.Append("-1");
         else
-            sb.Append(string.Join(";", enemies.Select(enemy => enemy.GameId.ToString())));
+            sb.Append(string.Join(";", enemies.Select(enemy => enemy.Resolve().GameId.ToString())));
 
         sb.Append(',');
         sb.Append(leaf.HardModeAttackIncrease);

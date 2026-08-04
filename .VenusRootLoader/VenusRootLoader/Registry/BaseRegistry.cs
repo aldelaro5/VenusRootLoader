@@ -82,6 +82,11 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
     public TLeaf Get(string creatorId, string namedId)
     {
         string effectiveId = EffectiveLeafId.CreateFromParts(creatorId, namedId);
+        return GetByEffectiveId(effectiveId);
+    }
+
+    public TLeaf GetByEffectiveId(string effectiveId)
+    {
         if (!LeavesByEffectiveIds.TryGetValue(effectiveId, out TLeaf leaf))
         {
             return ThrowHelper.ThrowArgumentException<TLeaf>(

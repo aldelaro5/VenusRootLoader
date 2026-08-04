@@ -16,7 +16,7 @@ public sealed class DigSpotMedalMapEntityLeaf : DigSpotMapEntityLeaf
         get;
         set
         {
-            InternalData[2].Value = value.GameId;
+            InternalData[2].Value = value.Resolve().GameId;
             field = value;
         }
     }
@@ -26,7 +26,7 @@ public sealed class DigSpotMedalMapEntityLeaf : DigSpotMapEntityLeaf
         get;
         set
         {
-            InternalActivationFlagId = value?.GameId ?? -1;
+            InternalActivationFlagId = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }

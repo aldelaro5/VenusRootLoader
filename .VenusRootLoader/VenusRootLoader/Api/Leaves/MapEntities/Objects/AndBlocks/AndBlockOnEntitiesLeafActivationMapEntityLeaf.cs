@@ -31,7 +31,7 @@ public sealed class AndBlockOnEntitiesLeafActivationMapEntityLeaf : AndBlockMapE
     internal override void InitializeFromExisting()
     {
         base.InitializeFromExisting();
-        MapLeaf map = RegistryResolver.Resolve<MapLeaf>().LeavesByGameIds[Map.GameId];
+        MapLeaf map = RegistryResolver.Resolve<MapLeaf>().LeavesByGameIds[Map.Resolve().GameId];
 
         _entityActivationsInputs.SynchronizeFromExistingData(
             InternalData

@@ -18,7 +18,7 @@ public sealed class StealthSpotBehavior : MapEntityBehavior
         get;
         set
         {
-            MapEntityLeaf.InternalBattleEnemyIds[0].Value = value?.GameId ?? -1;
+            MapEntityLeaf.InternalBattleEnemyIds[0].Value = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }

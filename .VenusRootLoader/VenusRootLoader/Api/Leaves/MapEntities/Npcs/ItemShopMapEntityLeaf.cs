@@ -21,10 +21,10 @@ public sealed class ItemShopMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
         get;
         set
         {
-            if (value.Leaf.AssociatedMap is not null && value.Leaf.AssociatedMap != Map)
+            if (value.Resolve().AssociatedMap is not null && value.Resolve().AssociatedMap != Map)
                 ThrowHelper.ThrowInvalidOperationException($"This map dialogue must be in the {Map.NamedId} map");
 
-            InternalDialogues[0].Value.y = value.GameId;
+            InternalDialogues[0].Value.y = value.Resolve().GameId;
             field = value;
         }
     }
@@ -40,10 +40,10 @@ public sealed class ItemShopMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
         get;
         set
         {
-            if (value.Leaf.AssociatedMap is not null && value.Leaf.AssociatedMap != Map)
+            if (value.Resolve().AssociatedMap is not null && value.Resolve().AssociatedMap != Map)
                 ThrowHelper.ThrowInvalidOperationException($"This map dialogue must be in the {Map.NamedId} map");
 
-            InternalDialogues[6].Value.y = value.GameId;
+            InternalDialogues[6].Value.y = value.Resolve().GameId;
             field = value;
         }
     }
@@ -93,9 +93,9 @@ public sealed class ItemShopMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
 
         DialogueWhenInteractingWithShopKeeper = (int)InternalDialogues[0].Value.y < 0
             ? commonDialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[0].Value.y]
-            : Map.Leaf.DialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[0].Value.y];
+            : Map.Resolve().DialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[0].Value.y];
         DialogueWhenInteractingWithShelvedItem = (int)InternalDialogues[6].Value.y < 0
             ? commonDialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[6].Value.y]
-            : Map.Leaf.DialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[6].Value.y];
+            : Map.Resolve().DialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[6].Value.y];
     }
 }

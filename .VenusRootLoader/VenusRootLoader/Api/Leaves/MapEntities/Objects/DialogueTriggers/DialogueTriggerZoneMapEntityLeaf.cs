@@ -18,10 +18,10 @@ public sealed class DialogueTriggerZoneMapEntityLeaf : DialogueTriggerMapEntityL
         get;
         set
         {
-            if (value.Leaf.AssociatedMap is not null && value.Leaf.AssociatedMap != Map)
+            if (value.Resolve().AssociatedMap is not null && value.Resolve().AssociatedMap != Map)
                 ThrowHelper.ThrowInvalidOperationException($"This map dialogue must be in the {Map.NamedId} map");
 
-            InternalData[0].Value = value.GameId;
+            InternalData[0].Value = value.Resolve().GameId;
             field = value;
         }
     }
@@ -36,7 +36,7 @@ public sealed class DialogueTriggerZoneMapEntityLeaf : DialogueTriggerMapEntityL
         get;
         set
         {
-            InternalActivationFlagId = value?.GameId ?? -1;
+            InternalActivationFlagId = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }
@@ -74,6 +74,6 @@ public sealed class DialogueTriggerZoneMapEntityLeaf : DialogueTriggerMapEntityL
 
         DialogueToProcessWhenTriggered = InternalData[0].Value < 0
             ? commonDialoguesRegistry.LeavesByGameIds[InternalData[0].Value]
-            : Map.Leaf.DialoguesRegistry.LeavesByGameIds[InternalData[0].Value];
+            : Map.Resolve().DialoguesRegistry.LeavesByGameIds[InternalData[0].Value];
     }
 }

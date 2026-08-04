@@ -25,7 +25,7 @@ public sealed class BreakableRockMapEntityLeaf : ObjectMapEntityLeaf
         get;
         set
         {
-            InternalActivationFlagId = value?.GameId ?? -1;
+            InternalActivationFlagId = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }

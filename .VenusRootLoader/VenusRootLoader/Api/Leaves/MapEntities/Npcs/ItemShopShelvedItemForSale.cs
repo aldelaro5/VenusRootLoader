@@ -14,7 +14,7 @@ public sealed class ItemShopShelvedItemForSale
         set
         {
             field = value;
-            RefItemGameId.Value = value.GameId;
+            RefItemGameId.Value = value.Resolve().GameId;
         }
     }
 

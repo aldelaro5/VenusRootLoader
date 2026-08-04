@@ -16,7 +16,7 @@ public sealed class EventTriggerSwitchMapEntityLeaf : SwitchMapEntityLeaf
         get;
         set
         {
-            InternalData[1].Value = value.GameId;
+            InternalData[1].Value = value.Resolve().GameId;
             field = value;
         }
     }
@@ -26,7 +26,7 @@ public sealed class EventTriggerSwitchMapEntityLeaf : SwitchMapEntityLeaf
         get;
         set
         {
-            InternalActivationFlagId = value?.GameId ?? -1;
+            InternalActivationFlagId = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }

@@ -12,7 +12,7 @@ public sealed class NpcConditionalDialogue
         get;
         set
         {
-            Vector3Ref.Value.x = value?.GameId ?? -1;
+            Vector3Ref.Value.x = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }
@@ -22,7 +22,7 @@ public sealed class NpcConditionalDialogue
         get;
         set
         {
-            Vector3Ref.Value.y = value.GameId;
+            Vector3Ref.Value.y = value.Resolve().GameId;
             field = value;
         }
     }

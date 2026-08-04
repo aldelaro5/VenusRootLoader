@@ -19,14 +19,14 @@ public sealed class WindBeamZoneMapEntityLeaf : ObjectMapEntityLeaf
         get;
         set
         {
-            if (value?.Leaf.Map is { } map && map != Map)
+            if (value?.Resolve().Map is { } map && map != Map)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(
                     nameof(RequiredMapEntityActivation),
                     $"The entity is not in the {map.NamedId} map which is required");
             }
 
-            InternalData[0].Value = value?.GameId ?? -1;
+            InternalData[0].Value = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }
@@ -94,6 +94,7 @@ public sealed class WindBeamZoneMapEntityLeaf : ObjectMapEntityLeaf
         }
 
         if (InternalData[0].Value != -1)
-            RequiredMapEntityActivation = Map.Leaf.EntitiesRegistry.LeavesByGameIds[Math.Abs(InternalData[0].Value)];
+            RequiredMapEntityActivation =
+                Map.Resolve().EntitiesRegistry.LeavesByGameIds[Math.Abs(InternalData[0].Value)];
     }
 }

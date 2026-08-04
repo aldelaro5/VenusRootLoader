@@ -130,7 +130,7 @@ internal sealed class MedalShopsTopLevelPatcher : ITopLevelPatcher
     {
         foreach (MedalShopLeaf medalShopLeaf in _instance._medalShopsRegistry.LeavesByGameIds.Values)
         {
-            List<int> medalIds = medalShopLeaf.StartingMedalsStock.Select(m => m.GameId).ToList();
+            List<int> medalIds = medalShopLeaf.StartingMedalsStock.Select(m => m.Resolve().GameId).ToList();
             __instance.badgeshops[medalShopLeaf.GameId].AddRange(medalIds);
             __instance.avaliablebadgepool[medalShopLeaf.GameId].AddRange(medalIds);
         }
@@ -156,7 +156,7 @@ internal sealed class MedalShopsTopLevelPatcher : ITopLevelPatcher
         {
             instance.avaliablebadgepool[i] = new();
             instance.avaliablebadgepool[i].AddRange(
-                _instance._medalShopsRegistry.LeavesByGameIds[i].StartingMedalsStock.Select(m => m.GameId));
+                _instance._medalShopsRegistry.LeavesByGameIds[i].StartingMedalsStock.Select(m => m.Resolve().GameId));
         }
     }
 
@@ -170,7 +170,7 @@ internal sealed class MedalShopsTopLevelPatcher : ITopLevelPatcher
         {
             instance.badgeshops[i] = new();
             instance.badgeshops[i].AddRange(
-                _instance._medalShopsRegistry.LeavesByGameIds[i].StartingMedalsStock.Select(m => m.GameId));
+                _instance._medalShopsRegistry.LeavesByGameIds[i].StartingMedalsStock.Select(m => m.Resolve().GameId));
         }
     }
 
@@ -179,7 +179,7 @@ internal sealed class MedalShopsTopLevelPatcher : ITopLevelPatcher
         foreach (MedalShopLeaf medalShopLeaf in _instance._medalShopsRegistry.LeavesByGameIds.Values)
         {
             if (instance.badgeshops[medalShopLeaf.GameId].Count == 0)
-                instance.flags[medalShopLeaf.BoughtAllStockFlag.GameId] = true;
+                instance.flags[medalShopLeaf.BoughtAllStockFlag.Resolve().GameId] = true;
         }
     }
 }

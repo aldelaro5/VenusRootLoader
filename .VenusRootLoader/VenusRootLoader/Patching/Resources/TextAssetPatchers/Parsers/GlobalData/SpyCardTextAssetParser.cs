@@ -22,7 +22,7 @@ internal sealed class SpyCardTextAssetParser : ITextAssetParser<SpyCardLeaf>
         sb.Append(',');
         sb.Append(leaf.Attack);
         sb.Append(',');
-        sb.Append(leaf.Enemy.GameId);
+        sb.Append(leaf.Enemy.Resolve().GameId);
         sb.Append(',');
         sb.Append(leaf.UnusedHorizontalNameSize);
         sb.Append(',');

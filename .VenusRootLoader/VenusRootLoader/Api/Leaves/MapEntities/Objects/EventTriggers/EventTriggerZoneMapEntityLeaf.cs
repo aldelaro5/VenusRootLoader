@@ -17,7 +17,7 @@ public sealed class EventTriggerZoneMapEntityLeaf : EventTriggerMapEntityLeaf
         get;
         set
         {
-            InternalData[0].Value = value.GameId;
+            InternalData[0].Value = value.Resolve().GameId;
             field = value;
         }
     }
@@ -32,7 +32,7 @@ public sealed class EventTriggerZoneMapEntityLeaf : EventTriggerMapEntityLeaf
         get;
         set
         {
-            InternalActivationFlagId = value?.GameId ?? -1;
+            InternalActivationFlagId = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }

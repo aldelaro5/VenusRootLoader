@@ -16,7 +16,7 @@ public abstract class CollectibleMapEntityLeaf : ObjectMapEntityLeaf
         get;
         set
         {
-            InternalData[1].Value = value?.GameId ?? -1;
+            InternalData[1].Value = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }

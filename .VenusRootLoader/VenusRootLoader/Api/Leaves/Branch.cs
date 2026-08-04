@@ -1,21 +1,46 @@
+using VenusRootLoader.LeavesInternals;
+using VenusRootLoader.Registry;
+
 namespace VenusRootLoader.Api.Leaves;
 
-public readonly struct Branch<TLeaf> : ILeafIdentifier, IEquatable<Branch<TLeaf>>
+public readonly struct Branch<TLeaf> : ILeafId, IEquatable<Branch<TLeaf>>
     where TLeaf : Leaf
 {
-    public int GameId => Leaf.GameId;
-    public string NamedId => Leaf.NamedId;
-    public string CreatorId => Leaf.CreatorId;
-    internal string EffectiveId => Leaf.EffectiveId;
+    public string NamedId { get; }
+    public string CreatorId { get; }
+    internal string EffectiveId { get; }
 
-    internal TLeaf Leaf { get; }
+    private readonly Lazy<TLeaf> _leaf;
 
-    public Branch(TLeaf leaf) => Leaf = leaf;
+    public Branch(TLeaf leaf)
+    {
+        NamedId = leaf.NamedId;
+        CreatorId = leaf.CreatorId;
+        EffectiveId = leaf.EffectiveId;
+        _leaf = new(() => leaf);
+    }
 
-    public override int GetHashCode() => Leaf.GetHashCode();
-    public override bool Equals(object? obj) => Leaf.Equals(obj);
-    public bool Equals(Branch<TLeaf> other) => EqualityComparer<TLeaf>.Default.Equals(Leaf, other.Leaf);
-    public static bool operator ==(Branch<TLeaf> left, Branch<TLeaf> right) => left.Leaf.Equals(right.Leaf);
-    public static bool operator !=(Branch<TLeaf> left, Branch<TLeaf> right) => !left.Leaf.Equals(right.Leaf);
+    public Branch(string creatorId, string namedId)
+    {
+        NamedId = namedId;
+        CreatorId = creatorId;
+        string effectiveId = EffectiveLeafId.CreateFromParts(creatorId, namedId);
+        EffectiveId = effectiveId;
+        _leaf = new(() => RegistryResolver.Resolve<TLeaf>().GetByEffectiveId(effectiveId));
+    }
+
+    public TLeaf Resolve() => _leaf.Value;
+
+    public override int GetHashCode() => EffectiveId.GetHashCode();
+    public override bool Equals(object? obj) => obj is Branch<TLeaf> other && Equals(other);
+
+    public bool Equals(Branch<TLeaf> other) => EqualityComparer<string>.Default.Equals(EffectiveId, other.EffectiveId);
+
+    public static bool operator ==(Branch<TLeaf> left, Branch<TLeaf> right) =>
+        left.EffectiveId.Equals(right.EffectiveId);
+
+    public static bool operator !=(Branch<TLeaf> left, Branch<TLeaf> right) =>
+        !left.EffectiveId.Equals(right.EffectiveId);
+
     public static implicit operator Branch<TLeaf>(TLeaf leaf) => new(leaf);
 }

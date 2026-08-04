@@ -26,14 +26,14 @@ internal sealed class QuestTextAssetParser : ITextAssetParser<QuestLeaf>
         if (subPath.Equals(BoardDataSubPath, StringComparison.OrdinalIgnoreCase))
         {
             int enemyPortraitsSpriteIndex = ((IEnemyPortraitSprite)leaf).EnemyPortraitsSpriteIndex!.Value;
-            return $"{leaf.TakenFlag?.GameId ?? -1}@{enemyPortraitsSpriteIndex}@{leaf.Difficulty}";
+            return $"{leaf.TakenFlag?.Resolve().GameId ?? -1}@{enemyPortraitsSpriteIndex}@{leaf.Difficulty}";
         }
 
         if (!subPath.Equals(QuestChecksSubPath, StringComparison.OrdinalIgnoreCase))
             return ThrowHelper.ThrowInvalidDataException<string>($"This parser doesn't support the subPath {subPath}");
 
-        IEnumerable<string> requiredFlags = leaf.RequiredFlags.Select(b => b.GameId.ToString());
-        IEnumerable<string> requiredSeenAreas = leaf.RequiredSeenAreas.Select(b => (-b.GameId).ToString());
+        IEnumerable<string> requiredFlags = leaf.RequiredFlags.Select(b => b.Resolve().GameId.ToString());
+        IEnumerable<string> requiredSeenAreas = leaf.RequiredSeenAreas.Select(b => (-b.Resolve().GameId).ToString());
         List<string> allRequirements = requiredFlags.Concat(requiredSeenAreas).ToList();
         return string.Join("@", allRequirements.Count == 0 ? ["0"] : allRequirements);
     }

@@ -14,7 +14,7 @@ public sealed class EventNpcMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
     private const int LockedDoorInteractionEventId = 59;
 
     internal override NPCControl.Interaction Interaction =>
-        EventToStartWhenInteracting.GameId == LockedDoorInteractionEventId
+        EventToStartWhenInteracting.Resolve().GameId == LockedDoorInteractionEventId
             ? NPCControl.Interaction.LockedDoor
             : NPCControl.Interaction.Event;
 
@@ -23,7 +23,7 @@ public sealed class EventNpcMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
         get;
         set
         {
-            InternalEventId = value.GameId;
+            InternalEventId = value.Resolve().GameId;
             field = value;
         }
     }

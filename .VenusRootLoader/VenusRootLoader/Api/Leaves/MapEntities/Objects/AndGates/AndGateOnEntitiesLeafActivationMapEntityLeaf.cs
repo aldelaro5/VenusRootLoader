@@ -20,7 +20,7 @@ public sealed class AndGateOnEntitiesLeafActivationMapEntityLeaf : AndGateMapEnt
         get;
         set
         {
-            InternalData[0].Value = value?.GameId ?? -1;
+            InternalData[0].Value = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }
@@ -42,7 +42,7 @@ public sealed class AndGateOnEntitiesLeafActivationMapEntityLeaf : AndGateMapEnt
             OneShotEventOutputOverride = new(eventsRegistry.LeavesByGameIds[InternalData[0].Value]);
         }
 
-        MapLeaf map = RegistryResolver.Resolve<MapLeaf>().LeavesByGameIds[Map.GameId];
+        MapLeaf map = RegistryResolver.Resolve<MapLeaf>().LeavesByGameIds[Map.Resolve().GameId];
         _entityActivationsInputs.SynchronizeFromExistingData(
             InternalData
                 .Skip(1)

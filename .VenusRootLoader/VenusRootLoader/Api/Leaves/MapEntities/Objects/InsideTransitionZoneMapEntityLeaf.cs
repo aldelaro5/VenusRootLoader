@@ -21,7 +21,7 @@ public sealed class InsideTransitionZoneMapEntityLeaf : ObjectMapEntityLeaf
         get;
         set
         {
-            InternalData[1].Value = value?.GameId ?? -1;
+            InternalData[1].Value = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }
@@ -70,7 +70,7 @@ public sealed class InsideTransitionZoneMapEntityLeaf : ObjectMapEntityLeaf
         get;
         set
         {
-            InternalActivationFlagId = value?.GameId ?? -1;
+            InternalActivationFlagId = value?.Resolve().GameId ?? -1;
             field = value;
         }
     }

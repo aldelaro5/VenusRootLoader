@@ -23,7 +23,7 @@ namespace VenusRootLoader.Api.Leaves;
 /// decided by the buds for custom leaves. Each leaves also contains an identifier that specifies who created it.
 /// </p>
 /// </summary>
-public abstract class Leaf : ILeafIdentifier
+public abstract class Leaf : ILeafId
 {
     /// <summary>
     /// The unique identifier of the leaf among its type the game uses to uniquely identify them. The value is always determined by
@@ -31,17 +31,8 @@ public abstract class Leaf : ILeafIdentifier
     /// </summary>
     public int GameId { get; }
 
-    /// <summary>
-    /// The unique named identifier of the leaf among its type which uniquely identifies the leaf for all buds and
-    /// <see cref="VenusRootLoader"/>. If this is a base game leaf, this will be assigned a value by <see cref="VenusRootLoader"/>.
-    /// If this is a custom leaf, the value is decided by the <see cref="Bud"/> who registers it.
-    /// </summary>
     public string NamedId { get; }
 
-    /// <summary>
-    /// An identifier that specified who created this leaf. For a base game leaf, the value is always <c>BaseGame</c>.
-    /// For a custom leaf, the value is the <see cref="Bud"/>'s id who registered it.
-    /// </summary>
     public string CreatorId { get; }
 
     internal string EffectiveId { get; }

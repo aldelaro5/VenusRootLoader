@@ -16,7 +16,7 @@ public abstract class EnemyEncounterMapEntityLeaf : MapEntityLeaf
         namedId,
         creatorId)
     {
-        _enemiesFormationInBattle = new(InternalBattleEnemyIds, 0, x => new(x.GameId));
+        _enemiesFormationInBattle = new(InternalBattleEnemyIds, 0, x => new(x.Resolve().GameId));
         BehaviorSystem = new(this);
     }
 
@@ -27,7 +27,7 @@ public abstract class EnemyEncounterMapEntityLeaf : MapEntityLeaf
         get;
         set
         {
-            InternalAnimIdOrItemId = value.GameId;
+            InternalAnimIdOrItemId = value.Resolve().GameId;
             field = value;
         }
     }

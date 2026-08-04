@@ -40,7 +40,7 @@ public partial class Venus
         {
             gameIdOrderAfter = orderedLeavesRegistry.Registry.LeavesByGameIds.Values
                 .OrderBy(l => l.GameId)
-                .First(l => l.Enemy.GameId == (int)orderAfter).GameId;
+                .First(l => l.Enemy.Resolve().GameId == (int)orderAfter).GameId;
         }
         else
         {

@@ -1,14 +1,12 @@
-using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves;
 
-public readonly struct Branch<TLeaf> : ILeafId, IEquatable<Branch<TLeaf>>
+public readonly record struct Branch<TLeaf> : ILeafId
     where TLeaf : Leaf
 {
     public string NamedId { get; }
     public string CreatorId { get; }
-    internal string EffectiveId { get; }
 
     private readonly Lazy<TLeaf> _leaf;
 
@@ -16,7 +14,6 @@ public readonly struct Branch<TLeaf> : ILeafId, IEquatable<Branch<TLeaf>>
     {
         NamedId = leaf.NamedId;
         CreatorId = leaf.CreatorId;
-        EffectiveId = leaf.EffectiveId;
         _leaf = new(() => leaf);
     }
 
@@ -24,23 +21,16 @@ public readonly struct Branch<TLeaf> : ILeafId, IEquatable<Branch<TLeaf>>
     {
         NamedId = namedId;
         CreatorId = creatorId;
-        string effectiveId = EffectiveLeafId.CreateFromParts(creatorId, namedId);
-        EffectiveId = effectiveId;
-        _leaf = new(() => RegistryResolver.Resolve<TLeaf>().GetByEffectiveId(effectiveId));
+        _leaf = new(() => RegistryResolver.Resolve<TLeaf>().Get(creatorId, namedId));
     }
 
     public TLeaf Resolve() => _leaf.Value;
 
-    public override int GetHashCode() => EffectiveId.GetHashCode();
-    public override bool Equals(object? obj) => obj is Branch<TLeaf> other && Equals(other);
+    public override int GetHashCode() => HashCode.Combine(CreatorId, NamedId);
 
-    public bool Equals(Branch<TLeaf> other) => EqualityComparer<string>.Default.Equals(EffectiveId, other.EffectiveId);
-
-    public static bool operator ==(Branch<TLeaf> left, Branch<TLeaf> right) =>
-        left.EffectiveId.Equals(right.EffectiveId);
-
-    public static bool operator !=(Branch<TLeaf> left, Branch<TLeaf> right) =>
-        !left.EffectiveId.Equals(right.EffectiveId);
+    public bool Equals(Branch<TLeaf> other) =>
+        EqualityComparer<string>.Default.Equals(CreatorId, other.CreatorId)
+        && EqualityComparer<string>.Default.Equals(NamedId, other.NamedId);
 
     public static implicit operator Branch<TLeaf>(TLeaf leaf) => new(leaf);
 }

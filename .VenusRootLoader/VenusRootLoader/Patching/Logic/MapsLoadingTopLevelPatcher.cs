@@ -121,7 +121,13 @@ internal sealed class MapsLoadingTopLevelPatcher : ITopLevelPatcher
         {
             AudioClip audioClip = mapControl.music[i];
             if (audioClip != null)
-                audioClip.name = map.MusicsAvailable[i].Music?.EffectiveId ?? "";
+            {
+                audioClip.name = map.MusicsAvailable[i].Music is not null
+                    ? EffectiveLeafId.CreateFromParts(
+                        map.MusicsAvailable[i].Music!.Value.CreatorId,
+                        map.MusicsAvailable[i].Music!.Value.NamedId)
+                    : "";
+            }
         }
 
         mapControl.keepmusic = map.KeepsExistingMusicPlayingOnLoad;

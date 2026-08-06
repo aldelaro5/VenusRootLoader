@@ -14,15 +14,7 @@ public sealed class LoadingZoneMapEntityLeaf : ObjectMapEntityLeaf
 
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.DoorOtherMap;
 
-    public Branch<MapLeaf> DestinationMap
-    {
-        get;
-        set
-        {
-            InternalData[0].Value = value.Resolve().GameId;
-            field = value;
-        }
-    }
+    public Branch<MapLeaf> DestinationMap { get; set; }
 
     public Vector3? CameraPositionOffsetFromTargetAfterLoadOverride
     {
@@ -169,7 +161,7 @@ public sealed class LoadingZoneMapEntityLeaf : ObjectMapEntityLeaf
 
         ILeavesRegistry<MapLeaf> mapsRegistry = RegistryResolver.Resolve<MapLeaf>();
         ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
-        Map = new(mapsRegistry.LeavesByGameIds[InternalData[0].Value]);
+        DestinationMap = new(mapsRegistry.LeavesByGameIds[InternalData[0].Value]);
 
         if (InternalActivationFlagId > 0)
             FlagSetToTrueWhenTriggering = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);

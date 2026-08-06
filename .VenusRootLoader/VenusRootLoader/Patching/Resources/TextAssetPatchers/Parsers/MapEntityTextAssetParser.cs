@@ -71,6 +71,13 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             return sbName.ToString();
         }
 
+        // This is the only case where we actively need to resolve a branch at patching time because we normally enforce
+        // having immediately resolvable branches so the internal state mapping is easy. This doesn't work for loading
+        // zones because it's possible 2 maps have loading zones whose maps are referring each other. In such case, a
+        // deferred resolution is needed so we need to allow them and manually sync them here in the patcher.
+        if (mapEntityLeaf is LoadingZoneMapEntityLeaf loadingZoneMapEntityLeaf)
+            loadingZoneMapEntityLeaf.InternalData[0].Value = loadingZoneMapEntityLeaf.DestinationMap.Resolve().GameId;
+
         StringBuilder sb = new();
 
         sb.Append(mapEntityLeaf.Type.ToString());

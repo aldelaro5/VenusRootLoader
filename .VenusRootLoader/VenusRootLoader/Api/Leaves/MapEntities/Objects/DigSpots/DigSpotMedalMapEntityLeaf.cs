@@ -43,12 +43,12 @@ public sealed class DigSpotMedalMapEntityLeaf : DigSpotMapEntityLeaf
     {
         base.InitializeFromExisting();
         ILeavesRegistry<MedalLeaf> medalsRegistry = RegistryResolver.Resolve<MedalLeaf>();
-        MedalHiddenInside = new(medalsRegistry.LeavesByGameIds[InternalData[2].Value]);
+        MedalHiddenInside = new(medalsRegistry.GetByGameId(InternalData[2].Value));
 
         ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
         FlagSetToTrueWhenCollectingMedal = InternalActivationFlagId switch
         {
-            > 0 => new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]),
+            > 0 => new(flagsRegistry.GetByGameId(InternalActivationFlagId)),
             _ => FlagSetToTrueWhenCollectingMedal
         };
     }

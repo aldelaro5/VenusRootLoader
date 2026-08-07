@@ -38,7 +38,7 @@ public partial class Venus
         int? gameIdOrderAfter;
         if (orderAfter is not null)
         {
-            gameIdOrderAfter = orderedLeavesRegistry.Registry.LeavesByGameIds.Values
+            gameIdOrderAfter = orderedLeavesRegistry.Registry
                 .OrderBy(l => l.GameId)
                 .First(l => l.Enemy.Resolve().GameId == (int)orderAfter).GameId;
         }

@@ -100,7 +100,7 @@ internal sealed class AnimIdTextAssetParser : ITextAssetParser<AnimIdLeaf>
         leaf.ShadowSize = float.Parse(fields[0], CultureInfo.InvariantCulture);
         leaf.StartingScale = ParseVector3(fields[1], fields[2], fields[3]);
         leaf.BleepPitch = float.Parse(fields[4], CultureInfo.InvariantCulture);
-        leaf.BleepId = new(_bleepsRegistry.LeavesByGameIds[int.Parse(fields[5], CultureInfo.InvariantCulture)]);
+        leaf.BleepId = new(_bleepsRegistry.GetByGameId(int.Parse(fields[5], CultureInfo.InvariantCulture)));
         leaf.IsModelEntity = bool.Parse(fields[6]);
         leaf.ModelScale = ParseVector3(fields[7], fields[8], fields[9]);
         leaf.ModelOffset = ParseVector3(fields[10], fields[11], fields[12]);

@@ -115,13 +115,13 @@ public sealed class PressurePlateMapEntityLeaf : ObjectMapEntityLeaf
         if (InternalData[2].Value >= 0)
         {
             ILeavesRegistry<EventLeaf> eventsRegistry = RegistryResolver.Resolve<EventLeaf>();
-            EventToTriggerOnFirstActivation = new(eventsRegistry.LeavesByGameIds[InternalData[2].Value]);
+            EventToTriggerOnFirstActivation = new(eventsRegistry.GetByGameId(InternalData[2].Value));
         }
 
         if (InternalActivationFlagId >= 0)
         {
             ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
-            FlagActivationOverrideWhenTrue = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagActivationOverrideWhenTrue = new(flagsRegistry.GetByGameId(InternalActivationFlagId));
         }
 
         PressurePlateType = (MainManager.AnimIDs)(InternalAnimIdOrItemId + 1) switch

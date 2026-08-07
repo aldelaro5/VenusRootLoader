@@ -157,7 +157,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
             }
 
             string animIdEffectiveId = partyMemberData[0];
-            if (!_animIdsLeafRegistry.LeavesByEffectiveIds.TryGetValue(animIdEffectiveId, out AnimIdLeaf animIdLeaf))
+            if (!_animIdsLeafRegistry.TryGetByEffectiveId(animIdEffectiveId, out AnimIdLeaf? animIdLeaf))
             {
                 (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(animIdEffectiveId);
                 _logger.LogWarning(
@@ -201,7 +201,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
         }
 
         string mapEffectiveId = generalInformationData[6];
-        if (!_mapsLeafRegistry.LeavesByEffectiveIds.TryGetValue(mapEffectiveId, out MapLeaf mapLeaf))
+        if (!_mapsLeafRegistry.TryGetByEffectiveId(mapEffectiveId, out MapLeaf? mapLeaf))
         {
             (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(mapEffectiveId);
             ThrowHelper.ThrowInvalidDataException(
@@ -210,7 +210,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
         }
 
         string areaEffectiveId = generalInformationData[7];
-        if (!_areasLeafRegistry.LeavesByEffectiveIds.TryGetValue(areaEffectiveId, out AreaLeaf areaLeaf))
+        if (!_areasLeafRegistry.TryGetByEffectiveId(areaEffectiveId, out AreaLeaf? areaLeaf))
         {
             (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(areaEffectiveId);
             ThrowHelper.ThrowInvalidDataException(
@@ -257,7 +257,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
             for (int j = 0; j < medalEffectiveIds.Length; j++)
             {
                 string medalEffectiveId = medalEffectiveIds[j];
-                if (!_medalsLeafRegistry.LeavesByEffectiveIds.TryGetValue(medalEffectiveId, out MedalLeaf medalLeaf))
+                if (!_medalsLeafRegistry.TryGetByEffectiveId(medalEffectiveId, out MedalLeaf? medalLeaf))
                 {
                     (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(medalEffectiveId);
                     _logger.LogWarning(
@@ -296,7 +296,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
             for (int j = 0; j < questEffectiveIds.Length; j++)
             {
                 string questEffectiveId = questEffectiveIds[j];
-                if (!_questsLeafRegistry.LeavesByEffectiveIds.TryGetValue(questEffectiveId, out QuestLeaf questLeaf))
+                if (!_questsLeafRegistry.TryGetByEffectiveId(questEffectiveId, out QuestLeaf? questLeaf))
                 {
                     (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(questEffectiveId);
                     _logger.LogWarning(
@@ -335,7 +335,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
             for (int j = 0; j < itemEffectiveIds.Length; j++)
             {
                 string itemEffectiveId = itemEffectiveIds[j];
-                if (!_itemsLeafRegistry.LeavesByEffectiveIds.TryGetValue(itemEffectiveId, out ItemLeaf itemLeaf))
+                if (!_itemsLeafRegistry.TryGetByEffectiveId(itemEffectiveId, out ItemLeaf? itemLeaf))
                 {
                     (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(itemEffectiveId);
                     _logger.LogWarning(
@@ -364,7 +364,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
         {
             string[] medalEquipData = medalsOnHandData[i].Split(StringUtils.CommaSplitDelimiter);
             string medalEffectiveId = medalEquipData[0];
-            if (!_medalsLeafRegistry.LeavesByEffectiveIds.TryGetValue(medalEffectiveId, out MedalLeaf medalLeaf))
+            if (!_medalsLeafRegistry.TryGetByEffectiveId(medalEffectiveId, out MedalLeaf? medalLeaf))
             {
                 (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(medalEffectiveId);
                 _logger.LogWarning(
@@ -381,7 +381,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
                 : null;
             AnimIdLeaf? animIdLeaf = null;
             if (medalEquipAnimIdEffectiveId is not null &&
-                !_animIdsLeafRegistry.LeavesByEffectiveIds.TryGetValue(medalEquipAnimIdEffectiveId, out animIdLeaf))
+                !_animIdsLeafRegistry.TryGetByEffectiveId(medalEquipAnimIdEffectiveId, out animIdLeaf))
             {
                 (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(medalEquipAnimIdEffectiveId);
                 _logger.LogWarning(
@@ -408,7 +408,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
                 StringUtils.CommaSplitDelimiter,
                 StringSplitOptions.RemoveEmptyEntries);
             string samiraSongEffectiveId = samiraSongData[0];
-            if (!_musicsLeafRegistry.LeavesByEffectiveIds.TryGetValue(samiraSongEffectiveId, out MusicLeaf musicLeaf))
+            if (!_musicsLeafRegistry.TryGetByEffectiveId(samiraSongEffectiveId, out MusicLeaf? musicLeaf))
             {
                 (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(samiraSongEffectiveId);
                 _logger.LogWarning(
@@ -435,12 +435,10 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
             string[] statBonusData = statBonusesData[i].Split(
                 StringUtils.CommaSplitDelimiter,
                 StringSplitOptions.RemoveEmptyEntries);
-            string targetAnimidEffectiveId = statBonusData[2];
-            if (!_animIdsLeafRegistry.LeavesByEffectiveIds.TryGetValue(
-                    targetAnimidEffectiveId,
-                    out AnimIdLeaf animIdLeaf))
+            string targetAnimIdEffectiveId = statBonusData[2];
+            if (!_animIdsLeafRegistry.TryGetByEffectiveId(targetAnimIdEffectiveId, out AnimIdLeaf? animIdLeaf))
             {
-                (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(targetAnimidEffectiveId);
+                (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(targetAnimIdEffectiveId);
                 _logger.LogWarning(
                     "The stat bonus index {statBonusIndex} index is named {namedId} created by {creatorId} while no such AnimIdLeaf " +
                     "exists in the registry. It will be skipped, but the save file will still be loaded.",
@@ -468,16 +466,11 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
                 StringSplitOptions.RemoveEmptyEntries);
             int baseGameAmount = (MainManager.LibraryPages)i switch
             {
-                MainManager.LibraryPages.Discoveries => _discoveriesLeafRegistry.LeavesByEffectiveIds.Values
-                    .Count(f => f.CreatorId == Constants.BaseGameCreatorId),
-                MainManager.LibraryPages.Bestiary => _enemiesLeafRegistry.LeavesByEffectiveIds.Values
-                    .Count(f => f.CreatorId == Constants.BaseGameCreatorId),
-                MainManager.LibraryPages.Recipes => _recipeLibraryEntriesLeafRegistry.LeavesByEffectiveIds.Values
-                    .Count(f => f.CreatorId == Constants.BaseGameCreatorId),
-                MainManager.LibraryPages.Logbook => _recordsLeafRegistry.LeavesByEffectiveIds.Values
-                    .Count(f => f.CreatorId == Constants.BaseGameCreatorId),
-                MainManager.LibraryPages.Map => _areasLeafRegistry.LeavesByEffectiveIds.Values
-                    .Count(f => f.CreatorId == Constants.BaseGameCreatorId),
+                MainManager.LibraryPages.Discoveries => _discoveriesLeafRegistry.CountBaseGame,
+                MainManager.LibraryPages.Bestiary => _enemiesLeafRegistry.CountBaseGame,
+                MainManager.LibraryPages.Recipes => _recipeLibraryEntriesLeafRegistry.CountBaseGame,
+                MainManager.LibraryPages.Logbook => _recordsLeafRegistry.CountBaseGame,
+                MainManager.LibraryPages.Map => _areasLeafRegistry.CountBaseGame,
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<int>(null, $"Unknown library page index: {i}")
             };
             for (int j = 0; j < baseGameAmount; j++)
@@ -490,8 +483,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
         string[] flagsData = flagsLine.Split(
             StringUtils.CommaSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
-        int baseGameAmount = _flagsLeafRegistry.LeavesByEffectiveIds.Values
-            .Count(f => f.CreatorId == Constants.BaseGameCreatorId);
+        int baseGameAmount = _flagsLeafRegistry.CountBaseGame;
         for (int i = 0; i < baseGameAmount; i++)
             stagingLoadData.Flags.Add(bool.Parse(flagsData[i]));
     }
@@ -499,8 +491,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
     private void LoadFlagstringsLine(string flagstringsLine, StagingLoadData stagingLoadData)
     {
         string[] flagstringsData = flagstringsLine.Split(StringUtils.FlagstringSplitDelimiter, StringSplitOptions.None);
-        int baseGameAmount = _flagstringsLeafRegistry.LeavesByEffectiveIds.Values
-            .Count(f => f.CreatorId == Constants.BaseGameCreatorId);
+        int baseGameAmount = _flagstringsLeafRegistry.CountBaseGame;
         for (int i = 0; i < baseGameAmount; i++)
         {
             string flagstring = i switch
@@ -534,7 +525,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
         for (int i = 0; i < regularItemEffectiveIds.Length; i++)
         {
             string itemEffectiveId = regularItemEffectiveIds[i];
-            if (!_itemsLeafRegistry.LeavesByEffectiveIds.TryGetValue(itemEffectiveId, out ItemLeaf itemLeaf))
+            if (!_itemsLeafRegistry.TryGetByEffectiveId(itemEffectiveId, out ItemLeaf? itemLeaf))
             {
                 (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(itemEffectiveId);
                 _logger.LogWarning(
@@ -557,7 +548,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
         for (int i = 0; i < keyItemEffectiveIds.Length; i++)
         {
             string itemEffectiveId = keyItemEffectiveIds[i];
-            if (!_itemsLeafRegistry.LeavesByEffectiveIds.TryGetValue(itemEffectiveId, out ItemLeaf itemLeaf))
+            if (!_itemsLeafRegistry.TryGetByEffectiveId(itemEffectiveId, out ItemLeaf? itemLeaf))
             {
                 (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(itemEffectiveId);
                 _logger.LogWarning(
@@ -590,9 +581,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
         for (int i = 0; i < spyCardsEffectiveId.Length; i++)
         {
             string spyCardEffectiveId = spyCardsEffectiveId[i];
-            if (!_spyCardsLeafRegistry.LeavesByEffectiveIds.TryGetValue(
-                    spyCardEffectiveId,
-                    out SpyCardLeaf spyCardLeaf))
+            if (!_spyCardsLeafRegistry.TryGetByEffectiveId(spyCardEffectiveId, out SpyCardLeaf? spyCardLeaf))
             {
                 (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(spyCardEffectiveId);
                 _logger.LogWarning(
@@ -622,7 +611,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
         for (int i = 0; i < mysteryMedalsQueue.Length; i++)
         {
             string medalEffectiveId = mysteryMedalsQueue[i];
-            if (!_medalsLeafRegistry.LeavesByEffectiveIds.TryGetValue(medalEffectiveId, out MedalLeaf medalLeaf))
+            if (!_medalsLeafRegistry.TryGetByEffectiveId(medalEffectiveId, out MedalLeaf? medalLeaf))
             {
                 // Intentionally not mentioning the position in case of spoilers
                 (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(medalEffectiveId);
@@ -646,8 +635,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
     private void LoadFlagvarsLine(string flagvarsLine, StagingLoadData stagingLoadData)
     {
         string[] flagvarsData = flagvarsLine.Split(StringUtils.CommaSplitDelimiter);
-        int baseGameAmount = _flagvarsLeafRegistry.LeavesByEffectiveIds.Values
-            .Count(f => f.CreatorId == Constants.BaseGameCreatorId);
+        int baseGameAmount = _flagvarsLeafRegistry.CountBaseGame;
         for (int i = 0; i < baseGameAmount; i++)
         {
             int flagvar = i == 56
@@ -662,7 +650,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
         if (string.IsNullOrWhiteSpace(flagvar))
             return 0;
 
-        if (_itemsLeafRegistry.LeavesByEffectiveIds.TryGetValue(flagvar, out ItemLeaf itemLeaf))
+        if (_itemsLeafRegistry.TryGetByEffectiveId(flagvar, out ItemLeaf? itemLeaf))
             return itemLeaf.GameId;
 
         if (int.TryParse(flagvar, NumberStyles.None, CultureInfo.InvariantCulture, out int value))
@@ -699,8 +687,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
         string[] crystalBerriesData = crystalBerriesLine.Split(
             StringUtils.CommaSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
-        int baseGameAmount = _crystalBerriesLeafRegistry.LeavesByEffectiveIds.Values
-            .Count(f => f.CreatorId == Constants.BaseGameCreatorId);
+        int baseGameAmount = _crystalBerriesLeafRegistry.CountBaseGame;
         for (int i = 0; i < baseGameAmount; i++)
             stagingLoadData.CrystalBerryFlags.Add(bool.Parse(crystalBerriesData[i]));
     }
@@ -713,7 +700,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
         for (int i = 0; i < animIdEffectiveIds.Length; i++)
         {
             string animIdEffectiveId = animIdEffectiveIds[i];
-            if (!_animIdsLeafRegistry.LeavesByEffectiveIds.TryGetValue(animIdEffectiveId, out AnimIdLeaf animIdLeaf))
+            if (!_animIdsLeafRegistry.TryGetByEffectiveId(animIdEffectiveId, out AnimIdLeaf? animIdLeaf))
             {
                 (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(animIdEffectiveId);
                 _logger.LogWarning(
@@ -734,8 +721,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
         string[] enemyEncountersData = enemyEncountersDataLine.Split(
             StringUtils.AtSymbolSplitDelimiter,
             StringSplitOptions.RemoveEmptyEntries);
-        int baseGameAmount = _enemiesLeafRegistry.LeavesByEffectiveIds.Values
-            .Count(f => f.CreatorId == Constants.BaseGameCreatorId);
+        int baseGameAmount = _enemiesLeafRegistry.CountBaseGame;
         for (int i = 0; i < baseGameAmount; i++)
         {
             string[] enemyEncounterData = enemyEncountersData[i].Split(

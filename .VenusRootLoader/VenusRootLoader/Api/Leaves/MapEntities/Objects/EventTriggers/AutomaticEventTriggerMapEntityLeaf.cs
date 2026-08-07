@@ -31,6 +31,6 @@ public sealed class AutomaticEventTriggerMapEntityLeaf : EventTriggerMapEntityLe
     internal override void InitializeFromExisting()
     {
         ILeavesRegistry<EventLeaf> eventsRegistry = RegistryResolver.Resolve<EventLeaf>();
-        EventToImmediatelyStartOnMapLoad = new(eventsRegistry.LeavesByGameIds[InternalData[0].Value]);
+        EventToImmediatelyStartOnMapLoad = new(eventsRegistry.GetByGameId(InternalData[0].Value));
     }
 }

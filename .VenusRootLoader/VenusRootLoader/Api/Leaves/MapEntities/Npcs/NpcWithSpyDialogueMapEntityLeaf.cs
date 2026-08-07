@@ -74,8 +74,8 @@ public abstract class NpcWithSpyDialogueMapEntityLeaf : NpcMapEntityLeaf
         if (InternalSpyDialogueId != -1)
         {
             SpyDialogue = InternalSpyDialogueId < 0
-                ? commonDialoguesRegistry.LeavesByGameIds[InternalSpyDialogueId]
-                : Map.Resolve().DialoguesRegistry.LeavesByGameIds[InternalSpyDialogueId];
+                ? commonDialoguesRegistry.GetByGameId(InternalSpyDialogueId)
+                : Map.Resolve().DialoguesRegistry.GetByGameId(InternalSpyDialogueId);
         }
     }
 }

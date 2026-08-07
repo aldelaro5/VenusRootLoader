@@ -63,7 +63,7 @@ public sealed class JumpToPositionSpringMapEntityLeaf : JumpSpringMapEntityLeaf
         if (InternalData[2].Value >= 0)
         {
             InsideTransitionToTriggerWhenUsingSpring =
-                Map.Resolve().EntitiesRegistry.LeavesByGameIds[InternalData[2].Value] is
+                Map.Resolve().EntitiesRegistry.GetByGameId(InternalData[2].Value) is
                     InsideTransitionZoneMapEntityLeaf
                     insideTransition
                     ? new(insideTransition)

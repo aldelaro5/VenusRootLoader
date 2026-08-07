@@ -45,7 +45,7 @@ internal sealed class QuestTextAssetParser : ITextAssetParser<QuestLeaf>
             string[] fieldsBoardData = text.Split(StringUtils.AtSymbolSplitDelimiter);
 
             int takenFlag = int.Parse(fieldsBoardData[0]);
-            leaf.TakenFlag = takenFlag <= -1 ? null : new(_flagsRegistry.LeavesByGameIds[takenFlag]);
+            leaf.TakenFlag = takenFlag <= -1 ? null : new(_flagsRegistry.GetByGameId(takenFlag));
             ((IEnemyPortraitSprite)leaf).EnemyPortraitsSpriteIndex = int.Parse(fieldsBoardData[1]);
             leaf.Difficulty = int.Parse(fieldsBoardData[2]);
             return;
@@ -68,9 +68,9 @@ internal sealed class QuestTextAssetParser : ITextAssetParser<QuestLeaf>
                 break;
 
             if (check > 0)
-                leaf.RequiredFlags.Add(new(_flagsRegistry.LeavesByGameIds[check]));
+                leaf.RequiredFlags.Add(new(_flagsRegistry.GetByGameId(check)));
             else
-                leaf.RequiredSeenAreas.Add(new(_areasRegistry.LeavesByGameIds[Math.Abs(check)]));
+                leaf.RequiredSeenAreas.Add(new(_areasRegistry.GetByGameId(Math.Abs(check))));
         }
     }
 }

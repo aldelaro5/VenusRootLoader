@@ -116,11 +116,11 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
     {
         int newCap = Enumerable.Max(
         [
-            _instance._discoveriesRegistry.LeavesByEffectiveIds.Count,
-            _instance._orderedEnemiesRegistry.Registry.LeavesByEffectiveIds.Count,
-            _instance._recipeLibraryEntriesRegistry.LeavesByEffectiveIds.Count,
-            _instance._recordsRegistry.LeavesByEffectiveIds.Count,
-            _instance._areasRegistry.LeavesByEffectiveIds.Count
+            _instance._discoveriesRegistry.Count,
+            _instance._orderedEnemiesRegistry.Registry.Count,
+            _instance._recipeLibraryEntriesRegistry.Count,
+            _instance._recordsRegistry.Count,
+            _instance._areasRegistry.Count
         ]);
         return baseGameCap < newCap ? newCap : baseGameCap;
     }
@@ -131,6 +131,6 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
         int[] original)
         where T : Leaf
     {
-        MainManager.librarylimit[(int)page] = Math.Max(registry.LeavesByEffectiveIds.Count, original[(int)page]);
+        MainManager.librarylimit[(int)page] = Math.Max(registry.Count, original[(int)page]);
     }
 }

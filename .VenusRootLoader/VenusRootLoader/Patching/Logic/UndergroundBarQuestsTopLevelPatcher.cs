@@ -91,5 +91,5 @@ internal sealed class UndergroundBarQuestsTopLevelPatcher : ITopLevelPatcher
     }
 
     private static bool IsQuestUndergroundBarExclusive(int questGameId) =>
-        _instance._questsRegistry.LeavesByGameIds[questGameId].CanOnlyBeTakenAtUndergroundBar;
+        _instance._questsRegistry.GetByGameId(questGameId).CanOnlyBeTakenAtUndergroundBar;
 }

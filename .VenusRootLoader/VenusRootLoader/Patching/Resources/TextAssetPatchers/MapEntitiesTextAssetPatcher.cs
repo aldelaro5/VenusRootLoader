@@ -48,7 +48,7 @@ internal sealed class MapEntitiesTextAssetPatcher : IMapEntityTextAssetPatcher
 
     public TextAsset PatchMapEntityTextAsset(string path, TextAsset original)
     {
-        bool registryHasData = _mapsRegistry.LeavesByEffectiveIds.Count > 0;
+        bool registryHasData = _mapsRegistry.Count > 0;
         if (!registryHasData)
             return original;
 
@@ -66,8 +66,8 @@ internal sealed class MapEntitiesTextAssetPatcher : IMapEntityTextAssetPatcher
             mapGameId = int.Parse(path.Substring(mapGameIdStart, path.Length - mapGameIdStart));
         }
 
-        MapLeaf leaf = _mapsRegistry.LeavesByGameIds[mapGameId];
-        IEnumerable<string> newLines = leaf.EntitiesRegistry.LeavesByGameIds.Values
+        MapLeaf leaf = _mapsRegistry.GetByGameId(mapGameId);
+        IEnumerable<string> newLines = leaf.EntitiesRegistry
             .Select(mapEntity => _parser.GetTextAssetSerializedString(path, mapEntity));
 
         StringBuilder sb = new(string.Join("\n", newLines));

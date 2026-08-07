@@ -44,7 +44,7 @@ internal sealed class SpyCardTextAssetParser : ITextAssetParser<SpyCardLeaf>
         string[] fields = text.Split(StringUtils.CommaSplitDelimiter);
         leaf.TpCost = int.Parse(fields[0]);
         leaf.Attack = int.Parse(fields[1]);
-        leaf.Enemy = new(_enemiesRegistry.LeavesByGameIds[int.Parse(fields[2])]);
+        leaf.Enemy = new(_enemiesRegistry.GetByGameId(int.Parse(fields[2])));
         leaf.UnusedHorizontalNameSize = float.Parse(fields[3]);
         leaf.Type = (CardGame.Type)int.Parse(fields[4]);
 

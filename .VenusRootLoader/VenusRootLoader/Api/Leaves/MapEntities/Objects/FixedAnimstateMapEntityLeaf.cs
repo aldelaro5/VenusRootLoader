@@ -56,6 +56,6 @@ public sealed class FixedAnimstateMapEntityLeaf : ObjectMapEntityLeaf
     internal override void InitializeFromExisting()
     {
         ILeavesRegistry<AnimIdLeaf> animIdsRegistry = RegistryResolver.Resolve<AnimIdLeaf>();
-        AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
+        AnimId = new(animIdsRegistry.GetByGameId(InternalAnimIdOrItemId));
     }
 }

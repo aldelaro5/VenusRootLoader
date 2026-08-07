@@ -70,6 +70,6 @@ public sealed class CollectibleCrystalBerryMapEntityLeaf : CollectibleMapEntityL
         base.InitializeFromExisting();
         ILeavesRegistry<CrystalBerryLeaf> crystalBerriesRegistry = RegistryResolver.Resolve<CrystalBerryLeaf>();
 
-        CrystalBerry = new(crystalBerriesRegistry.LeavesByGameIds[InternalData[3].Value]);
+        CrystalBerry = new(crystalBerriesRegistry.GetByGameId(InternalData[3].Value));
     }
 }

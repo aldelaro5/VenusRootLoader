@@ -61,11 +61,11 @@ public sealed class RollingRockCanonMapEntityLeaf : RollingRockMapEntityLeaf
         base.InitializeFromExisting();
         if (InternalData[3].Value != -1)
         {
-            MapLeaf map = RegistryResolver.Resolve<MapLeaf>().LeavesByGameIds[Map.Resolve().GameId];
+            MapLeaf map = RegistryResolver.Resolve<MapLeaf>().GetByGameId(Map.Resolve().GameId);
             RequiredMapEntityActivationForShooting = new()
             {
-                MapEntity =
-                    (Branch<ObjectMapEntityLeaf>)map.EntitiesRegistry.LeavesByGameIds[Math.Abs(InternalData[3].Value)]!,
+                MapEntity = new(
+                    (ObjectMapEntityLeaf)map.EntitiesRegistry.GetByGameId(Math.Abs(InternalData[3].Value))),
                 IsActivationValueNegated = InternalData[3].Value < 0
             };
         }

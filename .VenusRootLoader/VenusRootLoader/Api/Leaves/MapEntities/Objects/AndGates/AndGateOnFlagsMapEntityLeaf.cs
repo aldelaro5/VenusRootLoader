@@ -31,7 +31,7 @@ public sealed class AndGateOnFlagsMapEntityLeaf : AndGateMapEntityLeaf
         _flagInputs.SynchronizeFromExistingData(
             InternalData
                 .Skip(1)
-                .Select(x => new Branch<FlagLeaf>(flagsRegistry.LeavesByGameIds[Math.Abs(x.Value)]))
+                .Select(x => new Branch<FlagLeaf>(flagsRegistry.GetByGameId(Math.Abs(x.Value))))
                 .ToList());
     }
 }

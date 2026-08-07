@@ -91,6 +91,6 @@ public sealed class MapMainMeshChildVerticalPositionSwitchMapEntityLeaf : Object
         ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
 
         if (InternalActivationFlagId > 0)
-            FlagSwitchActivation = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSwitchActivation = new(flagsRegistry.GetByGameId(InternalActivationFlagId));
     }
 }

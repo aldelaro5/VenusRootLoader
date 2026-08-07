@@ -1,5 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using Microsoft.Extensions.Logging;
+using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.LeavesInternals;
@@ -15,15 +17,33 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
 
     protected BaseRegistry(ILogger logger) => _logger = logger;
 
-    public IDictionary<string, TLeaf> LeavesByEffectiveIds { get; } = new Dictionary<string, TLeaf>();
-    public IDictionary<int, TLeaf> LeavesByGameIds { get; } = new Dictionary<int, TLeaf>();
+    /// <summary>
+    /// All leaves of the registry indexed by their <see cref="Leaf.GameId"/>.
+    /// </summary>
+    private IDictionary<int, TLeaf> LeavesByGameIds { get; } = new Dictionary<int, TLeaf>();
+
+    /// <summary>
+    /// All leaves of the registry indexed by their <see cref="Leaf.EffectiveId"/>.
+    /// </summary>
+    private IDictionary<string, TLeaf> LeavesByEffectiveIds { get; } = new Dictionary<string, TLeaf>();
+
+    /// <summary>
+    /// Gets the number of leaves contained in the registry.
+    /// </summary>
+    public int Count => LeavesByEffectiveIds.Count;
+
+    /// <summary>
+    /// Gets the number of leaves contained in the registry that were created by the BaseGame.
+    /// </summary>
+    public int CountBaseGame => LeavesByEffectiveIds.Count(l => l.Value.CreatorId == Constants.BaseGameCreatorId);
 
     protected abstract int CreateNewGameId(string effectiveId);
 
-    public TLeaf RegisterNew(string creatorId, string namedId)
-    {
-        return RegisterNew<TLeaf>(creatorId, namedId);
-    }
+    public IEnumerator<TLeaf> GetEnumerator() => LeavesByGameIds.Values.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public TLeaf RegisterNew(string creatorId, string namedId) => RegisterNew<TLeaf>(creatorId, namedId);
 
     public TSubLeaf RegisterNew<TSubLeaf>(string creatorId, string namedId) where TSubLeaf : TLeaf
     {
@@ -45,10 +65,8 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
         return leaf;
     }
 
-    public TLeaf RegisterExisting(int gameId, string namedId, string creatorId)
-    {
-        return RegisterExisting<TLeaf>(gameId, namedId, creatorId);
-    }
+    public TLeaf RegisterExisting(int gameId, string namedId, string creatorId) =>
+        RegisterExisting<TLeaf>(gameId, namedId, creatorId);
 
     public virtual TSubLeaf RegisterExisting<TSubLeaf>(int gameId, string namedId, string creatorId)
         where TSubLeaf : TLeaf
@@ -85,6 +103,19 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
         return GetByEffectiveId(effectiveId);
     }
 
+    public bool TryGet(string creatorId, string namedId, [NotNullWhen(true)] out TLeaf? leaf)
+    {
+        string effectiveId = EffectiveLeafId.CreateFromParts(creatorId, namedId);
+        if (!LeavesByEffectiveIds.TryGetValue(effectiveId, out TLeaf value))
+        {
+            leaf = null;
+            return false;
+        }
+
+        leaf = value;
+        return true;
+    }
+
     public TLeaf GetByEffectiveId(string effectiveId)
     {
         if (!LeavesByEffectiveIds.TryGetValue(effectiveId, out TLeaf leaf))
@@ -97,9 +128,8 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
         return leaf;
     }
 
-    public bool TryGet(string creatorId, string namedId, out TLeaf? leaf)
+    public bool TryGetByEffectiveId(string effectiveId, [NotNullWhen(true)] out TLeaf? leaf)
     {
-        string effectiveId = EffectiveLeafId.CreateFromParts(creatorId, namedId);
         if (!LeavesByEffectiveIds.TryGetValue(effectiveId, out TLeaf value))
         {
             leaf = null;
@@ -108,6 +138,18 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
 
         leaf = value;
         return true;
+    }
+
+    public TLeaf GetByGameId(int gameId)
+    {
+        if (!LeavesByGameIds.TryGetValue(gameId, out TLeaf leaf))
+        {
+            return ThrowHelper.ThrowArgumentException<TLeaf>(
+                nameof(gameId),
+                $"{gameId} does not exist in the {_registryName} registry");
+        }
+
+        return leaf;
     }
 
     public IReadOnlyCollection<TLeaf> GetAll() => LeavesByEffectiveIds.Values.ToList().AsReadOnly();

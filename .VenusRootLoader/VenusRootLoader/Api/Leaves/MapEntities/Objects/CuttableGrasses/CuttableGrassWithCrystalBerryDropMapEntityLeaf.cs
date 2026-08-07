@@ -68,6 +68,6 @@ public sealed class CuttableGrassWithCrystalBerryDropMapEntityLeaf : CuttableGra
     internal override void InitializeFromExisting()
     {
         ILeavesRegistry<CrystalBerryLeaf> crystalBerriesRegistry = RegistryResolver.Resolve<CrystalBerryLeaf>();
-        CrystalBerryDroppedWhenCut = new(crystalBerriesRegistry.LeavesByGameIds[InternalData[1].Value]);
+        CrystalBerryDroppedWhenCut = new(crystalBerriesRegistry.GetByGameId(InternalData[1].Value));
     }
 }

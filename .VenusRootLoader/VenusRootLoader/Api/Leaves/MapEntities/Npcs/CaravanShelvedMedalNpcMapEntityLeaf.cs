@@ -96,9 +96,9 @@ public sealed class CaravanShelvedMedalNpcMapEntityLeaf : NpcMapEntityLeaf
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = RegistryResolver.Resolve<CommonDialogueLeaf>();
 
         AssociatedItemShop =
-            (ItemShopMapEntityLeaf)Map.Resolve().EntitiesRegistry.LeavesByGameIds[InternalData[0].Value];
+            (ItemShopMapEntityLeaf)Map.Resolve().EntitiesRegistry.GetByGameId(InternalData[0].Value);
         ShopKeeperDialogueWhenInteracting = InternalData[1].Value < 0
-            ? commonDialoguesRegistry.LeavesByGameIds[InternalData[1].Value]
-            : Map.Resolve().DialoguesRegistry.LeavesByGameIds[InternalData[1].Value];
+            ? commonDialoguesRegistry.GetByGameId(InternalData[1].Value)
+            : Map.Resolve().DialoguesRegistry.GetByGameId(InternalData[1].Value);
     }
 }

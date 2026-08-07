@@ -71,8 +71,8 @@ public sealed class TrappedEntityMapEntityLeaf : ObjectMapEntityLeaf
         ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
 
         if (InternalData[1].Value > -1)
-            FlagSetWhenEntityGetsUntrapped = new(flagsRegistry.LeavesByGameIds[InternalData[1].Value]);
+            FlagSetWhenEntityGetsUntrapped = new(flagsRegistry.GetByGameId(InternalData[1].Value));
 
-        TrappedMapEntity = Map.Resolve().EntitiesRegistry.LeavesByGameIds[InternalData[0].Value];
+        TrappedMapEntity = Map.Resolve().EntitiesRegistry.GetByGameId(InternalData[0].Value);
     }
 }

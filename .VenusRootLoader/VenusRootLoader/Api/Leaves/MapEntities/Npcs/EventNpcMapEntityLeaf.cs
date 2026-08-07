@@ -45,7 +45,7 @@ public sealed class EventNpcMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
         ILeavesRegistry<EventLeaf> eventsRegistry = RegistryResolver.Resolve<EventLeaf>();
 
         EventToStartWhenInteracting = OriginalInteraction == NPCControl.Interaction.LockedDoor
-            ? new(eventsRegistry.LeavesByGameIds[LockedDoorInteractionEventId])
-            : new(eventsRegistry.LeavesByGameIds[InternalEventId]);
+            ? new(eventsRegistry.GetByGameId(LockedDoorInteractionEventId))
+            : new(eventsRegistry.GetByGameId(InternalEventId));
     }
 }

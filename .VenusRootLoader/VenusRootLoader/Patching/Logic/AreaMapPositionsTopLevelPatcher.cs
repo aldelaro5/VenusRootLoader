@@ -65,7 +65,7 @@ internal sealed class AreaMapPositionsTopLevelPatcher : ITopLevelPatcher
 
     private static void PatchAreaMapPosition(MainManager.Areas area, out Vector3 mapPosition)
     {
-        Vector2 leafMapPosition = _instance._areasRegistry.LeavesByGameIds[(int)area].MapPosition;
+        Vector2 leafMapPosition = _instance._areasRegistry.GetByGameId((int)area).MapPosition;
         // The positions in the game are encoded in this strange form. We already decoded them on the collector side so
         // we need to encode them again.
         mapPosition = new(-leafMapPosition.x, _instance._yPositionAreas, -leafMapPosition.y);

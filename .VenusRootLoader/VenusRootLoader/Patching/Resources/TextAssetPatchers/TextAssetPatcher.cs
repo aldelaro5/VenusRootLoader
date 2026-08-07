@@ -63,12 +63,12 @@ internal sealed class TextAssetPatcher<TLeaf> : ITextAssetPatcher
 
     public TextAsset PatchTextAsset(string path, TextAsset original)
     {
-        bool registryHasData = _registry.LeavesByEffectiveIds.Count > 0;
+        bool registryHasData = _registry.Count > 0;
         if (!registryHasData)
             return original;
 
         IEnumerable<TLeaf> sortedLeaves = _leavesSorter is null
-            ? _registry.LeavesByGameIds.Values.OrderBy(l => l.GameId)
+            ? _registry.OrderBy(l => l.GameId)
             : _leavesSorter(_registry);
         IEnumerable<string> newLines = sortedLeaves
             .Select(customLine => _parser.GetTextAssetSerializedString(path, customLine));

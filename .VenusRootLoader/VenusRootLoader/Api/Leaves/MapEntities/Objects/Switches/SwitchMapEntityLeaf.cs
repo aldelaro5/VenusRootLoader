@@ -54,6 +54,6 @@ public abstract class SwitchMapEntityLeaf : ObjectMapEntityLeaf
 
         ILeavesRegistry<AnimIdLeaf> animIdsRegistry = RegistryResolver.Resolve<AnimIdLeaf>();
         if (InternalAnimIdOrItemId > 0)
-            AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
+            AnimId = new(animIdsRegistry.GetByGameId(InternalAnimIdOrItemId));
     }
 }

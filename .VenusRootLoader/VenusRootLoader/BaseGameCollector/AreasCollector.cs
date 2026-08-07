@@ -88,7 +88,7 @@ internal sealed class AreasCollector : IBaseGameCollector
             cursor.GotoNext(inst => inst.MatchLdcR4(out _));
             cursor.GotoNext(inst => inst.MatchLdcR4(out z));
 
-            _areasRegistry.LeavesByGameIds[i].MapPosition = new(-x, -z);
+            _areasRegistry.GetByGameId(i).MapPosition = new(-x, -z);
         }
     }
 }

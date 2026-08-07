@@ -64,6 +64,6 @@ public abstract class AndBlockMapEntityLeaf : ObjectMapEntityLeaf
         ILeavesRegistry<AnimIdLeaf> animIdRegistry = RegistryResolver.Resolve<AnimIdLeaf>();
 
         if (InternalAnimIdOrItemId >= 0)
-            AnimId = new(animIdRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
+            AnimId = new(animIdRegistry.GetByGameId(InternalAnimIdOrItemId));
     }
 }

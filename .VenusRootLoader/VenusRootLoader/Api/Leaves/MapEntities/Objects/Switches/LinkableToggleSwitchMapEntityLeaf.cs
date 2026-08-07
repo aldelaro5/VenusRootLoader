@@ -43,6 +43,6 @@ public sealed class LinkableToggleSwitchMapEntityLeaf : SwitchMapEntityLeaf
         base.InitializeFromExisting();
         ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
         if (InternalActivationFlagId > 0)
-            LinkFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            LinkFlag = new(flagsRegistry.GetByGameId(InternalActivationFlagId));
     }
 }

@@ -140,7 +140,6 @@ internal sealed class EnemyTextAssetParser : ITextAssetParser<EnemyLeaf>
     public void FromTextAssetSerializedString(string subPath, string text, EnemyLeaf leaf)
     {
         string[] fields = text.Split(StringUtils.CommaSplitDelimiter);
-        IDictionary<int, EnemyLeaf> enemiesByGameId = _enemiesRegistry.LeavesByGameIds;
 
         leaf.EntityAnimId = int.Parse(fields[0]);
         leaf.BaseMaxHp = int.Parse(fields[1]);
@@ -169,7 +168,7 @@ internal sealed class EnemyTextAssetParser : ITextAssetParser<EnemyLeaf>
 
         leaf.Weight = float.Parse(fields[24]);
         int baseEnemyId = int.Parse(fields[25]);
-        leaf.BaseEnemyId = baseEnemyId < 0 ? null : new(enemiesByGameId[baseEnemyId]);
+        leaf.BaseEnemyId = baseEnemyId < 0 ? (Branch<EnemyLeaf>?)null : _enemiesRegistry.GetByGameId(baseEnemyId);
         int eventIdOnDeath = int.Parse(fields[26]);
         leaf.EventIdOnDeath = eventIdOnDeath == 1 ? -1 : eventIdOnDeath;
         leaf.ActorTurnAmountPerMainTurn = int.Parse(fields[27]);
@@ -185,7 +184,7 @@ internal sealed class EnemyTextAssetParser : ITextAssetParser<EnemyLeaf>
         {
             string[] enemyIds = fields[34].Split(StringUtils.SemiColonSplitDelimiter);
             foreach (string enemyId in enemyIds)
-                leaf.EnemiesWhoTriggerHitActionWhenDamaged.Add(new(enemiesByGameId[int.Parse(enemyId)]));
+                leaf.EnemiesWhoTriggerHitActionWhenDamaged.Add(_enemiesRegistry.GetByGameId(int.Parse(enemyId)));
         }
 
         leaf.HardModeAttackIncrease = int.Parse(fields[35]);

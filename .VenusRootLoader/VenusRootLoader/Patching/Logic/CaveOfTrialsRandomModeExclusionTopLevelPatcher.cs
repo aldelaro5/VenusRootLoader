@@ -61,5 +61,5 @@ internal sealed class CaveOfTrialsRandomModeExclusionTopLevelPatcher : ITopLevel
     }
 
     private static bool IsAllowedOnCaveOfTrialsRandomMode(int enemyId) =>
-        _instance._enemiesRegistry.LeavesByGameIds[enemyId].IsIncludedInRandomCaveOfTrialsPool;
+        _instance._enemiesRegistry.GetByGameId(enemyId).IsIncludedInRandomCaveOfTrialsPool;
 }

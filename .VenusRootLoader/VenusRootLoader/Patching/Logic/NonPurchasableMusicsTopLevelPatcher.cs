@@ -43,7 +43,7 @@ internal sealed class NonPurchasableMusicsTopLevelPatcher : ITopLevelPatcher
         for (int i = MainManager.instance.samiramusics.Count - 1; i >= 0; i--)
         {
             int gameId = MainManager.instance.samiramusics[i][0];
-            if (!_instance._musicRegistry.LeavesByGameIds[gameId].CanBePurchasedFromSamira)
+            if (!_instance._musicRegistry.GetByGameId(gameId).CanBePurchasedFromSamira)
                 MainManager.instance.samiramusics.RemoveAt(i);
         }
 
@@ -54,7 +54,7 @@ internal sealed class NonPurchasableMusicsTopLevelPatcher : ITopLevelPatcher
     [HarmonyPatch(typeof(MainManager), nameof(MainManager.SamiraGotAll))]
     internal static bool AdjustPurchasedAllMusic(ref bool __result)
     {
-        int amountPurchasableMusic = _instance._musicRegistry.LeavesByGameIds.Values
+        int amountPurchasableMusic = _instance._musicRegistry
             .Count(l => l.CanBePurchasedFromSamira);
         __result = MainManager.PurchasedMusicAmmount() >= amountPurchasableMusic;
         return false;

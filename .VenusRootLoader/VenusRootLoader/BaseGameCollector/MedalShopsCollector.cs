@@ -90,7 +90,7 @@ internal sealed class MedalShopsCollector : IBaseGameCollector
                     _assemblyCSharpDataCollector.ReadIntArrayFromPrivateImplementationDetailField(startingStockField);
                 List<Branch<MedalLeaf>> medals = new();
                 foreach (int medalId in startingStockMedalIds)
-                    medals.Add(new(_medalsRegistry.LeavesByGameIds[medalId]));
+                    medals.Add(new(_medalsRegistry.GetByGameId(medalId)));
                 medalShopsStartingStock.Add(medals);
             }
         });
@@ -115,7 +115,7 @@ internal sealed class MedalShopsCollector : IBaseGameCollector
             cursor.GotoNext(i => i.MatchLdcI4(out firstMedalShopBoughtAllFlagGameId));
 
             for (int i = 0; i < medalShopsAmount; i++)
-                medalShopsStartingStock.Add(new(_flagsRegistry.LeavesByGameIds[firstMedalShopBoughtAllFlagGameId + i]));
+                medalShopsStartingStock.Add(new(_flagsRegistry.GetByGameId(firstMedalShopBoughtAllFlagGameId + i)));
         });
 
         return medalShopsStartingStock;

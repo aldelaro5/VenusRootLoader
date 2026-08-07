@@ -70,25 +70,18 @@ internal sealed class EnemyPortraitsSpriteArrayPatcher : ISpriteArrayPatcher
     // get reassigned to a new index.
     private void CloneSpriteDuplicates()
     {
-        IEnumerable<IEnemyPortraitSprite> discoveryLeaves = _discoveriesRegistry
-            .LeavesByEffectiveIds
-            .Values;
-        IEnumerable<IEnemyPortraitSprite> enemiesLeaves = _enemiesRegistry
-            .LeavesByEffectiveIds
-            .Values;
-        IEnumerable<IEnemyPortraitSprite> recordsLeaves = _recordsRegistry
-            .LeavesByEffectiveIds
-            .Values;
-        IEnumerable<IEnemyPortraitSprite> questsLeaves = _questsRegistry
-            .LeavesByEffectiveIds
-            .Values;
+        IEnumerable<IEnemyPortraitSprite> discoveryLeaves = _discoveriesRegistry;
+        IEnumerable<IEnemyPortraitSprite> enemiesLeaves = _enemiesRegistry;
+        IEnumerable<IEnemyPortraitSprite> recordsLeaves = _recordsRegistry;
+        IEnumerable<IEnemyPortraitSprite> questsLeaves = _questsRegistry;
+
         List<IEnemyPortraitSprite> allLeavesWithPortraitSprite =
             discoveryLeaves
-            .Concat(enemiesLeaves)
-            .Concat(recordsLeaves)
-            .Concat(questsLeaves)
-            .Where(l => l.EnemyPortraitsSpriteIndex is not null)
-            .ToList();
+                .Concat(enemiesLeaves)
+                .Concat(recordsLeaves)
+                .Concat(questsLeaves)
+                .Where(l => l.EnemyPortraitsSpriteIndex is not null)
+                .ToList();
 
         HashSet<int> uniqueSpriteIndexes = new();
         foreach (IEnemyPortraitSprite? leaf in allLeavesWithPortraitSprite)
@@ -105,9 +98,8 @@ internal sealed class EnemyPortraitsSpriteArrayPatcher : ISpriteArrayPatcher
     private void PatchSpritesFromRegistry<T>(SortedDictionary<int, Sprite> sprites, ILeavesRegistry<T> registry)
         where T : Leaf, IEnemyPortraitSprite
     {
-        ICollection<T> leaves = registry
-            .LeavesByEffectiveIds
-            .Values;
+        IReadOnlyCollection<T> leaves = registry
+            .GetAll();
         List<T> leavesWithDefinedSprites = leaves
             .Where(l => l.EnemyPortraitsSpriteIndex is not null)
             .ToList();

@@ -43,7 +43,7 @@ public sealed class BreakableRockMapEntityLeaf : ObjectMapEntityLeaf
         if (InternalActivationFlagId > 0)
         {
             ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
-            FlagSetToTrueWhenRockBreaks = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSetToTrueWhenRockBreaks = new(flagsRegistry.GetByGameId(InternalActivationFlagId));
         }
     }
 }

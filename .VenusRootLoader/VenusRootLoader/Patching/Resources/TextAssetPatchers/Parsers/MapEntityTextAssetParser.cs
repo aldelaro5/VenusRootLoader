@@ -389,7 +389,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         for (int i = 0; i < 10; i++)
             value.OriginalRequires[i] = int.Parse(fields[39 + i]);
         for (int i = 0; i < requiresLength; i++)
-            value.RequiredFlags.Add(new(_flagsRegistry.LeavesByGameIds[value.OriginalRequires[i]]));
+            value.RequiredFlags.Add(new(_flagsRegistry.GetByGameId(value.OriginalRequires[i])));
 
         if (_logger.IsEnabled(LogLevel.Trace))
         {
@@ -408,7 +408,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             value.LimitedToFlags.Add(
                 new()
                 {
-                    Flag = new(_flagsRegistry.LeavesByGameIds[Math.Abs(value.OriginalLimits[i])]),
+                    Flag = new(_flagsRegistry.GetByGameId(Math.Abs(value.OriginalLimits[i]))),
                     FailsWholeExistConditionWhenFlagIsTrue = value.OriginalLimits[i] < 0
                 });
         }

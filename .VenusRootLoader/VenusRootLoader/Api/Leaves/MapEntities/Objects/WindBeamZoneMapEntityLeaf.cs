@@ -95,6 +95,6 @@ public sealed class WindBeamZoneMapEntityLeaf : ObjectMapEntityLeaf
 
         if (InternalData[0].Value != -1)
             RequiredMapEntityActivation =
-                Map.Resolve().EntitiesRegistry.LeavesByGameIds[Math.Abs(InternalData[0].Value)];
+                Map.Resolve().EntitiesRegistry.GetByGameId(Math.Abs(InternalData[0].Value));
     }
 }

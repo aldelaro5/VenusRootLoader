@@ -128,7 +128,7 @@ internal sealed class MedalShopsTopLevelPatcher : ITopLevelPatcher
     [HarmonyPatch(typeof(MainManager), nameof(MainManager.SetUpBadges))]
     internal static bool PatchLogicForSettingMedalShopsStartingStock(MainManager __instance)
     {
-        foreach (MedalShopLeaf medalShopLeaf in _instance._medalShopsRegistry.LeavesByGameIds.Values)
+        foreach (MedalShopLeaf medalShopLeaf in _instance._medalShopsRegistry)
         {
             List<int> medalIds = medalShopLeaf.StartingMedalsStock.Select(m => m.Resolve().GameId).ToList();
             __instance.badgeshops[medalShopLeaf.GameId].AddRange(medalIds);
@@ -138,25 +138,25 @@ internal sealed class MedalShopsTopLevelPatcher : ITopLevelPatcher
         return false;
     }
 
-    private static int PatchNewMedalShopsAmount() => _instance._medalShopsRegistry.LeavesByGameIds.Count;
+    private static int PatchNewMedalShopsAmount() => _instance._medalShopsRegistry.Count;
 
     // This overwrites the amount of shops read from the save so it skips the ones that don't exist in the registry.
     private static int PatchMedalShopsAmountLoadedFromSave(int lengthFromSave)
     {
-        return Math.Min(lengthFromSave, _instance._medalShopsRegistry.LeavesByGameIds.Count);
+        return Math.Min(lengthFromSave, _instance._medalShopsRegistry.Count);
     }
 
     // This overwrites the initializations of the avaliablebadgepool so they all start with their starting stock before
     // the save overwrites the data it has.
     private static void InitializeAvailableBadgePoolFromLoad(MainManager instance)
     {
-        int amountFromRegistry = _instance._medalShopsRegistry.LeavesByGameIds.Count;
+        int amountFromRegistry = _instance._medalShopsRegistry.Count;
         instance.avaliablebadgepool = new List<int>[amountFromRegistry];
         for (int i = 0; i < amountFromRegistry; i++)
         {
             instance.avaliablebadgepool[i] = new();
             instance.avaliablebadgepool[i].AddRange(
-                _instance._medalShopsRegistry.LeavesByGameIds[i].StartingMedalsStock.Select(m => m.Resolve().GameId));
+                _instance._medalShopsRegistry.GetByGameId(i).StartingMedalsStock.Select(m => m.Resolve().GameId));
         }
     }
 
@@ -164,19 +164,19 @@ internal sealed class MedalShopsTopLevelPatcher : ITopLevelPatcher
     // the save overwrites the data it has.
     private static void InitializeBadgesShopsFromLoad(MainManager instance)
     {
-        int amountFromRegistry = _instance._medalShopsRegistry.LeavesByGameIds.Count;
+        int amountFromRegistry = _instance._medalShopsRegistry.Count;
         instance.badgeshops = new List<int>[amountFromRegistry];
         for (int i = 0; i < amountFromRegistry; i++)
         {
             instance.badgeshops[i] = new();
             instance.badgeshops[i].AddRange(
-                _instance._medalShopsRegistry.LeavesByGameIds[i].StartingMedalsStock.Select(m => m.Resolve().GameId));
+                _instance._medalShopsRegistry.GetByGameId(i).StartingMedalsStock.Select(m => m.Resolve().GameId));
         }
     }
 
     private static void SetMedalShopsBoughtAllFlags(MainManager instance)
     {
-        foreach (MedalShopLeaf medalShopLeaf in _instance._medalShopsRegistry.LeavesByGameIds.Values)
+        foreach (MedalShopLeaf medalShopLeaf in _instance._medalShopsRegistry)
         {
             if (instance.badgeshops[medalShopLeaf.GameId].Count == 0)
                 instance.flags[medalShopLeaf.BoughtAllStockFlag.Resolve().GameId] = true;

@@ -29,7 +29,7 @@ internal sealed class DiscoveryOrderingTextAssetParser : IOrderingTextAssetParse
             .ToDictionary(data => data.GameId, data => data.EnemyPortraitIndex);
         for (int i = 0; i < linesData.Count; i++)
         {
-            ((IEnemyPortraitSprite)orderedRegistry.Registry.LeavesByGameIds[i]).EnemyPortraitsSpriteIndex =
+            ((IEnemyPortraitSprite)orderedRegistry.Registry.GetByGameId(i)).EnemyPortraitsSpriteIndex =
                 linesData[i];
         }
 

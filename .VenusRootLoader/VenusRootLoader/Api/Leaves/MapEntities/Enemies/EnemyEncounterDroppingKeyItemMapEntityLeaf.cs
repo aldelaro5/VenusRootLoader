@@ -61,6 +61,6 @@ public sealed class EnemyEncounterDroppingKeyItemMapEntityLeaf : EnemyEncounterM
         base.InitializeFromExisting();
         ILeavesRegistry<ItemLeaf> itemsRegistry = RegistryResolver.Resolve<ItemLeaf>();
 
-        KeyItemDroppedWhenDefeated = new(itemsRegistry.LeavesByGameIds[(int)InternalVectorData[0].Value.x]);
+        KeyItemDroppedWhenDefeated = new(itemsRegistry.GetByGameId((int)InternalVectorData[0].Value.x));
     }
 }

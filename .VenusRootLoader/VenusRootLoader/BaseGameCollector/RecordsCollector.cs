@@ -56,7 +56,7 @@ internal sealed class RecordsCollector : IBaseGameCollector
         }
 
         _recordsOrderingDataSerializer.FromTextAssetString(_recordsOrderingData, _orderedRegistry);
-        foreach (RecordLeaf leaf in _orderedRegistry.Registry.LeavesByGameIds.Values)
+        foreach (RecordLeaf leaf in _orderedRegistry.Registry)
         {
             IEnemyPortraitSprite enemyPortraitStuff = leaf;
             enemyPortraitStuff.WrappedSprite.Sprite =

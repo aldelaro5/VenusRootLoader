@@ -70,10 +70,10 @@ public sealed class DialogueTriggerZoneMapEntityLeaf : DialogueTriggerMapEntityL
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = RegistryResolver.Resolve<CommonDialogueLeaf>();
 
         if (InternalActivationFlagId > 0)
-            FlagSetToTrueWhenTriggered = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSetToTrueWhenTriggered = new(flagsRegistry.GetByGameId(InternalActivationFlagId));
 
         DialogueToProcessWhenTriggered = InternalData[0].Value < 0
-            ? commonDialoguesRegistry.LeavesByGameIds[InternalData[0].Value]
-            : Map.Resolve().DialoguesRegistry.LeavesByGameIds[InternalData[0].Value];
+            ? commonDialoguesRegistry.GetByGameId(InternalData[0].Value)
+            : Map.Resolve().DialoguesRegistry.GetByGameId(InternalData[0].Value);
     }
 }

@@ -124,7 +124,7 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
                 sb.Append(AtSymbol);
 
             PartyMemberRuntimeState battleData = _gameDataRuntimeState.PlayerData[i];
-            string animIdEffectiveId = _animIdsLeafRegistry.LeavesByGameIds[battleData.Trueid].EffectiveId;
+            string animIdEffectiveId = _animIdsLeafRegistry.GetByGameId(battleData.Trueid).EffectiveId;
 
             sb.AppendInvariant(animIdEffectiveId).Append(Comma);
             sb.AppendInvariant(battleData.Hp).Append(Comma);
@@ -141,8 +141,8 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
 
     private void AppendGeneralInformationLineStringData(StringBuilder sb)
     {
-        string areaEffectiveId = _areasLeafRegistry.LeavesByGameIds[_gameDataRuntimeState.MapAreaId].EffectiveId;
-        string mapEffectiveId = _mapsLeafRegistry.LeavesByGameIds[int.Parse(_gameDataRuntimeState.MapName)].EffectiveId;
+        string areaEffectiveId = _areasLeafRegistry.GetByGameId(_gameDataRuntimeState.MapAreaId).EffectiveId;
+        string mapEffectiveId = _mapsLeafRegistry.GetByGameId(int.Parse(_gameDataRuntimeState.MapName)).EffectiveId;
         List<bool> progressIconFlags =
         [
             _gameDataRuntimeState.Flags[41],
@@ -181,7 +181,7 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
         {
             if (i > 0)
                 sb.Append(Comma);
-            sb.AppendInvariant(_medalsLeafRegistry.LeavesByGameIds[merabShopData[i]].EffectiveId);
+            sb.AppendInvariant(_medalsLeafRegistry.GetByGameId(merabShopData[i]).EffectiveId);
         }
 
         sb.Append(AtSymbol);
@@ -191,7 +191,7 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
         {
             if (i > 0)
                 sb.Append(Comma);
-            sb.AppendInvariant(_medalsLeafRegistry.LeavesByGameIds[shadesShopData[i]].EffectiveId);
+            sb.AppendInvariant(_medalsLeafRegistry.GetByGameId(shadesShopData[i]).EffectiveId);
         }
 
         sb.Append(LineFeed);
@@ -209,7 +209,7 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
                 if (j > 0)
                     sb.Append(Comma);
                 int questGameId = _gameDataRuntimeState.BoardQuests[i][j];
-                sb.AppendInvariant(_questsLeafRegistry.LeavesByGameIds[questGameId].EffectiveId);
+                sb.AppendInvariant(_questsLeafRegistry.GetByGameId(questGameId).EffectiveId);
             }
         }
 
@@ -228,7 +228,7 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
                 if (j > 0)
                     sb.Append(Comma);
                 int itemGameId = _gameDataRuntimeState.Items[i][j];
-                sb.AppendInvariant(_itemsLeafRegistry.LeavesByGameIds[itemGameId].EffectiveId);
+                sb.AppendInvariant(_itemsLeafRegistry.GetByGameId(itemGameId).EffectiveId);
             }
         }
 
@@ -243,11 +243,11 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
                 sb.Append(AtSymbol);
 
             int medalGameId = _gameDataRuntimeState.Badges[i][0];
-            sb.AppendInvariant(_medalsLeafRegistry.LeavesByGameIds[medalGameId].EffectiveId);
+            sb.AppendInvariant(_medalsLeafRegistry.GetByGameId(medalGameId).EffectiveId);
             sb.Append(Comma);
             int medalEquipTarget = _gameDataRuntimeState.Badges[i][1];
             if (medalEquipTarget != -2)
-                sb.AppendInvariant(_animIdsLeafRegistry.LeavesByGameIds[medalEquipTarget].EffectiveId);
+                sb.AppendInvariant(_animIdsLeafRegistry.GetByGameId(medalEquipTarget).EffectiveId);
         }
 
         sb.Append(LineFeed);
@@ -261,7 +261,7 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
                 sb.Append(AtSymbol);
 
             int musicGameId = _gameDataRuntimeState.SamiraMusics[i][0];
-            sb.AppendInvariant(_musicsLeafRegistry.LeavesByGameIds[musicGameId].EffectiveId);
+            sb.AppendInvariant(_musicsLeafRegistry.GetByGameId(musicGameId).EffectiveId);
             sb.Append(Comma);
             sb.AppendInvariant(_gameDataRuntimeState.SamiraMusics[i][1]);
         }
@@ -281,7 +281,7 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
             sb.AppendInvariant(_gameDataRuntimeState.StatBonus[i][1]);
             sb.Append(Comma);
             int bonusTarget = _gameDataRuntimeState.StatBonus[i][2];
-            sb.AppendInvariant(_animIdsLeafRegistry.LeavesByGameIds[bonusTarget].EffectiveId);
+            sb.AppendInvariant(_animIdsLeafRegistry.GetByGameId(bonusTarget).EffectiveId);
         }
 
         sb.Append(LineFeed);
@@ -296,11 +296,11 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
 
             IEnumerable<Leaf> libraryPageLeaves = (MainManager.LibraryPages)i switch
             {
-                MainManager.LibraryPages.Discoveries => _discoveriesLeafRegistry.LeavesByGameIds.Values,
-                MainManager.LibraryPages.Bestiary => _enemiesLeafRegistry.LeavesByGameIds.Values,
-                MainManager.LibraryPages.Recipes => _recipeLibraryEntriesLeafRegistry.LeavesByGameIds.Values,
-                MainManager.LibraryPages.Logbook => _recordsLeafRegistry.LeavesByGameIds.Values,
-                MainManager.LibraryPages.Map => _areasLeafRegistry.LeavesByGameIds.Values,
+                MainManager.LibraryPages.Discoveries => _discoveriesLeafRegistry,
+                MainManager.LibraryPages.Bestiary => _enemiesLeafRegistry,
+                MainManager.LibraryPages.Recipes => _recipeLibraryEntriesLeafRegistry,
+                MainManager.LibraryPages.Logbook => _recordsLeafRegistry,
+                MainManager.LibraryPages.Map => _areasLeafRegistry,
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<IEnumerable<Leaf>>(
                     nameof(MainManager.LibraryPages))
             };
@@ -323,8 +323,7 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
 
     private void AppendFlagsLineStringData(StringBuilder sb)
     {
-        int baseGameAmount = _flagsLeafRegistry.LeavesByGameIds.Values
-            .Count(f => f.CreatorId == Constants.BaseGameCreatorId);
+        int baseGameAmount = _flagsLeafRegistry.CountBaseGame;
         for (int i = 0; i < baseGameAmount; i++)
         {
             if (i > 0)
@@ -337,8 +336,7 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
 
     private void AppendFlagstringsLineStringData(StringBuilder sb)
     {
-        int baseGameAmount = _flagstringsLeafRegistry.LeavesByGameIds.Values
-            .Count(f => f.CreatorId == Constants.BaseGameCreatorId);
+        int baseGameAmount = _flagstringsLeafRegistry.CountBaseGame;
         for (int i = 0; i < baseGameAmount; i++)
         {
             if (i > 0)
@@ -374,7 +372,7 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
                 sb.Append(Comma);
 
             int medalGameId = int.Parse(originalGameIds[i]);
-            string medalEffectiveId = _medalsLeafRegistry.LeavesByGameIds[medalGameId].EffectiveId;
+            string medalEffectiveId = _medalsLeafRegistry.GetByGameId(medalGameId).EffectiveId;
             sb.AppendInvariant(medalEffectiveId);
         }
 
@@ -392,7 +390,7 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
                 sb.Append(Comma);
 
             int spyCardGameId = int.Parse(originalGameIds[i]);
-            string spyCardEffectiveId = _spyCardsLeafRegistry.LeavesByGameIds[spyCardGameId].EffectiveId;
+            string spyCardEffectiveId = _spyCardsLeafRegistry.GetByGameId(spyCardGameId).EffectiveId;
             sb.AppendInvariant(spyCardEffectiveId);
         }
 
@@ -414,7 +412,7 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
                 sb.Append(Comma);
 
             int itemGameId = int.Parse(regularItemGameIds[i]);
-            string itemEffectiveId = _itemsLeafRegistry.LeavesByGameIds[itemGameId].EffectiveId;
+            string itemEffectiveId = _itemsLeafRegistry.GetByGameId(itemGameId).EffectiveId;
             sb.AppendInvariant(itemEffectiveId);
         }
 
@@ -426,7 +424,7 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
                 sb.Append(Comma);
 
             int itemGameId = int.Parse(keyItemGameIds[i]);
-            string itemEffectiveId = _itemsLeafRegistry.LeavesByGameIds[itemGameId].EffectiveId;
+            string itemEffectiveId = _itemsLeafRegistry.GetByGameId(itemGameId).EffectiveId;
             sb.AppendInvariant(itemEffectiveId);
         }
 
@@ -438,8 +436,7 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
 
     private void AppendFlagvarsLineStringData(StringBuilder sb)
     {
-        int baseGameAmount = _flagvarsLeafRegistry.LeavesByGameIds.Values
-            .Count(f => f.CreatorId == Constants.BaseGameCreatorId);
+        int baseGameAmount = _flagvarsLeafRegistry.CountBaseGame;
         for (int i = 0; i < baseGameAmount; i++)
         {
             if (i > 0)
@@ -451,7 +448,7 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
                 if (itemGameId == 0)
                     continue;
 
-                string itemEffectiveId = _itemsLeafRegistry.LeavesByGameIds[itemGameId].EffectiveId;
+                string itemEffectiveId = _itemsLeafRegistry.GetByGameId(itemGameId).EffectiveId;
                 sb.AppendInvariant(itemEffectiveId);
             }
             else
@@ -478,8 +475,7 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
 
     private void AppendCryatalBerriesLineStringData(StringBuilder sb)
     {
-        int baseGameAmount = _crystalBerriesLeafRegistry.LeavesByGameIds.Values
-            .Count(f => f.CreatorId == Constants.BaseGameCreatorId);
+        int baseGameAmount = _crystalBerriesLeafRegistry.CountBaseGame;
         for (int i = 0; i < baseGameAmount; i++)
         {
             if (i > 0)
@@ -497,7 +493,7 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
             if (i > 0)
                 sb.Append(Comma);
             int followerAnimId = _gameDataRuntimeState.ExtraFollowers[i];
-            string animIdEffectiveId = _animIdsLeafRegistry.LeavesByGameIds[followerAnimId].EffectiveId;
+            string animIdEffectiveId = _animIdsLeafRegistry.GetByGameId(followerAnimId).EffectiveId;
             sb.AppendInvariant(animIdEffectiveId);
         }
 
@@ -506,8 +502,7 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
 
     private void AppendEnemyEncountersDataLineStringData(StringBuilder sb)
     {
-        int baseGameAmount = _enemiesLeafRegistry.LeavesByGameIds.Values
-            .Count(f => f.CreatorId == Constants.BaseGameCreatorId);
+        int baseGameAmount = _enemiesLeafRegistry.CountBaseGame;
         for (int i = 0; i < 256; i++)
         {
             if (i > 0)

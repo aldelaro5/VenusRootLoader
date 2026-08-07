@@ -95,13 +95,13 @@ public sealed class MedalShopMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
         ILeavesRegistry<CommonDialogueLeaf> commonDialoguesRegistry = RegistryResolver.Resolve<CommonDialogueLeaf>();
 
         _shelvedMedalPositions.SynchronizeFromExistingData(InternalVectorData.Select(x => x.Value).ToList());
-        AssociatedMedalShop = new(medalShopsRegistry.LeavesByGameIds[(int)InternalDialogues[9].Value.x]);
+        AssociatedMedalShop = new(medalShopsRegistry.GetByGameId((int)InternalDialogues[9].Value.x));
 
         DialogueWhenInteractingWithShopKeeper = (int)InternalDialogues[0].Value.y < 0
-            ? commonDialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[0].Value.y]
-            : Map.Resolve().DialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[0].Value.y];
+            ? commonDialoguesRegistry.GetByGameId((int)InternalDialogues[0].Value.y)
+            : Map.Resolve().DialoguesRegistry.GetByGameId((int)InternalDialogues[0].Value.y);
         DialogueWhenInteractingWithShelvedMedal = (int)InternalDialogues[6].Value.y < 0
-            ? commonDialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[6].Value.y]
-            : Map.Resolve().DialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[6].Value.y];
+            ? commonDialoguesRegistry.GetByGameId((int)InternalDialogues[6].Value.y)
+            : Map.Resolve().DialoguesRegistry.GetByGameId((int)InternalDialogues[6].Value.y);
     }
 }

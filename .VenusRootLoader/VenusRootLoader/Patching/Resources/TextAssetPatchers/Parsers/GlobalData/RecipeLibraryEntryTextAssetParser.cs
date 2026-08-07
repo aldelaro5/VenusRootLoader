@@ -69,7 +69,7 @@ internal sealed class RecipeLibraryEntryTextAssetParser : ITextAssetParser<Recip
             // We assume this will be read first so we need to have a blank leaf to receive the other TextAsset info
             // before we can fully resolve it.
             leaf.Recipe = new(new(-1, "", ""));
-            leaf.Recipe.Resolve().ResultItem = new(_itemsRegistry.LeavesByGameIds[int.Parse(text)]);
+            leaf.Recipe.Resolve().ResultItem = new(_itemsRegistry.GetByGameId(int.Parse(text)));
             return;
         }
 
@@ -93,11 +93,11 @@ internal sealed class RecipeLibraryEntryTextAssetParser : ITextAssetParser<Recip
             return;
         }
 
-        leaf.Recipe.Resolve().FirstItem = new(_itemsRegistry.LeavesByGameIds[firstItem]);
+        leaf.Recipe.Resolve().FirstItem = new(_itemsRegistry.GetByGameId(firstItem));
         if (fields.Length > 1)
-            leaf.Recipe.Resolve().SecondItem = new(_itemsRegistry.LeavesByGameIds[int.Parse(fields[1])]);
+            leaf.Recipe.Resolve().SecondItem = new(_itemsRegistry.GetByGameId(int.Parse(fields[1])));
 
-        RecipeLeaf foundRecipe = _recipesRegistry.LeavesByEffectiveIds.Values
+        RecipeLeaf foundRecipe = _recipesRegistry
             .First(r => r.ResultItem == leaf.Recipe.Resolve().ResultItem &&
                         ((r.FirstItem == leaf.Recipe.Resolve().FirstItem &&
                           r.SecondItem == leaf.Recipe.Resolve().SecondItem) ||

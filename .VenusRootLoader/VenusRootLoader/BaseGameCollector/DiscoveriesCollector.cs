@@ -56,7 +56,7 @@ internal sealed class DiscoveriesCollector : IBaseGameCollector
         }
 
         _discoveriesOrderingDataSerializer.FromTextAssetString(_discoveriesOrderingData, _orderedRegistry);
-        foreach (DiscoveryLeaf leaf in _orderedRegistry.Registry.LeavesByGameIds.Values)
+        foreach (DiscoveryLeaf leaf in _orderedRegistry.Registry)
         {
             IEnemyPortraitSprite enemyPortraitSprite = leaf;
             enemyPortraitSprite.WrappedSprite.Sprite =

@@ -52,7 +52,7 @@ public abstract class ActivatorZoneMapEntityLeaf : ObjectMapEntityLeaf
         if (InternalActivationFlagId > 0)
         {
             ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
-            FlagSetToTrueWhenTriggered = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSetToTrueWhenTriggered = new(flagsRegistry.GetByGameId(InternalActivationFlagId));
         }
     }
 }

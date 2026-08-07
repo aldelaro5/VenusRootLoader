@@ -194,7 +194,7 @@ internal sealed class BudsSaveDataDeserializer : IBudsSaveDataDeserializer
         List<int> availableBadgePoolGameIds = new();
         foreach (string medalEffectiveId in data.AvailablePool)
         {
-            if (!_medalsLeafRegistry.LeavesByEffectiveIds.TryGetValue(medalEffectiveId, out MedalLeaf medalLeaf))
+            if (!_medalsLeafRegistry.TryGetByEffectiveId(medalEffectiveId, out MedalLeaf? medalLeaf))
             {
                 (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(medalEffectiveId);
                 _logger.LogWarning(
@@ -213,7 +213,7 @@ internal sealed class BudsSaveDataDeserializer : IBudsSaveDataDeserializer
         List<int> shopStockGameIds = new();
         foreach (string medalEffectiveId in data.ShopStock)
         {
-            if (!_medalsLeafRegistry.LeavesByEffectiveIds.TryGetValue(medalEffectiveId, out MedalLeaf medalLeaf))
+            if (!_medalsLeafRegistry.TryGetByEffectiveId(medalEffectiveId, out MedalLeaf? medalLeaf))
             {
                 (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(medalEffectiveId);
                 _logger.LogWarning(
@@ -245,9 +245,7 @@ internal sealed class BudsSaveDataDeserializer : IBudsSaveDataDeserializer
         Dictionary<int, TSaveData> dataByGameIds = new();
         foreach (KeyValuePair<string, TSaveData> data in dataByNamedIds)
         {
-            if (!leavesRegistry.LeavesByEffectiveIds.TryGetValue(
-                    data.Key,
-                    out TLeaf leaf))
+            if (!leavesRegistry.TryGetByEffectiveId(data.Key, out TLeaf? leaf))
             {
                 (string CreatorId, string NamedId) idParts = EffectiveLeafId.SplitParts(data.Key);
                 _logger.LogWarning(
@@ -262,11 +260,10 @@ internal sealed class BudsSaveDataDeserializer : IBudsSaveDataDeserializer
             dataByGameIds.Add(leaf.GameId, data.Value);
         }
 
-        int baseGameAmount = leavesRegistry.LeavesByEffectiveIds.Values
-            .Count(x => x.CreatorId == Constants.BaseGameCreatorId);
-        for (int i = baseGameAmount; i < leavesRegistry.LeavesByGameIds.Values.Count; i++)
+        int baseGameAmount = leavesRegistry.CountBaseGame;
+        for (int i = baseGameAmount; i < leavesRegistry.Count; i++)
         {
-            TLeaf leaf = leavesRegistry.LeavesByGameIds[i];
+            TLeaf leaf = leavesRegistry.GetByGameId(i);
             if (!dataByGameIds.TryGetValue(i, out TSaveData data))
             {
                 _logger.LogWarning(

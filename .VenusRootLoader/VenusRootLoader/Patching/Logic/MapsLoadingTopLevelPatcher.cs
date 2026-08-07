@@ -67,7 +67,7 @@ internal sealed class MapsLoadingTopLevelPatcher : ITopLevelPatcher
     {
         int mapEffectiveIdStart = resourcesPath.LastIndexOf('/') + 1;
         string mapEffectiveId = resourcesPath[mapEffectiveIdStart..];
-        MapLeaf map = _instance._mapsRegistry.LeavesByEffectiveIds[mapEffectiveId];
+        MapLeaf map = _instance._mapsRegistry.GetByEffectiveId(mapEffectiveId);
         GameObject mapPrefab = map.PrefabLoader.LoadAsset();
         // It is normally -1, but if it's not, it would mean that the loader already created the prefab in the Main scene
         // so we don't need to instantiate it.
@@ -148,9 +148,7 @@ internal sealed class MapsLoadingTopLevelPatcher : ITopLevelPatcher
         mapControl.fadingspeed = map.FadingSpeedWhenEnteringOrExitingAnInside;
 
         mapControl.tattleid = map.SpyDialogue.Resolve() is MapDialogueLeaf
-            ? map.DialoguesRegistry.LeavesByEffectiveIds[EffectiveLeafId.CreateFromParts(
-                map.SpyDialogue.CreatorId,
-                map.SpyDialogue.NamedId)].GameId
+            ? map.DialoguesRegistry.Get(map.SpyDialogue.CreatorId, map.SpyDialogue.NamedId).GameId
             : map.SpyDialogue.Resolve().GameId;
 
         mapControl.canfollowID = map.FollowerAnimIdsAllowed

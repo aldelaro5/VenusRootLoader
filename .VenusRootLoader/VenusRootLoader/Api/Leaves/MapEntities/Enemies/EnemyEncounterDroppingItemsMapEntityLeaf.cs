@@ -40,10 +40,10 @@ public sealed class EnemyEncounterDroppingItemsMapEntityLeaf : EnemyEncounterMap
         _itemsDropPoolWhenDefeated.SynchronizeFromExistingData(
             InternalVectorData.Select(itemDrop => new EnemyItemDrop
             {
-                Item = itemsRegistry.LeavesByGameIds[(int)itemDrop.Value.x],
+                Item = itemsRegistry.GetByGameId((int)itemDrop.Value.x),
                 RequiredFlag = itemDrop.Value.y switch
                 {
-                    >= 0f => new(flagsRegistry.LeavesByGameIds[(int)itemDrop.Value.y]),
+                    >= 0f => new(flagsRegistry.GetByGameId((int)itemDrop.Value.y)),
                     _ => null
                 }
             }).ToList());

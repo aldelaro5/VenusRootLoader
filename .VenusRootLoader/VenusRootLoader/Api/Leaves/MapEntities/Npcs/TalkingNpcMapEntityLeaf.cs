@@ -48,10 +48,10 @@ public sealed class TalkingNpcMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
                 {
                     RequiredFlag = dialogue.Value.x < 0
                         ? null
-                        : new(flagsRegistry.LeavesByGameIds[(int)dialogue.Value.x]),
+                        : new(flagsRegistry.GetByGameId((int)dialogue.Value.x)),
                     Dialogue = (int)dialogue.Value.y < 0
-                        ? commonDialoguesRegistry.LeavesByGameIds[(int)dialogue.Value.y]
-                        : Map.Resolve().DialoguesRegistry.LeavesByGameIds[(int)dialogue.Value.y],
+                        ? commonDialoguesRegistry.GetByGameId((int)dialogue.Value.y)
+                        : Map.Resolve().DialoguesRegistry.GetByGameId((int)dialogue.Value.y),
                     DefaultIdleAnimstateWhenSelected = (int)dialogue.Value.z
                 })
                 .ToList());

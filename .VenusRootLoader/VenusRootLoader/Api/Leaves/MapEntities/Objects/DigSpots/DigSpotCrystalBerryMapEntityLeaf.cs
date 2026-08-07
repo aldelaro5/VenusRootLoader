@@ -69,6 +69,6 @@ public sealed class DigSpotCrystalBerryMapEntityLeaf : DigSpotMapEntityLeaf
     {
         base.InitializeFromExisting();
         ILeavesRegistry<CrystalBerryLeaf> crystalBerriesRegistry = RegistryResolver.Resolve<CrystalBerryLeaf>();
-        CrystalBerryHiddenInside = new(crystalBerriesRegistry.LeavesByGameIds[InternalData[1].Value]);
+        CrystalBerryHiddenInside = new(crystalBerriesRegistry.GetByGameId(InternalData[1].Value));
     }
 }

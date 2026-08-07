@@ -67,6 +67,6 @@ public sealed class RemoteActivatorZoneMapEntityLeaf : ActivatorZoneMapEntityLea
         base.InitializeFromExisting();
         MapEntityWhoseActivationIsControlledByThis =
             (Branch<ObjectMapEntityLeaf>)Map.Resolve().EntitiesRegistry
-                .LeavesByGameIds[Math.Abs(InternalData[0].Value)]!;
+                .GetByGameId(Math.Abs(InternalData[0].Value))!;
     }
 }

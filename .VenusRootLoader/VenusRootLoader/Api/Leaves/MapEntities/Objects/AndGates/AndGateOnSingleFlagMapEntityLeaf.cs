@@ -34,7 +34,7 @@ public sealed class AndGateOnSingleFlagMapEntityLeaf : AndGateMapEntityLeaf
         ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
         FlagInput = new()
         {
-            Flag = new(flagsRegistry.LeavesByGameIds[Math.Abs(InternalActivationFlagId)]),
+            Flag = new(flagsRegistry.GetByGameId(Math.Abs(InternalActivationFlagId))),
             IsValueNegated = InternalActivationFlagId < 0
         };
     }

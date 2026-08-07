@@ -66,7 +66,7 @@ internal sealed class LocalizedTextAssetPatcher<TLeaf> : ILocalizedTextAssetPatc
     {
         string assetName = subpath[(subpath.LastIndexOf('/') + 1)..];
         IEnumerable<TLeaf> sortedLeaves = _leavesSorter is null
-            ? _registry.LeavesByGameIds.Values.OrderBy(l => l.GameId)
+            ? _registry.OrderBy(l => l.GameId)
             : _leavesSorter(_registry);
         IEnumerable<string> newLines = sortedLeaves
             .Select(customLine => _parser.GetTextAssetSerializedString(assetName, languageId, customLine));

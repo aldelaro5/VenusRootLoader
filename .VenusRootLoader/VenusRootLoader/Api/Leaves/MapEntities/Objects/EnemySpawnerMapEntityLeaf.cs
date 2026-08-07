@@ -58,6 +58,6 @@ public sealed class EnemySpawnerMapEntityLeaf : ObjectMapEntityLeaf
     internal override void InitializeFromExisting()
     {
         EnemyToRespawn =
-            (Branch<EnemyEncounterMapEntityLeaf>)Map.Resolve().EntitiesRegistry.LeavesByGameIds[InternalData[0].Value]!;
+            (Branch<EnemyEncounterMapEntityLeaf>)Map.Resolve().EntitiesRegistry.GetByGameId(InternalData[0].Value)!;
     }
 }

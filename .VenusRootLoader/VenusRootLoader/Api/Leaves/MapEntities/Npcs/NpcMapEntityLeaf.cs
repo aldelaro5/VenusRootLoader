@@ -104,7 +104,7 @@ public abstract class NpcMapEntityLeaf : MapEntityLeaf
         BehaviorSystem.InitializeBehaviorFromExisting();
 
         AnimId = InternalAnimIdOrItemId >= 0
-            ? new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId])
+            ? new(animIdsRegistry.GetByGameId(InternalAnimIdOrItemId))
             : null;
 
         _conditionalEmoticons.SynchronizeFromExistingData(
@@ -113,7 +113,7 @@ public abstract class NpcMapEntityLeaf : MapEntityLeaf
                 .Select(emoticon => new NpcConditionalEmoticon
                 {
                     RequiredFlag = (int)emoticon.Value.x >= 0
-                        ? new(flagsRegistry.LeavesByGameIds[(int)emoticon.Value.x])
+                        ? new(flagsRegistry.GetByGameId((int)emoticon.Value.x))
                         : null,
                     Emoticon = (NpcEmoticon)(int)emoticon.Value.y,
                 })

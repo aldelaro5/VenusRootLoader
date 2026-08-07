@@ -37,6 +37,6 @@ public abstract class CollectibleMapEntityLeaf : ObjectMapEntityLeaf
         ILeavesRegistry<EventLeaf> eventsRegistry = RegistryResolver.Resolve<EventLeaf>();
 
         if (InternalData[1].Value > -1)
-            EventToStartWhenCollected = new(eventsRegistry.LeavesByGameIds[InternalData[1].Value]);
+            EventToStartWhenCollected = new(eventsRegistry.GetByGameId(InternalData[1].Value));
     }
 }

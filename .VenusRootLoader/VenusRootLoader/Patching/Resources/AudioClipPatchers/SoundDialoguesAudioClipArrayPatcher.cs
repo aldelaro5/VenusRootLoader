@@ -35,15 +35,15 @@ internal sealed class SoundDialoguesAudioClipArrayPatcher : IAudioClipArrayPatch
             }
 
             int gameId = int.Parse(originalAudioClip.name.Replace("Dialogue", string.Empty));
-            AudioClip bleepSound = _dialogueBleepsRegistry.LeavesByGameIds[gameId].BleepSound;
+            AudioClip bleepSound = _dialogueBleepsRegistry.GetByGameId(gameId).BleepSound;
             // This is important because the game may use the name to discover what bleep the AudioClip is playing.
             bleepSound.name = $"Dialogue{gameId}";
             audioClips.Add(bleepSound);
         }
 
-        for (int i = original.Length - amountSkipped; i < _dialogueBleepsRegistry.LeavesByGameIds.Count; i++)
+        for (int i = original.Length - amountSkipped; i < _dialogueBleepsRegistry.Count; i++)
         {
-            AudioClip bleepSound = _dialogueBleepsRegistry.LeavesByGameIds[i].BleepSound;
+            AudioClip bleepSound = _dialogueBleepsRegistry.GetByGameId(i).BleepSound;
             // This is important because the game may use the name to discover what bleep the AudioClip is playing.
             bleepSound.name = $"Dialogue{i}";
             audioClips.Add(bleepSound);

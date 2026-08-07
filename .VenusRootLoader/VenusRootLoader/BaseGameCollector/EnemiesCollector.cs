@@ -108,7 +108,7 @@ internal sealed class EnemiesCollector : IBaseGameCollector
         int[] specialList =
             _assemblyCSharpDataCollector.ReadIntArrayFromPrivateImplementationDetailField(specialListField);
 
-        IEnumerable<int> enemyIdsExcludedFromBestiary = _orderedRegistry.Registry.LeavesByGameIds.Keys
+        IEnumerable<int> enemyIdsExcludedFromBestiary = Enumerable.Range(0, _orderedRegistry.Registry.Count)
             .Except(_orderedRegistry.BaseGameIdsToOrderingIndex.Keys);
 
         // The MenderBot is hardcoded in the game to be excluded.
@@ -130,7 +130,7 @@ internal sealed class EnemiesCollector : IBaseGameCollector
 
         for (int i = 0; i < _enemyNamedIds.Length; i++)
         {
-            EnemyLeaf enemyLeaf = _orderedRegistry.Registry.LeavesByGameIds[i];
+            EnemyLeaf enemyLeaf = _orderedRegistry.Registry.GetByGameId(i);
             _enemyTextAssetParser.FromTextAssetSerializedString(
                 TextAssetPaths.DataEnemiesPath,
                 _enemiesData[i],
@@ -151,7 +151,7 @@ internal sealed class EnemiesCollector : IBaseGameCollector
                 enemyLeaf.IsRareSpyData = true;
         }
 
-        foreach (EnemyLeaf leaf in _orderedRegistry.Registry.LeavesByGameIds.Values)
+        foreach (EnemyLeaf leaf in _orderedRegistry.Registry)
         {
             IEnemyPortraitSprite enemyPortraitSprite = leaf;
             // Enemies' EnemyPortraits sprites indexes are special because any negativew numbers means that the index is

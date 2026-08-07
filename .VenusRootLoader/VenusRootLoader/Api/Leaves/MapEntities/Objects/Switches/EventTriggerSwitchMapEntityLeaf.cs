@@ -48,8 +48,8 @@ public sealed class EventTriggerSwitchMapEntityLeaf : SwitchMapEntityLeaf
         ILeavesRegistry<EventLeaf> eventsRegistry = RegistryResolver.Resolve<EventLeaf>();
         ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
 
-        EventToStartWhenToggled = new(eventsRegistry.LeavesByGameIds[InternalData[1].Value]);
+        EventToStartWhenToggled = new(eventsRegistry.GetByGameId(InternalData[1].Value));
         if (InternalActivationFlagId > 0)
-            FlagActivationOverrideOnMapLoad = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagActivationOverrideOnMapLoad = new(flagsRegistry.GetByGameId(InternalActivationFlagId));
     }
 }

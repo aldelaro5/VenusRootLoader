@@ -23,9 +23,9 @@ internal sealed class RecipeTextAssetParser : ITextAssetParser<RecipeLeaf>
     public void FromTextAssetSerializedString(string subPath, string text, RecipeLeaf leaf)
     {
         string[] fields = text.Split(StringUtils.CommaSplitDelimiter);
-        leaf.FirstItem = new(_itemsRegistry.LeavesByGameIds[int.Parse(fields[0])]);
+        leaf.FirstItem = new(_itemsRegistry.GetByGameId(int.Parse(fields[0])));
         int secondItem = int.Parse(fields[1]);
-        leaf.SecondItem = secondItem == -1 ? null : new(_itemsRegistry.LeavesByGameIds[secondItem]);
-        leaf.ResultItem = new(_itemsRegistry.LeavesByGameIds[int.Parse(fields[2])]);
+        leaf.SecondItem = secondItem == -1 ? null : new(_itemsRegistry.GetByGameId(secondItem));
+        leaf.ResultItem = new(_itemsRegistry.GetByGameId(int.Parse(fields[2])));
     }
 }

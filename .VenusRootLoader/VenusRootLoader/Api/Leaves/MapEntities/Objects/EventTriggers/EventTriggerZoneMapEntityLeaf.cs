@@ -64,9 +64,9 @@ public sealed class EventTriggerZoneMapEntityLeaf : EventTriggerMapEntityLeaf
 
         ILeavesRegistry<EventLeaf> eventsRegistry = RegistryResolver.Resolve<EventLeaf>();
         ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
-        EventToStartWhenTriggered = new(eventsRegistry.LeavesByGameIds[InternalData[0].Value]);
+        EventToStartWhenTriggered = new(eventsRegistry.GetByGameId(InternalData[0].Value));
 
         if (InternalActivationFlagId > 0)
-            FlagSetToTrueWhenTriggered = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSetToTrueWhenTriggered = new(flagsRegistry.GetByGameId(InternalActivationFlagId));
     }
 }

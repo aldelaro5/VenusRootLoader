@@ -161,9 +161,9 @@ public sealed class LoadingZoneMapEntityLeaf : ObjectMapEntityLeaf
 
         ILeavesRegistry<MapLeaf> mapsRegistry = RegistryResolver.Resolve<MapLeaf>();
         ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
-        DestinationMap = new(mapsRegistry.LeavesByGameIds[InternalData[0].Value]);
+        DestinationMap = new(mapsRegistry.GetByGameId(InternalData[0].Value));
 
         if (InternalActivationFlagId > 0)
-            FlagSetToTrueWhenTriggering = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSetToTrueWhenTriggering = new(flagsRegistry.GetByGameId(InternalActivationFlagId));
     }
 }

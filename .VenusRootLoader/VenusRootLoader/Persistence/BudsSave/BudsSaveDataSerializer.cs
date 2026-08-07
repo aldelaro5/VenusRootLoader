@@ -121,10 +121,10 @@ internal sealed class BudsSaveDataSerializer : IBudsSaveDataSerializer
                 medalShopLeaf => new MedalShopLeafSaveData
                 {
                     AvailablePool = _gameDataRuntimeState.AvailableBadgePool[medalShopLeaf.GameId]
-                        .Select(medalGameId => _medalsLeafRegistry.LeavesByGameIds[medalGameId].EffectiveId)
+                        .Select(medalGameId => _medalsLeafRegistry.GetByGameId(medalGameId).EffectiveId)
                         .ToList(),
                     ShopStock = _gameDataRuntimeState.BadgeShops[medalShopLeaf.GameId]
-                        .Select(medalGameId => _medalsLeafRegistry.LeavesByGameIds[medalGameId].EffectiveId)
+                        .Select(medalGameId => _medalsLeafRegistry.GetByGameId(medalGameId).EffectiveId)
                         .ToList()
                 }),
             DiscoveryUnlocks = discoveryLeaves.ToDictionary(
@@ -176,7 +176,7 @@ internal sealed class BudsSaveDataSerializer : IBudsSaveDataSerializer
     private static Dictionary<string, List<TLeaf>> GetLeavesByCreatorIds<TLeaf>(ILeavesRegistry<TLeaf> leavesRegistry)
         where TLeaf : Leaf
     {
-        return leavesRegistry.LeavesByGameIds.Values
+        return leavesRegistry
             .Where(x => x.CreatorId != Constants.BaseGameCreatorId)
             .GroupBy(x => x.CreatorId)
             .ToDictionary(g => g.Key, g => g.ToList());

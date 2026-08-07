@@ -27,7 +27,7 @@ internal sealed class MusicAudioClipPatcher : IAudioClipPatcher
         string clipName = path
             .Replace(TextAssetPaths.AudioMusicDirectory, string.Empty)
             .Replace("/", string.Empty);
-        AudioClip music = _musicRegistry.LeavesByEffectiveIds[clipName].Music;
+        AudioClip music = _musicRegistry.GetByEffectiveId(clipName).Music;
 
         // This is important because the game may use the name to discover what musicc the AudioClip is playing.
         music.name = clipName;

@@ -94,8 +94,8 @@ public sealed class CollectibleItemMapEntityLeaf : CollectibleMapEntityLeaf
         ILeavesRegistry<ItemLeaf> itemsRegistry = RegistryResolver.Resolve<ItemLeaf>();
         ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
 
-        Item = new(itemsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
+        Item = new(itemsRegistry.GetByGameId(InternalAnimIdOrItemId));
         if (InternalActivationFlagId > 0)
-            FlagSetToTrueWhenCollecting = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSetToTrueWhenCollecting = new(flagsRegistry.GetByGameId(InternalActivationFlagId));
     }
 }

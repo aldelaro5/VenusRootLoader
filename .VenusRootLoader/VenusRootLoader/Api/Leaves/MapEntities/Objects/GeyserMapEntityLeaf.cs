@@ -94,8 +94,8 @@ public sealed class GeyserMapEntityLeaf : ObjectMapEntityLeaf
 
         if (InternalData[1].Value != -1)
         {
-            MapEntityActivationRequiredToBeActive =
-                (Branch<ObjectMapEntityLeaf>?)Map.Resolve().EntitiesRegistry.LeavesByGameIds[InternalData[1].Value]!;
+            MapEntityActivationRequiredToBeActive = new(
+                (ObjectMapEntityLeaf)Map.Resolve().EntitiesRegistry.GetByGameId(InternalData[1].Value));
         }
     }
 }

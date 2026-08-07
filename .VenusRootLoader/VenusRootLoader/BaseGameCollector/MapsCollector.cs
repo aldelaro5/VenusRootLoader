@@ -188,7 +188,7 @@ internal sealed class MapsCollector : IBaseGameCollector
                 _mapEntityTextAssetParser.FromTextAssetSerializedString(
                     mapLeaf,
                     baseGameId,
-                    mapLeaf.EntitiesRegistry.LeavesByGameIds.Count,
+                    mapLeaf.EntitiesRegistry.Count,
                     mapEntityName,
                     mapEntityText);
             }
@@ -217,7 +217,7 @@ internal sealed class MapsCollector : IBaseGameCollector
             {
                 for (int k = 0; k < _mapsDialogues[mapLeaf.NamedId][j].Length; k++)
                 {
-                    MapDialogueLeaf mapDialogueLeaf = mapLeaf.DialoguesRegistry.LeavesByGameIds[k];
+                    MapDialogueLeaf mapDialogueLeaf = mapLeaf.DialoguesRegistry.GetByGameId(k);
                     mapDialogueLeaf.LocalizedText[j] = _mapsDialogues[mapLeaf.NamedId][j][k];
                 }
             }
@@ -227,9 +227,9 @@ internal sealed class MapsCollector : IBaseGameCollector
         // might need to synchronize itself with the data we just filled. This only needs to be done once per map entity
         // because we just filled them from external data, but any further modification should get synchronized immediately.
         // It also needs to be done after every map have been added so references across them works as expected.
-        foreach (MapLeaf mapLeaf in _mapsRegistry.LeavesByGameIds.Values)
+        foreach (MapLeaf mapLeaf in _mapsRegistry)
         {
-            foreach (MapEntityLeaf mapEntity in mapLeaf.EntitiesRegistry.LeavesByGameIds.Values)
+            foreach (MapEntityLeaf mapEntity in mapLeaf.EntitiesRegistry)
             {
                 // Fixes a base game issue where this entity has invalid, but normally inaccessible dialogues data
                 if (mapLeaf.NamedId == nameof(MainManager.Maps.BugariaEndThrone) && mapEntity.GameId == 16)
@@ -285,7 +285,7 @@ internal sealed class MapsCollector : IBaseGameCollector
     {
         int areaGameId = mapControlBaseField[nameof(MapControl.areaid)].AsInt;
 
-        mapLeaf.Area = _areasRegistry.LeavesByGameIds[areaGameId];
+        mapLeaf.Area = _areasRegistry.GetByGameId(areaGameId);
 
         mapLeaf.DefaultCameraPositionOffsetFromTargetOverride =
             ExtractVector3FromAssetValueField(mapControlBaseField[nameof(MapControl.camoffset)]);
@@ -352,7 +352,7 @@ internal sealed class MapsCollector : IBaseGameCollector
             }
 
             string audioClipName = audioClipBaseField["m_Name"].AsString;
-            MusicLeaf musicLeaf = _musicsRegistry.LeavesByEffectiveIds[audioClipName];
+            MusicLeaf musicLeaf = _musicsRegistry.GetByEffectiveId(audioClipName);
             MapMusic mapMusic = mapLeaf.AddMusicToMap(musicLeaf);
             orderedMapMusics.Add(mapMusic);
         }
@@ -369,7 +369,7 @@ internal sealed class MapsCollector : IBaseGameCollector
         {
             Vector2Int musicFlagValue = ExtractVector2IntFromAssetValueField(musicFlagValueField);
             FlagLeaf? flagLeaf = musicFlagValue.x >= 0
-                ? _flagsRegistry.LeavesByGameIds[musicFlagValue.x]
+                ? _flagsRegistry.GetByGameId(musicFlagValue.x)
                 : null;
             MapMusic mapMusic = orderedMapMusics[musicFlagValue.y];
             mapLeaf.MusicSelectionConditions.Add(
@@ -431,14 +431,14 @@ internal sealed class MapsCollector : IBaseGameCollector
 
         int dialogueGameId = mapControlBaseField[nameof(MapControl.tattleid)].AsInt;
         DialogueLeaf spyDialogue = dialogueGameId < 0
-            ? _commonDialoguesRegistry.LeavesByGameIds[dialogueGameId]
-            : mapLeaf.DialoguesRegistry.LeavesByGameIds[dialogueGameId];
+            ? _commonDialoguesRegistry.GetByGameId(dialogueGameId)
+            : mapLeaf.DialoguesRegistry.GetByGameId(dialogueGameId);
         mapLeaf.SpyDialogue = spyDialogue;
 
         AssetTypeValueField canFollowIdsArray = mapControlBaseField[nameof(MapControl.canfollowID)][nameof(Array)];
         foreach (AssetTypeValueField followerValueField in canFollowIdsArray)
         {
-            AnimIdLeaf animIdLeaf = _animIdsRegistry.LeavesByGameIds[followerValueField.AsInt];
+            AnimIdLeaf animIdLeaf = _animIdsRegistry.GetByGameId(followerValueField.AsInt);
             mapLeaf.FollowerAnimIdsAllowed.Add(animIdLeaf);
         }
 
@@ -468,21 +468,21 @@ internal sealed class MapsCollector : IBaseGameCollector
         AssetTypeValueField discoveryIdsArray = mapControlBaseField[nameof(MapControl.discoveryids)][nameof(Array)];
         foreach (AssetTypeValueField discoveryValueField in discoveryIdsArray)
         {
-            DiscoveryLeaf discoveryLeaf = _discoveriesRegistry.LeavesByGameIds[discoveryValueField.AsInt];
+            DiscoveryLeaf discoveryLeaf = _discoveriesRegistry.GetByGameId(discoveryValueField.AsInt);
             mapLeaf.DetectableDiscoveriesByDetectorMedal.Add(discoveryLeaf);
         }
 
         int readFromOtherMapGameId = mapControlBaseField[nameof(MapControl.readdatafromothermap)].AsInt;
         if (readFromOtherMapGameId > 0)
-            mapLeaf.MapWhoProvidesEntitiesAndDialogues = _mapsRegistry.LeavesByGameIds[readFromOtherMapGameId];
+            mapLeaf.MapWhoProvidesEntitiesAndDialogues = _mapsRegistry.GetByGameId(readFromOtherMapGameId);
         mapLeaf.DisallowAntCompassUsage = mapControlBaseField[nameof(MapControl.cantcompass)].AsBool;
 
         AssetTypeValueField autoEventsArray = mapControlBaseField[nameof(MapControl.autoevent)][nameof(Array)];
         foreach (AssetTypeValueField autoEventValueField in autoEventsArray)
         {
             Vector2 autoEvent = ExtractVector2FromAssetValueField(autoEventValueField);
-            FlagLeaf flagLeaf = _flagsRegistry.LeavesByGameIds[(int)autoEvent.x];
-            EventLeaf eventLeaf = _eventsRegistry.LeavesByGameIds[(int)autoEvent.y];
+            FlagLeaf flagLeaf = _flagsRegistry.GetByGameId((int)autoEvent.x);
+            EventLeaf eventLeaf = _eventsRegistry.GetByGameId((int)autoEvent.y);
             mapLeaf.AutomaticallyTriggeredEventsAfterLoad.Add(
                 new()
                 {

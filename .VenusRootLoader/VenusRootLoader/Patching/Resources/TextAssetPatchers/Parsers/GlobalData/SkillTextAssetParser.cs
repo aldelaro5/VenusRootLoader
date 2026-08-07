@@ -128,7 +128,7 @@ internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
         leaf.Cost = Math.Abs(cost);
         int actionCommandHelpTextGameId = int.Parse(fields[7]);
         leaf.ActionCommandHelpText = actionCommandHelpTextGameId > -1
-            ? new(_actionCommandHelpTextsRegistry.LeavesByGameIds[actionCommandHelpTextGameId])
+            ? new(_actionCommandHelpTextsRegistry.GetByGameId(actionCommandHelpTextGameId))
             : null;
 
         // See the comment above on the GetTextAssetSerializedString for why we have to do this.

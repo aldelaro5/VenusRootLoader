@@ -90,12 +90,12 @@ public sealed class DigSpotItemMapEntityLeaf : DigSpotMapEntityLeaf
     {
         base.InitializeFromExisting();
         ILeavesRegistry<ItemLeaf> itemsRegistry = RegistryResolver.Resolve<ItemLeaf>();
-        ItemHiddenInside = new(itemsRegistry.LeavesByGameIds[InternalData[2].Value]);
+        ItemHiddenInside = new(itemsRegistry.GetByGameId(InternalData[2].Value));
 
         ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
         FlagSetToTrueWhenCollectingItem = InternalActivationFlagId switch
         {
-            > 0 => new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]),
+            > 0 => new(flagsRegistry.GetByGameId(InternalActivationFlagId)),
             _ => FlagSetToTrueWhenCollectingItem
         };
     }

@@ -61,7 +61,7 @@ public partial class Venus
         mapLeaf.PrefabLoader = new AssetLoaderFromBundle<GameObject>(assetBundle, scriptableObject.Prefab);
 
         mapLeaf.Area = RegistryResolver.Resolve<AreaLeaf>()
-            .LeavesByEffectiveIds[GetEffectiveIdFromScriptableObjectBranch(scriptableObject.Area, BudId)];
+            .GetByEffectiveId(GetEffectiveIdFromScriptableObjectBranch(scriptableObject.Area, BudId));
 
         mapLeaf.DefaultCameraPositionOffsetFromTargetOverride =
             scriptableObject.DefaultCameraPositionOffsetFromTargetOverrideHasValue
@@ -112,7 +112,7 @@ public partial class Venus
         {
             string musicId = GetEffectiveIdFromScriptableObjectBranch(music, BudId);
             Branch<MusicLeaf>? musicBranch = musicId != nameof(Musics.Silence)
-                ? RegistryResolver.Resolve<MusicLeaf>().LeavesByEffectiveIds[musicId]
+                ? RegistryResolver.Resolve<MusicLeaf>().GetByEffectiveId(musicId)
                 : (Branch<MusicLeaf>?)null;
             mapLeaf.AddMusicToMap(musicBranch);
         }
@@ -124,8 +124,8 @@ public partial class Venus
                 new()
                 {
                     RequiredFlag = musicSelectionCondition.RequiredFlagHasValue
-                        ? RegistryResolver.Resolve<FlagLeaf>().LeavesByEffectiveIds[
-                            GetEffectiveIdFromScriptableObjectBranch(musicSelectionCondition.RequiredFlag, BudId)]
+                        ? RegistryResolver.Resolve<FlagLeaf>().GetByEffectiveId(
+                            GetEffectiveIdFromScriptableObjectBranch(musicSelectionCondition.RequiredFlag, BudId))
                         : (Branch<FlagLeaf>?)null,
                     MapMusic = mapLeaf.MusicsAvailable[musicSelectionCondition.MusicIndexInMap]
                 });
@@ -149,14 +149,14 @@ public partial class Venus
         mapLeaf.FadingSpeedWhenEnteringOrExitingAnInside = scriptableObject.FadingSpeedWhenEnteringOrExitingAnInside;
 
         mapLeaf.SpyDialogue = scriptableObject.SpyDialogue.DialogueKind == MapDialogueKind.Common
-            ? RegistryResolver.Resolve<CommonDialogueLeaf>().LeavesByEffectiveIds[
-                GetEffectiveIdFromScriptableObjectBranch(scriptableObject.SpyDialogue.Dialogue, BudId)]
+            ? RegistryResolver.Resolve<CommonDialogueLeaf>().GetByEffectiveId(
+                GetEffectiveIdFromScriptableObjectBranch(scriptableObject.SpyDialogue.Dialogue, BudId))
             : CreateMapDialogueBranch(scriptableObject.SpyDialogue.Dialogue);
 
         foreach (Branch branch in scriptableObject.FollowerAnimIdsAllowed)
         {
             Branch<AnimIdLeaf> animId = RegistryResolver.Resolve<AnimIdLeaf>()
-                .LeavesByEffectiveIds[GetEffectiveIdFromScriptableObjectBranch(branch, BudId)];
+                .GetByEffectiveId(GetEffectiveIdFromScriptableObjectBranch(branch, BudId));
             mapLeaf.FollowerAnimIdsAllowed.Add(animId);
         }
 
@@ -175,15 +175,16 @@ public partial class Venus
         foreach (Branch branch in scriptableObject.DetectableDiscoveriesByDetectorMedal)
         {
             Branch<DiscoveryLeaf> discoveryLeaf = RegistryResolver.Resolve<DiscoveryLeaf>()
-                .LeavesByEffectiveIds[GetEffectiveIdFromScriptableObjectBranch(branch, BudId)];
+                .GetByEffectiveId(GetEffectiveIdFromScriptableObjectBranch(branch, BudId));
             mapLeaf.DetectableDiscoveriesByDetectorMedal.Add(discoveryLeaf);
         }
 
         mapLeaf.MapWhoProvidesEntitiesAndDialogues = scriptableObject.MapWhoProvidesEntitiesAndDialoguesHasValue
             ? RegistryResolver.Resolve<MapLeaf>()
-                .LeavesByEffectiveIds[GetEffectiveIdFromScriptableObjectBranch(
-                    scriptableObject.RedirectsEntitiesAndDialoguesToAnotherMap,
-                    BudId)]
+                .GetByEffectiveId(
+                    GetEffectiveIdFromScriptableObjectBranch(
+                        scriptableObject.RedirectsEntitiesAndDialoguesToAnotherMap,
+                        BudId))
             : (Branch<MapLeaf>?)null;
         mapLeaf.DisallowAntCompassUsage = scriptableObject.DisallowAntCompassUsage;
 
@@ -192,10 +193,10 @@ public partial class Venus
             mapLeaf.AutomaticallyTriggeredEventsAfterLoad.Add(
                 new()
                 {
-                    AlreadyTriggeredFlag = RegistryResolver.Resolve<FlagLeaf>().LeavesByEffectiveIds[
-                        GetEffectiveIdFromScriptableObjectBranch(mapAutoEvent.AlreadyTriggeredFlag, BudId)],
-                    EventToTriggerWhenFlagIsFalse = RegistryResolver.Resolve<EventLeaf>().LeavesByEffectiveIds[
-                        GetEffectiveIdFromScriptableObjectBranch(mapAutoEvent.EventToTriggerWhenFlagIsFalse, BudId)],
+                    AlreadyTriggeredFlag = RegistryResolver.Resolve<FlagLeaf>().GetByEffectiveId(
+                        GetEffectiveIdFromScriptableObjectBranch(mapAutoEvent.AlreadyTriggeredFlag, BudId)),
+                    EventToTriggerWhenFlagIsFalse = RegistryResolver.Resolve<EventLeaf>().GetByEffectiveId(
+                        GetEffectiveIdFromScriptableObjectBranch(mapAutoEvent.EventToTriggerWhenFlagIsFalse, BudId)),
                 });
         }
 

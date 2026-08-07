@@ -34,6 +34,6 @@ public sealed class AutomaticMapDialogueTriggerMapEntityLeaf : DialogueTriggerMa
     internal override void InitializeFromExisting()
     {
         MapDialogueLineIdToImmediatelyProcessOnMapLoad =
-            Map.Resolve().DialoguesRegistry.LeavesByGameIds[InternalData[0].Value];
+            Map.Resolve().DialoguesRegistry.GetByGameId(InternalData[0].Value);
     }
 }

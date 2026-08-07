@@ -88,8 +88,8 @@ public sealed class CollectibleMedalMapEntityLeaf : CollectibleMapEntityLeaf
         ILeavesRegistry<MedalLeaf> medalsRegistry = RegistryResolver.Resolve<MedalLeaf>();
         ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
 
-        Medal = new(medalsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
+        Medal = new(medalsRegistry.GetByGameId(InternalAnimIdOrItemId));
         if (InternalActivationFlagId > 0)
-            FlagSetToTrueWhenCollecting = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSetToTrueWhenCollecting = new(flagsRegistry.GetByGameId(InternalActivationFlagId));
     }
 }

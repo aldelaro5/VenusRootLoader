@@ -47,10 +47,10 @@ public sealed class CuttableGrassWithItemDropsMapEntityLeaf : CuttableGrassMapEn
             InternalVectorData
                 .Select(v => v.Value.x < 0
                     ? (Branch<ItemLeaf>?)null
-                    : new Branch<ItemLeaf>(itemsRegistry.LeavesByGameIds[(int)v.Value.x]))
+                    : new Branch<ItemLeaf>(itemsRegistry.GetByGameId((int)v.Value.x)))
                 .ToList());
 
         if (InternalActivationFlagId >= 0)
-            FlagSetToTrueWhenCutOrCollectingDroppedItem = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSetToTrueWhenCutOrCollectingDroppedItem = new(flagsRegistry.GetByGameId(InternalActivationFlagId));
     }
 }

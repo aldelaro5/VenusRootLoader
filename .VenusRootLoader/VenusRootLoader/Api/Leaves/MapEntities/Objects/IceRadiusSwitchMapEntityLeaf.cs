@@ -99,9 +99,9 @@ public sealed class IceRadiusSwitchMapEntityLeaf : ObjectMapEntityLeaf
         ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
 
         if (InternalActivationFlagId > 0)
-            FlagSwitchActivation = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSwitchActivation = new(flagsRegistry.GetByGameId(InternalActivationFlagId));
 
         if (InternalData[1].Value != -1)
-            ParentMapEntity = Map.Resolve().EntitiesRegistry.LeavesByGameIds[InternalData[1].Value];
+            ParentMapEntity = Map.Resolve().EntitiesRegistry.GetByGameId(InternalData[1].Value);
     }
 }

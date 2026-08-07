@@ -107,11 +107,11 @@ public abstract class EnemyEncounterMapEntityLeaf : MapEntityLeaf
 
         BehaviorSystem.InitializeBehaviorFromExisting();
 
-        AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
+        AnimId = new(animIdsRegistry.GetByGameId(InternalAnimIdOrItemId));
 
         _enemiesFormationInBattle.SynchronizeFromExistingData(
             InternalBattleEnemyIds
-                .Select(i => new Branch<EnemyLeaf>(enemiesRegistry.LeavesByGameIds[i.Value]))
+                .Select(i => new Branch<EnemyLeaf>(enemiesRegistry.GetByGameId(i.Value)))
                 .ToList());
     }
 }

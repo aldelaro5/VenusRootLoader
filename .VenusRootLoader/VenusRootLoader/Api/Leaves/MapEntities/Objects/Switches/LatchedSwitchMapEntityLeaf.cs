@@ -39,6 +39,6 @@ public sealed class LatchedSwitchMapEntityLeaf : SwitchMapEntityLeaf
     {
         base.InitializeFromExisting();
         ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
-        LatchHoldFlag = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+        LatchHoldFlag = new(flagsRegistry.GetByGameId(InternalActivationFlagId));
     }
 }

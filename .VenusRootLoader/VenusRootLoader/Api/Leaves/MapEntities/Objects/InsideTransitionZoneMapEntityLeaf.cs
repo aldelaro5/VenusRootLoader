@@ -118,9 +118,9 @@ public sealed class InsideTransitionZoneMapEntityLeaf : ObjectMapEntityLeaf
         ILeavesRegistry<FlagLeaf> flagsRegistry = RegistryResolver.Resolve<FlagLeaf>();
         MusicOverrideWhileInside = InternalData[1].Value == -1
             ? null
-            : new(musicRegistry.LeavesByGameIds[InternalData[1].Value]);
+            : new(musicRegistry.GetByGameId(InternalData[1].Value));
 
         if (InternalActivationFlagId > 0)
-            FlagSetToTrueWhenTriggering = new(flagsRegistry.LeavesByGameIds[InternalActivationFlagId]);
+            FlagSetToTrueWhenTriggering = new(flagsRegistry.GetByGameId(InternalActivationFlagId));
     }
 }

@@ -86,16 +86,16 @@ public sealed class ItemShopMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
                     InternalVectorData,
                     (data, vectorData) => new ItemShopShelvedItemForSale
                     {
-                        Item = itemsRegistry.LeavesByGameIds[data.Value],
+                        Item = itemsRegistry.GetByGameId(data.Value),
                         Position = vectorData.Value
                     })
                 .ToList());
 
         DialogueWhenInteractingWithShopKeeper = (int)InternalDialogues[0].Value.y < 0
-            ? commonDialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[0].Value.y]
-            : Map.Resolve().DialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[0].Value.y];
+            ? commonDialoguesRegistry.GetByGameId((int)InternalDialogues[0].Value.y)
+            : Map.Resolve().DialoguesRegistry.GetByGameId((int)InternalDialogues[0].Value.y);
         DialogueWhenInteractingWithShelvedItem = (int)InternalDialogues[6].Value.y < 0
-            ? commonDialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[6].Value.y]
-            : Map.Resolve().DialoguesRegistry.LeavesByGameIds[(int)InternalDialogues[6].Value.y];
+            ? commonDialoguesRegistry.GetByGameId((int)InternalDialogues[6].Value.y)
+            : Map.Resolve().DialoguesRegistry.GetByGameId((int)InternalDialogues[6].Value.y);
     }
 }

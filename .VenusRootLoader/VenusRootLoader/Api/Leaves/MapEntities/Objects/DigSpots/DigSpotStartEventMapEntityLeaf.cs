@@ -33,6 +33,6 @@ public sealed class DigSpotStartEventMapEntityLeaf : DigSpotMapEntityLeaf
     {
         base.InitializeFromExisting();
         ILeavesRegistry<EventLeaf> eventsRegistry = RegistryResolver.Resolve<EventLeaf>();
-        EventToStartWhenEmergingFromDigging = new(eventsRegistry.LeavesByGameIds[InternalData[1].Value]);
+        EventToStartWhenEmergingFromDigging = new(eventsRegistry.GetByGameId(InternalData[1].Value));
     }
 }

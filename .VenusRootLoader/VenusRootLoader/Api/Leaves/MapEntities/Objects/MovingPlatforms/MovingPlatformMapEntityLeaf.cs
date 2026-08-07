@@ -69,13 +69,13 @@ public abstract class MovingPlatformMapEntityLeaf : ObjectMapEntityLeaf
         }
 
         ILeavesRegistry<AnimIdLeaf> animIdsRegistry = RegistryResolver.Resolve<AnimIdLeaf>();
-        AnimId = new(animIdsRegistry.LeavesByGameIds[InternalAnimIdOrItemId]);
+        AnimId = new(animIdsRegistry.GetByGameId(InternalAnimIdOrItemId));
 
         _requiredEntityActivationsToMove.SynchronizeFromExistingData(
             InternalData
                 .Select(x =>
                     new Branch<ObjectMapEntityLeaf>(
-                        (ObjectMapEntityLeaf)Map.Resolve().EntitiesRegistry.LeavesByGameIds[x.Value]))
+                        (ObjectMapEntityLeaf)Map.Resolve().EntitiesRegistry.GetByGameId(x.Value)))
                 .ToList());
     }
 }

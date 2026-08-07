@@ -47,7 +47,7 @@ internal sealed class MedalFortuneTellerHintCollector : IBaseGameCollector
         {
             MedalFortuneTellerHintLeaf medalFortuneTellerHintLeaf =
                 _medalFortuneTellerHintsRegistry.RegisterExisting(i, i.ToString(), baseGameId);
-            medalFortuneTellerHintLeaf.MedalObtainedFlag = new(_flagsRegistry.LeavesByGameIds[flags[i]]);
+            medalFortuneTellerHintLeaf.MedalObtainedFlag = new(_flagsRegistry.GetByGameId(flags[i]));
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _localizedTextAssetParser.FromTextAssetSerializedString(

@@ -29,7 +29,7 @@ public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
             InternalData[0].Value = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public Branch<DialogueLeaf> BoardCaretakerDialogueWhenQuestIsSelected
     {
@@ -42,7 +42,7 @@ public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
             InternalData[1].Value = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public Branch<FlagLeaf>? FlagInteractWithCaretakerInsteadOfShowingQuestBoardWhenFalse
     {

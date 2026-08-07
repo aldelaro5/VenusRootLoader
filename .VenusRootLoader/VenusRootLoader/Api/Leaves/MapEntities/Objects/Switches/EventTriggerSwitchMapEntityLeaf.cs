@@ -19,7 +19,7 @@ public sealed class EventTriggerSwitchMapEntityLeaf : SwitchMapEntityLeaf
             InternalData[1].Value = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public Branch<FlagLeaf>? FlagActivationOverrideOnMapLoad
     {

@@ -24,7 +24,7 @@ public sealed class MedalShopMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
             InternalDialogues[9].Value.x = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public Branch<DialogueLeaf> DialogueWhenInteractingWithShopKeeper
     {
@@ -37,7 +37,7 @@ public sealed class MedalShopMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
             InternalDialogues[0].Value.y = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public bool OnlyAcceptsCrystalBerries
     {
@@ -56,7 +56,7 @@ public sealed class MedalShopMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
             InternalDialogues[6].Value.y = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public float? ShelvedMedalsInteractionRadius
     {

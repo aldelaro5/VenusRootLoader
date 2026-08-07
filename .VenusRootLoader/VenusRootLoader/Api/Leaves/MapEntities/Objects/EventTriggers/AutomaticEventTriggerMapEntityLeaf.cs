@@ -18,7 +18,7 @@ public sealed class AutomaticEventTriggerMapEntityLeaf : EventTriggerMapEntityLe
             InternalData[0].Value = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     [MapEntityInitializeFromNew]
     internal void InitializeFromNew(Branch<EventLeaf> eventToImmediatelyStartOnMapLoad)

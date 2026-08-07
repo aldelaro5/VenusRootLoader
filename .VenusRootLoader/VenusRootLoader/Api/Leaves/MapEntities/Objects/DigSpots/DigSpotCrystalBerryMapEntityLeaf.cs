@@ -22,7 +22,7 @@ public sealed class DigSpotCrystalBerryMapEntityLeaf : DigSpotMapEntityLeaf
             InternalData[1].Value = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public ObjectDetectorBehavior DetectorBehavior
     {

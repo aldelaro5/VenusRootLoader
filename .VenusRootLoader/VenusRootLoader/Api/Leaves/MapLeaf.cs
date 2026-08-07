@@ -19,7 +19,7 @@ public sealed class MapLeaf : Leaf
     {
     }
 
-    public Branch<AreaLeaf> Area { get; set; }
+    public Branch<AreaLeaf> Area { get; set; } = null!;
 
     public Vector3? DefaultCameraPositionOffsetFromTargetOverride
     {
@@ -77,7 +77,7 @@ public sealed class MapLeaf : Leaf
     public bool SetCameraTargetToCurrentInsideWhileInside { get; set; }
     public float FadingSpeedWhenEnteringOrExitingAnInside { get; set; } = 0.2f;
 
-    public Branch<DialogueLeaf> SpyDialogue { get; set; }
+    public Branch<DialogueLeaf> SpyDialogue { get; set; } = null!;
 
     public List<Branch<AnimIdLeaf>> FollowerAnimIdsAllowed { get; } = new();
 

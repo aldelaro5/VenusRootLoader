@@ -34,7 +34,7 @@ public sealed class RemoteActivatorZoneMapEntityLeaf : ActivatorZoneMapEntityLea
             InternalData[0].Value = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public RemoteActivatorZoneMode ActivatorMode
     {

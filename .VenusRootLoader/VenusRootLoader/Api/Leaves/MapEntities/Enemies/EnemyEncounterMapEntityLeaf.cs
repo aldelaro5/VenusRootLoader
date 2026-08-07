@@ -30,7 +30,7 @@ public abstract class EnemyEncounterMapEntityLeaf : MapEntityLeaf
             InternalAnimIdOrItemId = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public float EntityInitialAltitudeFromGround { get => InternalInitialHeight; set => InternalInitialHeight = value; }
 

@@ -22,7 +22,7 @@ public sealed class FixedAnimstateMapEntityLeaf : ObjectMapEntityLeaf
             InternalAnimIdOrItemId = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public bool HasNoCapsuleColliderAndNoGravity
     {

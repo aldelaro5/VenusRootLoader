@@ -26,7 +26,7 @@ public sealed class EventNpcMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
             InternalEventId = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     [MapEntityInitializeFromNew]
     internal void InitializeFromNew(

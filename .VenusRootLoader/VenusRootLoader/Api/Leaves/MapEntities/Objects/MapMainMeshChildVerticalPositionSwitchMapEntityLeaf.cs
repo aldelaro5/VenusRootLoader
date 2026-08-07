@@ -23,7 +23,7 @@ public sealed class MapMainMeshChildVerticalPositionSwitchMapEntityLeaf : Object
             InternalAnimIdOrItemId = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public int MapChildIndexToMove { get => InternalData[0].Value; set => InternalData[0].Value = value; }
 

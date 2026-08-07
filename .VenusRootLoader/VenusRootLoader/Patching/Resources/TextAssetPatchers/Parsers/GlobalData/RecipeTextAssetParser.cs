@@ -17,7 +17,7 @@ internal sealed class RecipeTextAssetParser : ITextAssetParser<RecipeLeaf>
     public string GetTextAssetSerializedString(string subPath, RecipeLeaf leaf)
     {
         int secondItem = leaf.SecondItem?.Resolve().GameId ?? -1;
-        return $"{leaf.FirstItem!.Value.Resolve().GameId},{secondItem},{leaf.ResultItem.Resolve().GameId}";
+        return $"{leaf.FirstItem!.Resolve().GameId},{secondItem},{leaf.ResultItem.Resolve().GameId}";
     }
 
     public void FromTextAssetSerializedString(string subPath, string text, RecipeLeaf leaf)

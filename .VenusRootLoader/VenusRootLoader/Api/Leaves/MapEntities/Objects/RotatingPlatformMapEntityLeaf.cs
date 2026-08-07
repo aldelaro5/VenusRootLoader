@@ -32,7 +32,7 @@ public sealed class RotatingPlatformMapEntityLeaf : ObjectMapEntityLeaf
             InternalAnimIdOrItemId = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     private readonly ListRefWrapper<Branch<ObjectMapEntityLeaf>, int> _requiredEntityActivationsToMove;
     public IList<Branch<ObjectMapEntityLeaf>> RequiredEntityActivationsToMove => _requiredEntityActivationsToMove;

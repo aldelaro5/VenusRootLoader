@@ -21,7 +21,7 @@ public sealed class LatchedSwitchMapEntityLeaf : SwitchMapEntityLeaf
             InternalActivationFlagId = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     [MapEntityInitializeFromNew]
     internal void InitializeFromNew(

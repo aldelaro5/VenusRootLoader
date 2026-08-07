@@ -27,7 +27,7 @@ public sealed class ItemShopMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
             InternalDialogues[0].Value.y = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public float? ItemsBuyingPriceMultiplier
     {
@@ -46,7 +46,7 @@ public sealed class ItemShopMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
             InternalDialogues[6].Value.y = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public float? ShelvedItemsInteractionRadius
     {

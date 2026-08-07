@@ -19,7 +19,7 @@ public sealed class DigSpotMedalMapEntityLeaf : DigSpotMapEntityLeaf
             InternalData[2].Value = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public Branch<FlagLeaf>? FlagSetToTrueWhenCollectingMedal
     {

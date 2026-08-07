@@ -22,7 +22,7 @@ public sealed class DigSpotItemMapEntityLeaf : DigSpotMapEntityLeaf
             InternalData[2].Value = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public bool IsHiddenItemAKeyItem
     {

@@ -124,8 +124,8 @@ internal sealed class MapsLoadingTopLevelPatcher : ITopLevelPatcher
             {
                 audioClip.name = map.MusicsAvailable[i].Music is not null
                     ? EffectiveLeafId.CreateFromParts(
-                        map.MusicsAvailable[i].Music!.Value.CreatorId,
-                        map.MusicsAvailable[i].Music!.Value.NamedId)
+                        map.MusicsAvailable[i].Music!.CreatorId,
+                        map.MusicsAvailable[i].Music!.NamedId)
                     : "";
             }
         }

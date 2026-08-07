@@ -27,7 +27,7 @@ public sealed class MusicChangeRadiusMapEntityLeaf : ObjectMapEntityLeaf
             InternalData[2].Value = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public float RangeRadius
     {

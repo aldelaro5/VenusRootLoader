@@ -22,7 +22,7 @@ public sealed class CollectibleItemMapEntityLeaf : CollectibleMapEntityLeaf
             InternalAnimIdOrItemId = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public bool IsAKeyItem
     {

@@ -44,17 +44,17 @@ internal sealed class RecipeLibraryEntryTextAssetParser : ITextAssetParser<Recip
         {
             sb.Append(
                 leaf.OriginalItemsHaveInvertedOrder
-                    ? leaf.Recipe.Resolve().SecondItem!.Value.Resolve().GameId
-                    : leaf.Recipe.Resolve().FirstItem!.Value.Resolve().GameId);
+                    ? leaf.Recipe.Resolve().SecondItem!.Resolve().GameId
+                    : leaf.Recipe.Resolve().FirstItem!.Resolve().GameId);
             sb.Append(',');
             sb.Append(
                 leaf.OriginalItemsHaveInvertedOrder
-                    ? leaf.Recipe.Resolve().FirstItem!.Value.Resolve().GameId
-                    : leaf.Recipe.Resolve().SecondItem!.Value.Resolve().GameId);
+                    ? leaf.Recipe.Resolve().FirstItem!.Resolve().GameId
+                    : leaf.Recipe.Resolve().SecondItem!.Resolve().GameId);
         }
         else
         {
-            sb.Append(leaf.Recipe.Resolve().FirstItem!.Value.Resolve().GameId);
+            sb.Append(leaf.Recipe.Resolve().FirstItem!.Resolve().GameId);
         }
 
         if (leaf.OriginalEndsWithAtSymbol)

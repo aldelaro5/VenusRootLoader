@@ -26,7 +26,7 @@ public abstract class MapEntityLeaf : Leaf
         }
     } = $"Unnamed {nameof(MapEntityLeaf)}";
 
-    public Branch<MapLeaf> Map { get; internal set; }
+    public Branch<MapLeaf> Map { get; internal set; } = null!;
 
     internal abstract NPCControl.NPCType Type { get; }
     internal abstract NPCControl.ObjectTypes ObjectType { get; }

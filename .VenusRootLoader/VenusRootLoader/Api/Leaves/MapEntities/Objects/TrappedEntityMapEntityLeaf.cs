@@ -25,7 +25,7 @@ public sealed class TrappedEntityMapEntityLeaf : ObjectMapEntityLeaf
             InternalData[0].Value = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public Branch<FlagLeaf>? FlagSetWhenEntityGetsUntrapped
     {

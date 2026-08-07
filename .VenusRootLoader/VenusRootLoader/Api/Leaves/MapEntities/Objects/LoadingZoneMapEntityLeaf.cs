@@ -14,7 +14,7 @@ public sealed class LoadingZoneMapEntityLeaf : ObjectMapEntityLeaf
 
     internal override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.DoorOtherMap;
 
-    public Branch<MapLeaf> DestinationMap { get; set; }
+    public Branch<MapLeaf> DestinationMap { get; set; } = null!;
 
     public Vector3? CameraPositionOffsetFromTargetAfterLoadOverride
     {

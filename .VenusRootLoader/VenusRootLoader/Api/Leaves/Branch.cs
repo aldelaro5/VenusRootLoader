@@ -2,7 +2,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves;
 
-public readonly record struct Branch<TLeaf> : ILeafId
+public sealed record Branch<TLeaf> : ILeafId
     where TLeaf : Leaf
 {
     public string CreatorId { get; }
@@ -28,9 +28,14 @@ public readonly record struct Branch<TLeaf> : ILeafId
 
     public override int GetHashCode() => HashCode.Combine(CreatorId, NamedId);
 
-    public bool Equals(Branch<TLeaf> other) =>
-        EqualityComparer<string>.Default.Equals(CreatorId, other.CreatorId)
-        && EqualityComparer<string>.Default.Equals(NamedId, other.NamedId);
+    public bool Equals(Branch<TLeaf>? other)
+    {
+        if (other is null)
+            return false;
+
+        return EqualityComparer<string>.Default.Equals(CreatorId, other.CreatorId)
+               && EqualityComparer<string>.Default.Equals(NamedId, other.NamedId);
+    }
 
     public static implicit operator Branch<TLeaf>(TLeaf leaf) => new(leaf);
 }

@@ -23,7 +23,7 @@ public sealed class CollectibleMedalMapEntityLeaf : CollectibleMapEntityLeaf
             InternalAnimIdOrItemId = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public Branch<FlagLeaf>? FlagSetToTrueWhenCollecting
     {

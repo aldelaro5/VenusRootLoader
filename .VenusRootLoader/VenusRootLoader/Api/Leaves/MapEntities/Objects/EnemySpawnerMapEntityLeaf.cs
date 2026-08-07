@@ -25,7 +25,7 @@ public sealed class EnemySpawnerMapEntityLeaf : ObjectMapEntityLeaf
             InternalData[0].Value = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public int FramesDelayBeforeRespawn { get => InternalData[4].Value; set => InternalData[4].Value = value; }
 

@@ -22,7 +22,7 @@ public sealed class EnemyEncounterDroppingKeyItemMapEntityLeaf : EnemyEncounterM
             InternalVectorData[0].Value.x = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public Branch<FlagLeaf> KeyItemObtainedFlag
     {

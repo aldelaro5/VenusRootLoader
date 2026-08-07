@@ -22,7 +22,7 @@ public sealed class IceRadiusSwitchMapEntityLeaf : ObjectMapEntityLeaf
             InternalAnimIdOrItemId = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public Branch<MapEntityLeaf>? ParentMapEntity
     {

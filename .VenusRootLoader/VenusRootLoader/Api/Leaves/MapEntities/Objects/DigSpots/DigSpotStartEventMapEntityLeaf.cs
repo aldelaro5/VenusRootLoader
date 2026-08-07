@@ -19,7 +19,7 @@ public sealed class DigSpotStartEventMapEntityLeaf : DigSpotMapEntityLeaf
             InternalData[1].Value = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     [MapEntityInitializeFromNew]
     internal void InitializeFromNew(Vector3 startingPosition, Branch<EventLeaf> eventToStartWhenEmergingFromDigging)

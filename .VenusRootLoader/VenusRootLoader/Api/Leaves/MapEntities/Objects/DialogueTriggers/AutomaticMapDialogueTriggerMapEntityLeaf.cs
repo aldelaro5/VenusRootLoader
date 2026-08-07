@@ -21,7 +21,7 @@ public sealed class AutomaticMapDialogueTriggerMapEntityLeaf : DialogueTriggerMa
             InternalData[0].Value = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     [MapEntityInitializeFromNew]
     internal void InitializeFromNew(Branch<MapDialogueLeaf> mapDialogueLineIdToImmediatelyProcessOnMapLoad)

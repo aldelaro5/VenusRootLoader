@@ -25,7 +25,7 @@ public abstract class MovingPlatformMapEntityLeaf : ObjectMapEntityLeaf
             InternalAnimIdOrItemId = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public float MovementSpeedMultiplier
     {

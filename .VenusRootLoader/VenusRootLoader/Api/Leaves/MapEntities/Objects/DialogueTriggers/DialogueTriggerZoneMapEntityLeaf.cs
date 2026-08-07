@@ -24,7 +24,7 @@ public sealed class DialogueTriggerZoneMapEntityLeaf : DialogueTriggerMapEntityL
             InternalData[0].Value = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public bool IsOneShotTrigger { get => InternalData[1].Value != 1; set => InternalData[1].Value = value ? 0 : 1; }
 

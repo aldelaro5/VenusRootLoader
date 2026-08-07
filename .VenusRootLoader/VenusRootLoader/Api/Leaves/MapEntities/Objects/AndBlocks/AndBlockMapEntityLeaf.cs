@@ -20,7 +20,7 @@ public abstract class AndBlockMapEntityLeaf : ObjectMapEntityLeaf
             InternalAnimIdOrItemId = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public Vector3 LocalPositionWhenActivatedAfterLerp
     {

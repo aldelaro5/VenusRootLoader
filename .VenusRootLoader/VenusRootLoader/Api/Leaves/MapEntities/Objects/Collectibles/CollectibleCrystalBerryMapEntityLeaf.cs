@@ -22,7 +22,7 @@ public sealed class CollectibleCrystalBerryMapEntityLeaf : CollectibleMapEntityL
             InternalData[3].Value = value.Resolve().GameId;
             field = value;
         }
-    }
+    } = null!;
 
     public ObjectDetectorBehavior DetectorBehavior
     {

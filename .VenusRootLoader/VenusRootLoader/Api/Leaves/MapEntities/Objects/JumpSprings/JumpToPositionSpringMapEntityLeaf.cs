@@ -16,7 +16,7 @@ public sealed class JumpToPositionSpringMapEntityLeaf : JumpSpringMapEntityLeaf
         get;
         set
         {
-            if (value is not null && value.Value.Resolve().Map != Map)
+            if (value is not null && value.Resolve().Map != Map)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(
                     nameof(InsideTransitionToTriggerWhenUsingSpring),

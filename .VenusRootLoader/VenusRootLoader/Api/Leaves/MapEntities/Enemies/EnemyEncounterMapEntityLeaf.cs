@@ -11,10 +11,10 @@ public abstract class EnemyEncounterMapEntityLeaf : MapEntityLeaf
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.None;
     internal sealed override NPCControl.Interaction Interaction => NPCControl.Interaction.None;
 
-    protected EnemyEncounterMapEntityLeaf(int gameId, string namedId, string creatorId) : base(
+    protected EnemyEncounterMapEntityLeaf(int gameId, string creatorId, string namedId) : base(
         gameId,
-        namedId,
-        creatorId)
+        creatorId,
+        namedId)
     {
         _enemiesFormationInBattle = new(InternalBattleEnemyIds, 0, x => new(x.Resolve().GameId));
         BehaviorSystem = new(this);

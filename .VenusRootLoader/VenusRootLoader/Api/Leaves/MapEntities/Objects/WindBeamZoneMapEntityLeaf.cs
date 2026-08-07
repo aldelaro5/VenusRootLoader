@@ -7,8 +7,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
 public sealed class WindBeamZoneMapEntityLeaf : ObjectMapEntityLeaf
 {
-    internal WindBeamZoneMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal WindBeamZoneMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

@@ -8,8 +8,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.DialogueTriggers;
 
 public sealed class DialogueTriggerZoneMapEntityLeaf : DialogueTriggerMapEntityLeaf
 {
-    internal DialogueTriggerZoneMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal DialogueTriggerZoneMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

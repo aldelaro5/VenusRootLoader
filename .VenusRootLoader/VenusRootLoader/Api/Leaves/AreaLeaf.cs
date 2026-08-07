@@ -12,7 +12,7 @@ public sealed class AreaLeaf : Leaf
         public List<string> PaginatedDescription { get; } = new();
     }
 
-    internal AreaLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId) { }
+    internal AreaLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId) { }
 
     public Vector2 MapPosition { get; set; }
 

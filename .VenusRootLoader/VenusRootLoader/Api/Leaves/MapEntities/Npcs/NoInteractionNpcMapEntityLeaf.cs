@@ -5,8 +5,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
 public sealed class NoInteractionNpcMapEntityLeaf : NpcMapEntityLeaf
 {
-    internal NoInteractionNpcMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal NoInteractionNpcMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

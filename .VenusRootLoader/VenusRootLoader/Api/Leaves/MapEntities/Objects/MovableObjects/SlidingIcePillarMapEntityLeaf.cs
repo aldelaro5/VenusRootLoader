@@ -5,8 +5,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.MovableObjects;
 
 public sealed class SlidingIcePillarMapEntityLeaf : MovableObjectMapEntityLeaf
 {
-    internal SlidingIcePillarMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal SlidingIcePillarMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

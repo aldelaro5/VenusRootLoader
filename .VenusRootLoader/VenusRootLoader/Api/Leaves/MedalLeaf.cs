@@ -22,7 +22,7 @@ public sealed class MedalLeaf : Leaf
 
     internal WrappedSprite WrappedSprite = new();
 
-    internal MedalLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    internal MedalLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

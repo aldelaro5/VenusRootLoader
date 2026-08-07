@@ -5,7 +5,7 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Collectibles;
 
 public abstract class CollectibleMapEntityLeaf : ObjectMapEntityLeaf
 {
-    protected CollectibleMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    protected CollectibleMapEntityLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

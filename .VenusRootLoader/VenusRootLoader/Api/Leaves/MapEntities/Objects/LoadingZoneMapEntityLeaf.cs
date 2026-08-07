@@ -7,8 +7,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
 public sealed class LoadingZoneMapEntityLeaf : ObjectMapEntityLeaf
 {
-    internal LoadingZoneMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal LoadingZoneMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

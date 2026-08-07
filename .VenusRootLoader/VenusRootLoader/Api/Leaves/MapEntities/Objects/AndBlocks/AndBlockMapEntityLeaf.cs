@@ -6,7 +6,7 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.AndBlocks;
 
 public abstract class AndBlockMapEntityLeaf : ObjectMapEntityLeaf
 {
-    protected AndBlockMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    protected AndBlockMapEntityLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

@@ -6,8 +6,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.JumpSprings;
 
 public sealed class JumpToPositionSpringMapEntityLeaf : JumpSpringMapEntityLeaf
 {
-    internal JumpToPositionSpringMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal JumpToPositionSpringMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

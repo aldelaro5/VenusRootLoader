@@ -7,8 +7,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.ActivatorZones;
 
 public sealed class RemoteActivatorZoneMapEntityLeaf : ActivatorZoneMapEntityLeaf
 {
-    internal RemoteActivatorZoneMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal RemoteActivatorZoneMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

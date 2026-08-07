@@ -7,8 +7,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
 public sealed class EnemySpawnerMapEntityLeaf : ObjectMapEntityLeaf
 {
-    internal EnemySpawnerMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal EnemySpawnerMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

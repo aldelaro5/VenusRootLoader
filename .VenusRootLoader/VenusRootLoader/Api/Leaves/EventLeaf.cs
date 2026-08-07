@@ -5,5 +5,5 @@ namespace VenusRootLoader.Api.Leaves;
 [ExposeFromVenus]
 public sealed class EventLeaf : Leaf
 {
-    internal EventLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId) { }
+    internal EventLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId) { }
 }

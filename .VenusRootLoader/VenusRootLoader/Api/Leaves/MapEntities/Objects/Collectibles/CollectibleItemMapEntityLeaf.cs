@@ -9,8 +9,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Collectibles;
 
 public sealed class CollectibleItemMapEntityLeaf : CollectibleMapEntityLeaf
 {
-    internal CollectibleItemMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal CollectibleItemMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

@@ -91,8 +91,8 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
             null,
             [
                 gameId,
-                namedId,
-                creatorId
+                creatorId,
+                namedId
             ],
             null,
             null);

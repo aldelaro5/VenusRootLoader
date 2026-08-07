@@ -4,7 +4,7 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Crystals;
 
 public abstract class CrystalMapEntityLeaf : ObjectMapEntityLeaf
 {
-    protected CrystalMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    protected CrystalMapEntityLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

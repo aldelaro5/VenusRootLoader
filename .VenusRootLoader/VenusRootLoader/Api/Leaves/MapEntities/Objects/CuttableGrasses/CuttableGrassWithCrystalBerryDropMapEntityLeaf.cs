@@ -9,8 +9,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.CuttableGrasses;
 
 public sealed class CuttableGrassWithCrystalBerryDropMapEntityLeaf : CuttableGrassMapEntityLeaf
 {
-    internal CuttableGrassWithCrystalBerryDropMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal CuttableGrassWithCrystalBerryDropMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

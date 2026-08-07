@@ -7,8 +7,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 // TODO: height and bobbing aren't supported because this is an Object and all Objects are excluded in UpdateHeight, patch the game to add support.
 public sealed class FixedAnimstateMapEntityLeaf : ObjectMapEntityLeaf
 {
-    internal FixedAnimstateMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal FixedAnimstateMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

@@ -23,7 +23,7 @@ public sealed class ItemLeaf : Leaf
 
     internal WrappedSprite WrappedSprite = new();
 
-    internal ItemLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    internal ItemLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

@@ -2,7 +2,7 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.AndGates;
 
 public abstract class AndGateMapEntityLeaf : ObjectMapEntityLeaf
 {
-    protected AndGateMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    protected AndGateMapEntityLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

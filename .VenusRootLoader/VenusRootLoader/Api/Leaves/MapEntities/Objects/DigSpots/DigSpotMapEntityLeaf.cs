@@ -5,7 +5,7 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.DigSpots;
 
 public abstract class DigSpotMapEntityLeaf : ObjectMapEntityLeaf
 {
-    protected DigSpotMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    protected DigSpotMapEntityLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

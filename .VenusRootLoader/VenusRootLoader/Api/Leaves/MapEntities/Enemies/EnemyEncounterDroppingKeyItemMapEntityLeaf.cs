@@ -7,8 +7,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Enemies;
 
 public sealed class EnemyEncounterDroppingKeyItemMapEntityLeaf : EnemyEncounterMapEntityLeaf
 {
-    internal EnemyEncounterDroppingKeyItemMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal EnemyEncounterDroppingKeyItemMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

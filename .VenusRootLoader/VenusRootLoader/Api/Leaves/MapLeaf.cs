@@ -14,8 +14,8 @@ namespace VenusRootLoader.Api.Leaves;
 [ExposeFromVenus(withRegisterMethod: false)]
 public sealed class MapLeaf : Leaf
 {
-    internal MapLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal MapLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 
@@ -32,6 +32,7 @@ public sealed class MapLeaf : Leaf
         get => field?.magnitude <= 0.2 ? null : field;
         set => field = value is null || value.Value.magnitude <= 0.2f ? null : value;
     }
+
     public Vector3 DefaultCameraLowerBounds { get; set; } = new(-999.0f, -999.0f, -999.0f);
     public Vector3 DefaultCameraUpperBounds { get; set; } = new(999.0f, 999.0f, 999.0f);
     public MapCameraMoveAroundCircleConfiguration? CameraMoveAroundCircleConfiguration { get; set; }

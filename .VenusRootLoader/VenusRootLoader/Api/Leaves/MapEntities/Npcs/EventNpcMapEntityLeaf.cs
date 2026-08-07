@@ -6,8 +6,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
 public sealed class EventNpcMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
 {
-    internal EventNpcMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal EventNpcMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

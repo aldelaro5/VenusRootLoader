@@ -7,7 +7,7 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
 public abstract class NpcMapEntityLeaf : MapEntityLeaf
 {
-    protected NpcMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    protected NpcMapEntityLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
         _conditionalEmoticons = new(InternalEmoticonFlags, 1, x => x.Vector2Ref);
         BehaviorSystem = new(this);

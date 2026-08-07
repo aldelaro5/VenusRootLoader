@@ -6,8 +6,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Switches;
 
 public sealed class EventTriggerSwitchMapEntityLeaf : SwitchMapEntityLeaf
 {
-    internal EventTriggerSwitchMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal EventTriggerSwitchMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

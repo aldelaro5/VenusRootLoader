@@ -5,7 +5,7 @@ namespace VenusRootLoader.Api.Leaves;
 [ExposeFromVenus(null, false)]
 public sealed class MedalShopLeaf : Leaf
 {
-    internal MedalShopLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    internal MedalShopLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

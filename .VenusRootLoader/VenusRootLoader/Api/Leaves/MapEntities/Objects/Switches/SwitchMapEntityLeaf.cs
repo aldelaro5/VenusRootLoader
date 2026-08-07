@@ -6,7 +6,7 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Switches;
 
 public abstract class SwitchMapEntityLeaf : ObjectMapEntityLeaf
 {
-    protected SwitchMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    protected SwitchMapEntityLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

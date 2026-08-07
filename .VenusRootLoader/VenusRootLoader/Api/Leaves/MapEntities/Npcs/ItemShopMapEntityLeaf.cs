@@ -8,8 +8,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
 public sealed class ItemShopMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
 {
-    internal ItemShopMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal ItemShopMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
         _itemsForSale = new(InternalData, InternalVectorData, 0, x => x.RefItemGameId, x => x.RefPosition);
     }

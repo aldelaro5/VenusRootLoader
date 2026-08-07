@@ -5,8 +5,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.RollingRocks;
 
 public sealed class RollingRockWithoutCanonMapEntityLeaf : RollingRockMapEntityLeaf
 {
-    internal RollingRockWithoutCanonMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal RollingRockWithoutCanonMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

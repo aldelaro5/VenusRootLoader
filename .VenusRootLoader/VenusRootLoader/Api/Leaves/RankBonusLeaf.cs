@@ -11,7 +11,7 @@ internal sealed class RankBonusLeaf : Leaf
         GrantInventoryCapacity
     }
 
-    internal RankBonusLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    internal RankBonusLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

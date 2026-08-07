@@ -7,8 +7,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
 public sealed class TalkingNpcMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
 {
-    internal TalkingNpcMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal TalkingNpcMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
         _conditionalDialogues = new(InternalDialogues, 0, x => x.Vector3Ref);
     }

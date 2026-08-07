@@ -6,8 +6,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.AndGates;
 // TODO: Merge with the multi flags one later with a patch to fix its problems
 public sealed class AndGateOnSingleFlagMapEntityLeaf : AndGateMapEntityLeaf
 {
-    internal AndGateOnSingleFlagMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal AndGateOnSingleFlagMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

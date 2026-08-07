@@ -7,8 +7,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.CuttableGrasses;
 
 public sealed class CuttableGrassWithItemDropsMapEntityLeaf : CuttableGrassMapEntityLeaf
 {
-    internal CuttableGrassWithItemDropsMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal CuttableGrassWithItemDropsMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
         _itemsDroppedWhenCut = new(
             InternalVectorData,

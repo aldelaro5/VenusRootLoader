@@ -9,7 +9,7 @@ internal sealed class SkillLeaf : Leaf
         AllCamelCase,
         PascalCaseWithLastTwoCamelCase
     }
-    
+
     internal enum SkillCostResource
     {
         Tp,
@@ -52,7 +52,7 @@ internal sealed class SkillLeaf : Leaf
         internal string Description { get; set; } = "";
     }
 
-    internal SkillLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    internal SkillLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

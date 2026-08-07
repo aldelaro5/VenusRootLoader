@@ -4,10 +4,10 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.CuttableGrasses;
 
 public abstract class CuttableGrassMapEntityLeaf : ObjectMapEntityLeaf
 {
-    protected CuttableGrassMapEntityLeaf(int gameId, string namedId, string creatorId) : base(
+    protected CuttableGrassMapEntityLeaf(int gameId, string creatorId, string namedId) : base(
         gameId,
-        namedId,
-        creatorId)
+        creatorId,
+        namedId)
     {
     }
 

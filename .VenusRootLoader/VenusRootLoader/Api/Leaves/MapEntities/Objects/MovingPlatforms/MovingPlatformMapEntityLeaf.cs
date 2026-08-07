@@ -7,10 +7,10 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.MovingPlatforms;
 // TODO: Fix the length 0 issue on NPCControl.CreateEntities so these can move without a switch
 public abstract class MovingPlatformMapEntityLeaf : ObjectMapEntityLeaf
 {
-    protected MovingPlatformMapEntityLeaf(int gameId, string namedId, string creatorId) : base(
+    protected MovingPlatformMapEntityLeaf(int gameId, string creatorId, string namedId) : base(
         gameId,
-        namedId,
-        creatorId)
+        creatorId,
+        namedId)
     {
         _requiredEntityActivationsToMove = new(InternalData, 0, x => new(x.Resolve().GameId));
     }

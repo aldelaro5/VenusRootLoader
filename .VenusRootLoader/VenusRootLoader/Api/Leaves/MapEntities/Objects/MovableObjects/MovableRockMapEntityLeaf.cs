@@ -6,8 +6,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.MovableObjects;
 
 public sealed class MovableRockMapEntityLeaf : MovableObjectMapEntityLeaf
 {
-    internal MovableRockMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal MovableRockMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

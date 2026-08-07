@@ -9,8 +9,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Collectibles;
 
 public sealed class CollectibleCrystalBerryMapEntityLeaf : CollectibleMapEntityLeaf
 {
-    internal CollectibleCrystalBerryMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal CollectibleCrystalBerryMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

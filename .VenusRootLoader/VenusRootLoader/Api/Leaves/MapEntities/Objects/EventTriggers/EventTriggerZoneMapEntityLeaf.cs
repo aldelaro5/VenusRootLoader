@@ -7,8 +7,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.EventTriggers;
 
 public sealed class EventTriggerZoneMapEntityLeaf : EventTriggerMapEntityLeaf
 {
-    internal EventTriggerZoneMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal EventTriggerZoneMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

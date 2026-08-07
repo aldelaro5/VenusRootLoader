@@ -7,8 +7,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.MovingPlatforms;
 
 public sealed class MovingPlatformAlongPathMapEntityLeaf : MovingPlatformMapEntityLeaf
 {
-    internal MovingPlatformAlongPathMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal MovingPlatformAlongPathMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
         _movementPathNodePositions = new(InternalVectorData, 0, x => new(x));
     }

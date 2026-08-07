@@ -5,8 +5,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
 public sealed class FlytrapPlatformMapEntityLeaf : ObjectMapEntityLeaf
 {
-    internal FlytrapPlatformMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal FlytrapPlatformMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

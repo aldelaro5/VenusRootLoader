@@ -6,8 +6,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.AndGates;
 
 public sealed class AndGateOnEntitiesLeafActivationMapEntityLeaf : AndGateMapEntityLeaf
 {
-    internal AndGateOnEntitiesLeafActivationMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal AndGateOnEntitiesLeafActivationMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
         _entityActivationsInputs = new(InternalData, 1, x => x.IntRef);
     }

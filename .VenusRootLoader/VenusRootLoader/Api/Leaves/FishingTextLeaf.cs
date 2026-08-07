@@ -5,7 +5,7 @@ namespace VenusRootLoader.Api.Leaves;
 [ExposeFromVenus]
 public sealed class FishingTextLeaf : Leaf
 {
-    internal FishingTextLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    internal FishingTextLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

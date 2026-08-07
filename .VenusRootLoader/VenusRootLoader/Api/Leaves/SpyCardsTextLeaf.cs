@@ -5,7 +5,7 @@ namespace VenusRootLoader.Api.Leaves;
 [ExposeFromVenus]
 public sealed class SpyCardsTextLeaf : Leaf
 {
-    internal SpyCardsTextLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    internal SpyCardsTextLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

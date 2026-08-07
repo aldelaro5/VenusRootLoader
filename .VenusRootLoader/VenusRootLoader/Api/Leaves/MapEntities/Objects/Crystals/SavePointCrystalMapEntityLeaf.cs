@@ -5,8 +5,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Crystals;
 
 public sealed class SavePointCrystalMapEntityLeaf : CrystalMapEntityLeaf
 {
-    internal SavePointCrystalMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal SavePointCrystalMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

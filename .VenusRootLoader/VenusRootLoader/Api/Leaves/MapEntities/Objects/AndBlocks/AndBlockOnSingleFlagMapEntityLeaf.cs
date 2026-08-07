@@ -7,8 +7,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.AndBlocks;
 // TODO: Merge with the multi flags one later with a patch to fix its problems
 public sealed class AndBlockOnSingleFlagMapEntityLeaf : AndBlockMapEntityLeaf
 {
-    internal AndBlockOnSingleFlagMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal AndBlockOnSingleFlagMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

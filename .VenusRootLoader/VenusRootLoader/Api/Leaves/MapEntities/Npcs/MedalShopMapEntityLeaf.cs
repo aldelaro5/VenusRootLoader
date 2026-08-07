@@ -8,8 +8,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
 public sealed class MedalShopMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
 {
-    internal MedalShopMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal MedalShopMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
         _shelvedMedalPositions = new(InternalVectorData, 0, x => new(x));
     }

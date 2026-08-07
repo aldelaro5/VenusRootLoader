@@ -7,8 +7,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.AndBlocks;
 
 public sealed class AndBlockOnFlagsMapEntityLeaf : AndBlockMapEntityLeaf
 {
-    internal AndBlockOnFlagsMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal AndBlockOnFlagsMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
         _flagInputs = new(InternalData, 1, x => new(-x.Resolve().GameId));
     }

@@ -15,8 +15,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 // ]);
 public sealed class RotatingPlatformMapEntityLeaf : ObjectMapEntityLeaf
 {
-    internal RotatingPlatformMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal RotatingPlatformMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
         _requiredEntityActivationsToMove = new(InternalData, 0, x => new(x.Resolve().GameId));
         _movementNodeEulerAngles = new(InternalVectorData, 0, x => new(x));

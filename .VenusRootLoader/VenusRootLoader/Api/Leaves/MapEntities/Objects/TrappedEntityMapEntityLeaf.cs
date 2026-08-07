@@ -10,8 +10,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 // TODO: Remember to specify in the xmldoc that the regional gets set when untrapped
 public sealed class TrappedEntityMapEntityLeaf : ObjectMapEntityLeaf
 {
-    internal TrappedEntityMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal TrappedEntityMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

@@ -6,7 +6,7 @@ namespace VenusRootLoader.Api.Leaves;
 [ExposeFromVenus]
 public sealed class MusicLeaf : Leaf
 {
-    internal MusicLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    internal MusicLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

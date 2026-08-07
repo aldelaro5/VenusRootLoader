@@ -5,7 +5,7 @@ namespace VenusRootLoader.Api.Leaves;
 [ExposeFromVenus]
 public sealed class RecipeLibraryEntryLeaf : Leaf
 {
-    internal RecipeLibraryEntryLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    internal RecipeLibraryEntryLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

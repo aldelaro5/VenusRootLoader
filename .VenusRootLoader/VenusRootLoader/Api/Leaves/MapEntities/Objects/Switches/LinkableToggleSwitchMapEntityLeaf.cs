@@ -6,8 +6,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Switches;
 
 public sealed class LinkableToggleSwitchMapEntityLeaf : SwitchMapEntityLeaf
 {
-    internal LinkableToggleSwitchMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal LinkableToggleSwitchMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

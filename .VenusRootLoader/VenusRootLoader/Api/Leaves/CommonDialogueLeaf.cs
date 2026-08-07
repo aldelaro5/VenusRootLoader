@@ -5,7 +5,7 @@ namespace VenusRootLoader.Api.Leaves;
 [ExposeFromVenus]
 public sealed class CommonDialogueLeaf : DialogueLeaf
 {
-    internal CommonDialogueLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId) { }
+    internal CommonDialogueLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId) { }
     internal override Branch<MapLeaf>? AssociatedMap => null;
 
     internal int InternalGameIndex => Math.Abs(GameId) - 1;

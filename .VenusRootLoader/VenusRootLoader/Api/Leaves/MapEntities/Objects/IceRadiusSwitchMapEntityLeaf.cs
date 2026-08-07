@@ -7,8 +7,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 // TODO: check for wooden switch support
 public sealed class IceRadiusSwitchMapEntityLeaf : ObjectMapEntityLeaf
 {
-    internal IceRadiusSwitchMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal IceRadiusSwitchMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

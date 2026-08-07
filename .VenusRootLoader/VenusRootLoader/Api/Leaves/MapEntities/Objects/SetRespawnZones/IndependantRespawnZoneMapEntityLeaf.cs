@@ -5,8 +5,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.SetRespawnZones;
 
 public sealed class IndependantRespawnZoneMapEntityLeaf : ObjectMapEntityLeaf
 {
-    internal IndependantRespawnZoneMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal IndependantRespawnZoneMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

@@ -6,10 +6,10 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.ActivatorZones;
 
 public abstract class ActivatorZoneMapEntityLeaf : ObjectMapEntityLeaf
 {
-    protected ActivatorZoneMapEntityLeaf(int gameId, string namedId, string creatorId) : base(
+    protected ActivatorZoneMapEntityLeaf(int gameId, string creatorId, string namedId) : base(
         gameId,
-        namedId,
-        creatorId)
+        creatorId,
+        namedId)
     {
     }
 

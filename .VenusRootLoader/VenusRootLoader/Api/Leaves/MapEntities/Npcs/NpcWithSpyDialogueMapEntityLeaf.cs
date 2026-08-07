@@ -7,10 +7,10 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
 public abstract class NpcWithSpyDialogueMapEntityLeaf : NpcMapEntityLeaf
 {
-    protected NpcWithSpyDialogueMapEntityLeaf(int gameId, string namedId, string creatorId) : base(
+    protected NpcWithSpyDialogueMapEntityLeaf(int gameId, string creatorId, string namedId) : base(
         gameId,
-        namedId,
-        creatorId)
+        creatorId,
+        namedId)
     {
     }
 

@@ -2,7 +2,7 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
 public abstract class ObjectMapEntityLeaf : MapEntityLeaf
 {
-    protected ObjectMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    protected ObjectMapEntityLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

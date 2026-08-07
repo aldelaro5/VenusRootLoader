@@ -5,10 +5,10 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.MovableObjects;
 
 public abstract class MovableObjectMapEntityLeaf : ObjectMapEntityLeaf
 {
-    protected MovableObjectMapEntityLeaf(int gameId, string namedId, string creatorId) : base(
+    protected MovableObjectMapEntityLeaf(int gameId, string creatorId, string namedId) : base(
         gameId,
-        namedId,
-        creatorId)
+        creatorId,
+        namedId)
     {
     }
 

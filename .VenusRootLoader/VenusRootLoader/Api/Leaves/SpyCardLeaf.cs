@@ -20,7 +20,7 @@ public sealed class SpyCardLeaf : Leaf
         public float HorizontalNameSize { get; set; } = 1;
     }
 
-    internal SpyCardLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    internal SpyCardLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

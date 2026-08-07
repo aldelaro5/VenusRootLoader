@@ -2,7 +2,7 @@ namespace VenusRootLoader.Api.Leaves;
 
 public abstract class DialogueLeaf : Leaf
 {
-    internal DialogueLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    internal DialogueLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

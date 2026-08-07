@@ -8,8 +8,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 // TODO: check for wooden switch support
 public sealed class MapMainMeshChildVerticalPositionSwitchMapEntityLeaf : ObjectMapEntityLeaf
 {
-    internal MapMainMeshChildVerticalPositionSwitchMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal MapMainMeshChildVerticalPositionSwitchMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

@@ -12,7 +12,7 @@ internal sealed class LoreBookLeaf : Leaf
         internal string FortuneTellerHint { get; set; } = "";
     }
 
-    internal LoreBookLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    internal LoreBookLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

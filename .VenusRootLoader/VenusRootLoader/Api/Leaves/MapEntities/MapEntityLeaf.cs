@@ -34,7 +34,7 @@ public abstract class MapEntityLeaf : Leaf
     protected internal NPCControl.Interaction OriginalInteraction { get; internal set; }
     internal abstract NPCControl.Interaction Interaction { get; }
 
-    internal MapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    internal MapEntityLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

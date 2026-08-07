@@ -5,7 +5,7 @@ namespace VenusRootLoader.Api.Leaves;
 [ExposeFromVenus]
 public sealed class CrystalBerryLeaf : Leaf
 {
-    internal CrystalBerryLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId) { }
+    internal CrystalBerryLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId) { }
 
     public LocalizedData<string> LocalizedFortuneTellerHint { get; } = new();
 }

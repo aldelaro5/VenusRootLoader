@@ -12,7 +12,7 @@ public sealed class TermacadePrizeLeaf : Leaf
         Medal
     }
 
-    internal TermacadePrizeLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    internal TermacadePrizeLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

@@ -5,8 +5,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.MovingPlatforms;
 
 public sealed class MovingPlatformAlongLerpMapEntityLeaf : MovingPlatformMapEntityLeaf
 {
-    internal MovingPlatformAlongLerpMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal MovingPlatformAlongLerpMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

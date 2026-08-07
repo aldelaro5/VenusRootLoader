@@ -8,8 +8,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
 public sealed class QuestBoardNpcMapEntityLeaf : NpcMapEntityLeaf
 {
-    internal QuestBoardNpcMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal QuestBoardNpcMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

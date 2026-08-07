@@ -5,7 +5,7 @@ namespace VenusRootLoader.Api.Leaves;
 [ExposeFromVenus]
 public sealed class FlagLeaf : Leaf
 {
-    internal FlagLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    internal FlagLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 }

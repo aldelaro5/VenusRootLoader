@@ -5,8 +5,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
 public sealed class ItemsStorageNpcMapEntityLeaf : NpcWithSpyDialogueMapEntityLeaf
 {
-    internal ItemsStorageNpcMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal ItemsStorageNpcMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

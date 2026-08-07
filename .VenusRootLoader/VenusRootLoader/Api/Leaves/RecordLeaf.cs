@@ -14,7 +14,7 @@ public sealed class RecordLeaf : Leaf, IEnemyPortraitSprite
         public string Description { get; set; } = "";
     }
 
-    internal RecordLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    internal RecordLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

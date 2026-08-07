@@ -7,8 +7,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Enemies;
 
 public sealed class EnemyEncounterDroppingItemsMapEntityLeaf : EnemyEncounterMapEntityLeaf
 {
-    internal EnemyEncounterDroppingItemsMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal EnemyEncounterDroppingItemsMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
         _itemsDropPoolWhenDefeated = new(InternalVectorData, 0, x => x.Vector3Ref);
     }

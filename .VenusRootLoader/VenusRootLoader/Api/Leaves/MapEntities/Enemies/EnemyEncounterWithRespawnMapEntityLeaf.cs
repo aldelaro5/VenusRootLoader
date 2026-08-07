@@ -7,8 +7,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Enemies;
 
 public sealed class EnemyEncounterWithRespawnMapEntityLeaf : EnemyEncounterMapEntityLeaf
 {
-    internal EnemyEncounterWithRespawnMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal EnemyEncounterWithRespawnMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

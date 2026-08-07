@@ -6,8 +6,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.AndGates;
 
 public sealed class AndGateOnFlagsMapEntityLeaf : AndGateMapEntityLeaf
 {
-    internal AndGateOnFlagsMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal AndGateOnFlagsMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
         _flagInputs = new(InternalData, 1, x => new(-x.Resolve().GameId));
     }

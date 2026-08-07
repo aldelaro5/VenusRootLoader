@@ -6,7 +6,7 @@ namespace VenusRootLoader.Api.Leaves;
 [ExposeFromVenus]
 public sealed class AnimIdLeaf : Leaf
 {
-    internal AnimIdLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId) { }
+    internal AnimIdLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId) { }
 
     internal sealed class AnimIdResourcePreload
     {

@@ -7,7 +7,7 @@ namespace VenusRootLoader.Api.Leaves;
 [ExposeFromVenus]
 public sealed class DialogueBleepLeaf : Leaf
 {
-    internal DialogueBleepLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId) { }
+    internal DialogueBleepLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId) { }
 
     public AudioClip BleepSound { get; set; } = CreateDummyAudioClip();
 }

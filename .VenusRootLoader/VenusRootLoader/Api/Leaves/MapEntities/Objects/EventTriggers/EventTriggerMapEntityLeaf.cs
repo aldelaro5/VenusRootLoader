@@ -2,7 +2,7 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.EventTriggers;
 
 public abstract class EventTriggerMapEntityLeaf : ObjectMapEntityLeaf
 {
-    protected EventTriggerMapEntityLeaf(int gameId, string namedId, string creatorId) : base(gameId, namedId, creatorId)
+    protected EventTriggerMapEntityLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 

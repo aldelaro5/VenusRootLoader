@@ -6,8 +6,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.DigSpots;
 
 public sealed class DigSpotMedalMapEntityLeaf : DigSpotMapEntityLeaf
 {
-    internal DigSpotMedalMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal DigSpotMedalMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

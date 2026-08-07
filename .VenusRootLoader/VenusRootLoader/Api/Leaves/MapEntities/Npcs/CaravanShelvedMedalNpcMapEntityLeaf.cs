@@ -8,8 +8,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
 public sealed class CaravanShelvedMedalNpcMapEntityLeaf : NpcMapEntityLeaf
 {
-    internal CaravanShelvedMedalNpcMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal CaravanShelvedMedalNpcMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

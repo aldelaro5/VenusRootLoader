@@ -5,8 +5,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Crystals;
 
 public sealed class DeadLanderOmegaAlertCrystalMapEntityLeaf : CrystalMapEntityLeaf
 {
-    internal DeadLanderOmegaAlertCrystalMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal DeadLanderOmegaAlertCrystalMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

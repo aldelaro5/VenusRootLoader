@@ -5,8 +5,8 @@ namespace VenusRootLoader.Api.Leaves;
 public readonly record struct Branch<TLeaf> : ILeafId
     where TLeaf : Leaf
 {
-    public string NamedId { get; }
     public string CreatorId { get; }
+    public string NamedId { get; }
 
     private readonly Lazy<TLeaf> _leaf;
 

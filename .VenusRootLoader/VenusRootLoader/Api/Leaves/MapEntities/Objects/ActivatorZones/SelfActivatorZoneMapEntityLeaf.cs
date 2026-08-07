@@ -6,8 +6,8 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.ActivatorZones;
 
 public sealed class SelfActivatorZoneMapEntityLeaf : ActivatorZoneMapEntityLeaf
 {
-    internal SelfActivatorZoneMapEntityLeaf(int gameId, string namedId, string creatorId)
-        : base(gameId, namedId, creatorId)
+    internal SelfActivatorZoneMapEntityLeaf(int gameId, string creatorId, string namedId)
+        : base(gameId, creatorId, namedId)
     {
     }
 

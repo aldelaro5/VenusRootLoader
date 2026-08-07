@@ -31,17 +31,17 @@ public abstract class Leaf : ILeafId
     /// </summary>
     public int GameId { get; }
 
-    public string NamedId { get; }
-
     public string CreatorId { get; }
+
+    public string NamedId { get; }
 
     internal string EffectiveId { get; }
 
-    private protected Leaf(int gameId, string namedId, string creatorId)
+    private protected Leaf(int gameId, string creatorId, string namedId)
     {
         GameId = gameId;
-        NamedId = namedId;
         CreatorId = creatorId;
+        NamedId = namedId;
         EffectiveId = creatorId != Constants.BaseGameCreatorId
             ? EffectiveLeafId.CreateFromParts(creatorId, namedId)
             : namedId;

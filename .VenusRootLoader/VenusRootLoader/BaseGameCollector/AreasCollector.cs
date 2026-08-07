@@ -35,12 +35,12 @@ internal sealed class AreasCollector : IBaseGameCollector
         _areasRegistry = areasRegistry;
     }
 
-    public void CollectBaseGameData(string baseGameId)
+    public void CollectBaseGameData()
     {
         int areasAmount = _areaNamesData.Values.First().Length;
         for (int i = 0; i < areasAmount; i++)
         {
-            AreaLeaf areaLeaf = _areasRegistry.RegisterExisting(i, baseGameId, _areasNamedIds[i]);
+            AreaLeaf areaLeaf = _areasRegistry.RegisterExisting(i, _areasNamedIds[i]);
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _areaLocalizedTextAssetParser.FromTextAssetSerializedString(

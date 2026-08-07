@@ -44,9 +44,9 @@ internal sealed class OrderedLeavesRegistry<TLeaf> : IOrderedLeavesRegistry<TLea
         return leaf;
     }
 
-    public TLeaf RegisterExistingWithOrdering(int gameId, string namedId, string creatorId)
+    public TLeaf RegisterExistingWithOrdering(int gameId, string namedId)
     {
-        TLeaf leaf = Registry.RegisterExisting(gameId, creatorId, namedId);
+        TLeaf leaf = Registry.RegisterExisting(gameId, namedId);
         LeavesOrderingData.Add(
             new()
             {

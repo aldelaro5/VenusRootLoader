@@ -36,14 +36,14 @@ internal sealed class DiscoveriesCollector : IBaseGameCollector
         _discoveriesLanguageDataSerializer = discoveriesLanguageDataSerializer;
     }
 
-    public void CollectBaseGameData(string baseGameId)
+    public void CollectBaseGameData()
     {
         int discoveriesAmount = _discoveriesOrderingData
             .Split('\n')
             .Length;
         for (int i = 0; i < discoveriesAmount; i++)
         {
-            DiscoveryLeaf discoveryLeaf = _orderedRegistry.RegisterExistingWithOrdering(i, i.ToString(), baseGameId);
+            DiscoveryLeaf discoveryLeaf = _orderedRegistry.RegisterExistingWithOrdering(i, i.ToString());
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 discoveryLeaf.LocalizedData[j] = new();

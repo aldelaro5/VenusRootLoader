@@ -44,13 +44,13 @@ internal sealed class QuestsCollector : IBaseGameCollector
         _questLocalizedTextAssetParser = questLocalizedTextAssetParser;
     }
 
-    public void CollectBaseGameData(string baseGameId)
+    public void CollectBaseGameData()
     {
         List<int> bountyQuestsGameIds = CollectBountyQuestsGameIds();
 
         for (int i = 0; i < _questNamedIds.Length; i++)
         {
-            QuestLeaf questLeaf = _questsRegistry.RegisterExisting(i, baseGameId, _questNamedIds[i]);
+            QuestLeaf questLeaf = _questsRegistry.RegisterExisting(i, _questNamedIds[i]);
             _questTextAssetParser.FromTextAssetSerializedString(
                 TextAssetPaths.DataQuestsPath,
                 _boardData[i],

@@ -12,6 +12,5 @@ internal interface IBaseGameCollector
     /// <summary>
     /// Collects data from the base game.
     /// </summary>
-    /// <param name="baseGameId">The identifier to use to register <see cref="Leaf"/> as the creator.</param>
-    void CollectBaseGameData(string baseGameId);
+    void CollectBaseGameData();
 }

@@ -36,12 +36,12 @@ internal sealed class SpyCardsCollector : IBaseGameCollector
         _spyCardLocalizedTextAssetParser = spyCardLocalizedTextAssetParser;
     }
 
-    public void CollectBaseGameData(string baseGameId)
+    public void CollectBaseGameData()
     {
         int spyCardAmount = _spyCardsData.Length;
         for (int i = 0; i < spyCardAmount; i++)
         {
-            SpyCardLeaf spyCardLeaf = _orderedRegistry.RegisterExistingWithOrdering(i, i.ToString(), baseGameId);
+            SpyCardLeaf spyCardLeaf = _orderedRegistry.RegisterExistingWithOrdering(i, i.ToString());
             _spyCardTextAssetParser.FromTextAssetSerializedString(
                 TextAssetPaths.DataSpyCardsPath,
                 _spyCardsData[i],

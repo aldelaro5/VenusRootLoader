@@ -25,13 +25,13 @@ internal sealed class TermacadePrizesCollector : IBaseGameCollector
         _termacadePrizesTextAssetParser = termacadePrizesTextAssetParser;
     }
 
-    public void CollectBaseGameData(string baseGameId)
+    public void CollectBaseGameData()
     {
         for (int i = 0; i < _termacadePrizesData.Length; i++)
         {
             string termacadePrizeString = _termacadePrizesData[i];
             TermacadePrizeLeaf termacadePrizeLeaf =
-                _termacadePrizesRegistry.RegisterExisting(i, baseGameId, i.ToString());
+                _termacadePrizesRegistry.RegisterExisting(i, i.ToString());
             _termacadePrizesTextAssetParser.FromTextAssetSerializedString(
                 TextAssetPaths.DataTermacadePrizesPath,
                 termacadePrizeString,

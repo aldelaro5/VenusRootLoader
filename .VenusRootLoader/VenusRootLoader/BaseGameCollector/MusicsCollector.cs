@@ -43,7 +43,7 @@ internal sealed class MusicsCollector : IBaseGameCollector
         _musicLocalizedTextAssetParser = musicLocalizedTextAssetParser;
     }
 
-    public void CollectBaseGameData(string baseGameId)
+    public void CollectBaseGameData()
     {
         // The game contains specific music that technically exists as music, but cannot be purchased from Samira.
         // This is enforced in FixSamira where should any music ends up being unlocked, it will be removed from the list.
@@ -63,7 +63,7 @@ internal sealed class MusicsCollector : IBaseGameCollector
 
         for (int i = 0; i < _musicNamedIds.Length; i++)
         {
-            MusicLeaf musicLeaf = _musicRegistry.RegisterExisting(i, baseGameId, _musicNamedIds[i]);
+            MusicLeaf musicLeaf = _musicRegistry.RegisterExisting(i, _musicNamedIds[i]);
             _musicTextAssetParser.FromTextAssetSerializedString(
                 TextAssetPaths.DataMusicLoopPointsPath,
                 _loopPointsData[i],

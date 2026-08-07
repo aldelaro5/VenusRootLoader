@@ -16,10 +16,10 @@ internal sealed class RootCollector
     public RootCollector(IEnumerable<IBaseGameCollector> baseGameCollectors) =>
         _baseGameCollectors = baseGameCollectors;
 
-    internal void CollectAndRegisterBaseGameData(string baseGameId)
+    internal void CollectAndRegisterBaseGameData()
     {
         foreach (IBaseGameCollector baseGameCollector in _baseGameCollectors)
-            baseGameCollector.CollectBaseGameData(baseGameId);
+            baseGameCollector.CollectBaseGameData();
     }
 
     internal static string[] ReadTextAssetLines(string resourcesPathSuffix)

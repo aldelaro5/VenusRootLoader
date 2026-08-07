@@ -30,12 +30,12 @@ internal sealed class CrystalBerriesCollector : IBaseGameCollector
         _crystalBerriesRegistry = crystalBerriesRegistry;
     }
 
-    public void CollectBaseGameData(string baseGameId)
+    public void CollectBaseGameData()
     {
         int crystalBerriesAmount = CollectCrystalBerriesAmount();
         for (int i = 0; i < crystalBerriesAmount; i++)
         {
-            CrystalBerryLeaf crystalBerryLeaf = _crystalBerriesRegistry.RegisterExisting(i, baseGameId, i.ToString());
+            CrystalBerryLeaf crystalBerryLeaf = _crystalBerriesRegistry.RegisterExisting(i, i.ToString());
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _crystalBerryLanguageDataSerializer.FromTextAssetSerializedString(

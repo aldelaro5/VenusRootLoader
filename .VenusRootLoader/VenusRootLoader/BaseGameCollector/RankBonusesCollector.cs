@@ -25,13 +25,13 @@ internal sealed class RankBonusesCollector : IBaseGameCollector
         _rankBonusTextAssetParser = rankBonusTextAssetParser;
     }
 
-    public void CollectBaseGameData(string baseGameId)
+    public void CollectBaseGameData()
     {
         for (int i = 0; i < _rankBonusesData.Length; i++)
         {
             string rankBonusString = _rankBonusesData[i];
             RankBonusLeaf rankBonusLeaf =
-                _rankBonusesRegistry.RegisterExisting(i, baseGameId, i.ToString());
+                _rankBonusesRegistry.RegisterExisting(i, i.ToString());
             _rankBonusTextAssetParser.FromTextAssetSerializedString(
                 TextAssetPaths.DataRankBonusesPath,
                 rankBonusString,

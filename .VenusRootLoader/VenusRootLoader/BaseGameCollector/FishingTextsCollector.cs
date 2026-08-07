@@ -25,12 +25,12 @@ internal sealed class FishingTextsCollector : IBaseGameCollector
         _fishingTextsRegistry = fishingTextsRegistry;
     }
 
-    public void CollectBaseGameData(string baseGameId)
+    public void CollectBaseGameData()
     {
         int fishingTextsAmount = _fishingTextsLanguageData.Values.First().Length;
         for (int i = 0; i < fishingTextsAmount; i++)
         {
-            FishingTextLeaf fishingTextLeaf = _fishingTextsRegistry.RegisterExisting(i, baseGameId, i.ToString());
+            FishingTextLeaf fishingTextLeaf = _fishingTextsRegistry.RegisterExisting(i, i.ToString());
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _fishingTextLocalizedTextAssetParser.FromTextAssetSerializedString(

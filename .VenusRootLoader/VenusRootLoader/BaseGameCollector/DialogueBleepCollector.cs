@@ -22,7 +22,7 @@ internal sealed class DialogueBleepCollector : IBaseGameCollector
         _dialogueBleepsRegistry = dialogueBleepsRegistry;
     }
 
-    public void CollectBaseGameData(string baseGameId)
+    public void CollectBaseGameData()
     {
         // We need to strip out clips like Dialogue3old which aren't considered bleeps that can be addressed as such.
         // They are effectively unused in base game.
@@ -32,7 +32,7 @@ internal sealed class DialogueBleepCollector : IBaseGameCollector
             .ToList();
         for (int i = 0; i < dialogueBleeps.Count; i++)
         {
-            DialogueBleepLeaf dialogueBleepLeaf = _dialogueBleepsRegistry.RegisterExisting(i, baseGameId, i.ToString());
+            DialogueBleepLeaf dialogueBleepLeaf = _dialogueBleepsRegistry.RegisterExisting(i, i.ToString());
             dialogueBleepLeaf.BleepSound = dialogueBleeps[i];
         }
 

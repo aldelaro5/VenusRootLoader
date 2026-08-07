@@ -26,7 +26,7 @@ internal sealed class PrizeMedalsCollector : IBaseGameCollector
         _assemblyCSharpDataCollector = assemblyCSharpDataCollector;
     }
 
-    public void CollectBaseGameData(string baseGameId)
+    public void CollectBaseGameData()
     {
         IMetadataTokenProvider tokenPrizeIds = null!;
         IMetadataTokenProvider tokenPrizeFlags = null!;
@@ -68,7 +68,7 @@ internal sealed class PrizeMedalsCollector : IBaseGameCollector
 
         for (int i = 0; i < prizeIds.Length; i++)
         {
-            PrizeMedalLeaf prizeMedalLeaf = _prizeMedalsRegistry.RegisterExisting(i, baseGameId, i.ToString());
+            PrizeMedalLeaf prizeMedalLeaf = _prizeMedalsRegistry.RegisterExisting(i, i.ToString());
             prizeMedalLeaf.MedalGameId = prizeIds[i];
             prizeMedalLeaf.FlagvarGameId = prizeFlags[i];
             prizeMedalLeaf.DisplayedEnemyGameId = prizeEnemyIds[i];

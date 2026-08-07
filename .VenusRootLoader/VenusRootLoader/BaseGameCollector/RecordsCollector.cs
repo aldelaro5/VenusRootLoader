@@ -36,14 +36,14 @@ internal sealed class RecordsCollector : IBaseGameCollector
         _recordsLanguageDataSerializer = recordsLanguageDataSerializer;
     }
 
-    public void CollectBaseGameData(string baseGameId)
+    public void CollectBaseGameData()
     {
         int recordsAmount = _recordsOrderingData
             .Split('\n')
             .Length;
         for (int i = 0; i < recordsAmount; i++)
         {
-            RecordLeaf recordLeaf = _orderedRegistry.RegisterExistingWithOrdering(i, i.ToString(), baseGameId);
+            RecordLeaf recordLeaf = _orderedRegistry.RegisterExistingWithOrdering(i, i.ToString());
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 recordLeaf.LocalizedData[j] = new();

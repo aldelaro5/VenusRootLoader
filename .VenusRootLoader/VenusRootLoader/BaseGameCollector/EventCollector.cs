@@ -21,12 +21,12 @@ internal sealed class EventCollector : IBaseGameCollector
         _logger = logger;
     }
 
-    public void CollectBaseGameData(string baseGameId)
+    public void CollectBaseGameData()
     {
         // TODO: Should be a List<int> instead
         Dictionary<int, MethodDefinition> eventMethods = _assemblyCSharpDataCollector.GetEventControlEvents();
         foreach (KeyValuePair<int, MethodDefinition> kvpEventMethod in eventMethods)
-            _eventsRegistry.RegisterExisting(kvpEventMethod.Key, baseGameId, kvpEventMethod.Key.ToString());
+            _eventsRegistry.RegisterExisting(kvpEventMethod.Key, kvpEventMethod.Key.ToString());
 
         _logger.LogInformation(
             "Collected and registered {EventsAmount} base game Events",

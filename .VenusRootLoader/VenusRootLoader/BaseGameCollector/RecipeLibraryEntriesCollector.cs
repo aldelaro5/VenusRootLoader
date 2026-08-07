@@ -28,14 +28,14 @@ internal sealed class RecipeLibraryEntriesCollector : IBaseGameCollector
         _recipeTextAssetParser = recipeTextAssetParser;
     }
 
-    public void CollectBaseGameData(string baseGameId)
+    public void CollectBaseGameData()
     {
         for (int i = 0; i < _cookOrderData.Length; i++)
         {
             string cookLibraryLine = _cookLibraryData[i];
             string cookOrderLine = _cookOrderData[i];
             RecipeLibraryEntryLeaf recipeLibraryEntryLeaf =
-                _recipeLibraryEntriesRegistry.RegisterExisting(i, baseGameId, i.ToString());
+                _recipeLibraryEntriesRegistry.RegisterExisting(i, i.ToString());
             _recipeTextAssetParser.FromTextAssetSerializedString(
                 TextAssetPaths.DataRecipesLibraryEntriesResultItemsPath,
                 cookOrderLine,

@@ -65,13 +65,13 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
         return leaf;
     }
 
-    public TLeaf RegisterExisting(int gameId, string creatorId, string namedId) =>
-        RegisterExisting<TLeaf>(gameId, creatorId, namedId);
+    public TLeaf RegisterExisting(int gameId, string namedId) =>
+        RegisterExisting<TLeaf>(gameId, namedId);
 
-    public virtual TSubLeaf RegisterExisting<TSubLeaf>(int gameId, string creatorId, string namedId)
+    public virtual TSubLeaf RegisterExisting<TSubLeaf>(int gameId, string namedId)
         where TSubLeaf : TLeaf
     {
-        TSubLeaf leaf = CreateLeafInstance<TSubLeaf>(gameId, creatorId, namedId);
+        TSubLeaf leaf = CreateLeafInstance<TSubLeaf>(gameId, Constants.BaseGameCreatorId, namedId);
         LeavesByEffectiveIds[namedId] = leaf;
         LeavesByGameIds[gameId] = leaf;
         LogRegisterContent(leaf);

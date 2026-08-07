@@ -51,7 +51,7 @@ internal sealed class EnemiesCollector : IBaseGameCollector
         _enemyLocalizedTextAssetParser = enemyLocalizedTextAssetParser;
     }
 
-    public void CollectBaseGameData(string baseGameId)
+    public void CollectBaseGameData()
     {
         _enemyOrderingTextAssetParser.FromTextAssetString(_enemiesOrderingData, _orderedRegistry);
 
@@ -60,9 +60,9 @@ internal sealed class EnemiesCollector : IBaseGameCollector
             string enemyNamedId = _enemyNamedIds[i];
 
             if (_orderedRegistry.BaseGameIdsToOrderingIndex.ContainsKey(i))
-                _orderedRegistry.RegisterExistingWithOrdering(i, enemyNamedId, baseGameId);
+                _orderedRegistry.RegisterExistingWithOrdering(i, enemyNamedId);
             else
-                _orderedRegistry.Registry.RegisterExisting(i, baseGameId, enemyNamedId);
+                _orderedRegistry.Registry.RegisterExisting(i, enemyNamedId);
         }
 
         IMetadataTokenProvider tokenBossList = null!;

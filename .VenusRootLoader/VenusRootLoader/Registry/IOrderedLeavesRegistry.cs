@@ -46,9 +46,8 @@ internal interface IOrderedLeavesRegistry<TLeaf>
     /// </summary>
     /// <param name="gameId">The game id of the new leaf for the game to identify it.</param>
     /// <param name="namedId">The named id of the new leaf for buds to identify it.</param>
-    /// <param name="creatorId">The creator id that identifies who authored the leaf.</param>
     /// <returns><inheritdoc cref="ILeavesRegistry{TLeaf}.RegisterExisting"/></returns>
-    TLeaf RegisterExistingWithOrdering(int gameId, string namedId, string creatorId);
+    TLeaf RegisterExistingWithOrdering(int gameId, string namedId);
 
     /// <summary>
     /// Sets the initial ordering of the leaves.

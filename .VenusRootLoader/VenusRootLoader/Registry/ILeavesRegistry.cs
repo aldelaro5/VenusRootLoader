@@ -49,20 +49,18 @@ internal interface ILeavesRegistry<TLeaf> : IEnumerable<TLeaf>
     /// Creates a newly registered leaf with a predetermined <see cref="Leaf.GameId"/>.
     /// </summary>
     /// <param name="gameId">The game id of the new leaf for the game to identify it.</param>
-    /// <param name="creatorId">The creator id that identifies who authored the leaf.</param>
     /// <param name="namedId">The named id of the new leaf for buds to identify it.</param>
     /// <returns>The newly registered leaf.</returns>
-    TLeaf RegisterExisting(int gameId, string creatorId, string namedId);
+    TLeaf RegisterExisting(int gameId, string namedId);
 
     /// <summary>
     /// Creates a newly registered leaf using a subtype of <typeparamref name="TLeaf" /> with a predetermined <see cref="Leaf.GameId"/>.
     /// </summary>
     /// <param name="gameId">The game id of the new leaf for the game to identify it.</param>
-    /// <param name="creatorId">The creator id that identifies who authored the leaf.</param>
     /// <param name="namedId">The named id of the new leaf for buds to identify it.</param>
     /// <typeparam name="TSubLeaf">The leaf subtype</typeparam>
     /// <returns>The newly registered leaf.</returns>
-    TSubLeaf RegisterExisting<TSubLeaf>(int gameId, string creatorId, string namedId) where TSubLeaf : TLeaf;
+    TSubLeaf RegisterExisting<TSubLeaf>(int gameId, string namedId) where TSubLeaf : TLeaf;
 
     /// <summary>
     /// Obtains a leaf from the registry using the parts of an effective id.

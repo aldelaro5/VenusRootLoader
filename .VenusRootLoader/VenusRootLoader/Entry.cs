@@ -41,7 +41,7 @@ internal static class Entry
             unityLogger.InstallManagedUnityLogger();
 
             RootCollector gameDataCollector = host.GetRequiredService<RootCollector>();
-            gameDataCollector.CollectAndRegisterBaseGameData(Constants.BaseGameCreatorId);
+            gameDataCollector.CollectAndRegisterBaseGameData();
 
             Resources.UnloadUnusedAssets();
 

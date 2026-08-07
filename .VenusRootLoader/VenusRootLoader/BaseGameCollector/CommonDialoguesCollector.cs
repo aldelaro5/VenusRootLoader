@@ -25,7 +25,7 @@ internal sealed class CommonDialoguesCollector : IBaseGameCollector
         _commonDialoguesRegistry = commonDialoguesRegistry;
     }
 
-    public void CollectBaseGameData(string baseGameId)
+    public void CollectBaseGameData()
     {
         int commonDialoguesAmount = _commonDialoguesLanguageData.Values.First().Length;
         for (int i = 0; i < commonDialoguesAmount; i++)
@@ -35,7 +35,7 @@ internal sealed class CommonDialoguesCollector : IBaseGameCollector
             // encode the game id for registration.
             int gameId = -i - 1;
             CommonDialogueLeaf commonDialogueLeaf =
-                _commonDialoguesRegistry.RegisterExisting(gameId, baseGameId, gameId.ToString());
+                _commonDialoguesRegistry.RegisterExisting(gameId, gameId.ToString());
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _commonDialogueLanguageDataSerializer.FromTextAssetSerializedString(

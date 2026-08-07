@@ -25,12 +25,12 @@ internal sealed class SpyCardsTextsCollector : IBaseGameCollector
         _spyCardsTextsRegistry = spyCardsTextsRegistry;
     }
 
-    public void CollectBaseGameData(string baseGameId)
+    public void CollectBaseGameData()
     {
         int spyCardsTextsAmount = _spyCardsTextsLanguageData.Values.First().Length;
         for (int i = 0; i < spyCardsTextsAmount; i++)
         {
-            SpyCardsTextLeaf spyCardsTextLeaf = _spyCardsTextsRegistry.RegisterExisting(i, baseGameId, i.ToString());
+            SpyCardsTextLeaf spyCardsTextLeaf = _spyCardsTextsRegistry.RegisterExisting(i, i.ToString());
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _spyCardsTextLocalizedTextAssetParser.FromTextAssetSerializedString(

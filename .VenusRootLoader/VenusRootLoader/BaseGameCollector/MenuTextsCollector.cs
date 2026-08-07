@@ -25,12 +25,12 @@ internal sealed class MenuTextsCollector : IBaseGameCollector
         _menuTextsRegistry = menuTextsRegistry;
     }
 
-    public void CollectBaseGameData(string baseGameId)
+    public void CollectBaseGameData()
     {
         int menuTextsAmount = _menuTextsLanguageData.Values.First().Length;
         for (int i = 0; i < menuTextsAmount; i++)
         {
-            MenuTextLeaf menuTextLeaf = _menuTextsRegistry.RegisterExisting(i, baseGameId, i.ToString());
+            MenuTextLeaf menuTextLeaf = _menuTextsRegistry.RegisterExisting(i, i.ToString());
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _menuTextLanguageDataSerializer.FromTextAssetSerializedString(

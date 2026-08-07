@@ -27,13 +27,13 @@ internal sealed class ActionCommandHelpTextsCollector : IBaseGameCollector
         _actionCommandHelpTextsRegistry = actionCommandHelpTextsRegistry;
     }
 
-    public void CollectBaseGameData(string baseGameId)
+    public void CollectBaseGameData()
     {
         int actionCommandHelpTextsAmount = _actionCommandHelpTextsLanguageData.Values.First().Length;
         for (int i = 0; i < actionCommandHelpTextsAmount; i++)
         {
             ActionCommandHelpTextLeaf actionCommandHelpTextLeaf =
-                _actionCommandHelpTextsRegistry.RegisterExisting(i, baseGameId, i.ToString());
+                _actionCommandHelpTextsRegistry.RegisterExisting(i, i.ToString());
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _actionCommandHelpTextLocalizedTextAssetParser.FromTextAssetSerializedString(

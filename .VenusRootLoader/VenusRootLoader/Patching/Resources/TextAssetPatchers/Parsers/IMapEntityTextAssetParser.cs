@@ -25,10 +25,9 @@ internal interface IMapEntityTextAssetParser
     /// string that is associated with its data or name.
     /// </summary>
     /// <param name="map">The <see cref="MapLeaf"/> associated with the <see cref="MapEntityLeaf"/>.</param>
-    /// <param name="baseGameId">The <see cref="Leaf.CreatorId"/> of the base game to use when registering the entity to the map's entities registry</param>
     /// <param name="id">The associated <see cref="MapEntityLeaf"/>'s unique id for the map.</param>
     /// <param name="name">The <see cref="MapEntityLeaf"/>'s name.</param>
     /// <param name="text">The line data of the <see cref="TextAsset"/> to use.</param>
     /// <remarks>This will register the entity to the map's entity registry using its parsed type</remarks>
-    void FromTextAssetSerializedString(MapLeaf map, string baseGameId, int id, string name, string text);
+    void FromTextAssetSerializedString(MapLeaf map, int id, string name, string text);
 }

@@ -41,14 +41,14 @@ internal sealed class LoreBooksCollector : IBaseGameCollector
         _flagsRegistry = flagsRegistry;
     }
 
-    public void CollectBaseGameData(string baseGameId)
+    public void CollectBaseGameData()
     {
         int[] flags = CollectLoreBooksObtainedFlagGameIds();
 
         int loreBooksAmount = _loreTextsLanguageData.Values.First().Length;
         for (int i = 0; i < loreBooksAmount; i++)
         {
-            LoreBookLeaf loreBookLeaf = _loreBooksRegistry.RegisterExisting(i, baseGameId, i.ToString());
+            LoreBookLeaf loreBookLeaf = _loreBooksRegistry.RegisterExisting(i, i.ToString());
             loreBookLeaf.LoreBookObtainedFlag = new(_flagsRegistry.GetByGameId(flags[i]));
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {

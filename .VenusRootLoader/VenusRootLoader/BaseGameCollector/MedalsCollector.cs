@@ -49,12 +49,12 @@ internal sealed class MedalsCollector : IBaseGameCollector
         _medalLanguageDataSerializer = medalLanguageDataSerializer;
     }
 
-    public void CollectBaseGameData(string baseGameId)
+    public void CollectBaseGameData()
     {
         for (int i = 0; i < _badgeNamedIds.Length; i++)
         {
             string medalNamedId = _badgeNamedIds[i];
-            MedalLeaf medalLeaf = _orderedRegistry.RegisterExistingWithOrdering(i, medalNamedId, baseGameId);
+            MedalLeaf medalLeaf = _orderedRegistry.RegisterExistingWithOrdering(i, medalNamedId);
             _medalDataSerializer.FromTextAssetSerializedString(
                 TextAssetPaths.DataMedalsPath,
                 _medalsData[i],

@@ -322,7 +322,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         return sb.ToString();
     }
 
-    public void FromTextAssetSerializedString(MapLeaf map, string baseGameId, int id, string name, string text)
+    public void FromTextAssetSerializedString(MapLeaf map, int id, string name, string text)
     {
         string[] fields = text.Split(StringUtils.ClosingBraceSplitDelimiter);
 
@@ -339,7 +339,6 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         MapEntityLeaf value = GetTypedMapEntity(
             map,
             id,
-            baseGameId,
             type,
             objectType,
             interaction,
@@ -558,7 +557,6 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
     private static MapEntityLeaf GetTypedMapEntity(
         MapLeaf map,
         int id,
-        string baseGameId,
         NPCControl.NPCType type,
         NPCControl.ObjectTypes objectType,
         NPCControl.Interaction interaction,
@@ -574,161 +572,157 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BeetleGrass, _) =>
                 int.Parse(fields[60]) < 2 ||
                 int.Parse(fields[61 + 1]) < 0
-                    ? registry.RegisterExisting<CuttableGrassWithItemDropsMapEntityLeaf>(id, baseGameId, namedId)
+                    ? registry.RegisterExisting<CuttableGrassWithItemDropsMapEntityLeaf>(id, namedId)
                     : registry.RegisterExisting<CuttableGrassWithCrystalBerryDropMapEntityLeaf>(
                         id,
-                        baseGameId,
                         namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PushRock, _) =>
                 int.Parse(fields[60]) < 3 ||
                 int.Parse(fields[61 + 2]) == 0
-                    ? registry.RegisterExisting<MovableRockMapEntityLeaf>(id, baseGameId, namedId)
-                    : registry.RegisterExisting<SlidingIcePillarMapEntityLeaf>(id, baseGameId, namedId),
+                    ? registry.RegisterExisting<MovableRockMapEntityLeaf>(id, namedId)
+                    : registry.RegisterExisting<SlidingIcePillarMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PressurePlate, _) =>
-                registry.RegisterExisting<PressurePlateMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<PressurePlateMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ANDGate, _) =>
                 int.Parse(fields[60]) == 2 && int.Parse(fields[61 + 1]) == -1
-                    ? registry.RegisterExisting<AndGateOnSingleFlagMapEntityLeaf>(id, baseGameId, namedId)
+                    ? registry.RegisterExisting<AndGateOnSingleFlagMapEntityLeaf>(id, namedId)
                     : int.Parse(fields[61 + 0]) switch
                     {
-                        -2 => registry.RegisterExisting<AndGateOnFlagsMapEntityLeaf>(id, baseGameId, namedId),
+                        -2 => registry.RegisterExisting<AndGateOnFlagsMapEntityLeaf>(id, namedId),
                         >= -1 => registry.RegisterExisting<AndGateOnEntitiesLeafActivationMapEntityLeaf>(
                             id,
-                            baseGameId,
                             namedId),
                         _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntityLeaf>()
                     },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.CameraChange, _) => registry.RegisterExisting<
-                CameraChangeZoneMapEntityLeaf>(id, baseGameId, namedId),
+                CameraChangeZoneMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Item, _) => int.Parse(fields[61 + 0]) switch
             {
-                0 or 1 => registry.RegisterExisting<CollectibleItemMapEntityLeaf>(id, baseGameId, namedId),
-                2 => registry.RegisterExisting<CollectibleMedalMapEntityLeaf>(id, baseGameId, namedId),
-                3 => registry.RegisterExisting<CollectibleCrystalBerryMapEntityLeaf>(id, baseGameId, namedId),
+                0 or 1 => registry.RegisterExisting<CollectibleItemMapEntityLeaf>(id, namedId),
+                2 => registry.RegisterExisting<CollectibleMedalMapEntityLeaf>(id, namedId),
+                3 => registry.RegisterExisting<CollectibleCrystalBerryMapEntityLeaf>(id, namedId),
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntityLeaf>()
             },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DoorOtherMap, _) =>
-                registry.RegisterExisting<LoadingZoneMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<LoadingZoneMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.SetPlayerRespawn, _) => new Vector3(
                 float.Parse(fields[72 + 0]),
                 float.Parse(fields[72 + 1]),
                 float.Parse(fields[72 + 2])).magnitude >= 0.1
-                ? registry.RegisterExisting<SetPlayerRespawnZoneMapEntityLeaf>(id, baseGameId, namedId)
-                : registry.RegisterExisting<IndependantRespawnZoneMapEntityLeaf>(id, baseGameId, namedId),
+                ? registry.RegisterExisting<SetPlayerRespawnZoneMapEntityLeaf>(id, namedId)
+                : registry.RegisterExisting<IndependantRespawnZoneMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DoorSameMap, _) =>
-                registry.RegisterExisting<InsideTransitionZoneMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<InsideTransitionZoneMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.EventTrigger, _) =>
                 int.Parse(fields[60]) >= 3 &&
                 int.Parse(fields[61 + 2]) == 1
-                    ? registry.RegisterExisting<AutomaticEventTriggerMapEntityLeaf>(id, baseGameId, namedId)
-                    : registry.RegisterExisting<EventTriggerZoneMapEntityLeaf>(id, baseGameId, namedId),
+                    ? registry.RegisterExisting<AutomaticEventTriggerMapEntityLeaf>(id, namedId)
+                    : registry.RegisterExisting<EventTriggerZoneMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DialogueTrigger, _) =>
                 int.Parse(fields[60]) >= 3 &&
                 int.Parse(fields[61 + 2]) == 1
-                    ? registry.RegisterExisting<AutomaticMapDialogueTriggerMapEntityLeaf>(id, baseGameId, namedId)
-                    : registry.RegisterExisting<DialogueTriggerZoneMapEntityLeaf>(id, baseGameId, namedId),
+                    ? registry.RegisterExisting<AutomaticMapDialogueTriggerMapEntityLeaf>(id, namedId)
+                    : registry.RegisterExisting<DialogueTriggerZoneMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ANDBlock, _) =>
                 int.Parse(fields[60]) == 2 && int.Parse(fields[61 + 1]) == -1
-                    ? registry.RegisterExisting<AndBlockOnSingleFlagMapEntityLeaf>(id, baseGameId, namedId)
+                    ? registry.RegisterExisting<AndBlockOnSingleFlagMapEntityLeaf>(id, namedId)
                     : int.Parse(fields[61 + 0]) switch
                     {
-                        -2 => registry.RegisterExisting<AndBlockOnFlagsMapEntityLeaf>(id, baseGameId, namedId),
+                        -2 => registry.RegisterExisting<AndBlockOnFlagsMapEntityLeaf>(id, namedId),
                         >= -1 => registry.RegisterExisting<AndBlockOnEntitiesLeafActivationMapEntityLeaf>(
                             id,
-                            baseGameId,
                             namedId),
                         _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntityLeaf>()
                     },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.SavePoint, _) =>
                 int.Parse(fields[61 + 1]) >= 10
-                    ? registry.RegisterExisting<DeadLanderOmegaAlertCrystalMapEntityLeaf>(id, baseGameId, namedId)
-                    : registry.RegisterExisting<SavePointCrystalMapEntityLeaf>(id, baseGameId, namedId),
+                    ? registry.RegisterExisting<DeadLanderOmegaAlertCrystalMapEntityLeaf>(id, namedId)
+                    : registry.RegisterExisting<SavePointCrystalMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.JumpSpring, _) =>
                 int.Parse(fields[61 + 0]) == 1
-                    ? registry.RegisterExisting<JumpToPositionSpringMapEntityLeaf>(id, baseGameId, namedId)
-                    : registry.RegisterExisting<JumpUpSpringMapEntityLeaf>(id, baseGameId, namedId),
+                    ? registry.RegisterExisting<JumpToPositionSpringMapEntityLeaf>(id, namedId)
+                    : registry.RegisterExisting<JumpUpSpringMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DigSpot, _) =>
                 (int.Parse(fields[61 + 0]), int.Parse(fields[61 + 1])) switch
                 {
-                    (1, _) => registry.RegisterExisting<DigSpotCrystalBerryMapEntityLeaf>(id, baseGameId, namedId),
-                    (>= 2, _) => registry.RegisterExisting<DigSpotStartEventMapEntityLeaf>(id, baseGameId, namedId),
-                    (<= 0, >= 2) => registry.RegisterExisting<DigSpotMedalMapEntityLeaf>(id, baseGameId, namedId),
-                    (<= 0, < 2) => registry.RegisterExisting<DigSpotItemMapEntityLeaf>(id, baseGameId, namedId),
+                    (1, _) => registry.RegisterExisting<DigSpotCrystalBerryMapEntityLeaf>(id, namedId),
+                    (>= 2, _) => registry.RegisterExisting<DigSpotStartEventMapEntityLeaf>(id, namedId),
+                    (<= 0, >= 2) => registry.RegisterExisting<DigSpotMedalMapEntityLeaf>(id, namedId),
+                    (<= 0, < 2) => registry.RegisterExisting<DigSpotItemMapEntityLeaf>(id, namedId),
                 },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Switch, _) =>
                 (int.Parse(fields[61 + 0]), int.Parse(fields[61 + 1]), int.Parse(fields[61 + 2])) switch
                 {
-                    (0, 0, 0) => registry.RegisterExisting<LatchedSwitchMapEntityLeaf>(id, baseGameId, namedId),
-                    (0, 0, _) => registry.RegisterExisting<TimerSwitchMapEntityLeaf>(id, baseGameId, namedId),
-                    (0, 1, _) => registry.RegisterExisting<LinkableToggleSwitchMapEntityLeaf>(id, baseGameId, namedId),
-                    (1, >= 0, _) => registry.RegisterExisting<EventTriggerSwitchMapEntityLeaf>(id, baseGameId, namedId),
+                    (0, 0, 0) => registry.RegisterExisting<LatchedSwitchMapEntityLeaf>(id, namedId),
+                    (0, 0, _) => registry.RegisterExisting<TimerSwitchMapEntityLeaf>(id, namedId),
+                    (0, 1, _) => registry.RegisterExisting<LinkableToggleSwitchMapEntityLeaf>(id, namedId),
+                    (1, >= 0, _) => registry.RegisterExisting<EventTriggerSwitchMapEntityLeaf>(id, namedId),
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntityLeaf>()
                 },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.CoiledObject, _) =>
-                registry.RegisterExisting<TrappedEntityMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<TrappedEntityMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.FixedAnim, _) =>
-                registry.RegisterExisting<FixedAnimstateMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<FixedAnimstateMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.EnemySpawner, _) =>
-                registry.RegisterExisting<EnemySpawnerMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<EnemySpawnerMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Dropplet, _) =>
-                registry.RegisterExisting<FreezableWaterDropletMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<FreezableWaterDropletMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PathPlatform, _) =>
                 (int)float.Parse(fields[103 + (1 * 3) + 0]) == 1
-                    ? registry.RegisterExisting<MovingPlatformAlongLerpMapEntityLeaf>(id, baseGameId, namedId)
-                    : registry.RegisterExisting<MovingPlatformAlongPathMapEntityLeaf>(id, baseGameId, namedId),
+                    ? registry.RegisterExisting<MovingPlatformAlongLerpMapEntityLeaf>(id, namedId)
+                    : registry.RegisterExisting<MovingPlatformAlongPathMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BreakableRock, _) =>
-                registry.RegisterExisting<BreakableRockMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<BreakableRockMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.RotatingPlatform, _) =>
-                registry.RegisterExisting<RotatingPlatformMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<RotatingPlatformMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Geizer, _) =>
-                registry.RegisterExisting<GeyserMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<GeyserMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.MusicRange, _) =>
-                registry.RegisterExisting<MusicChangeRadiusMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<MusicChangeRadiusMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TempPlatform, _) =>
-                registry.RegisterExisting<FlytrapPlatformMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<FlytrapPlatformMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ScrewSwitch, _) =>
-                registry.RegisterExisting<SpinningCrankMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<SpinningCrankMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ResetCamera, _) =>
-                registry.RegisterExisting<ResetCameraZoneMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<ResetCameraZoneMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.StencilSwitch, _) =>
-                registry.RegisterExisting<IceRadiusSwitchMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<IceRadiusSwitchMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.RollingRock, _) => int.Parse(fields[61 + 2]) switch
             {
-                1 => registry.RegisterExisting<RollingRockCanonMapEntityLeaf>(id, baseGameId, namedId),
-                _ => registry.RegisterExisting<RollingRockWithoutCanonMapEntityLeaf>(id, baseGameId, namedId)
+                1 => registry.RegisterExisting<RollingRockCanonMapEntityLeaf>(id, namedId),
+                _ => registry.RegisterExisting<RollingRockWithoutCanonMapEntityLeaf>(id, namedId)
             },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TriggerSwitch, _) => int.Parse(fields[61 + 0]) == -1
-                ? registry.RegisterExisting<SelfActivatorZoneMapEntityLeaf>(id, baseGameId, namedId)
-                : registry.RegisterExisting<RemoteActivatorZoneMapEntityLeaf>(id, baseGameId, namedId),
+                ? registry.RegisterExisting<SelfActivatorZoneMapEntityLeaf>(id, namedId)
+                : registry.RegisterExisting<RemoteActivatorZoneMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WindPusher, _) =>
-                registry.RegisterExisting<WindBeamZoneMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<WindBeamZoneMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WaterSwitch, _) =>
-                registry.RegisterExisting<MapMainMeshChildVerticalPositionSwitchMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<MapMainMeshChildVerticalPositionSwitchMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Enemy, _, _) => RegisterExistingEnemy(
                 id,
-                baseGameId,
                 primaryBehavior,
                 secondaryBehavior,
                 fields,
                 registry,
                 namedId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.None) =>
-                registry.RegisterExisting<NoInteractionNpcMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<NoInteractionNpcMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.Talk or NPCControl.Interaction.Check) =>
-                registry.RegisterExisting<TalkingNpcMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<TalkingNpcMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.Event or NPCControl.Interaction.LockedDoor) =>
-                registry.RegisterExisting<EventNpcMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<EventNpcMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.Shop) => float.Parse(fields[103 + (10 * 3)] + 0) == 0f
-                ? registry.RegisterExisting<ItemShopMapEntityLeaf>(id, baseGameId, namedId)
-                : registry.RegisterExisting<MedalShopMapEntityLeaf>(id, baseGameId, namedId),
+                ? registry.RegisterExisting<ItemShopMapEntityLeaf>(id, namedId)
+                : registry.RegisterExisting<MedalShopMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.QuestBoard) =>
-                registry.RegisterExisting<QuestBoardNpcMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<QuestBoardNpcMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.StorageAnt) =>
-                registry.RegisterExisting<ItemsStorageNpcMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<ItemsStorageNpcMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.CaravanBadge) =>
-                registry.RegisterExisting<CaravanShelvedMedalNpcMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<CaravanShelvedMedalNpcMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.VenusHeal) =>
-                registry.RegisterExisting<VenusHealingNpcMapEntityLeaf>(id, baseGameId, namedId),
+                registry.RegisterExisting<VenusHealingNpcMapEntityLeaf>(id, namedId),
             _ => ThrowHelper.ThrowInvalidOperationException<MapEntityLeaf>(
                 $"Invalid NPCControl - type: {type}, ObjectType: {objectType}, Interaction: {interaction}")
         };
@@ -736,7 +730,6 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
 
     private static MapEntityLeaf RegisterExistingEnemy(
         int id,
-        string baseGameId,
         NPCControl.ActionBehaviors primaryBehavior,
         NPCControl.ActionBehaviors secondaryBehavior,
         string[] fields,
@@ -747,14 +740,13 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             !BehaviorsWithSecondaryVectorData.Contains(primaryBehavior) &&
             !BehaviorsWithSecondaryVectorData.Contains(secondaryBehavior))
         {
-            return registry.RegisterExisting<EnemyEncounterDroppingKeyItemMapEntityLeaf>(id, baseGameId, namedId);
+            return registry.RegisterExisting<EnemyEncounterDroppingKeyItemMapEntityLeaf>(id, namedId);
         }
 
         return int.Parse(fields[37]) > 0
-            ? registry.RegisterExisting<EnemyEncounterWithRespawnMapEntityLeaf>(id, baseGameId, namedId)
+            ? registry.RegisterExisting<EnemyEncounterWithRespawnMapEntityLeaf>(id, namedId)
             : registry.RegisterExisting<EnemyEncounterDroppingItemsMapEntityLeaf>(
                 id,
-                baseGameId,
                 namedId);
     }
 

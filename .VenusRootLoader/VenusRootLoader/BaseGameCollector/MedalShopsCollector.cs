@@ -33,7 +33,7 @@ internal sealed class MedalShopsCollector : IBaseGameCollector
         _assemblyCSharpDataCollector = assemblyCSharpDataCollector;
     }
 
-    public void CollectBaseGameData(string baseGameId)
+    public void CollectBaseGameData()
     {
         int medalShopsAmount = CollectMedalShopsAmount();
         List<List<Branch<MedalLeaf>>> medalShopsStartingStock = CollectMedalShopsStartingStock(medalShopsAmount);
@@ -42,7 +42,7 @@ internal sealed class MedalShopsCollector : IBaseGameCollector
         for (int i = 0; i < medalShopsAmount; i++)
         {
             MedalShopLeaf medalShopLeaf =
-                _medalShopsRegistry.RegisterExisting(i, baseGameId, _baseGameMedalShopNamedIds[i]);
+                _medalShopsRegistry.RegisterExisting(i, _baseGameMedalShopNamedIds[i]);
             medalShopLeaf.StartingMedalsStock.AddRange(medalShopsStartingStock[i]);
             medalShopLeaf.BoughtAllStockFlag = medalShopsBoughtAllStockFlags[i];
         }

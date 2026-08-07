@@ -33,7 +33,7 @@ internal sealed class ActionCommandHelpTextsCollector : IBaseGameCollector
         for (int i = 0; i < actionCommandHelpTextsAmount; i++)
         {
             ActionCommandHelpTextLeaf actionCommandHelpTextLeaf =
-                _actionCommandHelpTextsRegistry.RegisterExisting(i, i.ToString(), baseGameId);
+                _actionCommandHelpTextsRegistry.RegisterExisting(i, baseGameId, i.ToString());
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _actionCommandHelpTextLocalizedTextAssetParser.FromTextAssetSerializedString(

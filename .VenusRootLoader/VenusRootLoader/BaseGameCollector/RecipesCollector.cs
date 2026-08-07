@@ -29,7 +29,7 @@ internal sealed class RecipesCollector : IBaseGameCollector
         for (int i = 0; i < _recipesData.Length; i++)
         {
             string recipe = _recipesData[i];
-            RecipeLeaf recipeLeaf = _recipesRegistry.RegisterExisting(i, i.ToString(), baseGameId);
+            RecipeLeaf recipeLeaf = _recipesRegistry.RegisterExisting(i, baseGameId, i.ToString());
             _recipeTextAssetParser.FromTextAssetSerializedString(TextAssetPaths.DataRecipesPath, recipe, recipeLeaf);
         }
 

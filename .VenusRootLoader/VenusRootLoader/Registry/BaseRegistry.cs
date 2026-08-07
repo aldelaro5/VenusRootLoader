@@ -58,27 +58,27 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
         }
 
         int gameId = CreateNewGameId(effectiveId);
-        TSubLeaf leaf = CreateLeafInstance<TSubLeaf>(gameId, namedId, creatorId);
+        TSubLeaf leaf = CreateLeafInstance<TSubLeaf>(gameId, creatorId, namedId);
         LeavesByEffectiveIds[effectiveId] = leaf;
         LeavesByGameIds[gameId] = leaf;
         LogRegisterContent(leaf);
         return leaf;
     }
 
-    public TLeaf RegisterExisting(int gameId, string namedId, string creatorId) =>
-        RegisterExisting<TLeaf>(gameId, namedId, creatorId);
+    public TLeaf RegisterExisting(int gameId, string creatorId, string namedId) =>
+        RegisterExisting<TLeaf>(gameId, creatorId, namedId);
 
-    public virtual TSubLeaf RegisterExisting<TSubLeaf>(int gameId, string namedId, string creatorId)
+    public virtual TSubLeaf RegisterExisting<TSubLeaf>(int gameId, string creatorId, string namedId)
         where TSubLeaf : TLeaf
     {
-        TSubLeaf leaf = CreateLeafInstance<TSubLeaf>(gameId, namedId, creatorId);
+        TSubLeaf leaf = CreateLeafInstance<TSubLeaf>(gameId, creatorId, namedId);
         LeavesByEffectiveIds[namedId] = leaf;
         LeavesByGameIds[gameId] = leaf;
         LogRegisterContent(leaf);
         return leaf;
     }
 
-    private static TSubLeaf CreateLeafInstance<TSubLeaf>(int gameId, string namedId, string creatorId)
+    private static TSubLeaf CreateLeafInstance<TSubLeaf>(int gameId, string creatorId, string namedId)
         where TSubLeaf : TLeaf
     {
         // We have to use the Activator here because it's not possible to use a generics constraint that does what we want.
@@ -120,9 +120,10 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
     {
         if (!LeavesByEffectiveIds.TryGetValue(effectiveId, out TLeaf leaf))
         {
+            (string CreatorId, string NamedId) parts = EffectiveLeafId.SplitParts(effectiveId);
             return ThrowHelper.ThrowArgumentException<TLeaf>(
                 nameof(effectiveId),
-                $"{effectiveId} does not exist in the {_registryName} registry");
+                $"No leaf named {parts.NamedId} by {parts.CreatorId} exists in the {_registryName} registry");
         }
 
         return leaf;
@@ -146,7 +147,7 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
         {
             return ThrowHelper.ThrowArgumentException<TLeaf>(
                 nameof(gameId),
-                $"{gameId} does not exist in the {_registryName} registry");
+                $"No leaf with game id {gameId} exists in the {_registryName} registry");
         }
 
         return leaf;

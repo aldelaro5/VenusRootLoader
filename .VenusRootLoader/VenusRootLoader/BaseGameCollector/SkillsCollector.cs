@@ -37,7 +37,7 @@ internal sealed class SkillsCollector : IBaseGameCollector
         int skillsAmount = _skillNamedIds.Length;
         for (int i = 0; i < skillsAmount; i++)
         {
-            SkillLeaf skillLeaf = _skillsRegistry.RegisterExisting(i, _skillNamedIds[i], baseGameId);
+            SkillLeaf skillLeaf = _skillsRegistry.RegisterExisting(i, baseGameId, _skillNamedIds[i]);
             _skillTextAssetParser.FromTextAssetSerializedString(
                 TextAssetPaths.DataSkillsPath,
                 _skillsData[i],

@@ -50,7 +50,7 @@ internal sealed class QuestsCollector : IBaseGameCollector
 
         for (int i = 0; i < _questNamedIds.Length; i++)
         {
-            QuestLeaf questLeaf = _questsRegistry.RegisterExisting(i, _questNamedIds[i], baseGameId);
+            QuestLeaf questLeaf = _questsRegistry.RegisterExisting(i, baseGameId, _questNamedIds[i]);
             _questTextAssetParser.FromTextAssetSerializedString(
                 TextAssetPaths.DataQuestsPath,
                 _boardData[i],

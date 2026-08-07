@@ -32,7 +32,7 @@ internal sealed class DialogueBleepCollector : IBaseGameCollector
             .ToList();
         for (int i = 0; i < dialogueBleeps.Count; i++)
         {
-            DialogueBleepLeaf dialogueBleepLeaf = _dialogueBleepsRegistry.RegisterExisting(i, i.ToString(), baseGameId);
+            DialogueBleepLeaf dialogueBleepLeaf = _dialogueBleepsRegistry.RegisterExisting(i, baseGameId, i.ToString());
             dialogueBleepLeaf.BleepSound = dialogueBleeps[i];
         }
 

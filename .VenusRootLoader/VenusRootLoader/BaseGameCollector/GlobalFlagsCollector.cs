@@ -54,19 +54,19 @@ internal sealed class GlobalFlagsCollector : IBaseGameCollector
             .GotoPrev(i => i.MatchLdcI4(out flagstringsAmount));
 
         for (int i = 0; i < flagsAmount; i++)
-            _flagsRegistry.RegisterExisting(i, i.ToString(), baseGameId);
+            _flagsRegistry.RegisterExisting(i, baseGameId, i.ToString());
         _logger.LogInformation(
             "Collected and registered {FlagsAmount} base game flags slots",
             flagsAmount);
 
         for (int i = 0; i < flagvarsAmount; i++)
-            _flagvarsRegistry.RegisterExisting(i, i.ToString(), baseGameId);
+            _flagvarsRegistry.RegisterExisting(i, baseGameId, i.ToString());
         _logger.LogInformation(
             "Collected and registered {FlagvarsAmount} base game flagvars slots",
             flagvarsAmount);
 
         for (int i = 0; i < flagstringsAmount; i++)
-            _flagstringsRegistry.RegisterExisting(i, i.ToString(), baseGameId);
+            _flagstringsRegistry.RegisterExisting(i, baseGameId, i.ToString());
         _logger.LogInformation(
             "Collected and registered {FlagstringAmount} base game flagstrings slots",
             flagstringsAmount);

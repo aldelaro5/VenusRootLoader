@@ -31,7 +31,7 @@ internal sealed class RankBonusesCollector : IBaseGameCollector
         {
             string rankBonusString = _rankBonusesData[i];
             RankBonusLeaf rankBonusLeaf =
-                _rankBonusesRegistry.RegisterExisting(i, i.ToString(), baseGameId);
+                _rankBonusesRegistry.RegisterExisting(i, baseGameId, i.ToString());
             _rankBonusTextAssetParser.FromTextAssetSerializedString(
                 TextAssetPaths.DataRankBonusesPath,
                 rankBonusString,

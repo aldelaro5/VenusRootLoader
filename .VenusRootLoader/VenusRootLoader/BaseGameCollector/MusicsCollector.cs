@@ -63,7 +63,7 @@ internal sealed class MusicsCollector : IBaseGameCollector
 
         for (int i = 0; i < _musicNamedIds.Length; i++)
         {
-            MusicLeaf musicLeaf = _musicRegistry.RegisterExisting(i, _musicNamedIds[i], baseGameId);
+            MusicLeaf musicLeaf = _musicRegistry.RegisterExisting(i, baseGameId, _musicNamedIds[i]);
             _musicTextAssetParser.FromTextAssetSerializedString(
                 TextAssetPaths.DataMusicLoopPointsPath,
                 _loopPointsData[i],

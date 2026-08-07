@@ -35,7 +35,7 @@ internal sealed class CommonDialoguesCollector : IBaseGameCollector
             // encode the game id for registration.
             int gameId = -i - 1;
             CommonDialogueLeaf commonDialogueLeaf =
-                _commonDialoguesRegistry.RegisterExisting(gameId, gameId.ToString(), baseGameId);
+                _commonDialoguesRegistry.RegisterExisting(gameId, baseGameId, gameId.ToString());
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _commonDialogueLanguageDataSerializer.FromTextAssetSerializedString(

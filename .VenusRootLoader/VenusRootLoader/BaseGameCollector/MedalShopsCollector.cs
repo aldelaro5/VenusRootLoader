@@ -42,7 +42,7 @@ internal sealed class MedalShopsCollector : IBaseGameCollector
         for (int i = 0; i < medalShopsAmount; i++)
         {
             MedalShopLeaf medalShopLeaf =
-                _medalShopsRegistry.RegisterExisting(i, _baseGameMedalShopNamedIds[i], baseGameId);
+                _medalShopsRegistry.RegisterExisting(i, baseGameId, _baseGameMedalShopNamedIds[i]);
             medalShopLeaf.StartingMedalsStock.AddRange(medalShopsStartingStock[i]);
             medalShopLeaf.BoughtAllStockFlag = medalShopsBoughtAllStockFlags[i];
         }

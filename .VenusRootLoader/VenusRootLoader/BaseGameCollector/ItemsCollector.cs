@@ -59,7 +59,7 @@ internal sealed class ItemsCollector : IBaseGameCollector
         for (int i = 0; i < _itemNamedIds.Length; i++)
         {
             string itemNamedId = _itemNamedIds[i];
-            ItemLeaf itemLeaf = _leavesRegistry.RegisterExisting(i, itemNamedId, baseGameId);
+            ItemLeaf itemLeaf = _leavesRegistry.RegisterExisting(i, baseGameId, itemNamedId);
             _itemDataSerializer.FromTextAssetSerializedString(TextAssetPaths.DataItemsPath, _itemsData[i], itemLeaf);
             itemLeaf.WrappedSprite.Sprite = i < ItemsSpritesAmountInItems0
                 ? _items0Sprites[i]

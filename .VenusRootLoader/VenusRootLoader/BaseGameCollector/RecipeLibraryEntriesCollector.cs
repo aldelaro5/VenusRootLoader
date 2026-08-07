@@ -35,7 +35,7 @@ internal sealed class RecipeLibraryEntriesCollector : IBaseGameCollector
             string cookLibraryLine = _cookLibraryData[i];
             string cookOrderLine = _cookOrderData[i];
             RecipeLibraryEntryLeaf recipeLibraryEntryLeaf =
-                _recipeLibraryEntriesRegistry.RegisterExisting(i, i.ToString(), baseGameId);
+                _recipeLibraryEntriesRegistry.RegisterExisting(i, baseGameId, i.ToString());
             _recipeTextAssetParser.FromTextAssetSerializedString(
                 TextAssetPaths.DataRecipesLibraryEntriesResultItemsPath,
                 cookOrderLine,

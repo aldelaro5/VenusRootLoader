@@ -42,9 +42,9 @@ internal sealed class AutoSequentialIdBasedRegistry<TLeaf> : BaseRegistry<TLeaf>
         return newGameId;
     }
 
-    public override TSubLeaf RegisterExisting<TSubLeaf>(int gameId, string namedId, string creatorId)
+    public override TSubLeaf RegisterExisting<TSubLeaf>(int gameId, string creatorId, string namedId)
     {
-        TSubLeaf leaf = base.RegisterExisting<TSubLeaf>(gameId, namedId, creatorId);
+        TSubLeaf leaf = base.RegisterExisting<TSubLeaf>(gameId, creatorId, namedId);
         _nextAutoIncrementId = _idSequenceDirection switch
         {
             IdSequenceDirection.Increment => gameId + 1,

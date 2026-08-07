@@ -68,7 +68,7 @@ internal sealed class PrizeMedalsCollector : IBaseGameCollector
 
         for (int i = 0; i < prizeIds.Length; i++)
         {
-            PrizeMedalLeaf prizeMedalLeaf = _prizeMedalsRegistry.RegisterExisting(i, i.ToString(), baseGameId);
+            PrizeMedalLeaf prizeMedalLeaf = _prizeMedalsRegistry.RegisterExisting(i, baseGameId, i.ToString());
             prizeMedalLeaf.MedalGameId = prizeIds[i];
             prizeMedalLeaf.FlagvarGameId = prizeFlags[i];
             prizeMedalLeaf.DisplayedEnemyGameId = prizeEnemyIds[i];

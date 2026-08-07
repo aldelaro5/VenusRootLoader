@@ -62,7 +62,7 @@ internal sealed class EnemiesCollector : IBaseGameCollector
             if (_orderedRegistry.BaseGameIdsToOrderingIndex.ContainsKey(i))
                 _orderedRegistry.RegisterExistingWithOrdering(i, enemyNamedId, baseGameId);
             else
-                _orderedRegistry.Registry.RegisterExisting(i, enemyNamedId, baseGameId);
+                _orderedRegistry.Registry.RegisterExisting(i, baseGameId, enemyNamedId);
         }
 
         IMetadataTokenProvider tokenBossList = null!;

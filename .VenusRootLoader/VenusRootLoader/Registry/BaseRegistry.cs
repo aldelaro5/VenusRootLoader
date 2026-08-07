@@ -35,7 +35,7 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
     /// <summary>
     /// Gets the number of leaves contained in the registry that were created by the BaseGame.
     /// </summary>
-    public int CountBaseGame => LeavesByEffectiveIds.Count(l => l.Value.CreatorId == Constants.BaseGameCreatorId);
+    public int CountBaseGame { get; private set; }
 
     protected abstract int CreateNewGameId(string effectiveId);
 
@@ -75,6 +75,7 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
         LeavesByEffectiveIds[namedId] = leaf;
         LeavesByGameIds[gameId] = leaf;
         LogRegisterContent(leaf);
+        CountBaseGame++;
         return leaf;
     }
 

@@ -153,13 +153,13 @@ public sealed class BudsSaveDataDeserializerTests
         string budId = "bud1";
         string namedId = "CustomShop";
 
-        Dictionary<string, MedalShopLeaf> medalShopLeaves = new() { [$"{budId}~{namedId}"] = new(0, namedId, budId) };
-        medalShopLeaves[$"{budId}~{namedId}"].StartingMedalsStock.AddRange(
+        List<MedalShopLeaf> medalShopLeaves = new() { new(0, budId, namedId) };
+        medalShopLeaves[0].StartingMedalsStock.AddRange(
         [
             new MedalLeaf(0, "Medal1", "Creator1"),
             new MedalLeaf(1, "Medal2", "Creator2")
         ]);
-        MockRegistry(_medalShopsLeafRegistry, medalShopLeaves);
+        TestUtility.MockRegistry(_medalShopsLeafRegistry, medalShopLeaves);
 
         StagingLoadData stagingLoadData = new();
 
@@ -226,14 +226,11 @@ public sealed class BudsSaveDataDeserializerTests
             }
         };
 
-        Dictionary<string, MedalShopLeaf> medalShopLeaves = new() { [$"{budId1}~{namedId}"] = new(0, namedId, budId1) };
-        MockRegistry(_medalShopsLeafRegistry, medalShopLeaves);
+        List<MedalShopLeaf> medalShopLeaves = new() { new(0, budId1, namedId) };
+        TestUtility.MockRegistry(_medalShopsLeafRegistry, medalShopLeaves);
 
-        Dictionary<string, MedalLeaf> medalLeaves = new()
-        {
-            [$"{budId1}~{medalNamedId}"] = new(0, medalNamedId, budId1)
-        };
-        MockRegistry(_medalsLeafRegistry, medalLeaves);
+        List<MedalLeaf> medalLeaves = new() { new(0, budId1, medalNamedId) };
+        TestUtility.MockRegistry(_medalsLeafRegistry, medalLeaves);
 
         Dictionary<string, string> budsSaveDataByCreatorIds = budsSaveData
             .ToDictionary(x => x.Key, x => JsonSerializer.Serialize(x.Value));
@@ -306,8 +303,8 @@ public sealed class BudsSaveDataDeserializerTests
         string budId = "bud1";
         string namedId = "CustomDiscovery";
 
-        Dictionary<string, DiscoveryLeaf> medalShopLeaves = new() { [$"{budId}~{namedId}"] = new(0, namedId, budId) };
-        MockRegistry(_discoveriesLeafRegistry, medalShopLeaves);
+        List<DiscoveryLeaf> medalShopLeaves = new() { new(0, budId, namedId) };
+        TestUtility.MockRegistry(_discoveriesLeafRegistry, medalShopLeaves);
 
         StagingLoadData stagingLoadData = new();
 
@@ -378,8 +375,8 @@ public sealed class BudsSaveDataDeserializerTests
         string budId = "bud1";
         string namedId = "CustomEnemy";
 
-        Dictionary<string, EnemyLeaf> medalShopLeaves = new() { [$"{budId}~{namedId}"] = new(0, namedId, budId) };
-        MockRegistry(_enemiesLeafRegistry, medalShopLeaves);
+        List<EnemyLeaf> medalShopLeaves = new() { new(0, budId, namedId) };
+        TestUtility.MockRegistry(_enemiesLeafRegistry, medalShopLeaves);
 
         StagingLoadData stagingLoadData = new();
 
@@ -442,9 +439,8 @@ public sealed class BudsSaveDataDeserializerTests
         string budId = "bud1";
         string namedId = "CustomRecipeLibraryEntry";
 
-        Dictionary<string, RecipeLibraryEntryLeaf> medalShopLeaves =
-            new() { [$"{budId}~{namedId}"] = new(0, namedId, budId) };
-        MockRegistry(_recipeLibraryEntriesLeafRegistry, medalShopLeaves);
+        List<RecipeLibraryEntryLeaf> medalShopLeaves = new() { new(0, budId, namedId) };
+        TestUtility.MockRegistry(_recipeLibraryEntriesLeafRegistry, medalShopLeaves);
 
         StagingLoadData stagingLoadData = new();
 
@@ -506,9 +502,8 @@ public sealed class BudsSaveDataDeserializerTests
         string budId = "bud1";
         string namedId = "CustomRecord";
 
-        Dictionary<string, RecordLeaf> medalShopLeaves =
-            new() { [$"{budId}~{namedId}"] = new(0, namedId, budId) };
-        MockRegistry(_recordsLeafRegistry, medalShopLeaves);
+        List<RecordLeaf> medalShopLeaves = new() { new(0, budId, namedId) };
+        TestUtility.MockRegistry(_recordsLeafRegistry, medalShopLeaves);
 
         StagingLoadData stagingLoadData = new();
 
@@ -570,9 +565,8 @@ public sealed class BudsSaveDataDeserializerTests
         string budId = "bud1";
         string namedId = "CustomArea";
 
-        Dictionary<string, AreaLeaf> medalShopLeaves =
-            new() { [$"{budId}~{namedId}"] = new(0, namedId, budId) };
-        MockRegistry(_areasLeafRegistry, medalShopLeaves);
+        List<AreaLeaf> medalShopLeaves = new() { new(0, budId, namedId) };
+        TestUtility.MockRegistry(_areasLeafRegistry, medalShopLeaves);
 
         StagingLoadData stagingLoadData = new();
 
@@ -634,9 +628,8 @@ public sealed class BudsSaveDataDeserializerTests
         string budId = "bud1";
         string namedId = "CustomFlag";
 
-        Dictionary<string, FlagLeaf> medalShopLeaves =
-            new() { [$"{budId}~{namedId}"] = new(0, namedId, budId) };
-        MockRegistry(_flagsLeafRegistry, medalShopLeaves);
+        List<FlagLeaf> medalShopLeaves = new() { new(0, budId, namedId) };
+        TestUtility.MockRegistry(_flagsLeafRegistry, medalShopLeaves);
 
         StagingLoadData stagingLoadData = new();
 
@@ -698,9 +691,8 @@ public sealed class BudsSaveDataDeserializerTests
         string budId = "bud1";
         string namedId = "CustomFlagstring";
 
-        Dictionary<string, FlagstringLeaf> medalShopLeaves =
-            new() { [$"{budId}~{namedId}"] = new(0, namedId, budId) };
-        MockRegistry(_flagstringsLeafRegistry, medalShopLeaves);
+        List<FlagstringLeaf> medalShopLeaves = new() { new(0, budId, namedId) };
+        TestUtility.MockRegistry(_flagstringsLeafRegistry, medalShopLeaves);
 
         StagingLoadData stagingLoadData = new();
 
@@ -762,9 +754,8 @@ public sealed class BudsSaveDataDeserializerTests
         string budId = "bud1";
         string namedId = "CustomFlagvar";
 
-        Dictionary<string, FlagvarLeaf> medalShopLeaves =
-            new() { [$"{budId}~{namedId}"] = new(0, namedId, budId) };
-        MockRegistry(_flagvarsLeafRegistry, medalShopLeaves);
+        List<FlagvarLeaf> medalShopLeaves = new() { new(0, budId, namedId) };
+        TestUtility.MockRegistry(_flagvarsLeafRegistry, medalShopLeaves);
 
         StagingLoadData stagingLoadData = new();
 
@@ -826,9 +817,8 @@ public sealed class BudsSaveDataDeserializerTests
         string budId = "bud1";
         string namedId = "CustomCrystalBerry";
 
-        Dictionary<string, CrystalBerryLeaf> medalShopLeaves =
-            new() { [$"{budId}~{namedId}"] = new(0, namedId, budId) };
-        MockRegistry(_crystalBerriesLeafRegistry, medalShopLeaves);
+        List<CrystalBerryLeaf> medalShopLeaves = new() { new(0, budId, namedId) };
+        TestUtility.MockRegistry(_crystalBerriesLeafRegistry, medalShopLeaves);
 
         StagingLoadData stagingLoadData = new();
 
@@ -938,90 +928,83 @@ public sealed class BudsSaveDataDeserializerTests
             }
         };
 
-        Dictionary<string, MedalShopLeaf> medalShopLeaves = new()
+        List<MedalShopLeaf> medalShopLeaves = new()
         {
-            ["Merab"] = new(0, "Merab", Constants.BaseGameCreatorId),
-            [$"{budId1}~CustomShop"] = new(1, "CustomShop", budId1)
+            new(0, Constants.BaseGameCreatorId, "Merab"),
+            new(1, budId1, "CustomShop")
         };
-        MockRegistry(_medalShopsLeafRegistry, medalShopLeaves);
+        TestUtility.MockRegistry(_medalShopsLeafRegistry, medalShopLeaves);
 
-        Dictionary<string, MedalLeaf> medalLeaves = new()
+        List<MedalLeaf> medalLeaves = new()
         {
-            [nameof(MainManager.BadgeTypes.HPPlus)] =
-                new(0, nameof(MainManager.BadgeTypes.HPPlus), Constants.BaseGameCreatorId),
-            [$"{budId2}~CustomMedal2"] = new(1, "CustomMedal2", budId2),
-            [$"{budId1}~CustomMedal1"] = new(2, "CustomMedal1", budId1)
+            new(0, Constants.BaseGameCreatorId, nameof(MainManager.BadgeTypes.HPPlus)),
+            new(1, budId2, "CustomMedal2"),
+            new(2, budId1, "CustomMedal1")
         };
-        MockRegistry(_medalsLeafRegistry, medalLeaves);
+        TestUtility.MockRegistry(_medalsLeafRegistry, medalLeaves);
 
-        Dictionary<string, DiscoveryLeaf> discoveryLeaves = new()
+        List<DiscoveryLeaf> discoveryLeaves = new()
         {
-            ["0"] = new(0, "0", Constants.BaseGameCreatorId),
-            [$"{budId1}~CustomDiscovery"] = new(1, "CustomDiscovery", budId1)
+            new(0, Constants.BaseGameCreatorId, "0"),
+            new(1, budId1, "CustomDiscovery")
         };
-        MockRegistry(_discoveriesLeafRegistry, discoveryLeaves);
+        TestUtility.MockRegistry(_discoveriesLeafRegistry, discoveryLeaves);
 
-        Dictionary<string, EnemyLeaf> enemyLeaves = new()
+        List<EnemyLeaf> enemyLeaves = new()
         {
-            [nameof(MainManager.Enemies.CordycepsAnt)] = new(
-                0,
-                nameof(MainManager.Enemies.CordycepsAnt),
-                Constants.BaseGameCreatorId),
-            [$"{budId2}~CustomEnemy"] = new(1, "CustomEnemy", budId2)
+            new(0, Constants.BaseGameCreatorId, nameof(MainManager.Enemies.CordycepsAnt)),
+            new(1, budId2, "CustomEnemy")
         };
-        MockRegistry(_enemiesLeafRegistry, enemyLeaves);
+        TestUtility.MockRegistry(_enemiesLeafRegistry, enemyLeaves);
 
-        Dictionary<string, RecipeLibraryEntryLeaf> recipeLibraryEntryLeaves = new()
+        List<RecipeLibraryEntryLeaf> recipeLibraryEntryLeaves = new()
         {
-            ["0"] = new(0, "0", Constants.BaseGameCreatorId),
-            [$"{budId2}~CustomRecipeLibraryEntry"] = new(1, "CustomRecipeLibraryEntry", budId2)
+            new(0, Constants.BaseGameCreatorId, "0"),
+            new(1, budId2, "CustomRecipeLibraryEntry")
         };
-        MockRegistry(_recipeLibraryEntriesLeafRegistry, recipeLibraryEntryLeaves);
+        TestUtility.MockRegistry(_recipeLibraryEntriesLeafRegistry, recipeLibraryEntryLeaves);
 
-        Dictionary<string, RecordLeaf> recordLeaves = new()
+        List<RecordLeaf> recordLeaves = new()
         {
-            ["0"] = new(0, "0", Constants.BaseGameCreatorId),
-            [$"{budId3}~CustomRecord"] = new(1, "CustomRecord", budId3)
+            new(0, Constants.BaseGameCreatorId, "0"),
+            new(1, budId3, "CustomRecord")
         };
-        MockRegistry(_recordsLeafRegistry, recordLeaves);
+        TestUtility.MockRegistry(_recordsLeafRegistry, recordLeaves);
 
-        Dictionary<string, AreaLeaf> areaLeaves = new()
+        List<AreaLeaf> areaLeaves = new()
         {
-            [nameof(MainManager.Areas.BugariaOutskirts)] = new(
-                0,
-                nameof(MainManager.Areas.BugariaOutskirts),
-                Constants.BaseGameCreatorId),
-            [$"{budId3}~CustomArea"] = new(1, "CustomArea", budId3)
+            new(0, Constants.BaseGameCreatorId, nameof(MainManager.Areas.BugariaOutskirts)),
+            new(1, budId3, "CustomArea")
         };
-        MockRegistry(_areasLeafRegistry, areaLeaves);
+        TestUtility.MockRegistry(_areasLeafRegistry, areaLeaves);
 
-        Dictionary<string, FlagLeaf> flagLeaves = new()
+        List<FlagLeaf> flagLeaves = new()
         {
-            ["0"] = new(0, "0", Constants.BaseGameCreatorId),
-            [$"{budId4}~CustomFlag"] = new(1, "CustomFlag", budId4)
+            new(0, Constants.BaseGameCreatorId, "0"),
+            new(1, budId4, "CustomFlag")
         };
-        MockRegistry(_flagsLeafRegistry, flagLeaves);
+        TestUtility.MockRegistry(_flagsLeafRegistry, flagLeaves);
 
-        Dictionary<string, FlagstringLeaf> flagstringLeaves = new()
+        List<FlagstringLeaf> flagstringLeaves = new()
         {
-            ["0"] = new(0, "0", Constants.BaseGameCreatorId),
-            [$"{budId4}~CustomFlagstring"] = new(1, "CustomFlagstring", budId4)
+            new(0, Constants.BaseGameCreatorId, "0"),
+            new(1, budId4, "CustomFlagstring")
         };
-        MockRegistry(_flagstringsLeafRegistry, flagstringLeaves);
+        TestUtility.MockRegistry(_flagstringsLeafRegistry, flagstringLeaves);
 
-        Dictionary<string, FlagvarLeaf> flagvarLeaves = new()
+        List<FlagvarLeaf> flagvarLeaves = new()
         {
-            ["0"] = new(0, "0", Constants.BaseGameCreatorId),
-            [$"{budId5}~CustomFlagvar"] = new(1, "CustomFlagvar", budId5)
+            new(0, Constants.BaseGameCreatorId, "0"),
+            new(1, budId5, "CustomFlagvar")
         };
-        MockRegistry(_flagvarsLeafRegistry, flagvarLeaves);
+        TestUtility.MockRegistry(_flagvarsLeafRegistry, flagvarLeaves);
 
-        Dictionary<string, CrystalBerryLeaf> crystalBerryLeaves = new()
+        List<CrystalBerryLeaf> crystalBerryLeaves = new()
         {
-            ["0"] = new(0, "0", Constants.BaseGameCreatorId),
-            [$"{budId5}~CustomCrystalBerry"] = new(1, "CustomCrystalBerry", budId5)
+            new(0, Constants.BaseGameCreatorId, "0"),
+            new(1, budId5, "CustomCrystalBerry")
         };
-        MockRegistry(_crystalBerriesLeafRegistry, crystalBerryLeaves);
+        TestUtility.MockRegistry(_crystalBerriesLeafRegistry, crystalBerryLeaves);
 
         Dictionary<string, string> budsSaveDataByCreatorIds = budsSaveData
             .ToDictionary(x => x.Key, x => JsonSerializer.Serialize(x.Value));
@@ -1044,14 +1027,5 @@ public sealed class BudsSaveDataDeserializerTests
 
         _logger.Collector.Count.Should().Be(0);
         return Verify(stagingLoadData);
-    }
-
-    private static void MockRegistry<TLeaf>(
-        ILeavesRegistry<TLeaf> registry,
-        Dictionary<string, TLeaf> leavesByEffectiveIds)
-        where TLeaf : Leaf
-    {
-        registry.LeavesByEffectiveIds.Returns(leavesByEffectiveIds);
-        registry.LeavesByGameIds.Returns(leavesByEffectiveIds.ToDictionary(x => x.Value.GameId, x => x.Value));
     }
 }

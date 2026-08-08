@@ -87,23 +87,23 @@ public sealed class BaseGameSaveDataDeserializerTests
             5,6,7,8,9,10,HideoutGarden,BanditHideout,11,12,13,14,15,16,17,3
             """;
 
-        Dictionary<string, AreaLeaf> areaLeaves = new()
+        List<AreaLeaf> areaLeaves = new()
         {
-            [nameof(MainManager.Areas.BanditHideout)] = new(
+            new(
                 (int)MainManager.Areas.BanditHideout,
-                nameof(MainManager.Areas.BugariaOutskirts),
-                Constants.BaseGameCreatorId)
+                Constants.BaseGameCreatorId,
+                nameof(MainManager.Areas.BanditHideout))
         };
-        MockRegistry(_areasLeafRegistry, areaLeaves);
+        TestUtility.MockRegistry(_areasLeafRegistry, areaLeaves);
 
-        Dictionary<string, MapLeaf> mapLeaves = new()
+        List<MapLeaf> mapLeaves = new()
         {
-            [nameof(MainManager.Maps.HideoutGarden)] = new(
+            new(
                 (int)MainManager.Maps.HideoutGarden,
-                nameof(MainManager.Maps.HideoutGarden),
-                Constants.BaseGameCreatorId)
+                Constants.BaseGameCreatorId,
+                nameof(MainManager.Maps.HideoutGarden))
         };
-        MockRegistry(_mapsLeafRegistry, mapLeaves);
+        TestUtility.MockRegistry(_mapsLeafRegistry, mapLeaves);
 
         MainManager.LoadData result = _sut.DeserializeLiteBaseGameSaveData(saveData);
 
@@ -144,23 +144,23 @@ public sealed class BaseGameSaveDataDeserializerTests
             5,6,7,8,9,10,HideoutGarden,BanditHideout,11,12,13,14,15,16,17,3
             """;
 
-        Dictionary<string, AreaLeaf> areaLeaves = new()
+        List<AreaLeaf> areaLeaves = new()
         {
-            [nameof(MainManager.Areas.BanditHideout)] = new(
+            new(
                 (int)MainManager.Areas.BanditHideout,
-                nameof(MainManager.Areas.BugariaOutskirts),
-                Constants.BaseGameCreatorId)
+                Constants.BaseGameCreatorId,
+                nameof(MainManager.Areas.BugariaOutskirts))
         };
-        MockRegistry(_areasLeafRegistry, areaLeaves);
+        TestUtility.MockRegistry(_areasLeafRegistry, areaLeaves);
 
-        Dictionary<string, MapLeaf> mapLeaves = new()
+        List<MapLeaf> mapLeaves = new()
         {
-            [nameof(MainManager.Maps.HideoutGarden)] = new(
+            new(
                 (int)MainManager.Maps.HideoutGarden,
-                nameof(MainManager.Maps.HideoutGarden),
-                Constants.BaseGameCreatorId)
+                Constants.BaseGameCreatorId,
+                nameof(MainManager.Maps.HideoutGarden))
         };
-        MockRegistry(_mapsLeafRegistry, mapLeaves);
+        TestUtility.MockRegistry(_mapsLeafRegistry, mapLeaves);
 
         Action action = () => _sut.DeserializeLiteBaseGameSaveData(saveData);
 
@@ -179,23 +179,23 @@ public sealed class BaseGameSaveDataDeserializerTests
             5,6,7,9,10,HideoutGarden,BanditHideout,11,12,13,14,15,16,17,3
             """;
 
-        Dictionary<string, AreaLeaf> areaLeaves = new()
+        List<AreaLeaf> areaLeaves = new()
         {
-            [nameof(MainManager.Areas.BanditHideout)] = new(
+            new(
                 (int)MainManager.Areas.BanditHideout,
-                nameof(MainManager.Areas.BugariaOutskirts),
-                Constants.BaseGameCreatorId)
+                Constants.BaseGameCreatorId,
+                nameof(MainManager.Areas.BugariaOutskirts))
         };
-        MockRegistry(_areasLeafRegistry, areaLeaves);
+        TestUtility.MockRegistry(_areasLeafRegistry, areaLeaves);
 
-        Dictionary<string, MapLeaf> mapLeaves = new()
+        List<MapLeaf> mapLeaves = new()
         {
-            [nameof(MainManager.Maps.HideoutGarden)] = new(
+            new(
                 (int)MainManager.Maps.HideoutGarden,
-                nameof(MainManager.Maps.HideoutGarden),
-                Constants.BaseGameCreatorId)
+                Constants.BaseGameCreatorId,
+                nameof(MainManager.Maps.HideoutGarden))
         };
-        MockRegistry(_mapsLeafRegistry, mapLeaves);
+        TestUtility.MockRegistry(_mapsLeafRegistry, mapLeaves);
 
         Action action = () => _sut.DeserializeLiteBaseGameSaveData(saveData);
 
@@ -214,23 +214,23 @@ public sealed class BaseGameSaveDataDeserializerTests
             5,6,7,8,9,10,MissingHideoutGarden,BanditHideout,11,12,13,14,15,16,17,3
             """;
 
-        Dictionary<string, AreaLeaf> areaLeaves = new()
+        List<AreaLeaf> areaLeaves = new()
         {
-            [nameof(MainManager.Areas.BanditHideout)] = new(
+            new(
                 (int)MainManager.Areas.BanditHideout,
-                nameof(MainManager.Areas.BugariaOutskirts),
-                Constants.BaseGameCreatorId)
+                Constants.BaseGameCreatorId,
+                nameof(MainManager.Areas.BugariaOutskirts))
         };
-        MockRegistry(_areasLeafRegistry, areaLeaves);
+        TestUtility.MockRegistry(_areasLeafRegistry, areaLeaves);
 
-        Dictionary<string, MapLeaf> mapLeaves = new()
+        List<MapLeaf> mapLeaves = new()
         {
-            [nameof(MainManager.Maps.HideoutGarden)] = new(
+            new(
                 (int)MainManager.Maps.HideoutGarden,
-                nameof(MainManager.Maps.HideoutGarden),
-                Constants.BaseGameCreatorId)
+                Constants.BaseGameCreatorId,
+                nameof(MainManager.Maps.HideoutGarden))
         };
-        MockRegistry(_mapsLeafRegistry, mapLeaves);
+        TestUtility.MockRegistry(_mapsLeafRegistry, mapLeaves);
 
         Action action = () => _sut.DeserializeLiteBaseGameSaveData(saveData);
 
@@ -251,23 +251,23 @@ public sealed class BaseGameSaveDataDeserializerTests
             5,6,7,8,9,10,HideoutGarden,MissingBanditHideout,11,12,13,14,15,16,17,3
             """;
 
-        Dictionary<string, AreaLeaf> areaLeaves = new()
+        List<AreaLeaf> areaLeaves = new()
         {
-            [nameof(MainManager.Areas.BanditHideout)] = new(
+            new(
                 (int)MainManager.Areas.BanditHideout,
-                nameof(MainManager.Areas.BugariaOutskirts),
-                Constants.BaseGameCreatorId)
+                Constants.BaseGameCreatorId,
+                nameof(MainManager.Areas.BugariaOutskirts))
         };
-        MockRegistry(_areasLeafRegistry, areaLeaves);
+        TestUtility.MockRegistry(_areasLeafRegistry, areaLeaves);
 
-        Dictionary<string, MapLeaf> mapLeaves = new()
+        List<MapLeaf> mapLeaves = new()
         {
-            [nameof(MainManager.Maps.HideoutGarden)] = new(
+            new(
                 (int)MainManager.Maps.HideoutGarden,
-                nameof(MainManager.Maps.HideoutGarden),
-                Constants.BaseGameCreatorId)
+                Constants.BaseGameCreatorId,
+                nameof(MainManager.Maps.HideoutGarden))
         };
-        MockRegistry(_mapsLeafRegistry, mapLeaves);
+        TestUtility.MockRegistry(_mapsLeafRegistry, mapLeaves);
 
         Action action = () => _sut.DeserializeLiteBaseGameSaveData(saveData);
 
@@ -316,23 +316,23 @@ public sealed class BaseGameSaveDataDeserializerTests
 
             """;
 
-        Dictionary<string, AreaLeaf> areaLeaves = new()
+        List<AreaLeaf> areaLeaves = new()
         {
-            [nameof(MainManager.Areas.BanditHideout)] = new(
+            new(
                 (int)MainManager.Areas.BanditHideout,
-                nameof(MainManager.Areas.BugariaOutskirts),
-                Constants.BaseGameCreatorId)
+                Constants.BaseGameCreatorId,
+                nameof(MainManager.Areas.BugariaOutskirts))
         };
-        MockRegistry(_areasLeafRegistry, areaLeaves);
+        TestUtility.MockRegistry(_areasLeafRegistry, areaLeaves);
 
-        Dictionary<string, MapLeaf> mapLeaves = new()
+        List<MapLeaf> mapLeaves = new()
         {
-            [nameof(MainManager.Maps.HideoutGarden)] = new(
+            new(
                 (int)MainManager.Maps.HideoutGarden,
-                nameof(MainManager.Maps.HideoutGarden),
-                Constants.BaseGameCreatorId)
+                Constants.BaseGameCreatorId,
+                nameof(MainManager.Maps.HideoutGarden))
         };
-        MockRegistry(_mapsLeafRegistry, mapLeaves);
+        TestUtility.MockRegistry(_mapsLeafRegistry, mapLeaves);
 
         StagingLoadData stagingLoadData = new();
         Action action = () => _sut.DeserializeFullBaseGameSaveData(saveData, stagingLoadData);
@@ -409,23 +409,23 @@ public sealed class BaseGameSaveDataDeserializerTests
 
             """;
 
-        Dictionary<string, AreaLeaf> areaLeaves = new()
+        List<AreaLeaf> areaLeaves = new()
         {
-            [nameof(MainManager.Areas.BanditHideout)] = new(
+            new(
                 (int)MainManager.Areas.BanditHideout,
-                nameof(MainManager.Areas.BugariaOutskirts),
-                Constants.BaseGameCreatorId)
+                Constants.BaseGameCreatorId,
+                nameof(MainManager.Areas.BugariaOutskirts))
         };
-        MockRegistry(_areasLeafRegistry, areaLeaves);
+        TestUtility.MockRegistry(_areasLeafRegistry, areaLeaves);
 
-        Dictionary<string, MapLeaf> mapLeaves = new()
+        List<MapLeaf> mapLeaves = new()
         {
-            [nameof(MainManager.Maps.HideoutGarden)] = new(
+            new(
                 (int)MainManager.Maps.HideoutGarden,
-                nameof(MainManager.Maps.HideoutGarden),
-                Constants.BaseGameCreatorId)
+                Constants.BaseGameCreatorId,
+                nameof(MainManager.Maps.HideoutGarden))
         };
-        MockRegistry(_mapsLeafRegistry, mapLeaves);
+        TestUtility.MockRegistry(_mapsLeafRegistry, mapLeaves);
 
         StagingLoadData stagingLoadData = new();
         Action action = () => _sut.DeserializeFullBaseGameSaveData(saveData, stagingLoadData);
@@ -460,23 +460,23 @@ public sealed class BaseGameSaveDataDeserializerTests
 
             """;
 
-        Dictionary<string, AreaLeaf> areaLeaves = new()
+        List<AreaLeaf> areaLeaves = new()
         {
-            [nameof(MainManager.Areas.BanditHideout)] = new(
+            new(
                 (int)MainManager.Areas.BanditHideout,
-                nameof(MainManager.Areas.BugariaOutskirts),
-                Constants.BaseGameCreatorId)
+                Constants.BaseGameCreatorId,
+                nameof(MainManager.Areas.BugariaOutskirts))
         };
-        MockRegistry(_areasLeafRegistry, areaLeaves);
+        TestUtility.MockRegistry(_areasLeafRegistry, areaLeaves);
 
-        Dictionary<string, MapLeaf> mapLeaves = new()
+        List<MapLeaf> mapLeaves = new()
         {
-            [nameof(MainManager.Maps.HideoutGarden)] = new(
+            new(
                 (int)MainManager.Maps.HideoutGarden,
-                nameof(MainManager.Maps.HideoutGarden),
-                Constants.BaseGameCreatorId)
+                Constants.BaseGameCreatorId,
+                nameof(MainManager.Maps.HideoutGarden))
         };
-        MockRegistry(_mapsLeafRegistry, mapLeaves);
+        TestUtility.MockRegistry(_mapsLeafRegistry, mapLeaves);
 
         StagingLoadData stagingLoadData = new();
         Action action = () => _sut.DeserializeFullBaseGameSaveData(saveData, stagingLoadData);
@@ -513,23 +513,23 @@ public sealed class BaseGameSaveDataDeserializerTests
 
             """;
 
-        Dictionary<string, AreaLeaf> areaLeaves = new()
+        List<AreaLeaf> areaLeaves = new()
         {
-            [nameof(MainManager.Areas.BanditHideout)] = new(
+            new(
                 (int)MainManager.Areas.BanditHideout,
-                nameof(MainManager.Areas.BugariaOutskirts),
-                Constants.BaseGameCreatorId)
+                Constants.BaseGameCreatorId,
+                nameof(MainManager.Areas.BugariaOutskirts))
         };
-        MockRegistry(_areasLeafRegistry, areaLeaves);
+        TestUtility.MockRegistry(_areasLeafRegistry, areaLeaves);
 
-        Dictionary<string, MapLeaf> mapLeaves = new()
+        List<MapLeaf> mapLeaves = new()
         {
-            [nameof(MainManager.Maps.HideoutGarden)] = new(
+            new(
                 (int)MainManager.Maps.HideoutGarden,
-                nameof(MainManager.Maps.HideoutGarden),
-                Constants.BaseGameCreatorId)
+                Constants.BaseGameCreatorId,
+                nameof(MainManager.Maps.HideoutGarden))
         };
-        MockRegistry(_mapsLeafRegistry, mapLeaves);
+        TestUtility.MockRegistry(_mapsLeafRegistry, mapLeaves);
 
         Action action = () => _sut.DeserializeLiteBaseGameSaveData(saveData);
 
@@ -1370,82 +1370,79 @@ public sealed class BaseGameSaveDataDeserializerTests
         MainManager.Areas area = MainManager.Areas.BugariaCity;
         MainManager.Maps map = MainManager.Maps.BugariaMainPlaza;
 
-        Dictionary<string, MapLeaf> mapLeaves = new()
-        {
-            [map.ToString()] = new((int)map, map.ToString(), Constants.BaseGameCreatorId)
-        };
-        MockRegistry(_mapsLeafRegistry, mapLeaves);
+        List<MapLeaf> mapLeaves = new() { new((int)map, Constants.BaseGameCreatorId, map.ToString()) };
+        TestUtility.MockRegistry(_mapsLeafRegistry, mapLeaves);
 
-        Dictionary<string, DiscoveryLeaf> discoveries = new();
+        List<DiscoveryLeaf> discoveries = new();
         for (int i = 0; i < discoveriesAmount; i++)
-            discoveries.Add(i.ToString(), new(i, i.ToString(), Constants.BaseGameCreatorId));
+            discoveries.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
         for (int i = discoveriesAmount; i < 10; i++)
-            discoveries.Add(i.ToString(), new(i, i.ToString(), "SomeBud"));
-        MockRegistry(_discoveriesLeafRegistry, discoveries);
+            discoveries.Add(new(i, "SomeBud", i.ToString()));
+        TestUtility.MockRegistry(_discoveriesLeafRegistry, discoveries);
 
-        Dictionary<string, EnemyLeaf> enemies = new();
+        List<EnemyLeaf> enemies = new();
         for (int i = 0; i < enemiesAmount; i++)
-            enemies.Add(i.ToString(), new(i, ((MainManager.Enemies)i).ToString(), Constants.BaseGameCreatorId));
+            enemies.Add(new(i, Constants.BaseGameCreatorId, ((MainManager.Enemies)i).ToString()));
         for (int i = enemiesAmount; i < 10; i++)
-            enemies.Add(i.ToString(), new(i, i.ToString(), "SomeBud"));
-        MockRegistry(_enemiesLeafRegistry, enemies);
+            enemies.Add(new(i, "SomeBud", i.ToString()));
+        TestUtility.MockRegistry(_enemiesLeafRegistry, enemies);
 
-        Dictionary<string, RecipeLibraryEntryLeaf> recipeLibraryEntries = new();
+        List<RecipeLibraryEntryLeaf> recipeLibraryEntries = new();
         for (int i = 0; i < recipeLibraryEntriesAmount; i++)
-            recipeLibraryEntries.Add(i.ToString(), new(i, i.ToString(), Constants.BaseGameCreatorId));
+            recipeLibraryEntries.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
         for (int i = recipeLibraryEntriesAmount; i < 10; i++)
-            recipeLibraryEntries.Add(i.ToString(), new(i, i.ToString(), "SomeBud"));
-        MockRegistry(_recipeLibraryEntriesLeafRegistry, recipeLibraryEntries);
+            recipeLibraryEntries.Add(new(i, "SomeBud", i.ToString()));
+        TestUtility.MockRegistry(_recipeLibraryEntriesLeafRegistry, recipeLibraryEntries);
 
-        Dictionary<string, RecordLeaf> recordLeaves = new();
+        List<RecordLeaf> recordLeaves = new();
         for (int i = 0; i < recordsAmount; i++)
-            recordLeaves.Add(i.ToString(), new(i, i.ToString(), Constants.BaseGameCreatorId));
+            recordLeaves.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
         for (int i = recordsAmount; i < 10; i++)
-            recordLeaves.Add(i.ToString(), new(i, i.ToString(), "SomeBud"));
-        MockRegistry(_recordsLeafRegistry, recordLeaves);
+            recordLeaves.Add(new(i, "SomeBud", i.ToString()));
+        TestUtility.MockRegistry(_recordsLeafRegistry, recordLeaves);
 
-        Dictionary<string, AreaLeaf> areaLeaves = new();
+        List<AreaLeaf> areaLeaves = new();
         for (int i = 0; i < areasAmount; i++)
         {
             if (i == (int)area)
                 continue;
-            areaLeaves.Add(i.ToString(), new(i, i.ToString(), Constants.BaseGameCreatorId));
+            areaLeaves.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
         }
 
-        areaLeaves[area.ToString()] = new(1, area.ToString(), Constants.BaseGameCreatorId);
+        areaLeaves.Add(new(1, Constants.BaseGameCreatorId, area.ToString()));
 
         for (int i = areasAmount; i < 10; i++)
-            areaLeaves.Add(i.ToString(), new(i, i.ToString(), "SomeBud"));
+            areaLeaves.Add(new(i, "SomeBud", i.ToString()));
 
-        MockRegistry(_areasLeafRegistry, areaLeaves);
+        TestUtility.MockRegistry(_areasLeafRegistry, areaLeaves);
 
-        Dictionary<string, FlagLeaf> flagLeaves = new();
+        List<FlagLeaf> flagLeaves = new();
         for (int i = 0; i < flagsAmount; i++)
-            flagLeaves.Add(i.ToString(), new(i, i.ToString(), Constants.BaseGameCreatorId));
+            flagLeaves.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
         for (int i = flagsAmount; i < 10; i++)
-            flagLeaves.Add(i.ToString(), new(i, i.ToString(), "SomeBud"));
-        MockRegistry(_flagsLeafRegistry, flagLeaves);
+            flagLeaves.Add(new(i, "SomeBud", i.ToString()));
+        TestUtility.MockRegistry(_flagsLeafRegistry, flagLeaves);
 
-        Dictionary<string, FlagstringLeaf> flagstringLeaves = new();
+        List<FlagstringLeaf> flagstringLeaves = new();
         for (int i = 0; i < flagstringAmount; i++)
-            flagstringLeaves.Add(i.ToString(), new(i, i.ToString(), Constants.BaseGameCreatorId));
+            flagstringLeaves.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
         for (int i = flagstringAmount; i < 10; i++)
-            flagstringLeaves.Add(i.ToString(), new(i, i.ToString(), "SomeBud"));
-        MockRegistry(_flagstringsLeafRegistry, flagstringLeaves);
+            flagstringLeaves.Add(new(i, "SomeBud", i.ToString()));
+        TestUtility.MockRegistry(_flagstringsLeafRegistry, flagstringLeaves);
 
-        Dictionary<string, FlagvarLeaf> flagvarLeaves = new();
+        List<FlagvarLeaf> flagvarLeaves = new();
         for (int i = 0; i < flagvarAmount; i++)
-            flagvarLeaves.Add(i.ToString(), new(i, i.ToString(), Constants.BaseGameCreatorId));
+            flagvarLeaves.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
         for (int i = flagvarAmount; i < 10; i++)
-            flagvarLeaves.Add(i.ToString(), new(i, i.ToString(), "SomeBud"));
-        MockRegistry(_flagvarsLeafRegistry, flagvarLeaves);
+            flagvarLeaves.Add(new(i, "SomeBud", i.ToString()));
+        TestUtility.MockRegistry(_flagvarsLeafRegistry, flagvarLeaves);
 
-        Dictionary<string, CrystalBerryLeaf> crystalBerryLeaves = new();
+        List<CrystalBerryLeaf> crystalBerryLeaves = new();
         for (int i = 0; i < crystalBerriesAmount; i++)
-            crystalBerryLeaves.Add(i.ToString(), new(i, i.ToString(), Constants.BaseGameCreatorId));
+            crystalBerryLeaves.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
         for (int i = crystalBerriesAmount; i < 10; i++)
-            crystalBerryLeaves.Add(i.ToString(), new(i, i.ToString(), "SomeBud"));
-        MockRegistry(_crystalBerriesLeafRegistry, crystalBerryLeaves);
+            crystalBerryLeaves.Add(new(i, "SomeBud", i.ToString()));
+        TestUtility.MockRegistry(_crystalBerriesLeafRegistry, crystalBerryLeaves);
 
         StagingLoadData stagingLoadData = new();
         MainManager.LoadData result = _sut.DeserializeFullBaseGameSaveData(saveData, stagingLoadData);
@@ -1546,175 +1543,145 @@ public sealed class BaseGameSaveDataDeserializerTests
         MainManager.AnimIDs follower1 = MainManager.AnimIDs.OldMoth;
         MainManager.AnimIDs follower2 = MainManager.AnimIDs.AntQueen;
 
-        Dictionary<string, MapLeaf> mapLeaves = new()
-        {
-            [map.ToString()] = new((int)map, map.ToString(), Constants.BaseGameCreatorId)
-        };
-        MockRegistry(_mapsLeafRegistry, mapLeaves);
+        List<MapLeaf> mapLeaves = new() { new((int)map, Constants.BaseGameCreatorId, map.ToString()) };
+        TestUtility.MockRegistry(_mapsLeafRegistry, mapLeaves);
 
-        Dictionary<string, AnimIdLeaf> animIdLeaves = new()
+        List<AnimIdLeaf> animIdLeaves = new()
         {
-            [nameof(MainManager.AnimIDs.None)] =
-                new(-1, nameof(MainManager.AnimIDs.None), Constants.BaseGameCreatorId),
-            [nameof(MainManager.AnimIDs.Bee)] =
-                new(0, nameof(MainManager.AnimIDs.Bee), Constants.BaseGameCreatorId),
-            [nameof(MainManager.AnimIDs.Beetle)] =
-                new(1, nameof(MainManager.AnimIDs.Beetle), Constants.BaseGameCreatorId),
-            [follower1.ToString()] = new((int)follower1, follower1.ToString(), Constants.BaseGameCreatorId),
-            [follower2.ToString()] = new((int)follower2, follower2.ToString(), Constants.BaseGameCreatorId)
+            new(-1, Constants.BaseGameCreatorId, nameof(MainManager.AnimIDs.None)),
+            new(0, Constants.BaseGameCreatorId, nameof(MainManager.AnimIDs.Bee)),
+            new(1, Constants.BaseGameCreatorId, nameof(MainManager.AnimIDs.Beetle)),
+            new((int)follower1, Constants.BaseGameCreatorId, follower1.ToString()),
+            new((int)follower2, Constants.BaseGameCreatorId, follower2.ToString())
         };
-        MockRegistry(_animIdsLeafRegistry, animIdLeaves);
+        TestUtility.MockRegistry(_animIdsLeafRegistry, animIdLeaves);
 
-        Dictionary<string, MedalLeaf> medalLeaves = new()
+        List<MedalLeaf> medalLeaves = new()
         {
-            [medalMerab1.ToString()] = new((int)medalMerab1, medalMerab1.ToString(), Constants.BaseGameCreatorId),
-            [medalMerab2.ToString()] = new((int)medalMerab2, medalMerab2.ToString(), Constants.BaseGameCreatorId),
-            [medalShades1.ToString()] =
-                new((int)medalShades1, medalShades1.ToString(), Constants.BaseGameCreatorId),
-            [medalShades2.ToString()] =
-                new((int)medalShades2, medalShades2.ToString(), Constants.BaseGameCreatorId),
-            [medalOnHandEquippedToMember.ToString()] = new(
+            new((int)medalMerab1, Constants.BaseGameCreatorId, medalMerab1.ToString()),
+            new((int)medalMerab2, Constants.BaseGameCreatorId, medalMerab2.ToString()),
+            new((int)medalShades1, Constants.BaseGameCreatorId, medalShades1.ToString()),
+            new((int)medalShades2, Constants.BaseGameCreatorId, medalShades2.ToString()),
+            new(
                 (int)medalOnHandEquippedToMember,
-                medalOnHandEquippedToMember.ToString(),
-                Constants.BaseGameCreatorId),
-            [medalOnHandEquippedToParty.ToString()] = new(
+                Constants.BaseGameCreatorId,
+                medalOnHandEquippedToMember.ToString()),
+            new(
                 (int)medalOnHandEquippedToParty,
-                medalOnHandEquippedToParty.ToString(),
-                Constants.BaseGameCreatorId),
-            [medalOnHandUnequipped.ToString()] = new(
-                (int)medalOnHandUnequipped,
-                medalOnHandUnequipped.ToString(),
-                Constants.BaseGameCreatorId),
-            [medalMystery1.ToString()] = new((int)medalMystery1, medalMystery1.ToString(), Constants.BaseGameCreatorId),
-            [medalMystery2.ToString()] = new((int)medalMystery2, medalMystery2.ToString(), Constants.BaseGameCreatorId)
+                Constants.BaseGameCreatorId,
+                medalOnHandEquippedToParty.ToString()),
+            new((int)medalOnHandUnequipped, Constants.BaseGameCreatorId, medalOnHandUnequipped.ToString()),
+            new((int)medalMystery1, Constants.BaseGameCreatorId, medalMystery1.ToString()),
+            new((int)medalMystery2, Constants.BaseGameCreatorId, medalMystery2.ToString())
         };
-        MockRegistry(_medalsLeafRegistry, medalLeaves);
+        TestUtility.MockRegistry(_medalsLeafRegistry, medalLeaves);
 
-        Dictionary<string, QuestLeaf> questLeaves = new()
+        List<QuestLeaf> questLeaves = new()
         {
-            [openQuest1.ToString()] = new((int)openQuest1, openQuest1.ToString(), Constants.BaseGameCreatorId),
-            [openQuest2.ToString()] = new((int)openQuest2, openQuest2.ToString(), Constants.BaseGameCreatorId),
-            [takenQuest1.ToString()] = new((int)takenQuest1, takenQuest1.ToString(), Constants.BaseGameCreatorId),
-            [takenQuest2.ToString()] = new((int)takenQuest2, takenQuest2.ToString(), Constants.BaseGameCreatorId),
-            [completedQuest1.ToString()] =
-                new((int)completedQuest1, completedQuest1.ToString(), Constants.BaseGameCreatorId),
-            [completedQuest2.ToString()] = new(
-                (int)completedQuest2,
-                completedQuest2.ToString(),
-                Constants.BaseGameCreatorId)
+            new((int)openQuest1, Constants.BaseGameCreatorId, openQuest1.ToString()),
+            new((int)openQuest2, Constants.BaseGameCreatorId, openQuest2.ToString()),
+            new((int)takenQuest1, Constants.BaseGameCreatorId, takenQuest1.ToString()),
+            new((int)takenQuest2, Constants.BaseGameCreatorId, takenQuest2.ToString()),
+            new((int)completedQuest1, Constants.BaseGameCreatorId, completedQuest1.ToString()),
+            new((int)completedQuest2, Constants.BaseGameCreatorId, completedQuest2.ToString())
         };
-        MockRegistry(_questsLeafRegistry, questLeaves);
+        TestUtility.MockRegistry(_questsLeafRegistry, questLeaves);
 
-        Dictionary<string, ItemLeaf> itemLeaves = new()
+        List<ItemLeaf> itemLeaves = new()
         {
-            [regularItem1.ToString()] =
-                new((int)regularItem1, regularItem1.ToString(), Constants.BaseGameCreatorId),
-            [regularItem2.ToString()] =
-                new((int)regularItem2, regularItem2.ToString(), Constants.BaseGameCreatorId),
-            [keyItem1.ToString()] = new((int)keyItem1, keyItem1.ToString(), Constants.BaseGameCreatorId),
-            [keyItem2.ToString()] = new((int)keyItem2, keyItem2.ToString(), Constants.BaseGameCreatorId),
-            [storedItem1.ToString()] = new((int)storedItem1, storedItem1.ToString(), Constants.BaseGameCreatorId),
-            [storedItem2.ToString()] = new((int)storedItem2, storedItem2.ToString(), Constants.BaseGameCreatorId),
-            [chompyItem.ToString()] = new((int)chompyItem, chompyItem.ToString(), Constants.BaseGameCreatorId)
+            new((int)regularItem1, Constants.BaseGameCreatorId, regularItem1.ToString()),
+            new((int)regularItem2, Constants.BaseGameCreatorId, regularItem2.ToString()),
+            new((int)keyItem1, Constants.BaseGameCreatorId, keyItem1.ToString()),
+            new((int)keyItem2, Constants.BaseGameCreatorId, keyItem2.ToString()),
+            new((int)storedItem1, Constants.BaseGameCreatorId, storedItem1.ToString()),
+            new((int)storedItem2, Constants.BaseGameCreatorId, storedItem2.ToString()),
+            new((int)chompyItem, Constants.BaseGameCreatorId, chompyItem.ToString())
         };
-        MockRegistry(_itemsLeafRegistry, itemLeaves);
+        TestUtility.MockRegistry(_itemsLeafRegistry, itemLeaves);
 
-        Dictionary<string, MusicLeaf> musicLeaves = new()
+        List<MusicLeaf> musicLeaves = new()
         {
-            [samiraSongBought.ToString()] =
-                new((int)samiraSongBought, samiraSongBought.ToString(), Constants.BaseGameCreatorId),
-            [samiraSongNotBought.ToString()] = new(
-                (int)samiraSongNotBought,
-                samiraSongNotBought.ToString(),
-                Constants.BaseGameCreatorId)
+            new((int)samiraSongBought, Constants.BaseGameCreatorId, samiraSongBought.ToString()),
+            new((int)samiraSongNotBought, Constants.BaseGameCreatorId, samiraSongNotBought.ToString())
         };
-        MockRegistry(_musicsLeafRegistry, musicLeaves);
+        TestUtility.MockRegistry(_musicsLeafRegistry, musicLeaves);
 
-        Dictionary<string, DiscoveryLeaf> discoveries = new();
+        List<DiscoveryLeaf> discoveries = new();
         for (int i = 0; i < discoveriesAmount; i++)
-            discoveries.Add(i.ToString(), new(i, i.ToString(), Constants.BaseGameCreatorId));
+            discoveries.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
         for (int i = discoveriesAmount; i < 10; i++)
-            discoveries.Add(i.ToString(), new(i, i.ToString(), "SomeBud"));
-        MockRegistry(_discoveriesLeafRegistry, discoveries);
+            discoveries.Add(new(i, "SomeBud", i.ToString()));
+        TestUtility.MockRegistry(_discoveriesLeafRegistry, discoveries);
 
-        Dictionary<string, EnemyLeaf> enemies = new();
+        List<EnemyLeaf> enemies = new();
         for (int i = 0; i < enemiesAmount; i++)
-            enemies.Add(i.ToString(), new(i, ((MainManager.Enemies)i).ToString(), Constants.BaseGameCreatorId));
+            enemies.Add(new(i, Constants.BaseGameCreatorId, ((MainManager.Enemies)i).ToString()));
         for (int i = enemiesAmount; i < 10; i++)
-            enemies.Add(i.ToString(), new(i, i.ToString(), "SomeBud"));
-        MockRegistry(_enemiesLeafRegistry, enemies);
+            enemies.Add(new(i, "SomeBud", i.ToString()));
+        TestUtility.MockRegistry(_enemiesLeafRegistry, enemies);
 
-        Dictionary<string, RecipeLibraryEntryLeaf> recipeLibraryEntries = new();
+        List<RecipeLibraryEntryLeaf> recipeLibraryEntries = new();
         for (int i = 0; i < recipeLibraryEntriesAmount; i++)
-            recipeLibraryEntries.Add(i.ToString(), new(i, i.ToString(), Constants.BaseGameCreatorId));
+            recipeLibraryEntries.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
         for (int i = recipeLibraryEntriesAmount; i < 10; i++)
-            recipeLibraryEntries.Add(i.ToString(), new(i, i.ToString(), "SomeBud"));
-        MockRegistry(_recipeLibraryEntriesLeafRegistry, recipeLibraryEntries);
+            recipeLibraryEntries.Add(new(i, "SomeBud", i.ToString()));
+        TestUtility.MockRegistry(_recipeLibraryEntriesLeafRegistry, recipeLibraryEntries);
 
-        Dictionary<string, RecordLeaf> recordLeaves = new();
+        List<RecordLeaf> recordLeaves = new();
         for (int i = 0; i < recordsAmount; i++)
-            recordLeaves.Add(i.ToString(), new(i, i.ToString(), Constants.BaseGameCreatorId));
+            recordLeaves.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
         for (int i = recordsAmount; i < 10; i++)
-            recordLeaves.Add(i.ToString(), new(i, i.ToString(), "SomeBud"));
-        MockRegistry(_recordsLeafRegistry, recordLeaves);
+            recordLeaves.Add(new(i, "SomeBud", i.ToString()));
+        TestUtility.MockRegistry(_recordsLeafRegistry, recordLeaves);
 
-        Dictionary<string, SpyCardLeaf> spyCardLeaves = new()
+        List<SpyCardLeaf> spyCardLeaves = new()
         {
-            ["5Card"] = new(5, "5Card", Constants.BaseGameCreatorId),
-            ["6Card"] = new(6, "6Card", Constants.BaseGameCreatorId)
+            new(5, Constants.BaseGameCreatorId, "5Card"),
+            new(6, Constants.BaseGameCreatorId, "6Card")
         };
-        MockRegistry(_spyCardsLeafRegistry, spyCardLeaves);
+        TestUtility.MockRegistry(_spyCardsLeafRegistry, spyCardLeaves);
 
-        Dictionary<string, AreaLeaf> areaLeaves = new();
+        List<AreaLeaf> areaLeaves = new();
         for (int i = 0; i < areasAmount; i++)
         {
             if (i == (int)area)
                 continue;
-            areaLeaves.Add(i.ToString(), new(i, i.ToString(), Constants.BaseGameCreatorId));
+            areaLeaves.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
         }
 
-        areaLeaves[area.ToString()] = new(1, area.ToString(), Constants.BaseGameCreatorId);
+        areaLeaves.Add(new(1, Constants.BaseGameCreatorId, area.ToString()));
 
         for (int i = areasAmount; i < 10; i++)
-            areaLeaves.Add(i.ToString(), new(i, i.ToString(), "SomeBud"));
+            areaLeaves.Add(new(i, "SomeBud", i.ToString()));
 
-        MockRegistry(_areasLeafRegistry, areaLeaves);
+        TestUtility.MockRegistry(_areasLeafRegistry, areaLeaves);
 
-        Dictionary<string, FlagLeaf> flagLeaves = new();
+        List<FlagLeaf> flagLeaves = new();
         for (int i = 0; i < flagsAmount; i++)
-            flagLeaves.Add(i.ToString(), new(i, i.ToString(), Constants.BaseGameCreatorId));
+            flagLeaves.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
         for (int i = flagsAmount; i < 10; i++)
-            flagLeaves.Add(i.ToString(), new(i, i.ToString(), "SomeBud"));
-        MockRegistry(_flagsLeafRegistry, flagLeaves);
+            flagLeaves.Add(new(i, "SomeBud", i.ToString()));
+        TestUtility.MockRegistry(_flagsLeafRegistry, flagLeaves);
 
-        Dictionary<string, FlagstringLeaf> flagstringLeaves = new();
+        List<FlagstringLeaf> flagstringLeaves = new();
         for (int i = 0; i < flagstringAmount; i++)
-            flagstringLeaves.Add(i.ToString(), new(i, i.ToString(), Constants.BaseGameCreatorId));
+            flagstringLeaves.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
         for (int i = flagstringAmount; i < 10; i++)
-            flagstringLeaves.Add(i.ToString(), new(i, i.ToString(), "SomeBud"));
-        MockRegistry(_flagstringsLeafRegistry, flagstringLeaves);
+            flagstringLeaves.Add(new(i, "SomeBud", i.ToString()));
+        TestUtility.MockRegistry(_flagstringsLeafRegistry, flagstringLeaves);
 
-        Dictionary<string, FlagvarLeaf> flagvarLeaves = new();
+        List<FlagvarLeaf> flagvarLeaves = new();
         for (int i = 0; i < flagvarAmount; i++)
-            flagvarLeaves.Add(i.ToString(), new(i, i.ToString(), Constants.BaseGameCreatorId));
+            flagvarLeaves.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
         for (int i = flagvarAmount; i < 10; i++)
-            flagvarLeaves.Add(i.ToString(), new(i, i.ToString(), "SomeBud"));
-        MockRegistry(_flagvarsLeafRegistry, flagvarLeaves);
+            flagvarLeaves.Add(new(i, "SomeBud", i.ToString()));
+        TestUtility.MockRegistry(_flagvarsLeafRegistry, flagvarLeaves);
 
-        Dictionary<string, CrystalBerryLeaf> crystalBerryLeaves = new();
+        List<CrystalBerryLeaf> crystalBerryLeaves = new();
         for (int i = 0; i < crystalBerriesAmount; i++)
-            crystalBerryLeaves.Add(i.ToString(), new(i, i.ToString(), Constants.BaseGameCreatorId));
+            crystalBerryLeaves.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
         for (int i = crystalBerriesAmount; i < 10; i++)
-            crystalBerryLeaves.Add(i.ToString(), new(i, i.ToString(), "SomeBud"));
-        MockRegistry(_crystalBerriesLeafRegistry, crystalBerryLeaves);
-    }
-
-    private static void MockRegistry<TLeaf>(
-        ILeavesRegistry<TLeaf> registry,
-        Dictionary<string, TLeaf> leavesByEffectiveIds)
-        where TLeaf : Leaf
-    {
-        registry.LeavesByEffectiveIds.Returns(leavesByEffectiveIds);
-        registry.LeavesByGameIds.Returns(leavesByEffectiveIds.ToDictionary(x => x.Value.GameId, x => x.Value));
+            crystalBerryLeaves.Add(new(i, "SomeBud", i.ToString()));
+        TestUtility.MockRegistry(_crystalBerriesLeafRegistry, crystalBerryLeaves);
     }
 }

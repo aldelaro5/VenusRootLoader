@@ -59,37 +59,38 @@ public sealed class BudsSaveDataSerializerTests
     [Fact]
     public void GetBudsSaveDataFromRuntimeState_ReturnsEmptyDictionnary_WhenThereAreNoCustomLeaves()
     {
-        _medalShopsLeafRegistry.LeavesByGameIds.Returns(
-            new Dictionary<int, MedalShopLeaf> { [0] = new(0, "Merab", Constants.BaseGameCreatorId) });
-        _medalsLeafRegistry.LeavesByGameIds.Returns(
-            new Dictionary<int, MedalLeaf>
-            {
-                [0] = new(0, nameof(MainManager.BadgeTypes.HPPlus), Constants.BaseGameCreatorId)
-            });
-        _discoveriesLeafRegistry.LeavesByGameIds.Returns(
-            new Dictionary<int, DiscoveryLeaf> { [0] = new(0, "0", Constants.BaseGameCreatorId) });
-        _enemiesLeafRegistry.LeavesByGameIds.Returns(
-            new Dictionary<int, EnemyLeaf>
-            {
-                [0] = new(0, nameof(MainManager.Enemies.CordycepsAnt), Constants.BaseGameCreatorId)
-            });
-        _recipeLibraryEntriesLeafRegistry.LeavesByGameIds.Returns(
-            new Dictionary<int, RecipeLibraryEntryLeaf> { [0] = new(0, "0", Constants.BaseGameCreatorId) });
-        _recordsLeafRegistry.LeavesByGameIds.Returns(
-            new Dictionary<int, RecordLeaf> { [0] = new(0, "0", Constants.BaseGameCreatorId) });
-        _areasLeafRegistry.LeavesByGameIds.Returns(
-            new Dictionary<int, AreaLeaf>
-            {
-                [0] = new(0, nameof(MainManager.Areas.BugariaOutskirts), Constants.BaseGameCreatorId)
-            });
-        _flagsLeafRegistry.LeavesByGameIds.Returns(
-            new Dictionary<int, FlagLeaf> { [0] = new(0, "0", Constants.BaseGameCreatorId) });
-        _flagstringsLeafRegistry.LeavesByGameIds.Returns(
-            new Dictionary<int, FlagstringLeaf> { [0] = new(0, "0", Constants.BaseGameCreatorId) });
-        _flagvarsLeafRegistry.LeavesByGameIds.Returns(
-            new Dictionary<int, FlagvarLeaf> { [0] = new(0, "0", Constants.BaseGameCreatorId) });
-        _crystalBerriesLeafRegistry.LeavesByGameIds.Returns(
-            new Dictionary<int, CrystalBerryLeaf> { [0] = new(0, "0", Constants.BaseGameCreatorId) });
+        List<MedalShopLeaf> medalShopLeaves = new() { new(0, Constants.BaseGameCreatorId, "Merab") };
+        TestUtility.MockRegistry(_medalShopsLeafRegistry, medalShopLeaves);
+        List<MedalLeaf> medalLeaves = new()
+        {
+            new(0, Constants.BaseGameCreatorId, nameof(MainManager.BadgeTypes.HPPlus))
+        };
+        TestUtility.MockRegistry(_medalsLeafRegistry, medalLeaves);
+        List<DiscoveryLeaf> discoveryLeaves = new() { new(0, Constants.BaseGameCreatorId, "0") };
+        TestUtility.MockRegistry(_discoveriesLeafRegistry, discoveryLeaves);
+        List<EnemyLeaf> enemyLeaves = new()
+        {
+            new(0, Constants.BaseGameCreatorId, nameof(MainManager.Enemies.CordycepsAnt))
+        };
+        TestUtility.MockRegistry(_enemiesLeafRegistry, enemyLeaves);
+        List<RecipeLibraryEntryLeaf> recipeLibraryEntryLeaves =
+            new() { new(0, Constants.BaseGameCreatorId, "0") };
+        TestUtility.MockRegistry(_recipeLibraryEntriesLeafRegistry, recipeLibraryEntryLeaves);
+        List<RecordLeaf> recordLeaves = new() { new(0, Constants.BaseGameCreatorId, "0") };
+        TestUtility.MockRegistry(_recordsLeafRegistry, recordLeaves);
+        List<AreaLeaf> areaLeaves = new()
+        {
+            new(0, Constants.BaseGameCreatorId, nameof(MainManager.Areas.BugariaOutskirts))
+        };
+        TestUtility.MockRegistry(_areasLeafRegistry, areaLeaves);
+        List<FlagLeaf> flagLeaves = new() { new(0, Constants.BaseGameCreatorId, "0") };
+        TestUtility.MockRegistry(_flagsLeafRegistry, flagLeaves);
+        List<FlagstringLeaf> flagstringLeaves = new() { new(0, Constants.BaseGameCreatorId, "0") };
+        TestUtility.MockRegistry(_flagstringsLeafRegistry, flagstringLeaves);
+        List<FlagvarLeaf> flagvarLeaves = new() { new(0, Constants.BaseGameCreatorId, "0") };
+        TestUtility.MockRegistry(_flagvarsLeafRegistry, flagvarLeaves);
+        List<CrystalBerryLeaf> crystalBerryLeaves = new() { new(0, Constants.BaseGameCreatorId, "0") };
+        TestUtility.MockRegistry(_crystalBerriesLeafRegistry, crystalBerryLeaves);
 
         Dictionary<string, string> result = _sut.GetBudsSaveDataFromRuntimeState();
 
@@ -103,18 +104,6 @@ public sealed class BudsSaveDataSerializerTests
         _ = _gameDataRuntimeState.DidNotReceiveWithAnyArgs().Flagstring;
         _ = _gameDataRuntimeState.DidNotReceiveWithAnyArgs().Flagvar;
         _ = _gameDataRuntimeState.DidNotReceiveWithAnyArgs().CrystalBFlags;
-
-        _ = _medalShopsLeafRegistry.Received(1).LeavesByGameIds;
-        _ = _medalsLeafRegistry.DidNotReceiveWithAnyArgs().LeavesByGameIds;
-        _ = _discoveriesLeafRegistry.Received(1).LeavesByGameIds;
-        _ = _enemiesLeafRegistry.Received(1).LeavesByGameIds;
-        _ = _recipeLibraryEntriesLeafRegistry.Received(1).LeavesByGameIds;
-        _ = _recordsLeafRegistry.Received(1).LeavesByGameIds;
-        _ = _areasLeafRegistry.Received(1).LeavesByGameIds;
-        _ = _flagsLeafRegistry.Received(1).LeavesByGameIds;
-        _ = _flagstringsLeafRegistry.Received(1).LeavesByGameIds;
-        _ = _flagvarsLeafRegistry.Received(1).LeavesByGameIds;
-        _ = _crystalBerriesLeafRegistry.Received(1).LeavesByGameIds;
     }
 
     [Fact]
@@ -151,73 +140,73 @@ public sealed class BudsSaveDataSerializerTests
         _gameDataRuntimeState.Flagvar.Returns(flagvars);
         _gameDataRuntimeState.CrystalBFlags.Returns(crystalBerriesObtained);
 
-        _medalShopsLeafRegistry.LeavesByGameIds.Returns(
-            new Dictionary<int, MedalShopLeaf>
-            {
-                [0] = new(0, "Merab", Constants.BaseGameCreatorId),
-                [1] = new(1, "CustomShop", budId1)
-            });
-        _medalsLeafRegistry.LeavesByGameIds.Returns(
-            new Dictionary<int, MedalLeaf>
-            {
-                [0] = new(0, nameof(MainManager.BadgeTypes.HPPlus), Constants.BaseGameCreatorId),
-                [1] = new(1, "CustomMedal1", budId1),
-                [2] = new(2, "CustomMedal2", budId1)
-            });
-        _discoveriesLeafRegistry.LeavesByGameIds.Returns(
-            new Dictionary<int, DiscoveryLeaf>
-            {
-                [0] = new(0, "0", Constants.BaseGameCreatorId),
-                [1] = new(1, "CustomDiscovery", budId1)
-            });
-        _enemiesLeafRegistry.LeavesByGameIds.Returns(
-            new Dictionary<int, EnemyLeaf>
-            {
-                [0] = new(0, nameof(MainManager.Enemies.CordycepsAnt), Constants.BaseGameCreatorId),
-                [1] = new(1, "CustomEnemy", budId2)
-            });
-        _recipeLibraryEntriesLeafRegistry.LeavesByGameIds.Returns(
-            new Dictionary<int, RecipeLibraryEntryLeaf>
-            {
-                [0] = new(0, "0", Constants.BaseGameCreatorId),
-                [1] = new(1, "CustomRecipeLibraryEntry", budId2)
-            });
-        _recordsLeafRegistry.LeavesByGameIds.Returns(
-            new Dictionary<int, RecordLeaf>
-            {
-                [0] = new(0, "0", Constants.BaseGameCreatorId),
-                [1] = new(1, "CustomRecord", budId3)
-            });
-        _areasLeafRegistry.LeavesByGameIds.Returns(
-            new Dictionary<int, AreaLeaf>
-            {
-                [0] = new(0, nameof(MainManager.Areas.BugariaOutskirts), Constants.BaseGameCreatorId),
-                [1] = new(1, "CustomArea", budId3)
-            });
-        _flagsLeafRegistry.LeavesByGameIds.Returns(
-            new Dictionary<int, FlagLeaf>
-            {
-                [0] = new(0, "0", Constants.BaseGameCreatorId),
-                [1] = new(1, "CustomFlag", budId4)
-            });
-        _flagstringsLeafRegistry.LeavesByGameIds.Returns(
-            new Dictionary<int, FlagstringLeaf>
-            {
-                [0] = new(0, "0", Constants.BaseGameCreatorId),
-                [1] = new(1, "CustomFlagstring", budId4)
-            });
-        _flagvarsLeafRegistry.LeavesByGameIds.Returns(
-            new Dictionary<int, FlagvarLeaf>
-            {
-                [0] = new(0, "0", Constants.BaseGameCreatorId),
-                [1] = new(1, "CustomFlagvar", budId5)
-            });
-        _crystalBerriesLeafRegistry.LeavesByGameIds.Returns(
-            new Dictionary<int, CrystalBerryLeaf>
-            {
-                [0] = new(0, "0", Constants.BaseGameCreatorId),
-                [1] = new(1, "CustomCrystalBerry", budId5)
-            });
+        List<MedalShopLeaf> medalShopLeaves = new()
+        {
+            new(0, Constants.BaseGameCreatorId, "Merab"),
+            new(1, budId1, "CustomShop")
+        };
+        TestUtility.MockRegistry(_medalShopsLeafRegistry, medalShopLeaves);
+        List<MedalLeaf> medalLeaves = new()
+        {
+            new(0, Constants.BaseGameCreatorId, nameof(MainManager.BadgeTypes.HPPlus)),
+            new(1, budId1, "CustomMedal1"),
+            new(2, budId1, "CustomMedal2")
+        };
+        TestUtility.MockRegistry(_medalsLeafRegistry, medalLeaves);
+        List<DiscoveryLeaf> discoveryLeaves = new()
+        {
+            new(0, Constants.BaseGameCreatorId, "0"),
+            new(1, budId1, "CustomDiscovery")
+        };
+        TestUtility.MockRegistry(_discoveriesLeafRegistry, discoveryLeaves);
+        List<EnemyLeaf> enemyLeaves = new()
+        {
+            new(0, Constants.BaseGameCreatorId, nameof(MainManager.Enemies.CordycepsAnt)),
+            new(1, budId2, "CustomEnemy")
+        };
+        TestUtility.MockRegistry(_enemiesLeafRegistry, enemyLeaves);
+        List<RecipeLibraryEntryLeaf> recipeLibraryEntryLeaves = new()
+        {
+            new(0, Constants.BaseGameCreatorId, "0"),
+            new(1, budId2, "CustomRecipeLibraryEntry")
+        };
+        TestUtility.MockRegistry(_recipeLibraryEntriesLeafRegistry, recipeLibraryEntryLeaves);
+        List<RecordLeaf> recordLeaves = new()
+        {
+            new(0, Constants.BaseGameCreatorId, "0"),
+            new(1, budId3, "CustomRecord")
+        };
+        TestUtility.MockRegistry(_recordsLeafRegistry, recordLeaves);
+        List<AreaLeaf> areaLeaves = new()
+        {
+            new(0, Constants.BaseGameCreatorId, nameof(MainManager.Areas.BugariaOutskirts)),
+            new(1, budId3, "CustomArea")
+        };
+        TestUtility.MockRegistry(_areasLeafRegistry, areaLeaves);
+        List<FlagLeaf> flagLeaves = new()
+        {
+            new(0, Constants.BaseGameCreatorId, "0"),
+            new(1, budId4, "CustomFlag")
+        };
+        TestUtility.MockRegistry(_flagsLeafRegistry, flagLeaves);
+        List<FlagstringLeaf> flagstringLeaves = new()
+        {
+            new(0, Constants.BaseGameCreatorId, "0"),
+            new(1, budId4, "CustomFlagstring")
+        };
+        TestUtility.MockRegistry(_flagstringsLeafRegistry, flagstringLeaves);
+        List<FlagvarLeaf> flagvarLeaves = new()
+        {
+            new(0, Constants.BaseGameCreatorId, "0"),
+            new(1, budId5, "CustomFlagvar")
+        };
+        TestUtility.MockRegistry(_flagvarsLeafRegistry, flagvarLeaves);
+        List<CrystalBerryLeaf> crystalBerryLeaves = new()
+        {
+            new(0, Constants.BaseGameCreatorId, "0"),
+            new(1, budId5, "CustomCrystalBerry")
+        };
+        TestUtility.MockRegistry(_crystalBerriesLeafRegistry, crystalBerryLeaves);
 
         Dictionary<string, string> result = _sut.GetBudsSaveDataFromRuntimeState();
 
@@ -229,18 +218,6 @@ public sealed class BudsSaveDataSerializerTests
         _ = _gameDataRuntimeState.Received(1).Flagstring;
         _ = _gameDataRuntimeState.Received(1).Flagvar;
         _ = _gameDataRuntimeState.Received(1).CrystalBFlags;
-
-        _ = _medalShopsLeafRegistry.Received(1).LeavesByGameIds;
-        _ = _medalsLeafRegistry.Received(2).LeavesByGameIds;
-        _ = _discoveriesLeafRegistry.Received(1).LeavesByGameIds;
-        _ = _enemiesLeafRegistry.Received(1).LeavesByGameIds;
-        _ = _recipeLibraryEntriesLeafRegistry.Received(1).LeavesByGameIds;
-        _ = _recordsLeafRegistry.Received(1).LeavesByGameIds;
-        _ = _areasLeafRegistry.Received(1).LeavesByGameIds;
-        _ = _flagsLeafRegistry.Received(1).LeavesByGameIds;
-        _ = _flagstringsLeafRegistry.Received(1).LeavesByGameIds;
-        _ = _flagvarsLeafRegistry.Received(1).LeavesByGameIds;
-        _ = _crystalBerriesLeafRegistry.Received(1).LeavesByGameIds;
 
         return Verify(result);
     }

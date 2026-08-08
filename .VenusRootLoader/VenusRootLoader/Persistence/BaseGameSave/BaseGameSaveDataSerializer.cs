@@ -294,18 +294,17 @@ internal sealed class BaseGameSaveDataSerializer : IBaseGameSaveDataSerializer
             if (i > 0)
                 sb.Append(AtSymbol);
 
-            IEnumerable<Leaf> libraryPageLeaves = (MainManager.LibraryPages)i switch
+            int baseGameLeavesAmount = (MainManager.LibraryPages)i switch
             {
-                MainManager.LibraryPages.Discoveries => _discoveriesLeafRegistry,
-                MainManager.LibraryPages.Bestiary => _enemiesLeafRegistry,
-                MainManager.LibraryPages.Recipes => _recipeLibraryEntriesLeafRegistry,
-                MainManager.LibraryPages.Logbook => _recordsLeafRegistry,
-                MainManager.LibraryPages.Map => _areasLeafRegistry,
-                _ => ThrowHelper.ThrowArgumentOutOfRangeException<IEnumerable<Leaf>>(
+                MainManager.LibraryPages.Discoveries => _discoveriesLeafRegistry.CountBaseGame,
+                MainManager.LibraryPages.Bestiary => _enemiesLeafRegistry.CountBaseGame,
+                MainManager.LibraryPages.Recipes => _recipeLibraryEntriesLeafRegistry.CountBaseGame,
+                MainManager.LibraryPages.Logbook => _recordsLeafRegistry.CountBaseGame,
+                MainManager.LibraryPages.Map => _areasLeafRegistry.CountBaseGame,
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<int>(
                     nameof(MainManager.LibraryPages))
             };
 
-            int baseGameLeavesAmount = libraryPageLeaves.Count(l => l.CreatorId == Constants.BaseGameCreatorId);
             for (int j = 0; j < 256; j++)
             {
                 if (j > 0)

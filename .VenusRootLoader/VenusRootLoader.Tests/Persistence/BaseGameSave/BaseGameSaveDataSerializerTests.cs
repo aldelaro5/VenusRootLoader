@@ -116,53 +116,53 @@ public sealed class BaseGameSaveDataSerializerTests
         _gameDataRuntimeState.ExtraFollowers.Returns([]);
         _gameDataRuntimeState.EnemyEncounter.Returns(new int[500, 2]);
 
-        _mapsLeafRegistry.LeavesByGameIds[(int)map].Returns(
-            new MapLeaf((int)map, map.ToString(), Constants.BaseGameCreatorId));
+        List<MapLeaf> mapLeaves = [new((int)map, Constants.BaseGameCreatorId, map.ToString())];
+        TestUtility.MockRegistry(_mapsLeafRegistry, mapLeaves);
 
-        Dictionary<int, DiscoveryLeaf> discoveries = new();
+        List<DiscoveryLeaf> discoveries = new();
         for (int i = 0; i < discoveriesAmount; i++)
-            discoveries.Add(i, new DiscoveryLeaf(i, i.ToString(), Constants.BaseGameCreatorId));
-        _discoveriesLeafRegistry.LeavesByGameIds.Returns(discoveries);
+            discoveries.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
+        TestUtility.MockRegistry(_discoveriesLeafRegistry, discoveries);
 
-        Dictionary<int, EnemyLeaf> enemies = new();
+        List<EnemyLeaf> enemies = new();
         for (int i = 0; i < enemiesAmount; i++)
-            enemies.Add(i, new EnemyLeaf(i, ((MainManager.Enemies)i).ToString(), Constants.BaseGameCreatorId));
-        _enemiesLeafRegistry.LeavesByGameIds.Returns(enemies);
+            enemies.Add(new(i, Constants.BaseGameCreatorId, ((MainManager.Enemies)i).ToString()));
+        TestUtility.MockRegistry(_enemiesLeafRegistry, enemies);
 
-        Dictionary<int, RecipeLibraryEntryLeaf> recipeLibraryEntries = new();
+        List<RecipeLibraryEntryLeaf> recipeLibraryEntries = new();
         for (int i = 0; i < recipeLibraryEntriesAmount; i++)
-            recipeLibraryEntries.Add(i, new RecipeLibraryEntryLeaf(i, i.ToString(), Constants.BaseGameCreatorId));
-        _recipeLibraryEntriesLeafRegistry.LeavesByGameIds.Returns(recipeLibraryEntries);
+            recipeLibraryEntries.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
+        TestUtility.MockRegistry(_recipeLibraryEntriesLeafRegistry, recipeLibraryEntries);
 
-        Dictionary<int, RecordLeaf> records = new();
+        List<RecordLeaf> records = new();
         for (int i = 0; i < recordsAmount; i++)
-            records.Add(i, new RecordLeaf(i, i.ToString(), Constants.BaseGameCreatorId));
-        _recordsLeafRegistry.LeavesByGameIds.Returns(records);
+            records.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
+        TestUtility.MockRegistry(_recordsLeafRegistry, records);
 
-        Dictionary<int, AreaLeaf> areas = new();
+        List<AreaLeaf> areas = new();
         for (int i = 0; i < areasAmount; i++)
-            areas.Add(i, new AreaLeaf(i, ((MainManager.Areas)i).ToString(), Constants.BaseGameCreatorId));
-        _areasLeafRegistry.LeavesByGameIds.Returns(areas);
+            areas.Add(new(i, Constants.BaseGameCreatorId, ((MainManager.Areas)i).ToString()));
+        TestUtility.MockRegistry(_areasLeafRegistry, areas);
 
-        Dictionary<int, FlagLeaf> flagsLeaves = new();
+        List<FlagLeaf> flagsLeaves = new();
         for (int i = 0; i < flagsAmount; i++)
-            flagsLeaves.Add(i, new FlagLeaf(i, i.ToString(), Constants.BaseGameCreatorId));
-        _flagsLeafRegistry.LeavesByGameIds.Returns(flagsLeaves);
+            flagsLeaves.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
+        TestUtility.MockRegistry(_flagsLeafRegistry, flagsLeaves);
 
-        Dictionary<int, FlagstringLeaf> flagstrings = new();
+        List<FlagstringLeaf> flagstrings = new();
         for (int i = 0; i < flagstringAmount; i++)
-            flagstrings.Add(i, new FlagstringLeaf(i, i.ToString(), Constants.BaseGameCreatorId));
-        _flagstringsLeafRegistry.LeavesByGameIds.Returns(flagstrings);
+            flagstrings.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
+        TestUtility.MockRegistry(_flagstringsLeafRegistry, flagstrings);
 
-        Dictionary<int, FlagvarLeaf> flagvars = new();
+        List<FlagvarLeaf> flagvars = new();
         for (int i = 0; i < flagvarAmount; i++)
-            flagvars.Add(i, new FlagvarLeaf(i, i.ToString(), Constants.BaseGameCreatorId));
-        _flagvarsLeafRegistry.LeavesByGameIds.Returns(flagvars);
+            flagvars.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
+        TestUtility.MockRegistry(_flagvarsLeafRegistry, flagvars);
 
-        Dictionary<int, CrystalBerryLeaf> crystalBerries = new();
+        List<CrystalBerryLeaf> crystalBerries = new();
         for (int i = 0; i < crystalBerriesAmount; i++)
-            crystalBerries.Add(i, new CrystalBerryLeaf(i, i.ToString(), Constants.BaseGameCreatorId));
-        _crystalBerriesLeafRegistry.LeavesByGameIds.Returns(crystalBerries);
+            crystalBerries.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
+        TestUtility.MockRegistry(_crystalBerriesLeafRegistry, crystalBerries);
 
         string result = _sut.GetBaseGameSaveDataFromRuntimeState(null);
 
@@ -198,8 +198,8 @@ public sealed class BaseGameSaveDataSerializerTests
         _ = _gameDataRuntimeState.Received().ExtraFollowers;
         _ = _gameDataRuntimeState.Received().EnemyEncounter;
 
-        _ = _mapsLeafRegistry.LeavesByGameIds.Received(1)[(int)map];
-        _ = _areasLeafRegistry.Received(2).LeavesByGameIds;
+        _ = _mapsLeafRegistry.Received(1).GetByGameId((int)map);
+        _ = _areasLeafRegistry.ReceivedWithAnyArgs(1).GetByGameId(0);
 
         return Verify(result);
     }
@@ -388,127 +388,127 @@ public sealed class BaseGameSaveDataSerializerTests
         _gameDataRuntimeState.ExtraFollowers.Returns([(int)follower1, (int)follower2]);
         _gameDataRuntimeState.EnemyEncounter.Returns(enemyEncounters);
 
-        _animIdsLeafRegistry.LeavesByGameIds[-1].Returns(
-            new AnimIdLeaf(-1, nameof(MainManager.AnimIDs.None), Constants.BaseGameCreatorId));
-        _animIdsLeafRegistry.LeavesByGameIds[0].Returns(
-            new AnimIdLeaf(0, nameof(MainManager.AnimIDs.Bee), Constants.BaseGameCreatorId));
-        _animIdsLeafRegistry.LeavesByGameIds[1].Returns(
-            new AnimIdLeaf(1, nameof(MainManager.AnimIDs.Beetle), Constants.BaseGameCreatorId));
-        _animIdsLeafRegistry.LeavesByGameIds[(int)follower1].Returns(
-            new AnimIdLeaf((int)follower1, follower1.ToString(), Constants.BaseGameCreatorId));
-        _animIdsLeafRegistry.LeavesByGameIds[(int)follower2].Returns(
-            new AnimIdLeaf((int)follower2, follower2.ToString(), Constants.BaseGameCreatorId));
+        _animIdsLeafRegistry.GetByGameId(-1).Returns(
+            new AnimIdLeaf(-1, Constants.BaseGameCreatorId, nameof(MainManager.AnimIDs.None)));
+        _animIdsLeafRegistry.GetByGameId(0).Returns(
+            new AnimIdLeaf(0, Constants.BaseGameCreatorId, nameof(MainManager.AnimIDs.Bee)));
+        _animIdsLeafRegistry.GetByGameId(1).Returns(
+            new AnimIdLeaf(1, Constants.BaseGameCreatorId, nameof(MainManager.AnimIDs.Beetle)));
+        _animIdsLeafRegistry.GetByGameId((int)follower1).Returns(
+            new AnimIdLeaf((int)follower1, Constants.BaseGameCreatorId, follower1.ToString()));
+        _animIdsLeafRegistry.GetByGameId((int)follower2).Returns(
+            new AnimIdLeaf((int)follower2, Constants.BaseGameCreatorId, follower2.ToString()));
 
-        _mapsLeafRegistry.LeavesByGameIds[(int)map].Returns(
-            new MapLeaf((int)map, map.ToString(), Constants.BaseGameCreatorId));
+        _mapsLeafRegistry.GetByGameId((int)map).Returns(
+            new MapLeaf((int)map, Constants.BaseGameCreatorId, map.ToString()));
 
-        _medalsLeafRegistry.LeavesByGameIds[(int)medalMerab1].Returns(
-            new MedalLeaf((int)medalMerab1, medalMerab1.ToString(), Constants.BaseGameCreatorId));
-        _medalsLeafRegistry.LeavesByGameIds[(int)medalMerab2].Returns(
-            new MedalLeaf((int)medalMerab2, medalMerab2.ToString(), Constants.BaseGameCreatorId));
-        _medalsLeafRegistry.LeavesByGameIds[(int)medalShades1].Returns(
-            new MedalLeaf((int)medalShades1, medalShades1.ToString(), Constants.BaseGameCreatorId));
-        _medalsLeafRegistry.LeavesByGameIds[(int)medalShades2].Returns(
-            new MedalLeaf((int)medalShades2, medalShades2.ToString(), Constants.BaseGameCreatorId));
-        _medalsLeafRegistry.LeavesByGameIds[(int)medalOnHandEquippedToMember].Returns(
+        _medalsLeafRegistry.GetByGameId((int)medalMerab1).Returns(
+            new MedalLeaf((int)medalMerab1, Constants.BaseGameCreatorId, medalMerab1.ToString()));
+        _medalsLeafRegistry.GetByGameId((int)medalMerab2).Returns(
+            new MedalLeaf((int)medalMerab2, Constants.BaseGameCreatorId, medalMerab2.ToString()));
+        _medalsLeafRegistry.GetByGameId((int)medalShades1).Returns(
+            new MedalLeaf((int)medalShades1, Constants.BaseGameCreatorId, medalShades1.ToString()));
+        _medalsLeafRegistry.GetByGameId((int)medalShades2).Returns(
+            new MedalLeaf((int)medalShades2, Constants.BaseGameCreatorId, medalShades2.ToString()));
+        _medalsLeafRegistry.GetByGameId((int)medalOnHandEquippedToMember).Returns(
             new MedalLeaf(
                 (int)medalOnHandEquippedToMember,
-                medalOnHandEquippedToMember.ToString(),
-                Constants.BaseGameCreatorId));
-        _medalsLeafRegistry.LeavesByGameIds[(int)medalOnHandEquippedToParty].Returns(
+                Constants.BaseGameCreatorId,
+                medalOnHandEquippedToMember.ToString()));
+        _medalsLeafRegistry.GetByGameId((int)medalOnHandEquippedToParty).Returns(
             new MedalLeaf(
                 (int)medalOnHandEquippedToParty,
-                medalOnHandEquippedToParty.ToString(),
-                Constants.BaseGameCreatorId));
-        _medalsLeafRegistry.LeavesByGameIds[(int)medalOnHandUnequipped].Returns(
-            new MedalLeaf((int)medalOnHandUnequipped, medalOnHandUnequipped.ToString(), Constants.BaseGameCreatorId));
-        _medalsLeafRegistry.LeavesByGameIds[(int)medalMystery1].Returns(
-            new MedalLeaf((int)medalMystery1, medalMystery1.ToString(), Constants.BaseGameCreatorId));
-        _medalsLeafRegistry.LeavesByGameIds[(int)medalMystery2].Returns(
-            new MedalLeaf((int)medalMystery2, medalMystery2.ToString(), Constants.BaseGameCreatorId));
+                Constants.BaseGameCreatorId,
+                medalOnHandEquippedToParty.ToString()));
+        _medalsLeafRegistry.GetByGameId((int)medalOnHandUnequipped).Returns(
+            new MedalLeaf((int)medalOnHandUnequipped, Constants.BaseGameCreatorId, medalOnHandUnequipped.ToString()));
+        _medalsLeafRegistry.GetByGameId((int)medalMystery1).Returns(
+            new MedalLeaf((int)medalMystery1, Constants.BaseGameCreatorId, medalMystery1.ToString()));
+        _medalsLeafRegistry.GetByGameId((int)medalMystery2).Returns(
+            new MedalLeaf((int)medalMystery2, Constants.BaseGameCreatorId, medalMystery2.ToString()));
 
-        _questsLeafRegistry.LeavesByGameIds[(int)openQuest1].Returns(
-            new QuestLeaf((int)openQuest1, openQuest1.ToString(), Constants.BaseGameCreatorId));
-        _questsLeafRegistry.LeavesByGameIds[(int)openQuest2].Returns(
-            new QuestLeaf((int)openQuest2, openQuest2.ToString(), Constants.BaseGameCreatorId));
-        _questsLeafRegistry.LeavesByGameIds[(int)takenQuest1].Returns(
-            new QuestLeaf((int)takenQuest1, takenQuest1.ToString(), Constants.BaseGameCreatorId));
-        _questsLeafRegistry.LeavesByGameIds[(int)takenQuest2].Returns(
-            new QuestLeaf((int)takenQuest2, takenQuest2.ToString(), Constants.BaseGameCreatorId));
-        _questsLeafRegistry.LeavesByGameIds[(int)completedQuest1].Returns(
-            new QuestLeaf((int)completedQuest1, completedQuest1.ToString(), Constants.BaseGameCreatorId));
-        _questsLeafRegistry.LeavesByGameIds[(int)completedQuest2].Returns(
-            new QuestLeaf((int)completedQuest2, completedQuest2.ToString(), Constants.BaseGameCreatorId));
+        _questsLeafRegistry.GetByGameId((int)openQuest1).Returns(
+            new QuestLeaf((int)openQuest1, Constants.BaseGameCreatorId, openQuest1.ToString()));
+        _questsLeafRegistry.GetByGameId((int)openQuest2).Returns(
+            new QuestLeaf((int)openQuest2, Constants.BaseGameCreatorId, openQuest2.ToString()));
+        _questsLeafRegistry.GetByGameId((int)takenQuest1).Returns(
+            new QuestLeaf((int)takenQuest1, Constants.BaseGameCreatorId, takenQuest1.ToString()));
+        _questsLeafRegistry.GetByGameId((int)takenQuest2).Returns(
+            new QuestLeaf((int)takenQuest2, Constants.BaseGameCreatorId, takenQuest2.ToString()));
+        _questsLeafRegistry.GetByGameId((int)completedQuest1).Returns(
+            new QuestLeaf((int)completedQuest1, Constants.BaseGameCreatorId, completedQuest1.ToString()));
+        _questsLeafRegistry.GetByGameId((int)completedQuest2).Returns(
+            new QuestLeaf((int)completedQuest2, Constants.BaseGameCreatorId, completedQuest2.ToString()));
 
-        _itemsLeafRegistry.LeavesByGameIds[(int)regularItem1].Returns(
-            new ItemLeaf((int)regularItem1, regularItem1.ToString(), Constants.BaseGameCreatorId));
-        _itemsLeafRegistry.LeavesByGameIds[(int)regularItem2].Returns(
-            new ItemLeaf((int)regularItem2, regularItem2.ToString(), Constants.BaseGameCreatorId));
-        _itemsLeafRegistry.LeavesByGameIds[(int)keyItem1].Returns(
-            new ItemLeaf((int)keyItem1, keyItem1.ToString(), Constants.BaseGameCreatorId));
-        _itemsLeafRegistry.LeavesByGameIds[(int)keyItem2].Returns(
-            new ItemLeaf((int)keyItem2, keyItem2.ToString(), Constants.BaseGameCreatorId));
-        _itemsLeafRegistry.LeavesByGameIds[(int)storedItem1].Returns(
-            new ItemLeaf((int)storedItem1, storedItem1.ToString(), Constants.BaseGameCreatorId));
-        _itemsLeafRegistry.LeavesByGameIds[(int)storedItem2].Returns(
-            new ItemLeaf((int)storedItem2, storedItem2.ToString(), Constants.BaseGameCreatorId));
-        _itemsLeafRegistry.LeavesByGameIds[(int)chompyItem].Returns(
-            new ItemLeaf((int)chompyItem, chompyItem.ToString(), Constants.BaseGameCreatorId));
+        _itemsLeafRegistry.GetByGameId((int)regularItem1).Returns(
+            new ItemLeaf((int)regularItem1, Constants.BaseGameCreatorId, regularItem1.ToString()));
+        _itemsLeafRegistry.GetByGameId((int)regularItem2).Returns(
+            new ItemLeaf((int)regularItem2, Constants.BaseGameCreatorId, regularItem2.ToString()));
+        _itemsLeafRegistry.GetByGameId((int)keyItem1).Returns(
+            new ItemLeaf((int)keyItem1, Constants.BaseGameCreatorId, keyItem1.ToString()));
+        _itemsLeafRegistry.GetByGameId((int)keyItem2).Returns(
+            new ItemLeaf((int)keyItem2, Constants.BaseGameCreatorId, keyItem2.ToString()));
+        _itemsLeafRegistry.GetByGameId((int)storedItem1).Returns(
+            new ItemLeaf((int)storedItem1, Constants.BaseGameCreatorId, storedItem1.ToString()));
+        _itemsLeafRegistry.GetByGameId((int)storedItem2).Returns(
+            new ItemLeaf((int)storedItem2, Constants.BaseGameCreatorId, storedItem2.ToString()));
+        _itemsLeafRegistry.GetByGameId((int)chompyItem).Returns(
+            new ItemLeaf((int)chompyItem, Constants.BaseGameCreatorId, chompyItem.ToString()));
 
-        _musicsLeafRegistry.LeavesByGameIds[(int)samiraSongNotBought].Returns(
-            new MusicLeaf((int)samiraSongNotBought, samiraSongNotBought.ToString(), Constants.BaseGameCreatorId));
-        _musicsLeafRegistry.LeavesByGameIds[(int)samiraSongBought].Returns(
-            new MusicLeaf((int)samiraSongBought, samiraSongBought.ToString(), Constants.BaseGameCreatorId));
+        _musicsLeafRegistry.GetByGameId((int)samiraSongNotBought).Returns(
+            new MusicLeaf((int)samiraSongNotBought, Constants.BaseGameCreatorId, samiraSongNotBought.ToString()));
+        _musicsLeafRegistry.GetByGameId((int)samiraSongBought).Returns(
+            new MusicLeaf((int)samiraSongBought, Constants.BaseGameCreatorId, samiraSongBought.ToString()));
 
-        Dictionary<int, DiscoveryLeaf> discoveries = new();
+        List<DiscoveryLeaf> discoveries = new();
         for (int i = 0; i < discoveriesAmount; i++)
-            discoveries.Add(i, new DiscoveryLeaf(i, i.ToString(), Constants.BaseGameCreatorId));
-        _discoveriesLeafRegistry.LeavesByGameIds.Returns(discoveries);
+            discoveries.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
+        TestUtility.MockRegistry(_discoveriesLeafRegistry, discoveries);
 
-        Dictionary<int, EnemyLeaf> enemies = new();
+        List<EnemyLeaf> enemies = new();
         for (int i = 0; i < enemiesAmount; i++)
-            enemies.Add(i, new EnemyLeaf(i, ((MainManager.Enemies)i).ToString(), Constants.BaseGameCreatorId));
-        _enemiesLeafRegistry.LeavesByGameIds.Returns(enemies);
+            enemies.Add(new(i, Constants.BaseGameCreatorId, ((MainManager.Enemies)i).ToString()));
+        TestUtility.MockRegistry(_enemiesLeafRegistry, enemies);
 
-        Dictionary<int, RecipeLibraryEntryLeaf> recipeLibraryEntries = new();
+        List<RecipeLibraryEntryLeaf> recipeLibraryEntries = new();
         for (int i = 0; i < recipeLibraryEntriesAmount; i++)
-            recipeLibraryEntries.Add(i, new RecipeLibraryEntryLeaf(i, i.ToString(), Constants.BaseGameCreatorId));
-        _recipeLibraryEntriesLeafRegistry.LeavesByGameIds.Returns(recipeLibraryEntries);
+            recipeLibraryEntries.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
+        TestUtility.MockRegistry(_recipeLibraryEntriesLeafRegistry, recipeLibraryEntries);
 
-        Dictionary<int, RecordLeaf> records = new();
+        List<RecordLeaf> records = new();
         for (int i = 0; i < recordsAmount; i++)
-            records.Add(i, new RecordLeaf(i, i.ToString(), Constants.BaseGameCreatorId));
-        _recordsLeafRegistry.LeavesByGameIds.Returns(records);
+            records.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
+        TestUtility.MockRegistry(_recordsLeafRegistry, records);
 
-        Dictionary<int, AreaLeaf> areas = new();
+        List<AreaLeaf> areas = new();
         for (int i = 0; i < areasAmount; i++)
-            areas.Add(i, new AreaLeaf(i, ((MainManager.Areas)i).ToString(), Constants.BaseGameCreatorId));
-        _areasLeafRegistry.LeavesByGameIds.Returns(areas);
+            areas.Add(new(i, Constants.BaseGameCreatorId, ((MainManager.Areas)i).ToString()));
+        TestUtility.MockRegistry(_areasLeafRegistry, areas);
 
-        Dictionary<int, FlagLeaf> flagsLeaves = new();
+        List<FlagLeaf> flagsLeaves = new();
         for (int i = 0; i < flagsAmount; i++)
-            flagsLeaves.Add(i, new FlagLeaf(i, i.ToString(), Constants.BaseGameCreatorId));
-        _flagsLeafRegistry.LeavesByGameIds.Returns(flagsLeaves);
+            flagsLeaves.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
+        TestUtility.MockRegistry(_flagsLeafRegistry, flagsLeaves);
 
-        _spyCardsLeafRegistry.LeavesByGameIds[5].Returns(
-            new SpyCardLeaf(5, "5Card", Constants.BaseGameCreatorId));
-        _spyCardsLeafRegistry.LeavesByGameIds[6].Returns(
-            new SpyCardLeaf(6, "6Card", Constants.BaseGameCreatorId));
+        _spyCardsLeafRegistry.GetByGameId(5).Returns(
+            new SpyCardLeaf(5, Constants.BaseGameCreatorId, "5Card"));
+        _spyCardsLeafRegistry.GetByGameId(6).Returns(
+            new SpyCardLeaf(6, Constants.BaseGameCreatorId, "6Card"));
 
-        Dictionary<int, FlagstringLeaf> flagstrings = new();
+        List<FlagstringLeaf> flagstrings = new();
         for (int i = 0; i < flagstringAmount; i++)
-            flagstrings.Add(i, new FlagstringLeaf(i, i.ToString(), Constants.BaseGameCreatorId));
-        _flagstringsLeafRegistry.LeavesByGameIds.Returns(flagstrings);
+            flagstrings.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
+        TestUtility.MockRegistry(_flagstringsLeafRegistry, flagstrings);
 
-        Dictionary<int, FlagvarLeaf> flagvars = new();
+        List<FlagvarLeaf> flagvars = new();
         for (int i = 0; i < flagvarAmount; i++)
-            flagvars.Add(i, new FlagvarLeaf(i, i.ToString(), Constants.BaseGameCreatorId));
-        _flagvarsLeafRegistry.LeavesByGameIds.Returns(flagvars);
+            flagvars.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
+        TestUtility.MockRegistry(_flagvarsLeafRegistry, flagvars);
 
-        Dictionary<int, CrystalBerryLeaf> crystalBerries = new();
+        List<CrystalBerryLeaf> crystalBerries = new();
         for (int i = 0; i < crystalBerriesAmount; i++)
-            crystalBerries.Add(i, new CrystalBerryLeaf(i, i.ToString(), Constants.BaseGameCreatorId));
-        _crystalBerriesLeafRegistry.LeavesByGameIds.Returns(crystalBerries);
+            crystalBerries.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
+        TestUtility.MockRegistry(_crystalBerriesLeafRegistry, crystalBerries);
 
         string result = _sut.GetBaseGameSaveDataFromRuntimeState(playerPositionToSave);
 
@@ -544,46 +544,46 @@ public sealed class BaseGameSaveDataSerializerTests
         _ = _gameDataRuntimeState.Received().ExtraFollowers;
         _ = _gameDataRuntimeState.Received().EnemyEncounter;
 
-        _ = _animIdsLeafRegistry.LeavesByGameIds.Received(2)[-1];
-        _ = _animIdsLeafRegistry.LeavesByGameIds.Received(2)[0];
-        _ = _animIdsLeafRegistry.LeavesByGameIds.Received(2)[1];
-        _ = _animIdsLeafRegistry.LeavesByGameIds.Received(1)[(int)follower1];
-        _ = _animIdsLeafRegistry.LeavesByGameIds.Received(1)[(int)follower2];
+        _ = _animIdsLeafRegistry.Received(2).GetByGameId(-1);
+        _ = _animIdsLeafRegistry.Received(2).GetByGameId(0);
+        _ = _animIdsLeafRegistry.Received(2).GetByGameId(1);
+        _ = _animIdsLeafRegistry.Received(1).GetByGameId((int)follower1);
+        _ = _animIdsLeafRegistry.Received(1).GetByGameId((int)follower2);
 
-        _ = _mapsLeafRegistry.LeavesByGameIds.Received(1)[(int)map];
+        _ = _mapsLeafRegistry.Received(1).GetByGameId((int)map);
 
-        _ = _medalsLeafRegistry.LeavesByGameIds.Received(2)[(int)medalMerab1];
-        _ = _medalsLeafRegistry.LeavesByGameIds.Received(2)[(int)medalMerab2];
-        _ = _medalsLeafRegistry.LeavesByGameIds.Received(2)[(int)medalShades1];
-        _ = _medalsLeafRegistry.LeavesByGameIds.Received(2)[(int)medalShades2];
-        _ = _medalsLeafRegistry.LeavesByGameIds.Received(1)[(int)medalOnHandEquippedToMember];
-        _ = _medalsLeafRegistry.LeavesByGameIds.Received(1)[(int)medalOnHandEquippedToParty];
-        _ = _medalsLeafRegistry.LeavesByGameIds.Received(1)[(int)medalOnHandUnequipped];
-        _ = _medalsLeafRegistry.LeavesByGameIds.Received(1)[(int)medalMystery1];
-        _ = _medalsLeafRegistry.LeavesByGameIds.Received(1)[(int)medalMystery2];
+        _ = _medalsLeafRegistry.Received(2).GetByGameId((int)medalMerab1);
+        _ = _medalsLeafRegistry.Received(2).GetByGameId((int)medalMerab2);
+        _ = _medalsLeafRegistry.Received(2).GetByGameId((int)medalShades1);
+        _ = _medalsLeafRegistry.Received(2).GetByGameId((int)medalShades2);
+        _ = _medalsLeafRegistry.Received(1).GetByGameId((int)medalOnHandEquippedToMember);
+        _ = _medalsLeafRegistry.Received(1).GetByGameId((int)medalOnHandEquippedToParty);
+        _ = _medalsLeafRegistry.Received(1).GetByGameId((int)medalOnHandUnequipped);
+        _ = _medalsLeafRegistry.Received(1).GetByGameId((int)medalMystery1);
+        _ = _medalsLeafRegistry.Received(1).GetByGameId((int)medalMystery2);
 
-        _ = _questsLeafRegistry.LeavesByGameIds.Received(1)[(int)openQuest1];
-        _ = _questsLeafRegistry.LeavesByGameIds.Received(1)[(int)openQuest2];
-        _ = _questsLeafRegistry.LeavesByGameIds.Received(1)[(int)takenQuest1];
-        _ = _questsLeafRegistry.LeavesByGameIds.Received(1)[(int)takenQuest2];
-        _ = _questsLeafRegistry.LeavesByGameIds.Received(1)[(int)completedQuest1];
-        _ = _questsLeafRegistry.LeavesByGameIds.Received(1)[(int)completedQuest2];
+        _ = _questsLeafRegistry.Received(1).GetByGameId((int)openQuest1);
+        _ = _questsLeafRegistry.Received(1).GetByGameId((int)openQuest2);
+        _ = _questsLeafRegistry.Received(1).GetByGameId((int)takenQuest1);
+        _ = _questsLeafRegistry.Received(1).GetByGameId((int)takenQuest2);
+        _ = _questsLeafRegistry.Received(1).GetByGameId((int)completedQuest1);
+        _ = _questsLeafRegistry.Received(1).GetByGameId((int)completedQuest2);
 
-        _ = _itemsLeafRegistry.LeavesByGameIds.Received(2)[(int)regularItem1];
-        _ = _itemsLeafRegistry.LeavesByGameIds.Received(2)[(int)regularItem2];
-        _ = _itemsLeafRegistry.LeavesByGameIds.Received(2)[(int)keyItem1];
-        _ = _itemsLeafRegistry.LeavesByGameIds.Received(2)[(int)keyItem2];
-        _ = _itemsLeafRegistry.LeavesByGameIds.Received(1)[(int)storedItem1];
-        _ = _itemsLeafRegistry.LeavesByGameIds.Received(1)[(int)storedItem2];
-        _ = _itemsLeafRegistry.LeavesByGameIds.Received(1)[(int)chompyItem];
+        _ = _itemsLeafRegistry.Received(2).GetByGameId((int)regularItem1);
+        _ = _itemsLeafRegistry.Received(2).GetByGameId((int)regularItem2);
+        _ = _itemsLeafRegistry.Received(2).GetByGameId((int)keyItem1);
+        _ = _itemsLeafRegistry.Received(2).GetByGameId((int)keyItem2);
+        _ = _itemsLeafRegistry.Received(1).GetByGameId((int)storedItem1);
+        _ = _itemsLeafRegistry.Received(1).GetByGameId((int)storedItem2);
+        _ = _itemsLeafRegistry.Received(1).GetByGameId((int)chompyItem);
 
-        _ = _musicsLeafRegistry.LeavesByGameIds.Received(1)[(int)samiraSongNotBought];
-        _ = _musicsLeafRegistry.LeavesByGameIds.Received(1)[(int)samiraSongBought];
+        _ = _musicsLeafRegistry.Received(1).GetByGameId((int)samiraSongNotBought);
+        _ = _musicsLeafRegistry.Received(1).GetByGameId((int)samiraSongBought);
 
-        _ = _spyCardsLeafRegistry.LeavesByGameIds.Received(1)[5];
-        _ = _spyCardsLeafRegistry.LeavesByGameIds.Received(1)[6];
+        _ = _spyCardsLeafRegistry.Received(1).GetByGameId(5);
+        _ = _spyCardsLeafRegistry.Received(1).GetByGameId(6);
 
-        _ = _areasLeafRegistry.Received(2).LeavesByGameIds;
+        _ = _areasLeafRegistry.ReceivedWithAnyArgs(1).GetByGameId(0);
 
         return Verify(result);
     }

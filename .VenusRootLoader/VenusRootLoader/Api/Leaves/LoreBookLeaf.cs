@@ -1,3 +1,5 @@
+using VenusRootLoader.SourceGenerators;
+
 namespace VenusRootLoader.Api.Leaves;
 
 // TODO: Solve the LibraryShelf issue
@@ -17,5 +19,11 @@ internal sealed class LoreBookLeaf : Leaf
     }
 
     internal LocalizedData<LoreBookLanguageData> LocalizedData { get; } = new();
-    internal Branch<FlagLeaf> LoreBookObtainedFlag { get; set; }
+    internal Branch<FlagLeaf> LoreBookObtainedFlag { get; set; } = null!;
+
+    [LeafInitializeFromNew]
+    internal void InitializeFromNew(Branch<FlagLeaf> loreBookObtainedFlag)
+    {
+        LoreBookObtainedFlag = loreBookObtainedFlag;
+    }
 }

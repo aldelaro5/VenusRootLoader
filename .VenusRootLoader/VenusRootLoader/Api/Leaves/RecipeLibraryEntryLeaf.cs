@@ -11,5 +11,11 @@ public sealed class RecipeLibraryEntryLeaf : Leaf
 
     internal bool OriginalEndsWithAtSymbol { get; set; }
     internal bool OriginalItemsHaveInvertedOrder { get; set; }
-    public Branch<RecipeLeaf> Recipe { get; set; }
+    public Branch<RecipeLeaf> Recipe { get; set; } = null!;
+
+    [LeafInitializeFromNew]
+    internal void InitializeFromNew(Branch<RecipeLeaf> recipe)
+    {
+        Recipe = recipe;
+    }
 }

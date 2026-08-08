@@ -32,7 +32,11 @@ public partial class Venus
         return enemyLeaf;
     }
 
-    public SpyCardLeaf RegisterSpyCard(string namedId, MainManager.Enemies? orderAfter, int orderPriority)
+    public SpyCardLeaf RegisterSpyCard(
+        string namedId,
+        Branch<EnemyLeaf> enemy,
+        MainManager.Enemies? orderAfter,
+        int orderPriority)
     {
         IOrderedLeavesRegistry<SpyCardLeaf> orderedLeavesRegistry = RegistryResolver.ResolveWithOrdering<SpyCardLeaf>();
         int? gameIdOrderAfter;
@@ -47,18 +51,13 @@ public partial class Venus
             gameIdOrderAfter = null;
         }
 
-        return orderedLeavesRegistry.RegisterNewWithOrdering(
+        SpyCardLeaf leaf = orderedLeavesRegistry.RegisterNewWithOrdering(
             namedId,
             BudId,
             gameIdOrderAfter,
             orderPriority);
-    }
-
-    public MedalShopLeaf RegisterMedalShop(string namedId, Branch<FlagLeaf> boughtAllStockFlag)
-    {
-        MedalShopLeaf medalShopLeaf = RegistryResolver.Resolve<MedalShopLeaf>().RegisterNew(BudId, namedId);
-        medalShopLeaf.BoughtAllStockFlag = boughtAllStockFlag;
-        return medalShopLeaf;
+        leaf.InitializeFromNew(enemy);
+        return leaf;
     }
 
     public MapDialogueLeaf RegisterMapDialogue(string namedId, MapLeaf map)
@@ -83,7 +82,7 @@ public partial class Venus
     public MapEntityLeaf GetMapEntity(string creatorId, string namedId, MapLeaf map) =>
         map.EntitiesRegistry.Get(creatorId, namedId);
 
-    public bool TryGetMapDialogue(string creatorId, string namedId, MapLeaf map, out MapEntityLeaf? mapEntityLeaf) =>
+    public bool TryGetMapEntity(string creatorId, string namedId, MapLeaf map, out MapEntityLeaf? mapEntityLeaf) =>
         map.EntitiesRegistry.TryGet(creatorId, namedId, out mapEntityLeaf);
 
     public MapEntityLeaf GetMapEntityFromBaseGame(string namedId, MapLeaf map) =>

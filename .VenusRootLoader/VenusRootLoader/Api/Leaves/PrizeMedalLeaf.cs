@@ -9,10 +9,17 @@ public sealed class PrizeMedalLeaf : Leaf
     {
     }
 
-    public Branch<MedalLeaf> Medal { get; set; }
+    public Branch<MedalLeaf> Medal { get; set; } = null!;
 
-    public Branch<FlagvarLeaf> Flagvar { get; set; }
+    public Branch<FlagvarLeaf> Flagvar { get; set; } = null!;
 
     // TODO: Figure out special cases such as "Explorer Duo"
     public int DisplayedEnemyGameId { get; set; }
+
+    [LeafInitializeFromNew]
+    internal void InitializeFromNew(Branch<MedalLeaf> medal, Branch<FlagvarLeaf> flagvar)
+    {
+        Medal = medal;
+        Flagvar = flagvar;
+    }
 }

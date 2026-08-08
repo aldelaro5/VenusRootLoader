@@ -17,8 +17,24 @@ public class VenusLeafRegistryApiSourceGenerator : IIncrementalGenerator
         public required bool WithRegisterMethod { get; init; }
     }
 
+    private record LeafInitializationMethodInfo
+    {
+        public required string LeafTypeName { get; init; }
+        public required string MethodName { get; init; }
+        public required string MethodParameters { get; init; }
+        public required string CallingParameters { get; init; }
+    }
+
+    private record VenusLeafApiInfo
+    {
+        public required LeafTypeInfo LeafTypeInfo { get; init; }
+        public required LeafInitializationMethodInfo? LeafInitializationMethodInfo { get; init; }
+    }
+
+    private const string MethodParameterSeparator = ",\n        ";
     private const string Namespace = "VenusRootLoader.SourceGenerators";
     private const string ExposeFromVenusAttribute = "ExposeFromVenusAttribute";
+    private const string LeafInitializeFromNewAttribute = "LeafInitializeFromNewAttribute";
 
     private const string AttributeSourceCode =
         $$"""
@@ -40,6 +56,12 @@ public class VenusLeafRegistryApiSourceGenerator : IIncrementalGenerator
                   WithRegisterMethod = withRegisterMethod;
               }
           }
+
+          [Microsoft.CodeAnalysis.EmbeddedAttribute]
+          [System.AttributeUsage(System.AttributeTargets.Method)]
+          internal class {{LeafInitializeFromNewAttribute}} : System.Attribute
+          {
+          }
           """;
 
     private const string VenusSourceCodeTemplate =
@@ -55,7 +77,19 @@ public class VenusLeafRegistryApiSourceGenerator : IIncrementalGenerator
         }
         """;
 
-    private const string VenusLeafRegisterMethodTemplate =
+    private const string VenusLeafWithInitializeRegisterMethodTemplate =
+        """
+            public {{leafTypeName}} Register{{leafEntityTypeNameWithoutLeafSuffix}}(
+                string namedId,
+                {{methodParameters}})
+            {
+                {{leafTypeName}} leaf = VenusRootLoader.Registry.RegistryResolver.Resolve<{{leafTypeName}}>().RegisterNew(BudId, namedId);
+                leaf.{{initializeMethodName}}({{callingParameters}});
+                return leaf;
+            }
+        """;
+
+    private const string VenusLeafWithoutInitializeRegisterMethodTemplate =
         """
             public {{leafTypeName}} Register{{leafEntityTypeNameWithoutLeafSuffix}}(string namedId)
             {
@@ -63,7 +97,25 @@ public class VenusLeafRegistryApiSourceGenerator : IIncrementalGenerator
             }
         """;
 
-    private const string VenusLeafRegisterOrderedMethodTemplate =
+    private const string VenusLeafWithtInitializeRegisterOrderedMethodTemplate =
+        """
+            public {{leafTypeName}} Register{{leafEntityTypeNameWithoutLeafSuffix}}(
+                string namedId,
+                {{methodParameters}},
+                {{orderAfterTypeName}}? orderAfter,
+                int orderPriority)
+            {
+                {{leafTypeName}} leaf VenusRootLoader.Registry.RegistryResolver.ResolveWithOrdering<{{leafTypeName}}>().RegisterNewWithOrdering(
+                    BudId,
+                    namedId,
+                    (int?)orderAfter,
+                    orderPriority);
+                leaf.{{initializeMethodName}}({{callingParameters}});
+                return leaf;
+            }
+        """;
+
+    private const string VenusLeafWithoutInitializeRegisterOrderedMethodTemplate =
         """
             public {{leafTypeName}} Register{{leafEntityTypeNameWithoutLeafSuffix}}(
                 string namedId,
@@ -101,16 +153,30 @@ public class VenusLeafRegistryApiSourceGenerator : IIncrementalGenerator
             }
         """;
 
-    private const string VenusLeafRegistryApiTemplate =
+    private const string VenusLeafRegistryApiWithoutInitializeTemplate =
         $$$"""
-           {{{VenusLeafRegisterMethodTemplate}}}
+           {{{VenusLeafWithoutInitializeRegisterMethodTemplate}}}
 
            {{{VenusLeafGetMethodsTemplate}}}
            """;
 
-    private const string VenusLeafRegistryWithOrderingApiTemplate =
+    private const string VenusLeafRegistryApiWithInitializationTemplate =
         $$$"""
-           {{{VenusLeafRegisterOrderedMethodTemplate}}}
+           {{{VenusLeafWithInitializeRegisterMethodTemplate}}}
+
+           {{{VenusLeafGetMethodsTemplate}}}
+           """;
+
+    private const string VenusLeafRegistryApiWithOrderingWithoutInitializeTemplate =
+        $$$"""
+           {{{VenusLeafWithoutInitializeRegisterOrderedMethodTemplate}}}
+
+           {{{VenusLeafGetMethodsTemplate}}}
+           """;
+
+    private const string VenusLeafRegistryApiWithOrderingWithInitializeTemplate =
+        $$$"""
+           {{{VenusLeafWithtInitializeRegisterOrderedMethodTemplate}}}
 
            {{{VenusLeafGetMethodsTemplate}}}
            """;
@@ -125,15 +191,32 @@ public class VenusLeafRegistryApiSourceGenerator : IIncrementalGenerator
                 SourceText.From(AttributeSourceCode, Encoding.UTF8));
         });
 
-        IncrementalValueProvider<ImmutableArray<LeafTypeInfo>> provider = context
+        IncrementalValuesProvider<LeafTypeInfo> providerLeafType = context
             .SyntaxProvider
             .ForAttributeWithMetadataName(
                 $"{Namespace}.{ExposeFromVenusAttribute}",
                 DummyPredicate,
-                TransformLeafType)
-            .Collect();
+                TransformLeafType);
 
-        context.RegisterSourceOutput(provider, GenerateCode);
+        IncrementalValueProvider<ImmutableArray<LeafInitializationMethodInfo>> providerLeafInitializationMethod =
+            context
+                .SyntaxProvider
+                .ForAttributeWithMetadataName(
+                    $"{Namespace}.{LeafInitializeFromNewAttribute}",
+                    DummyPredicate,
+                    TransformLeafInitializationMethod)
+                .Collect();
+
+        IncrementalValueProvider<ImmutableArray<VenusLeafApiInfo>> finalProvider =
+            providerLeafType.Combine(providerLeafInitializationMethod)
+                .Select((x, _) => new VenusLeafApiInfo
+                {
+                    LeafTypeInfo = x.Left,
+                    LeafInitializationMethodInfo = x.Right.SingleOrDefault(y => y.LeafTypeName == x.Left.LeafTypeName)
+                })
+                .Collect();
+
+        context.RegisterSourceOutput(finalProvider, GenerateCode);
     }
 
     private static bool DummyPredicate(SyntaxNode syntaxNode, CancellationToken cancellationToken) => true;
@@ -162,7 +245,35 @@ public class VenusLeafRegistryApiSourceGenerator : IIncrementalGenerator
         };
     }
 
-    private static void GenerateCode(SourceProductionContext context, ImmutableArray<LeafTypeInfo> leafTypeInfos)
+    private static LeafInitializationMethodInfo TransformLeafInitializationMethod(
+        GeneratorAttributeSyntaxContext syntaxContext,
+        CancellationToken cancellationToken)
+    {
+        IMethodSymbol initializeMethodSymbol =
+            (IMethodSymbol)syntaxContext.SemanticModel.GetDeclaredSymbol(
+                syntaxContext.TargetNode,
+                cancellationToken)!;
+
+        return new()
+        {
+            LeafTypeName = initializeMethodSymbol.ContainingType.Name,
+            MethodName = initializeMethodSymbol.Name,
+            MethodParameters = BuildMethodSignatureParameters(initializeMethodSymbol),
+            CallingParameters = BuildMethodCallingParameters(initializeMethodSymbol)
+        };
+    }
+
+    private static string BuildMethodSignatureParameters(IMethodSymbol registerMethodSymbol)
+    {
+        return string.Join(MethodParameterSeparator, registerMethodSymbol.Parameters.Select(p => p.ToDisplayString()));
+    }
+
+    private static string BuildMethodCallingParameters(IMethodSymbol symbolMethod)
+    {
+        return string.Join(", ", symbolMethod.Parameters.Select(p => p.Name));
+    }
+
+    private static void GenerateCode(SourceProductionContext context, ImmutableArray<VenusLeafApiInfo> leafTypeInfos)
     {
         string venusSourceCode = VenusSourceCodeTemplate.Replace(
             "{{methods}}",
@@ -171,21 +282,30 @@ public class VenusLeafRegistryApiSourceGenerator : IIncrementalGenerator
         context.AddSource("VenusLeafRegistryApi.g.cs", SourceText.From(venusSourceCode, Encoding.UTF8));
     }
 
-    private static string BuildVenusRegistryApiMethodsSourceCode(LeafTypeInfo leafTypeInfo)
+    private static string BuildVenusRegistryApiMethodsSourceCode(VenusLeafApiInfo venusLeafApiInfo)
     {
-        string leafTypeNameWithoutLeafSuffix = leafTypeInfo.LeafTypeName[..^4];
-        string template = leafTypeInfo switch
+        string leafTypeNameWithoutLeafSuffix = venusLeafApiInfo.LeafTypeInfo.LeafTypeName[..^4];
+        string template = venusLeafApiInfo switch
         {
-            { WithRegisterMethod: false } => VenusLeafGetMethodsTemplate,
-            { OrderAfterTypeName: not null } => VenusLeafRegistryWithOrderingApiTemplate,
-            _ => VenusLeafRegistryApiTemplate
+            { LeafTypeInfo.WithRegisterMethod: false } => VenusLeafGetMethodsTemplate,
+            { LeafTypeInfo.OrderAfterTypeName: not null, LeafInitializationMethodInfo: null } =>
+                VenusLeafRegistryApiWithOrderingWithoutInitializeTemplate,
+            { LeafTypeInfo.OrderAfterTypeName: not null, LeafInitializationMethodInfo: not null } =>
+                VenusLeafRegistryApiWithOrderingWithInitializeTemplate,
+            _ => venusLeafApiInfo.LeafInitializationMethodInfo is null
+                ? VenusLeafRegistryApiWithoutInitializeTemplate
+                : VenusLeafRegistryApiWithInitializationTemplate
         };
 
         StringBuilder sb = new(template);
-        sb.Replace("{{leafTypeName}}", leafTypeInfo.LeafTypeDisplayString);
+        sb.Replace("{{leafTypeName}}", venusLeafApiInfo.LeafTypeInfo.LeafTypeDisplayString);
         sb.Replace("{{leafEntityTypeNameWithoutLeafSuffix}}", leafTypeNameWithoutLeafSuffix);
         sb.Replace("{{leafEntityTypeNamePluralizedWithoutLeafSuffix}}", leafTypeNameWithoutLeafSuffix.Pluralize());
-        sb.Replace("{{orderAfterTypeName}}", leafTypeInfo.OrderAfterTypeName ?? "");
+        sb.Replace("{{orderAfterTypeName}}", venusLeafApiInfo.LeafTypeInfo.OrderAfterTypeName ?? "");
+        sb.Replace("{{methodParameters}}", venusLeafApiInfo.LeafInitializationMethodInfo?.MethodParameters ?? "");
+        sb.Replace("{{initializeMethodName}}", venusLeafApiInfo.LeafInitializationMethodInfo?.MethodName ?? "");
+        sb.Replace("{{callingParameters}}", venusLeafApiInfo.LeafInitializationMethodInfo?.CallingParameters ?? "");
+
         return sb.ToString();
     }
 }

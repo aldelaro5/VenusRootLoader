@@ -57,7 +57,7 @@ public sealed class EnemyLeaf : Leaf, IEnemyPortraitSprite
 
     public bool CanBeSpied { get; internal set; } = true;
 
-    public Branch<AnimIdLeaf> EntityAnimId { get; set; }
+    public Branch<AnimIdLeaf> EntityAnimId { get; set; } = null!;
     public int BaseMaxHp { get; set; }
     public int BaseDefense { get; set; }
     public int BaseExpReward { get; set; }
@@ -115,4 +115,10 @@ public sealed class EnemyLeaf : Leaf, IEnemyPortraitSprite
 
     public bool IsIncludedInRandomCaveOfTrialsPool { get; set; } = true;
     public bool IsRareSpyData { get; set; }
+
+    [LeafInitializeFromNew]
+    internal void InitializeFromNew(Branch<AnimIdLeaf> entityAnimId)
+    {
+        EntityAnimId = entityAnimId;
+    }
 }

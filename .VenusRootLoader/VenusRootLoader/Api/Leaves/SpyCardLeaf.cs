@@ -4,7 +4,7 @@ namespace VenusRootLoader.Api.Leaves;
 
 // TODO: Support attack numbers higher than 9 for Attack cards due to number sprites rendering issue in CreateCard
 // TODO: Consider correctly naming the base game's named ids
-[ExposeFromVenus(null, false)]
+[ExposeFromVenus(withRegisterMethod: false)]
 public sealed class SpyCardLeaf : Leaf
 {
     public sealed class SpyCardEffect
@@ -28,11 +28,16 @@ public sealed class SpyCardLeaf : Leaf
 
     public int TpCost { get; set; }
     public int Attack { get; set; }
-    public Branch<EnemyLeaf> Enemy { get; set; }
+    public Branch<EnemyLeaf> Enemy { get; set; } = null!;
     internal float UnusedHorizontalNameSize { get; set; } = 1.0f;
     public CardGame.Type Type { get; set; }
     public List<SpyCardEffect> Effects { get; } = new();
 
     // TODO: Consider making this a leaf
     public List<CardGame.Tribe> Tribes { get; } = new();
+
+    internal void InitializeFromNew(Branch<EnemyLeaf> enemy)
+    {
+        Enemy = enemy;
+    }
 }

@@ -9,6 +9,12 @@ public sealed class MedalFortuneTellerHintLeaf : Leaf
     {
     }
 
-    public Branch<FlagLeaf> MedalObtainedFlag { get; set; }
+    public Branch<FlagLeaf> MedalObtainedFlag { get; set; } = null!;
     public LocalizedData<string> LocalizedHintText { get; } = new();
+
+    [LeafInitializeFromNew]
+    internal void InitializeFromNew(Branch<FlagLeaf> medalObtainedFlag)
+    {
+        MedalObtainedFlag = medalObtainedFlag;
+    }
 }

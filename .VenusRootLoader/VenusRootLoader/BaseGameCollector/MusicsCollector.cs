@@ -26,13 +26,13 @@ internal sealed class MusicsCollector : IBaseGameCollector
 
     private readonly string[] _musicNamedIds = Enum.GetNames(typeof(MainManager.Musics)).ToArray();
 
-    private readonly ILogger<EnemiesCollector> _logger;
+    private readonly ILogger<MusicsCollector> _logger;
     private readonly ILeavesRegistry<MusicLeaf> _musicRegistry;
     private readonly ITextAssetParser<MusicLeaf> _musicTextAssetParser;
     private readonly ILocalizedTextAssetParser<MusicLeaf> _musicLocalizedTextAssetParser;
 
     public MusicsCollector(
-        ILogger<EnemiesCollector> logger,
+        ILogger<MusicsCollector> logger,
         ILeavesRegistry<MusicLeaf> musicRegistry,
         ITextAssetParser<MusicLeaf> musicTextAssetParser,
         ILocalizedTextAssetParser<MusicLeaf> musicLocalizedTextAssetParser)

@@ -18,6 +18,7 @@ internal sealed class SpyCardsCollector : IBaseGameCollector
 
     private readonly ILogger<SpyCardsCollector> _logger;
     private readonly IOrderedLeavesRegistry<SpyCardLeaf> _orderedRegistry;
+    private readonly ILeavesRegistry<LanguageLeaf> _languageRegistry;
     private readonly IOrderingTextAssetParser<SpyCardLeaf> _spyCardOrderingTextAssetParser;
     private readonly ITextAssetParser<SpyCardLeaf> _spyCardTextAssetParser;
     private readonly ILocalizedTextAssetParser<SpyCardLeaf> _spyCardLocalizedTextAssetParser;
@@ -25,6 +26,7 @@ internal sealed class SpyCardsCollector : IBaseGameCollector
     public SpyCardsCollector(
         ILogger<SpyCardsCollector> logger,
         IOrderedLeavesRegistry<SpyCardLeaf> orderedRegistry,
+        ILeavesRegistry<LanguageLeaf> languageRegistry,
         IOrderingTextAssetParser<SpyCardLeaf> spyCardOrderingTextAssetParser,
         ITextAssetParser<SpyCardLeaf> spyCardTextAssetParser,
         ILocalizedTextAssetParser<SpyCardLeaf> spyCardLocalizedTextAssetParser)
@@ -34,6 +36,7 @@ internal sealed class SpyCardsCollector : IBaseGameCollector
         _spyCardOrderingTextAssetParser = spyCardOrderingTextAssetParser;
         _spyCardTextAssetParser = spyCardTextAssetParser;
         _spyCardLocalizedTextAssetParser = spyCardLocalizedTextAssetParser;
+        _languageRegistry = languageRegistry;
     }
 
     public void CollectBaseGameData()
@@ -48,7 +51,7 @@ internal sealed class SpyCardsCollector : IBaseGameCollector
                 spyCardLeaf);
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
-                spyCardLeaf.LocalizedData[j] = new();
+                spyCardLeaf.LocalizedData[_languageRegistry.GetByGameId(j)] = new();
                 _spyCardLocalizedTextAssetParser.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedSpyCardsPathSuffix,
                     j,

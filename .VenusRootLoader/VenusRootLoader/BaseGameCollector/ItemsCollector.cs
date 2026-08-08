@@ -32,17 +32,20 @@ internal sealed class ItemsCollector : IBaseGameCollector
     private readonly ITextAssetParser<ItemLeaf> _itemDataSerializer;
     private readonly ILocalizedTextAssetParser<ItemLeaf> _itemLanguageDataSerializer;
     private readonly ILeavesRegistry<ItemLeaf> _leavesRegistry;
+    private readonly ILeavesRegistry<LanguageLeaf> _languageRegistry;
 
     public ItemsCollector(
         ILeavesRegistry<ItemLeaf> leavesRegistry,
         ILogger<ItemsCollector> logger,
         ITextAssetParser<ItemLeaf> itemDataSerializer,
-        ILocalizedTextAssetParser<ItemLeaf> itemLanguageDataSerializer)
+        ILocalizedTextAssetParser<ItemLeaf> itemLanguageDataSerializer,
+        ILeavesRegistry<LanguageLeaf> languageRegistry)
     {
         _leavesRegistry = leavesRegistry;
         _logger = logger;
         _itemDataSerializer = itemDataSerializer;
         _itemLanguageDataSerializer = itemLanguageDataSerializer;
+        _languageRegistry = languageRegistry;
 
         // Workaround a game bug where not all languages has the last line about BigBerry
         for (int i = 0; i < _itemsLanguageData.Count; i++)
@@ -66,7 +69,7 @@ internal sealed class ItemsCollector : IBaseGameCollector
                 : _items1Sprites[i - ItemsSpritesAmountInItems0];
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
-                itemLeaf.LocalizedData[j] = new();
+                itemLeaf.LocalizedData[_languageRegistry.GetByGameId(j)] = new();
                 _itemLanguageDataSerializer.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedItemsPathSuffix,
                     j,

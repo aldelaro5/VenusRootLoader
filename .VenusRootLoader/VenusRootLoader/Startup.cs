@@ -71,6 +71,7 @@ internal static class Startup
 
         services.AddSingleton<EnumPatcher>();
 
+        services.AddAutoSequentialIdBasedLeavesRegistry<LanguageLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<EventLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<DialogueBleepLeaf>();
         services.AddEnumBasedLeavesRegistry<AnimIdLeaf, MainManager.AnimIDs>(-1);
@@ -226,6 +227,7 @@ internal static class Startup
         services.AddSingleton<IResourcesArrayTypePatcher<AudioClip>, RootAudioClipsArrayPatcher>();
 
         services.AddSingleton<IAssemblyCSharpDataCollector, AssemblyCSharpDataCollector>();
+        services.AddTransient<IBaseGameCollector, LanguagesCollector>();
         services.AddTransient<IBaseGameCollector, EventCollector>();
         services.AddTransient<IBaseGameCollector, DialogueBleepCollector>();
         services.AddTransient<IBaseGameCollector, AnimIdsCollector>();

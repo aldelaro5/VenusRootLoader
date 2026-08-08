@@ -32,6 +32,7 @@ internal sealed class EnemiesCollector : IBaseGameCollector
     private readonly IAssemblyCSharpDataCollector _assemblyCSharpDataCollector;
     private readonly ITextAssetParser<EnemyLeaf> _enemyTextAssetParser;
     private readonly IOrderedLeavesRegistry<EnemyLeaf> _orderedRegistry;
+    private readonly ILeavesRegistry<LanguageLeaf> _languageRegistry;
     private readonly IOrderingTextAssetParser<EnemyLeaf> _enemyOrderingTextAssetParser;
     private readonly ILocalizedTextAssetParser<EnemyLeaf> _enemyLocalizedTextAssetParser;
 
@@ -40,6 +41,7 @@ internal sealed class EnemiesCollector : IBaseGameCollector
         IAssemblyCSharpDataCollector assemblyCSharpDataCollector,
         ITextAssetParser<EnemyLeaf> enemyTextAssetParser,
         IOrderedLeavesRegistry<EnemyLeaf> orderedRegistry,
+        ILeavesRegistry<LanguageLeaf> languageRegistry,
         IOrderingTextAssetParser<EnemyLeaf> enemyOrderingTextAssetParser,
         ILocalizedTextAssetParser<EnemyLeaf> enemyLocalizedTextAssetParser)
     {
@@ -49,6 +51,7 @@ internal sealed class EnemiesCollector : IBaseGameCollector
         _enemyTextAssetParser = enemyTextAssetParser;
         _enemyOrderingTextAssetParser = enemyOrderingTextAssetParser;
         _enemyLocalizedTextAssetParser = enemyLocalizedTextAssetParser;
+        _languageRegistry = languageRegistry;
     }
 
     public void CollectBaseGameData()
@@ -137,7 +140,7 @@ internal sealed class EnemiesCollector : IBaseGameCollector
                 enemyLeaf);
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
-                enemyLeaf.LocalizedData[j] = new();
+                enemyLeaf.LocalizedData[_languageRegistry.GetByGameId(j)] = new();
                 _enemyLocalizedTextAssetParser.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedBestiaryEntriesPathSuffix,
                     j,

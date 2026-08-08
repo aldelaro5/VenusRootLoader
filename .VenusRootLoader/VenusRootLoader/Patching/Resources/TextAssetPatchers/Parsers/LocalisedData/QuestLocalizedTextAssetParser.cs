@@ -1,5 +1,6 @@
 using System.Text;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.LocalisedData;
@@ -7,9 +8,16 @@ namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.Localised
 /// <inheritdoc/>
 internal sealed class QuestLocalizedTextAssetParser : ILocalizedTextAssetParser<QuestLeaf>
 {
+    private readonly ILeavesRegistry<LanguageLeaf> _languageRegistry;
+
+    public QuestLocalizedTextAssetParser(ILeavesRegistry<LanguageLeaf> languageRegistry)
+    {
+        _languageRegistry = languageRegistry;
+    }
+
     public string GetTextAssetSerializedString(string subPath, int languageId, QuestLeaf leaf)
     {
-        QuestLeaf.QuestLanguageData questLanguageData = leaf.LocalizedData[languageId];
+        QuestLeaf.QuestLanguageData questLanguageData = leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)];
         StringBuilder sb = new();
         sb.Append(questLanguageData.Name);
         sb.Append('@');
@@ -44,12 +52,12 @@ internal sealed class QuestLocalizedTextAssetParser : ILocalizedTextAssetParser<
     public void FromTextAssetSerializedString(string subPath, int languageId, string text, QuestLeaf leaf)
     {
         string[] fields = text.Split(StringUtils.AtSymbolSplitDelimiter);
-        leaf.LocalizedData[languageId] = new()
+        leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)] = new()
         {
             Name = fields[0],
             Sender = fields[2]
         };
-        leaf.LocalizedData[languageId].PaginatedDescription.Clear();
+        leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].PaginatedDescription.Clear();
 
         int? lastPageRequiredFlag = null;
         int lastDelimiter = 0;
@@ -64,7 +72,7 @@ internal sealed class QuestLocalizedTextAssetParser : ILocalizedTextAssetParser<
                     Text = paginatedDescription[lastDelimiter..],
                     RequiredFlagGameId = lastPageRequiredFlag
                 };
-                leaf.LocalizedData[languageId].PaginatedDescription.Add(descriptionPage);
+                leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].PaginatedDescription.Add(descriptionPage);
                 break;
             }
 
@@ -75,7 +83,7 @@ internal sealed class QuestLocalizedTextAssetParser : ILocalizedTextAssetParser<
                     Text = paginatedDescription.Substring(lastDelimiter, nextDelimiter - lastDelimiter),
                     RequiredFlagGameId = lastPageRequiredFlag
                 };
-                leaf.LocalizedData[languageId].PaginatedDescription.Add(descriptionPage);
+                leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].PaginatedDescription.Add(descriptionPage);
                 lastPageRequiredFlag = null;
                 lastDelimiter = nextDelimiter + 1;
             }
@@ -86,7 +94,7 @@ internal sealed class QuestLocalizedTextAssetParser : ILocalizedTextAssetParser<
                     Text = paginatedDescription.Substring(lastDelimiter, nextDelimiter - lastDelimiter),
                     RequiredFlagGameId = lastPageRequiredFlag
                 };
-                leaf.LocalizedData[languageId].PaginatedDescription.Add(descriptionPage);
+                leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].PaginatedDescription.Add(descriptionPage);
 
                 lastDelimiter = nextDelimiter + 1;
                 int flagSlotDelimiter = paginatedDescription.IndexOf('}', lastDelimiter);

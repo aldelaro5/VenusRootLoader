@@ -1,5 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.LocalisedData;
@@ -7,6 +8,13 @@ namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.Localised
 /// <inheritdoc/>
 internal sealed class LoreBookLocalizedTextAssetParser : ILocalizedTextAssetParser<LoreBookLeaf>
 {
+    private readonly ILeavesRegistry<LanguageLeaf> _languageRegistry;
+
+    public LoreBookLocalizedTextAssetParser(ILeavesRegistry<LanguageLeaf> languageRegistry)
+    {
+        _languageRegistry = languageRegistry;
+    }
+
     private const string LoreBookTextSubpath = "LoreText";
     private const string FortuneTeller1Subpath = "FortuneTeller1";
 
@@ -14,8 +22,9 @@ internal sealed class LoreBookLocalizedTextAssetParser : ILocalizedTextAssetPars
     {
         return subPath switch
         {
-            LoreBookTextSubpath => $"{leaf.LocalizedData[languageId].Title}@{leaf.LocalizedData[languageId].Content}",
-            FortuneTeller1Subpath => leaf.LocalizedData[languageId].FortuneTellerHint,
+            LoreBookTextSubpath => $"{leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].Title}@" +
+                                   $"{leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].Content}",
+            FortuneTeller1Subpath => leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].FortuneTellerHint,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<string>(nameof(subPath))
         };
     }
@@ -24,7 +33,7 @@ internal sealed class LoreBookLocalizedTextAssetParser : ILocalizedTextAssetPars
     {
         if (subPath == FortuneTeller1Subpath)
         {
-            leaf.LocalizedData[languageId].FortuneTellerHint = text;
+            leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].FortuneTellerHint = text;
             return;
         }
 
@@ -32,7 +41,7 @@ internal sealed class LoreBookLocalizedTextAssetParser : ILocalizedTextAssetPars
             ThrowHelper.ThrowArgumentOutOfRangeException<string>(nameof(subPath));
 
         string[] fields = text.Split(StringUtils.AtSymbolSplitDelimiter);
-        leaf.LocalizedData[languageId].Title = fields[0];
-        leaf.LocalizedData[languageId].Content = fields[1];
+        leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].Title = fields[0];
+        leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].Content = fields[1];
     }
 }

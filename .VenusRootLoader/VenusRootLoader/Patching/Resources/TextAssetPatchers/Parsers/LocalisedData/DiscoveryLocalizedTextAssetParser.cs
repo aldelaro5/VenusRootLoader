@@ -1,5 +1,6 @@
 using System.Text;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.LocalisedData;
@@ -7,14 +8,24 @@ namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.Localised
 /// <inheritdoc/>
 internal sealed class DiscoveryLocalizedTextAssetParser : ILocalizedTextAssetParser<DiscoveryLeaf>
 {
+    private readonly ILeavesRegistry<LanguageLeaf> _languageRegistry;
+
+    public DiscoveryLocalizedTextAssetParser(ILeavesRegistry<LanguageLeaf> languageRegistry)
+    {
+        _languageRegistry = languageRegistry;
+    }
+
     public string GetTextAssetSerializedString(string subPath, int languageId, DiscoveryLeaf leaf)
     {
         StringBuilder sb = new();
-        sb.Append(leaf.LocalizedData[languageId].Name);
+        sb.Append(leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].Name);
         sb.Append('@');
-        for (int i = 0; i < leaf.LocalizedData[languageId].PaginatedDescription.Count; i++)
+        for (int i = 0;
+             i < leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].PaginatedDescription.Count;
+             i++)
         {
-            DiscoveryLeaf.DiscoveryDescriptionPage page = leaf.LocalizedData[languageId].PaginatedDescription[i];
+            DiscoveryLeaf.DiscoveryDescriptionPage page = leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)]
+                .PaginatedDescription[i];
             if (i == 0)
             {
                 sb.Append(page.Text);
@@ -41,9 +52,9 @@ internal sealed class DiscoveryLocalizedTextAssetParser : ILocalizedTextAssetPar
     public void FromTextAssetSerializedString(string subPath, int languageId, string text, DiscoveryLeaf leaf)
     {
         string[] fields = text.Split(StringUtils.AtSymbolSplitDelimiter);
-        leaf.LocalizedData[languageId].Name = fields[0];
+        leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].Name = fields[0];
 
-        leaf.LocalizedData[languageId].PaginatedDescription.Clear();
+        leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].PaginatedDescription.Clear();
         int? lastPageRequiredFlag = null;
         int lastDelimiter = 0;
         string paginatedDescription = fields[1];
@@ -57,7 +68,7 @@ internal sealed class DiscoveryLocalizedTextAssetParser : ILocalizedTextAssetPar
                     Text = paginatedDescription[lastDelimiter..],
                     RequiredFlagGameId = lastPageRequiredFlag
                 };
-                leaf.LocalizedData[languageId].PaginatedDescription.Add(descriptionPage);
+                leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].PaginatedDescription.Add(descriptionPage);
                 break;
             }
 
@@ -68,7 +79,7 @@ internal sealed class DiscoveryLocalizedTextAssetParser : ILocalizedTextAssetPar
                     Text = paginatedDescription.Substring(lastDelimiter, nextDelimiter - lastDelimiter),
                     RequiredFlagGameId = lastPageRequiredFlag
                 };
-                leaf.LocalizedData[languageId].PaginatedDescription.Add(descriptionPage);
+                leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].PaginatedDescription.Add(descriptionPage);
                 lastPageRequiredFlag = null;
                 lastDelimiter = nextDelimiter + 1;
             }
@@ -79,7 +90,7 @@ internal sealed class DiscoveryLocalizedTextAssetParser : ILocalizedTextAssetPar
                     Text = paginatedDescription.Substring(lastDelimiter, nextDelimiter - lastDelimiter),
                     RequiredFlagGameId = lastPageRequiredFlag
                 };
-                leaf.LocalizedData[languageId].PaginatedDescription.Add(descriptionPage);
+                leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].PaginatedDescription.Add(descriptionPage);
 
                 lastDelimiter = nextDelimiter + 1;
                 int flagSlotDelimiter = paginatedDescription.IndexOf('}', lastDelimiter);

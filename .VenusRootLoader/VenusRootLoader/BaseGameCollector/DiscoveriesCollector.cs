@@ -21,17 +21,20 @@ internal sealed class DiscoveriesCollector : IBaseGameCollector
 
     private readonly ILogger<DiscoveriesCollector> _logger;
     private readonly IOrderedLeavesRegistry<DiscoveryLeaf> _orderedRegistry;
+    private readonly ILeavesRegistry<LanguageLeaf> _languageRegistry;
     private readonly IOrderingTextAssetParser<DiscoveryLeaf> _discoveriesOrderingDataSerializer;
     private readonly ILocalizedTextAssetParser<DiscoveryLeaf> _discoveriesLanguageDataSerializer;
 
     public DiscoveriesCollector(
         IOrderedLeavesRegistry<DiscoveryLeaf> orderedRegistry,
         ILogger<DiscoveriesCollector> logger,
+        ILeavesRegistry<LanguageLeaf> languageRegistry,
         IOrderingTextAssetParser<DiscoveryLeaf> discoveriesOrderingDataSerializer,
         ILocalizedTextAssetParser<DiscoveryLeaf> discoveriesLanguageDataSerializer)
     {
         _orderedRegistry = orderedRegistry;
         _logger = logger;
+        _languageRegistry = languageRegistry;
         _discoveriesOrderingDataSerializer = discoveriesOrderingDataSerializer;
         _discoveriesLanguageDataSerializer = discoveriesLanguageDataSerializer;
     }
@@ -46,7 +49,7 @@ internal sealed class DiscoveriesCollector : IBaseGameCollector
             DiscoveryLeaf discoveryLeaf = _orderedRegistry.RegisterExistingWithOrdering(i, i.ToString());
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
-                discoveryLeaf.LocalizedData[j] = new();
+                discoveryLeaf.LocalizedData[_languageRegistry.GetByGameId(j)] = new();
                 _discoveriesLanguageDataSerializer.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedDiscoveriesPathSuffix,
                     j,

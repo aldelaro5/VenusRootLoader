@@ -21,12 +21,14 @@ internal sealed class RecordsCollector : IBaseGameCollector
 
     private readonly ILogger<RecordsCollector> _logger;
     private readonly IOrderedLeavesRegistry<RecordLeaf> _orderedRegistry;
+    private readonly ILeavesRegistry<LanguageLeaf> _languageRegistry;
     private readonly IOrderingTextAssetParser<RecordLeaf> _recordsOrderingDataSerializer;
     private readonly ILocalizedTextAssetParser<RecordLeaf> _recordsLanguageDataSerializer;
 
     public RecordsCollector(
         ILogger<RecordsCollector> logger,
         IOrderedLeavesRegistry<RecordLeaf> orderedRegistry,
+        ILeavesRegistry<LanguageLeaf> languageRegistry,
         IOrderingTextAssetParser<RecordLeaf> recordsOrderingDataSerializer,
         ILocalizedTextAssetParser<RecordLeaf> recordsLanguageDataSerializer)
     {
@@ -34,6 +36,7 @@ internal sealed class RecordsCollector : IBaseGameCollector
         _orderedRegistry = orderedRegistry;
         _recordsOrderingDataSerializer = recordsOrderingDataSerializer;
         _recordsLanguageDataSerializer = recordsLanguageDataSerializer;
+        _languageRegistry = languageRegistry;
     }
 
     public void CollectBaseGameData()
@@ -46,7 +49,7 @@ internal sealed class RecordsCollector : IBaseGameCollector
             RecordLeaf recordLeaf = _orderedRegistry.RegisterExistingWithOrdering(i, i.ToString());
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
-                recordLeaf.LocalizedData[j] = new();
+                recordLeaf.LocalizedData[_languageRegistry.GetByGameId(j)] = new();
                 _recordsLanguageDataSerializer.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedRecordsPathSuffix,
                     j,

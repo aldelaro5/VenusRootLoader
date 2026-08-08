@@ -31,14 +31,17 @@ internal sealed class MapDialoguesTextAssetPatcher : IMapDialoguesTextAssetPatch
     private readonly ILogger<MapDialoguesTextAssetPatcher> _logger;
     private readonly ITextAssetDumper _textAssetDumper;
     private readonly ILeavesRegistry<MapLeaf> _mapsRegistry;
+    private readonly ILeavesRegistry<LanguageLeaf> _languageRegistry;
 
     public MapDialoguesTextAssetPatcher(
         ILogger<MapDialoguesTextAssetPatcher> logger,
         ITextAssetDumper textAssetDumper,
-        ILeavesRegistry<MapLeaf> mapsRegistry)
+        ILeavesRegistry<MapLeaf> mapsRegistry,
+        ILeavesRegistry<LanguageLeaf> languageRegistry)
     {
         _logger = logger;
         _mapsRegistry = mapsRegistry;
+        _languageRegistry = languageRegistry;
         _textAssetDumper = textAssetDumper;
     }
 
@@ -53,7 +56,7 @@ internal sealed class MapDialoguesTextAssetPatcher : IMapDialoguesTextAssetPatch
 
         MapLeaf leaf = _mapsRegistry.GetByEffectiveId(mapName);
         List<string> newLines = leaf.DialoguesRegistry
-            .Select(d => d.LocalizedText[languageId])
+            .Select(d => d.LocalizedText[_languageRegistry.GetByGameId(languageId)])
             .ToList();
 
         string text = string.Join("\n", newLines);

@@ -41,6 +41,7 @@ internal sealed class MapsCollector : IBaseGameCollector
     private readonly ILogger<MapsCollector> _logger;
     private readonly ILoggerFactory _loggerFactory;
     private readonly ILeavesRegistry<MapLeaf> _mapsRegistry;
+    private readonly ILeavesRegistry<LanguageLeaf> _languageRegistry;
     private readonly ILeavesRegistry<AreaLeaf> _areasRegistry;
     private readonly ILeavesRegistry<MusicLeaf> _musicsRegistry;
     private readonly ILeavesRegistry<FlagLeaf> _flagsRegistry;
@@ -57,6 +58,7 @@ internal sealed class MapsCollector : IBaseGameCollector
         ILogger<MapsCollector> logger,
         ILoggerFactory loggerFactory,
         ILeavesRegistry<MapLeaf> mapsRegistry,
+        ILeavesRegistry<LanguageLeaf> languageRegistry,
         ILeavesRegistry<AreaLeaf> areasRegistry,
         ILeavesRegistry<MusicLeaf> musicsRegistry,
         ILeavesRegistry<FlagLeaf> flagsRegistry,
@@ -79,6 +81,7 @@ internal sealed class MapsCollector : IBaseGameCollector
         _discoveriesRegistry = discoveriesRegistry;
         _eventsRegistry = eventsRegistry;
         _mapEntityTextAssetParser = mapEntityTextAssetParser;
+        _languageRegistry = languageRegistry;
         _gameExecutionContext = gameExecutionContext;
 
         foreach (string mapName in _mapNamedIds)
@@ -199,7 +202,7 @@ internal sealed class MapsCollector : IBaseGameCollector
                     MapDialogueLeaf mapDialogueLeaf =
                         mapLeaf.DialoguesRegistry.RegisterExisting(j, j.ToString());
                     mapDialogueLeaf.Map = mapLeaf;
-                    mapDialogueLeaf.LocalizedText[0] = _testRoomTextData[j];
+                    mapDialogueLeaf.LocalizedText[_languageRegistry.GetByGameId(0)] = _testRoomTextData[j];
                 }
 
                 continue;
@@ -217,7 +220,8 @@ internal sealed class MapsCollector : IBaseGameCollector
                 for (int k = 0; k < _mapsDialogues[mapLeaf.NamedId][j].Length; k++)
                 {
                     MapDialogueLeaf mapDialogueLeaf = mapLeaf.DialoguesRegistry.GetByGameId(k);
-                    mapDialogueLeaf.LocalizedText[j] = _mapsDialogues[mapLeaf.NamedId][j][k];
+                    mapDialogueLeaf.LocalizedText[_languageRegistry.GetByGameId(j)] =
+                        _mapsDialogues[mapLeaf.NamedId][j][k];
                 }
             }
         }

@@ -31,12 +31,14 @@ internal sealed class MedalsCollector : IBaseGameCollector
 
     private readonly ILogger<MedalsCollector> _logger;
     private readonly IOrderedLeavesRegistry<MedalLeaf> _orderedRegistry;
+    private readonly ILeavesRegistry<LanguageLeaf> _languageRegistry;
     private readonly ITextAssetParser<MedalLeaf> _medalDataSerializer;
     private readonly IOrderingTextAssetParser<MedalLeaf> _medalOrderingDataSerializer;
     private readonly ILocalizedTextAssetParser<MedalLeaf> _medalLanguageDataSerializer;
 
     public MedalsCollector(
         IOrderedLeavesRegistry<MedalLeaf> orderedRegistry,
+        ILeavesRegistry<LanguageLeaf> languageRegistry,
         ILogger<MedalsCollector> logger,
         ITextAssetParser<MedalLeaf> medalDataSerializer,
         IOrderingTextAssetParser<MedalLeaf> medalOrderingDataSerializer,
@@ -47,6 +49,7 @@ internal sealed class MedalsCollector : IBaseGameCollector
         _medalDataSerializer = medalDataSerializer;
         _medalOrderingDataSerializer = medalOrderingDataSerializer;
         _medalLanguageDataSerializer = medalLanguageDataSerializer;
+        _languageRegistry = languageRegistry;
     }
 
     public void CollectBaseGameData()
@@ -64,7 +67,7 @@ internal sealed class MedalsCollector : IBaseGameCollector
                 : _items1Sprites[medalLeaf.Items1SpriteIndex];
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
-                medalLeaf.LocalizedData[j] = new();
+                medalLeaf.LocalizedData[_languageRegistry.GetByGameId(j)] = new();
                 _medalLanguageDataSerializer.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedMedalPathSuffix,
                     j,

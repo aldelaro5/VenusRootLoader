@@ -19,17 +19,20 @@ internal sealed class SkillsCollector : IBaseGameCollector
     private readonly ITextAssetParser<SkillLeaf> _skillTextAssetParser;
     private readonly ILocalizedTextAssetParser<SkillLeaf> _skillLocalizedTextAssetParser;
     private readonly ILeavesRegistry<SkillLeaf> _skillsRegistry;
+    private readonly ILeavesRegistry<LanguageLeaf> _languageRegistry;
 
     public SkillsCollector(
         ILogger<SkillsCollector> logger,
         ITextAssetParser<SkillLeaf> skillTextAssetParser,
         ILocalizedTextAssetParser<SkillLeaf> skillLocalizedTextAssetParser,
-        ILeavesRegistry<SkillLeaf> skillsRegistry)
+        ILeavesRegistry<SkillLeaf> skillsRegistry,
+        ILeavesRegistry<LanguageLeaf> languageRegistry)
     {
         _logger = logger;
         _skillTextAssetParser = skillTextAssetParser;
         _skillLocalizedTextAssetParser = skillLocalizedTextAssetParser;
         _skillsRegistry = skillsRegistry;
+        _languageRegistry = languageRegistry;
     }
 
     public void CollectBaseGameData()
@@ -44,7 +47,7 @@ internal sealed class SkillsCollector : IBaseGameCollector
                 skillLeaf);
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
-                skillLeaf.LocalizedData[j] = new();
+                skillLeaf.LocalizedData[_languageRegistry.GetByGameId(j)] = new();
                 _skillLocalizedTextAssetParser.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedSkillsPathSuffix,
                     j,

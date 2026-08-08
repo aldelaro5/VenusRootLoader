@@ -1,5 +1,6 @@
 using System.Text;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.LocalisedData;
@@ -7,18 +8,25 @@ namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.Localised
 /// <inheritdoc/>
 internal sealed class EnemyLocalizedTextAssetParser : ILocalizedTextAssetParser<EnemyLeaf>
 {
+    private readonly ILeavesRegistry<LanguageLeaf> _languageRegistry;
+
+    public EnemyLocalizedTextAssetParser(ILeavesRegistry<LanguageLeaf> languageRegistry)
+    {
+        _languageRegistry = languageRegistry;
+    }
+
     public string GetTextAssetSerializedString(string subPath, int languageId, EnemyLeaf leaf)
     {
         StringBuilder sb = new();
-        sb.Append(leaf.LocalizedData[languageId].Name);
+        sb.Append(leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].Name);
         sb.Append('@');
-        sb.Append(string.Join("{", leaf.LocalizedData[languageId].PaginatedBiography));
+        sb.Append(string.Join("{", leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].PaginatedBiography));
         sb.Append('@');
-        sb.Append(leaf.LocalizedData[languageId].BeeSpyDialogue);
+        sb.Append(leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].BeeSpyDialogue);
         sb.Append('@');
-        sb.Append(leaf.LocalizedData[languageId].BeetleSpyDialogue);
+        sb.Append(leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].BeetleSpyDialogue);
         sb.Append('@');
-        sb.Append(leaf.LocalizedData[languageId].MothSpyDialogue);
+        sb.Append(leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].MothSpyDialogue);
 
         return sb.ToString();
     }
@@ -26,7 +34,7 @@ internal sealed class EnemyLocalizedTextAssetParser : ILocalizedTextAssetParser<
     public void FromTextAssetSerializedString(string subPath, int languageId, string text, EnemyLeaf leaf)
     {
         string[] fields = text.Split(StringUtils.AtSymbolSplitDelimiter);
-        leaf.LocalizedData[languageId] = new()
+        leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)] = new()
         {
             Name = fields[0],
             PaginatedBiography = fields[1].Split(StringUtils.OpeningBraceSplitDelimiter).ToList(),

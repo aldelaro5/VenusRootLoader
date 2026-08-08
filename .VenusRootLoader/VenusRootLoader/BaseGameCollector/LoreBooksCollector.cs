@@ -25,6 +25,7 @@ internal sealed class LoreBooksCollector : IBaseGameCollector
     private readonly IAssemblyCSharpDataCollector _assemblyCSharpDataCollector;
     private readonly ILocalizedTextAssetParser<LoreBookLeaf> _loreBookLocalizedTextAssetParser;
     private readonly ILeavesRegistry<LoreBookLeaf> _loreBooksRegistry;
+    private readonly ILeavesRegistry<LanguageLeaf> _languageRegistry;
     private readonly ILeavesRegistry<FlagLeaf> _flagsRegistry;
 
     public LoreBooksCollector(
@@ -32,6 +33,7 @@ internal sealed class LoreBooksCollector : IBaseGameCollector
         IAssemblyCSharpDataCollector assemblyCSharpDataCollector,
         ILocalizedTextAssetParser<LoreBookLeaf> loreBookLocalizedTextAssetParser,
         ILeavesRegistry<LoreBookLeaf> loreBooksRegistry,
+        ILeavesRegistry<LanguageLeaf> languageRegistry,
         ILeavesRegistry<FlagLeaf> flagsRegistry)
     {
         _logger = logger;
@@ -39,6 +41,7 @@ internal sealed class LoreBooksCollector : IBaseGameCollector
         _loreBookLocalizedTextAssetParser = loreBookLocalizedTextAssetParser;
         _loreBooksRegistry = loreBooksRegistry;
         _flagsRegistry = flagsRegistry;
+        _languageRegistry = languageRegistry;
     }
 
     public void CollectBaseGameData()
@@ -52,7 +55,7 @@ internal sealed class LoreBooksCollector : IBaseGameCollector
             loreBookLeaf.LoreBookObtainedFlag = new(_flagsRegistry.GetByGameId(flags[i]));
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
-                loreBookLeaf.LocalizedData[j] = new();
+                loreBookLeaf.LocalizedData[_languageRegistry.GetByGameId(j)] = new();
                 _loreBookLocalizedTextAssetParser.FromTextAssetSerializedString(
                     TextAssetPaths.DataLocalizedLoreBookFortuneTellerHintsPathSuffix,
                     j,

@@ -14,7 +14,6 @@ namespace VenusRootLoader.Api;
 
 public partial class Venus
 {
-    [MapEntityRegisterMethod]
     private TMapEntity RegisterMapEntity<TMapEntity>(string namedId, MapLeaf map)
         where TMapEntity : MapEntityLeaf
     {

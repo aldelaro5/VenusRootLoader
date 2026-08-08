@@ -9,10 +9,14 @@ namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.Localised
 internal sealed class QuestLocalizedTextAssetParser : ILocalizedTextAssetParser<QuestLeaf>
 {
     private readonly ILeavesRegistry<LanguageLeaf> _languageRegistry;
+    private readonly ILeavesRegistry<FlagLeaf> _flagsRegistry;
 
-    public QuestLocalizedTextAssetParser(ILeavesRegistry<LanguageLeaf> languageRegistry)
+    public QuestLocalizedTextAssetParser(
+        ILeavesRegistry<LanguageLeaf> languageRegistry,
+        ILeavesRegistry<FlagLeaf> flagsRegistry)
     {
         _languageRegistry = languageRegistry;
+        _flagsRegistry = flagsRegistry;
     }
 
     public string GetTextAssetSerializedString(string subPath, int languageId, QuestLeaf leaf)
@@ -30,10 +34,10 @@ internal sealed class QuestLocalizedTextAssetParser : ILocalizedTextAssetParser<
                 continue;
             }
 
-            if (page.RequiredFlagGameId.HasValue)
+            if (page.RequiredFlag is not null)
             {
                 sb.Append('}');
-                sb.Append(page.RequiredFlagGameId.Value);
+                sb.Append(page.RequiredFlag.Resolve().GameId);
                 sb.Append('}');
             }
             else
@@ -70,7 +74,9 @@ internal sealed class QuestLocalizedTextAssetParser : ILocalizedTextAssetParser<
                 QuestLeaf.QuestDescriptionPage descriptionPage = new()
                 {
                     Text = paginatedDescription[lastDelimiter..],
-                    RequiredFlagGameId = lastPageRequiredFlag
+                    RequiredFlag = lastPageRequiredFlag is null
+                        ? (Branch<FlagLeaf>?)null
+                        : _flagsRegistry.GetByGameId(lastPageRequiredFlag.Value)
                 };
                 leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].PaginatedDescription.Add(descriptionPage);
                 break;
@@ -81,7 +87,9 @@ internal sealed class QuestLocalizedTextAssetParser : ILocalizedTextAssetParser<
                 QuestLeaf.QuestDescriptionPage descriptionPage = new()
                 {
                     Text = paginatedDescription.Substring(lastDelimiter, nextDelimiter - lastDelimiter),
-                    RequiredFlagGameId = lastPageRequiredFlag
+                    RequiredFlag = lastPageRequiredFlag is null
+                        ? (Branch<FlagLeaf>?)null
+                        : _flagsRegistry.GetByGameId(lastPageRequiredFlag.Value)
                 };
                 leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].PaginatedDescription.Add(descriptionPage);
                 lastPageRequiredFlag = null;
@@ -92,7 +100,9 @@ internal sealed class QuestLocalizedTextAssetParser : ILocalizedTextAssetParser<
                 QuestLeaf.QuestDescriptionPage descriptionPage = new()
                 {
                     Text = paginatedDescription.Substring(lastDelimiter, nextDelimiter - lastDelimiter),
-                    RequiredFlagGameId = lastPageRequiredFlag
+                    RequiredFlag = lastPageRequiredFlag is null
+                        ? (Branch<FlagLeaf>?)null
+                        : _flagsRegistry.GetByGameId(lastPageRequiredFlag.Value)
                 };
                 leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].PaginatedDescription.Add(descriptionPage);
 

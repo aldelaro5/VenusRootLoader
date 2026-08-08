@@ -10,7 +10,6 @@ using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves;
 
-// TODO: Figure out the Unity prefab tooling
 [ExposeFromVenus(withRegisterMethod: false)]
 public sealed class MapLeaf : Leaf
 {

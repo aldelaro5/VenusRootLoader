@@ -17,7 +17,7 @@ public sealed class DiscoveryLeaf : Leaf, IEnemyPortraitSprite
     public sealed class DiscoveryDescriptionPage
     {
         public string Text { get; set; } = "<NO CONTENT>";
-        public int? RequiredFlagGameId { get; set; }
+        public Branch<FlagLeaf>? RequiredFlag { get; set; }
     }
 
     internal DiscoveryLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId) { }

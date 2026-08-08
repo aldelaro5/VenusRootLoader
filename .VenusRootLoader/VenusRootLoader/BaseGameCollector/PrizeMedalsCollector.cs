@@ -14,15 +14,21 @@ internal sealed class PrizeMedalsCollector : IBaseGameCollector
 {
     private readonly ILogger<PrizeMedalsCollector> _logger;
     private readonly ILeavesRegistry<PrizeMedalLeaf> _prizeMedalsRegistry;
+    private readonly ILeavesRegistry<MedalLeaf> _medalsRegistry;
+    private readonly ILeavesRegistry<FlagvarLeaf> _flagvarsRegistry;
     private readonly IAssemblyCSharpDataCollector _assemblyCSharpDataCollector;
 
     public PrizeMedalsCollector(
         ILogger<PrizeMedalsCollector> logger,
         ILeavesRegistry<PrizeMedalLeaf> prizeMedalsRegistry,
+        ILeavesRegistry<MedalLeaf> medalsRegistry,
+        ILeavesRegistry<FlagvarLeaf> flagvarsRegistry,
         IAssemblyCSharpDataCollector assemblyCSharpDataCollector)
     {
         _logger = logger;
         _prizeMedalsRegistry = prizeMedalsRegistry;
+        _medalsRegistry = medalsRegistry;
+        _flagvarsRegistry = flagvarsRegistry;
         _assemblyCSharpDataCollector = assemblyCSharpDataCollector;
     }
 
@@ -69,8 +75,8 @@ internal sealed class PrizeMedalsCollector : IBaseGameCollector
         for (int i = 0; i < prizeIds.Length; i++)
         {
             PrizeMedalLeaf prizeMedalLeaf = _prizeMedalsRegistry.RegisterExisting(i, i.ToString());
-            prizeMedalLeaf.MedalGameId = prizeIds[i];
-            prizeMedalLeaf.FlagvarGameId = prizeFlags[i];
+            prizeMedalLeaf.Medal = _medalsRegistry.GetByGameId(prizeIds[i]);
+            prizeMedalLeaf.Flagvar = _flagvarsRegistry.GetByGameId(prizeFlags[i]);
             prizeMedalLeaf.DisplayedEnemyGameId = prizeEnemyIds[i];
         }
 

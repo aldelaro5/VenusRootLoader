@@ -9,7 +9,10 @@ public sealed class PrizeMedalLeaf : Leaf
     {
     }
 
-    public int MedalGameId { get; set; }
-    public int FlagvarGameId { get; set; }
+    public Branch<MedalLeaf> Medal { get; set; }
+
+    public Branch<FlagvarLeaf> Flagvar { get; set; }
+
+    // TODO: Figure out special cases such as "Explorer Duo"
     public int DisplayedEnemyGameId { get; set; }
 }

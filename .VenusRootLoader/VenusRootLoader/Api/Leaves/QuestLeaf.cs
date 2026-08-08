@@ -18,7 +18,7 @@ public sealed class QuestLeaf : Leaf, IEnemyPortraitSprite
     public sealed class QuestDescriptionPage
     {
         public string Text { get; set; } = "<NO CONTENT>";
-        public int? RequiredFlagGameId { get; set; }
+        public Branch<FlagLeaf>? RequiredFlag { get; set; }
     }
 
     internal QuestLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)

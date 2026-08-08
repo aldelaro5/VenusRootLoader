@@ -18,7 +18,7 @@ public sealed class AnimIdLeaf : Leaf
     public float ShadowSize { get; set; } = 1.0f;
     public Vector3 StartingScale { get; set; } = Vector3.one;
     public float BleepPitch { get; set; } = 1.0f;
-    public Branch<DialogueBleepLeaf> BleepId { get; set; }
+    public Branch<DialogueBleepLeaf> Bleep { get; set; }
     public bool IsModelEntity { get; set; }
     public Vector3 ModelScale { get; set; }
     public Vector3 ModelOffset { get; set; }

@@ -32,5 +32,7 @@ public sealed class SpyCardLeaf : Leaf
     internal float UnusedHorizontalNameSize { get; set; } = 1.0f;
     public CardGame.Type Type { get; set; }
     public List<SpyCardEffect> Effects { get; } = new();
+
+    // TODO: Consider making this a leaf
     public List<CardGame.Tribe> Tribes { get; } = new();
 }

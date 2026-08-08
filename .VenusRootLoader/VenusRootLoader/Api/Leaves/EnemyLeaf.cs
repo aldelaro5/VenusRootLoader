@@ -57,7 +57,7 @@ public sealed class EnemyLeaf : Leaf, IEnemyPortraitSprite
 
     public bool CanBeSpied { get; internal set; } = true;
 
-    public int EntityAnimId { get; set; }
+    public Branch<AnimIdLeaf> EntityAnimId { get; set; }
     public int BaseMaxHp { get; set; }
     public int BaseDefense { get; set; }
     public int BaseExpReward { get; set; }
@@ -76,8 +76,11 @@ public sealed class EnemyLeaf : Leaf, IEnemyPortraitSprite
     public float EntityBobRange { get; set; }
     public List<BattleControl.AttackProperty> Properties { get; } = new();
     public float Weight { get; set; }
+
     public Branch<EnemyLeaf>? BaseEnemyId { get; internal set; }
-    public int? EventIdOnDeath { get; set; }
+
+    // TODO: Make a leaf for this
+    public int? EventDialogueIdOnDeath { get; set; }
     public int ActorTurnAmountPerMainTurn { get; set; }
     public bool CanBeTaunted { get; set; } = true;
     public bool CanFall { get; set; } = true;
@@ -101,8 +104,11 @@ public sealed class EnemyLeaf : Leaf, IEnemyPortraitSprite
     public int HardModeBaseDefenseIncrease { get; set; }
     public int DefenseIncreaseWhenDefending { get; set; }
     public Vector3 ItemOffset { get; set; } = Vector3.zero;
+
     public bool IsBaseStateBattleIdle { get; set; }
-    public int? EventIdOnFall { get; set; }
+
+    // TODO: Make a leaf for this
+    public int? EventDialogueIdOnFall { get; set; }
     public AutoHitActionTrigger HitActionTrigger { get; set; }
     public bool CanActWhileStunned { get; set; }
     public float SizeWhenFrozen { get; set; }

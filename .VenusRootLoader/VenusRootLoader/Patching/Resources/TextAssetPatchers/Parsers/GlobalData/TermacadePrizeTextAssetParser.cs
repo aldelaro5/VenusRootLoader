@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalData;
@@ -14,6 +15,13 @@ internal sealed class TermacadePrizeTextAssetParser : ITextAssetParser<Termacade
         SingleTimePurchase
     }
 
+    private readonly ILeavesRegistry<FlagLeaf> _flagsRegistry;
+
+    public TermacadePrizeTextAssetParser(ILeavesRegistry<FlagLeaf> flagsRegistry)
+    {
+        _flagsRegistry = flagsRegistry;
+    }
+
     public string GetTextAssetSerializedString(string subPath, TermacadePrizeLeaf leaf)
     {
         StringBuilder sb = new();
@@ -25,11 +33,11 @@ internal sealed class TermacadePrizeTextAssetParser : ITextAssetParser<Termacade
         sb.Append(leaf.GameTokenCost);
         sb.Append(',');
         sb.Append(
-            (int)(leaf.AlreadyBoughtFlagGameId is null
+            (int)(leaf.AlreadyBoughtFlag is null
                 ? PrizeAvailability.AlwaysAvailable
                 : PrizeAvailability.SingleTimePurchase));
         sb.Append(',');
-        sb.Append(leaf.AlreadyBoughtFlagGameId ?? 0);
+        sb.Append(leaf.AlreadyBoughtFlag?.Resolve().GameId ?? 0);
 
         return sb.ToString();
     }
@@ -42,8 +50,8 @@ internal sealed class TermacadePrizeTextAssetParser : ITextAssetParser<Termacade
         leaf.ItemOrMedalGameId = int.Parse(fields[1], CultureInfo.InvariantCulture);
         leaf.GameTokenCost = int.Parse(fields[2], CultureInfo.InvariantCulture);
         int availability = int.Parse(fields[3], CultureInfo.InvariantCulture);
-        leaf.AlreadyBoughtFlagGameId = availability != (int)PrizeAvailability.SingleTimePurchase
-            ? null
-            : int.Parse(fields[4], CultureInfo.InvariantCulture);
+        leaf.AlreadyBoughtFlag = availability != (int)PrizeAvailability.SingleTimePurchase
+            ? (Branch<FlagLeaf>?)null
+            : _flagsRegistry.GetByGameId(int.Parse(fields[4], CultureInfo.InvariantCulture));
     }
 }

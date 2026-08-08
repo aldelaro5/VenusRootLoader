@@ -31,8 +31,10 @@ public abstract class Leaf : ILeafId
     /// </summary>
     public int GameId { get; }
 
+    /// <inheritdoc/>
     public string CreatorId { get; }
 
+    /// <inheritdoc/>
     public string NamedId { get; }
 
     internal string EffectiveId { get; }

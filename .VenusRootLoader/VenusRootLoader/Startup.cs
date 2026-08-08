@@ -237,8 +237,8 @@ internal static class Startup
         services.AddTransient<IBaseGameCollector, RecipeLibraryEntriesCollector>();
         services.AddTransient<IBaseGameCollector, AreasCollector>();
         services.AddTransient<IBaseGameCollector, MedalsCollector>();
-        services.AddTransient<IBaseGameCollector, PrizeMedalsCollector>();
         services.AddTransient<IBaseGameCollector, GlobalFlagsCollector>();
+        services.AddTransient<IBaseGameCollector, PrizeMedalsCollector>();
         services.AddTransient<IBaseGameCollector, CrystalBerriesCollector>();
         services.AddTransient<IBaseGameCollector, CommonDialoguesCollector>();
         services.AddTransient<IBaseGameCollector, MedalFortuneTellerHintCollector>();

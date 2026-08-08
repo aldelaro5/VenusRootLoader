@@ -69,9 +69,7 @@ internal sealed class LoreBooksCollector : IBaseGameCollector
             }
         }
 
-        _logger.LogInformation(
-            "Collected and registered {LoreBooksAmount} base game lore books",
-            loreBooksAmount);
+        RootCollector.LogCollectedAmount(_logger, _loreBooksRegistry, loreBooksAmount);
     }
 
     // The flags are hardcoded in an array in event 71 (Fortune Teller event).

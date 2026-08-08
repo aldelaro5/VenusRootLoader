@@ -5,7 +5,21 @@ using VenusRootLoader.BaseGameCollector;
 
 namespace VenusRootLoader.Registry;
 
-// TODO: Strongly considers adding a TryGet method
+internal interface ILeavesRegistry
+{
+    /// <summary>
+    /// A display string that tells what this registry holds.
+    /// </summary>
+    string RegistryName { get; }
+
+    /// <summary>Gets the number of leaves contained in the registry.</summary>
+    /// <returns>The number of leaves contained in the registry.</returns>
+    int Count { get; }
+
+    /// <summary>Gets the number of leaves from the base game contained in the registry.</summary>
+    /// <returns>The number of leaves from the base game contained in the registry.</returns>
+    int CountBaseGame { get; }
+}
 
 /// <summary>
 /// A <see cref="Leaf"/> registry is an in memory database of every leaves that were either
@@ -17,17 +31,8 @@ namespace VenusRootLoader.Registry;
 /// bud who edits it).
 /// </summary>
 /// <typeparam name="TLeaf">The <see cref="Leaf"/> type this registry manages.</typeparam>
-internal interface ILeavesRegistry<TLeaf> : IEnumerable<TLeaf>
-    where TLeaf : Leaf
+internal interface ILeavesRegistry<TLeaf> : ILeavesRegistry, IEnumerable<TLeaf> where TLeaf : Leaf
 {
-    /// <summary>Gets the number of leaves contained in the registry.</summary>
-    /// <returns>The number of leaves contained in the registry.</returns>
-    int Count { get; }
-
-    /// <summary>Gets the number of leaves from the base game contained in the registry.</summary>
-    /// <returns>The number of leaves from the base game contained in the registry.</returns>
-    int CountBaseGame { get; }
-
     /// <summary>
     /// Creates a newly registered leaf to the registry with an automatically determined <see cref="Leaf.GameId"/>.
     /// </summary>

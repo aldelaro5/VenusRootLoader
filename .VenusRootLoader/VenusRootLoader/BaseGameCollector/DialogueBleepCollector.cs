@@ -36,8 +36,6 @@ internal sealed class DialogueBleepCollector : IBaseGameCollector
             dialogueBleepLeaf.BleepSound = dialogueBleeps[i];
         }
 
-        _logger.LogInformation(
-            "Collected and registered {DialogueBleepsAmount} base game dialogue bleeps",
-            dialogueBleeps.Count);
+        RootCollector.LogCollectedAmount(_logger, _dialogueBleepsRegistry, dialogueBleeps.Count);
     }
 }

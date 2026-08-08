@@ -46,8 +46,6 @@ internal sealed class CommonDialoguesCollector : IBaseGameCollector
             }
         }
 
-        _logger.LogInformation(
-            "Collected and registered {CommonDialoguesAmount} base game CommonDialogue",
-            commonDialoguesAmount);
+        RootCollector.LogCollectedAmount(_logger, _commonDialoguesRegistry, commonDialoguesAmount);
     }
 }

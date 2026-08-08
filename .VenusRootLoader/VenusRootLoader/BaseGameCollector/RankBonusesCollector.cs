@@ -38,8 +38,6 @@ internal sealed class RankBonusesCollector : IBaseGameCollector
                 rankBonusLeaf);
         }
 
-        _logger.LogInformation(
-            "Collected and registered {RankBonusesAmount} base game rank bonuses",
-            _rankBonusesData.Length);
+        RootCollector.LogCollectedAmount(_logger, _rankBonusesRegistry, _rankBonusesData.Length);
     }
 }

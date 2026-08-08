@@ -56,6 +56,6 @@ internal sealed class SkillsCollector : IBaseGameCollector
             }
         }
 
-        _logger.LogInformation("Collected and registered {SkillsAmount} base game skills", skillsAmount);
+        RootCollector.LogCollectedAmount(_logger, _skillsRegistry, skillsAmount);
     }
 }

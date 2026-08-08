@@ -77,6 +77,6 @@ internal sealed class MedalsCollector : IBaseGameCollector
         }
 
         _medalOrderingDataSerializer.FromTextAssetString(_medalsOrderingData, _orderedRegistry);
-        _logger.LogInformation("Collected and registered {MedalsAmount} base game medals", _badgeNamedIds.Length);
+        RootCollector.LogCollectedAmount(_logger, _orderedRegistry.Registry, _badgeNamedIds.Length);
     }
 }

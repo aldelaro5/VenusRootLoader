@@ -47,9 +47,7 @@ internal sealed class MedalShopsCollector : IBaseGameCollector
             medalShopLeaf.BoughtAllStockFlag = medalShopsBoughtAllStockFlags[i];
         }
 
-        _logger.LogInformation(
-            "Collected and registered {MedalShopsAmount} base game medal shops",
-            medalShopsAmount);
+        RootCollector.LogCollectedAmount(_logger, _medalShopsRegistry, medalShopsAmount);
     }
 
     private static int CollectMedalShopsAmount()

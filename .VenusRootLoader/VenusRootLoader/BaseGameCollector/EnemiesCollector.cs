@@ -167,6 +167,6 @@ internal sealed class EnemiesCollector : IBaseGameCollector
                 _enemyPortraitsSprites[enemyPortraitSprite.EnemyPortraitsSpriteIndex!.Value];
         }
 
-        _logger.LogInformation("Collected and registered {EnemiesAmount} base game enemies", _enemyNamedIds.Length);
+        RootCollector.LogCollectedAmount(_logger, _orderedRegistry.Registry, _enemyNamedIds.Length);
     }
 }

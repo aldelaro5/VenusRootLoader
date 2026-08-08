@@ -85,6 +85,6 @@ internal sealed class MusicsCollector : IBaseGameCollector
             musicLeaf.CanBePurchasedFromSamira = hasBackingAudioClip && !nonPurchasableMusicGameIds.Contains(i);
         }
 
-        _logger.LogInformation("Collected and registered {MusicsAmount} base game musics", _musicNamedIds.Length);
+        RootCollector.LogCollectedAmount(_logger, _musicRegistry, _musicNamedIds.Length);
     }
 }

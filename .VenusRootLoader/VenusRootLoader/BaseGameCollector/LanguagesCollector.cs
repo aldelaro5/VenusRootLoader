@@ -37,8 +37,6 @@ internal sealed class LanguagesCollector : IBaseGameCollector
                 LanguagesNamedIds.TryGetValue(i, out string? languageName) ? languageName : i.ToString());
         }
 
-        _logger.LogInformation(
-            "Collected and registered {languageAmount} base game languages",
-            LanguagesDisplayNames.Count);
+        RootCollector.LogCollectedAmount(_logger, _leavesRegistry, LanguagesDisplayNames.Count);
     }
 }

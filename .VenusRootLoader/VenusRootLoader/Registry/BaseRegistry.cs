@@ -13,28 +13,17 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
     where TLeaf : Leaf
 {
     private readonly ILogger _logger;
-    private readonly string _registryName = typeof(TLeaf).Name;
 
     protected BaseRegistry(ILogger logger) => _logger = logger;
 
-    /// <summary>
-    /// All leaves of the registry indexed by their <see cref="Leaf.GameId"/>.
-    /// </summary>
     private IDictionary<int, TLeaf> LeavesByGameIds { get; } = new Dictionary<int, TLeaf>();
 
-    /// <summary>
-    /// All leaves of the registry indexed by their <see cref="Leaf.EffectiveId"/>.
-    /// </summary>
     private IDictionary<string, TLeaf> LeavesByEffectiveIds { get; } = new Dictionary<string, TLeaf>();
 
-    /// <summary>
-    /// Gets the number of leaves contained in the registry.
-    /// </summary>
+    public string RegistryName => typeof(TLeaf).Name;
+
     public int Count => LeavesByEffectiveIds.Count;
 
-    /// <summary>
-    /// Gets the number of leaves contained in the registry that were created by the BaseGame.
-    /// </summary>
     public int CountBaseGame { get; private set; }
 
     protected abstract int CreateNewGameId(string effectiveId);
@@ -54,7 +43,7 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
         if (LeavesByEffectiveIds.ContainsKey(effectiveId))
         {
             ThrowHelper.ThrowArgumentException(
-                $"The creator {creatorId} already created a leaf named {namedId} in the {_registryName} registry");
+                $"The creator {creatorId} already created a leaf named {namedId} in the {RegistryName} registry");
         }
 
         int gameId = CreateNewGameId(effectiveId);
@@ -124,7 +113,7 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
             (string CreatorId, string NamedId) parts = EffectiveLeafId.SplitParts(effectiveId);
             return ThrowHelper.ThrowArgumentException<TLeaf>(
                 nameof(effectiveId),
-                $"No leaf named {parts.NamedId} by {parts.CreatorId} exists in the {_registryName} registry");
+                $"No leaf named {parts.NamedId} by {parts.CreatorId} exists in the {RegistryName} registry");
         }
 
         return leaf;
@@ -148,7 +137,7 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
         {
             return ThrowHelper.ThrowArgumentException<TLeaf>(
                 nameof(gameId),
-                $"No leaf with game id {gameId} exists in the {_registryName} registry");
+                $"No leaf with game id {gameId} exists in the {RegistryName} registry");
         }
 
         return leaf;

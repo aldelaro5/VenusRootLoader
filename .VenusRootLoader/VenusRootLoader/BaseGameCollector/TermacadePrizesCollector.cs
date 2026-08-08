@@ -38,8 +38,6 @@ internal sealed class TermacadePrizesCollector : IBaseGameCollector
                 termacadePrizeLeaf);
         }
 
-        _logger.LogInformation(
-            "Collected and registered {TermacadePrizesAmount} base game Termacade prizes",
-            _termacadePrizesData.Length);
+        RootCollector.LogCollectedAmount(_logger, _termacadePrizesRegistry, _termacadePrizesData.Length);
     }
 }

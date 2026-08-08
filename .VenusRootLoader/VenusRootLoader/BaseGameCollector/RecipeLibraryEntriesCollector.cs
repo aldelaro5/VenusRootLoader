@@ -46,8 +46,6 @@ internal sealed class RecipeLibraryEntriesCollector : IBaseGameCollector
                 recipeLibraryEntryLeaf);
         }
 
-        _logger.LogInformation(
-            "Collected and registered {RecipeLibraryEntriesAmount} base game recipe library entries",
-            _cookOrderData.Length);
+        RootCollector.LogCollectedAmount(_logger, _recipeLibraryEntriesRegistry, _cookOrderData.Length);
     }
 }

@@ -253,9 +253,7 @@ internal sealed class MapsCollector : IBaseGameCollector
         }
 
         _assetsManager.UnloadAll(true);
-        _logger.LogInformation(
-            "Collected and registered {MapsAmount} base game maps",
-            _mapNamedIds.Length);
+        RootCollector.LogCollectedAmount(_logger, _mapsRegistry, _mapNamedIds.Length);
     }
 
 

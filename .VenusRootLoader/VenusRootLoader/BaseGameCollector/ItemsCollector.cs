@@ -78,6 +78,6 @@ internal sealed class ItemsCollector : IBaseGameCollector
             }
         }
 
-        _logger.LogInformation("Collected and registered {ItemsAmount} base game items", _itemNamedIds.Length);
+        RootCollector.LogCollectedAmount(_logger, _leavesRegistry, _itemNamedIds.Length);
     }
 }

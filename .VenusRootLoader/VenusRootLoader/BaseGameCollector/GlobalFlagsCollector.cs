@@ -55,20 +55,14 @@ internal sealed class GlobalFlagsCollector : IBaseGameCollector
 
         for (int i = 0; i < flagsAmount; i++)
             _flagsRegistry.RegisterExisting(i, i.ToString());
-        _logger.LogInformation(
-            "Collected and registered {FlagsAmount} base game flags slots",
-            flagsAmount);
+        RootCollector.LogCollectedAmount(_logger, _flagsRegistry, flagsAmount);
 
         for (int i = 0; i < flagvarsAmount; i++)
             _flagvarsRegistry.RegisterExisting(i, i.ToString());
-        _logger.LogInformation(
-            "Collected and registered {FlagvarsAmount} base game flagvars slots",
-            flagvarsAmount);
+        RootCollector.LogCollectedAmount(_logger, _flagvarsRegistry, flagvarsAmount);
 
         for (int i = 0; i < flagstringsAmount; i++)
             _flagstringsRegistry.RegisterExisting(i, i.ToString());
-        _logger.LogInformation(
-            "Collected and registered {FlagstringAmount} base game flagstrings slots",
-            flagstringsAmount);
+        RootCollector.LogCollectedAmount(_logger, _flagstringsRegistry, flagstringsAmount);
     }
 }

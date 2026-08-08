@@ -41,8 +41,6 @@ internal sealed class FishingTextsCollector : IBaseGameCollector
             }
         }
 
-        _logger.LogInformation(
-            "Collected and registered {FishingTextsAmount} base game fishing texts",
-            fishingTextsAmount);
+        RootCollector.LogCollectedAmount(_logger, _fishingTextsRegistry, fishingTextsAmount);
     }
 }

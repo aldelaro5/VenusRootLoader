@@ -1,4 +1,6 @@
+using Microsoft.Extensions.Logging;
 using UnityEngine;
+using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
@@ -51,5 +53,16 @@ internal sealed class RootCollector
         }
 
         return localizedLines;
+    }
+
+    internal static void LogCollectedAmount(
+        Microsoft.Extensions.Logging.ILogger logger,
+        ILeavesRegistry registry,
+        int amount)
+    {
+        logger.LogInformation(
+            "Collected and registered {amount} base game {registryName}",
+            amount,
+            registry.RegistryName);
     }
 }

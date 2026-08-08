@@ -41,8 +41,6 @@ internal sealed class SpyCardsTextsCollector : IBaseGameCollector
             }
         }
 
-        _logger.LogInformation(
-            "Collected and registered {SpyCardsTextsAmount} base game Spy Cards texts",
-            spyCardsTextsAmount);
+        RootCollector.LogCollectedAmount(_logger, _spyCardsTextsRegistry, spyCardsTextsAmount);
     }
 }

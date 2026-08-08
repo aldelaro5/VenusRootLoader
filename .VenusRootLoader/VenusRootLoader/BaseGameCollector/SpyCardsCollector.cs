@@ -61,6 +61,6 @@ internal sealed class SpyCardsCollector : IBaseGameCollector
         }
 
         _spyCardOrderingTextAssetParser.FromTextAssetString(_spyCardsOrderingData, _orderedRegistry);
-        _logger.LogInformation("Collected and registered {SpyCardsAmount} base game spy cards", spyCardAmount);
+        RootCollector.LogCollectedAmount(_logger, _languageRegistry, spyCardAmount);
     }
 }

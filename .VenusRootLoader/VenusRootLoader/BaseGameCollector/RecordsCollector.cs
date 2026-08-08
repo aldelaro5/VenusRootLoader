@@ -66,8 +66,6 @@ internal sealed class RecordsCollector : IBaseGameCollector
                 _enemyPortraitsSprites[enemyPortraitStuff.EnemyPortraitsSpriteIndex!.Value];
         }
 
-        _logger.LogInformation(
-            "Collected and registered {RcordsAmount} base game records",
-            recordsAmount);
+        RootCollector.LogCollectedAmount(_logger, _orderedRegistry.Registry, recordsAmount);
     }
 }

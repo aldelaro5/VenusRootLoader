@@ -44,8 +44,6 @@ internal sealed class ActionCommandHelpTextsCollector : IBaseGameCollector
             }
         }
 
-        _logger.LogInformation(
-            "Collected and registered {ActionCommandHelpTextsAmount} base game action command help texts",
-            actionCommandHelpTextsAmount);
+        RootCollector.LogCollectedAmount(_logger, _actionCommandHelpTextsRegistry, actionCommandHelpTextsAmount);
     }
 }

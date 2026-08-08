@@ -66,8 +66,6 @@ internal sealed class DiscoveriesCollector : IBaseGameCollector
                 _enemyPortraitsSprites[enemyPortraitSprite.EnemyPortraitsSpriteIndex!.Value];
         }
 
-        _logger.LogInformation(
-            "Collected and registered {DiscoveriesAmount} base game discoveries",
-            discoveriesAmount);
+        RootCollector.LogCollectedAmount(_logger, _orderedRegistry.Registry, discoveriesAmount);
     }
 }

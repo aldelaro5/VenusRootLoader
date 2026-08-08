@@ -58,9 +58,7 @@ internal sealed class MedalFortuneTellerHintCollector : IBaseGameCollector
             }
         }
 
-        _logger.LogInformation(
-            "Collected and registered {MedalFortuneTellerHintsAmount} base game medal fortune teller hints",
-            medalFortuneTellerHintsAmount);
+        RootCollector.LogCollectedAmount(_logger, _medalFortuneTellerHintsRegistry, medalFortuneTellerHintsAmount);
     }
 
     // The flags are hardcoded in an array in event 71 (Fortune Teller event).

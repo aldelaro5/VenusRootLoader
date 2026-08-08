@@ -33,6 +33,6 @@ internal sealed class RecipesCollector : IBaseGameCollector
             _recipeTextAssetParser.FromTextAssetSerializedString(TextAssetPaths.DataRecipesPath, recipe, recipeLeaf);
         }
 
-        _logger.LogInformation("Collected and registered {RecipesAmount} base game recipes", _recipesData.Length);
+        RootCollector.LogCollectedAmount(_logger, _recipesRegistry, _recipesData.Length);
     }
 }

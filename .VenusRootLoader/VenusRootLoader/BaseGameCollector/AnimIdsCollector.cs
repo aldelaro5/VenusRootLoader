@@ -38,6 +38,6 @@ internal sealed class AnimIdsCollector : IBaseGameCollector
                 animIdLeaf);
         }
 
-        _logger.LogInformation("Collected and registered {AnimIdsAmount} base game items", _animIdNamedIds.Length);
+        RootCollector.LogCollectedAmount(_logger, _animIdsRegistry, _animIdNamedIds.Length);
     }
 }

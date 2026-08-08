@@ -80,8 +80,6 @@ internal sealed class PrizeMedalsCollector : IBaseGameCollector
             prizeMedalLeaf.DisplayedEnemyGameId = prizeEnemyIds[i];
         }
 
-        _logger.LogInformation(
-            "Collected and registered {PrizeMedalsAmount} base game prize medals",
-            prizeIds.Length);
+        RootCollector.LogCollectedAmount(_logger, _prizeMedalsRegistry, prizeIds.Length);
     }
 }

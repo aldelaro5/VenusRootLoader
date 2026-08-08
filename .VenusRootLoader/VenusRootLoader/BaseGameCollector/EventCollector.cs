@@ -28,8 +28,6 @@ internal sealed class EventCollector : IBaseGameCollector
         foreach (KeyValuePair<int, MethodDefinition> kvpEventMethod in eventMethods)
             _eventsRegistry.RegisterExisting(kvpEventMethod.Key, kvpEventMethod.Key.ToString());
 
-        _logger.LogInformation(
-            "Collected and registered {EventsAmount} base game Events",
-            eventMethods.Count);
+        RootCollector.LogCollectedAmount(_logger, _eventsRegistry, eventMethods.Count);
     }
 }

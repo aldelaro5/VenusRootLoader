@@ -46,9 +46,7 @@ internal sealed class CrystalBerriesCollector : IBaseGameCollector
             }
         }
 
-        _logger.LogInformation(
-            "Collected and registered {CrystalBerriesAmount} base game Crystal Berries",
-            crystalBerriesAmount);
+        RootCollector.LogCollectedAmount(_logger, _crystalBerriesRegistry, crystalBerriesAmount);
     }
 
     // The amount of crystal berries isn't straight forward to figure out because it's not declared in a dedicated way.

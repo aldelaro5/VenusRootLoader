@@ -73,7 +73,7 @@ internal sealed class QuestsCollector : IBaseGameCollector
             }
         }
 
-        _logger.LogInformation("Collected and registered {QuestsAmount} base game quests", _questNamedIds.Length);
+        RootCollector.LogCollectedAmount(_logger, _questsRegistry, _questNamedIds.Length);
     }
 
     // Bounty quests have their game ids hardcoded in GetQuestsBoards so we need to collect them from that method.

@@ -40,9 +40,7 @@ internal static class Entry
             UnityLogger unityLogger = host.GetRequiredService<UnityLogger>();
             unityLogger.InstallManagedUnityLogger();
 
-            RootCollector gameDataCollector = host.GetRequiredService<RootCollector>();
-            gameDataCollector.CollectAndRegisterBaseGameData();
-
+            RunAllCollectors(host);
             Resources.UnloadUnusedAssets();
 
             RootPatcher patcher = host.GetRequiredService<RootPatcher>();
@@ -58,5 +56,13 @@ internal static class Entry
                 $"{nameof(VenusRootLoader)}.{nameof(Entry)}",
                 LogLevel.Critical);
         }
+    }
+
+    private static void RunAllCollectors(IServiceProvider host)
+    {
+        IServiceScope scope = host.CreateScope();
+        RootCollector gameDataCollector = scope.ServiceProvider.GetRequiredService<RootCollector>();
+        gameDataCollector.CollectAndRegisterBaseGameData();
+        scope.Dispose();
     }
 }

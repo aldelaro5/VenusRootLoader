@@ -48,10 +48,10 @@ internal sealed class ItemAndMedalSpriteTopLevelPatcher : ITopLevelPatcher
     private static bool InsertCustomItemSpriteHandler()
     {
         Sprite[] itemsSprites = _instance._itemLeafRegistry
-            .Select(i => i.Sprite)
+            .Select(i => i.Sprite.LoadAsset())
             .ToArray();
         Sprite[] medalsSprites = _instance._medalLeafRegistry
-            .Select(i => i.Sprite)
+            .Select(i => i.Sprite.LoadAsset())
             .ToArray();
 
         MainManager.itemsprites = new Sprite[2, itemsSprites.Length + medalsSprites.Length];

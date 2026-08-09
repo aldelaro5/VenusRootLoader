@@ -1,6 +1,6 @@
 using UnityEngine;
+using VenusRootLoader.Api.Unity.AssetLoading;
 using VenusRootLoader.SourceGenerators;
-using VenusRootLoader.Unity;
 
 namespace VenusRootLoader.Api.Leaves;
 
@@ -20,8 +20,6 @@ public sealed class MedalLeaf : Leaf
         public string Prepender { get; set; } = "<NO PREPENDER>";
     }
 
-    internal WrappedSprite WrappedSprite = new();
-
     internal MedalLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
@@ -35,9 +33,5 @@ public sealed class MedalLeaf : Leaf
     public int BuyingPriceCrystalBerries { get; set; }
     public LocalizedData<MedalLanguageData> LocalizedData { get; } = new();
 
-    public Sprite Sprite
-    {
-        get => WrappedSprite.Sprite!;
-        set => WrappedSprite.Sprite = value;
-    }
+    public IAssetLoader<Sprite> Sprite { get; set; }
 }

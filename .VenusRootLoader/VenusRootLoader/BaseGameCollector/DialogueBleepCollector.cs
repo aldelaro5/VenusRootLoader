@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Api.Unity.AssetLoading;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
@@ -8,8 +9,12 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class DialogueBleepCollector : IBaseGameCollector
 {
-    private readonly AudioClip[] _dialogueBleeps = Resources.LoadAll<AudioClip>(
-        $"{TextAssetPaths.RootAudioPathPrefix}{TextAssetPaths.AudioSoundsDialogueDirectory}");
+    private const string AudioSoundsDialogueResourcesPath =
+        $"{TextAssetPaths.RootAudioPathPrefix}{TextAssetPaths.AudioSoundsDialogueDirectory}";
+
+    private readonly string[] _dialogueBleepsName = Resources.LoadAll<AudioClip>(AudioSoundsDialogueResourcesPath)
+        .Select(a => a.name)
+        .ToArray();
 
     private readonly ILogger<DialogueBleepCollector> _logger;
     private readonly ILeavesRegistry<DialogueBleepLeaf> _dialogueBleepsRegistry;
@@ -26,14 +31,16 @@ internal sealed class DialogueBleepCollector : IBaseGameCollector
     {
         // We need to strip out clips like Dialogue3old which aren't considered bleeps that can be addressed as such.
         // They are effectively unused in base game.
-        List<AudioClip> dialogueBleeps = _dialogueBleeps
-            .Where(a => char.IsDigit(a.name[^1]))
-            .OrderBy(a => int.Parse(a.name.Replace("Dialogue", string.Empty)))
+        List<string> dialogueBleeps = _dialogueBleepsName
+            .Where(name => char.IsDigit(name[^1]))
+            .OrderBy(name => int.Parse(name.Replace("Dialogue", string.Empty)))
             .ToList();
         for (int i = 0; i < dialogueBleeps.Count; i++)
         {
             DialogueBleepLeaf dialogueBleepLeaf = _dialogueBleepsRegistry.RegisterExisting(i, i.ToString());
-            dialogueBleepLeaf.BleepSound = dialogueBleeps[i];
+            dialogueBleepLeaf.BleepSound = new AssetLoaderFromResources<AudioClip>(
+                $"{AudioSoundsDialogueResourcesPath}" +
+                $"/{dialogueBleeps[i]}");
         }
 
         RootCollector.LogCollectedAmount(_logger, _dialogueBleepsRegistry, dialogueBleeps.Count);

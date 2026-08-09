@@ -1,12 +1,13 @@
 using UnityEngine;
+using VenusRootLoader.Api.Unity.AssetLoading;
 
 namespace VenusRootLoader.Unity;
 
-internal static class SharedAssets
+internal static class SharedAssetLoaders
 {
     private static readonly Texture2D DummyItemOrMedalTexture;
 
-    static SharedAssets()
+    static SharedAssetLoaders()
     {
         Texture2D texture2D = new(64, 64, TextureFormat.RGBA32, false);
         texture2D.SetPixels(Enumerable.Repeat(Color.magenta, 64 * 64).ToArray());
@@ -20,5 +21,6 @@ internal static class SharedAssets
         new Vector2(0.5f, 0.5f),
         60f);
 
-    internal static AudioClip CreateDummyAudioClip() => AudioClip.Create("", 1, 2, 48000, false);
+    internal static readonly IAssetLoader<AudioClip> DummyAudioClipLoader = new AssetLoaderFromDelegate<AudioClip>(() =>
+        AudioClip.Create("", 1, 2, 48000, false));
 }

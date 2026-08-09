@@ -13,6 +13,7 @@ public partial class Venus
 
     public EnemyLeaf RegisterSpyableEnemy(
         string namedId,
+        Branch<AnimIdLeaf> entityAnimId,
         MainManager.Enemies? orderAfterInBestiary,
         int orderPriorityInBestiary)
     {
@@ -22,13 +23,17 @@ public partial class Venus
             (int?)orderAfterInBestiary,
             orderPriorityInBestiary);
         enemyLeaf.CanBeSpied = true;
+        enemyLeaf.EntityAnimId = entityAnimId;
         return enemyLeaf;
     }
 
-    public EnemyLeaf RegisterNonSpyableEnemy(string namedId)
+    public EnemyLeaf RegisterNonSpyableEnemy(
+        string namedId,
+        Branch<AnimIdLeaf> entityAnimId)
     {
         EnemyLeaf enemyLeaf = RegistryResolver.Resolve<EnemyLeaf>().RegisterNew(BudId, namedId);
         enemyLeaf.CanBeSpied = false;
+        enemyLeaf.EntityAnimId = entityAnimId;
         return enemyLeaf;
     }
 

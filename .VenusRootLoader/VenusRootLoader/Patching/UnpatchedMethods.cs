@@ -9,4 +9,9 @@ internal static class UnpatchedMethods
     [HarmonyPatch(typeof(UnityEngine.Resources), nameof(UnityEngine.Resources.Load), typeof(string), typeof(Type))]
     internal static Object UnpatchedResourcesLoad(string path, Type systemTypeInstance) =>
         throw new NotImplementedException("This is a stub method");
+
+    [HarmonyReversePatch]
+    [HarmonyPatch(typeof(UnityEngine.Resources), nameof(UnityEngine.Resources.LoadAll), typeof(string), typeof(Type))]
+    internal static Object[] UnpatchedResourcesLoadAll(string path, Type systemTypeInstance) =>
+        throw new NotImplementedException("This is a stub method");
 }

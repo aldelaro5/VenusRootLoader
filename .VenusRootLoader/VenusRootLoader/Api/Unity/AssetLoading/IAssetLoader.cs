@@ -15,5 +15,6 @@ public interface IAssetLoader<TObject>
     /// Loads and obtains the asset backed by this loader.
     /// </summary>
     /// <returns>The loaded asset ready for usage.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the asset does not exist.</exception>
     TObject LoadAsset();
 }

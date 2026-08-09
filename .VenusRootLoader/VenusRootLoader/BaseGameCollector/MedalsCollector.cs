@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Api.Unity.AssetLoading;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
@@ -13,6 +14,12 @@ internal sealed class MedalsCollector : IBaseGameCollector
     // index that separates these 2 regions so we need to hardcode this too.
     private const int FirstMedalSpriteIndexInItems0 = 176;
 
+    private const string SpritesItemsItems0ResourcesPath =
+        $"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesItems0Path}";
+
+    private const string SpritesItemsItems1ResourcesPath =
+        $"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesItems1Path}";
+
     private readonly string[] _medalsData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataMedalsPath);
 
     private readonly string _medalsOrderingData =
@@ -22,12 +29,6 @@ internal sealed class MedalsCollector : IBaseGameCollector
         RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedMedalPathSuffix);
 
     private readonly string[] _badgeNamedIds = Enum.GetNames(typeof(MainManager.BadgeTypes)).ToArray();
-
-    private readonly Sprite[] _items0Sprites =
-        Resources.LoadAll<Sprite>($"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesItems0Path}");
-
-    private readonly Sprite[] _items1Sprites =
-        Resources.LoadAll<Sprite>($"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesItems1Path}");
 
     private readonly ILogger<MedalsCollector> _logger;
     private readonly IOrderedLeavesRegistry<MedalLeaf> _orderedRegistry;
@@ -62,9 +63,11 @@ internal sealed class MedalsCollector : IBaseGameCollector
                 TextAssetPaths.DataMedalsPath,
                 _medalsData[i],
                 medalLeaf);
-            medalLeaf.WrappedSprite.Sprite = medalLeaf.Items1SpriteIndex == -1
-                ? _items0Sprites[i + FirstMedalSpriteIndexInItems0]
-                : _items1Sprites[medalLeaf.Items1SpriteIndex];
+            medalLeaf.Sprite = medalLeaf.Items1SpriteIndex == -1
+                ? new AssetLoaderFromResources<Sprite>(
+                    SpritesItemsItems0ResourcesPath,
+                    i + FirstMedalSpriteIndexInItems0)
+                : new AssetLoaderFromResources<Sprite>(SpritesItemsItems1ResourcesPath, medalLeaf.Items1SpriteIndex);
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 medalLeaf.LocalizedData[_languageRegistry.GetByGameId(j)] = new();

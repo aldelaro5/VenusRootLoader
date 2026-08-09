@@ -1,6 +1,6 @@
 using UnityEngine;
+using VenusRootLoader.Api.Unity.AssetLoading;
 using VenusRootLoader.SourceGenerators;
-using static VenusRootLoader.Unity.SharedAssets;
 
 namespace VenusRootLoader.Api.Leaves;
 
@@ -9,5 +9,5 @@ public sealed class DialogueBleepLeaf : Leaf
 {
     internal DialogueBleepLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId) { }
 
-    public AudioClip BleepSound { get; set; } = CreateDummyAudioClip();
+    public IAssetLoader<AudioClip> BleepSound { get; set; }
 }

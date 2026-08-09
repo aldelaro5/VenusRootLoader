@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Api.Unity.AssetLoading;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
@@ -13,6 +14,12 @@ internal sealed class ItemsCollector : IBaseGameCollector
     // index that separates these 2 regions so we need to hardcode this too.
     private const int ItemsSpritesAmountInItems0 = 176;
 
+    private const string SpritesItemsItems0ResourcesPath =
+        $"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesItems0Path}";
+
+    private const string SpritesItemsItems1ResourcesPath =
+        $"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesItems1Path}";
+
     private readonly string[] _itemsData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataItemsPath);
 
     private readonly Dictionary<int, string[]> _itemsLanguageData =
@@ -21,12 +28,6 @@ internal sealed class ItemsCollector : IBaseGameCollector
     private readonly string[] _itemNamedIds = Enum.GetNames(typeof(MainManager.Items))
         .TakeWhile(v => v != nameof(MainManager.Items.None))
         .ToArray();
-
-    private readonly Sprite[] _items0Sprites =
-        Resources.LoadAll<Sprite>($"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesItems0Path}");
-
-    private readonly Sprite[] _items1Sprites =
-        Resources.LoadAll<Sprite>($"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesItems1Path}");
 
     private readonly ILogger<ItemsCollector> _logger;
     private readonly ITextAssetParser<ItemLeaf> _itemDataSerializer;
@@ -64,9 +65,9 @@ internal sealed class ItemsCollector : IBaseGameCollector
             string itemNamedId = _itemNamedIds[i];
             ItemLeaf itemLeaf = _leavesRegistry.RegisterExisting(i, itemNamedId);
             _itemDataSerializer.FromTextAssetSerializedString(TextAssetPaths.DataItemsPath, _itemsData[i], itemLeaf);
-            itemLeaf.WrappedSprite.Sprite = i < ItemsSpritesAmountInItems0
-                ? _items0Sprites[i]
-                : _items1Sprites[i - ItemsSpritesAmountInItems0];
+            itemLeaf.Sprite = i < ItemsSpritesAmountInItems0
+                ? new AssetLoaderFromResources<Sprite>(SpritesItemsItems0ResourcesPath, i)
+                : new AssetLoaderFromResources<Sprite>(SpritesItemsItems1ResourcesPath, i - ItemsSpritesAmountInItems0);
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 itemLeaf.LocalizedData[_languageRegistry.GetByGameId(j)] = new();

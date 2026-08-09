@@ -5,6 +5,7 @@ using VenusRootLoader.Unity;
 
 namespace VenusRootLoader.Api.Leaves;
 
+// TODO: Should we involve polymorphism to split spyable vs non spyable?
 [ExposeFromVenus(null, false)]
 public sealed class EnemyLeaf : Leaf, IEnemyPortraitSprite
 {
@@ -115,10 +116,4 @@ public sealed class EnemyLeaf : Leaf, IEnemyPortraitSprite
 
     public bool IsIncludedInRandomCaveOfTrialsPool { get; set; } = true;
     public bool IsRareSpyData { get; set; }
-
-    [LeafInitializeFromNew]
-    internal void InitializeFromNew(Branch<AnimIdLeaf> entityAnimId)
-    {
-        EntityAnimId = entityAnimId;
-    }
 }

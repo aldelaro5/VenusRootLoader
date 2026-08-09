@@ -115,7 +115,7 @@ internal sealed class MapsLoadingTopLevelPatcher : ITopLevelPatcher
         mapControl.nobattlemusic = map.DisableMusicChangeWhenEnteringBattle;
 
         mapControl.music = map.MusicsAvailable
-            .Select(x => x.Music?.Resolve().Music ?? null)
+            .Select(x => x.Music?.Resolve().Music.LoadAsset() ?? null)
             .ToArray();
         for (int i = 0; i < mapControl.music.Length; i++)
         {

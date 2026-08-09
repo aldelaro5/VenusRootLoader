@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.Api.Unity.AssetLoading;
 using VenusRootLoader.SourceGenerators;
 using VenusRootLoader.Unity;
 
@@ -21,8 +22,6 @@ public sealed class ItemLeaf : Leaf
         public string? Prepender { get; set; }
     }
 
-    internal WrappedSprite WrappedSprite = new();
-
     internal ItemLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
@@ -30,11 +29,7 @@ public sealed class ItemLeaf : Leaf
     public List<ItemUse> Effects { get; } = new();
     public LocalizedData<ItemLanguageData> LocalizedData { get; } = new();
 
-    public Sprite Sprite
-    {
-        get => WrappedSprite.Sprite!;
-        set => WrappedSprite.Sprite = value;
-    }
+    public IAssetLoader<Sprite> Sprite { get; set; }
 
     public int BuyingPrice { get; set; }
     public BattleControl.AttackArea Target { get; set; }

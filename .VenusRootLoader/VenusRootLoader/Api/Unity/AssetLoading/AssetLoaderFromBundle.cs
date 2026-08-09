@@ -22,11 +22,7 @@ public sealed class AssetLoaderFromBundle<TObject> : IAssetLoader<TObject>
     public AssetLoaderFromBundle(AssetBundle bundle, string assetPathInBundle)
     {
         if (!bundle.Contains(assetPathInBundle))
-        {
-            ThrowHelper.ThrowArgumentException(
-                nameof(assetPathInBundle),
-                "No asset exists in the bundle for the given path");
-        }
+            ThrowHelper.ThrowInvalidOperationException($"No asset exists in the bundle at path: {assetPathInBundle}");
 
         _assetBundle = bundle;
         _resourcesPath = assetPathInBundle;

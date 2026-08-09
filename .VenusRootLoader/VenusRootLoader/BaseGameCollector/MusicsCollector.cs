@@ -6,6 +6,7 @@ using MonoMod.Utils;
 using System.Reflection;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Api.Unity.AssetLoading;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
@@ -14,12 +15,16 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class MusicsCollector : IBaseGameCollector
 {
+    private const string AudioMusicResourcesPath =
+        $"{TextAssetPaths.RootAudioPathPrefix}{TextAssetPaths.AudioMusicDirectory}";
+
     private readonly string[] _loopPointsData =
         RootCollector.ReadTextAssetLines(TextAssetPaths.DataMusicLoopPointsPath);
 
-    private readonly Dictionary<string, AudioClip> _musicAudioClipsByName = Resources
-        .LoadAll<AudioClip>($"{TextAssetPaths.RootAudioPathPrefix}{TextAssetPaths.AudioMusicDirectory}")
-        .ToDictionary(a => a.name, a => a);
+    private readonly HashSet<string> _musicAudioClipsByName = Resources
+        .LoadAll<AudioClip>(AudioMusicResourcesPath)
+        .Select(a => a.name)
+        .ToHashSet();
 
     private readonly Dictionary<int, string[]> _musicsLanguageData =
         RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedMusicNamesPathSuffix);
@@ -79,9 +84,13 @@ internal sealed class MusicsCollector : IBaseGameCollector
 
             // Some music have an enum value so they technically exist, but they don't have an actual AudioClip to back them.
             // Those are considered unused and should also be excluded from Samira as the game implicitly does it.
-            bool hasBackingAudioClip = _musicAudioClipsByName.ContainsKey(musicLeaf.NamedId);
+            bool hasBackingAudioClip = _musicAudioClipsByName.Contains(musicLeaf.NamedId);
             if (hasBackingAudioClip)
-                musicLeaf.Music = _musicAudioClipsByName[musicLeaf.NamedId];
+            {
+                musicLeaf.Music =
+                    new AssetLoaderFromResources<AudioClip>($"{AudioMusicResourcesPath}/{musicLeaf.NamedId}");
+            }
+
             musicLeaf.CanBePurchasedFromSamira = hasBackingAudioClip && !nonPurchasableMusicGameIds.Contains(i);
         }
 

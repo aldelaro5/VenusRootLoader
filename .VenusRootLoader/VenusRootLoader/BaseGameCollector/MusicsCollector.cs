@@ -6,9 +6,9 @@ using MonoMod.Utils;
 using System.Reflection;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Api.Unity.AssetLoading;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Unity;
 using VenusRootLoader.Unity.AssetLoading;
 using VenusRootLoader.Utility;
 
@@ -90,6 +90,10 @@ internal sealed class MusicsCollector : IBaseGameCollector
             {
                 musicLeaf.Music =
                     new AssetLoaderFromResources<AudioClip>($"{AudioMusicResourcesPath}/{musicLeaf.NamedId}");
+            }
+            else
+            {
+                musicLeaf.Music = SharedAssetLoaders.DummyAudioClipLoader;
             }
 
             musicLeaf.CanBePurchasedFromSamira = hasBackingAudioClip && !nonPurchasableMusicGameIds.Contains(i);

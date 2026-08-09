@@ -9,7 +9,7 @@ namespace VenusRootLoader.Unity.CustomAudioClip;
 [SuppressMessage("System.IO.Abstractions", "IO0006:Replace Path class with IFileSystem.Path for improved testability")]
 internal static class NAudioAudioClipLoader
 {
-    public static AudioClip LoadFromFile(string filePath, AudioFileFormat format, bool isStreamed)
+    internal static AudioClip LoadFromFile(string filePath, AudioFileFormat format, bool isStreamed)
     {
         WaveStream waveStream = GetWaveStreamFromFile(filePath, format);
         ISampleProvider sampleProvider = waveStream.ToSampleProvider();

@@ -6,7 +6,7 @@ namespace VenusRootLoader.Unity.CustomAudioClip;
 
 internal static class UnityAudioClipLoader
 {
-    public static AudioClip LoadFromFile(string filePath, AudioFileFormat format, bool isStreamed)
+    internal static AudioClip LoadFromFile(string filePath, AudioFileFormat format, bool isStreamed)
     {
         AudioType audioType = GetAudioTypeFromAudioFileFormat(format);
         UnityWebRequest webRequest = UnityWebRequestMultimedia.GetAudioClip(filePath, audioType);

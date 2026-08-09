@@ -12,6 +12,7 @@ using VenusRootLoader.Api.Leaves.MapEntities;
 using VenusRootLoader.Api.Unity.AssetLoading;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Unity.AssetLoading;
 using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;

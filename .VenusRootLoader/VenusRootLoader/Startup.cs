@@ -5,6 +5,7 @@ using System.IO.Abstractions;
 using UnityEngine;
 using VenusRootLoader.Api;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Api.Unity.AssetLoading;
 using VenusRootLoader.BaseGameCollector;
 using VenusRootLoader.BudLoading;
 using VenusRootLoader.Extensions;
@@ -25,6 +26,7 @@ using VenusRootLoader.Persistence.BaseGameSave;
 using VenusRootLoader.Persistence.BudsSave;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Unity;
+using VenusRootLoader.Unity.AssetLoading;
 using VenusRootLoader.Unity.CustomAudioClip;
 using VenusRootLoader.Utility;
 using Object = UnityEngine.Object;
@@ -291,7 +293,6 @@ internal static class Startup
         services.AddSingleton<RootPatcher>();
 
         services.AddSingleton<IGlobalMonoBehaviourExecution, GlobalMonoBehaviourExecution>();
-        services.AddSingleton<ICustomAudioClipProvider, CustomAudioClipProvider>();
 
         services.AddSingleton<IBudConfigManager, BudConfigManager>();
         services.AddSingleton<IVenusFactory, VenusFactory>();

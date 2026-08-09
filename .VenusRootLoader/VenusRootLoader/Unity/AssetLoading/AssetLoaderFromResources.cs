@@ -1,14 +1,15 @@
 using CommunityToolkit.Diagnostics;
+using VenusRootLoader.Api.Unity.AssetLoading;
 using VenusRootLoader.Patching;
 using Object = UnityEngine.Object;
 
-namespace VenusRootLoader.Api.Unity.AssetLoading;
+namespace VenusRootLoader.Unity.AssetLoading;
 
 /// <summary>
 /// An <see cref="IAssetLoader{TObject}"/> that pulls the asset from the base game's resources.
 /// </summary>
 /// <typeparam name="TObject"><inheritdoc/></typeparam>
-public sealed class AssetLoaderFromResources<TObject> : IAssetLoader<TObject>
+internal sealed class AssetLoaderFromResources<TObject> : IAssetLoader<TObject>
     where TObject : Object
 {
     private readonly string _resourcesPath;
@@ -18,7 +19,7 @@ public sealed class AssetLoaderFromResources<TObject> : IAssetLoader<TObject>
     /// Creates a lazily loaded asset that will be loaded from the base game's resources.
     /// </summary>
     /// <param name="resourcesPath">The path within the base game resources to pull the asset from. If the asset doesn't exist, <see cref="LoadAsset"/> will throw an exception when called.</param>
-    public AssetLoaderFromResources(string resourcesPath)
+    internal AssetLoaderFromResources(string resourcesPath)
     {
         _resourcesPath = resourcesPath;
         _arrayIndex = null;
@@ -29,7 +30,7 @@ public sealed class AssetLoaderFromResources<TObject> : IAssetLoader<TObject>
     /// </summary>
     /// <param name="resourcesPath">The path within the base game resources to pull the asset array from.</param>
     /// <param name="arrayIndex">The index of the asset array to pull the asset from.</param>
-    public AssetLoaderFromResources(string resourcesPath, int arrayIndex)
+    internal AssetLoaderFromResources(string resourcesPath, int arrayIndex)
     {
         _resourcesPath = resourcesPath;
         _arrayIndex = arrayIndex;

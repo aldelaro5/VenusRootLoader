@@ -4,7 +4,6 @@ using NSubstitute;
 using VenusRootLoader.Api;
 using VenusRootLoader.BudLoading;
 using VenusRootLoader.Unity;
-using VenusRootLoader.Unity.CustomAudioClip;
 
 namespace VenusRootLoader.Tests.BudLoading;
 
@@ -13,9 +12,6 @@ public sealed class VenusFactoryTests
     private readonly IGlobalMonoBehaviourExecution _globalMonoBehaviourExecution =
         Substitute.For<IGlobalMonoBehaviourExecution>();
 
-    private readonly ICustomAudioClipProvider _customAudioClipProvider =
-        Substitute.For<ICustomAudioClipProvider>();
-
     private readonly ILoggerFactory _loggerFactory = Substitute.For<ILoggerFactory>();
     private readonly ILogger<Venus> _logger = Substitute.For<ILogger<Venus>>();
 
@@ -23,7 +19,6 @@ public sealed class VenusFactoryTests
 
     public VenusFactoryTests() => _sut = new(
         _globalMonoBehaviourExecution,
-        _customAudioClipProvider,
         _loggerFactory,
         _logger);
 

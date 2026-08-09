@@ -7,6 +7,7 @@ using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Api.Leaves.MapEntities;
 using VenusRootLoader.Api.Unity.AssetLoading;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Unity.AssetLoading;
 using VenusRootLoader.Unity.Runtime.Enums;
 using VenusRootLoader.Unity.Runtime.ScriptableObjects;
 using MapAutoEvent = VenusRootLoader.Unity.Runtime.ScriptableObjects.MapAutoEvent;

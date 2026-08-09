@@ -1,14 +1,15 @@
 using CommunityToolkit.Diagnostics;
 using UnityEngine;
+using VenusRootLoader.Api.Unity.AssetLoading;
 using Object = UnityEngine.Object;
 
-namespace VenusRootLoader.Api.Unity.AssetLoading;
+namespace VenusRootLoader.Unity.AssetLoading;
 
 /// <summary>
 /// An <see cref="IAssetLoader{TObject}"/> that pulls the asset from a provided <see cref="AssetBundle"/>.
 /// </summary>
 /// <typeparam name="TObject"><inheritdoc/></typeparam>
-public sealed class AssetLoaderFromBundle<TObject> : IAssetLoader<TObject>
+internal sealed class AssetLoaderFromBundle<TObject> : IAssetLoader<TObject>
     where TObject : Object
 {
     private readonly AssetBundle _assetBundle;
@@ -19,7 +20,7 @@ public sealed class AssetLoaderFromBundle<TObject> : IAssetLoader<TObject>
     /// </summary>
     /// <param name="bundle">The <see cref="AssetBundle"/> to load the asset from.</param>
     /// <param name="assetPathInBundle">The path within <paramref name="bundle"/> to load the asset from. It may be the filename without extension or the full absolute path with extension.</param>
-    public AssetLoaderFromBundle(AssetBundle bundle, string assetPathInBundle)
+    internal AssetLoaderFromBundle(AssetBundle bundle, string assetPathInBundle)
     {
         if (!bundle.Contains(assetPathInBundle))
             ThrowHelper.ThrowInvalidOperationException($"No asset exists in the bundle at path: {assetPathInBundle}");

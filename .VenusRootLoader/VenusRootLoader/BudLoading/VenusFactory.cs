@@ -23,18 +23,15 @@ internal interface IVenusFactory
 internal sealed class VenusFactory : IVenusFactory
 {
     private readonly IGlobalMonoBehaviourExecution _globalMonoBehaviourExecution;
-    private readonly ICustomAudioClipProvider _customAudioClipProvider;
     private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger<Venus> _logger;
 
     public VenusFactory(
         IGlobalMonoBehaviourExecution globalMonoBehaviourExecution,
-        ICustomAudioClipProvider customAudioClipProvider,
         ILoggerFactory loggerFactory,
         ILogger<Venus> logger)
     {
         _globalMonoBehaviourExecution = globalMonoBehaviourExecution;
-        _customAudioClipProvider = customAudioClipProvider;
         _loggerFactory = loggerFactory;
         _logger = logger;
     }
@@ -42,7 +39,6 @@ internal sealed class VenusFactory : IVenusFactory
     public Venus CreateVenusForBud(string budId) => new(
         budId,
         _globalMonoBehaviourExecution,
-        _customAudioClipProvider,
         _loggerFactory,
         _logger);
 }

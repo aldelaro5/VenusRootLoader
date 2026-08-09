@@ -1,6 +1,5 @@
 using CommunityToolkit.Diagnostics;
-using Microsoft.Extensions.Logging;
-using System.IO.Abstractions;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
 namespace VenusRootLoader.Unity.CustomAudioClip;
@@ -12,7 +11,9 @@ namespace VenusRootLoader.Unity.CustomAudioClip;
 /// <see cref="NAudio.Wave.WaveStream"/> depending on the file format (the former is prefered since it's faster, but it
 /// doesn't support Mp3 and Flac while the latter supports them).
 /// </summary>
-internal interface ICustomAudioClipProvider
+[SuppressMessage("System.IO.Abstractions", "IO0002:Replace File class with IFileSystem.File for improved testability")]
+[SuppressMessage("System.IO.Abstractions", "IO0006:Replace Path class with IFileSystem.Path for improved testability")]
+internal static class CustomAudioClipProvider
 {
     /// <summary>
     /// Obtains an <see cref="AudioClip"/> from an external audio file.
@@ -26,24 +27,9 @@ internal interface ICustomAudioClipProvider
     /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="audioFileFormat"/> is
     /// <see cref="AudioFileFormat.AutoDetect"/> and the file format couldn't be determined from the
     /// <paramref name="filePath"/>'s extension.</exception>
-    AudioClip GetAudioClipFromFile(string filePath, bool isStreamed, AudioFileFormat audioFileFormat);
-}
-
-/// <inheritdoc/>
-internal sealed class CustomAudioClipProvider : ICustomAudioClipProvider
-{
-    private readonly IFileSystem _fileSystem;
-    private readonly ILogger<CustomAudioClipProvider> _logger;
-
-    public CustomAudioClipProvider(IFileSystem fileSystem, ILogger<CustomAudioClipProvider> logger)
+    internal static AudioClip GetAudioClipFromFile(string filePath, bool isStreamed, AudioFileFormat audioFileFormat)
     {
-        _fileSystem = fileSystem;
-        _logger = logger;
-    }
-
-    public AudioClip GetAudioClipFromFile(string filePath, bool isStreamed, AudioFileFormat audioFileFormat)
-    {
-        if (!_fileSystem.File.Exists(filePath))
+        if (!File.Exists(filePath))
             throw new FileNotFoundException(filePath);
 
         if (audioFileFormat == AudioFileFormat.AutoDetect)
@@ -62,13 +48,6 @@ internal sealed class CustomAudioClipProvider : ICustomAudioClipProvider
             case AudioFileFormat.It:
             case AudioFileFormat.Mod:
             case AudioFileFormat.Xm:
-                if (isStreamed)
-                {
-                    _logger.LogWarning(
-                        "The tracker file {filePath} cannot be streamed so it will be loaded fully",
-                        filePath);
-                }
-
                 return UnityAudioClipLoader.LoadFromFile(filePath, audioFileFormat, false);
             default:
                 return ThrowHelper.ThrowArgumentOutOfRangeException<AudioClip>(
@@ -77,8 +56,8 @@ internal sealed class CustomAudioClipProvider : ICustomAudioClipProvider
         }
     }
 
-    private AudioFileFormat DetermineFormatFromFileExtension(string filePath) =>
-        _fileSystem.Path.GetExtension(filePath).ToLowerInvariant() switch
+    private static AudioFileFormat DetermineFormatFromFileExtension(string filePath) =>
+        Path.GetExtension(filePath).ToLowerInvariant() switch
         {
             ".wav" => AudioFileFormat.Wav,
             ".ogg" => AudioFileFormat.Ogg,

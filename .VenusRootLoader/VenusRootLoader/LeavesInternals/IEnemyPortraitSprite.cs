@@ -1,5 +1,5 @@
 using UnityEngine;
-using VenusRootLoader.Api.Unity.AssetLoading;
+using VenusRootLoader.Api.Unity;
 using VenusRootLoader.Patching.Resources.SpritesPatchers;
 using VenusRootLoader.Unity;
 

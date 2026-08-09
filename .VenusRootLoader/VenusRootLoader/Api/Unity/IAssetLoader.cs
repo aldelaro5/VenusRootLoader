@@ -2,7 +2,7 @@ using Object = UnityEngine.Object;
 
 // ReSharper disable once TypeParameterCanBeVariant
 
-namespace VenusRootLoader.Api.Unity.AssetLoading;
+namespace VenusRootLoader.Api.Unity;
 
 /// <summary>
 /// A scheme to load an asset lazily so it is only loaded when needed.

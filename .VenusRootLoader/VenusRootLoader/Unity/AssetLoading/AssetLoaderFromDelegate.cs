@@ -1,4 +1,4 @@
-using VenusRootLoader.Api.Unity.AssetLoading;
+using VenusRootLoader.Api.Unity;
 using Object = UnityEngine.Object;
 
 namespace VenusRootLoader.Unity.AssetLoading;

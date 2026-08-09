@@ -1,5 +1,5 @@
 using CommunityToolkit.Diagnostics;
-using VenusRootLoader.Api.Unity.AssetLoading;
+using VenusRootLoader.Api.Unity;
 using VenusRootLoader.Patching;
 using Object = UnityEngine.Object;
 

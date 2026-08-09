@@ -3,7 +3,7 @@ using VenusRootLoader.Unity.AssetLoading;
 using VenusRootLoader.Unity.CustomAudioClip;
 using Object = UnityEngine.Object;
 
-namespace VenusRootLoader.Api.Unity.AssetLoading;
+namespace VenusRootLoader.Api.Unity;
 
 public static class AssetLoader
 {

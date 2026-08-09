@@ -10,7 +10,7 @@ namespace VenusRootLoader.BaseGameCollector;
 internal sealed class DialogueBleepCollector : IBaseGameCollector
 {
     private const string AudioSoundsDialogueResourcesPath =
-        $"{TextAssetPaths.RootAudioPathPrefix}{TextAssetPaths.AudioSoundsDialogueDirectory}";
+        $"{ResourcesPaths.RootAudioPathPrefix}{ResourcesPaths.AudioSoundsDialogueDirectory}";
 
     private readonly string[] _dialogueBleepsName = Resources.LoadAll<AudioClip>(AudioSoundsDialogueResourcesPath)
         .Select(a => a.name)

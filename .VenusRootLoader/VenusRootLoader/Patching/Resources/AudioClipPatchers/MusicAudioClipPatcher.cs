@@ -25,7 +25,7 @@ internal sealed class MusicAudioClipPatcher : IAudioClipPatcher
     public AudioClip PatchAudioClip(string path, AudioClip original)
     {
         string clipName = path
-            .Replace(TextAssetPaths.AudioMusicDirectory, string.Empty)
+            .Replace(ResourcesPaths.AudioMusicDirectory, string.Empty)
             .Replace("/", string.Empty);
         AudioClip music = _musicRegistry.GetByEffectiveId(clipName).Music.LoadAsset();
 

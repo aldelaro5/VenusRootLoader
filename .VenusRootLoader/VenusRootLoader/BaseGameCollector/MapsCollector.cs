@@ -23,7 +23,7 @@ internal sealed class MapsCollector : IBaseGameCollector
     private readonly Dictionary<int, (string[] Names, string[] Data)> _mapsEntityData;
 
     private readonly string[] _testRoomTextData =
-        RootCollector.ReadTextAssetLines(TextAssetPaths.DataTestRoomMapDialoguesPath);
+        RootCollector.ReadTextAssetLines(ResourcesPaths.DataTestRoomMapDialoguesPath);
 
     private readonly Dictionary<string, Dictionary<int, string[]>> _mapsDialogues = new();
 
@@ -91,7 +91,7 @@ internal sealed class MapsCollector : IBaseGameCollector
             {
                 string[] itemLanguageData = Resources
                     .Load<TextAsset>(
-                        $"{TextAssetPaths.DataSlashDialogues}{i}/{TextAssetPaths.DataDialoguesLocalizedMapsDirectory}/{mapName}")
+                        $"{ResourcesPaths.DataSlashDialogues}{i}/{ResourcesPaths.DataDialoguesLocalizedMapsDirectory}/{mapName}")
                     .text
                     .Split(StringUtils.NewlineSplitDelimiter);
                 _mapsDialogues[mapName].Add(i, itemLanguageData);
@@ -101,8 +101,9 @@ internal sealed class MapsCollector : IBaseGameCollector
         _mapsEntityData = Enumerable.Range(0, _mapNamedIds.Length)
             .ToDictionary(
                 x => x,
-                x => (RootCollector.ReadTextAssetLines($"{TextAssetPaths.DataMapEntitiesDirectory}/Names/{x}Names"),
-                    RootCollector.ReadTextAssetLines($"{TextAssetPaths.DataMapEntitiesDirectory}/{x}")));
+                x => (
+                    RootCollector.ReadTextAssetLines($"{ResourcesPaths.DataMapEntitiesDirectory}/Names/{x}Names"),
+                    RootCollector.ReadTextAssetLines($"{ResourcesPaths.DataMapEntitiesDirectory}/{x}")));
 
         _assemblyCSharpFileName = _fileSystem.Path.GetFileName(typeof(MapControl).Assembly.Location);
         _gameBundlePath = _fileSystem.Path.Combine(_gameExecutionContext.DataDir, "data.unity3d");

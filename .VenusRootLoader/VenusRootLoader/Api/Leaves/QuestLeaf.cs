@@ -1,7 +1,7 @@
 using UnityEngine;
+using VenusRootLoader.Api.Unity.AssetLoading;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.SourceGenerators;
-using VenusRootLoader.Unity;
 
 namespace VenusRootLoader.Api.Leaves;
 
@@ -26,7 +26,13 @@ public sealed class QuestLeaf : Leaf, IEnemyPortraitSprite
     }
 
     int? IEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }
-    WrappedSprite IEnemyPortraitSprite.WrappedSprite { get; set; } = new();
+    IAssetLoader<Sprite> IEnemyPortraitSprite.PortraitSprite { get; set; }
+
+    public IAssetLoader<Sprite> PortraitSprite
+    {
+        get => ((IEnemyPortraitSprite)this).PortraitSprite;
+        set => ((IEnemyPortraitSprite)this).PortraitSprite = value;
+    }
 
     public LocalizedData<QuestLanguageData> LocalizedData { get; } = new();
     public Branch<FlagLeaf>? TakenFlag { get; set; }
@@ -34,10 +40,4 @@ public sealed class QuestLeaf : Leaf, IEnemyPortraitSprite
     public List<Branch<FlagLeaf>> RequiredFlags { get; } = new();
     public List<Branch<AreaLeaf>> RequiredSeenAreas { get; } = new();
     public bool CanOnlyBeTakenAtUndergroundBar { get; set; }
-
-    public Sprite PortraitSprite
-    {
-        get => ((IEnemyPortraitSprite)this).WrappedSprite.Sprite!;
-        set => ((IEnemyPortraitSprite)this).WrappedSprite.Sprite = value;
-    }
 }

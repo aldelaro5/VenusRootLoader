@@ -1,3 +1,5 @@
+using UnityEngine;
+using VenusRootLoader.Api.Unity.AssetLoading;
 using VenusRootLoader.Patching.Resources.SpritesPatchers;
 using VenusRootLoader.Unity;
 
@@ -18,5 +20,5 @@ internal interface IEnemyPortraitSprite
     /// <summary>
     /// The sprite inside EnemyPortraits.
     /// </summary>
-    WrappedSprite WrappedSprite { get; set; }
+    IAssetLoader<Sprite> PortraitSprite { get; set; }
 }

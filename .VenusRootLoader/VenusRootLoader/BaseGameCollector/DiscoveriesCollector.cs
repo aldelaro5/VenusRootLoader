@@ -4,6 +4,7 @@ using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Unity.AssetLoading;
 using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
@@ -11,13 +12,10 @@ namespace VenusRootLoader.BaseGameCollector;
 internal sealed class DiscoveriesCollector : IBaseGameCollector
 {
     private readonly string _discoveriesOrderingData =
-        RootCollector.ReadWholeTextAsset(TextAssetPaths.DataDiscoveriesOrderingPath);
+        RootCollector.ReadWholeTextAsset(ResourcesPaths.DataDiscoveriesOrderingPath);
 
     private readonly Dictionary<int, string[]> _discoveriesLanguageData =
-        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedDiscoveriesPathSuffix);
-
-    private readonly Sprite[] _enemyPortraitsSprites = Resources.LoadAll<Sprite>(
-        $"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesEnemyPortraitsPath}");
+        RootCollector.ReadLocalizedTestAssetLines(ResourcesPaths.DataLocalizedDiscoveriesPathSuffix);
 
     private readonly ILogger<DiscoveriesCollector> _logger;
     private readonly IOrderedLeavesRegistry<DiscoveryLeaf> _orderedRegistry;
@@ -51,7 +49,7 @@ internal sealed class DiscoveriesCollector : IBaseGameCollector
             {
                 discoveryLeaf.LocalizedData[_languageRegistry.GetByGameId(j)] = new();
                 _discoveriesLanguageDataSerializer.FromTextAssetSerializedString(
-                    TextAssetPaths.DataLocalizedDiscoveriesPathSuffix,
+                    ResourcesPaths.DataLocalizedDiscoveriesPathSuffix,
                     j,
                     _discoveriesLanguageData[j][i],
                     discoveryLeaf);
@@ -62,8 +60,9 @@ internal sealed class DiscoveriesCollector : IBaseGameCollector
         foreach (DiscoveryLeaf leaf in _orderedRegistry.Registry)
         {
             IEnemyPortraitSprite enemyPortraitSprite = leaf;
-            enemyPortraitSprite.WrappedSprite.Sprite =
-                _enemyPortraitsSprites[enemyPortraitSprite.EnemyPortraitsSpriteIndex!.Value];
+            enemyPortraitSprite.PortraitSprite = new AssetLoaderFromResources<Sprite>(
+                ResourcesPaths.SpritesItemsEnemyPortraitsResourcesPath,
+                enemyPortraitSprite.EnemyPortraitsSpriteIndex!.Value);
         }
 
         RootCollector.LogCollectedAmount(_logger, _orderedRegistry.Registry, discoveriesAmount);

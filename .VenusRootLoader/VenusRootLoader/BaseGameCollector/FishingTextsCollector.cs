@@ -9,7 +9,7 @@ namespace VenusRootLoader.BaseGameCollector;
 internal sealed class FishingTextsCollector : IBaseGameCollector
 {
     private readonly Dictionary<int, string[]> _fishingTextsLanguageData =
-        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedFishingTextsPathSuffix);
+        RootCollector.ReadLocalizedTestAssetLines(ResourcesPaths.DataLocalizedFishingTextsPathSuffix);
 
     private readonly ILogger<FishingTextsCollector> _logger;
     private readonly ILeavesRegistry<FishingTextLeaf> _fishingTextsRegistry;
@@ -34,7 +34,7 @@ internal sealed class FishingTextsCollector : IBaseGameCollector
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _fishingTextLocalizedTextAssetParser.FromTextAssetSerializedString(
-                    TextAssetPaths.DataLocalizedFishingTextsPathSuffix,
+                    ResourcesPaths.DataLocalizedFishingTextsPathSuffix,
                     j,
                     _fishingTextsLanguageData[j][i],
                     fishingTextLeaf);

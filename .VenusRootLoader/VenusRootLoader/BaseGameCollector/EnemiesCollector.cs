@@ -9,24 +9,22 @@ using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Unity.AssetLoading;
 using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class EnemiesCollector : IBaseGameCollector
 {
-    private readonly string[] _enemiesData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataEnemiesPath);
+    private readonly string[] _enemiesData = RootCollector.ReadTextAssetLines(ResourcesPaths.DataEnemiesPath);
 
     private readonly string _enemiesOrderingData =
-        RootCollector.ReadWholeTextAsset(TextAssetPaths.DataBestiaryEntriesOrderingPath);
+        RootCollector.ReadWholeTextAsset(ResourcesPaths.DataBestiaryEntriesOrderingPath);
 
     private readonly Dictionary<int, string[]> _enemiesLanguageData =
-        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedBestiaryEntriesPathSuffix);
+        RootCollector.ReadLocalizedTestAssetLines(ResourcesPaths.DataLocalizedBestiaryEntriesPathSuffix);
 
     private readonly string[] _enemyNamedIds = Enum.GetNames(typeof(MainManager.Enemies)).ToArray();
-
-    private readonly Sprite[] _enemyPortraitsSprites = Resources.LoadAll<Sprite>(
-        $"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesEnemyPortraitsPath}");
 
     private readonly ILogger<EnemiesCollector> _logger;
     private readonly IAssemblyCSharpDataCollector _assemblyCSharpDataCollector;
@@ -135,14 +133,14 @@ internal sealed class EnemiesCollector : IBaseGameCollector
         {
             EnemyLeaf enemyLeaf = _orderedRegistry.Registry.GetByGameId(i);
             _enemyTextAssetParser.FromTextAssetSerializedString(
-                TextAssetPaths.DataEnemiesPath,
+                ResourcesPaths.DataEnemiesPath,
                 _enemiesData[i],
                 enemyLeaf);
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 enemyLeaf.LocalizedData[_languageRegistry.GetByGameId(j)] = new();
                 _enemyLocalizedTextAssetParser.FromTextAssetSerializedString(
-                    TextAssetPaths.DataLocalizedBestiaryEntriesPathSuffix,
+                    ResourcesPaths.DataLocalizedBestiaryEntriesPathSuffix,
                     j,
                     _enemiesLanguageData[j][i],
                     enemyLeaf);
@@ -163,8 +161,9 @@ internal sealed class EnemiesCollector : IBaseGameCollector
             if (enemyPortraitSprite.EnemyPortraitsSpriteIndex < 0)
                 enemyPortraitSprite.EnemyPortraitsSpriteIndex = leaf.GameId;
 
-            enemyPortraitSprite.WrappedSprite.Sprite =
-                _enemyPortraitsSprites[enemyPortraitSprite.EnemyPortraitsSpriteIndex!.Value];
+            enemyPortraitSprite.PortraitSprite = new AssetLoaderFromResources<Sprite>(
+                ResourcesPaths.SpritesItemsEnemyPortraitsResourcesPath,
+                enemyPortraitSprite.EnemyPortraitsSpriteIndex!.Value);
         }
 
         RootCollector.LogCollectedAmount(_logger, _orderedRegistry.Registry, _enemyNamedIds.Length);

@@ -14,10 +14,10 @@ namespace VenusRootLoader.BaseGameCollector;
 internal sealed class AreasCollector : IBaseGameCollector
 {
     private readonly Dictionary<int, string[]> _areaNamesData =
-        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedAreaNamesPathSuffix);
+        RootCollector.ReadLocalizedTestAssetLines(ResourcesPaths.DataLocalizedAreaNamesPathSuffix);
 
     private readonly Dictionary<int, string[]> _areaDescriptionsData =
-        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedAreaDescriptionsPathSuffix);
+        RootCollector.ReadLocalizedTestAssetLines(ResourcesPaths.DataLocalizedAreaDescriptionsPathSuffix);
 
     private readonly string[] _areasNamedIds = Enum.GetNames(typeof(MainManager.Areas)).ToArray();
 
@@ -44,12 +44,12 @@ internal sealed class AreasCollector : IBaseGameCollector
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _areaLocalizedTextAssetParser.FromTextAssetSerializedString(
-                    TextAssetPaths.DataLocalizedAreaNamesPathSuffix,
+                    ResourcesPaths.DataLocalizedAreaNamesPathSuffix,
                     j,
                     _areaNamesData[j][i],
                     areaLeaf);
                 _areaLocalizedTextAssetParser.FromTextAssetSerializedString(
-                    TextAssetPaths.DataLocalizedAreaDescriptionsPathSuffix,
+                    ResourcesPaths.DataLocalizedAreaDescriptionsPathSuffix,
                     j,
                     _areaDescriptionsData[j][i],
                     areaLeaf);

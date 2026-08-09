@@ -52,18 +52,20 @@ internal sealed class RootTextAssetPatcher : IResourcesTypePatcher<TextAsset>
 
     public TextAsset PatchResource(string path, TextAsset original)
     {
-        if (!path.StartsWith(TextAssetPaths.RootDataPathPrefix, StringComparison.OrdinalIgnoreCase))
+        if (!path.StartsWith(ResourcesPaths.RootDataPathPrefix, StringComparison.OrdinalIgnoreCase))
             return original;
 
-        string textAssetSubpath = path[TextAssetPaths.RootDataPathPrefix.Length..];
-        if (textAssetSubpath.StartsWith(TextAssetPaths.DataMapEntitiesDirectory, StringComparison.OrdinalIgnoreCase))
+        string textAssetSubpath = path[ResourcesPaths.RootDataPathPrefix.Length..];
+        if (textAssetSubpath.StartsWith(
+                ResourcesPaths.DataMapEntitiesDirectory,
+                StringComparison.OrdinalIgnoreCase))
             return _mapEntityTextAssetPatcher.PatchMapEntityTextAsset(textAssetSubpath, original);
 
         if (textAssetSubpath == nameof(MainManager.Maps.TestRoom))
             return _mapDialoguesTextAssetPatcher.PatchMapDialoguesTextAsset(0, path, original);
 
         if (textAssetSubpath.StartsWith(
-                TextAssetPaths.DataLocalizedDialoguesDirectoryPrefix,
+                ResourcesPaths.DataLocalizedDialoguesDirectoryPrefix,
                 StringComparison.OrdinalIgnoreCase))
         {
             return PatchLocalizedTextAsset(textAssetSubpath, original);
@@ -86,12 +88,14 @@ internal sealed class RootTextAssetPatcher : IResourcesTypePatcher<TextAsset>
 
     private TextAsset PatchLocalizedTextAsset(string textAssetSubpath, TextAsset original)
     {
-        string localizedSubPath = textAssetSubpath[TextAssetPaths.DataLocalizedDialoguesDirectoryPrefix.Length..];
+        string localizedSubPath = textAssetSubpath[ResourcesPaths.DataLocalizedDialoguesDirectoryPrefix.Length..];
         int firstSlash = localizedSubPath.IndexOf('/');
         int languageId = int.Parse(localizedSubPath[..firstSlash]);
         string subPath = localizedSubPath[(firstSlash + 1)..];
 
-        if (subPath.StartsWith(TextAssetPaths.DataDialoguesLocalizedMapsDirectory, StringComparison.OrdinalIgnoreCase))
+        if (subPath.StartsWith(
+                ResourcesPaths.DataDialoguesLocalizedMapsDirectory,
+                StringComparison.OrdinalIgnoreCase))
             return _mapDialoguesTextAssetPatcher.PatchMapDialoguesTextAsset(languageId, textAssetSubpath, original);
 
         return _localizedTextAssetPatchers.TryGetValue(subPath, out ILocalizedTextAssetPatcher patcher)

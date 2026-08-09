@@ -8,13 +8,13 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class SpyCardsCollector : IBaseGameCollector
 {
-    private readonly string[] _spyCardsData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataSpyCardsPath);
+    private readonly string[] _spyCardsData = RootCollector.ReadTextAssetLines(ResourcesPaths.DataSpyCardsPath);
 
     private readonly string _spyCardsOrderingData =
-        RootCollector.ReadWholeTextAsset(TextAssetPaths.DataSpyCardsOrderingPath);
+        RootCollector.ReadWholeTextAsset(ResourcesPaths.DataSpyCardsOrderingPath);
 
     private readonly Dictionary<int, string[]> _spyCardsLanguageData =
-        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedSpyCardsPathSuffix);
+        RootCollector.ReadLocalizedTestAssetLines(ResourcesPaths.DataLocalizedSpyCardsPathSuffix);
 
     private readonly ILogger<SpyCardsCollector> _logger;
     private readonly IOrderedLeavesRegistry<SpyCardLeaf> _orderedRegistry;
@@ -46,14 +46,14 @@ internal sealed class SpyCardsCollector : IBaseGameCollector
         {
             SpyCardLeaf spyCardLeaf = _orderedRegistry.RegisterExistingWithOrdering(i, i.ToString());
             _spyCardTextAssetParser.FromTextAssetSerializedString(
-                TextAssetPaths.DataSpyCardsPath,
+                ResourcesPaths.DataSpyCardsPath,
                 _spyCardsData[i],
                 spyCardLeaf);
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 spyCardLeaf.LocalizedData[_languageRegistry.GetByGameId(j)] = new();
                 _spyCardLocalizedTextAssetParser.FromTextAssetSerializedString(
-                    TextAssetPaths.DataLocalizedSpyCardsPathSuffix,
+                    ResourcesPaths.DataLocalizedSpyCardsPathSuffix,
                     j,
                     _spyCardsLanguageData[j][i],
                     spyCardLeaf);

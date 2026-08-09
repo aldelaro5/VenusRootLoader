@@ -9,7 +9,7 @@ namespace VenusRootLoader.BaseGameCollector;
 internal sealed class CommonDialoguesCollector : IBaseGameCollector
 {
     private readonly Dictionary<int, string[]> _commonDialoguesLanguageData =
-        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedCommonDialoguesPathSuffix);
+        RootCollector.ReadLocalizedTestAssetLines(ResourcesPaths.DataLocalizedCommonDialoguesPathSuffix);
 
     private readonly ILogger<CommonDialoguesCollector> _logger;
     private readonly ILeavesRegistry<CommonDialogueLeaf> _commonDialoguesRegistry;
@@ -39,7 +39,7 @@ internal sealed class CommonDialoguesCollector : IBaseGameCollector
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _commonDialogueLanguageDataSerializer.FromTextAssetSerializedString(
-                    TextAssetPaths.DataLocalizedCommonDialoguesPathSuffix,
+                    ResourcesPaths.DataLocalizedCommonDialoguesPathSuffix,
                     j,
                     _commonDialoguesLanguageData[j][i],
                     commonDialogueLeaf);

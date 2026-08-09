@@ -9,7 +9,7 @@ namespace VenusRootLoader.BaseGameCollector;
 internal sealed class ActionCommandHelpTextsCollector : IBaseGameCollector
 {
     private readonly Dictionary<int, string[]> _actionCommandHelpTextsLanguageData =
-        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedActionCommandHelpTextsPathSuffix);
+        RootCollector.ReadLocalizedTestAssetLines(ResourcesPaths.DataLocalizedActionCommandHelpTextsPathSuffix);
 
     private readonly ILogger<ActionCommandHelpTextsCollector> _logger;
     private readonly ILeavesRegistry<ActionCommandHelpTextLeaf> _actionCommandHelpTextsRegistry;
@@ -37,7 +37,7 @@ internal sealed class ActionCommandHelpTextsCollector : IBaseGameCollector
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _actionCommandHelpTextLocalizedTextAssetParser.FromTextAssetSerializedString(
-                    TextAssetPaths.DataLocalizedActionCommandHelpTextsPathSuffix,
+                    ResourcesPaths.DataLocalizedActionCommandHelpTextsPathSuffix,
                     j,
                     _actionCommandHelpTextsLanguageData[j][i],
                     actionCommandHelpTextLeaf);

@@ -17,10 +17,10 @@ namespace VenusRootLoader.BaseGameCollector;
 internal sealed class MusicsCollector : IBaseGameCollector
 {
     private const string AudioMusicResourcesPath =
-        $"{TextAssetPaths.RootAudioPathPrefix}{TextAssetPaths.AudioMusicDirectory}";
+        $"{ResourcesPaths.RootAudioPathPrefix}{ResourcesPaths.AudioMusicDirectory}";
 
     private readonly string[] _loopPointsData =
-        RootCollector.ReadTextAssetLines(TextAssetPaths.DataMusicLoopPointsPath);
+        RootCollector.ReadTextAssetLines(ResourcesPaths.DataMusicLoopPointsPath);
 
     private readonly HashSet<string> _musicAudioClipsByName = Resources
         .LoadAll<AudioClip>(AudioMusicResourcesPath)
@@ -28,7 +28,7 @@ internal sealed class MusicsCollector : IBaseGameCollector
         .ToHashSet();
 
     private readonly Dictionary<int, string[]> _musicsLanguageData =
-        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedMusicNamesPathSuffix);
+        RootCollector.ReadLocalizedTestAssetLines(ResourcesPaths.DataLocalizedMusicNamesPathSuffix);
 
     private readonly string[] _musicNamedIds = Enum.GetNames(typeof(MainManager.Musics)).ToArray();
 
@@ -71,13 +71,13 @@ internal sealed class MusicsCollector : IBaseGameCollector
         {
             MusicLeaf musicLeaf = _musicRegistry.RegisterExisting(i, _musicNamedIds[i]);
             _musicTextAssetParser.FromTextAssetSerializedString(
-                TextAssetPaths.DataMusicLoopPointsPath,
+                ResourcesPaths.DataMusicLoopPointsPath,
                 _loopPointsData[i],
                 musicLeaf);
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _musicLocalizedTextAssetParser.FromTextAssetSerializedString(
-                    TextAssetPaths.DataLocalizedMusicNamesPathSuffix,
+                    ResourcesPaths.DataLocalizedMusicNamesPathSuffix,
                     j,
                     _musicsLanguageData[j][i],
                     musicLeaf);

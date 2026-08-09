@@ -9,7 +9,7 @@ namespace VenusRootLoader.BaseGameCollector;
 internal sealed class MenuTextsCollector : IBaseGameCollector
 {
     private readonly Dictionary<int, string[]> _menuTextsLanguageData =
-        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedMenuTextsPathSuffix);
+        RootCollector.ReadLocalizedTestAssetLines(ResourcesPaths.DataLocalizedMenuTextsPathSuffix);
 
     private readonly ILogger<MenuTextsCollector> _logger;
     private readonly ILeavesRegistry<MenuTextLeaf> _menuTextsRegistry;
@@ -34,7 +34,7 @@ internal sealed class MenuTextsCollector : IBaseGameCollector
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _menuTextLanguageDataSerializer.FromTextAssetSerializedString(
-                    TextAssetPaths.DataLocalizedMenuTextsPathSuffix,
+                    ResourcesPaths.DataLocalizedMenuTextsPathSuffix,
                     j,
                     _menuTextsLanguageData[j][i],
                     menuTextLeaf);

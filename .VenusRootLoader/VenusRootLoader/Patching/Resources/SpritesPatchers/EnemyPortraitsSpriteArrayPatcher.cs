@@ -2,7 +2,6 @@ using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
-using Object = UnityEngine.Object;
 
 namespace VenusRootLoader.Patching.Resources.SpritesPatchers;
 
@@ -90,12 +89,11 @@ internal sealed class EnemyPortraitsSpriteArrayPatcher : ISpriteArrayPatcher
             if (isUniqueSpriteIndex)
                 continue;
 
-            leaf.WrappedSprite.Sprite = Object.Instantiate(leaf.WrappedSprite.Sprite);
             leaf.EnemyPortraitsSpriteIndex = null;
         }
     }
 
-    private void PatchSpritesFromRegistry<T>(SortedDictionary<int, Sprite> sprites, ILeavesRegistry<T> registry)
+    private static void PatchSpritesFromRegistry<T>(SortedDictionary<int, Sprite> sprites, ILeavesRegistry<T> registry)
         where T : Leaf, IEnemyPortraitSprite
     {
         IReadOnlyCollection<T> leaves = registry
@@ -108,12 +106,12 @@ internal sealed class EnemyPortraitsSpriteArrayPatcher : ISpriteArrayPatcher
             .ToList();
 
         foreach (T leaf in leavesWithDefinedSprites)
-            sprites[leaf.EnemyPortraitsSpriteIndex!.Value] = leaf.WrappedSprite.Sprite!;
+            sprites[leaf.EnemyPortraitsSpriteIndex!.Value] = leaf.PortraitSprite.LoadAsset();
 
         foreach (T leaf in leavesWithoutDefinedSprites)
         {
             leaf.EnemyPortraitsSpriteIndex = sprites.Count;
-            sprites.Add(leaf.EnemyPortraitsSpriteIndex.Value, leaf.WrappedSprite.Sprite!);
+            sprites.Add(leaf.EnemyPortraitsSpriteIndex.Value, leaf.PortraitSprite.LoadAsset());
         }
     }
 }

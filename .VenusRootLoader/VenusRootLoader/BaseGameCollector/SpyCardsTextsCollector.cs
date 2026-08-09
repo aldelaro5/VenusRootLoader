@@ -9,7 +9,7 @@ namespace VenusRootLoader.BaseGameCollector;
 internal sealed class SpyCardsTextsCollector : IBaseGameCollector
 {
     private readonly Dictionary<int, string[]> _spyCardsTextsLanguageData =
-        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedSpyCardsTextsPathSuffix);
+        RootCollector.ReadLocalizedTestAssetLines(ResourcesPaths.DataLocalizedSpyCardsTextsPathSuffix);
 
     private readonly ILogger<SpyCardsTextsCollector> _logger;
     private readonly ILeavesRegistry<SpyCardsTextLeaf> _spyCardsTextsRegistry;
@@ -34,7 +34,7 @@ internal sealed class SpyCardsTextsCollector : IBaseGameCollector
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _spyCardsTextLocalizedTextAssetParser.FromTextAssetSerializedString(
-                    TextAssetPaths.DataLocalizedSpyCardsTextsPathSuffix,
+                    ResourcesPaths.DataLocalizedSpyCardsTextsPathSuffix,
                     j,
                     _spyCardsTextsLanguageData[j][i],
                     spyCardsTextLeaf);

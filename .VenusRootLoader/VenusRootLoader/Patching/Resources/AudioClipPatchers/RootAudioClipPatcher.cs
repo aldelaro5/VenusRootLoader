@@ -23,10 +23,10 @@ internal sealed class RootAudioClipPatcher : IResourcesTypePatcher<AudioClip>
 
     public AudioClip PatchResource(string path, AudioClip original)
     {
-        if (!path.StartsWith(TextAssetPaths.RootAudioPathPrefix, StringComparison.OrdinalIgnoreCase))
+        if (!path.StartsWith(ResourcesPaths.RootAudioPathPrefix, StringComparison.OrdinalIgnoreCase))
             return original;
 
-        string audioSubpath = path[TextAssetPaths.RootAudioPathPrefix.Length..];
+        string audioSubpath = path[ResourcesPaths.RootAudioPathPrefix.Length..];
         string subpath = audioSubpath[..audioSubpath.LastIndexOf('/')];
         return _audioClipPatchers.TryGetValue(subpath, out IAudioClipPatcher audioClipPatcher)
             ? audioClipPatcher.PatchAudioClip(audioSubpath, original)

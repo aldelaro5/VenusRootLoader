@@ -23,10 +23,10 @@ internal sealed class RootPrefabPatcher : IResourcesTypePatcher<Object>
 
     public Object PatchResource(string path, Object original)
     {
-        if (!path.StartsWith(TextAssetPaths.RootPrefabsPathPrefix, StringComparison.OrdinalIgnoreCase))
+        if (!path.StartsWith(ResourcesPaths.RootPrefabsPathPrefix, StringComparison.OrdinalIgnoreCase))
             return original;
 
-        string prefabSubpath = path[TextAssetPaths.RootPrefabsPathPrefix.Length..];
+        string prefabSubpath = path[ResourcesPaths.RootPrefabsPathPrefix.Length..];
         if (_textAssetPatchers.TryGetValue(prefabSubpath, out IPrefabPatcher specificPrefabPatcher))
             return specificPrefabPatcher.PatchPrefab(prefabSubpath, original);
 

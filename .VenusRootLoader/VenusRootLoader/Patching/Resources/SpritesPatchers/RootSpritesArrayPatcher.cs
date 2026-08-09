@@ -24,10 +24,10 @@ internal sealed class RootSpritesArrayPatcher : IResourcesArrayTypePatcher<Sprit
 
     public Sprite[] PatchResources(string path, Sprite[] original)
     {
-        if (!path.StartsWith(TextAssetPaths.RootSpritesPathPrefix, StringComparison.OrdinalIgnoreCase))
+        if (!path.StartsWith(ResourcesPaths.RootSpritesPathPrefix, StringComparison.OrdinalIgnoreCase))
             return original;
 
-        string spritesSubpath = path[TextAssetPaths.RootSpritesPathPrefix.Length..];
+        string spritesSubpath = path[ResourcesPaths.RootSpritesPathPrefix.Length..];
         if (_spriteArrayPatchers.TryGetValue(spritesSubpath, out ISpriteArrayPatcher specificSpriteArrayPatcher))
             return specificSpriteArrayPatcher.PatchSpriteArray(spritesSubpath, original);
 

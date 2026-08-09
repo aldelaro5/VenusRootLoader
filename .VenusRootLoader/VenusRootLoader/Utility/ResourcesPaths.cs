@@ -4,7 +4,7 @@ namespace VenusRootLoader.Utility;
 /// Contains important resources paths from the game that other services can refer to.
 /// These are case-insensitive because Unity treats them as such.
 /// </summary>
-public static class TextAssetPaths
+internal static class ResourcesPaths
 {
     internal const string RootAnimatorControllerdPathPrefix = "AnimationControllers/";
     internal const string RootAudioPathPrefix = "Audio/";
@@ -85,6 +85,7 @@ public static class TextAssetPaths
     internal const string SpritesItems0Path = "Items/Items0";
     internal const string SpritesItems1Path = "Items/Items1";
 
+
     internal const string SpritesGui9BoxDirectory = "Gui/9Box";
     internal const string SpritesBattleMessagePathPrefix = "Gui/BattleMessage";
     internal const string SpritesLeafInBattleTransitionPath = "Gui/BattleLeaves";
@@ -93,6 +94,9 @@ public static class TextAssetPaths
     internal const string SpritesGui2Path = "Gui/Gui2";
     internal const string SpritesTextBoxPath = "Gui/Textbox";
     internal const string SpritesLocalizesGameTitlePathPrefix = "Gui/Title";
+
+    internal const string SpritesItemsEnemyPortraitsResourcesPath =
+        $"{RootSpritesPathPrefix}{SpritesEnemyPortraitsPath}";
 
     internal const string SpritesLocalizesBattleMessageAssetPrefix = "Battlem";
     internal const string SpritesLocalizesBattleMessageRankUpAssetPrefix = "Rank";

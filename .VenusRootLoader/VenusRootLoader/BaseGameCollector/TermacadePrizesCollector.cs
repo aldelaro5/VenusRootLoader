@@ -9,7 +9,7 @@ namespace VenusRootLoader.BaseGameCollector;
 internal sealed class TermacadePrizesCollector : IBaseGameCollector
 {
     private readonly string[] _termacadePrizesData =
-        RootCollector.ReadTextAssetLines(TextAssetPaths.DataTermacadePrizesPath);
+        RootCollector.ReadTextAssetLines(ResourcesPaths.DataTermacadePrizesPath);
 
     private readonly ILogger<TermacadePrizesCollector> _logger;
     private readonly ILeavesRegistry<TermacadePrizeLeaf> _termacadePrizesRegistry;
@@ -33,7 +33,7 @@ internal sealed class TermacadePrizesCollector : IBaseGameCollector
             TermacadePrizeLeaf termacadePrizeLeaf =
                 _termacadePrizesRegistry.RegisterExisting(i, i.ToString());
             _termacadePrizesTextAssetParser.FromTextAssetSerializedString(
-                TextAssetPaths.DataTermacadePrizesPath,
+                ResourcesPaths.DataTermacadePrizesPath,
                 termacadePrizeString,
                 termacadePrizeLeaf);
         }

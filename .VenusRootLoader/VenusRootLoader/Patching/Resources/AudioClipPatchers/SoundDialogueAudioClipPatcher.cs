@@ -27,7 +27,8 @@ internal sealed class SoundDialoguesAudioClipPatcher : IAudioClipPatcher
         if (!char.IsDigit(path[^1]))
             return original;
 
-        int gameId = int.Parse(path.Replace($"{TextAssetPaths.AudioSoundsDialogueDirectory}/Dialogue", string.Empty));
+        int gameId = int.Parse(
+            path.Replace($"{ResourcesPaths.AudioSoundsDialogueDirectory}/Dialogue", string.Empty));
         AudioClip bleepSound = _dialogueBleepsRegistry.GetByGameId(gameId).BleepSound.LoadAsset();
         // This is important because the game may use the name to discover what bleep the AudioClip is playing.
         bleepSound.name = $"Dialogue{gameId}";

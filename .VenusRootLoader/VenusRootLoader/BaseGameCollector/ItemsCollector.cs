@@ -15,15 +15,15 @@ internal sealed class ItemsCollector : IBaseGameCollector
     private const int ItemsSpritesAmountInItems0 = 176;
 
     private const string SpritesItemsItems0ResourcesPath =
-        $"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesItems0Path}";
+        $"{ResourcesPaths.RootSpritesPathPrefix}{ResourcesPaths.SpritesItems0Path}";
 
     private const string SpritesItemsItems1ResourcesPath =
-        $"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesItems1Path}";
+        $"{ResourcesPaths.RootSpritesPathPrefix}{ResourcesPaths.SpritesItems1Path}";
 
-    private readonly string[] _itemsData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataItemsPath);
+    private readonly string[] _itemsData = RootCollector.ReadTextAssetLines(ResourcesPaths.DataItemsPath);
 
     private readonly Dictionary<int, string[]> _itemsLanguageData =
-        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedItemsPathSuffix);
+        RootCollector.ReadLocalizedTestAssetLines(ResourcesPaths.DataLocalizedItemsPathSuffix);
 
     private readonly string[] _itemNamedIds = Enum.GetNames(typeof(MainManager.Items))
         .TakeWhile(v => v != nameof(MainManager.Items.None))
@@ -64,7 +64,10 @@ internal sealed class ItemsCollector : IBaseGameCollector
         {
             string itemNamedId = _itemNamedIds[i];
             ItemLeaf itemLeaf = _leavesRegistry.RegisterExisting(i, itemNamedId);
-            _itemDataSerializer.FromTextAssetSerializedString(TextAssetPaths.DataItemsPath, _itemsData[i], itemLeaf);
+            _itemDataSerializer.FromTextAssetSerializedString(
+                ResourcesPaths.DataItemsPath,
+                _itemsData[i],
+                itemLeaf);
             itemLeaf.Sprite = i < ItemsSpritesAmountInItems0
                 ? new AssetLoaderFromResources<Sprite>(SpritesItemsItems0ResourcesPath, i)
                 : new AssetLoaderFromResources<Sprite>(SpritesItemsItems1ResourcesPath, i - ItemsSpritesAmountInItems0);
@@ -72,7 +75,7 @@ internal sealed class ItemsCollector : IBaseGameCollector
             {
                 itemLeaf.LocalizedData[_languageRegistry.GetByGameId(j)] = new();
                 _itemLanguageDataSerializer.FromTextAssetSerializedString(
-                    TextAssetPaths.DataLocalizedItemsPathSuffix,
+                    ResourcesPaths.DataLocalizedItemsPathSuffix,
                     j,
                     _itemsLanguageData[j][i],
                     itemLeaf);

@@ -14,7 +14,7 @@ internal sealed class CrystalBerriesCollector : IBaseGameCollector
 {
     private readonly Dictionary<int, string[]> _fortuneTeller0LanguageData =
         RootCollector.ReadLocalizedTestAssetLines(
-            TextAssetPaths.DataLocalizedCrystalBerryFortuneTellerHintsPathSuffix);
+            ResourcesPaths.DataLocalizedCrystalBerryFortuneTellerHintsPathSuffix);
 
     private readonly ILogger<CrystalBerriesCollector> _logger;
     private readonly ILeavesRegistry<CrystalBerryLeaf> _crystalBerriesRegistry;
@@ -39,7 +39,7 @@ internal sealed class CrystalBerriesCollector : IBaseGameCollector
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
                 _crystalBerryLanguageDataSerializer.FromTextAssetSerializedString(
-                    TextAssetPaths.DataLocalizedCrystalBerryFortuneTellerHintsPathSuffix,
+                    ResourcesPaths.DataLocalizedCrystalBerryFortuneTellerHintsPathSuffix,
                     j,
                     _fortuneTeller0LanguageData[j][i],
                     crystalBerryLeaf);

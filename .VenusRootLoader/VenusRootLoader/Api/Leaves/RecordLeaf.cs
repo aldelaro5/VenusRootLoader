@@ -1,4 +1,5 @@
 using UnityEngine;
+using VenusRootLoader.Api.Unity.AssetLoading;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.SourceGenerators;
 using VenusRootLoader.Unity;
@@ -19,13 +20,13 @@ public sealed class RecordLeaf : Leaf, IEnemyPortraitSprite
     }
 
     int? IEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }
-    WrappedSprite IEnemyPortraitSprite.WrappedSprite { get; set; } = new();
+    IAssetLoader<Sprite> IEnemyPortraitSprite.PortraitSprite { get; set; }
+
+    public IAssetLoader<Sprite> PortraitSprite
+    {
+        get => ((IEnemyPortraitSprite)this).PortraitSprite;
+        set => ((IEnemyPortraitSprite)this).PortraitSprite = value;
+    }
 
     public LocalizedData<RecordLanguageData> LocalizedData { get; } = new();
-
-    public Sprite PortraitSprite
-    {
-        get => ((IEnemyPortraitSprite)this).WrappedSprite.Sprite!;
-        set => ((IEnemyPortraitSprite)this).WrappedSprite.Sprite = value;
-    }
 }

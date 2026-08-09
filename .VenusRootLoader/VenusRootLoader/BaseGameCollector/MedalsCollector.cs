@@ -15,18 +15,18 @@ internal sealed class MedalsCollector : IBaseGameCollector
     private const int FirstMedalSpriteIndexInItems0 = 176;
 
     private const string SpritesItemsItems0ResourcesPath =
-        $"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesItems0Path}";
+        $"{ResourcesPaths.RootSpritesPathPrefix}{ResourcesPaths.SpritesItems0Path}";
 
     private const string SpritesItemsItems1ResourcesPath =
-        $"{TextAssetPaths.RootSpritesPathPrefix}{TextAssetPaths.SpritesItems1Path}";
+        $"{ResourcesPaths.RootSpritesPathPrefix}{ResourcesPaths.SpritesItems1Path}";
 
-    private readonly string[] _medalsData = RootCollector.ReadTextAssetLines(TextAssetPaths.DataMedalsPath);
+    private readonly string[] _medalsData = RootCollector.ReadTextAssetLines(ResourcesPaths.DataMedalsPath);
 
     private readonly string _medalsOrderingData =
-        RootCollector.ReadWholeTextAsset(TextAssetPaths.DataMedalsOrderingPath);
+        RootCollector.ReadWholeTextAsset(ResourcesPaths.DataMedalsOrderingPath);
 
     private readonly Dictionary<int, string[]> _medalsLanguageData =
-        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedMedalPathSuffix);
+        RootCollector.ReadLocalizedTestAssetLines(ResourcesPaths.DataLocalizedMedalPathSuffix);
 
     private readonly string[] _badgeNamedIds = Enum.GetNames(typeof(MainManager.BadgeTypes)).ToArray();
 
@@ -60,7 +60,7 @@ internal sealed class MedalsCollector : IBaseGameCollector
             string medalNamedId = _badgeNamedIds[i];
             MedalLeaf medalLeaf = _orderedRegistry.RegisterExistingWithOrdering(i, medalNamedId);
             _medalDataSerializer.FromTextAssetSerializedString(
-                TextAssetPaths.DataMedalsPath,
+                ResourcesPaths.DataMedalsPath,
                 _medalsData[i],
                 medalLeaf);
             medalLeaf.Sprite = medalLeaf.Items1SpriteIndex == -1
@@ -72,7 +72,7 @@ internal sealed class MedalsCollector : IBaseGameCollector
             {
                 medalLeaf.LocalizedData[_languageRegistry.GetByGameId(j)] = new();
                 _medalLanguageDataSerializer.FromTextAssetSerializedString(
-                    TextAssetPaths.DataLocalizedMedalPathSuffix,
+                    ResourcesPaths.DataLocalizedMedalPathSuffix,
                     j,
                     _medalsLanguageData[j][i],
                     medalLeaf);

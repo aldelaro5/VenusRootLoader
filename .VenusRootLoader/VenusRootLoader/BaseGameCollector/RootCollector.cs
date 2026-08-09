@@ -26,7 +26,7 @@ internal sealed class RootCollector
 
     internal static string[] ReadTextAssetLines(string resourcesPathSuffix)
     {
-        return Resources.Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{resourcesPathSuffix}").text
+        return Resources.Load<TextAsset>($"{ResourcesPaths.RootDataPathPrefix}{resourcesPathSuffix}").text
             .Trim(StringUtils.NewlineSplitDelimiter)
             .Split(StringUtils.NewlineSplitDelimiter);
     }
@@ -34,7 +34,7 @@ internal sealed class RootCollector
     internal static string ReadWholeTextAsset(string resourcesPathSuffix)
     {
         return Resources
-            .Load<TextAsset>($"{TextAssetPaths.RootDataPathPrefix}{resourcesPathSuffix}").text
+            .Load<TextAsset>($"{ResourcesPaths.RootDataPathPrefix}{resourcesPathSuffix}").text
             .Trim('\n');
     }
 
@@ -45,7 +45,7 @@ internal sealed class RootCollector
         {
             string[] lines = Resources
                 .Load<TextAsset>(
-                    $"{TextAssetPaths.DataSlashDialogues}{i}/{resourcesPathSuffix}")
+                    $"{ResourcesPaths.DataSlashDialogues}{i}/{resourcesPathSuffix}")
                 .text
                 .Trim(StringUtils.NewlineSplitDelimiter)
                 .Split(StringUtils.NewlineSplitDelimiter);

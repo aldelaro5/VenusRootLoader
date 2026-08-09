@@ -9,10 +9,10 @@ namespace VenusRootLoader.BaseGameCollector;
 internal sealed class RecipeLibraryEntriesCollector : IBaseGameCollector
 {
     private readonly string[] _cookOrderData =
-        RootCollector.ReadTextAssetLines(TextAssetPaths.DataRecipesLibraryEntriesResultItemsPath);
+        RootCollector.ReadTextAssetLines(ResourcesPaths.DataRecipesLibraryEntriesResultItemsPath);
 
     private readonly string[] _cookLibraryData =
-        RootCollector.ReadTextAssetLines(TextAssetPaths.DataRecipesLibraryEntriesInputItemsPath);
+        RootCollector.ReadTextAssetLines(ResourcesPaths.DataRecipesLibraryEntriesInputItemsPath);
 
     private readonly ILogger<RecipeLibraryEntriesCollector> _logger;
     private readonly ILeavesRegistry<RecipeLibraryEntryLeaf> _recipeLibraryEntriesRegistry;
@@ -37,11 +37,11 @@ internal sealed class RecipeLibraryEntriesCollector : IBaseGameCollector
             RecipeLibraryEntryLeaf recipeLibraryEntryLeaf =
                 _recipeLibraryEntriesRegistry.RegisterExisting(i, i.ToString());
             _recipeTextAssetParser.FromTextAssetSerializedString(
-                TextAssetPaths.DataRecipesLibraryEntriesResultItemsPath,
+                ResourcesPaths.DataRecipesLibraryEntriesResultItemsPath,
                 cookOrderLine,
                 recipeLibraryEntryLeaf);
             _recipeTextAssetParser.FromTextAssetSerializedString(
-                TextAssetPaths.DataRecipesLibraryEntriesInputItemsPath,
+                ResourcesPaths.DataRecipesLibraryEntriesInputItemsPath,
                 cookLibraryLine,
                 recipeLibraryEntryLeaf);
         }

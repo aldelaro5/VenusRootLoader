@@ -16,10 +16,11 @@ namespace VenusRootLoader.BaseGameCollector;
 internal sealed class LoreBooksCollector : IBaseGameCollector
 {
     private readonly Dictionary<int, string[]> _fortuneTellerHintsLanguageData =
-        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedLoreBookFortuneTellerHintsPathSuffix);
+        RootCollector.ReadLocalizedTestAssetLines(
+            ResourcesPaths.DataLocalizedLoreBookFortuneTellerHintsPathSuffix);
 
     private readonly Dictionary<int, string[]> _loreTextsLanguageData =
-        RootCollector.ReadLocalizedTestAssetLines(TextAssetPaths.DataLocalizedLoreBooksPathSuffix);
+        RootCollector.ReadLocalizedTestAssetLines(ResourcesPaths.DataLocalizedLoreBooksPathSuffix);
 
     private readonly ILogger<LoreBooksCollector> _logger;
     private readonly IAssemblyCSharpDataCollector _assemblyCSharpDataCollector;
@@ -57,12 +58,12 @@ internal sealed class LoreBooksCollector : IBaseGameCollector
             {
                 loreBookLeaf.LocalizedData[_languageRegistry.GetByGameId(j)] = new();
                 _loreBookLocalizedTextAssetParser.FromTextAssetSerializedString(
-                    TextAssetPaths.DataLocalizedLoreBookFortuneTellerHintsPathSuffix,
+                    ResourcesPaths.DataLocalizedLoreBookFortuneTellerHintsPathSuffix,
                     j,
                     _fortuneTellerHintsLanguageData[j][i],
                     loreBookLeaf);
                 _loreBookLocalizedTextAssetParser.FromTextAssetSerializedString(
-                    TextAssetPaths.DataLocalizedLoreBooksPathSuffix,
+                    ResourcesPaths.DataLocalizedLoreBooksPathSuffix,
                     j,
                     _loreTextsLanguageData[j][i],
                     loreBookLeaf);

@@ -1,7 +1,7 @@
 using UnityEngine;
+using VenusRootLoader.Api.Unity.AssetLoading;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.SourceGenerators;
-using VenusRootLoader.Unity;
 
 namespace VenusRootLoader.Api.Leaves;
 
@@ -48,12 +48,12 @@ public sealed class EnemyLeaf : Leaf, IEnemyPortraitSprite
     public LocalizedData<EnemyLanguageData> LocalizedData { get; } = new();
 
     int? IEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }
-    WrappedSprite IEnemyPortraitSprite.WrappedSprite { get; set; } = new();
+    IAssetLoader<Sprite> IEnemyPortraitSprite.PortraitSprite { get; set; }
 
-    public Sprite? PortraitSprite
+    public IAssetLoader<Sprite> PortraitSprite
     {
-        get => ((IEnemyPortraitSprite)this).WrappedSprite.Sprite;
-        set => ((IEnemyPortraitSprite)this).WrappedSprite.Sprite = value;
+        get => ((IEnemyPortraitSprite)this).PortraitSprite;
+        set => ((IEnemyPortraitSprite)this).PortraitSprite = value;
     }
 
     public bool CanBeSpied { get; internal set; } = true;

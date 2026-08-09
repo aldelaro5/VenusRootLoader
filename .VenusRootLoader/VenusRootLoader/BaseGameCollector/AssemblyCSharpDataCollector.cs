@@ -24,7 +24,7 @@ internal interface IAssemblyCSharpDataCollector
     /// Obtains all the events' method definitions of the game indexed by their underlying event id.
     /// </summary>
     /// <returns>A dictionary of method definitions indexed by their underlying event id.</returns>
-    Dictionary<int, MethodDefinition> GetEventControlEvents();
+    IList<int> GetEventControlEventsIds();
 }
 
 /// <inheritdoc/>
@@ -65,12 +65,12 @@ internal sealed class AssemblyCSharpDataCollector : IAssemblyCSharpDataCollector
         return data.ToArray();
     }
 
-    public Dictionary<int, MethodDefinition> GetEventControlEvents()
+    public IList<int> GetEventControlEventsIds()
     {
-        return _assemblyData.EventControlType
-            .Methods
+        return _assemblyData.EventControlType.Methods
             .Where(m => m.Name is not null && m.Name.Value.StartsWith("Event"))
-            .ToDictionary(m => int.Parse(m.Name!.Value[5..]), m => m);
+            .Select(m => int.Parse(m.Name!.Value[5..]))
+            .ToList();
     }
 
     [MemberNotNull(nameof(_assemblyData))]

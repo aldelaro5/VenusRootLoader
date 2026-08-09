@@ -30,8 +30,7 @@ internal sealed class AnimIdsCollector : IBaseGameCollector
     {
         for (int i = 0; i < _animIdNamedIds.Length; i++)
         {
-            string itemNamedId = _animIdNamedIds[i];
-            AnimIdLeaf animIdLeaf = _animIdsRegistry.RegisterExisting(i, itemNamedId);
+            AnimIdLeaf animIdLeaf = _animIdsRegistry.RegisterExisting(i, _animIdNamedIds[i]);
             _animIdTextAssetParser.FromTextAssetSerializedString(
                 TextAssetPaths.DataAnimIdsPath,
                 _animIdsData[i],

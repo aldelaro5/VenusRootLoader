@@ -1,4 +1,3 @@
-using AsmResolver.DotNet;
 using Microsoft.Extensions.Logging;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
@@ -23,11 +22,10 @@ internal sealed class EventCollector : IBaseGameCollector
 
     public void CollectBaseGameData()
     {
-        // TODO: Should be a List<int> instead
-        Dictionary<int, MethodDefinition> eventMethods = _assemblyCSharpDataCollector.GetEventControlEvents();
-        foreach (KeyValuePair<int, MethodDefinition> kvpEventMethod in eventMethods)
-            _eventsRegistry.RegisterExisting(kvpEventMethod.Key, kvpEventMethod.Key.ToString());
+        IList<int> eventIds = _assemblyCSharpDataCollector.GetEventControlEventsIds();
+        foreach (int eventId in eventIds)
+            _eventsRegistry.RegisterExisting(eventId, eventId.ToString());
 
-        RootCollector.LogCollectedAmount(_logger, _eventsRegistry, eventMethods.Count);
+        RootCollector.LogCollectedAmount(_logger, _eventsRegistry, eventIds.Count);
     }
 }

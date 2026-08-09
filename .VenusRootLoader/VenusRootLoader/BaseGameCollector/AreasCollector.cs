@@ -61,7 +61,7 @@ internal sealed class AreasCollector : IBaseGameCollector
         RootCollector.LogCollectedAmount(_logger, _areasRegistry, areasAmount);
     }
 
-    // In order to collect the map positions on the <see cref="PauseMenu"/>, we need to seek them in <see cref="PauseMenu.MapSetup"/>.
+    // In order to collect the map positions on the PauseMenu, we need to seek them in PauseMenu.MapSetup.
     // This method contains a switch on the area's game id that will assign the position to render the area on the map.
     private void CollectMapPositions()
     {

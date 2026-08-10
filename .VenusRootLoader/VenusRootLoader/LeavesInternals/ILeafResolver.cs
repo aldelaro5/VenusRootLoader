@@ -3,9 +3,18 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.LeavesInternals;
 
+/// <summary>
+/// A scheme to resolve a <see cref="Leaf"/> from a <see cref="Branch{TLeaf}"/>.
+/// </summary>
+/// <typeparam name="TLeaf">The type of leaf this resolver resolves.</typeparam>
 internal interface ILeafResolver<TLeaf> : ILeafId
     where TLeaf : Leaf
 {
+    /// <summary>
+    /// Obtains the leaf referenced by this resolver.
+    /// </summary>
+    /// <returns>The leaf if it exists.</returns>
+    /// <exception cref="System.ArgumentException">Thrown if the leaf does not exists.</exception>
     TLeaf Resolve();
 }
 

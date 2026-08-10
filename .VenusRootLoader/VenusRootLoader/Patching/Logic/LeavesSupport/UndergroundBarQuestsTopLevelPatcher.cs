@@ -3,7 +3,7 @@ using System.Reflection.Emit;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
 
-namespace VenusRootLoader.Patching.Logic;
+namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 
 /// <summary>
 /// This patcher adds support for allowing <see cref="QuestLeaf"/> to decide if they should only be visible on the board at the UndergroundBar.

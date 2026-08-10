@@ -4,7 +4,7 @@ using System.Reflection.Emit;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
 
-namespace VenusRootLoader.Patching.Logic;
+namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 
 /// <summary>
 /// This patcher adds support for a variable amount of <see cref="EnemyLeaf"/> to exist in the game by patching the amount

@@ -4,7 +4,7 @@ using System.Reflection.Emit;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
 
-namespace VenusRootLoader.Patching.Logic;
+namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 
 /// <summary>
 /// This patcher adds support for allowing <see cref="EnemyLeaf"/> to decide if they should be considered rare Spy Data when talking to Tattl.

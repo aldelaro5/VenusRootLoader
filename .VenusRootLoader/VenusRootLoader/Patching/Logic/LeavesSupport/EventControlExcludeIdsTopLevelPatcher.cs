@@ -4,7 +4,7 @@ using System.Reflection.Emit;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
 
-namespace VenusRootLoader.Patching.Logic;
+namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 
 /// <summary>
 /// This patcher allows the <see cref="EnemyLeaf"/> registry to reflect which one is excluded or included in the bestiary when speaking to Tattl (event 65).

@@ -2,7 +2,7 @@ using HarmonyLib;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
 
-namespace VenusRootLoader.Patching.Logic;
+namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 
 /// <summary>
 /// This patcher adds support for allowing <see cref="MusicLeaf"/> to decide if they should be purchasable from Samira.

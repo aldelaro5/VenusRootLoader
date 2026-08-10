@@ -6,7 +6,7 @@ using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Api.Leaves.MapEntities;
 using VenusRootLoader.Registry;
 
-namespace VenusRootLoader.Patching.Logic;
+namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 
 internal sealed class PathNodesActionBehaviorsTopLevelPatcher : ITopLevelPatcher
 {

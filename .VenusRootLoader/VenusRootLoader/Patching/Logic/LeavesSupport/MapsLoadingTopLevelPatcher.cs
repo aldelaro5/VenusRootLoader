@@ -7,7 +7,7 @@ using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 using Object = UnityEngine.Object;
 
-namespace VenusRootLoader.Patching.Logic;
+namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 
 /// <summary>
 /// This patcher allows to load base game and custom maps by not just redirecting the prefab from the resources, but also

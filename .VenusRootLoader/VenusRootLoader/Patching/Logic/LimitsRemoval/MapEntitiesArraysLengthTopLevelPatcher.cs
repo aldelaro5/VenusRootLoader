@@ -4,7 +4,7 @@ using System.Reflection.Emit;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
 
-namespace VenusRootLoader.Patching.Logic;
+namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 
 /// <summary>
 /// This patcher adds support for a variable amount of elements in array data present on map entities to exist in the game.

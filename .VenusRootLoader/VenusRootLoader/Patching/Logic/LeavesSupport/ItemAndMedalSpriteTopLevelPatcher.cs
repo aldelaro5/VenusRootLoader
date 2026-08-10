@@ -3,7 +3,7 @@ using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
 
-namespace VenusRootLoader.Patching.Logic;
+namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 
 /// <summary>
 /// This patcher adds custom sprites support for <see cref="ItemLeaf"/> and <see cref="MedalLeaf"/>.

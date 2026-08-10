@@ -2,7 +2,7 @@ using HarmonyLib;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace VenusRootLoader.Patching.Logic;
+namespace VenusRootLoader.Patching.Logic.BaseGameFixes;
 
 /// <summary>
 /// This patcher improves the memory allocation performance of the game by changing <see cref="MainManager.CheckIfCanExist"/>

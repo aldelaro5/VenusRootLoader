@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
 
-namespace VenusRootLoader.Patching.Logic;
+namespace VenusRootLoader.Patching.Logic.BaseGameFixes;
 
 /// <summary>
 /// This patcher fixes a base game issue where the <see cref="EntityControl.lastpos"/> of an entity with <see cref="EntityControl.iskill"/>

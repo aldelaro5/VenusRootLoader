@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using VenusRootLoader.Api.Leaves;
 
-namespace VenusRootLoader.Patching.Logic.LeavesSupport;
+namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 
 /// <summary>
 /// This patcher allows <see cref="EnemyLeaf"/> to have short spy dialogues textboxes be rendered on the PauseMenu.

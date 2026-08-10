@@ -6,6 +6,21 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 
+/// <summary>
+/// This patcher adds support for custom medal shops including support for base game save loading and a flag to indicate
+/// all the stock was bought.
+/// <p>
+/// It patches the following:
+/// <list type="bullet">
+/// <item><see cref="MainManager.SetVariables"/>: Changes the hardcoded medal shops amount so it picks the one from the
+/// registry if it exceeds the base game one.</item>
+/// <item><see cref="MainManager.Load"/>: Changes the logic that determines how medal shops medals should be loaded,
+/// see the comment below for details.</item>
+/// <item><see cref="MainManager.EndOfMessage"/>: Updates the bought all flags of medal shops in the registry.</item>
+/// <item><see cref="MainManager.SetUpBadges"/>: Defaults the stock of each medal shops to their starting stock in the registry.</item>
+/// </list>
+/// </p>
+/// </summary>
 internal sealed class MedalShopsTopLevelPatcher : ITopLevelPatcher
 {
     private readonly IHarmonyTypePatcher _harmonyTypePatcher;
@@ -100,7 +115,7 @@ internal sealed class MedalShopsTopLevelPatcher : ITopLevelPatcher
 
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(MainManager), nameof(MainManager.EndOfMessage))]
-    internal static IEnumerable<CodeInstruction> PatchLogicForSettingMedalShipsBoughtAllStockFlags(
+    internal static IEnumerable<CodeInstruction> PatchLogicForSettingMedalShopsBoughtAllStockFlags(
         IEnumerable<CodeInstruction> instructions,
         ILGenerator generator)
     {

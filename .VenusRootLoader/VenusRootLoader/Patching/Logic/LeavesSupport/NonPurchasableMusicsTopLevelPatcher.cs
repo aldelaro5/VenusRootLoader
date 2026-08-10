@@ -10,7 +10,8 @@ namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 /// It patches the following:
 /// <list type="bullet">
 /// <item><see cref="MainManager.FixSamira"/>: Replaces the entire method to remove the non-purchasable music from our registry.</item>
-/// <item><see cref="MainManager.SamiraGotAll"/>: Replaces the entire method to consult the registry to determine if every purchasable music were obtained.</item>
+/// <item><see cref="MainManager.SamiraGotAll"/>: Replaces the entire method to consult the registry to determine if
+/// every purchasable music were obtained.</item>
 /// </list>
 /// </p>
 /// </summary>

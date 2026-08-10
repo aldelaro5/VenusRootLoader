@@ -12,8 +12,10 @@ namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 /// It patches the following:
 /// <list type="bullet">
 /// <item><see cref="MainManager.SetVariables"/>: Changes the hardcoded length of <see cref="MainManager.crystalbflags"/>.</item>
-/// <item><see cref="MainManager.Load"/>: Changes the length of <see cref="MainManager.crystalbflags"/> such that it picks the length of the registry if it exceeds the one read on the save file.</item>
-/// <item><see cref="MainManager.CheckAchievement"/>: Changes the amount of needed <see cref="MainManager.crystalbflags"/> to be true for the Crystal Berries record to be unlocked.</item>
+/// <item><see cref="MainManager.Load"/>: Changes the length of <see cref="MainManager.crystalbflags"/> such that it
+/// picks the length of the registry if it exceeds the one read on the save file.</item>
+/// <item><see cref="MainManager.CheckAchievement"/>: Changes the amount of needed <see cref="MainManager.crystalbflags"/>
+/// to be true for the Crystal Berries record to be unlocked.</item>
 /// </list>
 /// </p>
 /// </summary>

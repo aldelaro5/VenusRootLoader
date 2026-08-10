@@ -7,7 +7,8 @@ using VenusRootLoader.Registry;
 namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 
 /// <summary>
-/// This patcher adds support for allowing <see cref="EnemyLeaf"/> to decide if they should be considered rare Spy Data when talking to Tattl.
+/// This patcher adds support for allowing <see cref="EnemyLeaf"/> to decide if they should be considered rare Spy Data
+/// when talking to Tattl.
 /// <p>
 /// It patches the following:
 /// <list type="bullet">

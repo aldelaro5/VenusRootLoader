@@ -13,7 +13,8 @@ namespace VenusRootLoader.Patching.Logic.BaseGameFixes;
 /// <p>
 /// It patches the following:
 /// <list type="bullet">
-/// <item><see cref="NPCControl.LateUpdate"/>: Sets the <see cref="EntityControl.lastpos"/> of the entity to its transform position after it gets set.</item>
+/// <item><see cref="NPCControl.LateUpdate"/>: Sets the <see cref="EntityControl.lastpos"/> of the entity to its
+/// transform position after it gets set.</item>
 /// </list>
 /// </p>
 /// </summary>

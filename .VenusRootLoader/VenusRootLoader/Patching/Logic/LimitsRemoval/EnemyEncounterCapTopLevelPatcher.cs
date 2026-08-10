@@ -12,8 +12,10 @@ namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 /// <p>
 /// It patches the following:
 /// <list type="bullet">
-/// <item><see cref="MainManager.SetVariables"/>: Changes the hardcoded length 0 of <see cref="MainManager.enemyencounter"/> so it picks the one from the registry if it exceeds the base game one.</item>
-/// <item><see cref="MainManager.Load"/>: Changes the length 0 of <see cref="MainManager.enemyencounter"/> such that it picks the length of the registry if it exceeds the one read on the save file.</item>
+/// <item><see cref="MainManager.SetVariables"/>: Changes the hardcoded length 0 of <see cref="MainManager.enemyencounter"/>
+/// so it picks the one from the registry if it exceeds the base game one.</item>
+/// <item><see cref="MainManager.Load"/>: Changes the length 0 of <see cref="MainManager.enemyencounter"/> such that it
+/// picks the length of the registry if it exceeds the one read on the save file.</item>
 /// </list>
 /// </p>
 /// </summary>

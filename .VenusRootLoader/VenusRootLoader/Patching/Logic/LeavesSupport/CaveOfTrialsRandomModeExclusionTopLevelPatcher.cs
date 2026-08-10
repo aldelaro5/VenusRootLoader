@@ -11,7 +11,8 @@ namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 /// <p>
 /// It patches the following:
 /// <list type="bullet">
-/// <item><see cref="EventControl.GetRandomEnemy"/>: Replaces a while loop condition to only reject enemy game ids that the registry says to exclude.</item>
+/// <item><see cref="EventControl.GetRandomEnemy"/>: Replaces a while loop condition to only reject enemy game ids that
+/// the registry says to exclude.</item>
 /// </list>
 /// </p>
 /// </summary>

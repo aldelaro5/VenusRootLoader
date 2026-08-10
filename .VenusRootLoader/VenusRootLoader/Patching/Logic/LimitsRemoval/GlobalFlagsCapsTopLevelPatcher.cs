@@ -7,12 +7,15 @@ using VenusRootLoader.Registry;
 namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 
 /// <summary>
-/// This patcher adds support for a variable amount of <see cref="FlagLeaf"/>, <see cref="FlagvarLeaf"/> and <see cref="FlagstringLeaf"/> to exist in the game.
+/// This patcher adds support for a variable amount of <see cref="FlagLeaf"/>, <see cref="FlagvarLeaf"/> and
+/// <see cref="FlagstringLeaf"/> to exist in the game.
 /// <p>
 /// It patches the following:
 /// <list type="bullet">
-/// <item><see cref="MainManager.SetVariables"/>: Changes the hardcoded length of <see cref="MainManager.flags"/>, <see cref="MainManager.flagvar"/> and <see cref="MainManager.flagstring"/>.</item>
-/// <item><see cref="MainManager.Load"/>: Changes the hardcoded length of <see cref="MainManager.flags"/>, <see cref="MainManager.flagvar"/> and <see cref="MainManager.flagstring"/>.</item>
+/// <item><see cref="MainManager.SetVariables"/>: Changes the hardcoded length of <see cref="MainManager.flags"/>,
+/// <see cref="MainManager.flagvar"/> and <see cref="MainManager.flagstring"/>.</item>
+/// <item><see cref="MainManager.Load"/>: Changes the hardcoded length of <see cref="MainManager.flags"/>,
+/// <see cref="MainManager.flagvar"/> and <see cref="MainManager.flagstring"/>.</item>
 /// </list>
 /// </p>
 /// </summary>

@@ -12,7 +12,8 @@ namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 /// <p>
 /// It patches the following:
 /// <list type="bullet">
-/// <item><see cref="PauseMenu.MapSetup"/>: Replaces a switch to determine an area's position on the mapo with our own method based on the registry.</item>
+/// <item><see cref="PauseMenu.MapSetup"/>: Replaces a switch to determine an area's position on the mapo with our own
+/// method based on the registry.</item>
 /// </list>
 /// </p>
 /// </summary>

@@ -6,12 +6,15 @@ using VenusRootLoader.Registry;
 namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 
 /// <summary>
-/// This patcher adds support for allowing <see cref="QuestLeaf"/> to decide if they should only be visible on the board at the UndergroundBar.
+/// This patcher adds support for allowing <see cref="QuestLeaf"/> to decide if they should only be visible on the board
+/// at the UndergroundBar.
 /// <p>
 /// It patches the following:
 /// <list type="bullet">
-/// <item><see cref="MainManager.GetQuestsBoard"/>: Changes the list of quests game ids that are only visible at the UndergroundBar's baord.</item>
-/// <item><see cref="MainManager.ChangeBoardQuest(int, int)"/>: Prevents UndergroundBar exclusive quests from setting the all quests checked flag to false (flag 2).</item>
+/// <item><see cref="MainManager.GetQuestsBoard"/>: Changes the list of quests game ids that are only visible at the
+/// UndergroundBar's baord.</item>
+/// <item><see cref="MainManager.ChangeBoardQuest(int, int)"/>: Prevents UndergroundBar exclusive quests from setting
+/// the all quests checked flag to false (flag 2).</item>
 /// </list>
 /// </p>
 /// </summary>

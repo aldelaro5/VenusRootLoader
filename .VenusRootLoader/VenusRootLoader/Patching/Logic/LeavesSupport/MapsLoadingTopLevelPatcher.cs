@@ -20,7 +20,8 @@ namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 /// <p>
 /// It patches the following:
 /// <list type="bullet">
-/// <item><see cref="MainManager.LoadMap(int)"/>: Replace both the Resources.Load and Instantiate call to let us return our own map prefab.</item>
+/// <item><see cref="MainManager.LoadMap(int)"/>: Replace both the Resources.Load and Instantiate call to let us return
+/// our own map prefab.</item>
 /// </list>
 /// </p>
 /// </summary>

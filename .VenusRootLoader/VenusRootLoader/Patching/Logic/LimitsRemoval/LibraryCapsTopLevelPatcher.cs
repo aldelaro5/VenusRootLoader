@@ -19,9 +19,12 @@ namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 /// <p>
 /// It patches the following:
 /// <list type="bullet">
-/// <item><see cref="MainManager.SetVariables"/>: Changes the hardcoded length 1 of <see cref="MainManager.librarydata"/> to be the largest number needed to accomodate all 5 registries.</item>
-/// <item><see cref="MainManager.Load"/>: Changes the hardcoded length 1 of <see cref="MainManager.librarystuff"/> to be the largest number needed to accomodate all 5 registries.</item>
-/// <item><see cref="MainManager()"/>: Changes the hardcoded values of <see cref="MainManager.librarylimit"/> to match the amounts in the 5 registries.</item>
+/// <item><see cref="MainManager.SetVariables"/>: Changes the hardcoded length 1 of <see cref="MainManager.librarydata"/>
+/// to be the largest number needed to accomodate all 5 registries.</item>
+/// <item><see cref="MainManager.Load"/>: Changes the hardcoded length 1 of <see cref="MainManager.librarystuff"/> to be
+/// the largest number needed to accomodate all 5 registries.</item>
+/// <item><see cref="MainManager()"/>: Changes the hardcoded values of <see cref="MainManager.librarylimit"/> to match
+/// the amounts in the 5 registries.</item>
 /// </list>
 /// </p>
 /// </summary>

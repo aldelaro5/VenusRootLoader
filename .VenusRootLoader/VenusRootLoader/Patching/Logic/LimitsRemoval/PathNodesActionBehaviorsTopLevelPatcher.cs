@@ -8,6 +8,21 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 
+/// <summary>
+/// This patcher redirects the use of <see cref="NPCControl.vectordata"/> for <see cref="NPCControl.ActionBehaviors.SetPath"/>
+/// or <see cref="NPCControl.ActionBehaviors.StealthAI"/> to instead use a list we control that's stored on the corresponding
+/// <see cref="MapEntityLeaf"/>. This is necessary to support combinations such as an Enemy with SetPath that can also drop items.
+/// <p>
+/// It patches the following:
+/// <list type="bullet">
+/// <item><see cref="NPCControl.DoBehavior(ref NPCControl.ActionBehaviors, float)"/>: For
+/// <see cref="NPCControl.ActionBehaviors.SetPath"/> or <see cref="NPCControl.ActionBehaviors.StealthAI"/> behaviors,
+/// pulls the list in the registry instead of using <see cref="NPCControl.vectordata"/>.</item>
+/// <item><see cref="EntityControl.Death(bool)"/>: Removes a check that would normally prevent Enemy with
+/// <see cref="NPCControl.ActionBehaviors.SetPath"/> to drop items.</item>
+/// </list>
+/// </p>
+/// </summary>
 internal sealed class PathNodesActionBehaviorsTopLevelPatcher : ITopLevelPatcher
 {
     private readonly IHarmonyTypePatcher _harmonyTypePatcher;

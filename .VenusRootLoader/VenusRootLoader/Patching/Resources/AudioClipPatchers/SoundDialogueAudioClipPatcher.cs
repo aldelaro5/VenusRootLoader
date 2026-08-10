@@ -6,7 +6,7 @@ using VenusRootLoader.Utility;
 namespace VenusRootLoader.Patching.Resources.AudioClipPatchers;
 
 /// <summary>
-/// An <see cref="IAudioClipPatcher"/> that handles patching dialogue bleeps from the game.
+/// An <see cref="IAudioClipPatcher"/> that handles patching dialogue bleeps from the game using the <see cref="DialogueBleepLeaf"/> registry.
 /// </summary>
 internal sealed class SoundDialoguesAudioClipPatcher : IAudioClipPatcher
 {

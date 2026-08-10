@@ -15,6 +15,6 @@ internal interface IResourcesTypePatcher<TObject>
     /// </summary>
     /// <param name="path">The resources path the game requested the asset.</param>
     /// <param name="original">The original asset that would be returned if the patch wasn't present.</param>
-    /// <returns>The patched asset</returns>
+    /// <returns>The patched asset.</returns>
     TObject PatchResource(string path, TObject original);
 }

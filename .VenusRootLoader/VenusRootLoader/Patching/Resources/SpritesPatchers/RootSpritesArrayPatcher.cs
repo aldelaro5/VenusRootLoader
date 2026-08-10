@@ -12,8 +12,7 @@ internal sealed class RootSpritesArrayPatcher : IResourcesArrayTypePatcher<Sprit
     private readonly Dictionary<string, ISpriteArrayPatcher> _spriteArrayPatchers =
         new(StringComparer.OrdinalIgnoreCase);
 
-    public RootSpritesArrayPatcher(
-        IEnumerable<ISpriteArrayPatcher> spriteArrayPatchers)
+    public RootSpritesArrayPatcher(IEnumerable<ISpriteArrayPatcher> spriteArrayPatchers)
     {
         foreach (ISpriteArrayPatcher textAssetPatcher in spriteArrayPatchers)
         {

@@ -6,7 +6,7 @@ using VenusRootLoader.Utility;
 namespace VenusRootLoader.Patching.Resources.AudioClipPatchers;
 
 /// <summary>
-/// An <see cref="IAudioClipPatcher"/> that handles patching musics from the game.
+/// An <see cref="IAudioClipPatcher"/> that handles patching musics from the game using the <see cref="MusicLeaf"/> registry.
 /// </summary>
 internal sealed class MusicAudioClipPatcher : IAudioClipPatcher
 {
@@ -29,7 +29,7 @@ internal sealed class MusicAudioClipPatcher : IAudioClipPatcher
             .Replace("/", string.Empty);
         AudioClip music = _musicRegistry.GetByEffectiveId(clipName).Music.LoadAsset();
 
-        // This is important because the game may use the name to discover what musicc the AudioClip is playing.
+        // This is important because the game may use the name to discover what music the AudioClip is playing.
         music.name = clipName;
         return music;
     }

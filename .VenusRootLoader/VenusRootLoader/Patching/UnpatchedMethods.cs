@@ -3,6 +3,9 @@ using Object = UnityEngine.Object;
 
 namespace VenusRootLoader.Patching;
 
+/// <summary>
+/// Stubs of patched game methods that do not have any patches applied to them.
+/// </summary>
 internal static class UnpatchedMethods
 {
     [HarmonyReversePatch]

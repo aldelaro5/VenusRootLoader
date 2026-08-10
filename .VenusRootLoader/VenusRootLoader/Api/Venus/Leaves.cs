@@ -1,5 +1,7 @@
+using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Api.Leaves.MapEntities;
+using VenusRootLoader.Api.Unity;
 using VenusRootLoader.Registry;
 
 // ReSharper disable CheckNamespace
@@ -14,6 +16,7 @@ public partial class Venus
     public EnemyLeaf RegisterSpyableEnemy(
         string namedId,
         Branch<AnimIdLeaf> entityAnimId,
+        IAssetLoader<Sprite> portraitSprite,
         MainManager.Enemies? orderAfterInBestiary,
         int orderPriorityInBestiary)
     {
@@ -24,6 +27,7 @@ public partial class Venus
             orderPriorityInBestiary);
         enemyLeaf.CanBeSpied = true;
         enemyLeaf.EntityAnimId = entityAnimId;
+        enemyLeaf.PortraitSprite = portraitSprite;
         return enemyLeaf;
     }
 
@@ -40,6 +44,8 @@ public partial class Venus
     public SpyCardLeaf RegisterSpyCard(
         string namedId,
         Branch<EnemyLeaf> enemy,
+        int tpCost,
+        CardGame.Type type,
         MainManager.Enemies? orderAfter,
         int orderPriority)
     {
@@ -61,7 +67,7 @@ public partial class Venus
             BudId,
             gameIdOrderAfter,
             orderPriority);
-        leaf.InitializeFromNew(enemy);
+        leaf.InitializeFromNew(enemy, tpCost, type);
         return leaf;
     }
 

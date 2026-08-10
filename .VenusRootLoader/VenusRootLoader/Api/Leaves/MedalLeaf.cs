@@ -33,5 +33,15 @@ public sealed class MedalLeaf : Leaf
     public int BuyingPriceCrystalBerries { get; set; }
     public LocalizedData<MedalLanguageData> LocalizedData { get; } = new();
 
-    public IAssetLoader<Sprite> Sprite { get; set; }
+    public IAssetLoader<Sprite> Sprite { get; set; } = null!;
+
+    [LeafInitializeFromNew]
+    internal void InitializeFromNew(
+        IAssetLoader<Sprite> sprite,
+        int mpCost,
+        bool isPartyEquip)
+    {
+        Sprite = sprite;
+        IsPartyEquip = isPartyEquip;
+    }
 }

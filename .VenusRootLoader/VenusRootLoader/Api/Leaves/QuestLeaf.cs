@@ -26,7 +26,7 @@ public sealed class QuestLeaf : Leaf, IEnemyPortraitSprite
     }
 
     int? IEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }
-    IAssetLoader<Sprite> IEnemyPortraitSprite.PortraitSprite { get; set; }
+    IAssetLoader<Sprite> IEnemyPortraitSprite.PortraitSprite { get; set; } = null!;
 
     public IAssetLoader<Sprite> PortraitSprite
     {
@@ -40,4 +40,10 @@ public sealed class QuestLeaf : Leaf, IEnemyPortraitSprite
     public List<Branch<FlagLeaf>> RequiredFlags { get; } = new();
     public List<Branch<AreaLeaf>> RequiredSeenAreas { get; } = new();
     public bool CanOnlyBeTakenAtUndergroundBar { get; set; }
+
+    [LeafInitializeFromNew]
+    internal void InitializeFromNew(IAssetLoader<Sprite> portraitSprite)
+    {
+        PortraitSprite = portraitSprite;
+    }
 }

@@ -13,8 +13,11 @@ public sealed class MedalShopLeaf : Leaf
     public List<Branch<MedalLeaf>> StartingMedalsStock { get; } = new();
 
     [LeafInitializeFromNew]
-    internal void InitializeFromNew(Branch<FlagLeaf> boughtAllStockFlag)
+    internal void InitializeFromNew(
+        Branch<FlagLeaf> boughtAllStockFlag,
+        ICollection<Branch<MedalLeaf>> startingMedalsStock)
     {
         BoughtAllStockFlag = boughtAllStockFlag;
+        StartingMedalsStock.AddRange(startingMedalsStock);
     }
 }

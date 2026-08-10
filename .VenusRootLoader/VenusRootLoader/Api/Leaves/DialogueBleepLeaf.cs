@@ -9,5 +9,11 @@ public sealed class DialogueBleepLeaf : Leaf
 {
     internal DialogueBleepLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId) { }
 
-    public IAssetLoader<AudioClip> BleepSound { get; set; }
+    public IAssetLoader<AudioClip> BleepSound { get; set; } = null!;
+
+    [LeafInitializeFromNew]
+    internal void InitializeFromNew(IAssetLoader<AudioClip> bleepSound)
+    {
+        BleepSound = bleepSound;
+    }
 }

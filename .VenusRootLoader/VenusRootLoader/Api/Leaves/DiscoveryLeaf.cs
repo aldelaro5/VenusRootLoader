@@ -23,7 +23,7 @@ public sealed class DiscoveryLeaf : Leaf, IEnemyPortraitSprite
     internal DiscoveryLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId) { }
 
     int? IEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }
-    IAssetLoader<Sprite> IEnemyPortraitSprite.PortraitSprite { get; set; }
+    IAssetLoader<Sprite> IEnemyPortraitSprite.PortraitSprite { get; set; } = null!;
 
     public IAssetLoader<Sprite> PortraitSprite
     {
@@ -32,4 +32,10 @@ public sealed class DiscoveryLeaf : Leaf, IEnemyPortraitSprite
     }
 
     public LocalizedData<DiscoveryLanguageData> LocalizedData { get; } = new();
+
+    [LeafInitializeFromNew]
+    internal void InitializeFromNew(IAssetLoader<Sprite> portraitSprite)
+    {
+        PortraitSprite = portraitSprite;
+    }
 }

@@ -11,9 +11,15 @@ public sealed class MusicLeaf : Leaf
     {
     }
 
-    public IAssetLoader<AudioClip> Music { get; set; }
+    public IAssetLoader<AudioClip> Music { get; set; } = null!;
     public float? LoopEndTimestampInSeconds { get; set; }
     public float? LoopStartTimestampInSeconds { get; set; }
     public bool CanBePurchasedFromSamira { get; set; } = true;
     public LocalizedData<string> SamiraDisplayTitle { get; } = new();
+
+    [LeafInitializeFromNew]
+    internal void InitializeFromNew(IAssetLoader<AudioClip> music)
+    {
+        Music = music;
+    }
 }

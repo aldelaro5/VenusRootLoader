@@ -126,7 +126,7 @@ public class VenusLeafRegistryApiSourceGenerator : IIncrementalGenerator
                 {{orderAfterTypeName}}? orderAfter,
                 int orderPriority)
             {
-                {{leafTypeName}} leaf VenusRootLoader.Registry.RegistryResolver.ResolveWithOrdering<{{leafTypeName}}>().RegisterNewWithOrdering(
+                {{leafTypeName}} leaf = VenusRootLoader.Registry.RegistryResolver.ResolveWithOrdering<{{leafTypeName}}>().RegisterNewWithOrdering(
                     BudId,
                     namedId,
                     (int?)orderAfter,

@@ -36,8 +36,13 @@ public sealed class SpyCardLeaf : Leaf
     // TODO: Consider making this a leaf
     public List<CardGame.Tribe> Tribes { get; } = new();
 
-    internal void InitializeFromNew(Branch<EnemyLeaf> enemy)
+    internal void InitializeFromNew(
+        Branch<EnemyLeaf> enemy,
+        int tpCost,
+        CardGame.Type type)
     {
         Enemy = enemy;
+        TpCost = tpCost;
+        Type = type;
     }
 }

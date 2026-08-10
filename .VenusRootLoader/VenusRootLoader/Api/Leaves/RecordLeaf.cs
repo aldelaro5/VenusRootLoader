@@ -20,7 +20,7 @@ public sealed class RecordLeaf : Leaf, IEnemyPortraitSprite
     }
 
     int? IEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }
-    IAssetLoader<Sprite> IEnemyPortraitSprite.PortraitSprite { get; set; }
+    IAssetLoader<Sprite> IEnemyPortraitSprite.PortraitSprite { get; set; } = null!;
 
     public IAssetLoader<Sprite> PortraitSprite
     {
@@ -29,4 +29,10 @@ public sealed class RecordLeaf : Leaf, IEnemyPortraitSprite
     }
 
     public LocalizedData<RecordLanguageData> LocalizedData { get; } = new();
+
+    [LeafInitializeFromNew]
+    internal void InitializeFromNew(IAssetLoader<Sprite> portraitSprite)
+    {
+        PortraitSprite = portraitSprite;
+    }
 }

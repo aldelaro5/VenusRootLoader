@@ -28,8 +28,14 @@ public sealed class ItemLeaf : Leaf
     public List<ItemUse> Effects { get; } = new();
     public LocalizedData<ItemLanguageData> LocalizedData { get; } = new();
 
-    public IAssetLoader<Sprite> Sprite { get; set; }
+    public IAssetLoader<Sprite> Sprite { get; set; } = null!;
 
     public int BuyingPrice { get; set; }
     public BattleControl.AttackArea Target { get; set; }
+
+    [LeafInitializeFromNew]
+    internal void InitializeFromNew(IAssetLoader<Sprite> sprite)
+    {
+        Sprite = sprite;
+    }
 }

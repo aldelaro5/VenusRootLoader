@@ -14,8 +14,13 @@ public sealed class RecipeLeaf : Leaf
     public Branch<ItemLeaf> ResultItem { get; set; } = null!;
 
     [LeafInitializeFromNew]
-    internal void InitializeFromNew(Branch<ItemLeaf> resultItem)
+    internal void InitializeFromNew(
+        Branch<ItemLeaf> firstItem,
+        Branch<ItemLeaf>? secondItem,
+        Branch<ItemLeaf> resultItem)
     {
+        FirstItem = firstItem;
+        SecondItem = secondItem;
         ResultItem = resultItem;
     }
 }

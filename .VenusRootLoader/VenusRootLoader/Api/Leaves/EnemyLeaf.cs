@@ -48,7 +48,7 @@ public sealed class EnemyLeaf : Leaf, IEnemyPortraitSprite
     public LocalizedData<EnemyLanguageData> LocalizedData { get; } = new();
 
     int? IEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }
-    IAssetLoader<Sprite> IEnemyPortraitSprite.PortraitSprite { get; set; }
+    IAssetLoader<Sprite> IEnemyPortraitSprite.PortraitSprite { get; set; } = null!;
 
     public IAssetLoader<Sprite> PortraitSprite
     {

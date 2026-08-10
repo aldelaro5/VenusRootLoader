@@ -4,6 +4,18 @@ using VenusRootLoader.Persistence;
 
 namespace VenusRootLoader.Patching.Logic;
 
+/// <summary>
+/// This patcher implements VenusRootLoader's persistence system which allows data from the registry to be saved and loaded
+/// regardless if the leaves were custom or from the base game.
+/// <p>
+/// It patches the following:
+/// <list type="bullet">
+/// <item><see cref="MainManager.Load"/>: If VenusRootLoader has a save for the given slot, we load that one into the game,
+/// otherwise, we let the game load it as normal.</item>
+/// <item><see cref="MainManager.Save"/>: Completely replaces the method to use our persistence system instead.</item>
+/// </list>
+/// </p>
+/// </summary>
 internal sealed class SaveDataPersistenceTopLevelPatcher : ITopLevelPatcher
 {
     private readonly IHarmonyTypePatcher _harmonyTypePatcher;

@@ -63,7 +63,7 @@ internal sealed class MapEntitiesTextAssetPatcher : IMapEntityTextAssetPatcher
         else
         {
             // Here, the map game id is simply the asset's filename.
-            mapGameId = int.Parse(path.Substring(mapGameIdStart, path.Length - mapGameIdStart));
+            mapGameId = int.Parse(path.Substring(mapGameIdStart));
         }
 
         MapLeaf leaf = _mapsRegistry.GetByGameId(mapGameId);

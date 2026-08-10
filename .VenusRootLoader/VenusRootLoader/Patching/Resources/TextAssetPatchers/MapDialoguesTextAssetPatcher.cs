@@ -7,9 +7,7 @@ namespace VenusRootLoader.Patching.Resources.TextAssetPatchers;
 
 /// <summary>
 /// A patcher that handles patching localized line based <see cref="TextAsset"/> given that the resources path after
-/// the Dialogues directory starts with Maps. Maps dialogues aren't <see cref="Leaf"/> because there's multiple lines per
-/// <see cref="MapLeaf"/> and they belong to each map rather than exist independently. It assumes the specific naming
-/// structure of the maps dialogues <see cref="TextAsset"/>.
+/// the Dialogues directory starts with Maps. It assumes the specific naming structure of the maps dialogues <see cref="TextAsset"/>.
 /// </summary>
 internal interface IMapDialoguesTextAssetPatcher
 {

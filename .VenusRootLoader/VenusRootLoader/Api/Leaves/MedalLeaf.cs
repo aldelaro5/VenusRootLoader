@@ -36,12 +36,8 @@ public sealed class MedalLeaf : Leaf
     public IAssetLoader<Sprite> Sprite { get; set; } = null!;
 
     [LeafInitializeFromNew]
-    internal void InitializeFromNew(
-        IAssetLoader<Sprite> sprite,
-        int mpCost,
-        bool isPartyEquip)
+    internal void InitializeFromNew(IAssetLoader<Sprite> sprite)
     {
         Sprite = sprite;
-        IsPartyEquip = isPartyEquip;
     }
 }

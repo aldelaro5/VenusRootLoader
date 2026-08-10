@@ -306,11 +306,15 @@ public class VenusLeafRegistryApiSourceGenerator : IIncrementalGenerator
 
     private static void GenerateCode(SourceProductionContext context, ImmutableArray<VenusLeafApiInfo> leafTypeInfos)
     {
-        string venusSourceCode = VenusSourceCodeTemplate.Replace(
-            "{{methods}}",
-            string.Join("\n\n", leafTypeInfos.Select(BuildVenusRegistryApiMethodsSourceCode)));
-
-        context.AddSource("VenusLeafRegistryApi.g.cs", SourceText.From(venusSourceCode, Encoding.UTF8));
+        foreach (VenusLeafApiInfo info in leafTypeInfos)
+        {
+            string venusSourceCode = VenusSourceCodeTemplate.Replace(
+                "{{methods}}",
+                BuildVenusRegistryApiMethodsSourceCode(info));
+            context.AddSource(
+                $"Venus{info.LeafTypeInfo.LeafTypeName}.g.cs",
+                SourceText.From(venusSourceCode, Encoding.UTF8));
+        }
     }
 
     private static string BuildVenusRegistryApiMethodsSourceCode(VenusLeafApiInfo venusLeafApiInfo)

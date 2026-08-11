@@ -28,7 +28,7 @@ public sealed class SpyCardLeaf : Leaf
 
     public int TpCost { get; set; }
     public int Attack { get; set; }
-    public Branch<EnemyLeaf> Enemy { get; set; } = null!;
+    public Branch<HasEnemyLeaf> Enemy { get; set; } = null!;
     internal float UnusedHorizontalNameSize { get; set; } = 1.0f;
     public CardGame.Type Type { get; set; }
     public List<SpyCardEffect> Effects { get; } = new();
@@ -37,7 +37,7 @@ public sealed class SpyCardLeaf : Leaf
     public List<CardGame.Tribe> Tribes { get; } = new();
 
     internal void InitializeFromNew(
-        Branch<EnemyLeaf> enemy,
+        Branch<HasEnemyLeaf> enemy,
         int tpCost,
         CardGame.Type type)
     {

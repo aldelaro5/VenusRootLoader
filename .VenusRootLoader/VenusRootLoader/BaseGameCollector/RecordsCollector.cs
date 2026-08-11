@@ -59,10 +59,10 @@ internal sealed class RecordsCollector : IBaseGameCollector
         _recordsOrderingDataSerializer.FromTextAssetString(_recordsOrderingData, _orderedRegistry);
         foreach (RecordLeaf leaf in _orderedRegistry.Registry)
         {
-            IEnemyPortraitSprite enemyPortraitSprite = leaf;
-            enemyPortraitSprite.PortraitSprite = new AssetLoaderFromResources<Sprite>(
+            IHasEnemyPortraitSprite hasEnemyPortraitSprite = leaf;
+            hasEnemyPortraitSprite.PortraitSprite = new AssetLoaderFromResources<Sprite>(
                 ResourcesPaths.SpritesItemsEnemyPortraitsResourcesPath,
-                enemyPortraitSprite.EnemyPortraitsSpriteIndex!.Value);
+                hasEnemyPortraitSprite.EnemyPortraitsSpriteIndex!.Value);
         }
 
         RootCollector.LogCollectedAmount(_logger, _orderedRegistry.Registry, recordsAmount);

@@ -13,14 +13,13 @@ internal sealed class DiscoveryOrderingTextAssetParser : IOrderingTextAssetParse
         IReadOnlyCollection<DiscoveryLeaf> orderedLeaves = orderedRegistry.GetOrderedLeaves();
         return string.Join(
             "\n",
-            orderedLeaves.Select(l => $"{l.GameId},{((IEnemyPortraitSprite)l).EnemyPortraitsSpriteIndex!.Value}"));
+            orderedLeaves.Select(l => $"{l.GameId},{((IHasEnemyPortraitSprite)l).EnemyPortraitsSpriteIndex!.Value}"));
     }
 
     public void FromTextAssetString(string text, IOrderedLeavesRegistry<DiscoveryLeaf> orderedRegistry)
     {
         string[][] lines = text.Split('\n')
-            .Select(l => l
-                .Split(Utility.StringUtils.CommaSplitDelimiter))
+            .Select(l => l.Split(Utility.StringUtils.CommaSplitDelimiter))
             .ToArray();
 
         Dictionary<int, int> linesData = lines
@@ -29,8 +28,8 @@ internal sealed class DiscoveryOrderingTextAssetParser : IOrderingTextAssetParse
             .ToDictionary(data => data.GameId, data => data.EnemyPortraitIndex);
         for (int i = 0; i < linesData.Count; i++)
         {
-            ((IEnemyPortraitSprite)orderedRegistry.Registry.GetByGameId(i)).EnemyPortraitsSpriteIndex =
-                linesData[i];
+            IHasEnemyPortraitSprite hasEnemyPortraitSprite = orderedRegistry.Registry.GetByGameId(i);
+            hasEnemyPortraitSprite.EnemyPortraitsSpriteIndex = linesData[i];
         }
 
         orderedRegistry.SetBaseGameOrdering(linesData.Keys.ToArray());

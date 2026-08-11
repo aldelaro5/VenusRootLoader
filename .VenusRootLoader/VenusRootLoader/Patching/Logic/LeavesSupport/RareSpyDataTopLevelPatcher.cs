@@ -7,7 +7,7 @@ using VenusRootLoader.Registry;
 namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 
 /// <summary>
-/// This patcher adds support for allowing <see cref="EnemyLeaf"/> to decide if they should be considered rare Spy Data
+/// This patcher adds support for allowing <see cref="HasEnemyLeaf"/> to decide if they should be considered rare Spy Data
 /// when talking to Tattl.
 /// <p>
 /// It patches the following:
@@ -21,11 +21,11 @@ internal sealed class RareSpyDataTopLevelPatcher : ITopLevelPatcher
     private static RareSpyDataTopLevelPatcher _instance = null!;
 
     private readonly IHarmonyTypePatcher _harmonyTypePatcher;
-    private readonly ILeavesRegistry<EnemyLeaf> _enemiesRegistry;
+    private readonly ILeavesRegistry<HasEnemyLeaf> _enemiesRegistry;
 
     public RareSpyDataTopLevelPatcher(
         IHarmonyTypePatcher harmonyTypePatcher,
-        ILeavesRegistry<EnemyLeaf> enemiesRegistry)
+        ILeavesRegistry<HasEnemyLeaf> enemiesRegistry)
     {
         _instance = this;
         _harmonyTypePatcher = harmonyTypePatcher;

@@ -7,7 +7,7 @@ using VenusRootLoader.Registry;
 namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 
 /// <summary>
-/// This patcher adds support for a variable amount of <see cref="EnemyLeaf"/> to exist in the game by patching the amount
+/// This patcher adds support for a variable amount of <see cref="HasEnemyLeaf"/> to exist in the game by patching the amount
 /// of allowed <see cref="MainManager.enemyencounter"/> that is used so it can go beyond 256.
 /// <p>
 /// It patches the following:
@@ -22,13 +22,13 @@ namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 internal sealed class EnemyEncounterCapTopLevelPatcher : ITopLevelPatcher
 {
     private readonly IHarmonyTypePatcher _harmonyTypePatcher;
-    private readonly ILeavesRegistry<EnemyLeaf> _enemiesRegistry;
+    private readonly ILeavesRegistry<HasEnemyLeaf> _enemiesRegistry;
 
     private static EnemyEncounterCapTopLevelPatcher _instance = null!;
 
     public EnemyEncounterCapTopLevelPatcher(
         IHarmonyTypePatcher harmonyTypePatcher,
-        ILeavesRegistry<EnemyLeaf> enemiesRegistry)
+        ILeavesRegistry<HasEnemyLeaf> enemiesRegistry)
     {
         _instance = this;
         _harmonyTypePatcher = harmonyTypePatcher;

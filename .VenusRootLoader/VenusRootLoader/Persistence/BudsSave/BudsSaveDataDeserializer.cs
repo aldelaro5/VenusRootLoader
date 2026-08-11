@@ -14,7 +14,7 @@ internal sealed class BudsSaveDataDeserializer : IBudsSaveDataDeserializer
     private readonly ILeavesRegistry<MedalShopLeaf> _medalShopsLeafRegistry;
     private readonly ILeavesRegistry<MedalLeaf> _medalsLeafRegistry;
     private readonly ILeavesRegistry<DiscoveryLeaf> _discoveriesLeafRegistry;
-    private readonly ILeavesRegistry<EnemyLeaf> _enemiesLeafRegistry;
+    private readonly ILeavesRegistry<HasEnemyLeaf> _enemiesLeafRegistry;
     private readonly ILeavesRegistry<RecipeLibraryEntryLeaf> _recipeLibraryEntriesLeafRegistry;
     private readonly ILeavesRegistry<RecordLeaf> _recordsLeafRegistry;
     private readonly ILeavesRegistry<AreaLeaf> _areasLeafRegistry;
@@ -28,7 +28,7 @@ internal sealed class BudsSaveDataDeserializer : IBudsSaveDataDeserializer
         ILeavesRegistry<MedalShopLeaf> medalShopsLeafRegistry,
         ILeavesRegistry<MedalLeaf> medalsLeafRegistry,
         ILeavesRegistry<DiscoveryLeaf> discoveriesLeafRegistry,
-        ILeavesRegistry<EnemyLeaf> enemiesLeafRegistry,
+        ILeavesRegistry<HasEnemyLeaf> enemiesLeafRegistry,
         ILeavesRegistry<RecipeLibraryEntryLeaf> recipeLibraryEntriesLeafRegistry,
         ILeavesRegistry<RecordLeaf> recordsLeafRegistry,
         ILeavesRegistry<AreaLeaf> areasLeafRegistry,
@@ -77,7 +77,7 @@ internal sealed class BudsSaveDataDeserializer : IBudsSaveDataDeserializer
         LoadDictionarySaveDataMatchingLeaves(
             allBudsSaveData.Enemies,
             _enemiesLeafRegistry,
-            nameof(EnemyLeaf),
+            nameof(HasEnemyLeaf),
             stagingLoadData,
             (loadData, _) =>
             {

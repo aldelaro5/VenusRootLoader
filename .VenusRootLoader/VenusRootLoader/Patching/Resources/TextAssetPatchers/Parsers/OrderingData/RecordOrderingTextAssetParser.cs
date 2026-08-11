@@ -13,7 +13,7 @@ internal sealed class RecordOrderingTextAssetParser : IOrderingTextAssetParser<R
         IReadOnlyCollection<RecordLeaf> orderedLeaves = orderedRegistry.GetOrderedLeaves();
         return string.Join(
             "\n",
-            orderedLeaves.Select(l => $"{l.GameId},{((IEnemyPortraitSprite)l).EnemyPortraitsSpriteIndex!.Value}"));
+            orderedLeaves.Select(l => $"{l.GameId},{((IHasEnemyPortraitSprite)l).EnemyPortraitsSpriteIndex!.Value}"));
     }
 
     public void FromTextAssetString(string text, IOrderedLeavesRegistry<RecordLeaf> orderedRegistry)
@@ -29,7 +29,7 @@ internal sealed class RecordOrderingTextAssetParser : IOrderingTextAssetParser<R
             .ToDictionary(data => data.GameId, data => data.EnemyPortraitIndex);
         for (int i = 0; i < linesData.Count; i++)
         {
-            ((IEnemyPortraitSprite)orderedRegistry.Registry.GetByGameId(i)).EnemyPortraitsSpriteIndex =
+            ((IHasEnemyPortraitSprite)orderedRegistry.Registry.GetByGameId(i)).EnemyPortraitsSpriteIndex =
                 linesData[i];
         }
 

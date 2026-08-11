@@ -22,7 +22,8 @@ public sealed class BudsSaveDataDeserializerTests
     private readonly ILeavesRegistry<DiscoveryLeaf> _discoveriesLeafRegistry =
         Substitute.For<ILeavesRegistry<DiscoveryLeaf>>();
 
-    private readonly ILeavesRegistry<EnemyLeaf> _enemiesLeafRegistry = Substitute.For<ILeavesRegistry<EnemyLeaf>>();
+    private readonly ILeavesRegistry<HasEnemyLeaf> _enemiesLeafRegistry =
+        Substitute.For<ILeavesRegistry<HasEnemyLeaf>>();
 
     private readonly ILeavesRegistry<RecipeLibraryEntryLeaf> _recipeLibraryEntriesLeafRegistry =
         Substitute.For<ILeavesRegistry<RecipeLibraryEntryLeaf>>();
@@ -365,7 +366,7 @@ public sealed class BudsSaveDataDeserializerTests
         FakeLogRecord logRecord = _logger.LatestRecord;
         logRecord.Level.Should().Be(LogLevel.Warning);
         logRecord.Message.Should().Be(
-            $"The {nameof(EnemyLeaf)} named {namedId} created by {budId} does not exists in the registry. " +
+            $"The {nameof(HasEnemyLeaf)} named {namedId} created by {budId} does not exists in the registry. " +
             "It will be skipped, but the save will still be loaded.");
     }
 
@@ -375,7 +376,7 @@ public sealed class BudsSaveDataDeserializerTests
         string budId = "bud1";
         string namedId = "CustomEnemy";
 
-        List<EnemyLeaf> medalShopLeaves = new() { new(0, budId, namedId) };
+        List<HasEnemyLeaf> medalShopLeaves = new() { new(0, budId, namedId) };
         TestUtility.MockRegistry(_enemiesLeafRegistry, medalShopLeaves);
 
         StagingLoadData stagingLoadData = new();
@@ -389,7 +390,7 @@ public sealed class BudsSaveDataDeserializerTests
         FakeLogRecord logRecord = _logger.LatestRecord;
         logRecord.Level.Should().Be(LogLevel.Warning);
         logRecord.Message.Should().Be(
-            $"The {nameof(EnemyLeaf)} named {namedId} created by {budId} wasn't found in any of the buds save data. " +
+            $"The {nameof(HasEnemyLeaf)} named {namedId} created by {budId} wasn't found in any of the buds save data. " +
             "It will be loaded with default data.");
     }
 
@@ -950,7 +951,7 @@ public sealed class BudsSaveDataDeserializerTests
         };
         TestUtility.MockRegistry(_discoveriesLeafRegistry, discoveryLeaves);
 
-        List<EnemyLeaf> enemyLeaves = new()
+        List<HasEnemyLeaf> enemyLeaves = new()
         {
             new(0, Constants.BaseGameCreatorId, nameof(MainManager.Enemies.CordycepsAnt)),
             new(1, budId2, "CustomEnemy")

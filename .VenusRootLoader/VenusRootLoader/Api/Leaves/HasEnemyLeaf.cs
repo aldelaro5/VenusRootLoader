@@ -7,7 +7,7 @@ namespace VenusRootLoader.Api.Leaves;
 
 // TODO: Should we involve polymorphism to split spyable vs non spyable?
 [ExposeFromVenus(null, false)]
-public sealed class EnemyLeaf : Leaf, IEnemyPortraitSprite
+public sealed class HasEnemyLeaf : Leaf, IHasEnemyPortraitSprite
 {
     private const int DeathTypeKoWithReserveDuplicateId = 4;
 
@@ -43,17 +43,17 @@ public sealed class EnemyLeaf : Leaf, IEnemyPortraitSprite
         public string MothSpyDialogue { get; set; } = "mothtattle";
     }
 
-    internal EnemyLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId) { }
+    internal HasEnemyLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId) { }
 
     public LocalizedData<EnemyLanguageData> LocalizedData { get; } = new();
 
-    int? IEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }
-    IAssetLoader<Sprite> IEnemyPortraitSprite.PortraitSprite { get; set; } = null!;
+    int? IHasEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }
+    IAssetLoader<Sprite> IHasEnemyPortraitSprite.PortraitSprite { get; set; } = null!;
 
     public IAssetLoader<Sprite> PortraitSprite
     {
-        get => ((IEnemyPortraitSprite)this).PortraitSprite;
-        set => ((IEnemyPortraitSprite)this).PortraitSprite = value;
+        get => ((IHasEnemyPortraitSprite)this).PortraitSprite;
+        set => ((IHasEnemyPortraitSprite)this).PortraitSprite = value;
     }
 
     public bool CanBeSpied { get; internal set; } = true;
@@ -78,7 +78,7 @@ public sealed class EnemyLeaf : Leaf, IEnemyPortraitSprite
     public List<BattleControl.AttackProperty> Properties { get; } = new();
     public float Weight { get; set; }
 
-    public Branch<EnemyLeaf>? BaseEnemyId { get; internal set; }
+    public Branch<HasEnemyLeaf>? BaseEnemyId { get; internal set; }
 
     // TODO: Make a leaf for this
     public int? EventDialogueIdOnDeath { get; set; }
@@ -99,7 +99,7 @@ public sealed class EnemyLeaf : Leaf, IEnemyPortraitSprite
         set => InternalDeathType = (int)value;
     }
 
-    public List<Branch<EnemyLeaf>> EnemiesWhoTriggerHitActionWhenDamaged { get; } = new();
+    public List<Branch<HasEnemyLeaf>> EnemiesWhoTriggerHitActionWhenDamaged { get; } = new();
     public int HardModeAttackIncrease { get; set; }
     public int HardModeBaseMaxHpIncrease { get; set; }
     public int HardModeBaseDefenseIncrease { get; set; }

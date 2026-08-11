@@ -7,13 +7,13 @@ using VenusRootLoader.Registry;
 namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 
 /// <summary>
-/// This patcher allows the <see cref="EnemyLeaf"/> registry to reflect which one is excluded or included in the
+/// This patcher allows the <see cref="HasEnemyLeaf"/> registry to reflect which one is excluded or included in the
 /// bestiary when speaking to Tattl (event 65).
 /// <p>
 /// It patches the following:
 /// <list type="bullet">
 /// <item><see cref="EventControl()"/>: Changes <see cref="EventControl.excludeids"/> to reflect information from the
-/// <see cref="EnemyLeaf"/> registry.</item>
+/// <see cref="HasEnemyLeaf"/> registry.</item>
 /// </list>
 /// </p>
 /// </summary>
@@ -22,11 +22,11 @@ internal sealed class EventControlExcludeIdsTopLevelPatcher : ITopLevelPatcher
     private static EventControlExcludeIdsTopLevelPatcher _instance = null!;
 
     private readonly IHarmonyTypePatcher _harmonyTypePatcher;
-    private readonly IOrderedLeavesRegistry<EnemyLeaf> _orderedEnemiesRegistry;
+    private readonly IOrderedLeavesRegistry<HasEnemyLeaf> _orderedEnemiesRegistry;
 
     public EventControlExcludeIdsTopLevelPatcher(
         IHarmonyTypePatcher harmonyTypePatcher,
-        IOrderedLeavesRegistry<EnemyLeaf> orderedEnemiesRegistry)
+        IOrderedLeavesRegistry<HasEnemyLeaf> orderedEnemiesRegistry)
     {
         _instance = this;
         _harmonyTypePatcher = harmonyTypePatcher;
@@ -53,8 +53,8 @@ internal sealed class EventControlExcludeIdsTopLevelPatcher : ITopLevelPatcher
 
     private static IEnumerable<int> GetNewExcludeIds(IEnumerable<int> original)
     {
-        ILeavesRegistry<EnemyLeaf> allEnemies = _instance._orderedEnemiesRegistry.Registry;
-        List<EnemyLeaf> enemiesInBestiary = _instance._orderedEnemiesRegistry.GetOrderedLeaves().ToList();
+        ILeavesRegistry<HasEnemyLeaf> allEnemies = _instance._orderedEnemiesRegistry.Registry;
+        List<HasEnemyLeaf> enemiesInBestiary = _instance._orderedEnemiesRegistry.GetOrderedLeaves().ToList();
 
         return allEnemies
             .Except(enemiesInBestiary)

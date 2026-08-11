@@ -21,7 +21,8 @@ public sealed class BaseGameSaveDataSerializerTests
     private readonly ILeavesRegistry<DiscoveryLeaf> _discoveriesLeafRegistry =
         Substitute.For<ILeavesRegistry<DiscoveryLeaf>>();
 
-    private readonly ILeavesRegistry<EnemyLeaf> _enemiesLeafRegistry = Substitute.For<ILeavesRegistry<EnemyLeaf>>();
+    private readonly ILeavesRegistry<HasEnemyLeaf> _enemiesLeafRegistry =
+        Substitute.For<ILeavesRegistry<HasEnemyLeaf>>();
 
     private readonly ILeavesRegistry<RecipeLibraryEntryLeaf> _recipeLibraryEntriesLeafRegistry =
         Substitute.For<ILeavesRegistry<RecipeLibraryEntryLeaf>>();
@@ -124,7 +125,7 @@ public sealed class BaseGameSaveDataSerializerTests
             discoveries.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
         TestUtility.MockRegistry(_discoveriesLeafRegistry, discoveries);
 
-        List<EnemyLeaf> enemies = new();
+        List<HasEnemyLeaf> enemies = new();
         for (int i = 0; i < enemiesAmount; i++)
             enemies.Add(new(i, Constants.BaseGameCreatorId, ((MainManager.Enemies)i).ToString()));
         TestUtility.MockRegistry(_enemiesLeafRegistry, enemies);
@@ -465,7 +466,7 @@ public sealed class BaseGameSaveDataSerializerTests
             discoveries.Add(new(i, Constants.BaseGameCreatorId, i.ToString()));
         TestUtility.MockRegistry(_discoveriesLeafRegistry, discoveries);
 
-        List<EnemyLeaf> enemies = new();
+        List<HasEnemyLeaf> enemies = new();
         for (int i = 0; i < enemiesAmount; i++)
             enemies.Add(new(i, Constants.BaseGameCreatorId, ((MainManager.Enemies)i).ToString()));
         TestUtility.MockRegistry(_enemiesLeafRegistry, enemies);

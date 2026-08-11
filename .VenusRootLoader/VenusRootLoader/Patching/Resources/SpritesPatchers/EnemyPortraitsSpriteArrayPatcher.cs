@@ -26,14 +26,14 @@ namespace VenusRootLoader.Patching.Resources.SpritesPatchers;
 internal sealed class EnemyPortraitsSpriteArrayPatcher : ISpriteArrayPatcher
 {
     private readonly ILeavesRegistry<DiscoveryLeaf> _discoveriesRegistry;
-    private readonly ILeavesRegistry<EnemyLeaf> _enemiesRegistry;
+    private readonly ILeavesRegistry<HasEnemyLeaf> _enemiesRegistry;
     private readonly ILeavesRegistry<RecordLeaf> _recordsRegistry;
     private readonly ILeavesRegistry<QuestLeaf> _questsRegistry;
 
     public EnemyPortraitsSpriteArrayPatcher(
         string[] subPaths,
         ILeavesRegistry<DiscoveryLeaf> discoveriesRegistry,
-        ILeavesRegistry<EnemyLeaf> enemiesRegistry,
+        ILeavesRegistry<HasEnemyLeaf> enemiesRegistry,
         ILeavesRegistry<RecordLeaf> recordsRegistry,
         ILeavesRegistry<QuestLeaf> questsRegistry)
     {
@@ -69,12 +69,12 @@ internal sealed class EnemyPortraitsSpriteArrayPatcher : ISpriteArrayPatcher
     // get reassigned to a new index.
     private void CloneSpriteDuplicates()
     {
-        IEnumerable<IEnemyPortraitSprite> discoveryLeaves = _discoveriesRegistry;
-        IEnumerable<IEnemyPortraitSprite> enemiesLeaves = _enemiesRegistry;
-        IEnumerable<IEnemyPortraitSprite> recordsLeaves = _recordsRegistry;
-        IEnumerable<IEnemyPortraitSprite> questsLeaves = _questsRegistry;
+        IEnumerable<IHasEnemyPortraitSprite> discoveryLeaves = _discoveriesRegistry;
+        IEnumerable<IHasEnemyPortraitSprite> enemiesLeaves = _enemiesRegistry;
+        IEnumerable<IHasEnemyPortraitSprite> recordsLeaves = _recordsRegistry;
+        IEnumerable<IHasEnemyPortraitSprite> questsLeaves = _questsRegistry;
 
-        List<IEnemyPortraitSprite> allLeavesWithPortraitSprite =
+        List<IHasEnemyPortraitSprite> allLeavesWithPortraitSprite =
             discoveryLeaves
                 .Concat(enemiesLeaves)
                 .Concat(recordsLeaves)
@@ -83,7 +83,7 @@ internal sealed class EnemyPortraitsSpriteArrayPatcher : ISpriteArrayPatcher
                 .ToList();
 
         HashSet<int> uniqueSpriteIndexes = new();
-        foreach (IEnemyPortraitSprite? leaf in allLeavesWithPortraitSprite)
+        foreach (IHasEnemyPortraitSprite? leaf in allLeavesWithPortraitSprite)
         {
             bool isUniqueSpriteIndex = uniqueSpriteIndexes.Add(leaf.EnemyPortraitsSpriteIndex!.Value);
             if (isUniqueSpriteIndex)
@@ -94,7 +94,7 @@ internal sealed class EnemyPortraitsSpriteArrayPatcher : ISpriteArrayPatcher
     }
 
     private static void PatchSpritesFromRegistry<T>(SortedDictionary<int, Sprite> sprites, ILeavesRegistry<T> registry)
-        where T : Leaf, IEnemyPortraitSprite
+        where T : Leaf, IHasEnemyPortraitSprite
     {
         IReadOnlyCollection<T> leaves = registry
             .GetAll();

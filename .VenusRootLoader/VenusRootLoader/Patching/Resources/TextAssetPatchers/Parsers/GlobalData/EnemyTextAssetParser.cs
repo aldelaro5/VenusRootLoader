@@ -8,18 +8,20 @@ using VenusRootLoader.Utility;
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalData;
 
 /// <inheritdoc/>
-internal sealed class EnemyTextAssetParser : ITextAssetParser<EnemyLeaf>
+internal sealed class EnemyTextAssetParser : ITextAssetParser<HasEnemyLeaf>
 {
-    private readonly ILeavesRegistry<EnemyLeaf> _enemiesRegistry;
+    private readonly ILeavesRegistry<HasEnemyLeaf> _enemiesRegistry;
     private readonly ILeavesRegistry<AnimIdLeaf> _animIdsRegistry;
 
-    public EnemyTextAssetParser(ILeavesRegistry<EnemyLeaf> enemiesRegistry, ILeavesRegistry<AnimIdLeaf> animIdsRegistry)
+    public EnemyTextAssetParser(
+        ILeavesRegistry<HasEnemyLeaf> enemiesRegistry,
+        ILeavesRegistry<AnimIdLeaf> animIdsRegistry)
     {
         _enemiesRegistry = enemiesRegistry;
         _animIdsRegistry = animIdsRegistry;
     }
 
-    public string GetTextAssetSerializedString(string subPath, EnemyLeaf leaf)
+    public string GetTextAssetSerializedString(string subPath, HasEnemyLeaf leaf)
     {
         StringBuilder sb = new();
 
@@ -100,7 +102,7 @@ internal sealed class EnemyTextAssetParser : ITextAssetParser<EnemyLeaf>
         sb.Append(leaf.InternalDeathType);
         sb.Append(',');
 
-        List<Branch<EnemyLeaf>> enemies = leaf.EnemiesWhoTriggerHitActionWhenDamaged;
+        List<Branch<HasEnemyLeaf>> enemies = leaf.EnemiesWhoTriggerHitActionWhenDamaged;
         if (enemies.Count == 0)
             sb.Append("-1");
         else
@@ -123,7 +125,7 @@ internal sealed class EnemyTextAssetParser : ITextAssetParser<EnemyLeaf>
         sb.Append(',');
         sb.Append(leaf.IsBaseStateBattleIdle);
         sb.Append(',');
-        int? enemyPortraitsSpriteIndex = ((IEnemyPortraitSprite)leaf).EnemyPortraitsSpriteIndex;
+        int? enemyPortraitsSpriteIndex = ((IHasEnemyPortraitSprite)leaf).EnemyPortraitsSpriteIndex;
         sb.Append(enemyPortraitsSpriteIndex ?? -1);
         sb.Append(',');
         sb.Append(!leaf.CanBeSpied);
@@ -139,7 +141,7 @@ internal sealed class EnemyTextAssetParser : ITextAssetParser<EnemyLeaf>
         return sb.ToString();
     }
 
-    public void FromTextAssetSerializedString(string subPath, string text, EnemyLeaf leaf)
+    public void FromTextAssetSerializedString(string subPath, string text, HasEnemyLeaf leaf)
     {
         string[] fields = text.Split(StringUtils.CommaSplitDelimiter);
 
@@ -170,7 +172,7 @@ internal sealed class EnemyTextAssetParser : ITextAssetParser<EnemyLeaf>
 
         leaf.Weight = float.Parse(fields[24]);
         int baseEnemyId = int.Parse(fields[25]);
-        leaf.BaseEnemyId = baseEnemyId < 0 ? (Branch<EnemyLeaf>?)null : _enemiesRegistry.GetByGameId(baseEnemyId);
+        leaf.BaseEnemyId = baseEnemyId < 0 ? (Branch<HasEnemyLeaf>?)null : _enemiesRegistry.GetByGameId(baseEnemyId);
         int eventIdOnDeath = int.Parse(fields[26]);
         leaf.EventDialogueIdOnDeath = eventIdOnDeath == 1 ? -1 : eventIdOnDeath;
         leaf.ActorTurnAmountPerMainTurn = int.Parse(fields[27]);
@@ -195,11 +197,11 @@ internal sealed class EnemyTextAssetParser : ITextAssetParser<EnemyLeaf>
         leaf.DefenseIncreaseWhenDefending = int.Parse(fields[38]);
         leaf.ItemOffset = new(float.Parse(fields[39]), float.Parse(fields[40]), float.Parse(fields[41]));
         leaf.IsBaseStateBattleIdle = bool.Parse(fields[42]);
-        ((IEnemyPortraitSprite)leaf).EnemyPortraitsSpriteIndex = int.Parse(fields[43]);
+        ((IHasEnemyPortraitSprite)leaf).EnemyPortraitsSpriteIndex = int.Parse(fields[43]);
         leaf.CanBeSpied = !bool.Parse(fields[44]);
         int eventIdOnFall = int.Parse(fields[45]);
         leaf.EventDialogueIdOnFall = eventIdOnFall == -1 ? null : eventIdOnFall;
-        leaf.HitActionTrigger = (EnemyLeaf.AutoHitActionTrigger)int.Parse(fields[46]);
+        leaf.HitActionTrigger = (HasEnemyLeaf.AutoHitActionTrigger)int.Parse(fields[46]);
         leaf.CanActWhileStunned = bool.Parse(fields[47]);
         leaf.SizeWhenFrozen = float.Parse(fields[48]);
     }

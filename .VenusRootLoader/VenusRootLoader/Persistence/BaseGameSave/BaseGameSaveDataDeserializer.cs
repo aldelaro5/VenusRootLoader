@@ -24,7 +24,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
     private readonly ILeavesRegistry<ItemLeaf> _itemsLeafRegistry;
     private readonly ILeavesRegistry<MusicLeaf> _musicsLeafRegistry;
     private readonly ILeavesRegistry<DiscoveryLeaf> _discoveriesLeafRegistry;
-    private readonly ILeavesRegistry<EnemyLeaf> _enemiesLeafRegistry;
+    private readonly ILeavesRegistry<HasEnemyLeaf> _enemiesLeafRegistry;
     private readonly ILeavesRegistry<RecipeLibraryEntryLeaf> _recipeLibraryEntriesLeafRegistry;
     private readonly ILeavesRegistry<RecordLeaf> _recordsLeafRegistry;
     private readonly ILeavesRegistry<FlagLeaf> _flagsLeafRegistry;
@@ -43,7 +43,7 @@ internal sealed class BaseGameSaveDataDeserializer : IBaseGameSaveDataDeserializ
         ILeavesRegistry<ItemLeaf> itemsLeafRegistry,
         ILeavesRegistry<MusicLeaf> musicsLeafRegistry,
         ILeavesRegistry<DiscoveryLeaf> discoveriesLeafRegistry,
-        ILeavesRegistry<EnemyLeaf> enemiesLeafRegistry,
+        ILeavesRegistry<HasEnemyLeaf> enemiesLeafRegistry,
         ILeavesRegistry<RecipeLibraryEntryLeaf> recipeLibraryEntriesLeafRegistry,
         ILeavesRegistry<RecordLeaf> recordsLeafRegistry,
         ILeavesRegistry<FlagLeaf> flagsLeafRegistry,

@@ -6,7 +6,7 @@ using VenusRootLoader.SourceGenerators;
 namespace VenusRootLoader.Api.Leaves;
 
 [ExposeFromVenus]
-public sealed class QuestLeaf : Leaf, IEnemyPortraitSprite
+public sealed class QuestLeaf : Leaf, IHasEnemyPortraitSprite
 {
     public sealed class QuestLanguageData
     {
@@ -25,13 +25,13 @@ public sealed class QuestLeaf : Leaf, IEnemyPortraitSprite
     {
     }
 
-    int? IEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }
-    IAssetLoader<Sprite> IEnemyPortraitSprite.PortraitSprite { get; set; } = null!;
+    int? IHasEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }
+    IAssetLoader<Sprite> IHasEnemyPortraitSprite.PortraitSprite { get; set; } = null!;
 
     public IAssetLoader<Sprite> PortraitSprite
     {
-        get => ((IEnemyPortraitSprite)this).PortraitSprite;
-        set => ((IEnemyPortraitSprite)this).PortraitSprite = value;
+        get => ((IHasEnemyPortraitSprite)this).PortraitSprite;
+        set => ((IHasEnemyPortraitSprite)this).PortraitSprite = value;
     }
 
     public LocalizedData<QuestLanguageData> LocalizedData { get; } = new();

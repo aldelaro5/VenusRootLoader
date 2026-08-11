@@ -59,10 +59,10 @@ internal sealed class QuestsCollector : IBaseGameCollector
                 questLeaf);
             questLeaf.CanOnlyBeTakenAtUndergroundBar = bountyQuestsGameIds.Contains(i);
 
-            IEnemyPortraitSprite enemyPortraitSprite = questLeaf;
-            enemyPortraitSprite.PortraitSprite = new AssetLoaderFromResources<Sprite>(
+            IHasEnemyPortraitSprite hasEnemyPortraitSprite = questLeaf;
+            hasEnemyPortraitSprite.PortraitSprite = new AssetLoaderFromResources<Sprite>(
                 ResourcesPaths.SpritesItemsEnemyPortraitsResourcesPath,
-                enemyPortraitSprite.EnemyPortraitsSpriteIndex!.Value);
+                hasEnemyPortraitSprite.EnemyPortraitsSpriteIndex!.Value);
 
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {

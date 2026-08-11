@@ -9,7 +9,7 @@ namespace VenusRootLoader.LeavesInternals;
 /// A convenient way for <see cref="VenusRootLoader"/> to access the EnemyPortraits sprites information for concarned leaves.
 /// This is mostly for <see cref="EnemyPortraitsSpriteArrayPatcher"/>.
 /// </summary>
-internal interface IEnemyPortraitSprite
+internal interface IHasEnemyPortraitSprite
 {
     /// <summary>
     /// The sprite index of the sprite inside EnemyPortraits. A value of null means <see cref="EnemyPortraitsSpriteArrayPatcher"/> will

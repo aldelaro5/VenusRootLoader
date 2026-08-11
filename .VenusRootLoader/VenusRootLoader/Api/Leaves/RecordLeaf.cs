@@ -7,7 +7,7 @@ using VenusRootLoader.Unity;
 namespace VenusRootLoader.Api.Leaves;
 
 [ExposeFromVenus(typeof(int))]
-public sealed class RecordLeaf : Leaf, IEnemyPortraitSprite
+public sealed class RecordLeaf : Leaf, IHasEnemyPortraitSprite
 {
     public sealed class RecordLanguageData
     {
@@ -19,13 +19,13 @@ public sealed class RecordLeaf : Leaf, IEnemyPortraitSprite
     {
     }
 
-    int? IEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }
-    IAssetLoader<Sprite> IEnemyPortraitSprite.PortraitSprite { get; set; } = null!;
+    int? IHasEnemyPortraitSprite.EnemyPortraitsSpriteIndex { get; set; }
+    IAssetLoader<Sprite> IHasEnemyPortraitSprite.PortraitSprite { get; set; } = null!;
 
     public IAssetLoader<Sprite> PortraitSprite
     {
-        get => ((IEnemyPortraitSprite)this).PortraitSprite;
-        set => ((IEnemyPortraitSprite)this).PortraitSprite = value;
+        get => ((IHasEnemyPortraitSprite)this).PortraitSprite;
+        set => ((IHasEnemyPortraitSprite)this).PortraitSprite = value;
     }
 
     public LocalizedData<RecordLanguageData> LocalizedData { get; } = new();

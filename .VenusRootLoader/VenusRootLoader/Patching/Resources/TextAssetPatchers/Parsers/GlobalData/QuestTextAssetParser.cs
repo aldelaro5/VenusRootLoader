@@ -25,7 +25,7 @@ internal sealed class QuestTextAssetParser : ITextAssetParser<QuestLeaf>
     {
         if (subPath.Equals(BoardDataSubPath, StringComparison.OrdinalIgnoreCase))
         {
-            int enemyPortraitsSpriteIndex = ((IEnemyPortraitSprite)leaf).EnemyPortraitsSpriteIndex!.Value;
+            int enemyPortraitsSpriteIndex = ((IHasEnemyPortraitSprite)leaf).EnemyPortraitsSpriteIndex!.Value;
             return $"{leaf.TakenFlag?.Resolve().GameId ?? -1}@{enemyPortraitsSpriteIndex}@{leaf.Difficulty}";
         }
 
@@ -46,7 +46,7 @@ internal sealed class QuestTextAssetParser : ITextAssetParser<QuestLeaf>
 
             int takenFlag = int.Parse(fieldsBoardData[0]);
             leaf.TakenFlag = takenFlag <= -1 ? null : new(_flagsRegistry.GetByGameId(takenFlag));
-            ((IEnemyPortraitSprite)leaf).EnemyPortraitsSpriteIndex = int.Parse(fieldsBoardData[1]);
+            ((IHasEnemyPortraitSprite)leaf).EnemyPortraitsSpriteIndex = int.Parse(fieldsBoardData[1]);
             leaf.Difficulty = int.Parse(fieldsBoardData[2]);
             return;
         }

@@ -50,7 +50,7 @@ public sealed class EnemyEncounterWithRespawnMapEntityLeaf : EnemyEncounterMapEn
     internal override void InitializeFromNew(
         Vector3 startingPosition,
         Branch<AnimIdLeaf> animId,
-        IList<Branch<EnemyLeaf>> enemiesFormationInBattle)
+        IList<Branch<HasEnemyLeaf>> enemiesFormationInBattle)
     {
         base.InitializeFromNew(startingPosition, animId, enemiesFormationInBattle);
         FramesAfterDeathBeforeRespawn = 30;

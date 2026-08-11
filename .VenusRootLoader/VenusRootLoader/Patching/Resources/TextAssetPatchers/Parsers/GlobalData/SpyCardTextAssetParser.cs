@@ -8,9 +8,9 @@ namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalDat
 /// <inheritdoc/>
 internal sealed class SpyCardTextAssetParser : ITextAssetParser<SpyCardLeaf>
 {
-    private readonly ILeavesRegistry<EnemyLeaf> _enemiesRegistry;
+    private readonly ILeavesRegistry<HasEnemyLeaf> _enemiesRegistry;
 
-    public SpyCardTextAssetParser(ILeavesRegistry<EnemyLeaf> enemiesRegistry)
+    public SpyCardTextAssetParser(ILeavesRegistry<HasEnemyLeaf> enemiesRegistry)
     {
         _enemiesRegistry = enemiesRegistry;
     }

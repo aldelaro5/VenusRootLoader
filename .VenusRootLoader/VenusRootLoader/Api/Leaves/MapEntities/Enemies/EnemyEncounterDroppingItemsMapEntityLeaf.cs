@@ -22,7 +22,7 @@ public sealed class EnemyEncounterDroppingItemsMapEntityLeaf : EnemyEncounterMap
     internal void InitializeFromNew(
         Vector3 startingPosition,
         Branch<AnimIdLeaf> animId,
-        IList<Branch<EnemyLeaf>> enemiesFormationInBattle,
+        IList<Branch<HasEnemyLeaf>> enemiesFormationInBattle,
         IList<EnemyItemDrop> itemsDropPoolWhenDefeated)
     {
         base.InitializeFromNew(startingPosition, animId, enemiesFormationInBattle);

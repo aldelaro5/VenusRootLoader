@@ -25,7 +25,8 @@ internal sealed class QuestTextAssetParser : ITextAssetParser<QuestLeaf>
     {
         if (subPath.Equals(BoardDataSubPath, StringComparison.OrdinalIgnoreCase))
         {
-            int enemyPortraitsSpriteIndex = ((IHasEnemyPortraitSprite)leaf).EnemyPortraitsSpriteIndex!.Value;
+            IHasEnemyPortraitSprite hasEnemyPortraitSprite = leaf;
+            int enemyPortraitsSpriteIndex = hasEnemyPortraitSprite.EnemyPortraitsSpriteIndex!.Value;
             return $"{leaf.TakenFlag?.Resolve().GameId ?? -1}@{enemyPortraitsSpriteIndex}@{leaf.Difficulty}";
         }
 

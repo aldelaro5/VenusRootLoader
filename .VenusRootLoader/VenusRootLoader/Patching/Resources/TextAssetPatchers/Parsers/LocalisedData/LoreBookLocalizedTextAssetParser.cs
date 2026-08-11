@@ -5,6 +5,8 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.LocalisedData;
 
+// TODO: Look into the bad performance, see if we can patch the game so it doesn't lag as hard.
+
 /// <inheritdoc/>
 internal sealed class LoreBookLocalizedTextAssetParser : ILocalizedTextAssetParser<LoreBookLeaf>
 {

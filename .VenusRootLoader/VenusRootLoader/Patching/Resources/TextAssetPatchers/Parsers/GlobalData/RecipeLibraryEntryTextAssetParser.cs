@@ -6,6 +6,8 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalData;
 
+// TODO: Possibly improve this design, could we enforce that only at most one recipe must exist for a given result item?
+
 /// <inheritdoc/>
 internal sealed class RecipeLibraryEntryTextAssetParser : ITextAssetParser<RecipeLibraryEntryLeaf>
 {

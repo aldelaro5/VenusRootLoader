@@ -30,6 +30,8 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 
+// TODO: Move magic numbers to consts.
+
 /// <inheritdoc/>
 internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
 {
@@ -327,7 +329,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         string[] fields = text.Split(StringUtils.ClosingBraceSplitDelimiter);
 
         // Map entities are unique in the sense there's dozens kinds of them that act completely differently from each
-        // other are under, and they are under the same type and data format: NPCControl. This is very inconvenient and
+        // other, and they are under the same type and data format: NPCControl. This is very inconvenient and
         // to fix this, we have to create derived classes for each map entity type whose concrete type is resolved using
         // the NPCType and ObjectTypes fields. From there, each derived type can expose its own tailored API referencing
         // the base fields so we preserve parity on the base game side, but buds gets to see a more convenient representation.

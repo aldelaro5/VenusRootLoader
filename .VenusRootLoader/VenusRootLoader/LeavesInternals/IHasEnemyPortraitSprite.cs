@@ -1,7 +1,6 @@
 using UnityEngine;
 using VenusRootLoader.Api.Unity;
 using VenusRootLoader.Patching.Resources.SpritesPatchers;
-using VenusRootLoader.Unity;
 
 namespace VenusRootLoader.LeavesInternals;
 

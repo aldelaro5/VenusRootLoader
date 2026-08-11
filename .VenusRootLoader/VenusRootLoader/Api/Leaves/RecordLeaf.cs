@@ -2,9 +2,10 @@ using UnityEngine;
 using VenusRootLoader.Api.Unity;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.SourceGenerators;
-using VenusRootLoader.Unity;
 
 namespace VenusRootLoader.Api.Leaves;
+
+// TODO: Make custom records work with steam / GOG so we don't try to unlock platform achievements that don't exist.
 
 [ExposeFromVenus(typeof(int))]
 public sealed class RecordLeaf : Leaf, IHasEnemyPortraitSprite

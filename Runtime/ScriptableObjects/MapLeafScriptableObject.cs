@@ -9,7 +9,7 @@ using VenusRootLoader.Unity.Runtime.Enums;
 
 namespace VenusRootLoader.Unity.Runtime.ScriptableObjects
 {
-    // TODO: Add tooltips
+    // Add tooltips as documentation
 
     [CreateAssetMenu(fileName = "NewMap", menuName = "MapLeaf", order = 0)]
     public sealed class MapLeafScriptableObject : ScriptableObject

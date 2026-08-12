@@ -1,6 +1,6 @@
 namespace VenusRootLoader.Api.Leaves;
 
-// TODO: We need to make this API easier instead of having 3 parameter values
+// We need to make this API easier instead of having 3 parameter values
 internal sealed class RankBonusLeaf : Leaf
 {
     internal enum RankBonusType

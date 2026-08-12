@@ -65,7 +65,6 @@ internal sealed class PrizeMedalsCollector : IBaseGameCollector
             _assemblyCSharpDataCollector.ReadIntArrayFromPrivateImplementationDetailField(prizeFlagsField);
         // The displayed enemy game ids of the prize medals indexed by prize medal game id.
         // NOTE: It's possible this is negative for the special "Explorer Duo" string
-        // TODO: Handle custom values like Explorer Duo more gracefully
         int[] prizeEnemyIds =
             _assemblyCSharpDataCollector.ReadIntArrayFromPrivateImplementationDetailField(prizeEnemyIdsField);
 

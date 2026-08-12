@@ -107,8 +107,6 @@ public sealed class HasEnemyLeaf : Leaf, IHasEnemyPortraitSprite
     public Vector3 ItemOffset { get; set; } = Vector3.zero;
 
     public bool IsBaseStateBattleIdle { get; set; }
-
-    // TODO: Make a leaf for this
     public int? EventDialogueIdOnFall { get; set; }
     public AutoHitActionTrigger HitActionTrigger { get; set; }
     public bool CanActWhileStunned { get; set; }

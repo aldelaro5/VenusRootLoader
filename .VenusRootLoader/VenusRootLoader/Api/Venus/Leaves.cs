@@ -13,37 +13,37 @@ public partial class Venus
 {
     // These registry methods are too specialized to be source generated
 
-    public HasEnemyLeaf RegisterSpyableEnemy(
+    public EnemyLeaf RegisterSpyableEnemy(
         string namedId,
         Branch<AnimIdLeaf> entityAnimId,
         IAssetLoader<Sprite> portraitSprite,
         MainManager.Enemies? orderAfterInBestiary,
         int orderPriorityInBestiary)
     {
-        HasEnemyLeaf hasEnemyLeaf = RegistryResolver.ResolveWithOrdering<HasEnemyLeaf>().RegisterNewWithOrdering(
+        EnemyLeaf enemyLeaf = RegistryResolver.ResolveWithOrdering<EnemyLeaf>().RegisterNewWithOrdering(
             BudId,
             namedId,
             (int?)orderAfterInBestiary,
             orderPriorityInBestiary);
-        hasEnemyLeaf.CanBeSpied = true;
-        hasEnemyLeaf.EntityAnimId = entityAnimId;
-        hasEnemyLeaf.PortraitSprite = portraitSprite;
-        return hasEnemyLeaf;
+        enemyLeaf.CanBeSpied = true;
+        enemyLeaf.EntityAnimId = entityAnimId;
+        enemyLeaf.PortraitSprite = portraitSprite;
+        return enemyLeaf;
     }
 
-    public HasEnemyLeaf RegisterNonSpyableEnemy(
+    public EnemyLeaf RegisterNonSpyableEnemy(
         string namedId,
         Branch<AnimIdLeaf> entityAnimId)
     {
-        HasEnemyLeaf hasEnemyLeaf = RegistryResolver.Resolve<HasEnemyLeaf>().RegisterNew(BudId, namedId);
-        hasEnemyLeaf.CanBeSpied = false;
-        hasEnemyLeaf.EntityAnimId = entityAnimId;
-        return hasEnemyLeaf;
+        EnemyLeaf enemyLeaf = RegistryResolver.Resolve<EnemyLeaf>().RegisterNew(BudId, namedId);
+        enemyLeaf.CanBeSpied = false;
+        enemyLeaf.EntityAnimId = entityAnimId;
+        return enemyLeaf;
     }
 
     public SpyCardLeaf RegisterSpyCard(
         string namedId,
-        Branch<HasEnemyLeaf> enemy,
+        Branch<EnemyLeaf> enemy,
         int tpCost,
         CardGame.Type type,
         MainManager.Enemies? orderAfter,

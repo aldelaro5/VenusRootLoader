@@ -5,15 +5,15 @@ using VenusRootLoader.Registry;
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.OrderingData;
 
 /// <inheritdoc/>
-internal sealed class EnemyOrderingTextAssetParser : IOrderingTextAssetParser<HasEnemyLeaf>
+internal sealed class EnemyOrderingTextAssetParser : IOrderingTextAssetParser<EnemyLeaf>
 {
-    public string GetTextAssetString(IOrderedLeavesRegistry<HasEnemyLeaf> orderedRegistry)
+    public string GetTextAssetString(IOrderedLeavesRegistry<EnemyLeaf> orderedRegistry)
     {
-        IReadOnlyCollection<HasEnemyLeaf> orderedLeaves = orderedRegistry.GetOrderedLeaves();
+        IReadOnlyCollection<EnemyLeaf> orderedLeaves = orderedRegistry.GetOrderedLeaves();
         return string.Join("\n", orderedLeaves.Select(l => l.GameId));
     }
 
-    public void FromTextAssetString(string text, IOrderedLeavesRegistry<HasEnemyLeaf> orderedRegistry)
+    public void FromTextAssetString(string text, IOrderedLeavesRegistry<EnemyLeaf> orderedRegistry)
     {
         int[] orderedGameIds = text
             .Split('\n')

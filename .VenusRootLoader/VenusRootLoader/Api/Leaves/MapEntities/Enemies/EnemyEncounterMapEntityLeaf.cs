@@ -50,8 +50,8 @@ public abstract class EnemyEncounterMapEntityLeaf : MapEntityLeaf
     public float EntityMovementSpeed { get => InternalSpeed; set => InternalSpeed = value; }
     public float BehaviorSystemRangeRadius { get => InternalRadius; set => InternalRadius = value; }
 
-    private readonly ListRefWrapper<Branch<HasEnemyLeaf>, int> _enemiesFormationInBattle;
-    public IList<Branch<HasEnemyLeaf>> EnemiesFormationInBattle => _enemiesFormationInBattle;
+    private readonly ListRefWrapper<Branch<EnemyLeaf>, int> _enemiesFormationInBattle;
+    public IList<Branch<EnemyLeaf>> EnemiesFormationInBattle => _enemiesFormationInBattle;
 
     public bool HasDoubledForceMoveFailsafeTimer
     {
@@ -92,17 +92,17 @@ public abstract class EnemyEncounterMapEntityLeaf : MapEntityLeaf
     internal virtual void InitializeFromNew(
         Vector3 startingPosition,
         Branch<AnimIdLeaf> animId,
-        IList<Branch<HasEnemyLeaf>> enemiesFormationInBattle)
+        IList<Branch<EnemyLeaf>> enemiesFormationInBattle)
     {
         AnimId = animId;
         EntityStartingPosition = startingPosition;
-        foreach (Branch<HasEnemyLeaf> enemies in enemiesFormationInBattle)
+        foreach (Branch<EnemyLeaf> enemies in enemiesFormationInBattle)
             EnemiesFormationInBattle.Add(enemies);
     }
 
     internal override void InitializeFromExisting()
     {
-        ILeavesRegistry<HasEnemyLeaf> enemiesRegistry = RegistryResolver.Resolve<HasEnemyLeaf>();
+        ILeavesRegistry<EnemyLeaf> enemiesRegistry = RegistryResolver.Resolve<EnemyLeaf>();
         ILeavesRegistry<AnimIdLeaf> animIdsRegistry = RegistryResolver.Resolve<AnimIdLeaf>();
 
         BehaviorSystem.InitializeBehaviorFromExisting();
@@ -111,7 +111,7 @@ public abstract class EnemyEncounterMapEntityLeaf : MapEntityLeaf
 
         _enemiesFormationInBattle.SynchronizeFromExistingData(
             InternalBattleEnemyIds
-                .Select(i => new Branch<HasEnemyLeaf>(enemiesRegistry.GetByGameId(i.Value)))
+                .Select(i => new Branch<EnemyLeaf>(enemiesRegistry.GetByGameId(i.Value)))
                 .ToList());
     }
 }

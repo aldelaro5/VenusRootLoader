@@ -6,7 +6,7 @@ using VenusRootLoader.Registry;
 namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 
 /// <summary>
-/// This patcher adds support for allowing <see cref="HasEnemyLeaf"/> to decide if they should be included or excluded from
+/// This patcher adds support for allowing <see cref="EnemyLeaf"/> to decide if they should be included or excluded from
 /// Cave Of Trials random mode pool.
 /// <p>
 /// It patches the following:
@@ -21,11 +21,11 @@ internal sealed class CaveOfTrialsRandomModeExclusionTopLevelPatcher : ITopLevel
     private static CaveOfTrialsRandomModeExclusionTopLevelPatcher _instance = null!;
 
     private readonly IHarmonyTypePatcher _harmonyTypePatcher;
-    private readonly ILeavesRegistry<HasEnemyLeaf> _enemiesRegistry;
+    private readonly ILeavesRegistry<EnemyLeaf> _enemiesRegistry;
 
     public CaveOfTrialsRandomModeExclusionTopLevelPatcher(
         IHarmonyTypePatcher harmonyTypePatcher,
-        ILeavesRegistry<HasEnemyLeaf> enemiesRegistry)
+        ILeavesRegistry<EnemyLeaf> enemiesRegistry)
     {
         _instance = this;
         _harmonyTypePatcher = harmonyTypePatcher;

@@ -79,7 +79,7 @@ internal static class Startup
         services.AddEnumBasedLeavesRegistry<AnimIdLeaf, MainManager.AnimIDs>(-1);
         services.AddEnumBasedLeavesRegistry<ItemLeaf, MainManager.Items>();
         services.AddEnumBasedLeavesRegistryWithOrdering<MedalLeaf, MainManager.BadgeTypes>();
-        services.AddEnumBasedLeavesRegistryWithOrdering<HasEnemyLeaf, MainManager.Enemies>();
+        services.AddEnumBasedLeavesRegistryWithOrdering<EnemyLeaf, MainManager.Enemies>();
         services.AddAutoSequentialIdBasedLeavesRegistry<RecipeLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<RecipeLibraryEntryLeaf>();
         services.AddEnumBasedLeavesRegistry<AreaLeaf, MainManager.Areas>();
@@ -110,7 +110,7 @@ internal static class Startup
             new(
                 [ResourcesPaths.SpritesEnemyPortraitsPath],
                 provider.GetRequiredService<ILeavesRegistry<DiscoveryLeaf>>(),
-                provider.GetRequiredService<ILeavesRegistry<HasEnemyLeaf>>(),
+                provider.GetRequiredService<ILeavesRegistry<EnemyLeaf>>(),
                 provider.GetRequiredService<ILeavesRegistry<RecordLeaf>>(),
                 provider.GetRequiredService<ILeavesRegistry<QuestLeaf>>()));
 
@@ -158,11 +158,11 @@ internal static class Startup
         services.AddLocalizedTextAssetPatcher<DiscoveryLeaf, DiscoveryLocalizedTextAssetParser>(
             [ResourcesPaths.DataLocalizedDiscoveriesPathSuffix]);
 
-        services.AddOrderingTextAssetPatcher<HasEnemyLeaf, EnemyOrderingTextAssetParser>(
+        services.AddOrderingTextAssetPatcher<EnemyLeaf, EnemyOrderingTextAssetParser>(
             ResourcesPaths.DataBestiaryEntriesOrderingPath);
-        services.AddLocalizedTextAssetPatcher<HasEnemyLeaf, EnemyLocalizedTextAssetParser>(
+        services.AddLocalizedTextAssetPatcher<EnemyLeaf, EnemyLocalizedTextAssetParser>(
             [ResourcesPaths.DataLocalizedBestiaryEntriesPathSuffix]);
-        services.AddTextAssetPatcher<HasEnemyLeaf, EnemyTextAssetParser>([ResourcesPaths.DataEnemiesPath]);
+        services.AddTextAssetPatcher<EnemyLeaf, EnemyTextAssetParser>([ResourcesPaths.DataEnemiesPath]);
 
         services.AddOrderingTextAssetPatcher<RecordLeaf, RecordOrderingTextAssetParser>(
             ResourcesPaths.DataRecordsOrderingPath);

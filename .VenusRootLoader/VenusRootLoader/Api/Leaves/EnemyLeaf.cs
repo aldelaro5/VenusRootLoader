@@ -7,7 +7,7 @@ namespace VenusRootLoader.Api.Leaves;
 
 // TODO: Should we involve polymorphism to split spyable vs non spyable?
 [ExposeFromVenus(null, false)]
-public sealed class HasEnemyLeaf : Leaf, IHasEnemyPortraitSprite
+public sealed class EnemyLeaf : Leaf, IHasEnemyPortraitSprite
 {
     private const int DeathTypeKoWithReserveDuplicateId = 4;
 
@@ -43,7 +43,7 @@ public sealed class HasEnemyLeaf : Leaf, IHasEnemyPortraitSprite
         public string MothSpyDialogue { get; set; } = "mothtattle";
     }
 
-    internal HasEnemyLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId) { }
+    internal EnemyLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId) { }
 
     public LocalizedData<EnemyLanguageData> LocalizedData { get; } = new();
 
@@ -78,7 +78,7 @@ public sealed class HasEnemyLeaf : Leaf, IHasEnemyPortraitSprite
     public List<BattleControl.AttackProperty> Properties { get; } = new();
     public float Weight { get; set; }
 
-    public Branch<HasEnemyLeaf>? BaseEnemyId { get; internal set; }
+    public Branch<EnemyLeaf>? BaseEnemyId { get; internal set; }
 
     // TODO: Make a leaf for this
     public int? EventDialogueIdOnDeath { get; set; }
@@ -99,7 +99,7 @@ public sealed class HasEnemyLeaf : Leaf, IHasEnemyPortraitSprite
         set => InternalDeathType = (int)value;
     }
 
-    public List<Branch<HasEnemyLeaf>> EnemiesWhoTriggerHitActionWhenDamaged { get; } = new();
+    public List<Branch<EnemyLeaf>> EnemiesWhoTriggerHitActionWhenDamaged { get; } = new();
     public int HardModeAttackIncrease { get; set; }
     public int HardModeBaseMaxHpIncrease { get; set; }
     public int HardModeBaseDefenseIncrease { get; set; }

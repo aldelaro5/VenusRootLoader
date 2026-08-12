@@ -19,8 +19,8 @@ public sealed class BudsSaveDataSerializerTests
     private readonly ILeavesRegistry<DiscoveryLeaf> _discoveriesLeafRegistry =
         Substitute.For<ILeavesRegistry<DiscoveryLeaf>>();
 
-    private readonly ILeavesRegistry<HasEnemyLeaf> _enemiesLeafRegistry =
-        Substitute.For<ILeavesRegistry<HasEnemyLeaf>>();
+    private readonly ILeavesRegistry<EnemyLeaf> _enemiesLeafRegistry =
+        Substitute.For<ILeavesRegistry<EnemyLeaf>>();
 
     private readonly ILeavesRegistry<RecipeLibraryEntryLeaf> _recipeLibraryEntriesLeafRegistry =
         Substitute.For<ILeavesRegistry<RecipeLibraryEntryLeaf>>();
@@ -69,7 +69,7 @@ public sealed class BudsSaveDataSerializerTests
         TestUtility.MockRegistry(_medalsLeafRegistry, medalLeaves);
         List<DiscoveryLeaf> discoveryLeaves = new() { new(0, Constants.BaseGameCreatorId, "0") };
         TestUtility.MockRegistry(_discoveriesLeafRegistry, discoveryLeaves);
-        List<HasEnemyLeaf> enemyLeaves = new()
+        List<EnemyLeaf> enemyLeaves = new()
         {
             new(0, Constants.BaseGameCreatorId, nameof(MainManager.Enemies.CordycepsAnt))
         };
@@ -160,7 +160,7 @@ public sealed class BudsSaveDataSerializerTests
             new(1, budId1, "CustomDiscovery")
         };
         TestUtility.MockRegistry(_discoveriesLeafRegistry, discoveryLeaves);
-        List<HasEnemyLeaf> enemyLeaves = new()
+        List<EnemyLeaf> enemyLeaves = new()
         {
             new(0, Constants.BaseGameCreatorId, nameof(MainManager.Enemies.CordycepsAnt)),
             new(1, budId2, "CustomEnemy")

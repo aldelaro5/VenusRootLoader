@@ -28,20 +28,20 @@ internal sealed class EnemiesCollector : IBaseGameCollector
 
     private readonly ILogger<EnemiesCollector> _logger;
     private readonly IAssemblyCSharpDataCollector _assemblyCSharpDataCollector;
-    private readonly ITextAssetParser<HasEnemyLeaf> _enemyTextAssetParser;
-    private readonly IOrderedLeavesRegistry<HasEnemyLeaf> _orderedRegistry;
+    private readonly ITextAssetParser<EnemyLeaf> _enemyTextAssetParser;
+    private readonly IOrderedLeavesRegistry<EnemyLeaf> _orderedRegistry;
     private readonly ILeavesRegistry<LanguageLeaf> _languageRegistry;
-    private readonly IOrderingTextAssetParser<HasEnemyLeaf> _enemyOrderingTextAssetParser;
-    private readonly ILocalizedTextAssetParser<HasEnemyLeaf> _enemyLocalizedTextAssetParser;
+    private readonly IOrderingTextAssetParser<EnemyLeaf> _enemyOrderingTextAssetParser;
+    private readonly ILocalizedTextAssetParser<EnemyLeaf> _enemyLocalizedTextAssetParser;
 
     public EnemiesCollector(
         ILogger<EnemiesCollector> logger,
         IAssemblyCSharpDataCollector assemblyCSharpDataCollector,
-        ITextAssetParser<HasEnemyLeaf> enemyTextAssetParser,
-        IOrderedLeavesRegistry<HasEnemyLeaf> orderedRegistry,
+        ITextAssetParser<EnemyLeaf> enemyTextAssetParser,
+        IOrderedLeavesRegistry<EnemyLeaf> orderedRegistry,
         ILeavesRegistry<LanguageLeaf> languageRegistry,
-        IOrderingTextAssetParser<HasEnemyLeaf> enemyOrderingTextAssetParser,
-        ILocalizedTextAssetParser<HasEnemyLeaf> enemyLocalizedTextAssetParser)
+        IOrderingTextAssetParser<EnemyLeaf> enemyOrderingTextAssetParser,
+        ILocalizedTextAssetParser<EnemyLeaf> enemyLocalizedTextAssetParser)
     {
         _logger = logger;
         _assemblyCSharpDataCollector = assemblyCSharpDataCollector;
@@ -131,28 +131,28 @@ internal sealed class EnemiesCollector : IBaseGameCollector
 
         for (int i = 0; i < _enemyNamedIds.Length; i++)
         {
-            HasEnemyLeaf hasEnemyLeaf = _orderedRegistry.Registry.GetByGameId(i);
+            EnemyLeaf enemyLeaf = _orderedRegistry.Registry.GetByGameId(i);
             _enemyTextAssetParser.FromTextAssetSerializedString(
                 ResourcesPaths.DataEnemiesPath,
                 _enemiesData[i],
-                hasEnemyLeaf);
+                enemyLeaf);
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
-                hasEnemyLeaf.LocalizedData[_languageRegistry.GetByGameId(j)] = new();
+                enemyLeaf.LocalizedData[_languageRegistry.GetByGameId(j)] = new();
                 _enemyLocalizedTextAssetParser.FromTextAssetSerializedString(
                     ResourcesPaths.DataLocalizedBestiaryEntriesPathSuffix,
                     j,
                     _enemiesLanguageData[j][i],
-                    hasEnemyLeaf);
+                    enemyLeaf);
             }
 
             if (excludedEnemyGameIdsFromRandomCot.Contains(i))
-                hasEnemyLeaf.IsIncludedInRandomCaveOfTrialsPool = false;
+                enemyLeaf.IsIncludedInRandomCaveOfTrialsPool = false;
             if (gameIdsWithRareSpyData.Contains(i))
-                hasEnemyLeaf.IsRareSpyData = true;
+                enemyLeaf.IsRareSpyData = true;
         }
 
-        foreach (HasEnemyLeaf leaf in _orderedRegistry.Registry)
+        foreach (EnemyLeaf leaf in _orderedRegistry.Registry)
         {
             IHasEnemyPortraitSprite hasEnemyPortraitSprite = leaf;
             // Enemies' EnemyPortraits sprites indexes are special because any negativew numbers means that the index is

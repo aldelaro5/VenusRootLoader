@@ -12,7 +12,7 @@ internal sealed class BudsSaveDataSerializer : IBudsSaveDataSerializer
     private readonly ILeavesRegistry<MedalShopLeaf> _medalShopsLeafRegistry;
     private readonly ILeavesRegistry<MedalLeaf> _medalsLeafRegistry;
     private readonly ILeavesRegistry<DiscoveryLeaf> _discoveriesLeafRegistry;
-    private readonly ILeavesRegistry<HasEnemyLeaf> _enemiesLeafRegistry;
+    private readonly ILeavesRegistry<EnemyLeaf> _enemiesLeafRegistry;
     private readonly ILeavesRegistry<RecipeLibraryEntryLeaf> _recipeLibraryEntriesLeafRegistry;
     private readonly ILeavesRegistry<RecordLeaf> _recordsLeafRegistry;
     private readonly ILeavesRegistry<AreaLeaf> _areasLeafRegistry;
@@ -26,7 +26,7 @@ internal sealed class BudsSaveDataSerializer : IBudsSaveDataSerializer
         ILeavesRegistry<MedalShopLeaf> medalShopsLeafRegistry,
         ILeavesRegistry<MedalLeaf> medalsLeafRegistry,
         ILeavesRegistry<DiscoveryLeaf> discoveriesLeafRegistry,
-        ILeavesRegistry<HasEnemyLeaf> enemiesLeafRegistry,
+        ILeavesRegistry<EnemyLeaf> enemiesLeafRegistry,
         ILeavesRegistry<RecipeLibraryEntryLeaf> recipeLibraryEntriesLeafRegistry,
         ILeavesRegistry<RecordLeaf> recordsLeafRegistry,
         ILeavesRegistry<AreaLeaf> areasLeafRegistry,
@@ -56,7 +56,7 @@ internal sealed class BudsSaveDataSerializer : IBudsSaveDataSerializer
         Dictionary<string, List<MedalShopLeaf>> medalShopsByCreatorId = GetLeavesByCreatorIds(_medalShopsLeafRegistry);
         Dictionary<string, List<DiscoveryLeaf>>
             discoveriesByCreatorId = GetLeavesByCreatorIds(_discoveriesLeafRegistry);
-        Dictionary<string, List<HasEnemyLeaf>> enemiesByCreatorId = GetLeavesByCreatorIds(_enemiesLeafRegistry);
+        Dictionary<string, List<EnemyLeaf>> enemiesByCreatorId = GetLeavesByCreatorIds(_enemiesLeafRegistry);
         Dictionary<string, List<RecipeLibraryEntryLeaf>> recipeLibraryEntriesByCreatorId =
             GetLeavesByCreatorIds(_recipeLibraryEntriesLeafRegistry);
         Dictionary<string, List<RecordLeaf>> recordsByCreatorId = GetLeavesByCreatorIds(_recordsLeafRegistry);
@@ -105,7 +105,7 @@ internal sealed class BudsSaveDataSerializer : IBudsSaveDataSerializer
     private BudSaveData GetBudSaveDataFromRuntimeState(
         List<MedalShopLeaf> medalShopLeaves,
         List<DiscoveryLeaf> discoveryLeaves,
-        List<HasEnemyLeaf> enemyLeaves,
+        List<EnemyLeaf> enemyLeaves,
         List<RecipeLibraryEntryLeaf> recipeLibraryEntryLeaves,
         List<RecordLeaf> recordLeaves,
         List<AreaLeaf> areaLeaves,

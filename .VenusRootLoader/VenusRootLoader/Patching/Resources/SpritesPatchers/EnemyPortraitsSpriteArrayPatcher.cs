@@ -26,14 +26,14 @@ namespace VenusRootLoader.Patching.Resources.SpritesPatchers;
 internal sealed class EnemyPortraitsSpriteArrayPatcher : ISpriteArrayPatcher
 {
     private readonly ILeavesRegistry<DiscoveryLeaf> _discoveriesRegistry;
-    private readonly ILeavesRegistry<HasEnemyLeaf> _enemiesRegistry;
+    private readonly ILeavesRegistry<EnemyLeaf> _enemiesRegistry;
     private readonly ILeavesRegistry<RecordLeaf> _recordsRegistry;
     private readonly ILeavesRegistry<QuestLeaf> _questsRegistry;
 
     public EnemyPortraitsSpriteArrayPatcher(
         string[] subPaths,
         ILeavesRegistry<DiscoveryLeaf> discoveriesRegistry,
-        ILeavesRegistry<HasEnemyLeaf> enemiesRegistry,
+        ILeavesRegistry<EnemyLeaf> enemiesRegistry,
         ILeavesRegistry<RecordLeaf> recordsRegistry,
         ILeavesRegistry<QuestLeaf> questsRegistry)
     {

@@ -6,7 +6,7 @@ using VenusRootLoader.Utility;
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.LocalisedData;
 
 /// <inheritdoc/>
-internal sealed class EnemyLocalizedTextAssetParser : ILocalizedTextAssetParser<HasEnemyLeaf>
+internal sealed class EnemyLocalizedTextAssetParser : ILocalizedTextAssetParser<EnemyLeaf>
 {
     private readonly ILeavesRegistry<LanguageLeaf> _languageRegistry;
 
@@ -15,7 +15,7 @@ internal sealed class EnemyLocalizedTextAssetParser : ILocalizedTextAssetParser<
         _languageRegistry = languageRegistry;
     }
 
-    public string GetTextAssetSerializedString(string subPath, int languageId, HasEnemyLeaf leaf)
+    public string GetTextAssetSerializedString(string subPath, int languageId, EnemyLeaf leaf)
     {
         StringBuilder sb = new();
         sb.Append(leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)].Name);
@@ -31,7 +31,7 @@ internal sealed class EnemyLocalizedTextAssetParser : ILocalizedTextAssetParser<
         return sb.ToString();
     }
 
-    public void FromTextAssetSerializedString(string subPath, int languageId, string text, HasEnemyLeaf leaf)
+    public void FromTextAssetSerializedString(string subPath, int languageId, string text, EnemyLeaf leaf)
     {
         string[] fields = text.Split(StringUtils.AtSymbolSplitDelimiter);
         leaf.LocalizedData[_languageRegistry.GetByGameId(languageId)] = new()

@@ -11,7 +11,7 @@ namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 /// Those registries impact the following leaves:
 /// <list type="bullet">
 /// <item><see cref="DiscoveryLeaf"/></item>
-/// <item><see cref="HasEnemyLeaf"/></item>
+/// <item><see cref="EnemyLeaf"/></item>
 /// <item><see cref="RecipeLibraryEntryLeaf"/></item>
 /// <item><see cref="RecordLeaf"/></item>
 /// <item><see cref="AreaLeaf"/></item>
@@ -32,7 +32,7 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
 {
     private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<DiscoveryLeaf> _discoveriesRegistry;
-    private readonly IOrderedLeavesRegistry<HasEnemyLeaf> _orderedEnemiesRegistry;
+    private readonly IOrderedLeavesRegistry<EnemyLeaf> _orderedEnemiesRegistry;
     private readonly ILeavesRegistry<RecipeLibraryEntryLeaf> _recipeLibraryEntriesRegistry;
     private readonly ILeavesRegistry<RecordLeaf> _recordsRegistry;
     private readonly ILeavesRegistry<AreaLeaf> _areasRegistry;
@@ -42,7 +42,7 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
     public LibraryCapsTopLevelPatcher(
         IHarmonyTypePatcher harmonyTypePatcher,
         ILeavesRegistry<DiscoveryLeaf> discoveriesRegistry,
-        IOrderedLeavesRegistry<HasEnemyLeaf> orderedEnemiesRegistry,
+        IOrderedLeavesRegistry<EnemyLeaf> orderedEnemiesRegistry,
         ILeavesRegistry<RecipeLibraryEntryLeaf> recipeLibraryEntriesRegistry,
         ILeavesRegistry<RecordLeaf> recordsRegistry,
         ILeavesRegistry<AreaLeaf> areasRegistry)

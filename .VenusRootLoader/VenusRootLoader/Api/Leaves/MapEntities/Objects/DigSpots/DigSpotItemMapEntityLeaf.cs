@@ -40,7 +40,7 @@ public sealed class DigSpotItemMapEntityLeaf : DigSpotMapEntityLeaf
         }
     }
 
-    // TODO: Mention in the xmldoc it only applies to Lore Book in base game
+    // Mention in the xmldoc it only applies to Lore Book in base game
     public ObjectDetectorBehavior DetectorBehavior
     {
         get

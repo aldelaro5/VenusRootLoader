@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
+using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Runtime.InteropServices;
 using UnityEngine;
@@ -490,5 +491,56 @@ public sealed class SaveDataPersistenceTests
         logRecord.Level.Should().Be(LogLevel.Error);
         logRecord.Exception.Should().Be(exception);
         logRecord.Message.Should().Be($"An error occured while writing save data to {directory}\n");
+    }
+
+    [Fact]
+    public void DeleteSaveSlot_ReturnsTrue_WhenDeletionSucceeds()
+    {
+        string directory = Path.Combine(SaveDataPath, "0");
+        _fileSystem.AddEmptyFile(Path.Combine(directory, "BaseGame.dat"));
+
+        bool result = _sut.DeleteSaveSlot(0);
+
+        result.Should().BeTrue();
+
+        _fileSystem.FileExists(Path.Combine(directory, "BaseGame.dat"))
+            .Should().BeFalse();
+
+        _logger.Collector.Count.Should().Be(0);
+    }
+
+    [Fact]
+    public void DeleteSaveSlot_ReturnsFalse_WhenDeletionFails()
+    {
+        IFileSystem fileSystem = Substitute.For<IFileSystem>();
+        string directory = Path.Combine(SaveDataPath, "0");
+        Exception exception = new("Test");
+
+        fileSystem.Path.Combine("", "")
+            .ReturnsForAnyArgs(x => Path.Combine(x.ArgAt<string>(0), x.ArgAt<string>(1)));
+        fileSystem.Directory.When(x => x.Delete(directory, true))
+            .Throws(exception);
+
+        SaveDataPersistence sut = new(
+            _budLoaderContext,
+            _gameDataRuntimeState,
+            fileSystem,
+            _logger,
+            _baseGameSaveDataDeserializer,
+            _budsSaveDataDeserializer,
+            _baseGameSaveDataSerializer,
+            _budsSaveDataSerializer);
+
+        bool result = sut.DeleteSaveSlot(0);
+
+        result.Should().BeFalse();
+
+        fileSystem.Directory.Received(1).Delete(directory, true);
+
+        _logger.Collector.Count.Should().Be(1);
+        FakeLogRecord logRecord = _logger.LatestRecord;
+        logRecord.Level.Should().Be(LogLevel.Error);
+        logRecord.Exception.Should().Be(exception);
+        logRecord.Message.Should().Be($"An error occured while deleting the save data at {directory}\n");
     }
 }

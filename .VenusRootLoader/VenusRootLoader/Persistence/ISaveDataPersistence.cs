@@ -9,4 +9,5 @@ internal interface ISaveDataPersistence
     MainManager.LoadData? LoadLiteSaveDataFromSlot(int saveSlot);
     MainManager.LoadData? LoadFullSaveDataFromSlot(int saveSlot);
     bool WriteSaveDataToSaveSlot(int saveSlot, Vector3? playerPositionToSave);
+    bool DeleteSaveSlot(int saveSlot);
 }

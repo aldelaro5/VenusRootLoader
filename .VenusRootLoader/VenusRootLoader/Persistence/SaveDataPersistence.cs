@@ -75,7 +75,7 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
         try
         {
             string baseGameSaveData = _fileSystem.File.ReadAllText(baseGameSaveFilePath);
-            
+
             StagingLoadData stagingLoadData = new();
             MainManager.LoadData? loadData =
                 _baseGameSaveDataDeserializer.DeserializeFullBaseGameSaveData(baseGameSaveData, stagingLoadData);
@@ -145,6 +145,22 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
                 e,
                 "An error occured while writing save data to {path}\n",
                 saveSlotDirectory);
+            return false;
+        }
+    }
+
+    public bool DeleteSaveSlot(int saveSlot)
+    {
+        string saveSlotDirectory = _fileSystem.Path.Combine(_budLoaderContext.SaveDataPath, saveSlot.ToString());
+
+        try
+        {
+            _fileSystem.Directory.Delete(saveSlotDirectory, true);
+            return true;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "An error occured while deleting the save data at {path}\n", saveSlotDirectory);
             return false;
         }
     }

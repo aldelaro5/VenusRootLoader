@@ -7,7 +7,7 @@ namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
 // TODO: Patch a proper fix to the ROT modifier workaround which doesn't work right and is basically a race condition
 // TODO: Figure out if we can make this work for NPCs which seems to not lock their rigid properly
-// TODO: Remember to specify in the xmldoc that the regional gets set when untrapped
+// Remember to specify in the xmldoc that the regional gets set when untrapped
 public sealed class TrappedEntityMapEntityLeaf : ObjectMapEntityLeaf
 {
     internal TrappedEntityMapEntityLeaf(int gameId, string creatorId, string namedId)

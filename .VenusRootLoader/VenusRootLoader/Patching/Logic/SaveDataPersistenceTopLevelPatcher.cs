@@ -1,5 +1,6 @@
 using HarmonyLib;
 using InputIOManager;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 using VenusRootLoader.Persistence;
 
@@ -14,8 +15,8 @@ namespace VenusRootLoader.Patching.Logic;
 /// <item><see cref="MainManager.Load"/>: If VenusRootLoader has a save for the given slot, we load that one into the game,
 /// otherwise, we let the game load it as normal.</item>
 /// <item><see cref="MainManager.Save"/>: Completely replaces the method to use our persistence system instead.</item>
-/// <item><see cref="InputIO.DeleteFile"/>: If VenusRootLoader has a save for the given slot, we delete it, otherwise,
-/// we let the game delete it as normal.</item>
+/// <item><see cref="InputIO.DeleteFile"/>: If VenusRootLoader has a save for the given slot, we delete it, and we let
+/// the game delete its as normal too.</item>
 /// </list>
 /// </p>
 /// </summary>
@@ -68,14 +69,17 @@ internal sealed class SaveDataPersistenceTopLevelPatcher : ITopLevelPatcher
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(InputIO), nameof(InputIO.DeleteFile))]
+    [SuppressMessage(
+        "System.IO.Abstractions",
+        "IO0002:Replace File class with IFileSystem.File for improved testability")]
     // ReSharper disable once InconsistentNaming
-    internal static bool DeleteSaveData(string path, ref bool? __result)
+    internal static bool DeleteSaveData(string path, ref bool __result)
     {
         int saveSlot = int.Parse(path.Replace("save", "").Replace(".dat", ""));
         if (!_instance._saveDataPersistence.SaveSlotExistsInVenusRootLoader(saveSlot))
             return true;
 
         __result = _instance._saveDataPersistence.DeleteSaveSlot(saveSlot);
-        return true;
+        return __result && File.Exists("save" + MainManager.instance.option + ".dat");
     }
 }

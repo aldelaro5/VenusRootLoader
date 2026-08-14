@@ -1,6 +1,7 @@
 using HarmonyLib;
 using InputIOManager;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection.Emit;
 using UnityEngine;
 using VenusRootLoader.Persistence;
 
@@ -17,9 +18,13 @@ namespace VenusRootLoader.Patching.Logic;
 /// <item><see cref="MainManager.Save"/>: Completely replaces the method to use our persistence system instead.</item>
 /// <item><see cref="InputIO.DeleteFile"/>: If VenusRootLoader has a save for the given slot, we delete it, and we let
 /// the game delete its as normal too.</item>
+/// <item><see cref="StartMenu.DoCopy"/>: Patch the copy process such that if VenusRootLoader has a save for the given
+/// source slot, we copy it, and we do the same as the base game if it exists too or if there was no VenusRootLoader save
+/// to start with.</item>
 /// </list>
 /// </p>
 /// </summary>
+[SuppressMessage("System.IO.Abstractions", "IO0002:Replace File class with IFileSystem.File for improved testability")]
 internal sealed class SaveDataPersistenceTopLevelPatcher : ITopLevelPatcher
 {
     private readonly IHarmonyTypePatcher _harmonyTypePatcher;
@@ -69,9 +74,6 @@ internal sealed class SaveDataPersistenceTopLevelPatcher : ITopLevelPatcher
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(InputIO), nameof(InputIO.DeleteFile))]
-    [SuppressMessage(
-        "System.IO.Abstractions",
-        "IO0002:Replace File class with IFileSystem.File for improved testability")]
     // ReSharper disable once InconsistentNaming
     internal static bool DeleteSaveData(string path, ref bool __result)
     {
@@ -82,4 +84,40 @@ internal sealed class SaveDataPersistenceTopLevelPatcher : ITopLevelPatcher
         __result = _instance._saveDataPersistence.DeleteSaveSlot(saveSlot);
         return __result && File.Exists("save" + MainManager.instance.option + ".dat");
     }
+
+    [HarmonyTranspiler]
+    [HarmonyPatch(typeof(StartMenu), nameof(StartMenu.DoCopy), MethodType.Enumerator)]
+    // ReSharper disable once InconsistentNaming
+    internal static IEnumerable<CodeInstruction> PatchCopySaveData(
+        IEnumerable<CodeInstruction> instructions,
+        ILGenerator generator)
+    {
+        CodeMatcher matcher = new(instructions, generator);
+
+        matcher.MatchStartForward(CodeMatch.LoadsConstant(""));
+        while (!matcher.Instruction.Branches(out _))
+            matcher.SetInstructionAndAdvance(Code.Nop);
+        matcher.Insert(CodeInstruction.LoadArgument(0), Transpilers.EmitDelegate(CopySaveData));
+
+        return matcher.Instructions();
+    }
+
+    private static bool CopySaveData(StartMenu startMenu)
+    {
+        int sourceSlot = startMenu.selectedfile;
+        int destinationSlot = MainManager.instance.option;
+
+        if (!_instance._saveDataPersistence.SaveSlotExistsInVenusRootLoader(sourceSlot))
+            return CopyBaseGameFile(sourceSlot, destinationSlot);
+
+        bool result = _instance._saveDataPersistence.CopySaveSlot(sourceSlot, destinationSlot);
+        if (!result)
+            return false;
+        return !File.Exists($"save{sourceSlot}.dat") || CopyBaseGameFile(sourceSlot, destinationSlot);
+    }
+
+    private static bool CopyBaseGameFile(int sourceSlot, int destinationSlot) =>
+        InputIO.CreateFile(
+            $"save{destinationSlot}.dat",
+            InputIO.ReadFile($"save{sourceSlot}.dat"));
 }

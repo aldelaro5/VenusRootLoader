@@ -149,6 +149,66 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
         }
     }
 
+    public bool CopySaveSlot(int sourceSaveSlot, int destinationSaveSlot)
+    {
+        string sourceSaveSlotDirectory = _fileSystem.Path.Combine(
+            _budLoaderContext.SaveDataPath,
+            sourceSaveSlot.ToString());
+        string destinationSaveSlotDirectory = _fileSystem.Path.Combine(
+            _budLoaderContext.SaveDataPath,
+            destinationSaveSlot.ToString());
+        string temporaryDestinationSaveSlotDirectory = destinationSaveSlotDirectory + "tempCopy";
+
+        // Ensure that there wasn't a leftover temporary copy from a previous copy.
+        if (_fileSystem.Directory.Exists(temporaryDestinationSaveSlotDirectory))
+            _fileSystem.Directory.Delete(temporaryDestinationSaveSlotDirectory, true);
+        // If this is an overwrite operation, move the destination to a copy in case the actual move fails so we can restore it.
+        if (_fileSystem.Directory.Exists(destinationSaveSlotDirectory))
+            _fileSystem.Directory.Move(destinationSaveSlotDirectory, temporaryDestinationSaveSlotDirectory);
+
+        bool copyDone = false;
+        try
+        {
+            _fileSystem.Directory.CreateDirectory(destinationSaveSlotDirectory);
+            foreach (string sourcePath in _fileSystem.Directory.EnumerateFileSystemEntries(
+                         sourceSaveSlotDirectory,
+                         "*",
+                         SearchOption.TopDirectoryOnly))
+            {
+                string fileName = _fileSystem.Path.GetFileName(sourcePath);
+                string destinationPath = _fileSystem.Path.Combine(destinationSaveSlotDirectory, fileName);
+                _fileSystem.File.Copy(sourcePath, destinationPath);
+            }
+
+            copyDone = true;
+            return true;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(
+                e,
+                "An error occured while copying the save data from {sourcePath} to {destinationPath}\n",
+                sourceSaveSlotDirectory,
+                destinationSaveSlotDirectory);
+            return false;
+        }
+        finally
+        {
+            if (_fileSystem.Directory.Exists(temporaryDestinationSaveSlotDirectory))
+            {
+                if (copyDone)
+                {
+                    _fileSystem.Directory.Delete(temporaryDestinationSaveSlotDirectory, true);
+                }
+                else
+                {
+                    _fileSystem.Directory.Delete(destinationSaveSlotDirectory, true);
+                    _fileSystem.Directory.Move(temporaryDestinationSaveSlotDirectory, destinationSaveSlotDirectory);
+                }
+            }
+        }
+    }
+
     public bool DeleteSaveSlot(int saveSlot)
     {
         string saveSlotDirectory = _fileSystem.Path.Combine(_budLoaderContext.SaveDataPath, saveSlot.ToString());

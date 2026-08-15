@@ -3,7 +3,6 @@ using VenusRootLoader.SourceGenerators;
 namespace VenusRootLoader.Api.Leaves;
 
 // TODO: Solve the LibraryShelf issue
-// TODO: Patch the list type so LoreText isn't fetched once per refreshed elements of the ItemList
 [ExposeFromVenus]
 public sealed class LoreBookLeaf : Leaf
 {

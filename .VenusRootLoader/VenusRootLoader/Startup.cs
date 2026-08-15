@@ -14,6 +14,7 @@ using VenusRootLoader.Patching.Logic;
 using VenusRootLoader.Patching.Logic.BaseGameFixes;
 using VenusRootLoader.Patching.Logic.LeavesSupport;
 using VenusRootLoader.Patching.Logic.LimitsRemoval;
+using VenusRootLoader.Patching.PostBudLoading;
 using VenusRootLoader.Patching.Resources;
 using VenusRootLoader.Patching.Resources.AudioClipPatchers;
 using VenusRootLoader.Patching.Resources.PrefabPatchers;
@@ -308,6 +309,7 @@ internal static class Startup
 
         services.AddSingleton<ITopLevelPatcher, BudLoaderTopLevelPatcher>();
 
+        services.AddSingleton<ITopLevelPatcher, LoreBooksAmountTopLevelPatcher>();
         services.AddSingleton<RootPatcher>();
 
         ServiceProvider serviceProvider = services.BuildServiceProvider();

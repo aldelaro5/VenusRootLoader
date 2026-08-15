@@ -4,6 +4,10 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.PostBudLoading;
 
+/// <summary>
+/// This patcher changes map dialogue 7 of AntPalaceLibrary to change the value of a checkvar command which is hardcoded
+/// to be the amount of Lore Books in the game. The patched amount reflects the registry.
+/// </summary>
 internal sealed class LoreBooksAmountTopLevelPatcher : ITopLevelPatcher
 {
     private readonly ILeavesRegistry<LoreBookLeaf> _loreBookRegistry;

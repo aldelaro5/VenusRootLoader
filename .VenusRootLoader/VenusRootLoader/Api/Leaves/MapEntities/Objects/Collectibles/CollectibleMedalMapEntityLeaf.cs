@@ -7,7 +7,6 @@ using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Collectibles;
 
-// TODO: Need to patch CheckItem so it recognise berries correctly preventing multiple pickup during invulnerability cooldown
 public sealed class CollectibleMedalMapEntityLeaf : CollectibleMapEntityLeaf
 {
     internal CollectibleMedalMapEntityLeaf(int gameId, string creatorId, string namedId)

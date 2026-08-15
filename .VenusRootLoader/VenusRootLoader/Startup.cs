@@ -294,6 +294,7 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, MemoryAllocationsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, MapsLoadingTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, SaveDataPersistenceTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, CollectibleMedalNearEnemyEncounterTopLevelPatcher>();
         services.AddSingleton<RootPatcher>();
 
         services.AddSingleton<IGlobalMonoBehaviourExecution, GlobalMonoBehaviourExecution>();

@@ -29,13 +29,13 @@ internal sealed class ImmediateLeafResolver<TLeaf> : ILeafResolver<TLeaf>
     public TLeaf Resolve() => _leaf;
 }
 
-internal sealed class DeferedLeafResolver<TLeaf> : ILeafResolver<TLeaf>
+internal sealed class DeferredLeafResolver<TLeaf> : ILeafResolver<TLeaf>
     where TLeaf : Leaf
 {
     public string CreatorId { get; }
     public string NamedId { get; }
 
-    public DeferedLeafResolver(string creatorId, string namedId)
+    public DeferredLeafResolver(string creatorId, string namedId)
     {
         CreatorId = creatorId;
         NamedId = namedId;

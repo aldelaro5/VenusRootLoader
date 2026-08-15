@@ -37,7 +37,7 @@ public sealed record Branch<TLeaf> : ILeafResolver<TLeaf>
     /// if you want to reference a leaf that can't otherwise be created the moment you need to reference it. It is aimed
     /// to address potential "chicken and egg" problems.
     /// </remarks>
-    public Branch(string creatorId, string namedId) => _resolver = new DeferedLeafResolver<TLeaf>(creatorId, namedId);
+    public Branch(string creatorId, string namedId) => _resolver = new DeferredLeafResolver<TLeaf>(creatorId, namedId);
 
     /// <summary>
     /// Obtains the leaf referenced by this branch. If the constructor taking a leaf was used to create this branch, this

@@ -19,6 +19,8 @@ public sealed record Branch<TLeaf> : ILeafResolver<TLeaf>
 
     private readonly ILeafResolver<TLeaf> _resolver;
 
+    internal Branch(ILeafResolver<TLeaf> resolver) => _resolver = resolver;
+
     /// <summary>
     /// Create a branch that will reference an existing leaf. This is implicitly invoked when an implicit conversion from
     /// <typeparamref name="TLeaf"/> to <see cref="Branch{TLeaf}"/> happens.

@@ -7,7 +7,7 @@ namespace VenusRootLoader.LeavesInternals;
 /// A scheme to resolve a <see cref="Leaf"/> from a <see cref="Branch{TLeaf}"/>.
 /// </summary>
 /// <typeparam name="TLeaf">The type of leaf this resolver resolves.</typeparam>
-internal interface ILeafResolver<TLeaf> : ILeafId
+internal interface ILeafResolver<out TLeaf> : ILeafId
     where TLeaf : Leaf
 {
     /// <summary>
@@ -42,4 +42,20 @@ internal sealed class DeferredLeafResolver<TLeaf> : ILeafResolver<TLeaf>
     }
 
     public TLeaf Resolve() => RegistryResolver.Resolve<TLeaf>().Get(CreatorId, NamedId);
+}
+
+internal sealed class DeferredMapDialogueLeafResolver : ILeafResolver<MapDialogueLeaf>
+{
+    public string CreatorId { get; }
+    public string NamedId { get; }
+    private readonly MapLeaf _mapLeaf;
+
+    public DeferredMapDialogueLeafResolver(MapLeaf mapLeaf, string creatorId, string namedId)
+    {
+        CreatorId = creatorId;
+        NamedId = namedId;
+        _mapLeaf = mapLeaf;
+    }
+
+    public MapDialogueLeaf Resolve() => _mapLeaf.DialoguesRegistry.Get(CreatorId, NamedId);
 }

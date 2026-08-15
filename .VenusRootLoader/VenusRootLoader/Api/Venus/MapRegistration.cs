@@ -6,6 +6,7 @@ using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Api.Leaves.MapEntities;
 using VenusRootLoader.Api.Unity;
+using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Unity.AssetLoading;
 using VenusRootLoader.Unity.Runtime.Enums;
@@ -152,7 +153,7 @@ public partial class Venus
         mapLeaf.SpyDialogue = scriptableObject.SpyDialogue.DialogueKind == MapDialogueKind.Common
             ? RegistryResolver.Resolve<CommonDialogueLeaf>().GetByEffectiveId(
                 GetEffectiveIdFromScriptableObjectBranch(scriptableObject.SpyDialogue.Dialogue, BudId))
-            : CreateMapDialogueBranch(scriptableObject.SpyDialogue.Dialogue);
+            : CreateMapDialogueBranch(mapLeaf, scriptableObject.SpyDialogue.Dialogue);
 
         foreach (Branch branch in scriptableObject.FollowerAnimIdsAllowed)
         {
@@ -207,13 +208,13 @@ public partial class Venus
         return mapLeaf;
     }
 
-    // TODO: Need branches to lazily resolve leaves
-    private Branch<DialogueLeaf> CreateMapDialogueBranch(Branch dialogueBranch)
+    private Branch<DialogueLeaf> CreateMapDialogueBranch(MapLeaf mapLeaf, Branch dialogueBranch)
     {
         string creatorId = dialogueBranch.CreatorKind == BranchCreatorKind.Custom
             ? dialogueBranch.CustomCreatorId
             : BudId;
-        MapDialogueLeaf mapDialogueLeaf = new(-1, dialogueBranch.NamedId, creatorId);
+        DeferredMapDialogueLeafResolver resolver = new(mapLeaf, creatorId, dialogueBranch.NamedId);
+        Branch<DialogueLeaf> mapDialogueLeaf = new(resolver);
         return mapDialogueLeaf;
     }
 

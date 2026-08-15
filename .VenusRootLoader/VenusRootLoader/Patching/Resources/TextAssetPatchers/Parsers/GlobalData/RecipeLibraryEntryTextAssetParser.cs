@@ -70,7 +70,7 @@ internal sealed class RecipeLibraryEntryTextAssetParser : ITextAssetParser<Recip
         {
             // We assume this will be read first so we need to have a blank leaf to receive the other TextAsset info
             // before we can fully resolve it.
-            leaf.Recipe = new(new(-1, "", ""));
+            leaf.Recipe = new(new RecipeLeaf(-1, "", ""));
             leaf.Recipe.Resolve().ResultItem = new(_itemsRegistry.GetByGameId(int.Parse(text)));
             return;
         }

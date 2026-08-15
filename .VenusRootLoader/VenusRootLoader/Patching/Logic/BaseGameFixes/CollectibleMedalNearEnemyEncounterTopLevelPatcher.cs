@@ -41,14 +41,17 @@ internal sealed class CollectibleMedalNearEnemyEncounterTopLevelPatcher : ITopLe
     {
         CodeMatcher matcher = new(instructions, generator);
 
+        FieldInfo thisLocalField =
+            __originalMethod.DeclaringType.GetDeclaredFields().Single(x => x.Name.Contains("this"));
         FieldInfo isMoneyLocalField =
             __originalMethod.DeclaringType.GetDeclaredFields().Single(x => x.Name.Contains("ismoney"));
 
         matcher.MatchStartForward(CodeMatch.StoresField(isMoneyLocalField));
         matcher.MatchStartBackwards(CodeMatch.LoadsConstant(1));
-        // This is always the "this" of the coroutine so the NPCControl here.
-        matcher.SetOpcodeAndAdvance(OpCodes.Ldloc_1);
-        matcher.Insert(Transpilers.EmitDelegate(IsRegularItemEntity));
+        matcher.SetOpcodeAndAdvance(OpCodes.Ldarg_0);
+        matcher.Insert(
+            new CodeInstruction(OpCodes.Ldfld, thisLocalField),
+            Transpilers.EmitDelegate(IsRegularItemEntity));
 
         return matcher.Instructions();
     }

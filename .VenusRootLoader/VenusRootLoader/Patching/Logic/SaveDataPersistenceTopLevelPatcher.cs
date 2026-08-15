@@ -1,6 +1,7 @@
 using HarmonyLib;
 using InputIOManager;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
 using VenusRootLoader.Persistence;
@@ -90,13 +91,21 @@ internal sealed class SaveDataPersistenceTopLevelPatcher : ITopLevelPatcher
     // ReSharper disable once InconsistentNaming
     internal static IEnumerable<CodeInstruction> PatchCopySaveData(
         IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator)
+        ILGenerator generator,
+        MethodBase __originalMethod)
     {
         CodeMatcher matcher = new(instructions, generator);
 
+        MethodInfo inputIoCreateFileMethod = AccessTools.Method(typeof(InputIO), nameof(InputIO.CreateFile));
+        FieldInfo coroutineStateField =
+            __originalMethod.DeclaringType.GetDeclaredFields().Single(x => x.Name.Contains("state"));
+
         matcher.MatchStartForward(CodeMatch.LoadsConstant(""));
-        while (!matcher.Instruction.Branches(out _))
+        matcher.MatchStartBackwards(CodeMatch.StoresField(coroutineStateField));
+        matcher.Advance(1);
+        while (!matcher.Instruction.Calls(inputIoCreateFileMethod))
             matcher.SetInstructionAndAdvance(Code.Nop);
+        matcher.SetInstructionAndAdvance(Code.Nop);
         matcher.Insert(CodeInstruction.LoadArgument(0), Transpilers.EmitDelegate(CopySaveData));
 
         return matcher.Instructions();

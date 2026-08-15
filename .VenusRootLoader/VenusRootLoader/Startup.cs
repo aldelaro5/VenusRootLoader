@@ -272,6 +272,16 @@ internal static class Startup
         services.AddSingleton<IBudsSaveDataDeserializer, BudsSaveDataDeserializer>();
         services.AddSingleton<ISaveDataPersistence, SaveDataPersistence>();
 
+        services.AddSingleton<IGlobalMonoBehaviourExecution, GlobalMonoBehaviourExecution>();
+        services.AddSingleton<IBudConfigManager, BudConfigManager>();
+        services.AddSingleton<IVenusFactory, VenusFactory>();
+        services.AddSingleton<IBudsDiscoverer, BudsDiscoverer>();
+        services.AddSingleton<IBudsValidator, BudsValidator>();
+        services.AddSingleton<IBudsDependencySorter, BudsDependencySorter>();
+        services.AddSingleton<IBudsLoadOrderEnumerator, BudsLoadOrderEnumerator>();
+        services.AddSingleton<IAssemblyLoader, AssemblyLoader>();
+        services.AddSingleton<IBudLoader, BudLoader>();
+
         services.AddSingleton<ITopLevelPatcher, ResourcesTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, GlobalFlagsCapsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, CrystalBerriesAmountTopLevelPatcher>();
@@ -295,18 +305,10 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, MapsLoadingTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, SaveDataPersistenceTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, CollectibleMedalNearEnemyEncounterTopLevelPatcher>();
+
+        services.AddSingleton<ITopLevelPatcher, BudLoaderTopLevelPatcher>();
+
         services.AddSingleton<RootPatcher>();
-
-        services.AddSingleton<IGlobalMonoBehaviourExecution, GlobalMonoBehaviourExecution>();
-
-        services.AddSingleton<IBudConfigManager, BudConfigManager>();
-        services.AddSingleton<IVenusFactory, VenusFactory>();
-        services.AddSingleton<IBudsDiscoverer, BudsDiscoverer>();
-        services.AddSingleton<IBudsValidator, BudsValidator>();
-        services.AddSingleton<IBudsDependencySorter, BudsDependencySorter>();
-        services.AddSingleton<IBudsLoadOrderEnumerator, BudsLoadOrderEnumerator>();
-        services.AddSingleton<IAssemblyLoader, AssemblyLoader>();
-        services.AddSingleton<BudLoader>();
 
         ServiceProvider serviceProvider = services.BuildServiceProvider();
         RegistryResolver.Init(serviceProvider);

@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using UnityEngine;
 using VenusRootLoader.BaseGameCollector;
-using VenusRootLoader.BudLoading;
 using VenusRootLoader.Logging;
 using VenusRootLoader.Patching;
 
@@ -45,9 +44,6 @@ internal static class Entry
 
             RootPatcher patcher = host.GetRequiredService<RootPatcher>();
             patcher.RunAllTopLevelPatchers();
-
-            BudLoader loader = host.GetRequiredService<BudLoader>();
-            loader.LoadAllBuds();
         }
         catch (Exception e)
         {

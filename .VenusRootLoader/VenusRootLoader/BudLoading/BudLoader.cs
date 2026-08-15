@@ -15,7 +15,13 @@ namespace VenusRootLoader.BudLoading;
 /// </list>
 /// All the buds enumerated from the last phase gets loaded after handling their configuration file.
 /// </summary>
-internal sealed class BudLoader
+internal interface IBudLoader
+{
+    void LoadAllBuds();
+}
+
+/// <inheritdoc/>
+internal sealed class BudLoader : IBudLoader
 {
     private readonly IBudsDiscoverer _budsDiscoverer;
     private readonly IBudsValidator _budsValidator;
@@ -58,7 +64,7 @@ internal sealed class BudLoader
             _fileSystem.Directory.CreateDirectory(_budLoaderContext.BudsPath);
     }
 
-    internal void LoadAllBuds()
+    public void LoadAllBuds()
     {
         IList<BudInfo> buds = FindAllBuds();
         if (buds.Count == 0)

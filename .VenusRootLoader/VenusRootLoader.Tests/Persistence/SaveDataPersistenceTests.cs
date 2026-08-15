@@ -543,4 +543,120 @@ public sealed class SaveDataPersistenceTests
         logRecord.Exception.Should().Be(exception);
         logRecord.Message.Should().Be($"An error occured while deleting the save data at {directory}\n");
     }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void CopySaveSlot_ReturnsTrue_WhenCopySucceedsWithoutOverwrite(bool temporaryFolderExists)
+    {
+        string sourceDirectory = Path.Combine(SaveDataPath, "0");
+        string destinationDirectory = Path.Combine(SaveDataPath, "1");
+        _fileSystem.AddFile(Path.Combine(sourceDirectory, "BaseGame.dat"), new("some data"));
+
+        if (temporaryFolderExists)
+            _fileSystem.AddFile(Path.Combine(SaveDataPath, "1tempCopy", "BaseGame.dat"), new("some temporary data"));
+
+        bool result = _sut.CopySaveSlot(0, 1);
+
+        result.Should().BeTrue();
+
+        _fileSystem.AllFiles.Count().Should().Be(2);
+        _fileSystem.FileExists(Path.Combine(sourceDirectory, "BaseGame.dat"))
+            .Should().BeTrue();
+        _fileSystem.GetFile(Path.Combine(sourceDirectory, "BaseGame.dat")).TextContents
+            .Should().Be("some data");
+        _fileSystem.FileExists(Path.Combine(destinationDirectory, "BaseGame.dat"))
+            .Should().BeTrue();
+        _fileSystem.GetFile(Path.Combine(destinationDirectory, "BaseGame.dat")).TextContents
+            .Should().Be("some data");
+
+        _logger.Collector.Count.Should().Be(0);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void CopySaveSlot_ReturnsTrue_WhenCopySucceedsWithOverwrite(bool temporaryFolderExists)
+    {
+        string sourceDirectory = Path.Combine(SaveDataPath, "0");
+        string destinationDirectory = Path.Combine(SaveDataPath, "1");
+        _fileSystem.AddFile(Path.Combine(sourceDirectory, "BaseGame.dat"), new("some data"));
+        _fileSystem.AddFile(Path.Combine(destinationDirectory, "BaseGame.dat"), new("some old data"));
+
+        if (temporaryFolderExists)
+            _fileSystem.AddFile(Path.Combine(SaveDataPath, "1tempCopy", "BaseGame.dat"), new("some temporary data"));
+
+        bool result = _sut.CopySaveSlot(0, 1);
+
+        result.Should().BeTrue();
+
+        _fileSystem.AllFiles.Count().Should().Be(2);
+        _fileSystem.FileExists(Path.Combine(sourceDirectory, "BaseGame.dat"))
+            .Should().BeTrue();
+        _fileSystem.GetFile(Path.Combine(sourceDirectory, "BaseGame.dat")).TextContents
+            .Should().Be("some data");
+        _fileSystem.FileExists(Path.Combine(destinationDirectory, "BaseGame.dat"))
+            .Should().BeTrue();
+        _fileSystem.GetFile(Path.Combine(destinationDirectory, "BaseGame.dat")).TextContents
+            .Should().Be("some data");
+
+        _logger.Collector.Count.Should().Be(0);
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public void CopySaveSlot_ReturnsFalseAndDoesNothing_WhenCopyFails(bool temporaryFolderExists, bool overwites)
+    {
+        IFileSystem fileSystem = Substitute.For<IFileSystem>();
+        string sourceDirectory = Path.Combine(SaveDataPath, "0");
+        string destinationDirectory = Path.Combine(SaveDataPath, "1");
+        string temporaryDirectory = Path.Combine(SaveDataPath, "1tempCopy");
+        string sourceFile = Path.Combine(sourceDirectory, "BaseGame.dat");
+        string destinationFile = Path.Combine(destinationDirectory, "BaseGame.dat");
+        Exception exception = new("Test");
+
+        fileSystem.Path.Combine("", "").ReturnsForAnyArgs(x => Path.Combine(x.ArgAt<string>(0), x.ArgAt<string>(1)));
+        fileSystem.Path.GetFileName("").ReturnsForAnyArgs(x => Path.GetFileName(x.ArgAt<string>(0)));
+        fileSystem.File.WhenForAnyArgs(x => x.Copy("", "")).Throw(exception);
+
+        fileSystem.Directory.Exists(destinationDirectory).Returns(overwites);
+        if (temporaryFolderExists)
+            fileSystem.Directory.Exists(temporaryDirectory).Returns(true);
+
+        fileSystem.Directory.EnumerateFileSystemEntries(sourceDirectory, "*", SearchOption.TopDirectoryOnly)
+            .Returns([sourceFile, destinationFile]);
+
+        SaveDataPersistence sut = new(
+            _budLoaderContext,
+            _gameDataRuntimeState,
+            fileSystem,
+            _logger,
+            _baseGameSaveDataDeserializer,
+            _budsSaveDataDeserializer,
+            _baseGameSaveDataSerializer,
+            _budsSaveDataSerializer);
+        bool result = sut.CopySaveSlot(0, 1);
+
+        result.Should().BeFalse();
+        fileSystem.Directory.Received(temporaryFolderExists ? 1 : 0).Delete(temporaryDirectory, true);
+        if (overwites)
+            fileSystem.Directory.Received(1).Move(destinationDirectory, temporaryDirectory);
+        fileSystem.Directory.Received(1).CreateDirectory(destinationDirectory);
+        fileSystem.File.Received(1).Copy(sourceFile, destinationFile);
+        if (overwites)
+        {
+            fileSystem.Directory.Received(1).Delete(destinationDirectory, true);
+            fileSystem.Directory.Received(1).Move(temporaryDirectory, destinationDirectory);
+        }
+
+        _logger.Collector.Count.Should().Be(1);
+        FakeLogRecord logRecord = _logger.LatestRecord;
+        logRecord.Level.Should().Be(LogLevel.Error);
+        logRecord.Exception.Should().Be(exception);
+        logRecord.Message.Should().Be(
+            $"An error occured while copying the save data from {sourceDirectory} to {destinationDirectory}\n");
+    }
 }

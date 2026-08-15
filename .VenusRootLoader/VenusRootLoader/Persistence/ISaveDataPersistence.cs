@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace VenusRootLoader.Persistence;
 
-// TODO: Implement copy and delete
 internal interface ISaveDataPersistence
 {
     bool SaveSlotExistsInVenusRootLoader(int saveSlot);

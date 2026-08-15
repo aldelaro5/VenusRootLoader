@@ -162,8 +162,8 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
         // Ensure that there wasn't a leftover temporary copy from a previous copy.
         if (_fileSystem.Directory.Exists(temporaryDestinationSaveSlotDirectory))
             _fileSystem.Directory.Delete(temporaryDestinationSaveSlotDirectory, true);
-        // If this is an overwrite operation, move the destination to a copy in case the actual move fails so we can restore it.
-        if (_fileSystem.Directory.Exists(destinationSaveSlotDirectory))
+        bool overwriteDestination = _fileSystem.Directory.Exists(destinationSaveSlotDirectory);
+        if (overwriteDestination)
             _fileSystem.Directory.Move(destinationSaveSlotDirectory, temporaryDestinationSaveSlotDirectory);
 
         bool copyDone = false;
@@ -194,7 +194,12 @@ internal sealed class SaveDataPersistence : ISaveDataPersistence
         }
         finally
         {
-            if (_fileSystem.Directory.Exists(temporaryDestinationSaveSlotDirectory))
+            if (overwriteDestination && !copyDone)
+            {
+                _fileSystem.Directory.Delete(destinationSaveSlotDirectory, true);
+                _fileSystem.Directory.Move(temporaryDestinationSaveSlotDirectory, destinationSaveSlotDirectory);
+            }
+            else if (_fileSystem.Directory.Exists(temporaryDestinationSaveSlotDirectory))
             {
                 if (copyDone)
                 {

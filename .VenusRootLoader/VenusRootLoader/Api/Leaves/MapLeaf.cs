@@ -92,7 +92,6 @@ public sealed class MapLeaf : Leaf
 
     // TODO: Consider patching the game to address the mess of the closemove field so it can be exposed
 
-    // TODO: Patch out the Hazard logic and instead, have the collector set this to -150f
     public float AllEntitiesYPositionLowerBoundLimitBeforeRespawn { get; set; } = -50f;
     public bool IsFrozenMap { get; set; }
 

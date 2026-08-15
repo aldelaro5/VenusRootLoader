@@ -9,6 +9,7 @@ using UnityEngine;
 using VenusRootLoader.Api;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Api.Leaves.MapEntities;
+using VenusRootLoader.Extensions;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Unity.AssetLoading;
@@ -30,6 +31,7 @@ internal sealed class MapsCollector : IBaseGameCollector
     private readonly AssetsManager _assetsManager = new();
     private readonly AssetsFileInstance _resourcesFileInstance;
     private readonly Dictionary<int, AssetTypeValueField> _mapControlBaseFieldsByGameIds;
+    private readonly HashSet<int> _mapGameIdsWithHoleHazards;
     private readonly string _assemblyCSharpFileName;
     private readonly string _gameBundlePath;
     private readonly string _gameManagedDirectoryPath;
@@ -125,6 +127,7 @@ internal sealed class MapsCollector : IBaseGameCollector
         _assetsManager.MonoTempGenerator = new MonoCecilTempGenerator(_gameManagedDirectoryPath);
 
         _mapControlBaseFieldsByGameIds = CollectMapControlBaseFields();
+        _mapGameIdsWithHoleHazards = CollectMapGameIdWithHoldHazards();
     }
 
     private Dictionary<int, AssetTypeValueField> CollectMapControlBaseFields()
@@ -169,6 +172,78 @@ internal sealed class MapsCollector : IBaseGameCollector
         }
 
         return mapControlBaseFieldsByGameId;
+    }
+
+    // This is necessary because we want to remove the logic in Hazards that overrides the ylimit of the map if the Hazards
+    // is of type Hole. Since the value would be overriden in base game, we want to instead override the value in advance
+    // from the leaf to reflect the reality, but then remove the logic in a patcher so leaves are free to change it without
+    // the game overriding it.
+    private HashSet<int> CollectMapGameIdWithHoldHazards()
+    {
+        HashSet<int> mapGameIdsWithHoldHazards = new();
+        AssetsFile resourcesFile = _resourcesFileInstance.file;
+        Dictionary<int, AssetTypeReference> scriptInfos =
+            AssetHelper.GetAssetsFileScriptInfos(_assetsManager, _resourcesFileInstance);
+        int mapControlScriptIndex = scriptInfos
+            .Single(x => x.Value.AsmName == _assemblyCSharpFileName
+                         && x.Value.Namespace == ""
+                         && x.Value.ClassName == nameof(Hazards))
+            .Key;
+
+        foreach (AssetFileInfo assetFileInfo in resourcesFile.GetAssetsOfType(AssetClassID.MonoBehaviour))
+        {
+            if (assetFileInfo.GetScriptIndex(resourcesFile) != mapControlScriptIndex)
+                continue;
+
+            AssetTypeValueField hazardsBaseField =
+                _assetsManager.GetBaseField(_resourcesFileInstance, assetFileInfo);
+            int hazardsType = hazardsBaseField[nameof(Hazards.type)].AsInt;
+            if (hazardsType != (int)Hazards.Type.Hole)
+                continue;
+
+            if (!TryGetBaseFieldFromReference(
+                    hazardsBaseField["m_GameObject"],
+                    _resourcesFileInstance,
+                    _assetsManager,
+                    out AssetTypeValueField? hazardsGameObjectValueField))
+            {
+                ThrowHelper.ThrowInvalidDataException("Can't find the GameObject of an Hazards");
+            }
+
+            AssetTypeValueField transformPair = hazardsGameObjectValueField["m_Component"][nameof(Array)][0];
+            if (!TryGetBaseFieldFromReference(
+                    transformPair["component"],
+                    _resourcesFileInstance,
+                    _assetsManager,
+                    out AssetTypeValueField? transform))
+            {
+                ThrowHelper.ThrowInvalidDataException("Can't find the Transform of an Hazards");
+            }
+
+            AssetTypeValueField? gameObject = null;
+            while (transform is not null)
+            {
+                if (!TryGetBaseFieldFromReference(
+                        transform["m_GameObject"],
+                        _resourcesFileInstance,
+                        _assetsManager,
+                        out gameObject))
+                {
+                    ThrowHelper.ThrowInvalidDataException("Can't find the GameObject of a Transform");
+                }
+
+                TryGetBaseFieldFromReference(
+                    transform["m_Father"],
+                    _resourcesFileInstance,
+                    _assetsManager,
+                    out transform);
+            }
+
+            MainManager.Maps mapEnumValue = Enum.Parse<MainManager.Maps>(gameObject!["m_Name"].AsString);
+            mapGameIdsWithHoldHazards.Add((int)mapEnumValue);
+        }
+
+        return mapGameIdsWithHoldHazards;
     }
 
     public void CollectBaseGameData()
@@ -256,7 +331,6 @@ internal sealed class MapsCollector : IBaseGameCollector
         _assetsManager.UnloadAll(true);
         RootCollector.LogCollectedAmount(_logger, _mapsRegistry, _mapNamedIds.Length);
     }
-
 
     private static bool TryGetBaseFieldFromReference(
         AssetTypeValueField referenceField,
@@ -446,8 +520,16 @@ internal sealed class MapsCollector : IBaseGameCollector
 
         mapLeaf.MaximumYFollowerDistanceBeforeTeleport = mapControlBaseField[nameof(MapControl.followerylimit)].AsFloat;
 
-        mapLeaf.AllEntitiesYPositionLowerBoundLimitBeforeRespawn =
-            mapControlBaseField[nameof(MapControl.ylimit)].AsFloat;
+        if (_mapGameIdsWithHoleHazards.Contains(mapLeaf.GameId))
+        {
+            mapLeaf.AllEntitiesYPositionLowerBoundLimitBeforeRespawn = -150f;
+        }
+        else
+        {
+            mapLeaf.AllEntitiesYPositionLowerBoundLimitBeforeRespawn =
+                mapControlBaseField[nameof(MapControl.ylimit)].AsFloat;
+        }
+
         mapLeaf.IsFrozenMap = mapControlBaseField[nameof(MapControl.icemap)].AsBool;
         mapLeaf.MapEntitiesHaveRestrictedActiveRange = mapControlBaseField[nameof(MapControl.limitbehavior)].AsBool;
         mapLeaf.MapEntitiesAndEmoticonsAreActiveWhenOutOfRange =

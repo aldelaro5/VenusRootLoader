@@ -12,13 +12,16 @@ internal sealed class EnemyTextAssetParser : ITextAssetParser<EnemyLeaf>
 {
     private readonly ILeavesRegistry<EnemyLeaf> _enemiesRegistry;
     private readonly ILeavesRegistry<AnimIdLeaf> _animIdsRegistry;
+    private readonly ILeavesRegistry<BattleEventDialogueLeaf> _battleEventDialoguesRegistry;
 
     public EnemyTextAssetParser(
         ILeavesRegistry<EnemyLeaf> enemiesRegistry,
-        ILeavesRegistry<AnimIdLeaf> animIdsRegistry)
+        ILeavesRegistry<AnimIdLeaf> animIdsRegistry,
+        ILeavesRegistry<BattleEventDialogueLeaf> battleEventDialoguesRegistry)
     {
         _enemiesRegistry = enemiesRegistry;
         _animIdsRegistry = animIdsRegistry;
+        _battleEventDialoguesRegistry = battleEventDialoguesRegistry;
     }
 
     public string GetTextAssetSerializedString(string subPath, EnemyLeaf leaf)
@@ -85,7 +88,7 @@ internal sealed class EnemyTextAssetParser : ITextAssetParser<EnemyLeaf>
         sb.Append(',');
         sb.Append(leaf.BaseEnemyId?.Resolve().GameId ?? -1);
         sb.Append(',');
-        sb.Append(leaf.EventDialogueIdOnDeath ?? -1);
+        sb.Append(leaf.EventDialogueTriggeredOnDeath?.Resolve().GameId ?? -1);
         sb.Append(',');
         sb.Append(leaf.ActorTurnAmountPerMainTurn);
         sb.Append(',');
@@ -130,7 +133,7 @@ internal sealed class EnemyTextAssetParser : ITextAssetParser<EnemyLeaf>
         sb.Append(',');
         sb.Append(!leaf.CanBeSpied);
         sb.Append(',');
-        sb.Append(leaf.EventDialogueIdOnFall ?? -1);
+        sb.Append(leaf.EventDialogueTriggeredOnFall?.Resolve().GameId ?? -1);
         sb.Append(',');
         sb.Append((int)leaf.HitActionTrigger);
         sb.Append(',');
@@ -174,7 +177,9 @@ internal sealed class EnemyTextAssetParser : ITextAssetParser<EnemyLeaf>
         int baseEnemyId = int.Parse(fields[25]);
         leaf.BaseEnemyId = baseEnemyId < 0 ? (Branch<EnemyLeaf>?)null : _enemiesRegistry.GetByGameId(baseEnemyId);
         int eventIdOnDeath = int.Parse(fields[26]);
-        leaf.EventDialogueIdOnDeath = eventIdOnDeath == 1 ? -1 : eventIdOnDeath;
+        leaf.EventDialogueTriggeredOnDeath = eventIdOnDeath < 0
+            ? (Branch<BattleEventDialogueLeaf>?)null
+            : _battleEventDialoguesRegistry.GetByGameId(eventIdOnDeath);
         leaf.ActorTurnAmountPerMainTurn = int.Parse(fields[27]);
         leaf.CanBeTaunted = !bool.Parse(fields[28]);
         leaf.CanFall = !bool.Parse(fields[29]);
@@ -200,7 +205,9 @@ internal sealed class EnemyTextAssetParser : ITextAssetParser<EnemyLeaf>
         ((IHasEnemyPortraitSprite)leaf).EnemyPortraitsSpriteIndex = int.Parse(fields[43]);
         leaf.CanBeSpied = !bool.Parse(fields[44]);
         int eventIdOnFall = int.Parse(fields[45]);
-        leaf.EventDialogueIdOnFall = eventIdOnFall == -1 ? null : eventIdOnFall;
+        leaf.EventDialogueTriggeredOnFall = eventIdOnFall < 0
+            ? (Branch<BattleEventDialogueLeaf>?)null
+            : _battleEventDialoguesRegistry.GetByGameId(eventIdOnFall);
         leaf.HitActionTrigger = (EnemyLeaf.AutoHitActionTrigger)int.Parse(fields[46]);
         leaf.CanActWhileStunned = bool.Parse(fields[47]);
         leaf.SizeWhenFrozen = float.Parse(fields[48]);

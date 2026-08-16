@@ -80,6 +80,7 @@ internal static class Startup
         services.AddEnumBasedLeavesRegistry<AnimIdLeaf, MainManager.AnimIDs>(-1);
         services.AddEnumBasedLeavesRegistry<ItemLeaf, MainManager.Items>();
         services.AddEnumBasedLeavesRegistryWithOrdering<MedalLeaf, MainManager.BadgeTypes>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<BattleEventDialogueLeaf>();
         services.AddEnumBasedLeavesRegistryWithOrdering<EnemyLeaf, MainManager.Enemies>();
         services.AddAutoSequentialIdBasedLeavesRegistry<RecipeLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<RecipeLibraryEntryLeaf>();
@@ -239,6 +240,7 @@ internal static class Startup
         services.AddScoped<IBaseGameCollector, DialogueBleepCollector>();
         services.AddScoped<IBaseGameCollector, AnimIdsCollector>();
         services.AddScoped<IBaseGameCollector, ItemsCollector>();
+        services.AddScoped<IBaseGameCollector, BattleEventDialoguesCollector>();
         services.AddScoped<IBaseGameCollector, EnemiesCollector>();
         services.AddScoped<IBaseGameCollector, RecipesCollector>();
         services.AddScoped<IBaseGameCollector, RecipeLibraryEntriesCollector>();

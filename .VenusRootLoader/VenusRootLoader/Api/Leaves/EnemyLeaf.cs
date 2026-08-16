@@ -80,8 +80,7 @@ public sealed class EnemyLeaf : Leaf, IHasEnemyPortraitSprite
 
     public Branch<EnemyLeaf>? BaseEnemyId { get; internal set; }
 
-    // TODO: Make a leaf for this
-    public int? EventDialogueIdOnDeath { get; set; }
+    public Branch<BattleEventDialogueLeaf>? EventDialogueTriggeredOnDeath { get; set; }
     public int ActorTurnAmountPerMainTurn { get; set; }
     public bool CanBeTaunted { get; set; } = true;
     public bool CanFall { get; set; } = true;
@@ -107,7 +106,7 @@ public sealed class EnemyLeaf : Leaf, IHasEnemyPortraitSprite
     public Vector3 ItemOffset { get; set; } = Vector3.zero;
 
     public bool IsBaseStateBattleIdle { get; set; }
-    public int? EventDialogueIdOnFall { get; set; }
+    public Branch<BattleEventDialogueLeaf>? EventDialogueTriggeredOnFall { get; set; }
     public AutoHitActionTrigger HitActionTrigger { get; set; }
     public bool CanActWhileStunned { get; set; }
     public float SizeWhenFrozen { get; set; }

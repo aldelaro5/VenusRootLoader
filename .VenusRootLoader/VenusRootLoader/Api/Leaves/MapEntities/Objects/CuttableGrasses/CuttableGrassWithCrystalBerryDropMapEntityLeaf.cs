@@ -58,10 +58,13 @@ public sealed class CuttableGrassWithCrystalBerryDropMapEntityLeaf : CuttableGra
     }
 
     [MapEntityInitializeFromNew]
-    internal void InitializeFromNew(Vector3 startingPosition, Branch<CrystalBerryLeaf> crystalBerryDroppedWhenCut)
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<CuttableGrassLeaf> grass,
+        Branch<CrystalBerryLeaf> crystalBerryDroppedWhenCut)
     {
-        base.InitializeFromNew(startingPosition);
-        InternalData.AddRange([new(0), new(0)]);
+        base.InitializeFromNew(startingPosition, grass);
+        InternalData.Add(new(0));
         CrystalBerryDroppedWhenCut = crystalBerryDroppedWhenCut;
     }
 

@@ -106,6 +106,7 @@ internal static class Startup
         services.AddAutoSequentialIdBasedLeavesRegistry<SpyCardsTextLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistryWithOrdering<SpyCardLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<MedalShopLeaf>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<CuttableGrassLeaf>();
         services.AddEnumBasedLeavesRegistry<MapLeaf, MainManager.Maps>();
 
         services.AddSingleton<ISpriteArrayPatcher, EnemyPortraitsSpriteArrayPatcher>(provider =>
@@ -115,6 +116,11 @@ internal static class Startup
                 provider.GetRequiredService<ILeavesRegistry<EnemyLeaf>>(),
                 provider.GetRequiredService<ILeavesRegistry<RecordLeaf>>(),
                 provider.GetRequiredService<ILeavesRegistry<QuestLeaf>>()));
+
+        services.AddSingleton<ISpriteArrayPatcher, GrassSpritesArrayPatcher>(provider =>
+            new(
+                [$"{ResourcesPaths.SpritesObjectsGrassPath}"],
+                provider.GetRequiredService<ILeavesRegistry<CuttableGrassLeaf>>()));
 
         services.AddSingleton<IAudioClipPatcher, SoundDialoguesAudioClipPatcher>(provider =>
             new(
@@ -265,6 +271,7 @@ internal static class Startup
         services.AddScoped<IBaseGameCollector, SpyCardsTextsCollector>();
         services.AddScoped<IBaseGameCollector, SpyCardsCollector>();
         services.AddScoped<IBaseGameCollector, MedalShopsCollector>();
+        services.AddScoped<IBaseGameCollector, CuttableGrassCollector>();
         services.AddScoped<IBaseGameCollector, MapsCollector>();
         services.AddScoped<RootCollector>();
 

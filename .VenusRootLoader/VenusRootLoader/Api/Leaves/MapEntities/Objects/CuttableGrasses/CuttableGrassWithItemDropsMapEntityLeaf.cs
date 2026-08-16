@@ -30,10 +30,13 @@ public sealed class CuttableGrassWithItemDropsMapEntityLeaf : CuttableGrassMapEn
     }
 
     [MapEntityInitializeFromNew]
-    internal void InitializeFromNew(Vector3 startingPosition, IList<Branch<ItemLeaf>?> itemsDroppedWhenCut)
+    internal void InitializeFromNew(
+        Vector3 startingPosition,
+        Branch<CuttableGrassLeaf> grass,
+        IList<Branch<ItemLeaf>?> itemsDroppedWhenCut)
     {
-        base.InitializeFromNew(startingPosition);
-        InternalData.AddRange([new(0), new(-1)]);
+        base.InitializeFromNew(startingPosition, grass);
+        InternalData.Add(new(-1));
         foreach (Branch<ItemLeaf>? item in itemsDroppedWhenCut)
             ItemsDroppedWhenCut.Add(item);
     }
@@ -46,7 +49,7 @@ public sealed class CuttableGrassWithItemDropsMapEntityLeaf : CuttableGrassMapEn
         _itemsDroppedWhenCut.SynchronizeFromExistingData(
             InternalVectorData
                 .Select(v => v.Value.x < 0
-                    ? (Branch<ItemLeaf>?)null
+                    ? null
                     : new Branch<ItemLeaf>(itemsRegistry.GetByGameId((int)v.Value.x)))
                 .ToList());
 

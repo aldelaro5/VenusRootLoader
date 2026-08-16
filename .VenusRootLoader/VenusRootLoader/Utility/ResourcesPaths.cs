@@ -85,7 +85,6 @@ internal static class ResourcesPaths
     internal const string SpritesItems0Path = "Items/Items0";
     internal const string SpritesItems1Path = "Items/Items1";
 
-
     internal const string SpritesGui9BoxDirectory = "Gui/9Box";
     internal const string SpritesBattleMessagePathPrefix = "Gui/BattleMessage";
     internal const string SpritesLeafInBattleTransitionPath = "Gui/BattleLeaves";
@@ -94,6 +93,8 @@ internal static class ResourcesPaths
     internal const string SpritesGui2Path = "Gui/Gui2";
     internal const string SpritesTextBoxPath = "Gui/Textbox";
     internal const string SpritesLocalizesGameTitlePathPrefix = "Gui/Title";
+
+    internal const string SpritesObjectsGrassPath = "Objects/grass";
 
     internal const string SpritesItemsEnemyPortraitsResourcesPath =
         $"{RootSpritesPathPrefix}{SpritesEnemyPortraitsPath}";

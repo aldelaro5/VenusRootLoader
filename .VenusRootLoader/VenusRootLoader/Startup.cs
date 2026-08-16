@@ -315,6 +315,7 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, MapsLoadingTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, SaveDataPersistenceTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, CollectibleMedalNearEnemyEncounterTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, RecordsUnlockTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, HazardsMapYLimitTopLevelPatcher>();
 
         services.AddSingleton<ITopLevelPatcher, BudLoaderTopLevelPatcher>();

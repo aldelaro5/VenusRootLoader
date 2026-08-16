@@ -30,11 +30,25 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 
-// TODO: Move magic numbers to consts.
-
 /// <inheritdoc/>
 internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
 {
+    private const int BaseGameMaxRequiresLength = 10;
+    private const int BaseGameMaxLimitsLength = 10;
+    private const int BaseGameMaxDataLength = 10;
+    private const int BaseGameMaxVectorDataLength = 10;
+    private const int BaseGameMaxDialoguesLength = 20;
+    private const int BaseGameMaxBattleEnemyIdsLength = 4;
+
+    private const int EventIdIndex = 37;
+    private const int DataLengthIndex = 60;
+    private const int DataFirstElementIndex = 61;
+    private const int VectorDataFirstElementIndex = 72;
+    private const int DialoguesFirstElement = 103;
+    private const int BaseGameMaxEmoticonFlagsLength = 10;
+
+    private const int MapEntityMaxFieldsAmount = 196;
+
     private readonly string[] _modifiersNames = [.. Enum.GetNames(typeof(MapEntityModifiers)).Skip(1)];
 
     private readonly MapEntityModifiers[] _modifiersValues =
@@ -387,7 +401,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         value.InternalEventId = int.Parse(fields[37]);
 
         int requiresLength = int.Parse(fields[38]);
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < BaseGameMaxRequiresLength; i++)
             value.OriginalRequires[i] = int.Parse(fields[39 + i]);
         for (int i = 0; i < requiresLength; i++)
             value.RequiredFlags.Add(new(_flagsRegistry.GetByGameId(value.OriginalRequires[i])));
@@ -402,7 +416,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         }
 
         int limitsLength = int.Parse(fields[49]);
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < BaseGameMaxLimitsLength; i++)
             value.OriginalLimits[i] = int.Parse(fields[50 + i]);
         for (int i = 0; i < limitsLength; i++)
         {
@@ -424,7 +438,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         }
 
         int dataLength = int.Parse(fields[60]);
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < BaseGameMaxDataLength; i++)
             value.OriginalData[i] = int.Parse(fields[61 + i]);
         for (int i = 0; i < dataLength; i++)
             value.InternalData.Add(new(value.OriginalData[i]));
@@ -439,7 +453,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         }
 
         int vectorDataLength = int.Parse(fields[71]);
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < BaseGameMaxVectorDataLength; i++)
         {
             value.OriginalVectorData[i] = new(
                 float.Parse(fields[72 + (i * 3)]),
@@ -475,7 +489,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         }
 
         int dialoguesLength = int.Parse(fields[102]);
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < BaseGameMaxDialoguesLength; i++)
         {
             value.OriginalDialogues[i] = new(
                 float.Parse(fields[103 + (i * 3)]),
@@ -505,7 +519,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         value.InternalEulerAngles = new(float.Parse(fields[163]), float.Parse(fields[164]), float.Parse(fields[165]));
 
         int battleEnemyIdsLength = int.Parse(fields[166]);
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < BaseGameMaxBattleEnemyIdsLength; i++)
             value.OriginalBattleEnemyIds[i] = int.Parse(fields[167 + i]);
         for (int i = 0; i < battleEnemyIdsLength; i++)
             value.InternalBattleEnemyIds.Add(new(value.OriginalBattleEnemyIds[i]));
@@ -530,7 +544,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             float.Parse(fields[177]));
         value.InternalInsideId = int.Parse(fields[178]);
 
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < BaseGameMaxEmoticonFlagsLength; i++)
         {
             string[] components = fields[179 + i].Split(StringUtils.CommaSplitDelimiter);
             value.OriginalEmoticonFlags[i] = new(float.Parse(components[0]), float.Parse(components[1]));
@@ -552,8 +566,8 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         else
             value.InternalReturnToHeight = bool.Parse(fields[195]);
 
-        if (fields.Length > 196)
-            value.UnusedOverflowData = string.Join("}", fields.Skip(196));
+        if (fields.Length > MapEntityMaxFieldsAmount)
+            value.UnusedOverflowData = string.Join("}", fields.Skip(MapEntityMaxFieldsAmount));
     }
 
     private static MapEntityLeaf GetTypedMapEntity(
@@ -572,23 +586,23 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         return (type, objectType, interaction) switch
         {
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BeetleGrass, _) =>
-                int.Parse(fields[60]) < 2 ||
-                int.Parse(fields[61 + 1]) < 0
+                int.Parse(fields[DataLengthIndex]) < 2 ||
+                int.Parse(fields[DataFirstElementIndex + 1]) < 0
                     ? registry.RegisterExisting<CuttableGrassWithItemDropsMapEntityLeaf>(id, namedId)
                     : registry.RegisterExisting<CuttableGrassWithCrystalBerryDropMapEntityLeaf>(
                         id,
                         namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PushRock, _) =>
-                int.Parse(fields[60]) < 3 ||
-                int.Parse(fields[61 + 2]) == 0
+                int.Parse(fields[DataLengthIndex]) < 3 ||
+                int.Parse(fields[DataFirstElementIndex + 2]) == 0
                     ? registry.RegisterExisting<MovableRockMapEntityLeaf>(id, namedId)
                     : registry.RegisterExisting<SlidingIcePillarMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PressurePlate, _) =>
                 registry.RegisterExisting<PressurePlateMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ANDGate, _) =>
-                int.Parse(fields[60]) == 2 && int.Parse(fields[61 + 1]) == -1
+                int.Parse(fields[DataLengthIndex]) == 2 && int.Parse(fields[DataFirstElementIndex + 1]) == -1
                     ? registry.RegisterExisting<AndGateOnSingleFlagMapEntityLeaf>(id, namedId)
-                    : int.Parse(fields[61 + 0]) switch
+                    : int.Parse(fields[DataFirstElementIndex + 0]) switch
                     {
                         -2 => registry.RegisterExisting<AndGateOnFlagsMapEntityLeaf>(id, namedId),
                         >= -1 => registry.RegisterExisting<AndGateOnEntitiesLeafActivationMapEntityLeaf>(
@@ -598,37 +612,39 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                     },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.CameraChange, _) => registry.RegisterExisting<
                 CameraChangeZoneMapEntityLeaf>(id, namedId),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Item, _) => int.Parse(fields[61 + 0]) switch
-            {
-                0 or 1 => registry.RegisterExisting<CollectibleItemMapEntityLeaf>(id, namedId),
-                2 => registry.RegisterExisting<CollectibleMedalMapEntityLeaf>(id, namedId),
-                3 => registry.RegisterExisting<CollectibleCrystalBerryMapEntityLeaf>(id, namedId),
-                _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntityLeaf>()
-            },
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Item, _) => int.Parse(fields[DataFirstElementIndex + 0])
+                switch
+                {
+                    0 or 1 => registry.RegisterExisting<CollectibleItemMapEntityLeaf>(id, namedId),
+                    2 => registry.RegisterExisting<CollectibleMedalMapEntityLeaf>(id, namedId),
+                    3 => registry.RegisterExisting<CollectibleCrystalBerryMapEntityLeaf>(id, namedId),
+                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntityLeaf>()
+                },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DoorOtherMap, _) =>
                 registry.RegisterExisting<LoadingZoneMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.SetPlayerRespawn, _) => new Vector3(
-                float.Parse(fields[72 + 0]),
-                float.Parse(fields[72 + 1]),
-                float.Parse(fields[72 + 2])).magnitude >= 0.1
+                    float.Parse(fields[VectorDataFirstElementIndex + 0]),
+                    float.Parse(fields[VectorDataFirstElementIndex + 1]),
+                    float.Parse(fields[VectorDataFirstElementIndex + 2]))
+                .magnitude >= 0.1
                 ? registry.RegisterExisting<SetPlayerRespawnZoneMapEntityLeaf>(id, namedId)
                 : registry.RegisterExisting<IndependantRespawnZoneMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DoorSameMap, _) =>
                 registry.RegisterExisting<InsideTransitionZoneMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.EventTrigger, _) =>
-                int.Parse(fields[60]) >= 3 &&
-                int.Parse(fields[61 + 2]) == 1
+                int.Parse(fields[DataLengthIndex]) >= 3 &&
+                int.Parse(fields[DataFirstElementIndex + 2]) == 1
                     ? registry.RegisterExisting<AutomaticEventTriggerMapEntityLeaf>(id, namedId)
                     : registry.RegisterExisting<EventTriggerZoneMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DialogueTrigger, _) =>
-                int.Parse(fields[60]) >= 3 &&
-                int.Parse(fields[61 + 2]) == 1
+                int.Parse(fields[DataLengthIndex]) >= 3 &&
+                int.Parse(fields[DataFirstElementIndex + 2]) == 1
                     ? registry.RegisterExisting<AutomaticMapDialogueTriggerMapEntityLeaf>(id, namedId)
                     : registry.RegisterExisting<DialogueTriggerZoneMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.ANDBlock, _) =>
-                int.Parse(fields[60]) == 2 && int.Parse(fields[61 + 1]) == -1
+                int.Parse(fields[DataLengthIndex]) == 2 && int.Parse(fields[DataFirstElementIndex + 1]) == -1
                     ? registry.RegisterExisting<AndBlockOnSingleFlagMapEntityLeaf>(id, namedId)
-                    : int.Parse(fields[61 + 0]) switch
+                    : int.Parse(fields[DataFirstElementIndex + 0]) switch
                     {
                         -2 => registry.RegisterExisting<AndBlockOnFlagsMapEntityLeaf>(id, namedId),
                         >= -1 => registry.RegisterExisting<AndBlockOnEntitiesLeafActivationMapEntityLeaf>(
@@ -637,23 +653,24 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                         _ => ThrowHelper.ThrowArgumentOutOfRangeException<MapEntityLeaf>()
                     },
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.SavePoint, _) =>
-                int.Parse(fields[61 + 1]) >= 10
+                int.Parse(fields[DataFirstElementIndex + 1]) >= 10
                     ? registry.RegisterExisting<DeadLanderOmegaAlertCrystalMapEntityLeaf>(id, namedId)
                     : registry.RegisterExisting<SavePointCrystalMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.JumpSpring, _) =>
-                int.Parse(fields[61 + 0]) == 1
+                int.Parse(fields[DataFirstElementIndex + 0]) == 1
                     ? registry.RegisterExisting<JumpToPositionSpringMapEntityLeaf>(id, namedId)
                     : registry.RegisterExisting<JumpUpSpringMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.DigSpot, _) =>
-                (int.Parse(fields[61 + 0]), int.Parse(fields[61 + 1])) switch
+                (int.Parse(fields[DataFirstElementIndex + 0]), int.Parse(fields[DataFirstElementIndex + 1])) switch
                 {
                     (1, _) => registry.RegisterExisting<DigSpotCrystalBerryMapEntityLeaf>(id, namedId),
                     (>= 2, _) => registry.RegisterExisting<DigSpotStartEventMapEntityLeaf>(id, namedId),
                     (<= 0, >= 2) => registry.RegisterExisting<DigSpotMedalMapEntityLeaf>(id, namedId),
                     (<= 0, < 2) => registry.RegisterExisting<DigSpotItemMapEntityLeaf>(id, namedId),
                 },
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Switch, _) =>
-                (int.Parse(fields[61 + 0]), int.Parse(fields[61 + 1]), int.Parse(fields[61 + 2])) switch
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Switch, _) => (
+                    int.Parse(fields[DataFirstElementIndex + 0]), int.Parse(fields[DataFirstElementIndex + 1]),
+                    int.Parse(fields[DataFirstElementIndex + 2])) switch
                 {
                     (0, 0, 0) => registry.RegisterExisting<LatchedSwitchMapEntityLeaf>(id, namedId),
                     (0, 0, _) => registry.RegisterExisting<TimerSwitchMapEntityLeaf>(id, namedId),
@@ -670,7 +687,7 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.Dropplet, _) =>
                 registry.RegisterExisting<FreezableWaterDropletMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.PathPlatform, _) =>
-                (int)float.Parse(fields[103 + (1 * 3) + 0]) == 1
+                (int)float.Parse(fields[DialoguesFirstElement + (1 * 3) + 0]) == 1
                     ? registry.RegisterExisting<MovingPlatformAlongLerpMapEntityLeaf>(id, namedId)
                     : registry.RegisterExisting<MovingPlatformAlongPathMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.BreakableRock, _) =>
@@ -689,14 +706,16 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 registry.RegisterExisting<ResetCameraZoneMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.StencilSwitch, _) =>
                 registry.RegisterExisting<IceRadiusSwitchMapEntityLeaf>(id, namedId),
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.RollingRock, _) => int.Parse(fields[61 + 2]) switch
-            {
-                1 => registry.RegisterExisting<RollingRockCanonMapEntityLeaf>(id, namedId),
-                _ => registry.RegisterExisting<RollingRockWithoutCanonMapEntityLeaf>(id, namedId)
-            },
-            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TriggerSwitch, _) => int.Parse(fields[61 + 0]) == -1
-                ? registry.RegisterExisting<SelfActivatorZoneMapEntityLeaf>(id, namedId)
-                : registry.RegisterExisting<RemoteActivatorZoneMapEntityLeaf>(id, namedId),
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.RollingRock, _) =>
+                int.Parse(fields[DataFirstElementIndex + 2]) switch
+                {
+                    1 => registry.RegisterExisting<RollingRockCanonMapEntityLeaf>(id, namedId),
+                    _ => registry.RegisterExisting<RollingRockWithoutCanonMapEntityLeaf>(id, namedId)
+                },
+            (NPCControl.NPCType.Object, NPCControl.ObjectTypes.TriggerSwitch, _) =>
+                int.Parse(fields[DataFirstElementIndex + 0]) == -1
+                    ? registry.RegisterExisting<SelfActivatorZoneMapEntityLeaf>(id, namedId)
+                    : registry.RegisterExisting<RemoteActivatorZoneMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WindPusher, _) =>
                 registry.RegisterExisting<WindBeamZoneMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.Object, NPCControl.ObjectTypes.WaterSwitch, _) =>
@@ -714,9 +733,10 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
                 registry.RegisterExisting<TalkingNpcMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.Event or NPCControl.Interaction.LockedDoor) =>
                 registry.RegisterExisting<EventNpcMapEntityLeaf>(id, namedId),
-            (NPCControl.NPCType.NPC, _, NPCControl.Interaction.Shop) => float.Parse(fields[103 + (10 * 3)] + 0) == 0f
-                ? registry.RegisterExisting<ItemShopMapEntityLeaf>(id, namedId)
-                : registry.RegisterExisting<MedalShopMapEntityLeaf>(id, namedId),
+            (NPCControl.NPCType.NPC, _, NPCControl.Interaction.Shop) =>
+                float.Parse(fields[DialoguesFirstElement + (10 * 3)] + 0) == 0f
+                    ? registry.RegisterExisting<ItemShopMapEntityLeaf>(id, namedId)
+                    : registry.RegisterExisting<MedalShopMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.QuestBoard) =>
                 registry.RegisterExisting<QuestBoardNpcMapEntityLeaf>(id, namedId),
             (NPCControl.NPCType.NPC, _, NPCControl.Interaction.StorageAnt) =>
@@ -738,14 +758,14 @@ internal sealed class MapEntityTextAssetParser : IMapEntityTextAssetParser
         ILeavesRegistry<MapEntityLeaf> registry,
         string namedId)
     {
-        if ((int)float.Parse(fields[72 + (0 * 3) + 1]) == -2 &&
+        if ((int)float.Parse(fields[VectorDataFirstElementIndex + (0 * 3) + 1]) == -2 &&
             !BehaviorsWithSecondaryVectorData.Contains(primaryBehavior) &&
             !BehaviorsWithSecondaryVectorData.Contains(secondaryBehavior))
         {
             return registry.RegisterExisting<EnemyEncounterDroppingKeyItemMapEntityLeaf>(id, namedId);
         }
 
-        return int.Parse(fields[37]) > 0
+        return int.Parse(fields[EventIdIndex]) > 0
             ? registry.RegisterExisting<EnemyEncounterWithRespawnMapEntityLeaf>(id, namedId)
             : registry.RegisterExisting<EnemyEncounterDroppingItemsMapEntityLeaf>(
                 id,

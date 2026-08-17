@@ -54,7 +54,7 @@ internal static class Startup
             new BudLoaderContext
             {
                 BudsPath = fileSystem.Path.Combine(basePath, "Buds"),
-                SaveDataPath = fileSystem.Path.Combine(basePath, "SaveData"),
+                SaveDataPath = fileSystem.Path.Combine(basePath, "VrlSaveData"),
                 ConfigPath = configPath,
                 LoaderPath = fileSystem.Path.Combine(gameExecutionContext.GameDir, nameof(VenusRootLoader)),
             });

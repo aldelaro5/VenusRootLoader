@@ -28,10 +28,15 @@ namespace VenusRootLoader.Patching.Logic;
 [SuppressMessage("System.IO.Abstractions", "IO0002:Replace File class with IFileSystem.File for improved testability")]
 internal sealed class SaveDataPersistenceTopLevelPatcher : ITopLevelPatcher
 {
+    private static SaveDataPersistenceTopLevelPatcher _instance = null!;
+
+    private static readonly bool IsGogEdition = typeof(MainManager).Assembly.DefinedTypes.Any(x =>
+        x.Namespace is null && x.Name == "GalaxyManager" && x.BaseType == typeof(MonoBehaviour));
+
+    private static readonly string BaseGameSavesPrefix = IsGogEdition ? "Saves/save" : "save";
+
     private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ISaveDataPersistence _saveDataPersistence;
-
-    private static SaveDataPersistenceTopLevelPatcher _instance = null!;
 
     public SaveDataPersistenceTopLevelPatcher(
         IHarmonyTypePatcher harmonyTypePatcher,
@@ -78,12 +83,12 @@ internal sealed class SaveDataPersistenceTopLevelPatcher : ITopLevelPatcher
     // ReSharper disable once InconsistentNaming
     internal static bool DeleteSaveData(string path, ref bool __result)
     {
-        int saveSlot = int.Parse(path.Replace("save", "").Replace(".dat", ""));
+        int saveSlot = int.Parse(path.Replace(BaseGameSavesPrefix, "").Replace(".dat", ""));
         if (!_instance._saveDataPersistence.SaveSlotExistsInVenusRootLoader(saveSlot))
             return true;
 
         __result = _instance._saveDataPersistence.DeleteSaveSlot(saveSlot);
-        return __result && File.Exists("save" + MainManager.instance.option + ".dat");
+        return __result && File.Exists(BaseGameSavesPrefix + MainManager.instance.option + ".dat");
     }
 
     [HarmonyTranspiler]
@@ -99,6 +104,8 @@ internal sealed class SaveDataPersistenceTopLevelPatcher : ITopLevelPatcher
         MethodInfo inputIoCreateFileMethod = AccessTools.Method(typeof(InputIO), nameof(InputIO.CreateFile));
         FieldInfo coroutineStateField =
             __originalMethod.DeclaringType.GetDeclaredFields().Single(x => x.Name.Contains("state"));
+        FieldInfo coroutineThisField =
+            __originalMethod.DeclaringType.GetDeclaredFields().Single(x => x.Name.Contains("this"));
 
         matcher.MatchStartForward(CodeMatch.LoadsConstant(""));
         matcher.MatchStartBackwards(CodeMatch.StoresField(coroutineStateField));
@@ -106,7 +113,10 @@ internal sealed class SaveDataPersistenceTopLevelPatcher : ITopLevelPatcher
         while (!matcher.Instruction.Calls(inputIoCreateFileMethod))
             matcher.SetInstructionAndAdvance(Code.Nop);
         matcher.SetInstructionAndAdvance(Code.Nop);
-        matcher.Insert(CodeInstruction.LoadArgument(0), Transpilers.EmitDelegate(CopySaveData));
+        matcher.Insert(
+            CodeInstruction.LoadArgument(0),
+            CodeInstruction.LoadField(coroutineThisField.DeclaringType, coroutineThisField.Name),
+            Transpilers.EmitDelegate(CopySaveData));
 
         return matcher.Instructions();
     }
@@ -122,11 +132,15 @@ internal sealed class SaveDataPersistenceTopLevelPatcher : ITopLevelPatcher
         bool result = _instance._saveDataPersistence.CopySaveSlot(sourceSlot, destinationSlot);
         if (!result)
             return false;
-        return !File.Exists($"save{sourceSlot}.dat") || CopyBaseGameFile(sourceSlot, destinationSlot);
+
+        return !File.Exists($"{BaseGameSavesPrefix}{sourceSlot}.dat") ||
+               CopyBaseGameFile(sourceSlot, destinationSlot);
     }
 
-    private static bool CopyBaseGameFile(int sourceSlot, int destinationSlot) =>
-        InputIO.CreateFile(
-            $"save{destinationSlot}.dat",
-            InputIO.ReadFile($"save{sourceSlot}.dat"));
+    private static bool CopyBaseGameFile(int sourceSlot, int destinationSlot)
+    {
+        return InputIO.CreateFile(
+            $"{BaseGameSavesPrefix}{destinationSlot}.dat",
+            InputIO.ReadFile($"{BaseGameSavesPrefix}{sourceSlot}.dat"));
+    }
 }

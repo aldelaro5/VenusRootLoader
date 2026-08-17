@@ -21,7 +21,7 @@ public sealed class CustomEnvironmentVariablesConfigurationSourceTests
     [Fact]
     public void Build_GivesCorrectBuilder_WhenCalled()
     {
-        CustomEnvironmentVariablesConfigurationSource sut = new CustomEnvironmentVariablesConfigurationSource
+        CustomEnvironmentVariablesConfigurationSource sut = new()
         {
             Prefix = "PREFIX_",
             EnvironmentVariablesMapping = new Dictionary<string, string> { ["a"] = "b" }

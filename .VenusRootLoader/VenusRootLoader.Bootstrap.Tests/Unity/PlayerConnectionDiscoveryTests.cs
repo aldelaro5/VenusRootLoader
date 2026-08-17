@@ -38,15 +38,15 @@ public sealed class PlayerConnectionDiscoveryTests
     public void StartDiscoveryWithOwnSocket_OpensUdpSocketAndSendCorrectMessageEverySecond_WhenCalled()
     {
         IPAddress broadcastIp = IPAddress.Parse("225.0.0.222");
-        using UdpClient client = new UdpClient(54997);
+        using UdpClient client = new(54997);
         client.Client.ReceiveTimeout = 2000;
         client.JoinMulticastGroup(broadcastIp);
-        IPEndPoint remoteEp = new IPEndPoint(broadcastIp, 0);
+        IPEndPoint remoteEp = new(broadcastIp, 0);
         string ip =
             $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
         ushort port = (ushort)Random.Shared.Next();
 
-        using PlayerConnectionDiscovery sut = new PlayerConnectionDiscovery(
+        using PlayerConnectionDiscovery sut = new(
             _logger,
             _pltHooksManager,
             _gameExecutionContext,
@@ -76,10 +76,10 @@ public sealed class PlayerConnectionDiscoveryTests
     public void StartDiscoveryWithOwnSocket_SendsMessageWithDnSpyDebugConfig_WhenCalledWithDnSpyEnvironmentVariableSet()
     {
         IPAddress broadcastIp = IPAddress.Parse("225.0.0.222");
-        using UdpClient client = new UdpClient(54997);
+        using UdpClient client = new(54997);
         client.Client.ReceiveTimeout = 2000;
         client.JoinMulticastGroup(broadcastIp);
-        IPEndPoint remoteEp = new IPEndPoint(broadcastIp, 0);
+        IPEndPoint remoteEp = new(broadcastIp, 0);
         string ip =
             $"{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}.{(byte)Random.Shared.Next()}";
         ushort port = (ushort)Random.Shared.Next();
@@ -88,7 +88,7 @@ public sealed class PlayerConnectionDiscoveryTests
         ushort dnSpyPort = (ushort)Random.Shared.Next();
         Environment.SetEnvironmentVariable("DNSPY_UNITY_DBG2", $"stuff,address={dnSpyIp}:{dnSpyPort},things");
 
-        using PlayerConnectionDiscovery sut = new PlayerConnectionDiscovery(
+        using PlayerConnectionDiscovery sut = new(
             _logger,
             _pltHooksManager,
             _gameExecutionContext,
@@ -127,7 +127,7 @@ public sealed class PlayerConnectionDiscoveryTests
                 receivedLength = c.ArgAt<int>(2);
             });
 
-        using PlayerConnectionDiscovery sut = new PlayerConnectionDiscovery(
+        using PlayerConnectionDiscovery sut = new(
             _logger,
             _pltHooksManager,
             _gameExecutionContext,
@@ -187,7 +187,7 @@ public sealed class PlayerConnectionDiscoveryTests
                 receivedLength = c.ArgAt<int>(2);
             });
 
-        using PlayerConnectionDiscovery sut = new PlayerConnectionDiscovery(
+        using PlayerConnectionDiscovery sut = new(
             _logger,
             _pltHooksManager,
             _gameExecutionContext,

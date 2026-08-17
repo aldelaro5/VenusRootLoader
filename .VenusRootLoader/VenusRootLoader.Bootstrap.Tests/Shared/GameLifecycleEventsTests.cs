@@ -12,7 +12,7 @@ public sealed class MonoInitLifeCycleEventsTests
         bool secondCalled = false;
         bool thirdCalled = false;
 
-        MonoInitLifeCycleEvents sut = new MonoInitLifeCycleEvents();
+        MonoInitLifeCycleEvents sut = new();
         sut.Subscribe((_, _) => firstCalled = true);
         sut.Subscribe((_, _) => secondCalled = true);
         sut.Subscribe((_, _) => thirdCalled = true);

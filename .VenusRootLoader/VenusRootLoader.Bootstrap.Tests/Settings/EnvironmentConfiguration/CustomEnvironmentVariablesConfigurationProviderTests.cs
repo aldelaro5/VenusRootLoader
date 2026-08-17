@@ -16,9 +16,8 @@ public sealed class CustomEnvironmentVariablesConfigurationProviderTests
         string prefix = "PREFIX_";
         string configKey = "ConfigKey";
         string value = "true";
-        Dictionary<string, string> mappings = new Dictionary<string, string> { ["EXIST"] = configKey };
-        CustomEnvironmentVariablesConfigurationProvider sut =
-            new CustomEnvironmentVariablesConfigurationProvider(prefix, mappings);
+        Dictionary<string, string> mappings = new() { ["EXIST"] = configKey };
+        CustomEnvironmentVariablesConfigurationProvider sut = new(prefix, mappings);
         Environment.SetEnvironmentVariable("NO_PREFIX", value);
         Environment.SetEnvironmentVariable($"{prefix}DOES_NOT_EXIST", value);
         Environment.SetEnvironmentVariable($"{prefix}EXIST", value);

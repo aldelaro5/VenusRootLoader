@@ -32,7 +32,7 @@ public sealed class ConsoleLogProviderTests
                 Enable = false,
                 LogWithColors = true
             });
-        GameExecutionContext gameExecutionContext = new GameExecutionContext
+        GameExecutionContext gameExecutionContext = new()
         {
             GameDir = "",
             DataDir = "",
@@ -40,7 +40,7 @@ public sealed class ConsoleLogProviderTests
             IsWine = false
         };
 
-        using ConsoleLogProvider sut = new ConsoleLogProvider(
+        using ConsoleLogProvider sut = new(
             gameExecutionContext,
             _consoleLoggerOptions,
             _win32,
@@ -59,7 +59,7 @@ public sealed class ConsoleLogProviderTests
                 Enable = true,
                 LogWithColors = false
             });
-        GameExecutionContext gameExecutionContext = new GameExecutionContext
+        GameExecutionContext gameExecutionContext = new()
         {
             GameDir = "",
             DataDir = "",
@@ -67,7 +67,7 @@ public sealed class ConsoleLogProviderTests
             IsWine = false
         };
 
-        using ConsoleLogProvider sut = new ConsoleLogProvider(
+        using ConsoleLogProvider sut = new(
             gameExecutionContext,
             _consoleLoggerOptions,
             _win32,
@@ -92,7 +92,7 @@ public sealed class ConsoleLogProviderTests
                 Enable = true,
                 LogWithColors = true
             });
-        GameExecutionContext gameExecutionContext = new GameExecutionContext
+        GameExecutionContext gameExecutionContext = new()
         {
             GameDir = "",
             DataDir = "",
@@ -103,7 +103,7 @@ public sealed class ConsoleLogProviderTests
         _win32.GetStdHandle(stdHandleWithoutAnsi).Returns(handleWithoutAnsi);
         _win32.SetConsoleMode(handleWithoutAnsi, Arg.Any<CONSOLE_MODE>()).Returns((BOOL)false);
 
-        using ConsoleLogProvider sut = new ConsoleLogProvider(
+        using ConsoleLogProvider sut = new(
             gameExecutionContext,
             _consoleLoggerOptions,
             _win32,
@@ -126,7 +126,7 @@ public sealed class ConsoleLogProviderTests
                 Enable = true,
                 LogWithColors = true
             });
-        GameExecutionContext gameExecutionContext = new GameExecutionContext
+        GameExecutionContext gameExecutionContext = new()
         {
             GameDir = "",
             DataDir = "",
@@ -138,7 +138,7 @@ public sealed class ConsoleLogProviderTests
         _win32.SetConsoleMode(stdOutHandle, Arg.Any<CONSOLE_MODE>()).Returns((BOOL)true);
         _win32.SetConsoleMode(stdErrHandle, Arg.Any<CONSOLE_MODE>()).Returns((BOOL)true);
 
-        using ConsoleLogProvider sut = new ConsoleLogProvider(
+        using ConsoleLogProvider sut = new(
             gameExecutionContext,
             _consoleLoggerOptions,
             _win32,
@@ -161,7 +161,7 @@ public sealed class ConsoleLogProviderTests
                 Enable = true,
                 LogWithColors = true
             });
-        GameExecutionContext gameExecutionContext = new GameExecutionContext
+        GameExecutionContext gameExecutionContext = new()
         {
             GameDir = "",
             DataDir = "",
@@ -173,7 +173,7 @@ public sealed class ConsoleLogProviderTests
         _win32.SetConsoleMode(stdOutHandle, Arg.Any<CONSOLE_MODE>()).Returns((BOOL)true);
         _win32.SetConsoleMode(stdErrHandle, Arg.Any<CONSOLE_MODE>()).Returns((BOOL)true);
 
-        using ConsoleLogProvider sut = new ConsoleLogProvider(
+        using ConsoleLogProvider sut = new(
             gameExecutionContext,
             _consoleLoggerOptions,
             _win32,

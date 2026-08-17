@@ -57,7 +57,7 @@ public sealed class ConsoleLoggerTests
     public void Log_LogsWithMessageAndException_WhenLoggingException()
     {
         string message = "Some logging message";
-        Exception exception = new Exception("Some exception message");
+        Exception exception = new("Some exception message");
 
         ConsoleLogger sut = new("Some category", ConsoleLogProvider.RenderingMode.NoColors, _timeProvider, _console);
         sut.LogInformation(exception, message);

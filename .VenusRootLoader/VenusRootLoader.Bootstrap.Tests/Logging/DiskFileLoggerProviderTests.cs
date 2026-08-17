@@ -30,7 +30,7 @@ public sealed class DiskFileLoggerProviderTests
                 MaxFilesToKeep = 5
             });
 
-        DiskFileLoggerProvider sut = new DiskFileLoggerProvider(
+        DiskFileLoggerProvider sut = new(
             _diskFileLoggerSettings,
             _bootstrapEnvironment,
             _fileSystem,
@@ -59,7 +59,7 @@ public sealed class DiskFileLoggerProviderTests
         _bootstrapEnvironment.BasePath.Returns(rootPath);
         _fileSystem.AddFile(existingLogPath, new(existingLogsContent) { AllowedFileShare = FileShare.None });
 
-        DiskFileLoggerProvider sut = new DiskFileLoggerProvider(
+        DiskFileLoggerProvider sut = new(
             _diskFileLoggerSettings,
             _bootstrapEnvironment,
             _fileSystem,
@@ -88,7 +88,7 @@ public sealed class DiskFileLoggerProviderTests
             });
         _bootstrapEnvironment.BasePath.Returns(rootPath);
 
-        using DiskFileLoggerProvider sut = new DiskFileLoggerProvider(
+        using DiskFileLoggerProvider sut = new(
             _diskFileLoggerSettings,
             _bootstrapEnvironment,
             _fileSystem,
@@ -108,7 +108,7 @@ public sealed class DiskFileLoggerProviderTests
             "Logs",
             "latest.log");
         string existingLogsContent = "existing logs";
-        DateTime olderLogFileTimeStamp = new DateTime(2025, 6, 15, 12, 30, 30);
+        DateTime olderLogFileTimeStamp = new(2025, 6, 15, 12, 30, 30);
         string olderLogPath = Path.Combine(
             rootPath,
             "Logs",
@@ -128,7 +128,7 @@ public sealed class DiskFileLoggerProviderTests
         _timeProvider.SetLocalTimeZone(TimeZoneInfo.Utc);
         _timeProvider.SetUtcNow(currentTime);
 
-        using DiskFileLoggerProvider sut = new DiskFileLoggerProvider(
+        using DiskFileLoggerProvider sut = new(
             _diskFileLoggerSettings,
             _bootstrapEnvironment,
             _fileSystem,
@@ -160,7 +160,7 @@ public sealed class DiskFileLoggerProviderTests
             "latest.log");
         string newerLogContent = "newer logs";
         string olderLogContent = "older logs";
-        DateTime newerLogTimeStamp = new DateTime(2025, 6, 15, 12, 30, 30);
+        DateTime newerLogTimeStamp = new(2025, 6, 15, 12, 30, 30);
         string newerLogPath = Path.Combine(
             rootPath,
             "Logs",
@@ -182,7 +182,7 @@ public sealed class DiskFileLoggerProviderTests
         _timeProvider.SetLocalTimeZone(TimeZoneInfo.Utc);
         _timeProvider.SetUtcNow(currentTime);
 
-        using DiskFileLoggerProvider sut = new DiskFileLoggerProvider(
+        using DiskFileLoggerProvider sut = new(
             _diskFileLoggerSettings,
             _bootstrapEnvironment,
             _fileSystem,

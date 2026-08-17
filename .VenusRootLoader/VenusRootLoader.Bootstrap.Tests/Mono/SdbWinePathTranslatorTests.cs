@@ -75,7 +75,7 @@ public sealed class SdbWinePathTranslatorTests
         string assemblyLocationString = @"Z:\Bug Fables_Data\Managed\Assembly-CSharp.dll";
         int packetLengthRecv = Random.Shared.Next(1, MessageHeaderLength);
 
-        using MemoryStream streamRecv = new MemoryStream();
+        using MemoryStream streamRecv = new();
         BinaryWriter writerRecv = new(streamRecv);
         for (int i = 0; i < packetLengthRecv; i++)
             writerRecv.Write((byte)Random.Shared.Next());
@@ -271,7 +271,7 @@ public sealed class SdbWinePathTranslatorTests
 
     private static byte[] BuildReceivePacket(byte commandSet)
     {
-        using MemoryStream streamRecv = new MemoryStream();
+        using MemoryStream streamRecv = new();
         BinaryWriter writerRecv = new(streamRecv);
         writerRecv.Write(BinaryPrimitives.ReverseEndianness(MessageHeaderLength));
         writerRecv.Write(0);
@@ -284,7 +284,7 @@ public sealed class SdbWinePathTranslatorTests
 
     private static byte[] BuildAssemblyGetLocationSendPacket(string fullPath)
     {
-        using MemoryStream streamSend = new MemoryStream();
+        using MemoryStream streamSend = new();
         BinaryWriter writerSend = new(streamSend);
         writerSend.Write(BinaryPrimitives.ReverseEndianness(MessageHeaderLength + sizeof(int) + fullPath.Length));
         writerSend.Write(0);
@@ -304,7 +304,7 @@ public sealed class SdbWinePathTranslatorTests
         string guid,
         int id)
     {
-        using MemoryStream streamSend = new MemoryStream();
+        using MemoryStream streamSend = new();
         BinaryWriter writerSend = new(streamSend);
         int lenghtPacket = MessageHeaderLength +
                            sizeof(int) +

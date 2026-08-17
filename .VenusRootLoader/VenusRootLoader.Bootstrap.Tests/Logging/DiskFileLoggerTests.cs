@@ -23,8 +23,8 @@ public sealed class DiskFileLoggerTests
         _timeProvider.AdjustTime(timeStamp);
         string category = "Some category";
         string message = "Some logging message";
-        MemoryStream stream = new MemoryStream();
-        StreamWriter writer = new StreamWriter(stream) { AutoFlush = true };
+        MemoryStream stream = new();
+        StreamWriter writer = new(stream) { AutoFlush = true };
 
         DiskFileLogger sut = new(category, writer, _timeProvider);
         sut.Log(logLevel, message);
@@ -41,8 +41,8 @@ public sealed class DiskFileLoggerTests
     [InlineData("first.second.third", "third")]
     public void Log_LogsWithSimplifiedCategory_WhenItContainsDots(string category, string expected)
     {
-        MemoryStream stream = new MemoryStream();
-        StreamWriter writer = new StreamWriter(stream) { AutoFlush = true };
+        MemoryStream stream = new();
+        StreamWriter writer = new(stream) { AutoFlush = true };
 
         DiskFileLogger sut = new(category, writer, _timeProvider);
         sut.LogInformation("Some logging message");
@@ -56,9 +56,9 @@ public sealed class DiskFileLoggerTests
     public void Log_LogsWithMessageAndException_WhenLoggingException()
     {
         string message = "Some logging message";
-        Exception exception = new Exception("Some exception message");
-        MemoryStream stream = new MemoryStream();
-        StreamWriter writer = new StreamWriter(stream) { AutoFlush = true };
+        Exception exception = new("Some exception message");
+        MemoryStream stream = new();
+        StreamWriter writer = new(stream) { AutoFlush = true };
 
         DiskFileLogger sut = new("Some category", writer, _timeProvider);
         sut.LogInformation(exception, message);

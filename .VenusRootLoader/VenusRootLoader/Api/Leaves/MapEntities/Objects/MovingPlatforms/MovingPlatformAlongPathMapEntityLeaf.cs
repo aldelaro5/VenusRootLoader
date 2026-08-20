@@ -39,6 +39,7 @@ public sealed class MovingPlatformAlongPathMapEntityLeaf : MovingPlatformMapEnti
         IList<Branch<ObjectMapEntityLeaf>> requiredEntityActivationsToMove,
         IList<Vector3> movementPathNodePositions)
     {
+        Guard.IsNotEmpty(movementPathNodePositions);
         base.InitializeFromNew(startingPosition, animId, requiredEntityActivationsToMove);
         InternalDialogues.AddRange([new(new(0f, 5f, 0f)), new(new(0f, 30f, 0f)), new(new(0f, 0f, 0f))]);
         foreach (Vector3 movementPathNodePosition in movementPathNodePositions)

@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using UnityEngine;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
@@ -70,6 +71,7 @@ public sealed class RotatingPlatformMapEntityLeaf : ObjectMapEntityLeaf
         IList<Branch<ObjectMapEntityLeaf>> requiredEntityActivationsToMove,
         IList<Vector3> movementNodeEulerAngles)
     {
+        Guard.IsNotEmpty(movementNodeEulerAngles);
         InternalDialogues.AddRange([new(new(0f, 5f, 0f)), new(new(0f, 0f, 0f)), new(new(0f, 0f, 0f))]);
         EntityStartingPosition = startingPosition;
         AnimId = animId;

@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using UnityEngine;
 using VenusRootLoader.SourceGenerators;
 
@@ -39,6 +40,7 @@ public sealed class MovingPlatformAlongLerpMapEntityLeaf : MovingPlatformMapEnti
         IList<Branch<ObjectMapEntityLeaf>> requiredEntityActivationsToMove,
         Vector3 activePositionToMoveTowards)
     {
+        Guard.IsNotEmpty(requiredEntityActivationsToMove);
         base.InitializeFromNew(startingPosition, animId, requiredEntityActivationsToMove);
         InternalVectorData.AddRange([new(startingPosition), new(activePositionToMoveTowards)]);
         InternalDialogues.AddRange([new(new(0f, 5f, 0f)), new(new(1f, 0f, 0f)), new(new(0f, 0f, 0f))]);

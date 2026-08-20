@@ -5,7 +5,6 @@ using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
-// TODO: Fix the length 0 issue on NPCControl.CreateEntities so this can move without a switch
 // TODO: Fix a Rotater issue where its eulerAngles can get permanently stuck while on a platform rotating in x/z, here's a simple reproduction:
 // rotate.ChangeMovementPathNodeEulerAngles(
 // [

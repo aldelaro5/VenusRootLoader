@@ -93,5 +93,8 @@
                    Directories="%userprofile%\.nuget\packages"/>
         <RemoveDir Condition="$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))"
                    Directories="$(HOME)/.nuget/packages/venusrootloader"/>
+        <MSBuild Projects="$(SolutionDir)/.VenusRootLoader/VenusRootLoader.Patching.Aot/VenusRootLoader.Patching.Aot.csproj"
+                 Targets="Restore;Publish"
+                 Properties="TargetFramework=net10.0;RuntimeIdentifier=win-x64"/>
     </Target>
 </Project>

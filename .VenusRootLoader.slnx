@@ -18,6 +18,7 @@
     <Project Path=".VenusRootLoader/VenusRootLoader.Bootstrap.Tests/VenusRootLoader.Bootstrap.Tests.csproj">
         <Platform Project="x64" />
     </Project>
+    <Project Path=".VenusRootLoader/VenusRootLoader.Patching.Aot/VenusRootLoader.Patching.Aot.csproj" />
     <Project Path=".VenusRootLoader/VenusRootLoader.Preloader/VenusRootLoader.Preloader.csproj" />
     <Project Path=".VenusRootLoader/VenusRootLoader.SourceGenerators/VenusRootLoader.SourceGenerators.csproj" />
     <Project Path=".VenusRootLoader/VenusRootLoader.Tests/VenusRootLoader.Tests.csproj" />

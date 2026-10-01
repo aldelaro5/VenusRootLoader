@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <WarningLevel>8</WarningLevel>
+        <AnalysisLevel>latest</AnalysisLevel>
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <PublishSingleFile>true</PublishSingleFile>
+        <SelfContained>true</SelfContained>
+        <PublishDir>$(BuildDir)/VenusRootLoader</PublishDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AsmResolver.DotNet" Version="6.0.1"/>
+        <PackageReference Include="ICSharpCode.Decompiler" Version="11.0.0.9375"/>
+    </ItemGroup>
+</Project>

@@ -40,8 +40,14 @@
     </Target>
 
     <ItemGroup>
-        <Reference Include="$(ModifiedGameAssemblyPath)" Publicize="true" Strip="true" Private="false"/>
-        <Reference Include="$(GameDataManagedPath)/UnityEngine*.dll" Publicize="true" Strip="false" Private="false"/>
+        <Reference Include="$(ModifiedGameAssemblyPath)"
+                   Publicize="true"
+                   Strip="true"
+                   Private="false"/>
+        <Reference Include="$(GameDataManagedPath)/UnityEngine*.dll"
+                   Publicize="true"
+                   Strip="false"
+                   Private="false"/>
     </ItemGroup>
 
     <PropertyGroup Condition="$(Configuration) == Release">

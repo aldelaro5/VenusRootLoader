@@ -10,6 +10,7 @@
         <InvariantGlobalization>true</InvariantGlobalization>
         <PublishSingleFile>true</PublishSingleFile>
         <SelfContained>true</SelfContained>
+        <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
         <PublishDir>$(BuildDir)/VenusRootLoader</PublishDir>
     </PropertyGroup>
 

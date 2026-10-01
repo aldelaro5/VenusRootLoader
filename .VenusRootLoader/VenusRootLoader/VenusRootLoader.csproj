@@ -88,6 +88,18 @@
         <Content Include="$(SolutionDir)/.VenusRootLoader/VenusRootLoader.Analyzers/bin/$(Configuration)/VenusRootLoader.Analyzers.deps.json" PackagePath="analyzers" Visible="false"/>
     </ItemGroup>
 
+    <Target Name="PreBuild" BeforeTargets="Build">
+        <PropertyGroup>
+            <OriginalGameAssemblyPath>$(BugFablesDir)/Bug Fables_Data/Managed/-Assembly-CSharp.dll</OriginalGameAssemblyPath>
+            <ModifiedGameAssemblyPath>$(BugFablesDir)/Bug Fables_Data/Managed/Assembly-CSharp.dll</ModifiedGameAssemblyPath>
+        </PropertyGroup>
+        <Message Importance="high" Text="Patching $(OriginalGameAssemblyPath)"/>
+        <MSBuild Projects="$(SolutionDir)/.VenusRootLoader/VenusRootLoader.Patching.Aot/VenusRootLoader.Patching.Aot.csproj"
+                 Targets="Restore;Build;Run"
+                 Properties="StartArguments=&quot;$(OriginalGameAssemblyPath)&quot; &quot;$(ModifiedGameAssemblyPath)&quot;"/>
+        <Message Importance="high" Text="Patched assembly sucessfully generated at $(ModifiedGameAssemblyPath)"/>
+    </Target>
+
     <Target Name="PostBuild" AfterTargets="Build">
         <RemoveDir Condition="$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))"
                    Directories="%userprofile%\.nuget\packages"/>

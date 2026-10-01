@@ -145,7 +145,6 @@ internal sealed class SwitchArmsCoroutineExtractor
             List<StateMachine> stateMachines = new();
             foreach (IndexedSwitchLabel indexedSwitchArmLabel in arm.Labels)
             {
-                Console.WriteLine(indexedSwitchArmLabel.Index);
                 StateMachine innerStateMachine =
                     labelIndexesToExtractors[indexedSwitchArmLabel.Index].InnerStateMachine;
                 stateMachines.Add(innerStateMachine);

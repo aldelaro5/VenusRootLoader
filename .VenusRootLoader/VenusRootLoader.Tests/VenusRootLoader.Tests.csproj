@@ -11,6 +11,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Reference Include="$(ModifiedGameAssemblyPath)" Publicize="true" Strip="true"/>
+        <Reference Include="$(GameDataManagedPath)/UnityEngine*.dll" Publicize="true" Strip="false"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest"/>
     </ItemGroup>
 

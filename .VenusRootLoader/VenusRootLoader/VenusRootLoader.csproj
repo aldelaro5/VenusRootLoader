@@ -31,6 +31,19 @@
         <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     </PropertyGroup>
 
+    <Target Name="MyTarget" BeforeTargets="ResolveAssemblyReferences">
+        <Message Importance="high" Text="Patching $(OriginalGameAssemblyPath)"/>
+        <MSBuild Projects="$(SolutionDir)/.VenusRootLoader/VenusRootLoader.Patching.Aot/VenusRootLoader.Patching.Aot.csproj"
+                 Targets="Restore;Build;Run"
+                 Properties="TargetFramework=net10.0;StartArguments=&quot;$(OriginalGameAssemblyPath)&quot; &quot;$(ModifiedGameAssemblyPath)&quot;"/>
+        <Message Importance="high" Text="Patched assembly sucessfully generated at $(ModifiedGameAssemblyPath)"/>
+    </Target>
+
+    <ItemGroup>
+        <Reference Include="$(ModifiedGameAssemblyPath)" Publicize="true" Strip="true" Private="false"/>
+        <Reference Include="$(GameDataManagedPath)/UnityEngine*.dll" Publicize="true" Strip="false" Private="false"/>
+    </ItemGroup>
+
     <PropertyGroup Condition="$(Configuration) == Release">
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     </PropertyGroup>
@@ -39,7 +52,10 @@
         <PackageReference Include="AsmResolver.DotNet" Version="6.0.1"/>
         <PackageReference Include="AssetsTools.NET" Version="3.0.5"/>
         <PackageReference Include="AssetsTools.NET.MonoCecil" Version="3.0.4"/>
-        <PackageReference Include="BugFables.GameLibs" Version="120.0.0" PrivateAssets="none"/>
+        <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3" PrivateAssets="none">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="BunLabs.NAudio.Flac" Version="2.0.1"/>
         <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.4.2"/>
         <PackageReference Include="HarmonyX" Version="2.16.1" PrivateAssets="none"/>
@@ -87,18 +103,6 @@
         <Content Include="$(SolutionDir)/.VenusRootLoader/VenusRootLoader.Analyzers/bin/$(Configuration)/VenusRootLoader.Analyzers.dll" PackagePath="analyzers" Visible="false"/>
         <Content Include="$(SolutionDir)/.VenusRootLoader/VenusRootLoader.Analyzers/bin/$(Configuration)/VenusRootLoader.Analyzers.deps.json" PackagePath="analyzers" Visible="false"/>
     </ItemGroup>
-
-    <Target Name="PreBuild" BeforeTargets="Build">
-        <PropertyGroup>
-            <OriginalGameAssemblyPath>$(BugFablesDir)/Bug Fables_Data/Managed/-Assembly-CSharp.dll</OriginalGameAssemblyPath>
-            <ModifiedGameAssemblyPath>$(BugFablesDir)/Bug Fables_Data/Managed/Assembly-CSharp.dll</ModifiedGameAssemblyPath>
-        </PropertyGroup>
-        <Message Importance="high" Text="Patching $(OriginalGameAssemblyPath)"/>
-        <MSBuild Projects="$(SolutionDir)/.VenusRootLoader/VenusRootLoader.Patching.Aot/VenusRootLoader.Patching.Aot.csproj"
-                 Targets="Restore;Build;Run"
-                 Properties="StartArguments=&quot;$(OriginalGameAssemblyPath)&quot; &quot;$(ModifiedGameAssemblyPath)&quot;"/>
-        <Message Importance="high" Text="Patched assembly sucessfully generated at $(ModifiedGameAssemblyPath)"/>
-    </Target>
 
     <Target Name="PostBuild" AfterTargets="Build">
         <RemoveDir Condition="$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))"

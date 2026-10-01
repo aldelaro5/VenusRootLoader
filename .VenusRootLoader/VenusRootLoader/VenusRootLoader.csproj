@@ -29,9 +29,10 @@
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <IncludeReferencedProjects>true</IncludeReferencedProjects>
         <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+        <NoWarn>$(NoWarn);NU5131</NoWarn>
     </PropertyGroup>
 
-    <Target Name="MyTarget" BeforeTargets="ResolveAssemblyReferences">
+    <Target Name="PatchGameAssembly" BeforeTargets="ResolveAssemblyReferences">
         <Message Importance="high" Text="Patching $(OriginalGameAssemblyPath)"/>
         <MSBuild Projects="$(SolutionDir)/.VenusRootLoader/VenusRootLoader.Patching.Aot/VenusRootLoader.Patching.Aot.csproj"
                  Targets="Restore;Build;Run"
@@ -49,6 +50,14 @@
                    Strip="false"
                    Private="false"/>
     </ItemGroup>
+
+    <Target Name="IncludePublicisedAssemblies" AfterTargets="Publicize">
+        <ItemGroup>
+            <Content Include="$(IntermediateOutputPath)/publicized/*.dll"
+                     Pack="true"
+                     PackagePath="lib/net472"/>
+        </ItemGroup>
+    </Target>
 
     <PropertyGroup Condition="$(Configuration) == Release">
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>

@@ -9,8 +9,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Reference Include="$(ModifiedGameAssemblyPath)" Publicize="true" Strip="true"/>
+        <Reference Include="$(GameDataManagedPath)/UnityEngine*.dll" Publicize="true" Strip="false"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All"/>
-        <PackageReference Include="BugFables.GameLibs" Version="120.0.0" PrivateAssets="all"/>
     </ItemGroup>
 
     <ItemGroup>

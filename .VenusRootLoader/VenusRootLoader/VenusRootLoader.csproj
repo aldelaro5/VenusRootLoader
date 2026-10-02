@@ -33,38 +33,42 @@
         <BuildOutputTargetFolder>ref</BuildOutputTargetFolder>
     </PropertyGroup>
 
-    <ItemGroup>
-        <Reference Include="$(PublicizedGameLibsDirectory)/UnityEngine*.dll"/>
-        <Content Include="$(PublicizedGameLibsDirectory)/UnityEngine*.dll"
-                 Visible="false"
-                 Pack="true"
-                 PackagePath="ref/net472"/>
-    </ItemGroup>
-
-    <Target Name="PatchGameAssembly" BeforeTargets="ResolveAssemblyReferences">
+    <!-- We want to bootstrap the build from a real Assembly-CSharp.dll, but only when not making a release.
+         This alows CI builds to work while still being able to see changes to the AOT patcher in local development. -->
+    <Target Name="BootstrapBuildFromOriginalGameAssembly"
+            Condition="$(Configuration) != Release"
+            BeforeTargets="ResolveAssemblyReferences">
         <Message Importance="high" Text="Patching $(OriginalGameAssemblyPath)"/>
         <MSBuild Projects="$(SolutionDir)/.VenusRootLoader/VenusRootLoader.Patching.Aot/VenusRootLoader.Patching.Aot.csproj"
                  Targets="Restore;Build;Run"
                  Properties="TargetFramework=net10.0;StartArguments=&quot;$(OriginalGameAssemblyPath)&quot; &quot;$(ModifiedGameAssemblyPath)&quot;"/>
         <Message Importance="high" Text="Patched assembly sucessfully generated at $(ModifiedGameAssemblyPath)"/>
+
+        <Message Importance="high" Text="Publicizing and stripping $(ModifiedGameAssemblyPath)"/>
+        <ItemGroup>
+            <AssemblyToPublicize Include="$(ModifiedGameAssemblyPath)" Publicize="true" Strip="true"/>
+        </ItemGroup>
+        <PublicizeTask IntermediateOutputPath="$(IntermediateOutputPath)"
+                       GeneratedIgnoresAccessChecksToFile="$(IntermediateOutputPath)$(MSBuildProjectName).IgnoresAccessChecksTo.cs"
+                       ReferencePath="@(AssemblyToPublicize)"
+                       PackageReference=""
+                       Publicize="">
+            <Output TaskParameter="PublicizedReferences" ItemName="_PublicizedReferences"/>
+        </PublicizeTask>
+        <Message Importance="high" Text="Publicized and stripped the assembly sucessfully"/>
+
+        <Copy SourceFiles="$(_PublicizedReferences)"
+              DestinationFolder="$(PublicizedGameLibsDirectory)"/>
+        <Message Importance="high" Text="The assembly was placed at $(PublicizedGameLibsDirectory)"/>
     </Target>
 
     <ItemGroup>
-        <Reference Include="$(ModifiedGameAssemblyPath)"
-                   Publicize="true"
-                   Strip="true"
-                   Private="false"/>
+        <Reference Include="$(PublicizedGameLibsDirectory)/*.dll"/>
+        <Content Include="$(PublicizedGameLibsDirectory)/*.dll"
+                 Visible="false"
+                 Pack="true"
+                 PackagePath="ref/net472"/>
     </ItemGroup>
-
-    <Target Name="IncludePublicisedAssemblies" AfterTargets="Publicize">
-        <Copy SourceFiles="$(IntermediateOutputPath)/publicized/Assembly-CSharp.dll"
-              DestinationFiles="$(PublicizedModifiedGameAssemblyPath)"/>
-        <ItemGroup>
-            <Content Include="$(PublicizedModifiedGameAssemblyPath)"
-                     Pack="true"
-                     PackagePath="ref/net472"/>
-        </ItemGroup>
-    </Target>
 
     <PropertyGroup Condition="$(Configuration) == Release">
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
@@ -131,6 +135,7 @@
                    Directories="%userprofile%\.nuget\packages"/>
         <RemoveDir Condition="$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))"
                    Directories="$(HOME)/.nuget/packages/venusrootloader"/>
+        <!-- No matter what machine is used for developing the AOT patcher, we want a single Windows exe file as part of the installation. -->
         <MSBuild Projects="$(SolutionDir)/.VenusRootLoader/VenusRootLoader.Patching.Aot/VenusRootLoader.Patching.Aot.csproj"
                  Targets="Restore;Publish"
                  Properties="TargetFramework=net10.0;RuntimeIdentifier=win-x64"/>

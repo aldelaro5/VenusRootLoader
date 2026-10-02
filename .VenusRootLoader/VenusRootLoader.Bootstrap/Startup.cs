@@ -105,6 +105,8 @@ internal static class Startup
         services.AddSingleton<ICreateFileWSharedHooker, CreateFileWSharedHooker>();
         services.AddSingleton<PlayerLogsMirroring>();
 
+        services.AddSingleton<IAssemblyCSharpAotPatcher, AssemblyCSharpAotPatcher>();
+        
         services.AddSingleton<IGlobalManagersPatcher, SplashScreenSkipper>();
         services.AddSingleton<AssembliesListAppender>();
         services.AddSingleton<IAssembliesListAppender>(x => x.GetRequiredService<AssembliesListAppender>());

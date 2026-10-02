@@ -53,8 +53,13 @@
     </ItemGroup>
 
     <Target Name="IncludePublicisedAssemblies" AfterTargets="Publicize">
+        <Copy SourceFiles="$(IntermediateOutputPath)/publicized/Assembly-CSharp.dll"
+              DestinationFiles="$(PublicizedModifiedGameAssemblyPath)"/>
         <ItemGroup>
-            <Content Include="$(IntermediateOutputPath)/publicized/*.dll"
+            <Content Include="$(PublicizedModifiedGameAssemblyPath)"
+                     Pack="true"
+                     PackagePath="ref/net472"/>
+            <Content Include="$(IntermediateOutputPath)/publicized/UnityEngine*.dll"
                      Pack="true"
                      PackagePath="ref/net472"/>
         </ItemGroup>

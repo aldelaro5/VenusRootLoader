@@ -57,6 +57,10 @@ internal sealed class AssembliesListAppender : IGlobalManagersPatcher, IAssembli
 
     private const string VenusRootLoaderUnityRuntimeFilename = "VenusRootLoader.Unity.Runtime.dll";
 
+    // Unity sets this value to indicate that an Assembly is a "user assembly" which is the type assigned to assemblies
+    // such as Assembly-CSharp.dll or other libraries the developers were shipping with the game that aren't Unity assemblies.
+    private const int AssemblyTypeUser = 16;
+
     private static PathFileExistsFn _hookPathFileExistsDelegate = null!;
     private static GetFileAttributesExWFn _hookGetFileAttributesExDelegate = null!;
     private static string _managedDirectoryPath = string.Empty;
@@ -134,17 +138,27 @@ internal sealed class AssembliesListAppender : IGlobalManagersPatcher, IAssembli
         AssetTypeValueField monoMangerBaseField =
             assetsManager.GetBaseField(globalManagersFileInstance, monoManagerAsset);
         AssetTypeValueField assemblyNamesArray = monoMangerBaseField["m_AssemblyNames"][nameof(Array)];
+        AssetTypeValueField assemblyTypesArray = monoMangerBaseField["m_AssemblyTypes"][nameof(Array)];
 
         HashSet<string> allAssemblyNames = new();
-        foreach (AssetTypeValueField assemblyNameField in assemblyNamesArray)
+        List<int> allAssemblyTypes = new();
+        for (int i = 0; i < assemblyNamesArray.Children.Count; i++)
         {
+            AssetTypeValueField assemblyNameField = assemblyNamesArray[i];
             string assemblyName = assemblyNameField.AsString;
-            if (assemblyName.StartsWith("UnityEngine") || assemblyName.StartsWith("Assembly-CSharp"))
-                allAssemblyNames.Add(assemblyName);
+            if (!assemblyName.StartsWith("UnityEngine") && !assemblyName.StartsWith("Assembly-CSharp"))
+                continue;
+
+            AssetTypeValueField assemblyTypeField = assemblyTypesArray[i];
+            allAssemblyNames.Add(assemblyName);
+            allAssemblyTypes.Add(assemblyTypeField.AsInt);
         }
 
         foreach (string assemblyName in _assemblyNames.Keys)
+        {
             allAssemblyNames.Add(assemblyName);
+            allAssemblyTypes.Add(AssemblyTypeUser);
+        }
 
         assemblyNamesArray.Children.Clear();
         foreach (string assemblyName in allAssemblyNames)
@@ -152,6 +166,14 @@ internal sealed class AssembliesListAppender : IGlobalManagersPatcher, IAssembli
             AssetTypeValueField newArrayItem = ValueBuilder.DefaultValueFieldFromArrayTemplate(assemblyNamesArray);
             newArrayItem.AsString = assemblyName;
             assemblyNamesArray.Children.Add(newArrayItem);
+        }
+
+        assemblyTypesArray.Children.Clear();
+        foreach (int assemblyType in allAssemblyTypes)
+        {
+            AssetTypeValueField newArrayItem = ValueBuilder.DefaultValueFieldFromArrayTemplate(assemblyTypesArray);
+            newArrayItem.AsInt = assemblyType;
+            assemblyTypesArray.Children.Add(newArrayItem);
         }
 
         _logger.LogTrace(

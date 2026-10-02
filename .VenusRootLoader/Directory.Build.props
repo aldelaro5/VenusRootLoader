@@ -27,8 +27,9 @@
     <PropertyGroup>
         <GameDataManagedPath>$(BugFablesDir)/Bug Fables_Data/Managed</GameDataManagedPath>
         <OriginalGameAssemblyPath>$(GameDataManagedPath)/Assembly-CSharp.dll</OriginalGameAssemblyPath>
-        <ModifiedGameAssemblyPath>$(SolutionDir)/.VenusRootLoader/AotPatcherBuildOutput/Assembly-CSharp.dll</ModifiedGameAssemblyPath>
-        <PublicizedModifiedGameAssemblyPath>$(SolutionDir)/.VenusRootLoader/GameLibs/Assembly-CSharp.dll</PublicizedModifiedGameAssemblyPath>
+        <ModifiedGameAssemblyPath>$(SolutionDir).VenusRootLoader/AotPatcherBuildOutput/Assembly-CSharp.dll</ModifiedGameAssemblyPath>
+        <PublicizedGameLibsDirectory>$(SolutionDir).VenusRootLoader/GameLibs</PublicizedGameLibsDirectory>
+        <PublicizedModifiedGameAssemblyPath>$(PublicizedGameLibsDirectory)/Assembly-CSharp.dll</PublicizedModifiedGameAssemblyPath>
     </PropertyGroup>
 
     <Target Name="CopyUnityjitBcl" AfterTargets="Build">

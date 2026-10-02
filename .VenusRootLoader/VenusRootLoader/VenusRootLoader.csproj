@@ -33,6 +33,14 @@
         <BuildOutputTargetFolder>ref</BuildOutputTargetFolder>
     </PropertyGroup>
 
+    <ItemGroup>
+        <Reference Include="$(PublicizedGameLibsDirectory)/UnityEngine*.dll"/>
+        <Content Include="$(PublicizedGameLibsDirectory)/UnityEngine*.dll"
+                 Visible="false"
+                 Pack="true"
+                 PackagePath="ref/net472"/>
+    </ItemGroup>
+
     <Target Name="PatchGameAssembly" BeforeTargets="ResolveAssemblyReferences">
         <Message Importance="high" Text="Patching $(OriginalGameAssemblyPath)"/>
         <MSBuild Projects="$(SolutionDir)/.VenusRootLoader/VenusRootLoader.Patching.Aot/VenusRootLoader.Patching.Aot.csproj"
@@ -46,10 +54,6 @@
                    Publicize="true"
                    Strip="true"
                    Private="false"/>
-        <Reference Include="$(GameDataManagedPath)/UnityEngine*.dll"
-                   Publicize="true"
-                   Strip="false"
-                   Private="false"/>
     </ItemGroup>
 
     <Target Name="IncludePublicisedAssemblies" AfterTargets="Publicize">
@@ -57,9 +61,6 @@
               DestinationFiles="$(PublicizedModifiedGameAssemblyPath)"/>
         <ItemGroup>
             <Content Include="$(PublicizedModifiedGameAssemblyPath)"
-                     Pack="true"
-                     PackagePath="ref/net472"/>
-            <Content Include="$(IntermediateOutputPath)/publicized/UnityEngine*.dll"
                      Pack="true"
                      PackagePath="ref/net472"/>
         </ItemGroup>

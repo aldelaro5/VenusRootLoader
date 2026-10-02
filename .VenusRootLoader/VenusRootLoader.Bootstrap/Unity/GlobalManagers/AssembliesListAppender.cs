@@ -60,6 +60,7 @@ internal sealed class AssembliesListAppender : IGlobalManagersPatcher, IAssembli
     // Unity sets this value to indicate that an Assembly is a "user assembly" which is the type assigned to assemblies
     // such as Assembly-CSharp.dll or other libraries the developers were shipping with the game that aren't Unity assemblies.
     private const int AssemblyTypeUser = 16;
+    private const string AssemblyCsharpFirstPassName = "Assembly-CSharp-firstpass.dll";
 
     private static PathFileExistsFn _hookPathFileExistsDelegate = null!;
     private static GetFileAttributesExWFn _hookGetFileAttributesExDelegate = null!;
@@ -117,7 +118,7 @@ internal sealed class AssembliesListAppender : IGlobalManagersPatcher, IAssembli
         foreach (AssetTypeValueField assemblyNameField in assemblyNamesArray)
         {
             string assemblyName = assemblyNameField.AsString;
-            if (assemblyName.StartsWith("UnityEngine") || assemblyName.StartsWith("Assembly-CSharp"))
+            if (assemblyName.StartsWith("UnityEngine") || assemblyName == AssemblyCsharpFirstPassName)
                 continue;
             additionalAssemblyNames.Add(assemblyName);
         }
@@ -146,7 +147,7 @@ internal sealed class AssembliesListAppender : IGlobalManagersPatcher, IAssembli
         {
             AssetTypeValueField assemblyNameField = assemblyNamesArray[i];
             string assemblyName = assemblyNameField.AsString;
-            if (!assemblyName.StartsWith("UnityEngine") && !assemblyName.StartsWith("Assembly-CSharp"))
+            if (!assemblyName.StartsWith("UnityEngine") && assemblyName != AssemblyCsharpFirstPassName)
                 continue;
 
             AssetTypeValueField assemblyTypeField = assemblyTypesArray[i];
@@ -202,6 +203,13 @@ internal sealed class AssembliesListAppender : IGlobalManagersPatcher, IAssembli
             venusRootLoaderDirectory,
             VenusRootLoaderUnityRuntimeFilename);
         _assemblyNames.Add(VenusRootLoaderUnityRuntimeFilename, venusRootLoaderUnityRuntimeAssemblyPath);
+
+        // Add our patched game assembly which should always be there.
+        string patchedGameAssemblyPath = _fileSystem.Path.Combine(
+            bootstrapEnvironment.BasePath,
+            "GameAssembly",
+            Constants.GameAssemblyFileName);
+        _assemblyNames.Add(Constants.GameAssemblyFileName, patchedGameAssemblyPath);
 
         _logger.LogTrace(
             "\tFound the following assemblies:\n{assemblyNames}",

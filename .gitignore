@@ -297,3 +297,4 @@ __pycache__/
 .VenusRootLoader/Data/UnityTestProject/**/*.meta
 .VenusRootLoader/Output
 .VenusRootLoader/Tool
+.VenusRootLoader/AotPatcherBuildOutput

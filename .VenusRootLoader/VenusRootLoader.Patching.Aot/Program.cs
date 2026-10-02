@@ -61,6 +61,9 @@ public static class Program
             beforeEnemyActionSwitch,
             StateMachinePostProcessor);
 
+        string directory = Path.GetDirectoryName(args[1])!;
+        if (!Directory.Exists(directory))
+            Directory.CreateDirectory(directory);
         assembly.Write(args[1]);
 
         // string outputPath = Path.Combine(Directory.GetCurrentDirectory(), "IL");

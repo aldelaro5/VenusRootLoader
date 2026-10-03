@@ -23,8 +23,8 @@ internal sealed class MoveNextLogicExtractor
     public StateMachine InnerStateMachine { get; }
 
     private readonly StateMachine _outerStateMachine;
-    private readonly int _innerIlStartOffset;
-    private readonly int _innerIlEndOffset;
+    private readonly CilInstruction _innerFirstInstruction;
+    private readonly CilInstruction _innerLastInstruction;
     private readonly CilMethodBody _innerMoveNextBody;
     private readonly FieldDefinition? _innerContextField;
     private readonly HashSet<string> _innerStateMachineFieldNames;
@@ -44,8 +44,8 @@ internal sealed class MoveNextLogicExtractor
     /// <param name="referenceImporter">The <see cref="ReferenceImporter"/> to use when creating the state machine.</param>
     /// <param name="stateMachineEnumeratorMethodName">The name the enumerator method of the inner state machine will have.</param>
     /// <param name="parameters">The parameters the enumerator method the inner state machine will have.</param>
-    /// <param name="innerIlStartOffset">The IL offset of the starting point of the IL segment to extract from the <paramref name="outerStateMachine"/></param>
-    /// <param name="innerIlEndOffset">The IL offset of the ending point of the IL segment to extract from the <paramref name="outerStateMachine"/></param>
+    /// <param name="innerFirstInstruction">The IL offset of the starting point of the IL segment to extract from the <paramref name="outerStateMachine"/></param>
+    /// <param name="innerLastInstruction">The IL offset of the ending point of the IL segment to extract from the <paramref name="outerStateMachine"/></param>
     /// <param name="fieldsContextMapping">A mapping to use to map <paramref name="outerStateMachine"/>'s fields to their
     /// context counterpart. This can be empty. For more information on this dictionary see <see cref="StateMachine.PatchStateMachineContextContext"/>.</param>
     public MoveNextLogicExtractor(
@@ -53,8 +53,8 @@ internal sealed class MoveNextLogicExtractor
         LocalNetStandardReferenceImporter referenceImporter,
         string stateMachineEnumeratorMethodName,
         List<NamedParameter> parameters,
-        int innerIlStartOffset,
-        int innerIlEndOffset,
+        CilInstruction innerFirstInstruction,
+        CilInstruction innerLastInstruction,
         Dictionary<FieldDefinition, FieldDefinition> fieldsContextMapping)
     {
         _outerStateMachine = outerStateMachine;
@@ -63,8 +63,8 @@ internal sealed class MoveNextLogicExtractor
             referenceImporter,
             parameters,
             stateMachineEnumeratorMethodName);
-        _innerIlStartOffset = innerIlStartOffset;
-        _innerIlEndOffset = innerIlEndOffset;
+        _innerFirstInstruction = innerFirstInstruction;
+        _innerLastInstruction = innerLastInstruction;
         _fieldsContextMapping = fieldsContextMapping;
 
         ModuleDefinition module = outerStateMachine.StateMachineType.DeclaringModule!;
@@ -97,23 +97,27 @@ internal sealed class MoveNextLogicExtractor
     /// using the logic of the outer state machine's <see cref="IEnumerator.MoveNext"/>. The logic will be processed such that
     /// the IL of the inner state machine will be adapted to work as a standalone method that's semantically equivalent.
     /// </summary>
-    /// <param name="labelsToStateMachines">A mappings of labels to other state machines. This will be used to map
+    /// <param name="offsetsToStateMachines">A mappings of labels to other state machines. This will be used to map
     /// goto case statements if the state machine to extract is the arm of a switch. If this is not the case, this should
     /// be left empty.</param>
     /// <param name="yieldBreakLabel">A label that if encountered (or any instructions after it) will map to a yield break
     /// which means returning false.</param>
     /// <param name="instructionResetState">An instruction whose offset, if encountered, will map to the IL going back
     /// to the beginning of the method after setting the state to 0. If this flow isn't applicable, this should be null.</param>
+    /// <param name="usedExceptionHandlerIndexes">The list of exception handler indexes that were copied to the inner state machine as a result of the extraction.</param>
     public void ExtractMoveNextIl(
-        Dictionary<ICilLabel, StateMachine> labelsToStateMachines,
+        Dictionary<int, StateMachine> offsetsToStateMachines,
         ICilLabel yieldBreakLabel,
-        CilInstruction? instructionResetState)
+        CilInstruction? instructionResetState,
+        out List<int> usedExceptionHandlerIndexes)
     {
         int nextStateNumber = 1;
         CilInstruction? instructionNeedsLabelFix = null;
         // We process from a clone because we need to mostly pick similar instructions, but we don't want the references
         // to clash with the original so this makes sure we won't be doing that.
-        List<CilInstruction> innerIl = GetIlSegmentCloneToProcess();
+        MethodDefinition outerMoveNextClone = CreateOuterMoveNextClone();
+        usedExceptionHandlerIndexes = TransferExceptionHandlersFromClone(outerMoveNextClone);
+        List<CilInstruction> innerIl = GetIlSegmentToProcessFromClone(outerMoveNextClone);
 
         foreach (CilInstruction instruction in innerIl)
         {
@@ -137,7 +141,7 @@ internal sealed class MoveNextLogicExtractor
                 // This processes 3 types of branching: yield break, goto case (to another switch arm) and a branch to
                 // go back to the beginning of the logic.
                 if (ProcessSpecialBranchOperationInstruction(
-                        labelsToStateMachines,
+                        offsetsToStateMachines,
                         yieldBreakLabel,
                         instructionResetState,
                         instructionLabel,
@@ -167,26 +171,63 @@ internal sealed class MoveNextLogicExtractor
         }
 
         _stateSwitchInstruction.Operand = _stateSwitchLabels;
-        AddFinalYieldBreak();
+        if (!IsLastInstructionYieldBreak())
+            AddFinalYieldBreak();
 
         _innerMoveNextBody.Instructions.OptimizeMacros();
         _innerMoveNextBody.Instructions.CalculateOffsets();
     }
 
-    private List<CilInstruction> GetIlSegmentCloneToProcess()
+    private List<CilInstruction> GetIlSegmentToProcessFromClone(MethodDefinition outerMoveNextClone)
+    {
+        CilInstructionCollection outerMoveNextCloneIl = outerMoveNextClone.CilMethodBody!.Instructions;
+        int start = outerMoveNextCloneIl.GetIndexByOffset(_innerFirstInstruction.Offset);
+        int end = outerMoveNextCloneIl.GetIndexByOffset(_innerLastInstruction.Offset);
+        return outerMoveNextCloneIl
+            .Skip(start)
+            .Take(end - start + 1)
+            .ToList();
+    }
+
+    private List<int> TransferExceptionHandlersFromClone(MethodDefinition outerMoveNextClone)
+    {
+        IList<CilExceptionHandler> exceptionHandlers = outerMoveNextClone.CilMethodBody!.ExceptionHandlers;
+        List<int> indexesExceptionHandlersToRemoveFromOriginal = [];
+        for (int i = 0; i < exceptionHandlers.Count; i++)
+        {
+            CilExceptionHandler exceptionHandler = exceptionHandlers[i];
+            if (!IsExceptionHandlerInRange(exceptionHandler))
+                continue;
+            InnerStateMachine.MoveNextMethod.CilMethodBody!.ExceptionHandlers.Add(exceptionHandler);
+            indexesExceptionHandlersToRemoveFromOriginal.Add(i);
+        }
+
+        return indexesExceptionHandlersToRemoveFromOriginal;
+    }
+
+    private bool IsExceptionHandlerInRange(CilExceptionHandler exceptionHandler)
+    {
+        if (exceptionHandler.TryStart is not null
+            && exceptionHandler.TryStart.Offset >= _innerFirstInstruction.Offset
+            && exceptionHandler.TryEnd is not null
+            && exceptionHandler.TryEnd.Offset <= _innerLastInstruction.Offset)
+        {
+            return true;
+        }
+
+        return exceptionHandler.HandlerStart is not null
+               && exceptionHandler.HandlerStart.Offset >= _innerFirstInstruction.Offset
+               && exceptionHandler.HandlerEnd is not null
+               && exceptionHandler.HandlerEnd.Offset <= _innerLastInstruction.Offset;
+    }
+
+    private MethodDefinition CreateOuterMoveNextClone()
     {
         MemberCloner cloner = new(_outerStateMachine.StateMachineType.DeclaringModule!);
         cloner.Include(_outerStateMachine.MoveNextMethod);
         MemberCloneResult cloneResult = cloner.Clone();
         MethodDefinition outerMoveNextClone = cloneResult.GetClonedMember(_outerStateMachine.MoveNextMethod);
-        CilInstructionCollection outerMoveNextCloneIl = outerMoveNextClone.CilMethodBody!.Instructions;
-
-        int start = outerMoveNextCloneIl.GetIndexByOffset(_innerIlStartOffset);
-        int end = outerMoveNextCloneIl.GetIndexByOffset(_innerIlEndOffset);
-        return outerMoveNextCloneIl
-            .Skip(start)
-            .Take(end - start + 1)
-            .ToList();
+        return outerMoveNextClone;
     }
 
     private static Dictionary<FieldDefinition, FieldDefinition> BuildFieldsMapping(
@@ -345,7 +386,7 @@ internal sealed class MoveNextLogicExtractor
     }
 
     private bool ProcessSpecialBranchOperationInstruction(
-        Dictionary<ICilLabel, StateMachine> labelsToStateMachines,
+        Dictionary<int, StateMachine> offsetsToStateMachines,
         ICilLabel yieldBreakLabel,
         CilInstruction? instructionResetState,
         ICilLabel label,
@@ -359,7 +400,7 @@ internal sealed class MoveNextLogicExtractor
             return true;
         }
 
-        if (labelsToStateMachines.TryGetValue(label, out StateMachine? otherStateMachineInfo))
+        if (offsetsToStateMachines.TryGetValue(label.Offset, out StateMachine? otherStateMachineInfo))
         {
             instructionNeedsLabelFix = ProcessBranchInstructionAsYieldReturnEnumerator(
                 otherStateMachineInfo,
@@ -478,6 +519,13 @@ internal sealed class MoveNextLogicExtractor
         return _innerMoveNextBody.Instructions.Count == _innerInstructionIndexAfterStateMachineSetup ||
                (_innerMoveNextBody.Instructions[^1].OpCode == Ret &&
                 _innerMoveNextBody.Instructions[^2].GetLdcI4Constant() == 1);
+    }
+
+    private bool IsLastInstructionYieldBreak()
+    {
+        return _innerMoveNextBody.Instructions.Count == _innerInstructionIndexAfterStateMachineSetup ||
+               (_innerMoveNextBody.Instructions[^1].OpCode == Ret &&
+                _innerMoveNextBody.Instructions[^2].GetLdcI4Constant() == 0);
     }
 
     private void AddFinalYieldBreak()

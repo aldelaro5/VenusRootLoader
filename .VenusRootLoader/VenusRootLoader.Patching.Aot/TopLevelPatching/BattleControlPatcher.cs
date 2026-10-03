@@ -1,5 +1,6 @@
 using AsmResolver.DotNet;
 using AsmResolver.DotNet.Code.Cil;
+using AsmResolver.DotNet.Collections;
 using AsmResolver.DotNet.Signatures;
 using AsmResolver.PE.DotNet.Cil;
 using VenusRootLoader.Patching.Aot.StateMachineUtils;
@@ -21,7 +22,55 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             doActionStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
 
         AsmResolverIlCursor ilCursor = new(doActionMoveNextIl);
+        ExtractPlayerActions(referenceImporter, ilCursor, doActionStateMachine);
+        ilCursor.Index = 0;
+        ExtractEnemyActions(referenceImporter, ilCursor, doActionStateMachine);
+    }
 
+    private static void ExtractPlayerActions(
+        LocalNetStandardReferenceImporter referenceImporter,
+        AsmResolverIlCursor ilCursor,
+        StateMachine doActionStateMachine)
+    {
+        ilCursor.MatchNext(x => x.OpCode == Ldstr && (string)x.Operand! == "Player");
+        ilCursor.MatchNext(x => x.OpCode == Switch);
+
+        CilInstruction playerActionSwitch = ilCursor.Current();
+        ilCursor.MatchPrevious(x =>
+            x.IsLdarg() && (x.OpCode == Ldarg_0 || x.Operand is Parameter { MethodSignatureIndex: 0 }));
+        CilInstruction beforePlayerActionSwitch = ilCursor.Current();
+
+        List<StateMachineContextField> doActionContextFields =
+        [
+            doActionStateMachine.GetReadOnlyContextFieldFromSpeakableName("entity"),
+            doActionStateMachine.GetReadOnlyContextFieldFromSpeakableName("actionid"),
+            doActionStateMachine.GetReadOnlyContextFieldFromSpeakableName("startp"),
+            doActionStateMachine.GetContextFieldFromSpeakableName("startstate"),
+            doActionStateMachine.GetReadOnlyContextFieldFromSpeakableName("targetentity")
+        ];
+
+        StateMachineContextInfo stateMachineContextInfo = new()
+        {
+            TypeName = "PlayerActionContext",
+            Fields = doActionContextFields,
+        };
+
+        SwitchArmsCoroutineExtractor.ExtractSwitchArmsToStateMachines(
+            referenceImporter,
+            doActionStateMachine,
+            "PlayerAction",
+            stateMachineContextInfo,
+            playerActionSwitch,
+            beforePlayerActionSwitch,
+            null,
+            null);
+    }
+
+    private static void ExtractEnemyActions(
+        LocalNetStandardReferenceImporter referenceImporter,
+        AsmResolverIlCursor ilCursor,
+        StateMachine doActionStateMachine)
+    {
         ilCursor.MatchNext(x => x.OpCode == Ldfld && ((IFieldDescriptor)x.Operand!).Name == "firststrike");
         ilCursor.MatchNext(x => x.OpCode == Ldfld && ((IFieldDescriptor)x.Operand!).Name == "onground");
         ilCursor.MatchNext(x => x.OpCode == Switch);
@@ -32,7 +81,7 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
 
         List<StateMachineContextField> doActionContextFields =
         [
-            doActionStateMachine.GetContextFieldFromSpeakableName("entity"),
+            doActionStateMachine.GetReadOnlyContextFieldFromSpeakableName("entity"),
             doActionStateMachine.GetContextFieldFromSpeakableName("actionid"),
             doActionStateMachine.GetContextFieldFromSpeakableName("randomposafter"),
             doActionStateMachine.GetContextFieldFromSpeakableName("fled"),
@@ -51,14 +100,15 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
         SwitchArmsCoroutineExtractor.ExtractSwitchArmsToStateMachines(
             referenceImporter,
             doActionStateMachine,
+            "EnemyAction",
             stateMachineContextInfo,
             enemyActionSwitch,
             beforeEnemyActionSwitch,
             beforeEnemyActionSwitch,
-            StateMachinePostProcessor);
+            EnemyActionPostProcessor);
     }
 
-    private static void StateMachinePostProcessor(int switchLabelIndex, StateMachine stateMachine)
+    private static void EnemyActionPostProcessor(int switchLabelIndex, StateMachine stateMachine)
     {
         if (switchLabelIndex != 1)
             return;

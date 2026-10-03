@@ -20,14 +20,14 @@ internal sealed class SwitchArn
     public required List<IndexedSwitchLabel> Labels { get; init; }
 
     /// <summary>
-    /// The starting IL offset where this arm is located in the method.
+    /// The first instruction where this arm is located in the method.
     /// </summary>
-    public required int StartOffset { get; init; }
+    public required CilInstruction StartInstruction { get; init; }
 
     /// <summary>
-    /// The ending IL offset where this arm is located in the method.
+    /// The last instruction where this arm is located in the method.
     /// </summary>
-    public required int EndOffset { get; init; }
+    public required CilInstruction EndInstruction { get; init; }
 }
 
 /// <summary>
@@ -59,6 +59,7 @@ internal sealed class SwitchArmsCoroutineExtractor
     /// <param name="referenceImporter">The <see cref="ReferenceImporter"/> to use when creating state machines or other
     /// constructs.</param>
     /// <param name="outerStateMachine">The <see cref="StateMachine"/> involved in the extraction process.</param>
+    /// <param name="innerStateMachinesMethodPrefix">The prefix of all names to give to the inner state machines enumerator methods.</param>
     /// <param name="switchContextInfo">The information needed to create a context. If no context should be involved, this
     /// should be null.</param>
     /// <param name="outerSwitchInstruction">The switch instruction involved in the extraction of the
@@ -72,11 +73,12 @@ internal sealed class SwitchArmsCoroutineExtractor
     public static void ExtractSwitchArmsToStateMachines(
         LocalNetStandardReferenceImporter referenceImporter,
         StateMachine outerStateMachine,
+        string innerStateMachinesMethodPrefix,
         StateMachineContextInfo? switchContextInfo,
         CilInstruction outerSwitchInstruction,
         CilInstruction outerInitializeContextInstruction,
         CilInstruction? outerResetStateMachineToZeroInstruction,
-        Action<int, StateMachine> stateMachinePostProcessor)
+        Action<int, StateMachine>? stateMachinePostProcessor)
     {
         CilInstructionCollection moveNextIl = outerStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
         moveNextIl.ExpandMacros();
@@ -121,7 +123,7 @@ internal sealed class SwitchArmsCoroutineExtractor
             }
             : null;
 
-        Dictionary<ICilLabel, StateMachine> labelsToStateMachine = new();
+        Dictionary<CilInstruction, StateMachine> firstInstructionToStateMachine = new();
         Dictionary<int, MoveNextLogicExtractor> labelIndexesToExtractors = new();
         // The first pass creates all the state machines. This allows goto case flow to map even if we encounter an arm
         // we haven't processed yet.
@@ -131,18 +133,23 @@ internal sealed class SwitchArmsCoroutineExtractor
             MoveNextLogicExtractor extractor = new(
                 outerStateMachine,
                 referenceImporter,
-                $"EnemyAction{indexedSwitchLabel.Index}",
+                $"{innerStateMachinesMethodPrefix}{indexedSwitchLabel.Index}",
                 contextParameter is not null ? [contextParameter] : [],
-                arm.StartOffset,
-                arm.EndOffset,
+                arm.StartInstruction,
+                arm.EndInstruction,
                 fieldsContextMapping);
 
             labelIndexesToExtractors[indexedSwitchLabel.Index] = extractor;
-            labelsToStateMachine[indexedSwitchLabel.Label] = extractor.InnerStateMachine;
+            firstInstructionToStateMachine[((CilInstructionLabel)indexedSwitchLabel.Label).Instruction!] =
+                extractor.InnerStateMachine;
         }
 
         foreach (SwitchArn arm in switchArms)
         {
+            moveNextIl.CalculateOffsets();
+            Dictionary<int, StateMachine> offsetsToStateMachine =
+                firstInstructionToStateMachine.ToDictionary(x => x.Key.Offset, x => x.Value);
+
             List<StateMachine> stateMachines = new();
             foreach (IndexedSwitchLabel indexedSwitchArmLabel in arm.Labels)
             {
@@ -151,15 +158,19 @@ internal sealed class SwitchArmsCoroutineExtractor
                 stateMachines.Add(innerStateMachine);
 
                 labelIndexesToExtractors[indexedSwitchArmLabel.Index].ExtractMoveNextIl(
-                    labelsToStateMachine,
+                    offsetsToStateMachine,
                     switchEndLabel,
-                    outerResetStateMachineToZeroInstruction);
+                    outerResetStateMachineToZeroInstruction,
+                    out List<int> usedExceptionHandlerIndexes);
 
-                stateMachinePostProcessor(indexedSwitchArmLabel.Index, innerStateMachine);
+                foreach (int exceptionHandlerIndex in usedExceptionHandlerIndexes.OrderDescending())
+                    outerStateMachine.MoveNextMethod.CilMethodBody!.ExceptionHandlers.RemoveAt(exceptionHandlerIndex);
+
+                stateMachinePostProcessor?.Invoke(indexedSwitchArmLabel.Index, innerStateMachine);
             }
 
-            int start = moveNextIl.GetIndexByOffset(arm.StartOffset);
-            int end = moveNextIl.GetIndexByOffset(arm.EndOffset);
+            int start = moveNextIl.GetIndexByOffset(arm.StartInstruction.Offset);
+            int end = moveNextIl.GetIndexByOffset(arm.EndInstruction.Offset);
             // The reason we yield return multiple times in a row is to accomodate switch arms that have multiple labels
             // going into them. For now, the solution is to simply duplicate the same logic into multiple state machines,
             // and we can create separate arms for each of them in a row like this. This isn't ideal, but the post processor
@@ -188,6 +199,7 @@ internal sealed class SwitchArmsCoroutineExtractor
         AddStateMachinesToEmptySwitchArms(
             referenceImporter,
             outerStateMachine,
+            innerStateMachinesMethodPrefix,
             moveNextIl,
             switchArmLabels,
             switchEndLabel,
@@ -203,6 +215,7 @@ internal sealed class SwitchArmsCoroutineExtractor
     private static void AddStateMachinesToEmptySwitchArms(
         LocalNetStandardReferenceImporter referenceImporter,
         StateMachine outerStateMachine,
+        string innerStateMachinesMethodPrefix,
         CilInstructionCollection moveNextIl,
         IList<ICilLabel> switchArmLabels,
         ICilLabel switchEndLabel,
@@ -226,7 +239,7 @@ internal sealed class SwitchArmsCoroutineExtractor
                 outerStateMachine,
                 referenceImporter,
                 contextParameter is not null ? [contextParameter] : [],
-                $"EnemyAction{emptyArmLabel.Index}");
+                $"{innerStateMachinesMethodPrefix}{emptyArmLabel.Index}");
             // These arms should do nothing so we just have their MoveNext yield break immediately.
             stateMachine.MoveNextMethod.CilMethodBody = new()
             {
@@ -275,8 +288,9 @@ internal sealed class SwitchArmsCoroutineExtractor
                 (current, next) => new SwitchArn
                 {
                     Labels = current.Labels,
-                    StartOffset = current.Offset,
-                    EndOffset = moveNextIl[moveNextIl.GetIndexByOffset(next.Offset) - 1].Offset
+                    StartInstruction = moveNextIl.GetByOffset(current.Offset)!,
+                    EndInstruction =
+                        moveNextIl.GetByOffset(moveNextIl[moveNextIl.GetIndexByOffset(next.Offset) - 1].Offset)!
                 })
             .ToList();
 
@@ -285,8 +299,9 @@ internal sealed class SwitchArmsCoroutineExtractor
             new SwitchArn
             {
                 Labels = lastSwitchArm.Labels,
-                StartOffset = lastSwitchArm.Offset,
-                EndOffset = switchEndLabel.Offset,
+                StartInstruction = moveNextIl.GetByOffset(lastSwitchArm.Offset)!,
+                EndInstruction = moveNextIl.GetByOffset(
+                    moveNextIl[moveNextIl.GetIndexByOffset(switchEndLabel.Offset) - 1].Offset)!,
             });
 
         return arms;

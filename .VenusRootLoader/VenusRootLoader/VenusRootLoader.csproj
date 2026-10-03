@@ -63,7 +63,8 @@
     </Target>
 
     <ItemGroup>
-        <Reference Include="$(PublicizedGameLibsDirectory)/*.dll"/>
+        <Reference Include="$(PublicizedGameLibsDirectory)/*.dll"
+                   Private="false"/>
         <Content Include="$(PublicizedGameLibsDirectory)/*.dll"
                  Visible="false"
                  Pack="true"

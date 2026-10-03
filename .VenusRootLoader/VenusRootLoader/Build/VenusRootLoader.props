@@ -11,5 +11,6 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3"/>
+        <PackageReference Update="VenusRootLoader" ExcludeAssets="runtime"/>
     </ItemGroup>
 </Project>

@@ -12,7 +12,7 @@ using PropertyAttributes = AsmResolver.PE.DotNet.Metadata.Tables.PropertyAttribu
 using TypeAttributes = AsmResolver.PE.DotNet.Metadata.Tables.TypeAttributes;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
-namespace VenusRootLoader.Patching.Aot;
+namespace VenusRootLoader.Patching.Aot.StateMachineUtils;
 
 /// <summary>
 /// This class allows to create a <see cref="StateMachine"/> containing the basic structure where the state machine is

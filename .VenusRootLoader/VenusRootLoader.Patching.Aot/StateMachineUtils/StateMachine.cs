@@ -4,7 +4,7 @@ using AsmResolver.PE.DotNet.Cil;
 using AsmResolver.PE.DotNet.Metadata.Tables;
 using System.Collections;
 
-namespace VenusRootLoader.Patching.Aot;
+namespace VenusRootLoader.Patching.Aot.StateMachineUtils;
 
 /// <summary>
 /// Represents a mapped context field of a <see cref="StateMachineContextInfo"/>.

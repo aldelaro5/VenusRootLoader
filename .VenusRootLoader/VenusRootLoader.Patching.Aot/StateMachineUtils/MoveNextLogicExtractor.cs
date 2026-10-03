@@ -6,7 +6,7 @@ using AsmResolver.PE.DotNet.Cil;
 using System.Collections;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
-namespace VenusRootLoader.Patching.Aot;
+namespace VenusRootLoader.Patching.Aot.StateMachineUtils;
 
 /// <summary>
 /// This class allows to extract the logic of an outer <see cref="StateMachine"/>'s <see cref="IEnumerator.MoveNext"/>

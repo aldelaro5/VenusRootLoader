@@ -2,6 +2,7 @@ using AsmResolver.DotNet;
 using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.PE.DotNet.Cil;
 using System.Collections;
+using VenusRootLoader.Patching.Aot.StateMachineUtils;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
 namespace VenusRootLoader.Patching.Aot;

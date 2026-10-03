@@ -66,8 +66,6 @@ public static class Program
             Directory.CreateDirectory(directory);
         assembly.Write(args[1]);
 
-        // string outputPath = Path.Combine(Directory.GetCurrentDirectory(), "IL");
-        // DisassemblerTests.DisassembleTypes(args[1], new DirectoryInfo(outputPath));
         return 0;
     }
 

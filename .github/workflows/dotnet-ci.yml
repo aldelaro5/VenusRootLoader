@@ -18,12 +18,10 @@ jobs:
         uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
-      - name: Install LLVM and Clang
-        uses: KyleMayes/install-llvm-action@v2
+      - name: Setup LLVM
+        uses: ZhongRuoyu/setup-llvm@v0
         with:
-          version: "21.1.8"
-      - name: Add LLVM to path
-        run: echo "$GITHUB_WORKSPACE\$env:LLVM_PATH\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+          llvm-version: 23
       - name: Check environment
         run: |
           dotnet --version
@@ -46,12 +44,10 @@ jobs:
         uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
-      - name: Install LLVM and Clang
-        uses: KyleMayes/install-llvm-action@v2
+      - name: Setup LLVM
+        uses: ZhongRuoyu/setup-llvm@v0
         with:
-          version: "21.1.8"
-      - name: Add LLVM to path
-        run: echo "$LLVM_PATH/bin" >> $GITHUB_PATH
+          llvm-version: 23
       - name: Download xwin
         id: xwin
         uses: robinraju/release-downloader@v1

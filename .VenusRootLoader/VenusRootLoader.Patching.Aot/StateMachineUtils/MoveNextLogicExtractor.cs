@@ -396,17 +396,18 @@ internal sealed class MoveNextLogicExtractor
     {
         if (label.Offset >= yieldBreakLabel.Offset)
         {
-            instructionNeedsLabelFix = ProcessBranchInstructionAsYieldBreak(instruction, label);
+            ProcessBranchInstructionAsYieldBreak(instruction, label, ref instructionNeedsLabelFix);
             return true;
         }
 
         if (offsetsToStateMachines.TryGetValue(label.Offset, out StateMachine? otherStateMachineInfo))
         {
-            instructionNeedsLabelFix = ProcessBranchInstructionAsYieldReturnEnumerator(
+            ProcessBranchInstructionAsYieldReturnEnumerator(
                 otherStateMachineInfo,
                 nextStateNumber,
                 instruction,
-                label);
+                label,
+                ref instructionNeedsLabelFix);
             nextStateNumber++;
 
             return true;
@@ -414,53 +415,65 @@ internal sealed class MoveNextLogicExtractor
 
         if (instructionResetState is not null && instructionResetState.Offset == label.Offset)
         {
-            instructionNeedsLabelFix =
-                ProcessBranchInstructionAsResetToState0(
-                    instruction,
-                    label);
-
+            ProcessBranchInstructionAsResetToState0(instruction, label, ref instructionNeedsLabelFix);
             return true;
         }
 
         return false;
     }
 
-    private CilInstruction? ProcessBranchInstructionAsYieldBreak(CilInstruction instruction, ICilLabel label)
+    private void ProcessBranchInstructionAsYieldBreak(
+        CilInstruction instruction,
+        ICilLabel label,
+        ref CilInstruction? instructionNeedsLabelFix)
     {
+        bool neededFixing = instructionNeedsLabelFix is not null;
         CilInstruction firstInstruction = new(Ldarg_0);
 
-        CilInstruction? instructionNeedsLabelFix = PreProcessSpecialBranchOperationInstruction(
+        PreProcessSpecialBranchOperationInstruction(
             instruction,
             label,
-            firstInstruction);
+            firstInstruction,
+            ref instructionNeedsLabelFix);
 
         _innerMoveNextBody.Instructions.Add(firstInstruction);
+        if (neededFixing && instructionNeedsLabelFix is not null)
+        {
+            instructionNeedsLabelFix.Operand = _innerMoveNextBody.Instructions[^1].CreateLabel();
+            instructionNeedsLabelFix = null;
+        }
+
         _innerMoveNextBody.Instructions.Add(Ldc_I4_M1);
         _innerMoveNextBody.Instructions.Add(Stfld, InnerStateMachine.StateField);
         _innerMoveNextBody.Instructions.Add(Ldc_I4_0);
         _innerMoveNextBody.Instructions.Add(Ret);
-
-        return instructionNeedsLabelFix;
     }
 
-    private CilInstruction? ProcessBranchInstructionAsYieldReturnEnumerator(
+    private void ProcessBranchInstructionAsYieldReturnEnumerator(
         StateMachine otherStateMachineInfo,
         int nextStateNumber,
         CilInstruction instruction,
-        ICilLabel label)
+        ICilLabel label,
+        ref CilInstruction? instructionNeedsLabelFix)
     {
-        List<CilInstruction> stateTransitionIl =
-            InnerStateMachine.GetYieldReturnToOtherStateMachineInstructions(
-                otherStateMachineInfo,
-                _innerContextField is not null ? [_innerContextField] : [],
-                nextStateNumber);
+        bool neededFixing = instructionNeedsLabelFix is not null;
+        List<CilInstruction> stateTransitionIl = InnerStateMachine.GetYieldReturnToOtherStateMachineInstructions(
+            otherStateMachineInfo,
+            _innerContextField is not null ? [_innerContextField] : [],
+            nextStateNumber);
 
-        CilInstruction? instructionNeedsLabelFix = PreProcessSpecialBranchOperationInstruction(
+        PreProcessSpecialBranchOperationInstruction(
             instruction,
             label,
-            stateTransitionIl[0]);
+            stateTransitionIl[0],
+            ref instructionNeedsLabelFix);
 
         _innerMoveNextBody.Instructions.AddRange(stateTransitionIl);
+        if (neededFixing && instructionNeedsLabelFix is not null)
+        {
+            instructionNeedsLabelFix.Operand = stateTransitionIl[0].CreateLabel();
+            instructionNeedsLabelFix = null;
+        }
 
         // The yield break after is needed because this acts like a goto case where the logic is performed, but the switch
         // is done after the destination arm is done.
@@ -470,32 +483,33 @@ internal sealed class MoveNextLogicExtractor
         _innerMoveNextBody.Instructions.Add(Stfld, InnerStateMachine.StateField);
         _innerMoveNextBody.Instructions.Add(Ldc_I4_0);
         _innerMoveNextBody.Instructions.Add(Ret);
-
-        return instructionNeedsLabelFix;
     }
 
-    private CilInstruction? ProcessBranchInstructionAsResetToState0(
+    private void ProcessBranchInstructionAsResetToState0(
         CilInstruction instruction,
-        ICilLabel label)
+        ICilLabel label,
+        ref CilInstruction? instructionNeedsLabelFix)
     {
+        bool neededFixing = instructionNeedsLabelFix is not null;
         CilInstruction state0FirstInstruction =
             _innerMoveNextBody.Instructions[_innerInstructionIndexAfterStateMachineSetup];
         CilInstruction resetIl = new(Br, state0FirstInstruction.CreateLabel());
 
-        CilInstruction? instructionNeedsLabelFix = PreProcessSpecialBranchOperationInstruction(
-            instruction,
-            label,
-            resetIl);
+        PreProcessSpecialBranchOperationInstruction(instruction, label, resetIl, ref instructionNeedsLabelFix);
 
         _innerMoveNextBody.Instructions.Add(resetIl);
-
-        return instructionNeedsLabelFix;
+        if (neededFixing && instructionNeedsLabelFix is not null)
+        {
+            instructionNeedsLabelFix.Operand = _innerMoveNextBody.Instructions[^1].CreateLabel();
+            instructionNeedsLabelFix = null;
+        }
     }
 
-    private CilInstruction? PreProcessSpecialBranchOperationInstruction(
+    private void PreProcessSpecialBranchOperationInstruction(
         CilInstruction instruction,
         ICilLabel label,
-        CilInstruction firstInstructionAfterPreProcess)
+        CilInstruction firstInstructionAfterPreProcess,
+        ref CilInstruction? instructionNeedsLabelFix)
     {
         if (instruction.IsConditionalBranch())
         {
@@ -503,15 +517,20 @@ internal sealed class MoveNextLogicExtractor
                 _stateSwitchLabels.Add(instruction.CreateLabel());
 
             _innerMoveNextBody.Instructions.Add(instruction);
+            if (instructionNeedsLabelFix is not null)
+            {
+                instructionNeedsLabelFix.Operand = _innerMoveNextBody.Instructions[^1].CreateLabel();
+                instructionNeedsLabelFix = null;
+            }
+
             _innerMoveNextBody.Instructions[^1].Operand = new CilInstructionLabel(firstInstructionAfterPreProcess);
             _innerMoveNextBody.Instructions.Add(Br, label);
-            return _innerMoveNextBody.Instructions[^1];
+            instructionNeedsLabelFix = _innerMoveNextBody.Instructions[^1];
+            return;
         }
 
         if (IsLastInstructionYieldReturn())
             _stateSwitchLabels.Add(firstInstructionAfterPreProcess.CreateLabel());
-
-        return null;
     }
 
     private bool IsLastInstructionYieldReturn()

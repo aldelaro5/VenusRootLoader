@@ -75,8 +75,8 @@ internal sealed class StateMachineContextInfo
 internal sealed class StateMachine
 {
     public const string StateFieldName = "<>1__state";
-    public const string? CurrentFieldName = "<>2__current";
-    public const string? ThisFieldName = "<>4__this";
+    public const string CurrentFieldName = "<>2__current";
+    public const string ThisFieldName = "<>4__this";
 
     /// <summary>
     /// The type of the state machine class which implements <see cref="IEnumerator"/>.
@@ -108,9 +108,10 @@ internal sealed class StateMachine
 
     /// <summary>
     /// The field of the <see cref="StateMachineType"/> that stores the "this" value if <see cref="EnumeratorMethod"/>.
-    /// is an instance one. This has field an unspeakable name.
+    /// is an instance one. This has field an unspeakable name. A value of null means the MoveNext does not use its this,
+    /// or the enumerator method is static.
     /// </summary>
-    public required FieldDefinition ThisField { get; init; }
+    public required FieldDefinition? ThisField { get; init; }
 
     /// <summary>
     /// Creates a <see cref="StateMachine"/> instance from the enumerator method component of the state machine. All the
@@ -131,7 +132,7 @@ internal sealed class StateMachine
 
         FieldDefinition stateField = stateMachineType.Fields.Single(x => x.Name == StateFieldName);
         FieldDefinition currentField = stateMachineType.Fields.Single(x => x.Name == CurrentFieldName);
-        FieldDefinition thisField = stateMachineType.Fields.Single(x => x.Name == ThisFieldName);
+        FieldDefinition? thisField = stateMachineType.Fields.SingleOrDefault(x => x.Name == ThisFieldName);
 
         return new()
         {
@@ -211,11 +212,9 @@ internal sealed class StateMachine
         List<FieldDefinition> fieldArguments,
         int stateNumber)
     {
-        List<CilInstruction> stateTransitionIl =
-        [
-            new(CilOpCodes.Ldarg_0),
-            new(CilOpCodes.Ldloc_1)
-        ];
+        List<CilInstruction> stateTransitionIl = [new(CilOpCodes.Ldarg_0)];
+        if (!otherStateMachine.EnumeratorMethod.IsStatic)
+            stateTransitionIl.Add(new(CilOpCodes.Ldloc_1));
 
         foreach (FieldDefinition fieldArgument in fieldArguments)
         {

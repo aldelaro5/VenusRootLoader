@@ -77,16 +77,18 @@ internal sealed class MoveNextLogicExtractor
             .Select(x => x.Name!.Value)
             .ToHashSet();
         CilLocalVariable localState = new(InnerStateMachine.StateField.Signature!.FieldType);
-        CilLocalVariable localThis = new(InnerStateMachine.ThisField.Signature!.FieldType);
+        CilLocalVariable? localThis = InnerStateMachine.ThisField is not null
+            ? new(InnerStateMachine.ThisField.Signature!.FieldType)
+            : null;
         _stateSwitchInstruction = CreateMoveNextBodyWithStateSwitchSetupInstructions(
             InnerStateMachine,
             localState,
             localThis);
-        _localIndexMapping = new()
-        {
-            [0] = localState,
-            [1] = localThis
-        };
+
+        _localIndexMapping = new() { [0] = localState };
+        if (localThis is not null)
+            _localIndexMapping[1] = localThis;
+
         _innerMoveNextBody = InnerStateMachine.MoveNextMethod.CilMethodBody!;
         _innerInstructionIndexAfterStateMachineSetup = _innerMoveNextBody.Instructions.Count;
         _innerContextField = InnerStateMachine.StateMachineType.Fields.SingleOrDefault(x => x.Name == "context");
@@ -261,7 +263,7 @@ internal sealed class MoveNextLogicExtractor
 
             if (clonedField.Name == StateMachine.ThisFieldName)
             {
-                fieldsMapping.Add(originalField, innerStateMachine.ThisField);
+                fieldsMapping.Add(originalField, innerStateMachine.ThisField!);
                 continue;
             }
 
@@ -275,31 +277,35 @@ internal sealed class MoveNextLogicExtractor
     private static CilInstruction CreateMoveNextBodyWithStateSwitchSetupInstructions(
         StateMachine innerStateMachine,
         CilLocalVariable localState,
-        CilLocalVariable localThis)
+        CilLocalVariable? localThis)
     {
         CilInstruction stateSwitchInstruction = new(Switch);
         innerStateMachine.MoveNextMethod.CilMethodBody = new()
         {
             InitializeLocals = true,
-            LocalVariables =
-            {
-                localState,
-                localThis
-            },
+            LocalVariables = { localState },
             Instructions =
             {
                 Ldarg_0,
                 { Ldfld, innerStateMachine.StateField },
-                { Stloc, localState },
-                Ldarg_0,
-                { Ldfld, innerStateMachine.ThisField },
-                { Stloc, localThis },
-                { Ldloc, localState },
-                stateSwitchInstruction,
-                Ldc_I4_0,
-                Ret
+                { Stloc, localState }
             }
         };
+
+        if (localThis is not null)
+            innerStateMachine.MoveNextMethod.CilMethodBody.LocalVariables.Add(localThis);
+
+        if (localThis is not null)
+        {
+            innerStateMachine.MoveNextMethod.CilMethodBody.Instructions.Add(Ldarg_0);
+            innerStateMachine.MoveNextMethod.CilMethodBody.Instructions.Add(Ldfld, innerStateMachine.ThisField!);
+            innerStateMachine.MoveNextMethod.CilMethodBody.Instructions.Add(Stloc, localThis);
+        }
+
+        innerStateMachine.MoveNextMethod.CilMethodBody.Instructions.Add(Ldloc, localState);
+        innerStateMachine.MoveNextMethod.CilMethodBody.Instructions.Add(stateSwitchInstruction);
+        innerStateMachine.MoveNextMethod.CilMethodBody.Instructions.Add(Ldc_I4_0);
+        innerStateMachine.MoveNextMethod.CilMethodBody.Instructions.Add(Ret);
 
         return stateSwitchInstruction;
     }

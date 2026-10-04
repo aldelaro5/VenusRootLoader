@@ -65,11 +65,13 @@ internal sealed class InnerStateMachineCreator
             FieldAttributes.Private,
             module.CorLibTypeFactory.Object);
         stateMachineType.Fields.Add(currentField);
-        FieldDefinition thisField = new(
-            StateMachine.ThisFieldName,
-            FieldAttributes.Public,
-            declaringType.ToTypeSignature());
-        stateMachineType.Fields.Add(thisField);
+
+        FieldDefinition? thisField = null;
+        if (outerStateMachine.ThisField is not null)
+        {
+            thisField = new(StateMachine.ThisFieldName, FieldAttributes.Public, declaringType.ToTypeSignature());
+            stateMachineType.Fields.Add(thisField);
+        }
 
         foreach (NamedParameter namedParameter in parameters)
         {
@@ -92,7 +94,8 @@ internal sealed class InnerStateMachineCreator
             speakableName,
             parameters,
             stateMachineType,
-            thisField);
+            thisField,
+            outerStateMachine.EnumeratorMethod.IsStatic);
 
         StateMachine stateMachine = new()
         {
@@ -116,16 +119,24 @@ internal sealed class InnerStateMachineCreator
         string methodName,
         List<NamedParameter> parameters,
         TypeDefinition stateMachineType,
-        FieldDefinition stateMachineThisField)
+        FieldDefinition? stateMachineThisField,
+        bool isStatic)
     {
         MethodDefinition stateMachineConstructor = stateMachineType.GetConstructor([module.CorLibTypeFactory.Int32])!;
 
+        Func<TypeSignature, IEnumerable<TypeSignature>, MethodSignature> signatureCreator = isStatic
+            ? MethodSignature.CreateStatic
+            : MethodSignature.CreateInstance;
+        MethodAttributes methodAttributes = MethodAttributes.Private | MethodAttributes.HideBySig;
+        if (isStatic)
+            methodAttributes |= MethodAttributes.Static;
         MethodDefinition methodDefinition = new(
             methodName,
-            MethodAttributes.Private | MethodAttributes.HideBySig,
-            MethodSignature.CreateInstance(
+            methodAttributes,
+            signatureCreator(
                 referenceImporter.ImportTypeSignature(typeof(IEnumerator)),
                 parameters.Select(x => x.TypeSignature)));
+
         for (int i = 0; i < parameters.Count; i++)
         {
             Parameter contextParameter = methodDefinition.Parameters[i];
@@ -148,14 +159,18 @@ internal sealed class InnerStateMachineCreator
             Instructions =
             {
                 Ldc_I4_0,
-                { Newobj, stateMachineConstructor },
-                Dup,
-                Ldarg_0,
-                { Stfld, stateMachineThisField }
+                { Newobj, stateMachineConstructor }
             }
         };
 
         CilInstructionCollection il = methodDefinition.CilMethodBody.Instructions;
+        if (stateMachineThisField is not null)
+        {
+            il.Add(Dup);
+            il.Add(Ldarg_0);
+            il.Add(Stfld, stateMachineThisField);
+        }
+
         foreach (Parameter parameter in methodDefinition.Parameters)
         {
             il.Add(Dup);

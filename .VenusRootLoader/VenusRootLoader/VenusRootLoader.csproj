@@ -57,7 +57,7 @@
         </PublicizeTask>
         <Message Importance="high" Text="Publicized and stripped the assembly sucessfully"/>
 
-        <Copy SourceFiles="$(_PublicizedReferences)"
+        <Copy SourceFiles="@(_PublicizedReferences)"
               DestinationFolder="$(PublicizedGameLibsDirectory)"/>
         <Message Importance="high" Text="The assembly was placed at $(PublicizedGameLibsDirectory)"/>
     </Target>

@@ -121,7 +121,11 @@ internal sealed class StateMachine
     public static StateMachine CreateFromEnumeratorMethod(MethodDefinition enumeratorMethod)
     {
         TypeDefinition stateMachineType = enumeratorMethod.DeclaringType!.NestedTypes
-            .Single(x => x.Name is not null && x.Name.Value.Contains($"<{enumeratorMethod.Name}>"));
+            .Single(type => type.Name is not null
+                            && type.Name.Value.Contains($"<{enumeratorMethod.Name}>")
+                            && enumeratorMethod.Parameters
+                                .All(param => type.Fields
+                                    .Select(field => field.Name!.ToString()).Contains(param.Name)));
 
         MethodDefinition moveNextMethod = stateMachineType.Methods.Single(x => x.Name == nameof(IEnumerator.MoveNext));
 

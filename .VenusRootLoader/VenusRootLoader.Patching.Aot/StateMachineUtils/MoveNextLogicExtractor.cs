@@ -408,6 +408,12 @@ internal sealed class MoveNextLogicExtractor
 
         if (offsetsToStateMachines.TryGetValue(label.Offset, out StateMachine? otherStateMachineInfo))
         {
+            if (otherStateMachineInfo == InnerStateMachine)
+            {
+                ProcessBranchInstructionAsResetToState0(instruction, label, ref instructionNeedsLabelFix);
+                return true;
+            }
+
             ProcessBranchInstructionAsYieldReturnEnumerator(
                 otherStateMachineInfo,
                 nextStateNumber,

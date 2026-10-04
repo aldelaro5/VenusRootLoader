@@ -18,20 +18,18 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             .Single(x => x.Name == "DoAction");
         StateMachine doActionStateMachine = StateMachine.CreateFromEnumeratorMethod(doActionMethod);
 
-        CilInstructionCollection doActionMoveNextIl =
-            doActionStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
-
-        AsmResolverIlCursor ilCursor = new(doActionMoveNextIl);
-        ExtractPlayerActions(referenceImporter, ilCursor, doActionStateMachine);
-        ilCursor.Index = 0;
-        ExtractEnemyActions(referenceImporter, ilCursor, doActionStateMachine);
+        ExtractPlayerActions(referenceImporter, doActionStateMachine);
+        ExtractEnemyActions(referenceImporter, doActionStateMachine);
     }
 
     private static void ExtractPlayerActions(
         LocalNetStandardReferenceImporter referenceImporter,
-        AsmResolverIlCursor ilCursor,
         StateMachine doActionStateMachine)
     {
+        CilInstructionCollection doActionMoveNextIl =
+            doActionStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
+        AsmResolverIlCursor ilCursor = new(doActionMoveNextIl);
+
         ilCursor.MatchNext(x => x.OpCode == Ldstr && (string)x.Operand! == "Player");
         ilCursor.MatchNext(x => x.OpCode == Switch);
 
@@ -68,9 +66,12 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
 
     private static void ExtractEnemyActions(
         LocalNetStandardReferenceImporter referenceImporter,
-        AsmResolverIlCursor ilCursor,
         StateMachine doActionStateMachine)
     {
+        CilInstructionCollection doActionMoveNextIl =
+            doActionStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
+        AsmResolverIlCursor ilCursor = new(doActionMoveNextIl);
+
         ilCursor.MatchNext(x => x.OpCode == Ldfld && ((IFieldDescriptor)x.Operand!).Name == "firststrike");
         ilCursor.MatchNext(x => x.OpCode == Ldfld && ((IFieldDescriptor)x.Operand!).Name == "onground");
         ilCursor.MatchNext(x => x.OpCode == Switch);

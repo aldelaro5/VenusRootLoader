@@ -13,7 +13,8 @@ public static class Program
 
         List<ITopLevelTypePatcher> patchers =
         [
-            new BattleControlPatcher()
+            new BattleControlPatcher(),
+            new MainManagerPatcher()
         ];
 
         PatchAssembly(referenceImporter, assembly, patchers);

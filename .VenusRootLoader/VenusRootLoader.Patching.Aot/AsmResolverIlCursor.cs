@@ -82,7 +82,7 @@ public sealed class AsmResolverIlCursor
         MatchPrevious(x => x.OpCode == CilOpCodes.Ret);
         MatchPrevious(x => x.OpCode == CilOpCodes.Stfld);
         MatchPrevious(x => x.IsLdcI4());
-        int switchStateNumber = Current().GetLdcI4Constant();
+        int switchStateNumber = Index < 0 ? 0 : Current().GetLdcI4Constant();
         Index = oldIndex;
         return switchStateNumber;
     }

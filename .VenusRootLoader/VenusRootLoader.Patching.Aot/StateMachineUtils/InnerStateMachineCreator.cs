@@ -93,6 +93,7 @@ internal sealed class InnerStateMachineCreator
 
         StateMachine stateMachine = new()
         {
+            GameModuleData = gameModuleData,
             StateMachineType = stateMachineType,
             EnumeratorMethod = enumeratorMethod,
             MoveNextMethod = moveNextMethod,

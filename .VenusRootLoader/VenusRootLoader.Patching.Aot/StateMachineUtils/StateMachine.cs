@@ -78,6 +78,13 @@ internal sealed class StateMachine
     public const string CurrentFieldName = "<>2__current";
     public const string ThisFieldName = "<>4__this";
 
+    private CilLocalVariable? _localCoroutine;
+
+    /// <summary>
+    /// The game module data used when building this state machine.
+    /// </summary>
+    public required GameModuleData GameModuleData { get; init; }
+
     /// <summary>
     /// The type of the state machine class which implements <see cref="IEnumerator"/>.
     /// </summary>
@@ -117,9 +124,12 @@ internal sealed class StateMachine
     /// Creates a <see cref="StateMachine"/> instance from the enumerator method component of the state machine. All the
     /// property's values will get inferred by collecting information about the method.
     /// </summary>
+    /// <param name="gameModuleData">The game module data to use for this state machine.</param>
     /// <param name="enumeratorMethod">The method returning an <see cref="IEnumerator"/> that's part of the state machine.</param>
     /// <returns>A <see cref="StateMachine"/> containing all the information associated.</returns>
-    public static StateMachine CreateFromEnumeratorMethod(MethodDefinition enumeratorMethod)
+    public static StateMachine CreateFromEnumeratorMethod(
+        GameModuleData gameModuleData,
+        MethodDefinition enumeratorMethod)
     {
         TypeDefinition stateMachineType = enumeratorMethod.DeclaringType!.NestedTypes
             .Single(type => type.Name is not null
@@ -136,6 +146,7 @@ internal sealed class StateMachine
 
         return new()
         {
+            GameModuleData = gameModuleData,
             StateMachineType = stateMachineType,
             EnumeratorMethod = enumeratorMethod,
             MoveNextMethod = moveNextMethod,
@@ -199,22 +210,37 @@ internal sealed class StateMachine
     /// Obtains a list of <see cref="CilInstruction"/> that will perform a yield return to another <see cref="StateMachine"/>.
     /// </summary>
     /// <param name="otherStateMachine">The <see cref="StateMachine"/> to yield return to. More specifically, it will use its
-    /// <see cref="EnumeratorMethod"/> to yield return to.</param>
+    ///     <see cref="EnumeratorMethod"/> to yield return to.</param>
     /// <param name="fieldArguments">The arguments to pass to <see cref="EnumeratorMethod"/> of the
-    /// <paramref name="otherStateMachine"/>.</param>
+    ///     <paramref name="otherStateMachine"/>.</param>
     /// <param name="stateNumber">The state number to set as part of the yield return. Its segment should be the one that
-    /// gets executed on the next call to <see cref="IEnumerator.MoveNext"/>.</param>
+    ///     gets executed on the next call to <see cref="IEnumerator.MoveNext"/>.</param>
+    /// <param name="labelAfter"></param>
     /// <returns>A list of <see cref="CilInstruction"/> that performs a yield return to <paramref name="otherStateMachine"/>'s
     /// <see cref="EnumeratorMethod"/> passing <paramref name="fieldArguments"/> to it and setting the state to
     /// <paramref name="stateNumber"/>.</returns>
     public List<CilInstruction> GetYieldReturnToOtherStateMachineInstructions(
         StateMachine otherStateMachine,
         List<FieldDefinition> fieldArguments,
-        int stateNumber)
+        int stateNumber,
+        ICilLabel labelAfter)
     {
-        List<CilInstruction> stateTransitionIl = [new(CilOpCodes.Ldarg_0)];
+        if (_localCoroutine is null)
+        {
+            _localCoroutine = new(GameModuleData.CoroutineType.ToTypeSignature(false));
+            MoveNextMethod.CilMethodBody!.LocalVariables.Add(_localCoroutine);
+        }
+
+        List<CilInstruction> stateTransitionIl = [];
         if (!otherStateMachine.EnumeratorMethod.IsStatic)
+        {
             stateTransitionIl.Add(new(CilOpCodes.Ldloc_1));
+            stateTransitionIl.Add(new(CilOpCodes.Dup));
+        }
+        else
+        {
+            stateTransitionIl.Add(new(CilOpCodes.Ldsfld, GameModuleData.MainManagerInstance));
+        }
 
         foreach (FieldDefinition fieldArgument in fieldArguments)
         {
@@ -223,6 +249,13 @@ internal sealed class StateMachine
         }
 
         stateTransitionIl.Add(new(CilOpCodes.Call, otherStateMachine.EnumeratorMethod));
+        stateTransitionIl.Add(new(CilOpCodes.Call, GameModuleData.StartCoroutineMethod));
+        stateTransitionIl.Add(new(CilOpCodes.Stloc, _localCoroutine));
+        stateTransitionIl.Add(new(CilOpCodes.Ldloc, _localCoroutine));
+        stateTransitionIl.Add(new(CilOpCodes.Brfalse, labelAfter));
+
+        stateTransitionIl.Add(new(CilOpCodes.Ldarg_0));
+        stateTransitionIl.Add(new(CilOpCodes.Ldloc, _localCoroutine));
         stateTransitionIl.Add(new(CilOpCodes.Stfld, CurrentField));
         stateTransitionIl.Add(new(CilOpCodes.Ldarg_0));
         stateTransitionIl.Add(CilInstruction.CreateLdcI4(stateNumber));

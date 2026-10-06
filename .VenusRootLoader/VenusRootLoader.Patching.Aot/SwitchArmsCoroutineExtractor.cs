@@ -94,7 +94,6 @@ internal sealed class SwitchArmsCoroutineExtractor
         IList<ICilLabel> switchArmLabels = (IList<ICilLabel>)ilCursor.Current().Operand!;
         ilCursor.Index++;
         ICilLabel switchEndLabel = (ICilLabel)ilCursor.Current().Operand!;
-        List<SwitchArn> switchArms = OrganizeSwitchLabelsIntoArms(switchArmLabels, switchEndLabel, moveNextIl);
 
         int switchStateNumber = ilCursor.ObtainCurrentStateMachineState();
         // We reserve this state numbers for ourselves to process exiting the switch since we need to yield return. This
@@ -113,6 +112,22 @@ internal sealed class SwitchArmsCoroutineExtractor
                 switchEndLabel.Offset,
                 fieldsContextMapping)
             : null;
+
+        moveNextIl.CalculateOffsets();
+        ilCursor.Index = moveNextIl.GetIndexByOffset(switchEndLabel.Offset);
+        CilInstruction instructionSwitchEnd = ilCursor.Current();
+        moveNextIl.ReplaceRange(
+            ilCursor.Index,
+            ilCursor.Index,
+            [
+                new(Ldarg_0),
+                new(Ldc_I4_M1),
+                new(Stfld, outerStateMachine.StateField),
+                new(instructionSwitchEnd.OpCode, instructionSwitchEnd.Operand)
+            ]);
+        moveNextIl.CalculateOffsets();
+
+        List<SwitchArn> switchArms = OrganizeSwitchLabelsIntoArms(switchArmLabels, switchEndLabel, moveNextIl);
 
         // We'll always use the same parameter type and name so might as well keep reusing it.
         NamedParameter? contextParameter = contextField is not null
@@ -183,6 +198,7 @@ internal sealed class SwitchArmsCoroutineExtractor
                     stateMachines,
                     outerStateMachine,
                     contextField,
+                    switchEndLabel,
                     postSwitchStateNumber);
 
             // The first one is already setup by the game so we just need to change the ones after it.
@@ -253,7 +269,8 @@ internal sealed class SwitchArmsCoroutineExtractor
             List<CilInstruction> cilInstructions = outerStateMachine.GetYieldReturnToOtherStateMachineInstructions(
                 stateMachine,
                 contextField is not null ? [contextField] : [],
-                postSwitchStateNumber);
+                postSwitchStateNumber,
+                switchEndLabel);
 
             int switchArmLabelIndex = moveNextIl.GetIndexByOffset(switchEndLabel.Offset);
             moveNextIl.InsertRange(switchArmLabelIndex, cilInstructions);
@@ -314,6 +331,7 @@ internal sealed class SwitchArmsCoroutineExtractor
         List<StateMachine> innerStateMachines,
         StateMachine outerStateMachine,
         FieldDefinition? stateMachineContextField,
+        ICilLabel switchEndLabel,
         int stateNumber)
     {
         List<CilInstruction> stateTransitionIl = new();
@@ -323,7 +341,8 @@ internal sealed class SwitchArmsCoroutineExtractor
             List<CilInstruction> cilInstructions = outerStateMachine.GetYieldReturnToOtherStateMachineInstructions(
                 stateMachine,
                 stateMachineContextField is not null ? [stateMachineContextField] : [],
-                stateNumber);
+                stateNumber,
+                switchEndLabel);
             stateTransitionIl.AddRange(cilInstructions);
             stateTransitionStartInstructions.Add(cilInstructions[0]);
         }

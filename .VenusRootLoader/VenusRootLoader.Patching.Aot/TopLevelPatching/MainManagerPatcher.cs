@@ -16,7 +16,7 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
             .Where(x => x.Name == "SetText")
             .OrderByDescending(x => x.Signature!.ParameterTypes.Count)
             .First();
-        StateMachine setTextStateMachine = StateMachine.CreateFromEnumeratorMethod(setTextMethod);
+        StateMachine setTextStateMachine = StateMachine.CreateFromEnumeratorMethod(gameModuleData, setTextMethod);
 
         CilInstructionCollection setTextMoveNextIl =
             setTextStateMachine.MoveNextMethod.CilMethodBody!.Instructions;

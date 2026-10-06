@@ -469,10 +469,12 @@ internal sealed class MoveNextLogicExtractor
         ref CilInstruction? instructionNeedsLabelFix)
     {
         bool neededFixing = instructionNeedsLabelFix is not null;
+        CilInstruction firstInstructionAfter = new(Ldarg_0);
         List<CilInstruction> stateTransitionIl = InnerStateMachine.GetYieldReturnToOtherStateMachineInstructions(
             otherStateMachineInfo,
             _innerContextField is not null ? [_innerContextField] : [],
-            nextStateNumber);
+            nextStateNumber,
+            firstInstructionAfter.CreateLabel());
 
         PreProcessSpecialBranchOperationInstruction(
             instruction,
@@ -489,7 +491,7 @@ internal sealed class MoveNextLogicExtractor
 
         // The yield break after is needed because this acts like a goto case where the logic is performed, but the switch
         // is done after the destination arm is done.
-        _innerMoveNextBody.Instructions.Add(Ldarg_0);
+        _innerMoveNextBody.Instructions.Add(firstInstructionAfter);
         _stateSwitchLabels.Add(_innerMoveNextBody.Instructions[^1].CreateLabel());
         _innerMoveNextBody.Instructions.Add(Ldc_I4_M1);
         _innerMoveNextBody.Instructions.Add(Stfld, InnerStateMachine.StateField);

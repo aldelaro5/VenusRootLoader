@@ -16,7 +16,7 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
     {
         MethodDefinition doActionMethod = type.Methods
             .Single(x => x.Name == "DoAction");
-        StateMachine doActionStateMachine = StateMachine.CreateFromEnumeratorMethod(doActionMethod);
+        StateMachine doActionStateMachine = StateMachine.CreateFromEnumeratorMethod(gameModuleData, doActionMethod);
 
         ExtractPlayerActions(gameModuleData, doActionStateMachine);
         ExtractEnemyActions(gameModuleData, doActionStateMachine);

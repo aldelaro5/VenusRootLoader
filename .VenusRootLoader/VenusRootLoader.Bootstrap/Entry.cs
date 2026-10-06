@@ -80,7 +80,7 @@ internal sealed class Entry
 
             PlayerLogsMirroring playerLogsMirroring = serviceProvider.GetRequiredService<PlayerLogsMirroring>();
             playerLogsMirroring.MirrorLogs();
-            
+
             IAssemblyCSharpAotPatcher assemblyCSharpAotPatcher =
                 serviceProvider.GetRequiredService<IAssemblyCSharpAotPatcher>();
             assemblyCSharpAotPatcher.PatchAssemblyCSharp();

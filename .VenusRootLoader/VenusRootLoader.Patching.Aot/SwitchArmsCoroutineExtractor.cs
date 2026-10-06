@@ -56,7 +56,7 @@ internal sealed class SwitchArmsCoroutineExtractor
     /// Extract all the switch arms of a <see cref="StateMachine"/> to their own inner state machine with support for a
     /// context parameter and various control flow mappings.
     /// </summary>
-    /// <param name="referenceImporter">The <see cref="ReferenceImporter"/> to use when creating state machines or other
+    /// <param name="gameModuleData">The <see cref="ReferenceImporter"/> to use when creating state machines or other
     /// constructs.</param>
     /// <param name="outerStateMachine">The <see cref="StateMachine"/> involved in the extraction process.</param>
     /// <param name="innerStateMachinesMethodPrefix">The prefix of all names to give to the inner state machines enumerator methods.</param>
@@ -71,14 +71,14 @@ internal sealed class SwitchArmsCoroutineExtractor
     /// <param name="stateMachinePostProcessor">A callback to invoke after each inner state machines has been fully generated
     /// to perform special post-processing patches.</param>
     public static void ExtractSwitchArmsToStateMachines(
-        LocalNetStandardReferenceImporter referenceImporter,
+        GameModuleData gameModuleData,
         StateMachine outerStateMachine,
         string innerStateMachinesMethodPrefix,
         StateMachineContextInfo? switchContextInfo,
         CilInstruction outerSwitchInstruction,
         CilInstruction outerInitializeContextInstruction,
         CilInstruction? outerResetStateMachineToZeroInstruction,
-        Action<int, StateMachine>? stateMachinePostProcessor)
+        Action<int, StateMachine, GameModuleData>? stateMachinePostProcessor)
     {
         CilInstructionCollection moveNextIl = outerStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
         moveNextIl.ExpandMacros();
@@ -107,7 +107,7 @@ internal sealed class SwitchArmsCoroutineExtractor
         Dictionary<FieldDefinition, FieldDefinition> fieldsContextMapping = new();
         FieldDefinition? contextField = switchContextInfo is not null
             ? outerStateMachine.PatchStateMachineContextContext(
-                referenceImporter,
+                gameModuleData,
                 switchContextInfo,
                 outerInitializeContextInstruction.Offset,
                 switchEndLabel.Offset,
@@ -132,7 +132,7 @@ internal sealed class SwitchArmsCoroutineExtractor
         {
             MoveNextLogicExtractor extractor = new(
                 outerStateMachine,
-                referenceImporter,
+                gameModuleData,
                 $"{innerStateMachinesMethodPrefix}{indexedSwitchLabel.Index}",
                 contextParameter is not null ? [contextParameter] : [],
                 arm.StartInstruction,
@@ -166,7 +166,7 @@ internal sealed class SwitchArmsCoroutineExtractor
                 foreach (int exceptionHandlerIndex in usedExceptionHandlerIndexes.OrderDescending())
                     outerStateMachine.MoveNextMethod.CilMethodBody!.ExceptionHandlers.RemoveAt(exceptionHandlerIndex);
 
-                stateMachinePostProcessor?.Invoke(indexedSwitchArmLabel.Index, innerStateMachine);
+                stateMachinePostProcessor?.Invoke(indexedSwitchArmLabel.Index, innerStateMachine, gameModuleData);
             }
 
             int start = moveNextIl.GetIndexByOffset(arm.StartInstruction.Offset);
@@ -197,7 +197,7 @@ internal sealed class SwitchArmsCoroutineExtractor
             stateSwitchLabels[i] = switchEndLabel;
 
         AddStateMachinesToEmptySwitchArms(
-            referenceImporter,
+            gameModuleData,
             outerStateMachine,
             innerStateMachinesMethodPrefix,
             moveNextIl,
@@ -213,7 +213,7 @@ internal sealed class SwitchArmsCoroutineExtractor
     }
 
     private static void AddStateMachinesToEmptySwitchArms(
-        LocalNetStandardReferenceImporter referenceImporter,
+        GameModuleData gameModuleData,
         StateMachine outerStateMachine,
         string innerStateMachinesMethodPrefix,
         CilInstructionCollection moveNextIl,
@@ -237,7 +237,7 @@ internal sealed class SwitchArmsCoroutineExtractor
         {
             StateMachine stateMachine = InnerStateMachineCreator.CreateAndAddInnerStateMachineType(
                 outerStateMachine,
-                referenceImporter,
+                gameModuleData,
                 contextParameter is not null ? [contextParameter] : [],
                 $"{innerStateMachinesMethodPrefix}{emptyArmLabel.Index}");
             // These arms should do nothing so we just have their MoveNext yield break immediately.

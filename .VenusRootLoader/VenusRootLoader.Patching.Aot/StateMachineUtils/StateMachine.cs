@@ -237,7 +237,7 @@ internal sealed class StateMachine
     /// will be passed to potential inner state machines. The type of the context will be created in the same declaring type
     /// as the <see cref="StateMachineType"/>. The context instance will be created in a new field of the state machine.
     /// </summary>
-    /// <param name="referenceImporter">The reference importer to use.</param>
+    /// <param name="gameModuleData">The reference importer to use.</param>
     /// <param name="stateMachineContextInfo">An object that contains all the information needed to generate a mapping
     /// from the state machine fields to their context fields counterpart.</param>
     /// <param name="initializeContextIlOffset">The IL offset to insert the initialization code of the context from the
@@ -248,7 +248,7 @@ internal sealed class StateMachine
     /// the state machine to their context counterpart.</param>
     /// <returns>The newly created field of the state machine that refers to the context instance.</returns>
     public FieldDefinition PatchStateMachineContextContext(
-        ReferenceImporter referenceImporter,
+        GameModuleData gameModuleData,
         StateMachineContextInfo stateMachineContextInfo,
         int initializeContextIlOffset,
         int commitContextIlOffset,
@@ -271,7 +271,7 @@ internal sealed class StateMachine
             0,
             [
                 new(CilOpCodes.Ldarg_0),
-                new(CilOpCodes.Call, referenceImporter.ImportMethod(typeof(object).GetConstructor([])!))
+                new(CilOpCodes.Call, gameModuleData.ObjectConstructorMethod)
             ]);
         contextType.Methods.Add(contextCtor);
 

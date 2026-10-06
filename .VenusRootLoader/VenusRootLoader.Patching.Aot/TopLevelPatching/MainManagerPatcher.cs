@@ -10,7 +10,7 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
 {
     public string TypeName => "MainManager";
 
-    public void PatchType(LocalNetStandardReferenceImporter referenceImporter, TypeDefinition type)
+    public void PatchType(GameModuleData gameModuleData, TypeDefinition type)
     {
         MethodDefinition setTextMethod = type.Methods
             .Where(x => x.Name == "SetText")
@@ -112,7 +112,7 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
         };
 
         SwitchArmsCoroutineExtractor.ExtractSwitchArmsToStateMachines(
-            referenceImporter,
+            gameModuleData,
             setTextStateMachine,
             "SetTextCommand",
             stateMachineContextInfo,

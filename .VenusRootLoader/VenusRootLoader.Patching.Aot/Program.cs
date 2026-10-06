@@ -8,8 +8,8 @@ public static class Program
     public static int Main(string[] args)
     {
         AssemblyDefinition assembly = AssemblyDefinition.FromFile(args[0]);
-
         LocalNetStandardReferenceImporter referenceImporter = new(assembly.ManifestModule!);
+        GameModuleData gameModuleData = new(assembly.ManifestModule!, referenceImporter);
 
         List<ITopLevelTypePatcher> patchers =
         [
@@ -17,7 +17,7 @@ public static class Program
             new MainManagerPatcher()
         ];
 
-        PatchAssembly(referenceImporter, assembly, patchers);
+        PatchAssembly(gameModuleData, patchers);
 
         string directory = Path.GetDirectoryName(args[1])!;
         if (!Directory.Exists(directory))
@@ -28,16 +28,15 @@ public static class Program
     }
 
     private static void PatchAssembly(
-        LocalNetStandardReferenceImporter referenceImporter,
-        AssemblyDefinition assembly,
+        GameModuleData gameModuleData,
         List<ITopLevelTypePatcher> patchers)
     {
         foreach (ITopLevelTypePatcher topLevelTypePatcher in patchers)
         {
-            TypeDefinition type = assembly.ManifestModule!
+            TypeDefinition type = gameModuleData.Module
                 .GetAllTypes()
                 .Single(x => x.Name == topLevelTypePatcher.TypeName);
-            topLevelTypePatcher.PatchType(referenceImporter, type);
+            topLevelTypePatcher.PatchType(gameModuleData, type);
         }
     }
 }

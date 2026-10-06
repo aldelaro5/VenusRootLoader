@@ -3,9 +3,7 @@ using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.DotNet.Collections;
 using AsmResolver.DotNet.Signatures;
 using System.Collections;
-using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using FieldAttributes = AsmResolver.PE.DotNet.Metadata.Tables.FieldAttributes;
 using MethodAttributes = AsmResolver.PE.DotNet.Metadata.Tables.MethodAttributes;
 using PropertyAttributes = AsmResolver.PE.DotNet.Metadata.Tables.PropertyAttributes;
@@ -27,7 +25,7 @@ internal sealed class InnerStateMachineCreator
     /// will be added to the same declaring type as the outer state machine.
     /// </summary>
     /// <param name="outerStateMachine">The outer state machine of the one to create.</param>
-    /// <param name="referenceImporter">The <see cref="ReferenceImporter"/> to use for creating the state machine.</param>
+    /// <param name="gameModuleData">The <see cref="ReferenceImporter"/> to use for creating the state machine.</param>
     /// <param name="parameters">The parameters the enumerator method will have.</param>
     /// <param name="speakableName">The speakable version of the name of the state machine which will be the name of the
     /// enumerator method.</param>
@@ -35,14 +33,12 @@ internal sealed class InnerStateMachineCreator
     /// portion of the <paramref name="outerStateMachine"/>.</returns>
     public static StateMachine CreateAndAddInnerStateMachineType(
         StateMachine outerStateMachine,
-        ReferenceImporter referenceImporter,
+        GameModuleData gameModuleData,
         List<NamedParameter> parameters,
         string speakableName)
     {
-        ModuleDefinition module = outerStateMachine.StateMachineType.DeclaringModule!;
         TypeDefinition declaringType = outerStateMachine.StateMachineType.DeclaringType!;
-        IMethodDefOrRef debuggerHiddenAttributeCtor = (IMethodDefOrRef)referenceImporter
-            .ImportMethod(typeof(DebuggerHiddenAttribute).GetConstructor([])!);
+        IMethodDefOrRef debuggerHiddenAttributeCtor = (IMethodDefOrRef)gameModuleData.DebuggerHiddenAttributeCtor;
 
         TypeDefinition stateMachineType = new(
             declaringType.Namespace,
@@ -51,19 +47,19 @@ internal sealed class InnerStateMachineCreator
             | TypeAttributes.Sealed
             | TypeAttributes.BeforeFieldInit
             | TypeAttributes.AnsiClass,
-            module.CorLibTypeFactory.Object.Type);
+            gameModuleData.Module.CorLibTypeFactory.Object.Type);
 
-        AddCustomAttributesToStateMachine(referenceImporter, stateMachineType);
+        AddCustomAttributesToStateMachine(gameModuleData, stateMachineType);
 
         FieldDefinition stateField = new(
             StateMachine.StateFieldName,
             FieldAttributes.Private,
-            module.CorLibTypeFactory.Int32);
+            gameModuleData.Module.CorLibTypeFactory.Int32);
         stateMachineType.Fields.Add(stateField);
         FieldDefinition currentField = new(
             StateMachine.CurrentFieldName,
             FieldAttributes.Private,
-            module.CorLibTypeFactory.Object);
+            gameModuleData.Module.CorLibTypeFactory.Object);
         stateMachineType.Fields.Add(currentField);
 
         FieldDefinition? thisField = null;
@@ -80,8 +76,7 @@ internal sealed class InnerStateMachineCreator
         }
 
         AddMethodsAndPropertiesToStateMachine(
-            module,
-            referenceImporter,
+            gameModuleData,
             stateMachineType,
             debuggerHiddenAttributeCtor,
             stateField,
@@ -89,8 +84,7 @@ internal sealed class InnerStateMachineCreator
             out MethodDefinition moveNextMethod);
 
         MethodDefinition enumeratorMethod = CreateStateMachineMethod(
-            module,
-            referenceImporter,
+            gameModuleData,
             speakableName,
             parameters,
             stateMachineType,
@@ -114,15 +108,15 @@ internal sealed class InnerStateMachineCreator
     }
 
     private static MethodDefinition CreateStateMachineMethod(
-        ModuleDefinition module,
-        ReferenceImporter referenceImporter,
+        GameModuleData gameModuleData,
         string methodName,
         List<NamedParameter> parameters,
         TypeDefinition stateMachineType,
         FieldDefinition? stateMachineThisField,
         bool isStatic)
     {
-        MethodDefinition stateMachineConstructor = stateMachineType.GetConstructor([module.CorLibTypeFactory.Int32])!;
+        MethodDefinition stateMachineConstructor =
+            stateMachineType.GetConstructor([gameModuleData.Module.CorLibTypeFactory.Int32])!;
 
         Func<TypeSignature, IEnumerable<TypeSignature>, MethodSignature> signatureCreator = isStatic
             ? MethodSignature.CreateStatic
@@ -134,7 +128,7 @@ internal sealed class InnerStateMachineCreator
             methodName,
             methodAttributes,
             signatureCreator(
-                referenceImporter.ImportTypeSignature(typeof(IEnumerator)),
+                gameModuleData.EnumeratorType.ToTypeSignature(false),
                 parameters.Select(x => x.TypeSignature)));
 
         for (int i = 0; i < parameters.Count; i++)
@@ -143,11 +137,9 @@ internal sealed class InnerStateMachineCreator
             contextParameter.GetOrCreateDefinition().Name = parameters[i].Name;
         }
 
-        Type typeType = typeof(Type);
-        IMethodDefOrRef methodDescriptor = (IMethodDefOrRef)referenceImporter
-            .ImportMethod(typeof(IteratorStateMachineAttribute).GetConstructor([typeType])!);
+        IMethodDefOrRef methodDescriptor = (IMethodDefOrRef)gameModuleData.IteratorStateMachineAttributeCtor;
         CustomAttributeArgument stateMachineTypeArgument = new(
-            referenceImporter.ImportTypeSignature(typeType),
+            gameModuleData.TypeType.ToTypeSignature(false),
             stateMachineType.ToTypeSignature());
         CustomAttribute iteratorStateMachineAttribute = new(
             methodDescriptor,
@@ -185,17 +177,16 @@ internal sealed class InnerStateMachineCreator
     }
 
     private static void AddCustomAttributesToStateMachine(
-        ReferenceImporter referenceImporter,
+        GameModuleData gameModuleData,
         TypeDefinition stateMachineType)
     {
-        ICustomAttributeType compilerGeneratedCtor = (ICustomAttributeType)referenceImporter
-            .ImportMethod(typeof(CompilerGeneratedAttribute).GetConstructor([])!);
+        ICustomAttributeType compilerGeneratedCtor =
+            (ICustomAttributeType)gameModuleData.CompilerGeneratedAttributeCotr;
         stateMachineType.CustomAttributes.Add(new(compilerGeneratedCtor));
     }
 
     private static void AddMethodsAndPropertiesToStateMachine(
-        ModuleDefinition module,
-        ReferenceImporter referenceImporter,
+        GameModuleData gameModuleData,
         TypeDefinition stateMachine,
         IMethodDefOrRef debuggerHiddenAttributeCtor,
         FieldDefinition stateField,
@@ -204,51 +195,43 @@ internal sealed class InnerStateMachineCreator
     {
         Type objectType = typeof(object);
         AddConstructorToStateMachine(
-            module,
-            referenceImporter,
+            gameModuleData,
             stateField,
             debuggerHiddenAttributeCtor,
-            objectType.GetConstructor([])!,
             stateMachine);
 
         Type iEnumeratorObjectType = typeof(IEnumerator<object>);
         Type iEnumeratorType = typeof(IEnumerator);
         Type iDisposableType = typeof(IDisposable);
 
-        stateMachine.Interfaces.Add(new(referenceImporter.ImportType(iEnumeratorObjectType)));
-        stateMachine.Interfaces.Add(new(referenceImporter.ImportType(iEnumeratorType)));
-        stateMachine.Interfaces.Add(new(referenceImporter.ImportType(iDisposableType)));
+        stateMachine.Interfaces.Add(new(gameModuleData.EnumeratorObjectType));
+        stateMachine.Interfaces.Add(new(gameModuleData.EnumeratorType));
+        stateMachine.Interfaces.Add(new(gameModuleData.DisposableType));
 
         MethodInfo baseDisposeMethod = iDisposableType.GetMethod(nameof(IDisposable.Dispose))!;
         AddMethodImplementationToStateMachine(
-            referenceImporter,
             $"{iDisposableType.FullName}.{baseDisposeMethod.Name}",
-            MethodSignature.CreateInstance(module.CorLibTypeFactory.Void),
+            MethodSignature.CreateInstance(gameModuleData.Module.CorLibTypeFactory.Void),
             false,
-            baseDisposeMethod,
+            (IMethodDefOrRef)gameModuleData.DisposableDispose,
             [new(debuggerHiddenAttributeCtor)],
             new() { Instructions = { Ret } },
             stateMachine);
 
-        MethodInfo baseMoveNextMethod = iEnumeratorType.GetMethod(nameof(IEnumerator.MoveNext))!;
         moveNextMethod = AddMethodImplementationToStateMachine(
-            referenceImporter,
             nameof(IEnumerator.MoveNext),
-            MethodSignature.CreateInstance(module.CorLibTypeFactory.Boolean),
+            MethodSignature.CreateInstance(gameModuleData.Module.CorLibTypeFactory.Boolean),
             false,
-            baseMoveNextMethod,
+            (IMethodDefOrRef)gameModuleData.EnumeratorMoveNext,
             [],
             null,
             stateMachine);
 
-        MethodInfo baseGetCurrentObjectGetMethod = iEnumeratorObjectType
-            .GetProperty(nameof(IEnumerator<>.Current))!.GetMethod!;
         MethodDefinition getCurrentObject = AddMethodImplementationToStateMachine(
-            referenceImporter,
             $"{iEnumeratorObjectType.Namespace}.{nameof(IEnumerator<>)}<{objectType.FullName}>.get_{nameof(IEnumerator<>.Current)}",
-            MethodSignature.CreateInstance(module.CorLibTypeFactory.Object),
+            MethodSignature.CreateInstance(gameModuleData.Module.CorLibTypeFactory.Object),
             true,
-            baseGetCurrentObjectGetMethod,
+            (IMethodDefOrRef)gameModuleData.EnumeratorObjectGetCurrent,
             [new(debuggerHiddenAttributeCtor)],
             new()
             {
@@ -261,34 +244,27 @@ internal sealed class InnerStateMachineCreator
             },
             stateMachine);
 
-        MethodInfo baseResetMethod = iEnumeratorType.GetMethod(nameof(IEnumerator.Reset))!;
-        IMethodDefOrRef notSupportedExceptionCtor = (IMethodDefOrRef)referenceImporter
-            .ImportMethod(typeof(NotSupportedException).GetConstructor([])!);
         AddMethodImplementationToStateMachine(
-            referenceImporter,
             $"{iEnumeratorType.FullName}.{nameof(IEnumerator.Reset)}",
-            MethodSignature.CreateInstance(module.CorLibTypeFactory.Void),
+            MethodSignature.CreateInstance(gameModuleData.Module.CorLibTypeFactory.Void),
             false,
-            baseResetMethod,
+            (IMethodDefOrRef)gameModuleData.EnumeratorReset,
             [new(debuggerHiddenAttributeCtor)],
             new()
             {
                 Instructions =
                 {
-                    { Newobj, notSupportedExceptionCtor },
+                    { Newobj, gameModuleData.NotSupportedExceptionCtor },
                     Throw
                 }
             },
             stateMachine);
 
-        MethodInfo baseGetCurrentGetMethod = iEnumeratorType
-            .GetProperty(nameof(IEnumerator.Current))!.GetMethod!;
         MethodDefinition getCurrent = AddMethodImplementationToStateMachine(
-            referenceImporter,
             $"{iEnumeratorType.FullName}.get_{nameof(IEnumerator<>.Current)}",
-            MethodSignature.CreateInstance(module.CorLibTypeFactory.Object),
+            MethodSignature.CreateInstance(gameModuleData.Module.CorLibTypeFactory.Object),
             true,
-            baseGetCurrentGetMethod,
+            (IMethodDefOrRef)gameModuleData.EnumeratorGetCurrent,
             [new(debuggerHiddenAttributeCtor)],
             new()
             {
@@ -303,14 +279,14 @@ internal sealed class InnerStateMachineCreator
 
         AddPropertyToStateMachine(
             $"{iEnumeratorObjectType.Namespace}.{nameof(IEnumerator<>)}<{objectType.FullName}>.{nameof(IEnumerator.Current)}",
-            PropertySignature.CreateInstance(module.CorLibTypeFactory.Object),
+            PropertySignature.CreateInstance(gameModuleData.Module.CorLibTypeFactory.Object),
             getCurrentObject,
             null,
             stateMachine);
 
         AddPropertyToStateMachine(
             $"{iEnumeratorType.Namespace}.{nameof(IEnumerator)}.{nameof(IEnumerator.Current)}",
-            PropertySignature.CreateInstance(module.CorLibTypeFactory.Object),
+            PropertySignature.CreateInstance(gameModuleData.Module.CorLibTypeFactory.Object),
             getCurrent,
             null,
             stateMachine);
@@ -336,16 +312,14 @@ internal sealed class InnerStateMachineCreator
     }
 
     private static void AddConstructorToStateMachine(
-        ModuleDefinition module,
-        ReferenceImporter referenceImporter,
+        GameModuleData gameModuleData,
         FieldDefinition stateField,
         IMethodDefOrRef debuggerHiddenAttributeCtor,
-        ConstructorInfo objectConstructor,
         TypeDefinition stateMachineType)
     {
         MethodDefinition ctor = MethodDefinition.CreateConstructor(
-            module.CorLibTypeFactory,
-            [module.CorLibTypeFactory.Int32]);
+            gameModuleData.Module.CorLibTypeFactory,
+            [gameModuleData.Module.CorLibTypeFactory.Int32]);
         ctor.Attributes |= MethodAttributes.HideBySig;
         ctor.CustomAttributes.Add(new(debuggerHiddenAttributeCtor));
         ctor.Parameters[0].GetOrCreateDefinition().Name = stateField.Name;
@@ -354,7 +328,7 @@ internal sealed class InnerStateMachineCreator
             Instructions =
             {
                 Ldarg_0,
-                { Call, referenceImporter.ImportMethod(objectConstructor) },
+                { Call, gameModuleData.ObjectConstructorMethod },
                 Ldarg_0,
                 Ldarg_1,
                 { Stfld, stateField },
@@ -365,11 +339,10 @@ internal sealed class InnerStateMachineCreator
     }
 
     private static MethodDefinition AddMethodImplementationToStateMachine(
-        ReferenceImporter referenceImporter,
         string methodName,
         MethodSignature methodSignature,
         bool isSpecialName,
-        MethodBase baseMethod,
+        IMethodDefOrRef baseMethodRef,
         IEnumerable<CustomAttribute> attributeConstructors,
         CilMethodBody? body,
         TypeDefinition stateMachine)
@@ -387,7 +360,6 @@ internal sealed class InnerStateMachineCreator
         methodDefinition.CilMethodBody = body;
 
         stateMachine.Methods.Add(methodDefinition);
-        IMethodDefOrRef baseMethodRef = (IMethodDefOrRef)referenceImporter.ImportMethod(baseMethod);
         // Required so that the IL knows that the method is an override.
         stateMachine.MethodImplementations.Add(new(baseMethodRef, methodDefinition));
 

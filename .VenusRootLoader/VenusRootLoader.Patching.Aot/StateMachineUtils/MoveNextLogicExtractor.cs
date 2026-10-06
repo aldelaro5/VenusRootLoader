@@ -41,7 +41,7 @@ internal sealed class MoveNextLogicExtractor
     /// machines are created in the case of extracting all the arms of a switch.
     /// </summary>
     /// <param name="outerStateMachine">The outer state machine to extract logic from.</param>
-    /// <param name="referenceImporter">The <see cref="ReferenceImporter"/> to use when creating the state machine.</param>
+    /// <param name="gameModuleData">The <see cref="ReferenceImporter"/> to use when creating the state machine.</param>
     /// <param name="stateMachineEnumeratorMethodName">The name the enumerator method of the inner state machine will have.</param>
     /// <param name="parameters">The parameters the enumerator method the inner state machine will have.</param>
     /// <param name="innerFirstInstruction">The IL offset of the starting point of the IL segment to extract from the <paramref name="outerStateMachine"/></param>
@@ -50,7 +50,7 @@ internal sealed class MoveNextLogicExtractor
     /// context counterpart. This can be empty. For more information on this dictionary see <see cref="StateMachine.PatchStateMachineContextContext"/>.</param>
     public MoveNextLogicExtractor(
         StateMachine outerStateMachine,
-        LocalNetStandardReferenceImporter referenceImporter,
+        GameModuleData gameModuleData,
         string stateMachineEnumeratorMethodName,
         List<NamedParameter> parameters,
         CilInstruction innerFirstInstruction,
@@ -60,7 +60,7 @@ internal sealed class MoveNextLogicExtractor
         _outerStateMachine = outerStateMachine;
         InnerStateMachine = InnerStateMachineCreator.CreateAndAddInnerStateMachineType(
             outerStateMachine,
-            referenceImporter,
+            gameModuleData,
             parameters,
             stateMachineEnumeratorMethodName);
         _innerFirstInstruction = innerFirstInstruction;

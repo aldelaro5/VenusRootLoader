@@ -12,18 +12,18 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
 {
     public string TypeName => "BattleControl";
 
-    public void PatchType(LocalNetStandardReferenceImporter referenceImporter, TypeDefinition type)
+    public void PatchType(GameModuleData gameModuleData, TypeDefinition type)
     {
         MethodDefinition doActionMethod = type.Methods
             .Single(x => x.Name == "DoAction");
         StateMachine doActionStateMachine = StateMachine.CreateFromEnumeratorMethod(doActionMethod);
 
-        ExtractPlayerActions(referenceImporter, doActionStateMachine);
-        ExtractEnemyActions(referenceImporter, doActionStateMachine);
+        ExtractPlayerActions(gameModuleData, doActionStateMachine);
+        ExtractEnemyActions(gameModuleData, doActionStateMachine);
     }
 
     private static void ExtractPlayerActions(
-        LocalNetStandardReferenceImporter referenceImporter,
+        GameModuleData gameModuleData,
         StateMachine doActionStateMachine)
     {
         CilInstructionCollection doActionMoveNextIl =
@@ -54,7 +54,7 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
         };
 
         SwitchArmsCoroutineExtractor.ExtractSwitchArmsToStateMachines(
-            referenceImporter,
+            gameModuleData,
             doActionStateMachine,
             "PlayerAction",
             stateMachineContextInfo,
@@ -65,7 +65,7 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
     }
 
     private static void ExtractEnemyActions(
-        LocalNetStandardReferenceImporter referenceImporter,
+        GameModuleData gameModuleData,
         StateMachine doActionStateMachine)
     {
         CilInstructionCollection doActionMoveNextIl =
@@ -99,7 +99,7 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
         };
 
         SwitchArmsCoroutineExtractor.ExtractSwitchArmsToStateMachines(
-            referenceImporter,
+            gameModuleData,
             doActionStateMachine,
             "EnemyAction",
             stateMachineContextInfo,
@@ -109,25 +109,27 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             EnemyActionPostProcessor);
     }
 
-    private static void EnemyActionPostProcessor(int switchLabelIndex, StateMachine stateMachine)
+    private static void EnemyActionPostProcessor(
+        int switchLabelIndex,
+        StateMachine stateMachine,
+        GameModuleData gameModuleData)
     {
         if (switchLabelIndex != 1)
             return;
 
-        PatchMushroomCField(stateMachine);
+        PatchMushroomCField(stateMachine, gameModuleData);
     }
 
     // This is needed to avoid having the "c" field of DoAction to be part of the context unnecessarily. Only the Mushroom
     // enemy reads from it before writing it so we can just patch this one specifically to have the same value it would have
     // had before the enemy actions split.
-    private static void PatchMushroomCField(StateMachine stateMachine)
+    private static void PatchMushroomCField(StateMachine stateMachine, GameModuleData gameModuleData)
     {
         ModuleDefinition module = stateMachine.StateMachineType.DeclaringModule!;
         FieldDefinition cField =
             stateMachine.StateMachineType.Fields.Single(x => x.Name!.Value.Contains("<c>"));
 
-        AssemblyReference unityCoreModule =
-            module.AssemblyReferences.Single(x => x.Name == "UnityEngine.CoreModule");
+        AssemblyReference unityCoreModule = gameModuleData.UnityCoreModuleReference;
         IMethodDescriptor randomRangeIntInt = unityCoreModule
             .CreateTypeReference("UnityEngine", "Random")
             .CreateMethodReference(

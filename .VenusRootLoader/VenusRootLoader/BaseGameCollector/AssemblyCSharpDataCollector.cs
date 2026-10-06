@@ -76,7 +76,10 @@ internal sealed class AssemblyCSharpDataCollector : IAssemblyCSharpDataCollector
     [MemberNotNull(nameof(_assemblyData))]
     private void InitialiseAssemblyData()
     {
-        string assemblyPath = _fileSystem.Path.Combine(_executionContext.DataDir, "Managed", "Assembly-CSharp.dll");
+        string assemblyPath = _fileSystem.Path.Combine(
+            _executionContext.GameDir,
+            "GameAssembly",
+            "Assembly-CSharp.dll");
         AssemblyDefinition assemblyDefinition = AssemblyDefinition.FromFile(assemblyPath);
         TypeDefinition privateImplementationDetailType = assemblyDefinition.ManifestModule!
             .GetAllTypes()

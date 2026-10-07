@@ -3,13 +3,14 @@ using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.PE.DotNet.Cil;
 using AsmResolver.PE.DotNet.Metadata.Tables;
 using System.Collections;
+using VenusRootLoader.Patching.Aot.LogicContainer;
 
 namespace VenusRootLoader.Patching.Aot.StateMachineUtils;
 
 /// <summary>
 /// Represents a mapped context field of a <see cref="StateMachineContextInfo"/>.
 /// </summary>
-internal sealed class StateMachineContextField
+public sealed class StateMachineContextField
 {
     /// <summary>
     /// The field from the outer <see cref="StateMachine"/> to map to a context.
@@ -32,7 +33,7 @@ internal sealed class StateMachineContextField
 /// Contains all the information to initialize from an outer <see cref="StateMachine"/>, pass to an inner
 /// <see cref="StateMachine"/>, and commit back to the outer <see cref="StateMachine"/>.
 /// </summary>
-internal sealed class StateMachineContextInfo
+public sealed class StateMachineContextInfo
 {
     public required string TypeName { get; init; }
     public required List<StateMachineContextField> Fields { get; init; }
@@ -72,8 +73,10 @@ internal sealed class StateMachineContextInfo
 /// to read or write from them.
 /// </p>
 /// </summary>
-internal sealed class StateMachine
+public sealed class StateMachine : ILogicContainer
 {
+    public MethodDefinition ReceivingMethod => MoveNextMethod;
+
     public const string StateFieldName = "<>1__state";
     public const string CurrentFieldName = "<>2__current";
     public const string ThisFieldName = "<>4__this";

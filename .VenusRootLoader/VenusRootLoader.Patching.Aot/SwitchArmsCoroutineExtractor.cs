@@ -156,7 +156,7 @@ internal sealed class SwitchArmsCoroutineExtractor
 
             labelIndexesToExtractors[indexedSwitchLabel.Index] = extractor;
             firstInstructionToStateMachine[((CilInstructionLabel)indexedSwitchLabel.Label).Instruction!] =
-                extractor.InnerStateMachine;
+                extractor.InnerLogic;
         }
 
         foreach (SwitchArn arm in switchArms)
@@ -168,11 +168,10 @@ internal sealed class SwitchArmsCoroutineExtractor
             List<StateMachine> stateMachines = new();
             foreach (IndexedSwitchLabel indexedSwitchArmLabel in arm.Labels)
             {
-                StateMachine innerStateMachine =
-                    labelIndexesToExtractors[indexedSwitchArmLabel.Index].InnerStateMachine;
+                StateMachine innerStateMachine = labelIndexesToExtractors[indexedSwitchArmLabel.Index].InnerLogic;
                 stateMachines.Add(innerStateMachine);
 
-                labelIndexesToExtractors[indexedSwitchArmLabel.Index].ExtractMoveNextIl(
+                labelIndexesToExtractors[indexedSwitchArmLabel.Index].ExtractIl(
                     offsetsToStateMachine,
                     switchEndLabel,
                     outerResetStateMachineToZeroInstruction,

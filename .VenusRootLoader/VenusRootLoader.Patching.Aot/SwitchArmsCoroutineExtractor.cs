@@ -212,70 +212,9 @@ internal sealed class SwitchArmsCoroutineExtractor
         for (int i = switchStateNumber + 1; i <= lastSwitchStateNumber; i++)
             stateSwitchLabels[i] = switchEndLabel;
 
-        AddStateMachinesToEmptySwitchArms(
-            gameModuleData,
-            outerStateMachine,
-            innerStateMachinesMethodPrefix,
-            moveNextIl,
-            switchArmLabels,
-            switchEndLabel,
-            contextParameter,
-            contextField,
-            postSwitchStateNumber);
-
         stateSwitchInstruction.Operand = stateSwitchLabels;
         outerSwitchInstruction.Operand = switchArmLabels;
         moveNextIl.OptimizeMacros();
-    }
-
-    private static void AddStateMachinesToEmptySwitchArms(
-        GameModuleData gameModuleData,
-        StateMachine outerStateMachine,
-        string innerStateMachinesMethodPrefix,
-        CilInstructionCollection moveNextIl,
-        IList<ICilLabel> switchArmLabels,
-        ICilLabel switchEndLabel,
-        NamedParameter? contextParameter,
-        FieldDefinition? contextField,
-        int postSwitchStateNumber)
-    {
-        // This is needed because we clobbered the original label's offset due to patching the other arms.
-        moveNextIl.CalculateOffsets();
-        IList<IndexedSwitchLabel> emptyArmsLabels = switchArmLabels
-            .Select((x, i) => new IndexedSwitchLabel
-            {
-                Label = x,
-                Index = i
-            })
-            .Where(x => x.Label.Equals(switchEndLabel))
-            .ToList();
-        foreach (IndexedSwitchLabel emptyArmLabel in emptyArmsLabels)
-        {
-            StateMachine stateMachine = InnerStateMachineCreator.CreateAndAddInnerStateMachineType(
-                outerStateMachine,
-                gameModuleData,
-                contextParameter is not null ? [contextParameter] : [],
-                $"{innerStateMachinesMethodPrefix}{emptyArmLabel.Index}");
-            // These arms should do nothing so we just have their MoveNext yield break immediately.
-            stateMachine.MoveNextMethod.CilMethodBody = new()
-            {
-                Instructions =
-                {
-                    Ldc_I4_0,
-                    Ret
-                }
-            };
-
-            List<CilInstruction> cilInstructions = outerStateMachine.GetYieldReturnToOtherStateMachineInstructions(
-                stateMachine,
-                contextField is not null ? [contextField] : [],
-                postSwitchStateNumber,
-                switchEndLabel);
-
-            int switchArmLabelIndex = moveNextIl.GetIndexByOffset(switchEndLabel.Offset);
-            moveNextIl.InsertRange(switchArmLabelIndex, cilInstructions);
-            switchArmLabels[emptyArmLabel.Index] = cilInstructions[0].CreateLabel();
-        }
     }
 
     private static List<SwitchArn> OrganizeSwitchLabelsIntoArms(

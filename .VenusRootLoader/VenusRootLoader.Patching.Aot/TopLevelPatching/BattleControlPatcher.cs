@@ -161,7 +161,7 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
         ilCursor.Index++;
         ilCursor.MatchNext(x => x.OpCode == Switch);
 
-        CilInstruction doCommandSetupSwitch = ilCursor.Current();
+        CilInstruction doCommandExecutionSwitch = ilCursor.Current();
         ilCursor.MatchPrevious(x => x.IsLdloc() && (x.OpCode == Ldloc_2 || x.Operand is CilLocalVariable { Index: 2 }));
         CilInstruction beforeDoCommandSwitch = ilCursor.Current();
 

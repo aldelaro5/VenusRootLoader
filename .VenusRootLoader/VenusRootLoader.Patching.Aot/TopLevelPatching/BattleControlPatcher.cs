@@ -20,6 +20,13 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
 
         ExtractPlayerActions(gameModuleData, doActionStateMachine);
         ExtractEnemyActions(gameModuleData, doActionStateMachine);
+
+        MethodDefinition eventDialogueMethod = type.Methods
+            .Single(x => x.Name == "EventDialogue");
+        StateMachine eventDialogueStateMachine =
+            StateMachine.CreateFromEnumeratorMethod(gameModuleData, eventDialogueMethod);
+
+        ExtractEventDialogues(gameModuleData, eventDialogueStateMachine);
     }
 
     private static void ExtractPlayerActions(
@@ -107,6 +114,47 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             beforeEnemyActionSwitch,
             beforeEnemyActionSwitch,
             EnemyActionPostProcessor);
+    }
+
+    private static void ExtractEventDialogues(GameModuleData gameModuleData, StateMachine eventDialogueStateMachine)
+    {
+        CilInstructionCollection eventDialogueMoveNextIl =
+            eventDialogueStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
+        AsmResolverIlCursor ilCursor = new(eventDialogueMoveNextIl);
+
+        ilCursor.MatchNext(x => x.OpCode == Switch);
+        ilCursor.Index++;
+        ilCursor.MatchNext(x => x.OpCode == Switch);
+
+        CilInstruction eventDialogueSwitch = ilCursor.Current();
+        ilCursor.MatchPrevious(x =>
+            x.IsLdarg() && (x.OpCode == Ldarg_0 || x.Operand is Parameter { MethodSignatureIndex: 0 }));
+        CilInstruction beforeEventDialogueSwitch = ilCursor.Current();
+
+        // List<StateMachineContextField> doActionContextFields =
+        // [
+        //     doActionStateMachine.GetReadOnlyContextFieldFromSpeakableName("entity"),
+        //     doActionStateMachine.GetReadOnlyContextFieldFromSpeakableName("actionid"),
+        //     doActionStateMachine.GetReadOnlyContextFieldFromSpeakableName("startp"),
+        //     doActionStateMachine.GetContextFieldFromSpeakableName("startstate"),
+        //     doActionStateMachine.GetReadOnlyContextFieldFromSpeakableName("targetentity")
+        // ];
+        //
+        // StateMachineContextInfo stateMachineContextInfo = new()
+        // {
+        //     TypeName = "PlayerActionContext",
+        //     Fields = doActionContextFields,
+        // };
+
+        SwitchArmsCoroutineExtractor.ExtractSwitchArmsToStateMachines(
+            gameModuleData,
+            eventDialogueStateMachine,
+            "EventDialogue",
+            null,
+            eventDialogueSwitch,
+            beforeEventDialogueSwitch,
+            null,
+            null);
     }
 
     private static void EnemyActionPostProcessor(

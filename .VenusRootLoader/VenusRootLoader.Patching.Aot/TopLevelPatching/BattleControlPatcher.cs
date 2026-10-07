@@ -34,6 +34,13 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             StateMachine.CreateFromEnumeratorMethod(gameModuleData, doCommandMethod);
 
         ExtractDoCommand(gameModuleData, doCommandStateMachine);
+
+        MethodDefinition aiAttackMethod = type.Methods
+            .Single(x => x.Name == "AIAttack");
+        StateMachine aiAttackStateMachine =
+            StateMachine.CreateFromEnumeratorMethod(gameModuleData, aiAttackMethod);
+
+        ExtractAIAttack(gameModuleData, aiAttackStateMachine);
     }
 
     private static void ExtractPlayerActions(
@@ -188,8 +195,94 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             doCommandStateMachine,
             "DoCommandExecution",
             stateMachineContextInfo,
-            doCommandSetupSwitch,
+            doCommandExecutionSwitch,
             beforeDoCommandSwitch,
+            null,
+            null);
+    }
+
+    private static void ExtractAIAttack(GameModuleData gameModuleData, StateMachine aiAttackStateMachine)
+    {
+        CilInstructionCollection aiAttackMoveNextIl =
+            aiAttackStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
+        AsmResolverIlCursor ilCursor = new(aiAttackMoveNextIl);
+
+        ilCursor.MatchNext(x => x.OpCode == Switch);
+        ilCursor.Index++;
+        ilCursor.MatchNext(x => x.OpCode == Switch);
+        ilCursor.MatchPrevious(x =>
+            x.OpCode == Ldfld && x.Operand is FieldDefinition fieldLoaded && fieldLoaded.Name!.Contains("aid"));
+        ilCursor.MatchNext(x => x.IsLdloc());
+
+        CilInstruction beforeAiAttackSwitch = ilCursor.Current();
+        ilCursor.Index++;
+        int indexSwitchStart = ilCursor.Index;
+        ilCursor.MatchNext(x => x.OpCode == Switch);
+        ilCursor.Index += 2;
+        ilCursor.MatchNext(x => x.IsUnconditionalBranch());
+        CilInstructionLabel switchEndLabel = (CilInstructionLabel)ilCursor.Current().Operand!;
+        ilCursor.Index--;
+        int indexSwitchEnd = ilCursor.Index;
+
+        ilCursor.Index = indexSwitchStart;
+
+        Dictionary<int, CilInstructionLabel> usedSwitchCases = [];
+        while (ilCursor.Index <= indexSwitchEnd)
+        {
+            ilCursor.MatchNext(x => x.IsLdcI4());
+            int ldcConstant = ilCursor.Current().GetLdcI4Constant();
+            ilCursor.Index++;
+            CilInstruction nextInstruction = ilCursor.Current();
+            if (nextInstruction.OpCode == Beq)
+            {
+                usedSwitchCases.Add(ldcConstant, (CilInstructionLabel)nextInstruction.Operand!);
+            }
+            else if (nextInstruction.OpCode == Sub)
+            {
+                ilCursor.Index++;
+                List<ICilLabel> labels = (List<ICilLabel>)ilCursor.Current().Operand!;
+                for (int i = 0; i < labels.Count; i++)
+                {
+                    CilInstructionLabel instructionLabel = (CilInstructionLabel)labels[i];
+                    if (Equals(instructionLabel.Instruction, switchEndLabel.Instruction))
+                        continue;
+                    usedSwitchCases.Add(i + ldcConstant, instructionLabel);
+                }
+            }
+
+            ilCursor.Index++;
+        }
+
+        List<ICilLabel> newLabels = [];
+        for (int i = 0; i < 407; i++)
+            newLabels.Add(usedSwitchCases.GetValueOrDefault(i, switchEndLabel));
+
+        aiAttackMoveNextIl.ReplaceRange(indexSwitchStart, indexSwitchEnd, [new(Switch, newLabels)]);
+        ilCursor.Index = indexSwitchStart;
+        CilInstruction newSwitchInstruction = ilCursor.Current();
+
+        List<StateMachineContextField> aiAttackContextFields =
+        [
+            aiAttackStateMachine.GetContextFieldFromSpeakableName("targetid"),
+            aiAttackStateMachine.GetReadOnlyContextFieldFromSpeakableName("dammod"),
+            aiAttackStateMachine.GetContextFieldFromSpeakableName("nodamage"),
+            aiAttackStateMachine.GetReadOnlyContextFieldFromSpeakableName("sp"),
+            aiAttackStateMachine.GetReadOnlyContextFieldFromSpeakableName("aid")
+        ];
+
+        StateMachineContextInfo stateMachineContextInfo = new()
+        {
+            TypeName = "AIAttackContext",
+            Fields = aiAttackContextFields,
+        };
+
+        SwitchArmsCoroutineExtractor.ExtractSwitchArmsToStateMachines(
+            gameModuleData,
+            aiAttackStateMachine,
+            "AIAttack",
+            stateMachineContextInfo,
+            newSwitchInstruction,
+            beforeAiAttackSwitch,
             null,
             null);
     }

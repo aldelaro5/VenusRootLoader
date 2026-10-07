@@ -131,21 +131,6 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             x.IsLdarg() && (x.OpCode == Ldarg_0 || x.Operand is Parameter { MethodSignatureIndex: 0 }));
         CilInstruction beforeEventDialogueSwitch = ilCursor.Current();
 
-        // List<StateMachineContextField> doActionContextFields =
-        // [
-        //     doActionStateMachine.GetReadOnlyContextFieldFromSpeakableName("entity"),
-        //     doActionStateMachine.GetReadOnlyContextFieldFromSpeakableName("actionid"),
-        //     doActionStateMachine.GetReadOnlyContextFieldFromSpeakableName("startp"),
-        //     doActionStateMachine.GetContextFieldFromSpeakableName("startstate"),
-        //     doActionStateMachine.GetReadOnlyContextFieldFromSpeakableName("targetentity")
-        // ];
-        //
-        // StateMachineContextInfo stateMachineContextInfo = new()
-        // {
-        //     TypeName = "PlayerActionContext",
-        //     Fields = doActionContextFields,
-        // };
-
         SwitchArmsCoroutineExtractor.ExtractSwitchArmsToStateMachines(
             gameModuleData,
             eventDialogueStateMachine,

@@ -27,6 +27,13 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             StateMachine.CreateFromEnumeratorMethod(gameModuleData, eventDialogueMethod);
 
         ExtractEventDialogues(gameModuleData, eventDialogueStateMachine);
+
+        MethodDefinition doCommandMethod = type.Methods
+            .Single(x => x.Name == "DoCommand");
+        StateMachine doCommandStateMachine =
+            StateMachine.CreateFromEnumeratorMethod(gameModuleData, doCommandMethod);
+
+        ExtractDoCommand(gameModuleData, doCommandStateMachine);
     }
 
     private static void ExtractPlayerActions(
@@ -138,6 +145,51 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             null,
             eventDialogueSwitch,
             beforeEventDialogueSwitch,
+            null,
+            null);
+    }
+
+    private static void ExtractDoCommand(GameModuleData gameModuleData, StateMachine doCommandStateMachine)
+    {
+        CilInstructionCollection doCommandMoveNextIl =
+            doCommandStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
+        AsmResolverIlCursor ilCursor = new(doCommandMoveNextIl);
+
+        ilCursor.MatchNext(x => x.OpCode == Switch);
+        ilCursor.Index++;
+        ilCursor.MatchNext(x => x.OpCode == Switch);
+        ilCursor.Index++;
+        ilCursor.MatchNext(x => x.OpCode == Switch);
+
+        CilInstruction doCommandSetupSwitch = ilCursor.Current();
+        ilCursor.MatchPrevious(x => x.IsLdloc() && (x.OpCode == Ldloc_2 || x.Operand is CilLocalVariable { Index: 2 }));
+        CilInstruction beforeDoCommandSwitch = ilCursor.Current();
+
+        List<StateMachineContextField> doCommandContextFields =
+        [
+            doCommandStateMachine.GetReadOnlyContextFieldFromSpeakableName("timer"),
+            doCommandStateMachine.GetReadOnlyContextFieldFromSpeakableName("commandtype"),
+            doCommandStateMachine.GetReadOnlyContextFieldFromSpeakableName("data"),
+            doCommandStateMachine.GetReadOnlyContextFieldFromSpeakableName("internaldata"),
+            doCommandStateMachine.GetReadOnlyContextFieldFromSpeakableName("initialtimer"),
+            doCommandStateMachine.GetReadOnlyContextFieldFromSpeakableName("infinite"),
+            doCommandStateMachine.GetReadOnlyContextFieldFromSpeakableName("intdata"),
+            doCommandStateMachine.GetReadOnlyContextFieldFromSpeakableName("letters")
+        ];
+
+        StateMachineContextInfo stateMachineContextInfo = new()
+        {
+            TypeName = "DoCommandExecutionContext",
+            Fields = doCommandContextFields,
+        };
+
+        SwitchArmsCoroutineExtractor.ExtractSwitchArmsToStateMachines(
+            gameModuleData,
+            doCommandStateMachine,
+            "DoCommandExecution",
+            stateMachineContextInfo,
+            doCommandSetupSwitch,
+            beforeDoCommandSwitch,
             null,
             null);
     }

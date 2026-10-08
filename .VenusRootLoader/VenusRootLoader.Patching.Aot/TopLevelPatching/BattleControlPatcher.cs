@@ -3,7 +3,8 @@ using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.DotNet.Collections;
 using AsmResolver.DotNet.Signatures;
 using AsmResolver.PE.DotNet.Cil;
-using VenusRootLoader.Patching.Aot.StateMachineUtils;
+using VenusRootLoader.Patching.Aot.LogicContainer;
+using VenusRootLoader.Patching.Aot.LogicExtraction.SwitchArms;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
 namespace VenusRootLoader.Patching.Aot.TopLevelPatching;
@@ -16,36 +17,37 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
     {
         MethodDefinition doActionMethod = type.Methods
             .Single(x => x.Name == "DoAction");
-        StateMachine doActionStateMachine = StateMachine.CreateFromEnumeratorMethod(gameModuleData, doActionMethod);
-
-        ExtractPlayerActions(gameModuleData, doActionStateMachine);
-        ExtractEnemyActions(gameModuleData, doActionStateMachine);
+        StateMachine doActionStateMachine = new(gameModuleData, doActionMethod);
+        PatchDoAction(gameModuleData, doActionStateMachine);
 
         MethodDefinition eventDialogueMethod = type.Methods
             .Single(x => x.Name == "EventDialogue");
-        StateMachine eventDialogueStateMachine =
-            StateMachine.CreateFromEnumeratorMethod(gameModuleData, eventDialogueMethod);
-
+        StateMachine eventDialogueStateMachine = new(gameModuleData, eventDialogueMethod);
         ExtractEventDialogues(gameModuleData, eventDialogueStateMachine);
 
         MethodDefinition doCommandMethod = type.Methods
             .Single(x => x.Name == "DoCommand");
-        StateMachine doCommandStateMachine =
-            StateMachine.CreateFromEnumeratorMethod(gameModuleData, doCommandMethod);
-
+        StateMachine doCommandStateMachine = new(gameModuleData, doCommandMethod);
         ExtractDoCommand(gameModuleData, doCommandStateMachine);
 
         MethodDefinition aiAttackMethod = type.Methods
             .Single(x => x.Name == "AIAttack");
-        StateMachine aiAttackStateMachine =
-            StateMachine.CreateFromEnumeratorMethod(gameModuleData, aiAttackMethod);
-
+        StateMachine aiAttackStateMachine = new(gameModuleData, aiAttackMethod);
         ExtractAIAttack(gameModuleData, aiAttackStateMachine);
     }
 
-    private static void ExtractPlayerActions(
+    private static void PatchDoAction(
         GameModuleData gameModuleData,
         StateMachine doActionStateMachine)
+    {
+        SwitchArmsCoroutineExtractor doActionSwitchArmsExtractor = new(gameModuleData, doActionStateMachine);
+        ExtractPlayerActions(doActionStateMachine, doActionSwitchArmsExtractor);
+        ExtractEnemyActions(doActionStateMachine, doActionSwitchArmsExtractor);
+    }
+
+    private static void ExtractPlayerActions(
+        StateMachine doActionStateMachine,
+        SwitchArmsCoroutineExtractor doActionSwitchArmsExtractor)
     {
         CilInstructionCollection doActionMoveNextIl =
             doActionStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
@@ -59,26 +61,18 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             x.IsLdarg() && (x.OpCode == Ldarg_0 || x.Operand is Parameter { MethodSignatureIndex: 0 }));
         CilInstruction beforePlayerActionSwitch = ilCursor.Current();
 
-        List<StateMachineContextField> doActionContextFields =
-        [
-            doActionStateMachine.GetReadOnlyContextFieldFromSpeakableName("entity"),
-            doActionStateMachine.GetReadOnlyContextFieldFromSpeakableName("actionid"),
-            doActionStateMachine.GetReadOnlyContextFieldFromSpeakableName("startp"),
-            doActionStateMachine.GetContextFieldFromSpeakableName("startstate"),
-            doActionStateMachine.GetReadOnlyContextFieldFromSpeakableName("targetentity")
-        ];
+        doActionStateMachine.AssignNewContext(
+            "PlayerActionContext",
+            [
+                doActionStateMachine.AddContextFieldFromSpeakableName("entity", true),
+                doActionStateMachine.AddContextFieldFromSpeakableName("actionid", true),
+                doActionStateMachine.AddContextFieldFromSpeakableName("startp", true),
+                doActionStateMachine.AddContextFieldFromSpeakableName("startstate", false),
+                doActionStateMachine.AddContextFieldFromSpeakableName("targetentity", true),
+            ]);
 
-        StateMachineContextInfo stateMachineContextInfo = new()
-        {
-            TypeName = "PlayerActionContext",
-            Fields = doActionContextFields,
-        };
-
-        SwitchArmsCoroutineExtractor.ExtractSwitchArmsToStateMachines(
-            gameModuleData,
-            doActionStateMachine,
+        doActionSwitchArmsExtractor.ExtractSwitchArms(
             "PlayerAction",
-            stateMachineContextInfo,
             playerActionSwitch,
             beforePlayerActionSwitch,
             null,
@@ -86,8 +80,8 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
     }
 
     private static void ExtractEnemyActions(
-        GameModuleData gameModuleData,
-        StateMachine doActionStateMachine)
+        StateMachine doActionStateMachine,
+        SwitchArmsCoroutineExtractor doActionSwitchArmsExtractor)
     {
         CilInstructionCollection doActionMoveNextIl =
             doActionStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
@@ -101,29 +95,21 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
         ilCursor.MatchPrevious(x => x.IsLdloc() && (x.OpCode == Ldloc_1 || x.Operand is CilLocalVariable { Index: 1 }));
         CilInstruction beforeEnemyActionSwitch = ilCursor.Current();
 
-        List<StateMachineContextField> doActionContextFields =
-        [
-            doActionStateMachine.GetReadOnlyContextFieldFromSpeakableName("entity"),
-            doActionStateMachine.GetContextFieldFromSpeakableName("actionid"),
-            doActionStateMachine.GetContextFieldFromSpeakableName("randomposafter"),
-            doActionStateMachine.GetContextFieldFromSpeakableName("fled"),
-            doActionStateMachine.GetContextFieldFromSpeakableName("nocharm"),
-            doActionStateMachine.GetContextFieldFromSpeakableName("startp"),
-            doActionStateMachine.GetContextFieldFromSpeakableName("startstate"),
-            doActionStateMachine.GetReadOnlyContextFieldFromSpeakableName("heavystrike", "hardmode")
-        ];
+        doActionStateMachine.AssignNewContext(
+            "EnemyActionContext",
+            [
+                doActionStateMachine.AddContextFieldFromSpeakableName("entity", true),
+                doActionStateMachine.AddContextFieldFromSpeakableName("actionid", false),
+                doActionStateMachine.AddContextFieldFromSpeakableName("randomposafter", false),
+                doActionStateMachine.AddContextFieldFromSpeakableName("fled", false),
+                doActionStateMachine.AddContextFieldFromSpeakableName("nocharm", false),
+                doActionStateMachine.AddContextFieldFromSpeakableName("startp", false),
+                doActionStateMachine.AddContextFieldFromSpeakableName("startstate", false),
+                doActionStateMachine.AddContextFieldFromSpeakableName("heavystrike", true, "hardmode")
+            ]);
 
-        StateMachineContextInfo stateMachineContextInfo = new()
-        {
-            TypeName = "EnemyActionContext",
-            Fields = doActionContextFields,
-        };
-
-        SwitchArmsCoroutineExtractor.ExtractSwitchArmsToStateMachines(
-            gameModuleData,
-            doActionStateMachine,
+        doActionSwitchArmsExtractor.ExtractSwitchArms(
             "EnemyAction",
-            stateMachineContextInfo,
             enemyActionSwitch,
             beforeEnemyActionSwitch,
             beforeEnemyActionSwitch,
@@ -145,11 +131,9 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             x.IsLdarg() && (x.OpCode == Ldarg_0 || x.Operand is Parameter { MethodSignatureIndex: 0 }));
         CilInstruction beforeEventDialogueSwitch = ilCursor.Current();
 
-        SwitchArmsCoroutineExtractor.ExtractSwitchArmsToStateMachines(
-            gameModuleData,
-            eventDialogueStateMachine,
+        SwitchArmsCoroutineExtractor eventDialoguesSwitchArmsExtractor = new(gameModuleData, eventDialogueStateMachine);
+        eventDialoguesSwitchArmsExtractor.ExtractSwitchArms(
             "EventDialogue",
-            null,
             eventDialogueSwitch,
             beforeEventDialogueSwitch,
             null,
@@ -172,29 +156,22 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
         ilCursor.MatchPrevious(x => x.IsLdloc() && (x.OpCode == Ldloc_2 || x.Operand is CilLocalVariable { Index: 2 }));
         CilInstruction beforeDoCommandSwitch = ilCursor.Current();
 
-        List<StateMachineContextField> doCommandContextFields =
-        [
-            doCommandStateMachine.GetReadOnlyContextFieldFromSpeakableName("timer"),
-            doCommandStateMachine.GetReadOnlyContextFieldFromSpeakableName("commandtype"),
-            doCommandStateMachine.GetReadOnlyContextFieldFromSpeakableName("data"),
-            doCommandStateMachine.GetReadOnlyContextFieldFromSpeakableName("internaldata"),
-            doCommandStateMachine.GetReadOnlyContextFieldFromSpeakableName("initialtimer"),
-            doCommandStateMachine.GetReadOnlyContextFieldFromSpeakableName("infinite"),
-            doCommandStateMachine.GetReadOnlyContextFieldFromSpeakableName("intdata"),
-            doCommandStateMachine.GetReadOnlyContextFieldFromSpeakableName("letters")
-        ];
+        doCommandStateMachine.AssignNewContext(
+            "DoCommandExecutionContext",
+            [
+                doCommandStateMachine.AddContextFieldFromSpeakableName("timer", true),
+                doCommandStateMachine.AddContextFieldFromSpeakableName("commandtype", true),
+                doCommandStateMachine.AddContextFieldFromSpeakableName("data", true),
+                doCommandStateMachine.AddContextFieldFromSpeakableName("internaldata", true),
+                doCommandStateMachine.AddContextFieldFromSpeakableName("initialtimer", true),
+                doCommandStateMachine.AddContextFieldFromSpeakableName("infinite", true),
+                doCommandStateMachine.AddContextFieldFromSpeakableName("intdata", true),
+                doCommandStateMachine.AddContextFieldFromSpeakableName("letters", true)
+            ]);
 
-        StateMachineContextInfo stateMachineContextInfo = new()
-        {
-            TypeName = "DoCommandExecutionContext",
-            Fields = doCommandContextFields,
-        };
-
-        SwitchArmsCoroutineExtractor.ExtractSwitchArmsToStateMachines(
-            gameModuleData,
-            doCommandStateMachine,
+        SwitchArmsCoroutineExtractor doCommandSwitchArmsExtractor = new(gameModuleData, doCommandStateMachine);
+        doCommandSwitchArmsExtractor.ExtractSwitchArms(
             "DoCommandExecution",
-            stateMachineContextInfo,
             doCommandExecutionSwitch,
             beforeDoCommandSwitch,
             null,
@@ -261,26 +238,19 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
         ilCursor.Index = indexSwitchStart;
         CilInstruction newSwitchInstruction = ilCursor.Current();
 
-        List<StateMachineContextField> aiAttackContextFields =
-        [
-            aiAttackStateMachine.GetContextFieldFromSpeakableName("targetid"),
-            aiAttackStateMachine.GetReadOnlyContextFieldFromSpeakableName("dammod"),
-            aiAttackStateMachine.GetContextFieldFromSpeakableName("nodamage"),
-            aiAttackStateMachine.GetReadOnlyContextFieldFromSpeakableName("sp"),
-            aiAttackStateMachine.GetReadOnlyContextFieldFromSpeakableName("aid")
-        ];
+        aiAttackStateMachine.AssignNewContext(
+            "AIAttackContext",
+            [
+                aiAttackStateMachine.AddContextFieldFromSpeakableName("targetid", false),
+                aiAttackStateMachine.AddContextFieldFromSpeakableName("dammod", true),
+                aiAttackStateMachine.AddContextFieldFromSpeakableName("nodamage", false),
+                aiAttackStateMachine.AddContextFieldFromSpeakableName("sp", true),
+                aiAttackStateMachine.AddContextFieldFromSpeakableName("aid", true)
+            ]);
 
-        StateMachineContextInfo stateMachineContextInfo = new()
-        {
-            TypeName = "AIAttackContext",
-            Fields = aiAttackContextFields,
-        };
-
-        SwitchArmsCoroutineExtractor.ExtractSwitchArmsToStateMachines(
-            gameModuleData,
-            aiAttackStateMachine,
+        SwitchArmsCoroutineExtractor aiAttackSwitchArmsExtractor = new(gameModuleData, aiAttackStateMachine);
+        aiAttackSwitchArmsExtractor.ExtractSwitchArms(
             "AIAttack",
-            stateMachineContextInfo,
             newSwitchInstruction,
             beforeAiAttackSwitch,
             null,

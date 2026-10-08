@@ -5,84 +5,139 @@ using AsmResolver.PE.DotNet.Cil;
 using VenusRootLoader.Patching.Aot.LogicContainer;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
-namespace VenusRootLoader.Patching.Aot;
+namespace VenusRootLoader.Patching.Aot.LogicExtraction;
 
+/// <summary>
+/// A logic extractor that extracts from an outer container to an inner container.
+/// </summary>
+/// <typeparam name="TOuter">The type of the outer container.</typeparam>
+/// <typeparam name="TInner">The type of the inner container.</typeparam>
 public abstract class LogicExtractor<TOuter, TInner>
     where TOuter : ILogicContainer
     where TInner : ILogicContainer
 {
     /// <summary>
-    /// The inner state machine created as part of the first step of the extraction.
+    /// The outer container.
+    /// </summary>
+    protected readonly TOuter OuterLogic;
+
+    /// <summary>
+    /// The inner container created as part of the first step of the extraction.
     /// </summary>
     public TInner InnerLogic { get; }
 
+    /// <summary>
+    /// A helper to access <see cref="InnerLogic"/>'s <see cref="CilMethodBody"/>.
+    /// </summary>
     protected readonly CilMethodBody InnerBody;
+
+    /// <summary>
+    /// The mappings from their index in the outer container to the newly created ones in the inner container.
+    /// </summary>
     protected readonly Dictionary<int, CilLocalVariable> LocalIndexMapping = [];
 
-    private readonly TOuter _outerLogic;
     private readonly CilInstruction _innerFirstInstruction;
     private readonly CilInstruction _innerLastInstruction;
-    private readonly Dictionary<FieldDefinition, FieldDefinition> _fieldsContextMapping;
 
-    protected abstract void ProcessContextFieldOperationInstruction(
+    /// <summary>
+    /// Process an instruction that involves a field.
+    /// </summary>
+    /// <param name="instruction">The instruction involved.</param>
+    /// <param name="fieldInContext">The field involved in the instruction.</param>
+    protected abstract void ProcessFieldOperationInstruction(
         CilInstruction instruction,
         FieldDefinition fieldInContext);
 
+    /// <summary>
+    /// Obtains the IL needed to transfer control flow back to the outer container.
+    /// </summary>
+    /// <param name="afterLogicTransfer">Tells if this IL will be placed immediately after a logic transfer to another container.</param>
+    /// <returns>The IL that transfer control back to the outer container.</returns>
     protected abstract IList<CilInstruction> GetReturnToOuterIl(bool afterLogicTransfer);
+
+    /// <summary>
+    /// Obtains a label that marks the start of the container so the IL can branch to it to restart the logic.
+    /// </summary>
+    /// <returns>The label that marks the start of the container.</returns>
     protected abstract ICilLabel GetRestartLabel();
 
+    /// <summary>
+    /// Obtains the IL that transfer control flow to another container.
+    /// </summary>
+    /// <param name="otherContainer">The container to transfer control flow into.</param>
+    /// <param name="instructionAfter">The instruction that will be placed after the IL.</param>
+    /// <returns>The IL that transfer control flow to <paramref name="otherContainer"/>.</returns>
     protected abstract IList<CilInstruction> GetLogicTransferIl(
         TInner otherContainer,
         CilInstruction instructionAfter);
 
-    protected virtual void PostProcessFieldOperationInstruction(CilInstruction instruction)
-    {
-        return;
-    }
-
-    protected virtual void ProcessNonContextFieldOperationInstruction(
-        CilInstruction instruction,
-        FieldDefinition instructionField)
-    {
-        return;
-    }
-
-    protected virtual void PostProcessExtraction()
-    {
-        return;
-    }
-
+    /// <summary>
+    /// Performs tasks before adding a regular instruction.
+    /// </summary>
+    /// <param name="instruction">The instruction that will be added.</param>
     protected virtual void BeforeAddingInstruction(CilInstruction instruction)
     {
         return;
     }
 
+    /// <summary>
+    /// Performs tasks after processing an instruction involving a field.
+    /// </summary>
+    /// <param name="instruction">The instruction that was just processed.</param>
+    protected virtual void PostProcessFieldOperationInstruction(CilInstruction instruction)
+    {
+        return;
+    }
+
+    /// <summary>
+    /// Performs tasks before the end of the extractions.
+    /// </summary>
+    protected virtual void PostProcessExtraction()
+    {
+        return;
+    }
+
+    /// <summary>
+    /// Creates a logic extractor to extract logic from an outer container to an inner container.
+    /// </summary>
+    /// <param name="outerLogic">The outer container.</param>
+    /// <param name="innerLogicContainerFactory">A factory to create the inner container.</param>
+    /// <param name="gameModuleData">The game module data.</param>
+    /// <param name="methodName">The name to assign the inner container.</param>
+    /// <param name="innerFirstInstruction">The first instruction in the outer container to extract logic from.</param>
+    /// <param name="innerLastInstruction">The last instruction in the outer container to extract logic from.</param>
     protected LogicExtractor(
         TOuter outerLogic,
         IInnerLogicContainerFactory<TOuter, TInner> innerLogicContainerFactory,
         GameModuleData gameModuleData,
         string methodName,
-        List<NamedParameter> methodParameters,
         CilInstruction innerFirstInstruction,
-        CilInstruction innerLastInstruction,
-        Dictionary<FieldDefinition, FieldDefinition> fieldsContextMapping)
+        CilInstruction innerLastInstruction)
     {
-        _outerLogic = outerLogic;
+        OuterLogic = outerLogic;
         _innerFirstInstruction = innerFirstInstruction;
         _innerLastInstruction = innerLastInstruction;
-        _fieldsContextMapping = fieldsContextMapping;
+
+        NamedParameter? contextParameter = OuterLogic.GetContextParameter();
         InnerLogic = innerLogicContainerFactory.Create(
             outerLogic,
             gameModuleData,
-            methodParameters,
+            contextParameter is not null ? [contextParameter] : [],
             methodName);
         InnerBody = InnerLogic.ReceivingMethod.CilMethodBody!;
     }
 
+    /// <summary>
+    /// Extracts the IL into the inner container.
+    /// </summary>
+    /// <param name="offsetsToInnerContainers">A mapping from offsets to other contains used for goto flow mapping.</param>
+    /// <param name="returnToOuterLabel">A label that marks a return to the outer container.</param>
+    /// <param name="instructionRestart">A label that marks a restart of the logic.</param>
+    /// <param name="usedExceptionHandlerIndexes">A list of exception handler indexes that were used from the outer container.</param>
     public void ExtractIl(
-        Dictionary<int, TInner> offsetsToStateMachines,
-        ICilLabel yieldBreakLabel,
-        CilInstruction? instructionResetState,
+        Dictionary<int, TInner> offsetsToInnerContainers,
+        ICilLabel returnToOuterLabel,
+        CilInstruction? instructionRestart,
         out List<int> usedExceptionHandlerIndexes)
     {
         CilInstruction? instructionNeedsLabelFix = null;
@@ -97,26 +152,23 @@ public abstract class LogicExtractor<TOuter, TInner>
             if (instruction.IsLdloc() || instruction.OpCode == Ldloca || instruction.OpCode == Ldloca_S ||
                 instruction.IsStloc())
             {
-                // This will reindex the locals as they are used. This means the inner state machines will only have the
+                // This will reindex the locals as they are used. This means the inner container will only have the
                 // locals in needs instead of having all the locals of the other ones.
                 ProcessLocalOperationInstruction(instruction);
             }
             else if ((instruction.OpCode == Ldfld || instruction.OpCode == Ldflda || instruction.OpCode == Stfld) &&
                      instruction.Operand is FieldDefinition fieldOperand)
             {
-                // This processes 3 types of field operations: context fields, non context fields and switch state fields.
-                // Depending on which of the 3 this is, it will map to a different scheme to process it so it works for
-                // the inner state machine. Only fields actually used are added to the state machine.
                 ProcessFieldOperationInstruction(fieldOperand, instruction);
             }
             else if (instruction.IsBranch() && instruction.Operand is ICilLabel instructionLabel)
             {
-                // This processes 3 types of branching: yield break, goto case (to another switch arm) and a branch to
-                // go back to the beginning of the logic.
+                // This processes 3 types of branching: return, goto (to another container) and a branch to go back to
+                // the beginning of the logic.
                 if (ProcessSpecialBranchOperationInstruction(
-                        offsetsToStateMachines,
-                        yieldBreakLabel,
-                        instructionResetState,
+                        offsetsToInnerContainers,
+                        returnToOuterLabel,
+                        instructionRestart,
                         instructionLabel,
                         instruction,
                         ref instructionNeedsLabelFix))
@@ -125,7 +177,6 @@ public abstract class LogicExtractor<TOuter, TInner>
                 }
             }
 
-            // This is needed to commit the last state that we would have added.
             BeforeAddingInstruction(instruction);
 
             InnerBody.Instructions.Add(instruction);
@@ -149,10 +200,10 @@ public abstract class LogicExtractor<TOuter, TInner>
 
     private MethodDefinition CreateOuterMoveNextClone()
     {
-        MemberCloner cloner = new(_outerLogic.ReceivingMethod.DeclaringModule!);
-        cloner.Include(_outerLogic.ReceivingMethod);
+        MemberCloner cloner = new(OuterLogic.ReceivingMethod.DeclaringModule!);
+        cloner.Include(OuterLogic.ReceivingMethod);
         MemberCloneResult cloneResult = cloner.Clone();
-        MethodDefinition outerMoveNextClone = cloneResult.GetClonedMember(_outerLogic.ReceivingMethod);
+        MethodDefinition outerMoveNextClone = cloneResult.GetClonedMember(OuterLogic.ReceivingMethod);
         return outerMoveNextClone;
     }
 
@@ -202,7 +253,7 @@ public abstract class LogicExtractor<TOuter, TInner>
     private void ProcessLocalOperationInstruction(CilInstruction instruction)
     {
         CilLocalVariable local = instruction
-            .GetLocalVariable(_outerLogic.ReceivingMethod.CilMethodBody!.LocalVariables);
+            .GetLocalVariable(OuterLogic.ReceivingMethod.CilMethodBody!.LocalVariables);
         if (!LocalIndexMapping.TryGetValue(local.Index, out CilLocalVariable? mappedLocal))
         {
             CilLocalVariable newLocal = new(local.VariableType);
@@ -217,42 +268,39 @@ public abstract class LogicExtractor<TOuter, TInner>
 
     private void ProcessFieldOperationInstruction(FieldDefinition fieldOperand, CilInstruction instruction)
     {
-        if (fieldOperand.DeclaringType == _outerLogic.ReceivingMethod.DeclaringType)
+        if (fieldOperand.DeclaringType == OuterLogic.ReceivingMethod.DeclaringType)
         {
             FieldDefinition instructionField = (FieldDefinition)instruction.Operand!;
-            if (_fieldsContextMapping.TryGetValue(instructionField, out FieldDefinition? fieldInContext))
-                ProcessContextFieldOperationInstruction(instruction, fieldInContext);
-            else
-                ProcessNonContextFieldOperationInstruction(instruction, instructionField);
+            ProcessFieldOperationInstruction(instruction, instructionField);
         }
 
         PostProcessFieldOperationInstruction(instruction);
     }
 
     private bool ProcessSpecialBranchOperationInstruction(
-        Dictionary<int, TInner> offsetsToStateMachines,
-        ICilLabel yieldBreakLabel,
-        CilInstruction? instructionResetState,
+        Dictionary<int, TInner> offsetsToInnerContainers,
+        ICilLabel returnToOuterLabel,
+        CilInstruction? instructionRestart,
         ICilLabel label,
         CilInstruction instruction,
         ref CilInstruction? instructionNeedsLabelFix)
     {
-        if (label.Offset >= yieldBreakLabel.Offset)
+        if (label.Offset >= returnToOuterLabel.Offset)
         {
-            ProcessBranchInstructionAsYieldBreak(instruction, label, ref instructionNeedsLabelFix);
+            ProcessBranchInstructionAsReturnToOuter(instruction, label, ref instructionNeedsLabelFix);
             return true;
         }
 
-        if (offsetsToStateMachines.TryGetValue(label.Offset, out TInner? otherStateMachineInfo))
+        if (offsetsToInnerContainers.TryGetValue(label.Offset, out TInner? otherInnerContainer))
         {
-            if (otherStateMachineInfo.Equals(InnerLogic))
+            if (otherInnerContainer.Equals(InnerLogic))
             {
-                ProcessBranchInstructionAsResetToState0(instruction, label, ref instructionNeedsLabelFix);
+                ProcessBranchInstructionAsRestart(instruction, label, ref instructionNeedsLabelFix);
                 return true;
             }
 
-            ProcessBranchInstructionAsYieldReturnEnumerator(
-                otherStateMachineInfo,
+            ProcessBranchInstructionAsTransferToOtherContainer(
+                otherInnerContainer,
                 instruction,
                 label,
                 ref instructionNeedsLabelFix);
@@ -260,16 +308,16 @@ public abstract class LogicExtractor<TOuter, TInner>
             return true;
         }
 
-        if (instructionResetState is not null && instructionResetState.Offset == label.Offset)
+        if (instructionRestart is not null && instructionRestart.Offset == label.Offset)
         {
-            ProcessBranchInstructionAsResetToState0(instruction, label, ref instructionNeedsLabelFix);
+            ProcessBranchInstructionAsRestart(instruction, label, ref instructionNeedsLabelFix);
             return true;
         }
 
         return false;
     }
 
-    private void ProcessBranchInstructionAsYieldBreak(
+    private void ProcessBranchInstructionAsReturnToOuter(
         CilInstruction instruction,
         ICilLabel label,
         ref CilInstruction? instructionNeedsLabelFix)
@@ -295,15 +343,15 @@ public abstract class LogicExtractor<TOuter, TInner>
         InnerBody.Instructions.AddRange(returnToOuterIl.Skip(1));
     }
 
-    private void ProcessBranchInstructionAsYieldReturnEnumerator(
-        TInner otherStateMachineInfo,
+    private void ProcessBranchInstructionAsTransferToOtherContainer(
+        TInner otherInnerContainer,
         CilInstruction instruction,
         ICilLabel label,
         ref CilInstruction? instructionNeedsLabelFix)
     {
         bool neededFixing = instructionNeedsLabelFix is not null;
         IList<CilInstruction> returnToOuterIl = GetReturnToOuterIl(true);
-        IList<CilInstruction> transferIl = GetLogicTransferIl(otherStateMachineInfo, returnToOuterIl[0]);
+        IList<CilInstruction> transferIl = GetLogicTransferIl(otherInnerContainer, returnToOuterIl[0]);
 
         PreProcessSpecialBranchOperationInstruction(
             instruction,
@@ -319,12 +367,12 @@ public abstract class LogicExtractor<TOuter, TInner>
             instructionNeedsLabelFix = null;
         }
 
-        // The yield break after is needed because this acts like a goto case where the logic is performed, but the switch
+        // The return after is needed because this acts like a goto case where the logic is performed, but the switch
         // is done after the destination arm is done.
         InnerBody.Instructions.AddRange(returnToOuterIl);
     }
 
-    private void ProcessBranchInstructionAsResetToState0(
+    private void ProcessBranchInstructionAsRestart(
         CilInstruction instruction,
         ICilLabel label,
         ref CilInstruction? instructionNeedsLabelFix)

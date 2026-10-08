@@ -6,7 +6,7 @@ using System.Collections;
 using VenusRootLoader.Patching.Aot.LogicContainer;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
-namespace VenusRootLoader.Patching.Aot.StateMachineUtils;
+namespace VenusRootLoader.Patching.Aot.LogicExtraction;
 
 /// <summary>
 /// This class allows to extract the logic of an outer <see cref="StateMachine"/>'s <see cref="IEnumerator.MoveNext"/>
@@ -27,40 +27,33 @@ internal sealed class MoveNextLogicExtractor : LogicExtractor<StateMachine, Stat
 
     /// <summary>
     /// Creates an extractor using the information provided. This will perform the first step of the extraction process.
-    /// The second step is done by calling <see cref="LogicExtractor{TOuter,Tinner}.ExtractIl"/> and it should be done once all the related state
-    /// machines are created in the case of extracting all the arms of a switch.
+    /// The second step is done by calling <see cref="LogicExtractor{TOuter,Tinner}.ExtractIl"/> and it should be done
+    /// once all the related state machines are created in the case of extracting all the arms of a switch.
     /// </summary>
     /// <param name="outerStateMachine">The outer state machine to extract logic from.</param>
     /// <param name="gameModuleData">The <see cref="ReferenceImporter"/> to use when creating the state machine.</param>
     /// <param name="stateMachineEnumeratorMethodName">The name the enumerator method of the inner state machine will have.</param>
-    /// <param name="parameters">The parameters the enumerator method the inner state machine will have.</param>
     /// <param name="innerFirstInstruction">The IL offset of the starting point of the IL segment to extract from the <paramref name="outerStateMachine"/></param>
     /// <param name="innerLastInstruction">The IL offset of the ending point of the IL segment to extract from the <paramref name="outerStateMachine"/></param>
-    /// <param name="fieldsContextMapping">A mapping to use to map <paramref name="outerStateMachine"/>'s fields to their
-    /// context counterpart. This can be empty. For more information on this dictionary see <see cref="StateMachine.PatchStateMachineContextContext"/>.</param>
     public MoveNextLogicExtractor(
         StateMachine outerStateMachine,
         GameModuleData gameModuleData,
         string stateMachineEnumeratorMethodName,
-        List<NamedParameter> parameters,
         CilInstruction innerFirstInstruction,
-        CilInstruction innerLastInstruction,
-        Dictionary<FieldDefinition, FieldDefinition> fieldsContextMapping)
+        CilInstruction innerLastInstruction)
         : base(
             outerStateMachine,
             new StateMachineInnerLogicContainerFactory(),
             gameModuleData,
             stateMachineEnumeratorMethodName,
-            parameters,
             innerFirstInstruction,
-            innerLastInstruction,
-            fieldsContextMapping)
+            innerLastInstruction)
     {
-        _fieldsNonContextMapping = BuildFieldsMapping(
+        _fieldsNonContextMapping = BuildNonContextFieldsMapping(
             gameModuleData,
             outerStateMachine.StateMachineType,
             InnerLogic,
-            fieldsContextMapping);
+            outerStateMachine.ContextInfo?.ContextFieldsMapping ?? []);
         _innerStateMachineFieldNames = InnerLogic.StateMachineType.Fields
             .Select(x => x.Name!.Value)
             .ToHashSet();
@@ -74,7 +67,7 @@ internal sealed class MoveNextLogicExtractor : LogicExtractor<StateMachine, Stat
         _innerContextField = InnerLogic.StateMachineType.Fields.SingleOrDefault(x => x.Name == "context");
     }
 
-    private static Dictionary<FieldDefinition, FieldDefinition> BuildFieldsMapping(
+    private static Dictionary<FieldDefinition, FieldDefinition> BuildNonContextFieldsMapping(
         GameModuleData gameModuleData,
         TypeDefinition typeToCloneFieldsFrom,
         StateMachine innerStateMachine,
@@ -142,7 +135,7 @@ internal sealed class MoveNextLogicExtractor : LogicExtractor<StateMachine, Stat
         StateMachine otherContainer,
         CilInstruction instructionAfter)
     {
-        List<CilInstruction> stateTransitionIl = InnerLogic.GetYieldReturnToOtherStateMachineInstructions(
+        List<CilInstruction> stateTransitionIl = InnerLogic.GetTransferToOtherStateMachineIl(
             otherContainer,
             _innerContextField is not null ? [_innerContextField] : [],
             _nextStateNumber,
@@ -165,7 +158,19 @@ internal sealed class MoveNextLogicExtractor : LogicExtractor<StateMachine, Stat
         _nextStateNumber++;
     }
 
-    protected override void ProcessContextFieldOperationInstruction(
+    protected override void ProcessFieldOperationInstruction(
+        CilInstruction instruction,
+        FieldDefinition instructionField)
+    {
+        if (OuterLogic.ContextInfo is not null && OuterLogic.ContextInfo.ContextFieldsMapping.TryGetValue(
+                instructionField,
+                out FieldDefinition? fieldInContext))
+            ProcessContextFieldOperationInstruction(instruction, fieldInContext);
+        else
+            ProcessNonContextFieldOperationInstruction(instruction, instructionField);
+    }
+
+    private void ProcessContextFieldOperationInstruction(
         CilInstruction instruction,
         FieldDefinition fieldInContext)
     {
@@ -194,7 +199,7 @@ internal sealed class MoveNextLogicExtractor : LogicExtractor<StateMachine, Stat
         instruction.Operand = fieldInContext;
     }
 
-    protected override void ProcessNonContextFieldOperationInstruction(
+    private void ProcessNonContextFieldOperationInstruction(
         CilInstruction instruction,
         FieldDefinition instructionField)
     {
@@ -209,6 +214,7 @@ internal sealed class MoveNextLogicExtractor : LogicExtractor<StateMachine, Stat
 
     protected override void BeforeAddingInstruction(CilInstruction instruction)
     {
+        // This is needed to commit the last state that we would have added.
         if (IsLastInstructionYieldReturn())
             _stateSwitchLabels.Add(instruction.CreateLabel());
     }

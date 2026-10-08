@@ -1,7 +1,8 @@
 using AsmResolver.DotNet;
 using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.PE.DotNet.Cil;
-using VenusRootLoader.Patching.Aot.StateMachineUtils;
+using VenusRootLoader.Patching.Aot.LogicContainer;
+using VenusRootLoader.Patching.Aot.LogicExtraction.SwitchArms;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
 namespace VenusRootLoader.Patching.Aot.TopLevelPatching;
@@ -16,7 +17,7 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
             .Where(x => x.Name == "SetText")
             .OrderByDescending(x => x.Signature!.ParameterTypes.Count)
             .First();
-        StateMachine setTextStateMachine = StateMachine.CreateFromEnumeratorMethod(gameModuleData, setTextMethod);
+        StateMachine setTextStateMachine = new(gameModuleData, setTextMethod);
 
         CilInstructionCollection setTextMoveNextIl =
             setTextStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
@@ -37,85 +38,78 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
         ilCursor.Index = indexCommandSwitch;
         FixMissingGotoCases(ilCursor, switchArmLabels, setTextMoveNextIl);
 
-        List<StateMachineContextField> setTextContextFields =
-        [
-            setTextStateMachine.GetContextFieldFromSpeakableName("text"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("fonttype"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("linebreak"),
-            setTextStateMachine.GetReadOnlyContextFieldFromSpeakableName("dialogue"),
-            setTextStateMachine.GetReadOnlyContextFieldFromSpeakableName("tridimensional"),
-            setTextStateMachine.GetReadOnlyContextFieldFromSpeakableName("position"),
-            setTextStateMachine.GetReadOnlyContextFieldFromSpeakableName("cameraoffset"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("size"),
-            setTextStateMachine.GetReadOnlyContextFieldFromSpeakableName("parent"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("caller"),
+        setTextStateMachine.AssignNewContext(
+            "SetTextCommandContext",
+            [
+                setTextStateMachine.AddContextFieldFromSpeakableName("text", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("fonttype", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("linebreak", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("dialogue", true),
+                setTextStateMachine.AddContextFieldFromSpeakableName("tridimensional", true),
+                setTextStateMachine.AddContextFieldFromSpeakableName("position", true),
+                setTextStateMachine.AddContextFieldFromSpeakableName("cameraoffset", true),
+                setTextStateMachine.AddContextFieldFromSpeakableName("size", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("parent", true),
+                setTextStateMachine.AddContextFieldFromSpeakableName("caller", false),
 
-            setTextStateMachine.GetContextFieldFromSpeakableName("speed"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("currentoffset"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("currentline"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("maxlenght"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("bleeppitch"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("bleepvolume"),
-            setTextStateMachine.GetReadOnlyContextFieldFromSpeakableName("langOffset"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("colorindex"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("sort"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("transferi"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("writen"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("ignorenext"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("layer"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("centralize"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("wavy"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("shaky"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("rainbow"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("glitchy"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("skipi"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("end"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("promptmenu"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("minibubble"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("tempoverf"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("questboardpromp"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("tempevent"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("fadeletter"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("fontlock"),
-            // TODO: Only affects something on the first 10 iterations of the char loop?
-            setTextStateMachine.GetContextFieldFromSpeakableName("initialflip"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("ui3d"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("single"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("testing"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("locksize"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("superglitch"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("dropshadow"),
-            setTextStateMachine.GetReadOnlyContextFieldFromSpeakableName("returnentitycol"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("ndd"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("ds"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("transfer"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("backbox"),
-            setTextStateMachine.GetReadOnlyContextFieldFromSpeakableName("textholder"),
-            setTextStateMachine.GetReadOnlyContextFieldFromSpeakableName("textbox"),
-            setTextStateMachine.GetReadOnlyContextFieldFromSpeakableName("windowstyle"),
-            setTextStateMachine.GetReadOnlyContextFieldFromSpeakableName("bubbles"),
-            // TODO: Probably should be read only, Blank writes a new blank list while it probably wanted to clear it.
-            setTextStateMachine.GetContextFieldFromSpeakableName("buts"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("tokenbox"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("bleep"),
-            setTextStateMachine.GetContextFieldFromSpeakableName("i"),
-            // TODO: Only Prompt writes to it, but it's suspicious, recheck if this could be read only.
-            setTextStateMachine.GetContextFieldFromSpeakableName("command"),
-            setTextStateMachine.GetReadOnlyContextFieldFromSpeakableName("temp"),
-            setTextStateMachine.GetReadOnlyContextFieldFromSpeakableName("com")
-        ];
+                setTextStateMachine.AddContextFieldFromSpeakableName("speed", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("currentoffset", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("currentline", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("maxlenght", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("bleeppitch", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("bleepvolume", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("langOffset", true),
+                setTextStateMachine.AddContextFieldFromSpeakableName("colorindex", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("sort", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("transferi", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("writen", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("ignorenext", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("layer", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("centralize", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("wavy", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("shaky", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("rainbow", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("glitchy", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("skipi", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("end", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("promptmenu", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("minibubble", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("tempoverf", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("questboardpromp", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("tempevent", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("fadeletter", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("fontlock", false),
+                // TODO: Only affects something on the first 10 iterations of the char loop?
+                setTextStateMachine.AddContextFieldFromSpeakableName("initialflip", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("ui3d", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("single", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("testing", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("locksize", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("superglitch", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("dropshadow", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("returnentitycol", true),
+                setTextStateMachine.AddContextFieldFromSpeakableName("ndd", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("ds", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("transfer", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("backbox", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("textholder", true),
+                setTextStateMachine.AddContextFieldFromSpeakableName("textbox", true),
+                setTextStateMachine.AddContextFieldFromSpeakableName("windowstyle", true),
+                setTextStateMachine.AddContextFieldFromSpeakableName("bubbles", true),
+                // TODO: Probably should be read only, Blank writes a new blank list while it probably wanted to clear it.
+                setTextStateMachine.AddContextFieldFromSpeakableName("buts", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("tokenbox", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("bleep", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("i", false),
+                // TODO: Only Prompt writes to it, but it's suspicious, recheck if this could be read only.
+                setTextStateMachine.AddContextFieldFromSpeakableName("command", false),
+                setTextStateMachine.AddContextFieldFromSpeakableName("temp", true),
+                setTextStateMachine.AddContextFieldFromSpeakableName("com", true)
+            ]);
 
-        StateMachineContextInfo stateMachineContextInfo = new()
-        {
-            TypeName = "SetTextCommandContext",
-            Fields = setTextContextFields,
-        };
-
-        SwitchArmsCoroutineExtractor.ExtractSwitchArmsToStateMachines(
-            gameModuleData,
-            setTextStateMachine,
+        SwitchArmsCoroutineExtractor setTextSwitchArmsExtractor = new(gameModuleData, setTextStateMachine);
+        setTextSwitchArmsExtractor.ExtractSwitchArms(
             "SetTextCommand",
-            stateMachineContextInfo,
             commandSwitch,
             beforeCommandSwitch,
             null,

@@ -3,41 +3,9 @@ using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.PE.DotNet.Cil;
 using AsmResolver.PE.DotNet.Metadata.Tables;
 using System.Collections;
-using VenusRootLoader.Patching.Aot.LogicContainer;
+using System.Diagnostics.CodeAnalysis;
 
-namespace VenusRootLoader.Patching.Aot.StateMachineUtils;
-
-/// <summary>
-/// Represents a mapped context field of a <see cref="StateMachineContextInfo"/>.
-/// </summary>
-public sealed class StateMachineContextField
-{
-    /// <summary>
-    /// The field from the outer <see cref="StateMachine"/> to map to a context.
-    /// </summary>
-    public required FieldDefinition Field { get; init; }
-
-    /// <summary>
-    /// The name the context field will be mapped to. This can be different from the name of the <see cref="Field"/>.
-    /// </summary>
-    public required string FieldName { get; init; }
-
-    /// <summary>
-    /// Whether the context field is only read from the inner <see cref="StateMachine"/> and never commited back to the
-    /// outer <see cref="StateMachine"/>.
-    /// </summary>
-    public required bool ReadOnly { get; init; }
-}
-
-/// <summary>
-/// Contains all the information to initialize from an outer <see cref="StateMachine"/>, pass to an inner
-/// <see cref="StateMachine"/>, and commit back to the outer <see cref="StateMachine"/>.
-/// </summary>
-public sealed class StateMachineContextInfo
-{
-    public required string TypeName { get; init; }
-    public required List<StateMachineContextField> Fields { get; init; }
-}
+namespace VenusRootLoader.Patching.Aot.LogicContainer;
 
 /// <summary>
 /// <p>
@@ -75,7 +43,55 @@ public sealed class StateMachineContextInfo
 /// </summary>
 public sealed class StateMachine : ILogicContainer
 {
-    public MethodDefinition ReceivingMethod => MoveNextMethod;
+    /// <summary>
+    /// Represents a mapped context field of a <see cref="StateMachineContextInfo"/>.
+    /// </summary>
+    public sealed class StateMachineContextField
+    {
+        /// <summary>
+        /// The field from the outer <see cref="StateMachine"/> to map to a context.
+        /// </summary>
+        public required FieldDefinition ContextSource { get; init; }
+
+        /// <summary>
+        /// The name the context field will be mapped to. This can be different from the name of the <see cref="ContextSource"/>.
+        /// </summary>
+        public required string FieldName { get; init; }
+
+        /// <summary>
+        /// Whether the context field is only read from the inner <see cref="StateMachine"/> and never commited back to the
+        /// outer <see cref="StateMachine"/>.
+        /// </summary>
+        public required bool ReadOnly { get; init; }
+    }
+
+    /// <summary>
+    /// Contains all the information to initialize a context from an outer <see cref="StateMachine"/>, pass it to an inner
+    /// <see cref="StateMachine"/>, and commit back to the outer <see cref="StateMachine"/>.
+    /// </summary>
+    public sealed class StateMachineContextInfo
+    {
+        /// <summary>
+        /// The information about the fields to pass inside the context.
+        /// </summary>
+        public List<StateMachineContextField> ContextFields { get; } = new();
+
+        /// <summary>
+        /// The name of the type the context will have.
+        /// </summary>
+        public required string TypeName { get; init; }
+
+        /// <summary>
+        /// After patching the initialize and commit part of the context, this represents the mapping from the state
+        /// machine fields to the context fields. This is empty if the context hasn't been patched yet.
+        /// </summary>
+        public Dictionary<FieldDefinition, FieldDefinition> ContextFieldsMapping { get; } = new();
+
+        /// <summary>
+        /// The field generated in the state machine after patching the context. This is null if it hasn't been patched yet.
+        /// </summary>
+        public FieldDefinition? ContextField { get; set; }
+    }
 
     public const string StateFieldName = "<>1__state";
     public const string CurrentFieldName = "<>2__current";
@@ -84,44 +100,81 @@ public sealed class StateMachine : ILogicContainer
     private CilLocalVariable? _localCoroutine;
 
     /// <summary>
+    /// The current context if it exists. If it doesn't, this is null.
+    /// </summary>
+    public StateMachineContextInfo? ContextInfo { get; private set; }
+
+    public MethodDefinition ReceivingMethod => MoveNextMethod;
+
+    public NamedParameter? GetContextParameter()
+    {
+        if (ContextInfo?.ContextField is null)
+            return null;
+
+        return new()
+        {
+            Name = "context",
+            TypeSignature = ContextInfo.ContextField.Signature!.FieldType
+        };
+    }
+
+    /// <summary>
     /// The game module data used when building this state machine.
     /// </summary>
-    public required GameModuleData GameModuleData { get; init; }
+    public GameModuleData GameModuleData { get; init; }
 
     /// <summary>
     /// The type of the state machine class which implements <see cref="IEnumerator"/>.
     /// </summary>
-    public required TypeDefinition StateMachineType { get; init; }
+    public TypeDefinition StateMachineType { get; init; }
 
     /// <summary>
     /// The method that creates an instance of <see cref="StateMachineType"/> with the same signature and return type of
     /// the method that was originally declared in C#.
     /// </summary>
-    public required MethodDefinition EnumeratorMethod { get; init; }
+    public MethodDefinition EnumeratorMethod { get; init; }
 
     /// <summary>
     /// The <see cref="IEnumerator.MoveNext"/> method declared in the <see cref="StateMachineType"/>.
     /// </summary>
-    public required MethodDefinition MoveNextMethod { get; init; }
+    public MethodDefinition MoveNextMethod { get; init; }
 
     /// <summary>
     /// The field of the <see cref="StateMachineType"/> that stores the <see cref="IEnumerator.Current"/> value. This field
     /// has an unspeakable name.
     /// </summary>
-    public required FieldDefinition CurrentField { get; init; }
+    public FieldDefinition CurrentField { get; init; }
 
     /// <summary>
     /// The field of the <see cref="StateMachineType"/> that stores the internal state value. This has field an
     /// unspeakable name.
     /// </summary>
-    public required FieldDefinition StateField { get; init; }
+    public FieldDefinition StateField { get; init; }
 
     /// <summary>
     /// The field of the <see cref="StateMachineType"/> that stores the "this" value if <see cref="EnumeratorMethod"/>.
     /// is an instance one. This has field an unspeakable name. A value of null means the MoveNext does not use its this,
     /// or the enumerator method is static.
     /// </summary>
-    public required FieldDefinition? ThisField { get; init; }
+    public FieldDefinition? ThisField { get; init; }
+
+    public StateMachine(
+        GameModuleData gameModuleData,
+        TypeDefinition stateMachineType,
+        MethodDefinition enumeratorMethod,
+        MethodDefinition moveNextMethod,
+        FieldDefinition currentField,
+        FieldDefinition stateField,
+        FieldDefinition? thisField)
+    {
+        GameModuleData = gameModuleData;
+        StateMachineType = stateMachineType;
+        EnumeratorMethod = enumeratorMethod;
+        MoveNextMethod = moveNextMethod;
+        CurrentField = currentField;
+        StateField = stateField;
+        ThisField = thisField;
+    }
 
     /// <summary>
     /// Creates a <see cref="StateMachine"/> instance from the enumerator method component of the state machine. All the
@@ -130,7 +183,7 @@ public sealed class StateMachine : ILogicContainer
     /// <param name="gameModuleData">The game module data to use for this state machine.</param>
     /// <param name="enumeratorMethod">The method returning an <see cref="IEnumerator"/> that's part of the state machine.</param>
     /// <returns>A <see cref="StateMachine"/> containing all the information associated.</returns>
-    public static StateMachine CreateFromEnumeratorMethod(
+    public StateMachine(
         GameModuleData gameModuleData,
         MethodDefinition enumeratorMethod)
     {
@@ -141,76 +194,17 @@ public sealed class StateMachine : ILogicContainer
                                 .All(param => type.Fields
                                     .Select(field => field.Name!.ToString()).Contains(param.Name)));
 
-        MethodDefinition moveNextMethod = stateMachineType.Methods.Single(x => x.Name == nameof(IEnumerator.MoveNext));
-
-        FieldDefinition stateField = stateMachineType.Fields.Single(x => x.Name == StateFieldName);
-        FieldDefinition currentField = stateMachineType.Fields.Single(x => x.Name == CurrentFieldName);
-        FieldDefinition? thisField = stateMachineType.Fields.SingleOrDefault(x => x.Name == ThisFieldName);
-
-        return new()
-        {
-            GameModuleData = gameModuleData,
-            StateMachineType = stateMachineType,
-            EnumeratorMethod = enumeratorMethod,
-            MoveNextMethod = moveNextMethod,
-            CurrentField = currentField,
-            StateField = stateField,
-            ThisField = thisField
-        };
+        GameModuleData = gameModuleData;
+        EnumeratorMethod = enumeratorMethod;
+        StateMachineType = stateMachineType;
+        MoveNextMethod = stateMachineType.Methods.Single(x => x.Name == nameof(IEnumerator.MoveNext));
+        CurrentField = stateMachineType.Fields.Single(x => x.Name == CurrentFieldName);
+        StateField = stateMachineType.Fields.Single(x => x.Name == StateFieldName);
+        ThisField = stateMachineType.Fields.SingleOrDefault(x => x.Name == ThisFieldName);
     }
 
     /// <summary>
-    /// Creates a read / write <see cref="StateMachineContextField"/> that maps a field of this state machine to a context
-    /// field for an inner <see cref="StateMachine"/> to receive and for that field to be commited back to the outer
-    /// <see cref="StateMachine"/>.
-    /// </summary>
-    /// <param name="speakableName">A speakable version of the field name to map from this state machine.</param>
-    /// <param name="mappedName">An optional name to use as the context field when mapping it. If it is null, the name will
-    /// be a speakable version of the original name.</param>
-    /// <returns>A <see cref="StateMachineContextField"/> with the matching field, name and with a
-    /// <see cref="StateMachineContextField.ReadOnly"/> value of false.</returns>
-    public StateMachineContextField GetContextFieldFromSpeakableName(string speakableName, string? mappedName = null)
-    {
-        return new()
-        {
-            Field = GetFieldFromSpeakableName(speakableName),
-            FieldName = mappedName ?? speakableName,
-            ReadOnly = false,
-        };
-    }
-
-    /// <summary>
-    /// Creates a read only <see cref="StateMachineContextField"/> that maps a field of this state machine to a context
-    /// field for an inner <see cref="StateMachine"/> to receive.
-    /// </summary>
-    /// <param name="speakableName">A speakable version of the field name to map from this state machine.</param>
-    /// <param name="mappedName">An optional name to use as the context field when mapping it. If it is null, the name will
-    /// be a speakable version of the original name.</param>
-    /// <returns>A <see cref="StateMachineContextField"/> with the matching field, name and with a
-    /// <see cref="StateMachineContextField.ReadOnly"/> value of true.</returns>
-    public StateMachineContextField GetReadOnlyContextFieldFromSpeakableName(
-        string speakableName,
-        string? mappedName = null)
-    {
-        return new()
-        {
-            Field = GetFieldFromSpeakableName(speakableName),
-            FieldName = mappedName ?? speakableName,
-            ReadOnly = true,
-        };
-    }
-
-    private FieldDefinition GetFieldFromSpeakableName(string speakableName)
-    {
-        IList<FieldDefinition> fields = StateMachineType.Fields;
-        FieldDefinition? exactMatch = fields.SingleOrDefault(x => x.Name == speakableName);
-        FieldDefinition contextField = exactMatch ?? fields.Single(x =>
-            x.Name is not null && x.Name.Value.StartsWith($"<{speakableName}>"));
-        return contextField;
-    }
-
-    /// <summary>
-    /// Obtains a list of <see cref="CilInstruction"/> that will perform a yield return to another <see cref="StateMachine"/>.
+    /// Obtains a list of <see cref="CilInstruction"/> that will transfer control flow to another <see cref="StateMachine"/>.
     /// </summary>
     /// <param name="otherStateMachine">The <see cref="StateMachine"/> to yield return to. More specifically, it will use its
     ///     <see cref="EnumeratorMethod"/> to yield return to.</param>
@@ -218,11 +212,26 @@ public sealed class StateMachine : ILogicContainer
     ///     <paramref name="otherStateMachine"/>.</param>
     /// <param name="stateNumber">The state number to set as part of the yield return. Its segment should be the one that
     ///     gets executed on the next call to <see cref="IEnumerator.MoveNext"/>.</param>
-    /// <param name="labelAfter"></param>
+    /// <param name="labelAfter">The label to branch past the instructions if the inner state machine yield breaks immediately.</param>
     /// <returns>A list of <see cref="CilInstruction"/> that performs a yield return to <paramref name="otherStateMachine"/>'s
     /// <see cref="EnumeratorMethod"/> passing <paramref name="fieldArguments"/> to it and setting the state to
     /// <paramref name="stateNumber"/>.</returns>
-    public List<CilInstruction> GetYieldReturnToOtherStateMachineInstructions(
+    /// <remarks>
+    /// This will insert code that looks like the following:
+    /// <code>
+    /// Coroutine innerCoroutine = MonoBehaviour.StartCoroutine(enumeratorMethod(context));
+    /// if (innerCoroutine != null)
+    ///     yield return innerCoroutine;
+    /// // Code continues...
+    /// </code>
+    /// The reason that a yield return enumeratorMethod isn't performed is because of a quirk with how Unity schedules
+    /// yield returns. In the event that MoveNext returns false on the first invocation, Unity will still stall the coroutine
+    /// until the next frame. This is problematic because it means that it is no longer semantically equivalent with a
+    /// method call. Helpfully, if StartCoroutine is used instead, unity will return null if the first MoveNext returns
+    /// false because it doesn't need to store any coroutine in its scheduler. We can then skip the yield return if we
+    /// receive null which avoids this problem.
+    /// </remarks>
+    public List<CilInstruction> GetTransferToOtherStateMachineIl(
         StateMachine otherStateMachine,
         List<FieldDefinition> fieldArguments,
         int stateNumber,
@@ -242,6 +251,8 @@ public sealed class StateMachine : ILogicContainer
         }
         else
         {
+            // StartCoroutine is an instance method so we need to select a surrogate for the call, we pick MainManager.instance
+            // due to its globality in the game.
             stateTransitionIl.Add(new(CilOpCodes.Ldsfld, GameModuleData.MainManagerInstance));
         }
 
@@ -269,34 +280,73 @@ public sealed class StateMachine : ILogicContainer
     }
 
     /// <summary>
+    /// Creates a read / write <see cref="StateMachineContextField"/> that maps a field of this state machine to a context
+    /// field for an inner <see cref="StateMachine"/> to receive and for that field to be commited back to the outer
+    /// <see cref="StateMachine"/>.
+    /// </summary>
+    /// <param name="speakableName">A speakable version of the field name to map from this state machine.</param>
+    /// <param name="readOnly">If true, the context field will not be commited back to the container.</param>
+    /// <param name="mappedName">An optional name to use as the context field when mapping it. If it is null, the name will
+    /// be a speakable version of the original name.</param>
+    /// <returns>A <see cref="StateMachineContextField"/> with the matching field, name and with a
+    /// <see cref="StateMachineContextField.ReadOnly"/> value of false.</returns>
+    public StateMachineContextField AddContextFieldFromSpeakableName(
+        string speakableName,
+        bool readOnly,
+        string? mappedName = null)
+    {
+        return new StateMachineContextField
+        {
+            ContextSource = GetFieldFromSpeakableName(speakableName),
+            FieldName = mappedName ?? speakableName,
+            ReadOnly = readOnly,
+        };
+    }
+
+    private FieldDefinition GetFieldFromSpeakableName(string speakableName)
+    {
+        IList<FieldDefinition> fields = StateMachineType.Fields;
+        FieldDefinition? exactMatch = fields.SingleOrDefault(x => x.Name == speakableName);
+        FieldDefinition contextField = exactMatch ?? fields.Single(x =>
+            x.Name is not null && x.Name.Value.StartsWith($"<{speakableName}>"));
+        return contextField;
+    }
+
+    public void AssignNewContext(string typeName, List<StateMachineContextField> contextFields)
+    {
+        ContextInfo = new() { TypeName = typeName };
+        ContextInfo.ContextFields.AddRange(contextFields);
+    }
+
+    [MemberNotNullWhen(true, nameof(ContextInfo))]
+    public bool HasContext() => ContextInfo is not null;
+
+    /// <summary>
     /// Patches this state machine's <see cref="MoveNextMethod"/> to initialise and commit back a context instance that
     /// will be passed to potential inner state machines. The type of the context will be created in the same declaring type
     /// as the <see cref="StateMachineType"/>. The context instance will be created in a new field of the state machine.
     /// </summary>
     /// <param name="gameModuleData">The reference importer to use.</param>
-    /// <param name="stateMachineContextInfo">An object that contains all the information needed to generate a mapping
-    /// from the state machine fields to their context fields counterpart.</param>
     /// <param name="initializeContextIlOffset">The IL offset to insert the initialization code of the context from the
     /// state machine.</param>
     /// <param name="commitContextIlOffset">The IL offset to insert the committing code of the context back to the state
     /// machine.</param>
-    /// <param name="fieldsContextMapping">A dictionnary that will be amended with the final mappings of the fields from
-    /// the state machine to their context counterpart.</param>
     /// <returns>The newly created field of the state machine that refers to the context instance.</returns>
-    public FieldDefinition PatchStateMachineContextContext(
+    public void PatchStateMachineContext(
         GameModuleData gameModuleData,
-        StateMachineContextInfo stateMachineContextInfo,
         int initializeContextIlOffset,
-        int commitContextIlOffset,
-        Dictionary<FieldDefinition, FieldDefinition> fieldsContextMapping)
+        int commitContextIlOffset)
     {
+        if (ContextInfo is null)
+            return;
+
         TypeDefinition declaringType = StateMachineType.DeclaringType!;
         ModuleDefinition module = declaringType.DeclaringModule!;
         CilInstructionCollection moveNextIl = MoveNextMethod.CilMethodBody!.Instructions;
 
         TypeDefinition contextType = new(
             declaringType.Namespace,
-            stateMachineContextInfo.TypeName,
+            ContextInfo.TypeName,
             TypeAttributes.NestedPublic
             | TypeAttributes.Sealed
             | TypeAttributes.BeforeFieldInit
@@ -312,7 +362,7 @@ public sealed class StateMachine : ILogicContainer
         contextType.Methods.Add(contextCtor);
 
         Dictionary<FieldDefinition, FieldDefinition> fieldsToCommitContextMapping = new();
-        foreach (StateMachineContextField stateMachineContextField in stateMachineContextInfo.Fields)
+        foreach (StateMachineContextField stateMachineContextField in ContextInfo.ContextFields)
         {
             string unspeakableName = stateMachineContextField.FieldName;
             unspeakableName = unspeakableName.Replace("<", "");
@@ -324,27 +374,26 @@ public sealed class StateMachine : ILogicContainer
             FieldDefinition newContextField = new(
                 speakableName,
                 FieldAttributes.Public,
-                stateMachineContextField.Field.Signature);
+                stateMachineContextField.ContextSource.Signature);
 
             contextType.Fields.Add(newContextField);
-            fieldsContextMapping.Add(stateMachineContextField.Field, newContextField);
+            ContextInfo.ContextFieldsMapping.Add(stateMachineContextField.ContextSource, newContextField);
             if (!stateMachineContextField.ReadOnly)
-                fieldsToCommitContextMapping.Add(stateMachineContextField.Field, newContextField);
+                fieldsToCommitContextMapping.Add(stateMachineContextField.ContextSource, newContextField);
         }
 
         declaringType.NestedTypes.Add(contextType);
 
         // Converts Pascal case to camelCase.
-        string contextFieldName =
-            char.ToLower(stateMachineContextInfo.TypeName[0]) + stateMachineContextInfo.TypeName[1..];
-        FieldDefinition contextField = new(
+        string contextFieldName = char.ToLower(ContextInfo.TypeName[0]) + ContextInfo.TypeName[1..];
+        ContextInfo.ContextField = new(
             contextFieldName,
             FieldAttributes.Private,
             contextType.ToTypeSignature());
-        StateMachineType.Fields.Add(contextField);
+        StateMachineType.Fields.Add(ContextInfo.ContextField);
 
         List<CilInstruction> instructionsInitializeContext = new();
-        foreach (KeyValuePair<FieldDefinition, FieldDefinition> fieldMapping in fieldsContextMapping)
+        foreach (KeyValuePair<FieldDefinition, FieldDefinition> fieldMapping in ContextInfo.ContextFieldsMapping)
         {
             instructionsInitializeContext.Add(new(CilOpCodes.Dup));
             instructionsInitializeContext.Add(new(CilOpCodes.Ldarg_0));
@@ -358,7 +407,7 @@ public sealed class StateMachine : ILogicContainer
                 new(CilOpCodes.Ldarg_0),
                 new(CilOpCodes.Newobj, contextCtor),
                 .. instructionsInitializeContext,
-                new(CilOpCodes.Stfld, contextField)
+                new(CilOpCodes.Stfld, ContextInfo.ContextField)
             ]);
 
         List<CilInstruction> instructionsWriteContext = new();
@@ -366,7 +415,7 @@ public sealed class StateMachine : ILogicContainer
         {
             instructionsWriteContext.Add(new(CilOpCodes.Ldarg_0));
             instructionsWriteContext.Add(new(CilOpCodes.Ldarg_0));
-            instructionsWriteContext.Add(new(CilOpCodes.Ldfld, contextField));
+            instructionsWriteContext.Add(new(CilOpCodes.Ldfld, ContextInfo.ContextField));
             instructionsWriteContext.Add(new(CilOpCodes.Ldfld, fieldMapping.Value));
             instructionsWriteContext.Add(new(CilOpCodes.Stfld, fieldMapping.Key));
         }
@@ -380,6 +429,5 @@ public sealed class StateMachine : ILogicContainer
                 .. instructionsWriteContext,
                 new(instructionSwitchEnd.OpCode, instructionSwitchEnd.Operand)
             ]);
-        return contextField;
     }
 }

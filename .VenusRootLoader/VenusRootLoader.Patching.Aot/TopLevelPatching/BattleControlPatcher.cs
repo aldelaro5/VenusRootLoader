@@ -34,6 +34,11 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             .Single(x => x.Name == "AIAttack");
         StateMachine aiAttackStateMachine = new(gameModuleData, aiAttackMethod);
         ExtractAIAttack(gameModuleData, aiAttackStateMachine);
+
+        MethodDefinition useItemMethod = type.Methods
+            .Single(x => x.Name == "UseItem");
+        StateMachine useItemStateMachine = new(gameModuleData, useItemMethod);
+        ExtractUseItem(gameModuleData, useItemStateMachine);
     }
 
     private static void PatchDoAction(
@@ -282,6 +287,43 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             "AIAttack",
             newSwitchInstruction,
             beforeAiAttackSwitch,
+            null,
+            null);
+    }
+
+    private static void ExtractUseItem(GameModuleData gameModuleData, StateMachine useItemStateMachine)
+    {
+        CilInstructionCollection useItemMoveNextIl = useItemStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
+        AsmResolverIlCursor ilCursor = new(useItemMoveNextIl);
+
+        ilCursor.MatchNext(x => x.OpCode == Switch);
+        ilCursor.Index++;
+        ilCursor.MatchNext(x => x.OpCode == Switch);
+        ilCursor.Index++;
+        ilCursor.MatchNext(x => x.OpCode == Switch);
+
+        CilInstruction useItemSwitch = ilCursor.Current();
+        ilCursor.MatchPrevious(x => x.IsLdloc());
+        CilInstruction beforeUseItemSetupSwitch = ilCursor.Current();
+
+        useItemStateMachine.AssignNewContext(
+            "UseItemBattleEffectContext",
+            [
+                useItemStateMachine.AddContextFieldFromSpeakableFieldName("id", true),
+                useItemStateMachine.AddContextFieldFromSpeakableFieldName("san", false),
+                useItemStateMachine.AddContextFieldFromSpeakableFieldName("itemuse", true),
+                useItemStateMachine.AddContextFieldFromSpeakableFieldName("i", true),
+                useItemStateMachine.AddContextFieldFromLocalIndex(4, true),
+                useItemStateMachine.AddContextFieldFromLocalIndex(5, false)
+            ]);
+
+        SwitchArmsCoroutineIntoMethodsExtractor useItemSetupSwitchArmsExtractor = new(
+            gameModuleData,
+            useItemStateMachine);
+        useItemSetupSwitchArmsExtractor.ExtractSwitchArms(
+            "UseItemBattleEffect",
+            useItemSwitch,
+            beforeUseItemSetupSwitch,
             null,
             null);
     }

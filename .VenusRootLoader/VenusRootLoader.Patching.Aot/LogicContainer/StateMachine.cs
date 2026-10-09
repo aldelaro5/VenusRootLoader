@@ -4,6 +4,7 @@ using AsmResolver.PE.DotNet.Cil;
 using AsmResolver.PE.DotNet.Metadata.Tables;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using VenusRootLoader.Patching.Aot.ContextSource;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
 namespace VenusRootLoader.Patching.Aot.LogicContainer;
@@ -52,7 +53,7 @@ public sealed class StateMachine : ILogicContainer
         /// <summary>
         /// The field from the outer <see cref="StateMachine"/> to map to a context.
         /// </summary>
-        public required FieldDefinition ContextSource { get; init; }
+        public required IContextSource ContextSource { get; init; }
 
         /// <summary>
         /// The name the context field will be mapped to. This can be different from the name of the <see cref="ContextSource"/>.
@@ -86,7 +87,7 @@ public sealed class StateMachine : ILogicContainer
         /// After patching the initialize and commit part of the context, this represents the mapping from the state
         /// machine fields to the context fields. This is empty if the context hasn't been patched yet.
         /// </summary>
-        public Dictionary<FieldDefinition, FieldDefinition> ContextFieldsMapping { get; } = new();
+        public Dictionary<object, FieldDefinition> ContextFieldsMapping { get; } = new();
 
         /// <summary>
         /// The field generated in the state machine after patching the context. This is null if it hasn't been patched yet.
@@ -307,22 +308,35 @@ public sealed class StateMachine : ILogicContainer
     /// field for an inner <see cref="StateMachine"/> to receive and for that field to be commited back to the outer
     /// <see cref="StateMachine"/>.
     /// </summary>
-    /// <param name="speakableName">A speakable version of the field name to map from this state machine.</param>
+    /// <param name="fieldSpeakableName">A speakable version of the field name to map from this state machine.</param>
     /// <param name="readOnly">If true, the context field will not be commited back to the container.</param>
     /// <param name="mappedName">An optional name to use as the context field when mapping it. If it is null, the name will
     /// be a speakable version of the original name.</param>
     /// <returns>A <see cref="StateMachineContextField"/> with the matching field, name and with a
     /// <see cref="StateMachineContextField.ReadOnly"/> value of false.</returns>
-    public StateMachineContextField AddContextFieldFromSpeakableName(
-        string speakableName,
+    public StateMachineContextField AddContextFieldFromSpeakableFieldName(
+        string fieldSpeakableName,
         bool readOnly,
         string? mappedName = null)
     {
         return new StateMachineContextField
         {
-            ContextSource = GetFieldFromSpeakableName(speakableName),
-            FieldName = mappedName ?? speakableName,
+            ContextSource = new FieldContextSource(GetFieldFromSpeakableName(fieldSpeakableName)),
+            FieldName = mappedName ?? fieldSpeakableName,
             ReadOnly = readOnly,
+        };
+    }
+
+    public StateMachineContextField AddContextFieldFromLocalIndex(
+        int localIndex,
+        bool readOnly,
+        string? mappedName = null)
+    {
+        return new StateMachineContextField
+        {
+            ContextSource = new LocalContextSource(MoveNextMethod.CilMethodBody!.LocalVariables[localIndex]),
+            FieldName = mappedName ?? "V_" + localIndex,
+            ReadOnly = readOnly
         };
     }
 
@@ -384,7 +398,7 @@ public sealed class StateMachine : ILogicContainer
             ]);
         contextType.Methods.Add(contextCtor);
 
-        Dictionary<FieldDefinition, FieldDefinition> fieldsToCommitContextMapping = new();
+        Dictionary<object, FieldDefinition> fieldsToCommitContextMapping = new();
         foreach (StateMachineContextField stateMachineContextField in ContextInfo.ContextFields)
         {
             string unspeakableName = stateMachineContextField.FieldName;
@@ -397,12 +411,12 @@ public sealed class StateMachine : ILogicContainer
             FieldDefinition newContextField = new(
                 speakableName,
                 FieldAttributes.Public,
-                stateMachineContextField.ContextSource.Signature);
+                stateMachineContextField.ContextSource.TypeSignature);
 
             contextType.Fields.Add(newContextField);
-            ContextInfo.ContextFieldsMapping.Add(stateMachineContextField.ContextSource, newContextField);
+            ContextInfo.ContextFieldsMapping.Add(stateMachineContextField.ContextSource.Key, newContextField);
             if (!stateMachineContextField.ReadOnly)
-                fieldsToCommitContextMapping.Add(stateMachineContextField.ContextSource, newContextField);
+                fieldsToCommitContextMapping.Add(stateMachineContextField.ContextSource.Key, newContextField);
         }
 
         declaringType.NestedTypes.Add(contextType);
@@ -416,11 +430,21 @@ public sealed class StateMachine : ILogicContainer
         StateMachineType.Fields.Add(ContextInfo.ContextField);
 
         List<CilInstruction> instructionsInitializeContext = new();
-        foreach (KeyValuePair<FieldDefinition, FieldDefinition> fieldMapping in ContextInfo.ContextFieldsMapping)
+        foreach (KeyValuePair<object, FieldDefinition> fieldMapping in ContextInfo.ContextFieldsMapping)
         {
             instructionsInitializeContext.Add(new(Dup));
-            instructionsInitializeContext.Add(new(Ldarg_0));
-            instructionsInitializeContext.Add(new(Ldfld, fieldMapping.Key));
+
+            switch (fieldMapping.Key)
+            {
+                case FieldDefinition:
+                    instructionsInitializeContext.Add(new(Ldarg_0));
+                    instructionsInitializeContext.Add(new(Ldfld, fieldMapping.Key));
+                    break;
+                case CilLocalVariable:
+                    instructionsInitializeContext.Add(new(Ldloc, fieldMapping.Key));
+                    break;
+            }
+
             instructionsInitializeContext.Add(new(Stfld, fieldMapping.Value));
         }
 
@@ -434,13 +458,24 @@ public sealed class StateMachine : ILogicContainer
             ]);
 
         List<CilInstruction> instructionsWriteContext = new();
-        foreach (KeyValuePair<FieldDefinition, FieldDefinition> fieldMapping in fieldsToCommitContextMapping)
+        foreach (KeyValuePair<object, FieldDefinition> fieldMapping in fieldsToCommitContextMapping)
         {
-            instructionsWriteContext.Add(new(Ldarg_0));
+            if (fieldMapping.Key is FieldDefinition)
+                instructionsWriteContext.Add(new(Ldarg_0));
+
             instructionsWriteContext.Add(new(Ldarg_0));
             instructionsWriteContext.Add(new(Ldfld, ContextInfo.ContextField));
             instructionsWriteContext.Add(new(Ldfld, fieldMapping.Value));
-            instructionsWriteContext.Add(new(Stfld, fieldMapping.Key));
+
+            switch (fieldMapping.Key)
+            {
+                case FieldDefinition:
+                    instructionsWriteContext.Add(new(Stfld, fieldMapping.Key));
+                    break;
+                case CilLocalVariable:
+                    instructionsWriteContext.Add(new(Stloc, fieldMapping.Key));
+                    break;
+            }
         }
 
         int indexSwitchEnd = moveNextIl.GetIndexByOffset(commitContextIlOffset);

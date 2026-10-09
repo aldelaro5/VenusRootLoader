@@ -64,11 +64,11 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
         doActionStateMachine.AssignNewContext(
             "PlayerActionContext",
             [
-                doActionStateMachine.AddContextFieldFromSpeakableName("entity", true),
-                doActionStateMachine.AddContextFieldFromSpeakableName("actionid", true),
-                doActionStateMachine.AddContextFieldFromSpeakableName("startp", true),
-                doActionStateMachine.AddContextFieldFromSpeakableName("startstate", false),
-                doActionStateMachine.AddContextFieldFromSpeakableName("targetentity", true),
+                doActionStateMachine.AddContextFieldFromSpeakableFieldName("entity", true),
+                doActionStateMachine.AddContextFieldFromSpeakableFieldName("actionid", true),
+                doActionStateMachine.AddContextFieldFromSpeakableFieldName("startp", true),
+                doActionStateMachine.AddContextFieldFromSpeakableFieldName("startstate", false),
+                doActionStateMachine.AddContextFieldFromSpeakableFieldName("targetentity", true),
             ]);
 
         doActionSwitchArmsExtractor.ExtractSwitchArms(
@@ -98,14 +98,14 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
         doActionStateMachine.AssignNewContext(
             "EnemyActionContext",
             [
-                doActionStateMachine.AddContextFieldFromSpeakableName("entity", true),
-                doActionStateMachine.AddContextFieldFromSpeakableName("actionid", false),
-                doActionStateMachine.AddContextFieldFromSpeakableName("randomposafter", false),
-                doActionStateMachine.AddContextFieldFromSpeakableName("fled", false),
-                doActionStateMachine.AddContextFieldFromSpeakableName("nocharm", false),
-                doActionStateMachine.AddContextFieldFromSpeakableName("startp", false),
-                doActionStateMachine.AddContextFieldFromSpeakableName("startstate", false),
-                doActionStateMachine.AddContextFieldFromSpeakableName("heavystrike", true, "hardmode")
+                doActionStateMachine.AddContextFieldFromSpeakableFieldName("entity", true),
+                doActionStateMachine.AddContextFieldFromSpeakableFieldName("actionid", false),
+                doActionStateMachine.AddContextFieldFromSpeakableFieldName("randomposafter", false),
+                doActionStateMachine.AddContextFieldFromSpeakableFieldName("fled", false),
+                doActionStateMachine.AddContextFieldFromSpeakableFieldName("nocharm", false),
+                doActionStateMachine.AddContextFieldFromSpeakableFieldName("startp", false),
+                doActionStateMachine.AddContextFieldFromSpeakableFieldName("startstate", false),
+                doActionStateMachine.AddContextFieldFromSpeakableFieldName("heavystrike", true, "hardmode")
             ]);
 
         doActionSwitchArmsExtractor.ExtractSwitchArms(
@@ -156,12 +156,12 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
         doCommandStateMachine.AssignNewContext(
             "DoCommandSetupContext",
             [
-                doCommandStateMachine.AddContextFieldFromSpeakableName("timer", true),
-                doCommandStateMachine.AddContextFieldFromSpeakableName("commandtype", true),
-                doCommandStateMachine.AddContextFieldFromSpeakableName("data", true),
-                doCommandStateMachine.AddContextFieldFromSpeakableName("internaldata", false),
-                doCommandStateMachine.AddContextFieldFromSpeakableName("intdata", false),
-                doCommandStateMachine.AddContextFieldFromSpeakableName("letters", false)
+                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("timer", true),
+                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("commandtype", true),
+                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("data", true),
+                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("internaldata", false),
+                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("intdata", false),
+                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("letters", false)
             ]);
 
         SwitchArmsCoroutineIntoMethodsExtractor doCommandSetupSwitchArmsExtractor = new(
@@ -188,14 +188,14 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
         doCommandStateMachine.AssignNewContext(
             "DoCommandExecutionContext",
             [
-                doCommandStateMachine.AddContextFieldFromSpeakableName("timer", true),
-                doCommandStateMachine.AddContextFieldFromSpeakableName("commandtype", true),
-                doCommandStateMachine.AddContextFieldFromSpeakableName("data", true),
-                doCommandStateMachine.AddContextFieldFromSpeakableName("internaldata", true),
-                doCommandStateMachine.AddContextFieldFromSpeakableName("initialtimer", true),
-                doCommandStateMachine.AddContextFieldFromSpeakableName("infinite", true),
-                doCommandStateMachine.AddContextFieldFromSpeakableName("intdata", true),
-                doCommandStateMachine.AddContextFieldFromSpeakableName("letters", true)
+                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("timer", true),
+                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("commandtype", true),
+                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("data", true),
+                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("internaldata", true),
+                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("initialtimer", true),
+                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("infinite", true),
+                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("intdata", true),
+                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("letters", true)
             ]);
 
         SwitchArmsCoroutineExtractor doCommandSwitchArmsExtractor = new(gameModuleData, doCommandStateMachine);
@@ -270,11 +270,11 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
         aiAttackStateMachine.AssignNewContext(
             "AIAttackContext",
             [
-                aiAttackStateMachine.AddContextFieldFromSpeakableName("targetid", false),
-                aiAttackStateMachine.AddContextFieldFromSpeakableName("dammod", true),
-                aiAttackStateMachine.AddContextFieldFromSpeakableName("nodamage", false),
-                aiAttackStateMachine.AddContextFieldFromSpeakableName("sp", true),
-                aiAttackStateMachine.AddContextFieldFromSpeakableName("aid", true)
+                aiAttackStateMachine.AddContextFieldFromSpeakableFieldName("targetid", false),
+                aiAttackStateMachine.AddContextFieldFromSpeakableFieldName("dammod", true),
+                aiAttackStateMachine.AddContextFieldFromSpeakableFieldName("nodamage", false),
+                aiAttackStateMachine.AddContextFieldFromSpeakableFieldName("sp", true),
+                aiAttackStateMachine.AddContextFieldFromSpeakableFieldName("aid", true)
             ]);
 
         SwitchArmsCoroutineExtractor aiAttackSwitchArmsExtractor = new(gameModuleData, aiAttackStateMachine);

@@ -170,7 +170,9 @@ public abstract class LogicExtractor<TOuter, TInner>
             {
                 // This will reindex the locals as they are used. This means the inner container will only have the
                 // locals in needs instead of having all the locals of the other ones.
-                ProcessLocalOperationInstruction(instruction);
+                CilLocalVariable local =
+                    instruction.GetLocalVariable(OuterLogic.ReceivingMethod.CilMethodBody!.LocalVariables);
+                ProcessLocalOperationInstruction(instruction, local);
             }
             else if ((instruction.OpCode == Ldfld || instruction.OpCode == Ldflda || instruction.OpCode == Stfld) &&
                      instruction.Operand is FieldDefinition fieldOperand)
@@ -266,7 +268,9 @@ public abstract class LogicExtractor<TOuter, TInner>
             .ToList();
     }
 
-    protected virtual void ProcessLocalOperationInstruction(CilInstruction instruction)
+    protected virtual void ProcessLocalOperationInstruction(
+        CilInstruction instruction,
+        CilLocalVariable cilLocalVariable)
     {
         CilLocalVariable local = instruction
             .GetLocalVariable(OuterLogic.ReceivingMethod.CilMethodBody!.LocalVariables);

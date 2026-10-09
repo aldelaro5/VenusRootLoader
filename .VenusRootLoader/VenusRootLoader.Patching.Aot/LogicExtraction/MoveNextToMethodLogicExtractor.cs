@@ -36,26 +36,58 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
             instruction.ReplaceWithNop();
     }
 
-    protected override void ProcessLocalOperationInstruction(CilInstruction instruction)
+    protected override void ProcessLocalOperationInstruction(
+        CilInstruction instruction,
+        CilLocalVariable local)
     {
-        if (OuterLogic.EnumeratorMethod.IsStatic)
+        if (OuterLogic.ContextInfo is not null && OuterLogic.ContextInfo.ContextFieldsMapping.TryGetValue(
+                local,
+                out FieldDefinition? fieldInContext))
         {
-            base.ProcessLocalOperationInstruction(instruction);
+            if (instruction.IsLdloc())
+            {
+                InnerBody.Instructions.Add(Ldarg_1);
+                instruction.ReplaceWith(Ldfld, fieldInContext);
+            }
+            else if (instruction.OpCode == Ldloca || instruction.OpCode == Ldloca_S)
+            {
+                InnerBody.Instructions.Add(Ldarg_1);
+                instruction.ReplaceWith(Ldflda, fieldInContext);
+            }
+            else if (instruction.IsStloc())
+            {
+                int indexLastNop = -1;
+                int stackScore = -1;
+                for (int j = InnerBody.Instructions.Count - 1; j >= 0; j--)
+                {
+                    CilInstruction inst = InnerBody.Instructions[j];
+                    stackScore += inst.GetStackPushCount();
+                    stackScore -= inst.GetStackPopCount(true);
+                    if (stackScore != 0)
+                        continue;
+
+                    indexLastNop = j;
+                    break;
+                }
+
+                InnerBody.Instructions.Insert(indexLastNop, Ldarg_1);
+                instruction.ReplaceWith(Stfld, fieldInContext);
+            }
+
             return;
         }
 
-        CilLocalVariable local = instruction.GetLocalVariable(OuterLogic.ReceivingMethod.CilMethodBody!.LocalVariables);
-        if (local.Index != 1)
+        if (OuterLogic.EnumeratorMethod.IsStatic || local.Index != 1)
         {
-            base.ProcessLocalOperationInstruction(instruction);
+            base.ProcessLocalOperationInstruction(instruction, local);
             return;
         }
 
         if (instruction.IsLdloc())
-            instruction.ReplaceWith(Ldarg, (byte)0);
-        else if (instruction.OpCode == Ldarga || instruction.OpCode == Ldarga_S)
+            instruction.ReplaceWith(Ldarg_0);
+        else if (instruction.OpCode == Ldloca || instruction.OpCode == Ldloca_S)
             instruction.ReplaceWith(Ldarga, (byte)0);
-        else if (instruction.IsStarg())
+        else if (instruction.IsStloc())
             instruction.ReplaceWith(Starg, (byte)0);
     }
 

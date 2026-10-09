@@ -71,7 +71,7 @@ internal sealed class MoveNextLogicExtractor : LogicExtractor<StateMachine, Stat
         GameModuleData gameModuleData,
         TypeDefinition typeToCloneFieldsFrom,
         StateMachine innerStateMachine,
-        Dictionary<FieldDefinition, FieldDefinition> fieldsContextMapping)
+        Dictionary<object, FieldDefinition> fieldsContextMapping)
     {
         MemberCloner cloner = new(gameModuleData.Module);
         foreach (FieldDefinition fieldDefinition in typeToCloneFieldsFrom.Fields)

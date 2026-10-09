@@ -7,6 +7,7 @@ public sealed class LocalContextSource : IContextSource
 {
     private readonly CilLocalVariable _local;
 
+    public object MappingKey => _local;
     public object Key { get; }
     public TypeSignature TypeSignature => _local.VariableType;
 

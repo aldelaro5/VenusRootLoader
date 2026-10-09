@@ -28,15 +28,16 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
     {
     }
 
-    protected override void ProcessArgumentOperationInstruction(
+    protected override CilInstruction? ProcessArgumentOperationInstruction(
         CilInstruction instruction,
         Parameter instructionParameter)
     {
         if (instructionParameter.MethodSignatureIndex == 0)
             instruction.ReplaceWithNop();
+        return null;
     }
 
-    protected override void ProcessLocalOperationInstruction(
+    protected override CilInstruction? ProcessLocalOperationInstruction(
         CilInstruction instruction,
         CilLocalVariable local)
     {
@@ -46,29 +47,27 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
         {
             if (instruction.IsLdloc())
             {
-                InnerBody.Instructions.Add(Ldarg_1);
-                instruction.ReplaceWith(Ldfld, fieldInContext);
-            }
-            else if (instruction.OpCode == Ldloca || instruction.OpCode == Ldloca_S)
-            {
-                InnerBody.Instructions.Add(Ldarg_1);
-                instruction.ReplaceWith(Ldflda, fieldInContext);
-            }
-            else if (instruction.IsStloc())
-            {
-                int indexLastNop = GetInstructionIndexForLoadBeforeStore();
-                InnerBody.Instructions.Insert(indexLastNop, Ldarg_1);
-                instruction.ReplaceWith(Stfld, fieldInContext);
+                instruction.ReplaceWith(InnerLogic.ReceivingMethod.IsStatic ? Ldarg_0 : Ldarg_1);
+                return new(Ldfld, fieldInContext);
             }
 
-            return;
+            if (instruction.OpCode == Ldloca || instruction.OpCode == Ldloca_S)
+            {
+                instruction.ReplaceWith(InnerLogic.ReceivingMethod.IsStatic ? Ldarg_0 : Ldarg_1);
+                return new(Ldflda, fieldInContext);
+            }
+
+            if (instruction.IsStloc())
+            {
+                int indexLastNop = GetInstructionIndexForLoadBeforeStore();
+                InnerBody.Instructions.Insert(indexLastNop, InnerLogic.ReceivingMethod.IsStatic ? Ldarg_0 : Ldarg_1);
+                instruction.ReplaceWith(Stfld, fieldInContext);
+                return null;
+            }
         }
 
         if (OuterLogic.EnumeratorMethod.IsStatic || local.Index != 1)
-        {
-            base.ProcessLocalOperationInstruction(instruction, local);
-            return;
-        }
+            return base.ProcessLocalOperationInstruction(instruction, local);
 
         if (instruction.IsLdloc())
             instruction.ReplaceWith(Ldarg_0);
@@ -76,6 +75,8 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
             instruction.ReplaceWith(Ldarga, (byte)0);
         else if (instruction.IsStloc())
             instruction.ReplaceWith(Starg, (byte)0);
+
+        return null;
     }
 
     protected override void ProcessFieldOperationInstruction(
@@ -137,7 +138,7 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
         MethodLogicContainer otherContainer,
         CilInstruction instructionAfter)
     {
-        return MethodLogicContainer.GetTransferToMethodIl(
+        return MethodLogicContainer.GetTransferToOtherMethodIl(
             otherContainer,
             InnerLogic.ReceivingMethod.Parameters.ToList());
     }

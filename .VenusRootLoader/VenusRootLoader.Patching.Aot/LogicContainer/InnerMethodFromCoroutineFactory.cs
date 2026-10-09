@@ -5,7 +5,7 @@ using AsmResolver.PE.DotNet.Metadata.Tables;
 
 namespace VenusRootLoader.Patching.Aot.LogicContainer;
 
-public sealed class InnerMethodLogicContainerFactory : IInnerLogicContainerFactory<StateMachine, MethodLogicContainer>
+public sealed class InnerMethodFromCoroutineFactory : IInnerLogicContainerFactory<StateMachine, MethodLogicContainer>
 {
     public MethodLogicContainer Create(
         StateMachine outerContainer,

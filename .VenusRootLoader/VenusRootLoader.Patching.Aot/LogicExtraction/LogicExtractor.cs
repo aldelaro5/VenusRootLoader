@@ -45,7 +45,7 @@ public abstract class LogicExtractor<TOuter, TInner>
     /// </summary>
     /// <param name="instruction">The instruction involved.</param>
     /// <param name="instructionParameter"></param>
-    protected abstract void ProcessArgumentOperationInstruction(
+    protected abstract CilInstruction? ProcessArgumentOperationInstruction(
         CilInstruction instruction,
         Parameter instructionParameter);
 
@@ -155,15 +155,29 @@ public abstract class LogicExtractor<TOuter, TInner>
         // to clash with the original so this makes sure we won't be doing that.
         MethodDefinition outerMethodClone = CreateOuterMethodClone();
         usedExceptionHandlerIndexes = TransferExceptionHandlersFromClone(outerMethodClone);
-        List<CilInstruction> innerIl = GetIlSegmentToProcessFromClone(outerMethodClone);
+        List<CilInstruction> outerCloneIl = GetIlSegmentToProcessFromClone(outerMethodClone);
 
-        foreach (CilInstruction instruction in innerIl)
+        foreach (CilInstruction instruction in outerCloneIl)
         {
-            if (instruction.IsLdarg() || instruction.OpCode == Ldarga || instruction.OpCode == Ldarga_S ||
-                instruction.IsStarg())
+            if (instruction.Operand is MethodDefinition methodDefinition
+                && methodDefinition.Name == OuterLogic.ReceivingMethod.Name
+                && OuterLogic.ReceivingMethod.Parameters.Select(x => x.ParameterType)
+                    .SequenceEqual(methodDefinition.Parameters.Select(x => x.ParameterType)))
+            {
+                instruction.Operand = OuterLogic.ReceivingMethod;
+            }
+            else if (instruction.IsLdarg() || instruction.OpCode == Ldarga || instruction.OpCode == Ldarga_S ||
+                     instruction.IsStarg())
             {
                 Parameter instructionParameter = (Parameter)instruction.Operand!;
-                ProcessArgumentOperationInstruction(instruction, instructionParameter);
+                CilInstruction? additionalInstruction =
+                    ProcessArgumentOperationInstruction(instruction, instructionParameter);
+                if (additionalInstruction is not null)
+                {
+                    ProcessRegularInstruction(instruction, ref instructionNeedsLabelFix);
+                    InnerBody.Instructions.Add(additionalInstruction);
+                    continue;
+                }
             }
             else if (instruction.IsLdloc() || instruction.OpCode == Ldloca || instruction.OpCode == Ldloca_S ||
                      instruction.IsStloc())
@@ -172,7 +186,13 @@ public abstract class LogicExtractor<TOuter, TInner>
                 // locals in needs instead of having all the locals of the other ones.
                 CilLocalVariable local =
                     instruction.GetLocalVariable(OuterLogic.ReceivingMethod.CilMethodBody!.LocalVariables);
-                ProcessLocalOperationInstruction(instruction, local);
+                CilInstruction? additionalInstruction = ProcessLocalOperationInstruction(instruction, local);
+                if (additionalInstruction is not null)
+                {
+                    ProcessRegularInstruction(instruction, ref instructionNeedsLabelFix);
+                    InnerBody.Instructions.Add(additionalInstruction);
+                    continue;
+                }
             }
             else if ((instruction.OpCode == Ldfld || instruction.OpCode == Ldflda || instruction.OpCode == Stfld) &&
                      instruction.Operand is FieldDefinition fieldOperand)
@@ -195,25 +215,34 @@ public abstract class LogicExtractor<TOuter, TInner>
                 }
             }
 
-            BeforeAddingInstruction(instruction);
-
-            InnerBody.Instructions.Add(instruction);
-
-            if (instructionNeedsLabelFix is null)
-                continue;
-
-            // If we had processed a special branch earlier and this branch was conditional, the way we would make it work
-            // is have the false segment be a branch instruction that skips over the instruction of the true segment.
-            // Since the branch instruction needs to lead to the first instruction after the true segment, we need to fix
-            // the label after that instruction was processed.
-            instructionNeedsLabelFix.Operand = InnerBody.Instructions[^1].CreateLabel();
-            instructionNeedsLabelFix = null;
+            ProcessRegularInstruction(instruction, ref instructionNeedsLabelFix);
         }
 
+        int lastProcessedInstructionIndex = InnerBody.Instructions.Count;
         PostProcessExtraction();
+        instructionNeedsLabelFix?.Operand = lastProcessedInstructionIndex < InnerBody.Instructions.Count
+            ? InnerBody.Instructions[lastProcessedInstructionIndex].CreateLabel()
+            : InnerBody.Instructions[^1].CreateLabel();
 
         InnerBody.Instructions.OptimizeMacros();
         InnerBody.Instructions.CalculateOffsets();
+    }
+
+    private void ProcessRegularInstruction(CilInstruction instruction, ref CilInstruction? instructionNeedsLabelFix)
+    {
+        BeforeAddingInstruction(instruction);
+
+        InnerBody.Instructions.Add(instruction);
+
+        if (instructionNeedsLabelFix is null)
+            return;
+
+        // If we had processed a special branch earlier and this branch was conditional, the way we would make it work
+        // is have the false segment be a branch instruction that skips over the instruction of the true segment.
+        // Since the branch instruction needs to lead to the first instruction after the true segment, we need to fix
+        // the label after that instruction was processed.
+        instructionNeedsLabelFix.Operand = InnerBody.Instructions[^1].CreateLabel();
+        instructionNeedsLabelFix = null;
     }
 
     private MethodDefinition CreateOuterMethodClone()
@@ -268,7 +297,7 @@ public abstract class LogicExtractor<TOuter, TInner>
             .ToList();
     }
 
-    protected virtual void ProcessLocalOperationInstruction(
+    protected virtual CilInstruction? ProcessLocalOperationInstruction(
         CilInstruction instruction,
         CilLocalVariable cilLocalVariable)
     {
@@ -284,6 +313,7 @@ public abstract class LogicExtractor<TOuter, TInner>
         }
 
         instruction.Operand = mappedLocal;
+        return null;
     }
 
     private void ProcessFieldOperationInstruction(FieldDefinition fieldOperand, CilInstruction instruction)

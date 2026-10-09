@@ -14,7 +14,7 @@ public sealed class MoveNextToMethodLogicExtractorFactory : ILogicExtractorFacto
     {
         return new MoveNextToMethodLogicExtractor(
             outerContainer,
-            new InnerMethodLogicContainerFactory(),
+            new InnerMethodFromCoroutineFactory(),
             gameModuleData,
             containerName,
             innerFirstInstruction,

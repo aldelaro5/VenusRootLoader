@@ -7,6 +7,7 @@ public sealed class FieldContextSource : IContextSource
 {
     private readonly FieldDefinition _field;
 
+    public object MappingKey => _field;
     public object Key { get; }
     public TypeSignature TypeSignature => _field.Signature!.FieldType;
 

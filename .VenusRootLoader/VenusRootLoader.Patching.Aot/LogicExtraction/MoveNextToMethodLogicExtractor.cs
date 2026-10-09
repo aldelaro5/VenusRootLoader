@@ -124,10 +124,9 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
         MethodLogicContainer otherContainer,
         CilInstruction instructionAfter)
     {
-        List<FieldDefinition> fieldArguments = OuterLogic.ContextInfo?.ContextField is not null
-            ? [OuterLogic.ContextInfo.ContextField]
-            : [];
-        return StateMachine.GetTransferToMethodIl(otherContainer, fieldArguments, instructionAfter.CreateLabel());
+        return MethodLogicContainer.GetTransferToMethodIl(
+            otherContainer,
+            InnerLogic.ReceivingMethod.Parameters.ToList());
     }
 
     protected override void PostProcessExtraction()

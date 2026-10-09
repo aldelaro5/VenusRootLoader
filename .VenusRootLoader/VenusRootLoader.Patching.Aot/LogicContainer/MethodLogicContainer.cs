@@ -1,5 +1,8 @@
 using AsmResolver.DotNet;
 using AsmResolver.DotNet.Code.Cil;
+using AsmResolver.DotNet.Collections;
+using AsmResolver.PE.DotNet.Cil;
+using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
 namespace VenusRootLoader.Patching.Aot.LogicContainer;
 
@@ -77,5 +80,20 @@ public sealed class MethodLogicContainer : ILogicContainer
     public MethodLogicContainer(MethodDefinition receivingMethod)
     {
         ReceivingMethod = receivingMethod;
+    }
+
+    public static List<CilInstruction> GetTransferToMethodIl(
+        MethodLogicContainer otherMethod,
+        List<Parameter> parameterArguments)
+    {
+        List<CilInstruction> stateTransitionIl = [];
+        if (!otherMethod.ReceivingMethod.IsStatic)
+            stateTransitionIl.Add(new(Ldarg_0));
+
+        foreach (Parameter parameterArgument in parameterArguments)
+            stateTransitionIl.Add(new(Ldarg, parameterArgument));
+
+        stateTransitionIl.Add(new(Call, otherMethod.ReceivingMethod));
+        return stateTransitionIl;
     }
 }

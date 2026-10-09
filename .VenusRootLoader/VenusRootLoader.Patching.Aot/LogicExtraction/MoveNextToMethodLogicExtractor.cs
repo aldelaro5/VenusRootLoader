@@ -56,20 +56,7 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
             }
             else if (instruction.IsStloc())
             {
-                int indexLastNop = -1;
-                int stackScore = -1;
-                for (int j = InnerBody.Instructions.Count - 1; j >= 0; j--)
-                {
-                    CilInstruction inst = InnerBody.Instructions[j];
-                    stackScore += inst.GetStackPushCount();
-                    stackScore -= inst.GetStackPopCount(true);
-                    if (stackScore != 0)
-                        continue;
-
-                    indexLastNop = j;
-                    break;
-                }
-
+                int indexLastNop = GetInstructionIndexForLoadBeforeStore();
                 InnerBody.Instructions.Insert(indexLastNop, Ldarg_1);
                 instruction.ReplaceWith(Stfld, fieldInContext);
             }
@@ -107,21 +94,15 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
         CilInstruction instruction,
         FieldDefinition fieldInContext)
     {
-        // Mapping a context field has a complication: the field belongs to the context, not to a field of the state machine.
-        // Because of this, we need to insert an ldarg.1, but to figure out where, we do the assumption that the state machine
-        // was placed on the stack using ldarg.0, which we NOPed earlier. We need to look for the NOP so we can insert our
-        // ldfld and have the field resolve correctly.
-        int indexLastNop = -1;
-        for (int j = InnerBody.Instructions.Count - 1; j >= 0; j--)
+        if (instruction.OpCode == Ldfld || instruction.OpCode == Ldflda)
         {
-            if (InnerBody.Instructions[j].OpCode != Nop)
-                continue;
-
-            indexLastNop = j;
-            break;
+            InnerBody.Instructions.Add(Ldarg_1);
+            instruction.Operand = fieldInContext;
+            return;
         }
 
-        InnerBody.Instructions[indexLastNop].ReplaceWith(Ldarg_1);
+        int indexLastNop = GetInstructionIndexForLoadBeforeStore();
+        InnerBody.Instructions.Insert(indexLastNop, Ldarg_1);
         instruction.Operand = fieldInContext;
     }
 

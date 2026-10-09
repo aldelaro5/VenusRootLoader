@@ -181,6 +181,13 @@ internal sealed class MoveNextLogicExtractor : LogicExtractor<StateMachine, Stat
         CilInstruction instruction,
         FieldDefinition fieldInContext)
     {
+        if (instruction.OpCode == Ldfld || instruction.OpCode == Ldflda)
+        {
+            InnerBody.Instructions.Add(Ldfld, _innerContextField!);
+            instruction.Operand = fieldInContext;
+            return;
+        }
+
         // Mapping a context field has a complication: the field belongs to the context, not to a field of the state machine.
         // Because of this, we need to insert an ldfld, but to figure out where, we do the assumption that the state mmachine
         // was placed on the stack using ldarg.0. We need to look for one that didn't had an ldfld right after so we can

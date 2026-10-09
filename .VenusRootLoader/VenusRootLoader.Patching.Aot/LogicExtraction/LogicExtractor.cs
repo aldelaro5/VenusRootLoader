@@ -434,4 +434,23 @@ public abstract class LogicExtractor<TOuter, TInner>
             return;
         }
     }
+
+    protected int GetInstructionIndexForLoadBeforeStore()
+    {
+        // We assume the stack is imbalanced by 1 pop and cumulate the transactions backwards. The moment we get back
+        // to balanced with this assumption, we know we can safely put our load instruction there.
+        int stackBalance = -1;
+        for (int j = InnerBody.Instructions.Count - 1; j >= 0; j--)
+        {
+            CilInstruction inst = InnerBody.Instructions[j];
+            stackBalance += inst.GetStackPushCount();
+            stackBalance -= inst.GetStackPopCount(true);
+            if (stackBalance != 0)
+                continue;
+
+            return j;
+        }
+
+        return InnerBody.Instructions.Count;
+    }
 }

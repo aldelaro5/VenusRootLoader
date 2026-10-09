@@ -18,10 +18,10 @@ public sealed class MethodLogicContainer : ILogicContainer
         /// <summary>
         /// The local from the outer method to map to a context.
         /// </summary>
-        public required IContextSource ContextSource { get; init; }
+        public required List<IContextSource> ContextSources { get; init; }
 
         /// <summary>
-        /// The name the context field will be mapped to. This can be different from the name of the <see cref="ContextSource"/>.
+        /// The name the context field will be mapped to. This can be different from the name of the <see cref="ContextSources"/>.
         /// </summary>
         public required string FieldName { get; init; }
 
@@ -91,7 +91,7 @@ public sealed class MethodLogicContainer : ILogicContainer
     {
         return new MethodContextField
         {
-            ContextSource = new LocalContextSource(ReceivingMethod.CilMethodBody!.LocalVariables[localIndex]),
+            ContextSources = [new LocalContextSource(ReceivingMethod.CilMethodBody!.LocalVariables[localIndex])],
             FieldName = mappedName ?? "V_" + localIndex,
             ReadOnly = readOnly
         };
@@ -104,7 +104,25 @@ public sealed class MethodLogicContainer : ILogicContainer
     {
         return new MethodContextField
         {
-            ContextSource = new ArgumentContextSource(ReceivingMethod.Parameters[argumentIndex]),
+            ContextSources = [new ArgumentContextSource(ReceivingMethod.Parameters[argumentIndex])],
+            FieldName = mappedName ?? "A_" + argumentIndex,
+            ReadOnly = readOnly
+        };
+    }
+
+    public MethodContextField AddContextFieldFromArgumentIndexAndLocalIndex(
+        int argumentIndex,
+        int localIndex,
+        bool readOnly,
+        string? mappedName = null)
+    {
+        return new MethodContextField
+        {
+            ContextSources =
+            [
+                new ArgumentContextSource(ReceivingMethod.Parameters[argumentIndex]),
+                new LocalContextSource(ReceivingMethod.CilMethodBody!.LocalVariables[localIndex])
+            ],
             FieldName = mappedName ?? "A_" + argumentIndex,
             ReadOnly = readOnly
         };
@@ -152,13 +170,16 @@ public sealed class MethodLogicContainer : ILogicContainer
             FieldDefinition newContextField = new(
                 methodContextField.FieldName,
                 FieldAttributes.Public,
-                methodContextField.ContextSource.TypeSignature);
+                methodContextField.ContextSources[0].TypeSignature);
 
             contextType.Fields.Add(newContextField);
-            ContextInfo.ContextFieldsMapping.Add(methodContextField.ContextSource.MappingKey, newContextField);
-            fieldsToInitializeContextMapping.Add(methodContextField.ContextSource.Key, newContextField);
+
+            foreach (IContextSource contextSource in methodContextField.ContextSources)
+                ContextInfo.ContextFieldsMapping.Add(contextSource.MappingKey, newContextField);
+
+            fieldsToInitializeContextMapping.Add(methodContextField.ContextSources[0].Key, newContextField);
             if (!methodContextField.ReadOnly)
-                fieldsToCommitContextMapping.Add(methodContextField.ContextSource.Key, newContextField);
+                fieldsToCommitContextMapping.Add(methodContextField.ContextSources[0].Key, newContextField);
         }
 
         declaringType.NestedTypes.Add(contextType);

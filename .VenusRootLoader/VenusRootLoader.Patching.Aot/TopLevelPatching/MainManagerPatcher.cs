@@ -18,7 +18,19 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
             .OrderByDescending(x => x.Signature!.ParameterTypes.Count)
             .First();
         StateMachine setTextStateMachine = new(gameModuleData, setTextMethod);
+        ExtractSetText(gameModuleData, type, setTextStateMachine);
 
+        MethodDefinition doItemEffectMethod = type.Methods
+            .Single(x => x.Name == "DoItemEffect");
+        MethodLogicContainer methodContainer = new(doItemEffectMethod);
+        ExtractDoItemEffect(gameModuleData, methodContainer);
+    }
+
+    private static void ExtractSetText(
+        GameModuleData gameModuleData,
+        TypeDefinition type,
+        StateMachine setTextStateMachine)
+    {
         CilInstructionCollection setTextMoveNextIl =
             setTextStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
         setTextMoveNextIl.CalculateOffsets();
@@ -36,7 +48,7 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
         FixWaitCnArmBoundaries(ilCursor, switchArmLabels, setTextMoveNextIl);
         setTextMoveNextIl.CalculateOffsets();
         ilCursor.Index = indexCommandSwitch;
-        FixMissingGotoCases(ilCursor, switchArmLabels, setTextMoveNextIl);
+        FixMissingSetTextGotoCases(ilCursor, switchArmLabels, setTextMoveNextIl);
 
         setTextStateMachine.AssignNewContext(
             "SetTextCommandContext",
@@ -138,7 +150,7 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
         setTextMoveNextIl.Insert(indexSwitchArmEnd + 1, new CilInstruction(Br, instructionsToMove[0].CreateLabel()));
     }
 
-    private static void FixMissingGotoCases(
+    private static void FixMissingSetTextGotoCases(
         AsmResolverIlCursor ilCursor,
         IList<ICilLabel> switchArmLabels,
         CilInstructionCollection setTextMoveNextIl)
@@ -151,5 +163,50 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
         ilCursor.MatchNext(x => x.OpCode == Stfld);
         ilCursor.Index++;
         setTextMoveNextIl.Insert(ilCursor.Index, new CilInstruction(Br, ilCursor.Current().CreateLabel()));
+    }
+
+    private static void ExtractDoItemEffect(GameModuleData gameModuleData, MethodLogicContainer doItemEffectContainer)
+    {
+        CilInstructionCollection methodIl = doItemEffectContainer.ReceivingMethod.CilMethodBody!.Instructions;
+        AsmResolverIlCursor ilCursor = new(methodIl);
+
+        ilCursor.MatchNext(x => x.OpCode == Switch);
+
+        CilInstruction doItemEffectSwitch = ilCursor.Current();
+        IList<ICilLabel> switchArmLabels = (IList<ICilLabel>)ilCursor.Current().Operand!;
+        ilCursor.MatchPrevious(x => x.OpCode == Ldarg_0 || x.OpCode == Ldarg);
+        CilInstruction beforeDoItemEffectSwitch = ilCursor.Current();
+
+        FixMissingDoItemEffectGotoCases(ilCursor, switchArmLabels, methodIl);
+
+        doItemEffectContainer.AssignNewContext(
+            "DoItemEffectContext",
+            [
+                doItemEffectContainer.AddContextFieldFromArgumentIndexAndLocalIndex(0, 0, true),
+                doItemEffectContainer.AddContextFieldFromArgumentIndex(1, false),
+                doItemEffectContainer.AddContextFieldFromArgumentIndex(2, true),
+            ]);
+
+        SwitchArmsMethodsExtractor doItemEffectSwitchArmsExtractor = new(
+            gameModuleData,
+            doItemEffectContainer);
+        doItemEffectSwitchArmsExtractor.ExtractSwitchArms(
+            "DoItemEffect",
+            doItemEffectSwitch,
+            beforeDoItemEffectSwitch,
+            null,
+            null);
+    }
+
+    private static void FixMissingDoItemEffectGotoCases(
+        AsmResolverIlCursor ilCursor,
+        IList<ICilLabel> switchArmLabels,
+        CilInstructionCollection doItemEffectIl)
+    {
+        ilCursor.MatchNext(x => x.Offset == switchArmLabels[8].Offset);
+        ilCursor.MatchNext(x => x.OpCode == Call && ((IMethodDefOrRef)x.Operand!).Name == "BadgeIsEquipped");
+        ilCursor.MatchNext(x => x.IsConditionalBranch());
+        ilCursor.Index++;
+        doItemEffectIl.Insert(ilCursor.Index, new CilInstruction(Br, ilCursor.Current().CreateLabel()));
     }
 }

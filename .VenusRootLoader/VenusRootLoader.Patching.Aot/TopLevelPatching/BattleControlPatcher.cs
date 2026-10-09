@@ -142,10 +142,39 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
 
     private static void ExtractDoCommand(GameModuleData gameModuleData, StateMachine doCommandStateMachine)
     {
-        CilInstructionCollection doCommandMoveNextIl =
-            doCommandStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
+        CilInstructionCollection doCommandMoveNextIl = doCommandStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
         AsmResolverIlCursor ilCursor = new(doCommandMoveNextIl);
 
+        ilCursor.MatchNext(x => x.OpCode == Switch);
+        ilCursor.Index++;
+        ilCursor.MatchNext(x => x.OpCode == Switch);
+
+        CilInstruction doCommandSetupSwitch = ilCursor.Current();
+        ilCursor.MatchPrevious(x => x.IsLdloc() && (x.OpCode == Ldloc_2 || x.Operand is CilLocalVariable { Index: 2 }));
+        CilInstruction beforeDoCommandSetupSwitch = ilCursor.Current();
+
+        doCommandStateMachine.AssignNewContext(
+            "DoCommandSetupContext",
+            [
+                doCommandStateMachine.AddContextFieldFromSpeakableName("timer", true),
+                doCommandStateMachine.AddContextFieldFromSpeakableName("commandtype", true),
+                doCommandStateMachine.AddContextFieldFromSpeakableName("data", true),
+                doCommandStateMachine.AddContextFieldFromSpeakableName("internaldata", false),
+                doCommandStateMachine.AddContextFieldFromSpeakableName("intdata", false),
+                doCommandStateMachine.AddContextFieldFromSpeakableName("letters", false)
+            ]);
+
+        SwitchArmsCoroutineIntoMethodsExtractor doCommandSetupSwitchArmsExtractor = new(
+            gameModuleData,
+            doCommandStateMachine);
+        doCommandSetupSwitchArmsExtractor.ExtractSwitchArms(
+            "DoCommandSetup",
+            doCommandSetupSwitch,
+            beforeDoCommandSetupSwitch,
+            null,
+            null);
+
+        ilCursor.Index = 0;
         ilCursor.MatchNext(x => x.OpCode == Switch);
         ilCursor.Index++;
         ilCursor.MatchNext(x => x.OpCode == Switch);

@@ -4,6 +4,7 @@ using AsmResolver.PE.DotNet.Cil;
 using AsmResolver.PE.DotNet.Metadata.Tables;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
 namespace VenusRootLoader.Patching.Aot.LogicContainer;
 
@@ -246,36 +247,58 @@ public sealed class StateMachine : ILogicContainer
         List<CilInstruction> stateTransitionIl = [];
         if (!otherStateMachine.EnumeratorMethod.IsStatic)
         {
-            stateTransitionIl.Add(new(CilOpCodes.Ldloc_1));
-            stateTransitionIl.Add(new(CilOpCodes.Dup));
+            stateTransitionIl.Add(new(Ldloc_1));
+            stateTransitionIl.Add(new(Dup));
         }
         else
         {
             // StartCoroutine is an instance method so we need to select a surrogate for the call, we pick MainManager.instance
             // due to its globality in the game.
-            stateTransitionIl.Add(new(CilOpCodes.Ldsfld, GameModuleData.MainManagerInstance));
+            stateTransitionIl.Add(new(Ldsfld, GameModuleData.MainManagerInstance));
         }
 
         foreach (FieldDefinition fieldArgument in fieldArguments)
         {
-            stateTransitionIl.Add(new(CilOpCodes.Ldarg_0));
-            stateTransitionIl.Add(new(CilOpCodes.Ldfld, fieldArgument));
+            stateTransitionIl.Add(new(Ldarg_0));
+            stateTransitionIl.Add(new(Ldfld, fieldArgument));
         }
 
-        stateTransitionIl.Add(new(CilOpCodes.Call, otherStateMachine.EnumeratorMethod));
-        stateTransitionIl.Add(new(CilOpCodes.Call, GameModuleData.StartCoroutineMethod));
-        stateTransitionIl.Add(new(CilOpCodes.Stloc, _localCoroutine));
-        stateTransitionIl.Add(new(CilOpCodes.Ldloc, _localCoroutine));
-        stateTransitionIl.Add(new(CilOpCodes.Brfalse, labelAfter));
+        stateTransitionIl.Add(new(Call, otherStateMachine.EnumeratorMethod));
+        stateTransitionIl.Add(new(Call, GameModuleData.StartCoroutineMethod));
+        stateTransitionIl.Add(new(Stloc, _localCoroutine));
+        stateTransitionIl.Add(new(Ldloc, _localCoroutine));
+        stateTransitionIl.Add(new(Brfalse, labelAfter));
 
-        stateTransitionIl.Add(new(CilOpCodes.Ldarg_0));
-        stateTransitionIl.Add(new(CilOpCodes.Ldloc, _localCoroutine));
-        stateTransitionIl.Add(new(CilOpCodes.Stfld, CurrentField));
-        stateTransitionIl.Add(new(CilOpCodes.Ldarg_0));
+        stateTransitionIl.Add(new(Ldarg_0));
+        stateTransitionIl.Add(new(Ldloc, _localCoroutine));
+        stateTransitionIl.Add(new(Stfld, CurrentField));
+        stateTransitionIl.Add(new(Ldarg_0));
         stateTransitionIl.Add(CilInstruction.CreateLdcI4(stateNumber));
-        stateTransitionIl.Add(new(CilOpCodes.Stfld, StateField));
+        stateTransitionIl.Add(new(Stfld, StateField));
         stateTransitionIl.Add(CilInstruction.CreateLdcI4(1));
-        stateTransitionIl.Add(new(CilOpCodes.Ret));
+        stateTransitionIl.Add(new(Ret));
+        return stateTransitionIl;
+    }
+
+    public static List<CilInstruction> GetTransferToMethodIl(
+        MethodLogicContainer otherMethod,
+        List<FieldDefinition> fieldArguments,
+        ICilLabel switchEndLabel)
+    {
+        List<CilInstruction> stateTransitionIl = [];
+        if (!otherMethod.ReceivingMethod.IsStatic)
+        {
+            stateTransitionIl.Add(new(Ldloc_1));
+        }
+
+        foreach (FieldDefinition fieldArgument in fieldArguments)
+        {
+            stateTransitionIl.Add(new(Ldarg_0));
+            stateTransitionIl.Add(new(Ldfld, fieldArgument));
+        }
+
+        stateTransitionIl.Add(new(Call, otherMethod.ReceivingMethod));
+        stateTransitionIl.Add(new(Br, switchEndLabel));
         return stateTransitionIl;
     }
 
@@ -356,8 +379,8 @@ public sealed class StateMachine : ILogicContainer
         contextCtor.CilMethodBody!.Instructions.InsertRange(
             0,
             [
-                new(CilOpCodes.Ldarg_0),
-                new(CilOpCodes.Call, gameModuleData.ObjectConstructorMethod)
+                new(Ldarg_0),
+                new(Call, gameModuleData.ObjectConstructorMethod)
             ]);
         contextType.Methods.Add(contextCtor);
 
@@ -395,29 +418,29 @@ public sealed class StateMachine : ILogicContainer
         List<CilInstruction> instructionsInitializeContext = new();
         foreach (KeyValuePair<FieldDefinition, FieldDefinition> fieldMapping in ContextInfo.ContextFieldsMapping)
         {
-            instructionsInitializeContext.Add(new(CilOpCodes.Dup));
-            instructionsInitializeContext.Add(new(CilOpCodes.Ldarg_0));
-            instructionsInitializeContext.Add(new(CilOpCodes.Ldfld, fieldMapping.Key));
-            instructionsInitializeContext.Add(new(CilOpCodes.Stfld, fieldMapping.Value));
+            instructionsInitializeContext.Add(new(Dup));
+            instructionsInitializeContext.Add(new(Ldarg_0));
+            instructionsInitializeContext.Add(new(Ldfld, fieldMapping.Key));
+            instructionsInitializeContext.Add(new(Stfld, fieldMapping.Value));
         }
 
         moveNextIl.InsertRange(
             moveNextIl.GetIndexByOffset(initializeContextIlOffset),
             [
-                new(CilOpCodes.Ldarg_0),
-                new(CilOpCodes.Newobj, contextCtor),
+                new(Ldarg_0),
+                new(Newobj, contextCtor),
                 .. instructionsInitializeContext,
-                new(CilOpCodes.Stfld, ContextInfo.ContextField)
+                new(Stfld, ContextInfo.ContextField)
             ]);
 
         List<CilInstruction> instructionsWriteContext = new();
         foreach (KeyValuePair<FieldDefinition, FieldDefinition> fieldMapping in fieldsToCommitContextMapping)
         {
-            instructionsWriteContext.Add(new(CilOpCodes.Ldarg_0));
-            instructionsWriteContext.Add(new(CilOpCodes.Ldarg_0));
-            instructionsWriteContext.Add(new(CilOpCodes.Ldfld, ContextInfo.ContextField));
-            instructionsWriteContext.Add(new(CilOpCodes.Ldfld, fieldMapping.Value));
-            instructionsWriteContext.Add(new(CilOpCodes.Stfld, fieldMapping.Key));
+            instructionsWriteContext.Add(new(Ldarg_0));
+            instructionsWriteContext.Add(new(Ldarg_0));
+            instructionsWriteContext.Add(new(Ldfld, ContextInfo.ContextField));
+            instructionsWriteContext.Add(new(Ldfld, fieldMapping.Value));
+            instructionsWriteContext.Add(new(Stfld, fieldMapping.Key));
         }
 
         int indexSwitchEnd = moveNextIl.GetIndexByOffset(commitContextIlOffset);

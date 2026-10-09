@@ -1,6 +1,7 @@
 using AsmResolver.DotNet;
 using AsmResolver.DotNet.Cloning;
 using AsmResolver.DotNet.Code.Cil;
+using AsmResolver.DotNet.Collections;
 using AsmResolver.PE.DotNet.Cil;
 using VenusRootLoader.Patching.Aot.LogicContainer;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
@@ -38,6 +39,15 @@ public abstract class LogicExtractor<TOuter, TInner>
 
     private readonly CilInstruction _innerFirstInstruction;
     private readonly CilInstruction _innerLastInstruction;
+
+    /// <summary>
+    /// Process an instruction that involves an argument.
+    /// </summary>
+    /// <param name="instruction">The instruction involved.</param>
+    /// <param name="instructionParameter"></param>
+    protected abstract void ProcessArgumentOperationInstruction(
+        CilInstruction instruction,
+        Parameter instructionParameter);
 
     /// <summary>
     /// Process an instruction that involves a field.
@@ -143,14 +153,20 @@ public abstract class LogicExtractor<TOuter, TInner>
         CilInstruction? instructionNeedsLabelFix = null;
         // We process from a clone because we need to mostly pick similar instructions, but we don't want the references
         // to clash with the original so this makes sure we won't be doing that.
-        MethodDefinition outerMoveNextClone = CreateOuterMoveNextClone();
-        usedExceptionHandlerIndexes = TransferExceptionHandlersFromClone(outerMoveNextClone);
-        List<CilInstruction> innerIl = GetIlSegmentToProcessFromClone(outerMoveNextClone);
+        MethodDefinition outerMethodClone = CreateOuterMethodClone();
+        usedExceptionHandlerIndexes = TransferExceptionHandlersFromClone(outerMethodClone);
+        List<CilInstruction> innerIl = GetIlSegmentToProcessFromClone(outerMethodClone);
 
         foreach (CilInstruction instruction in innerIl)
         {
-            if (instruction.IsLdloc() || instruction.OpCode == Ldloca || instruction.OpCode == Ldloca_S ||
-                instruction.IsStloc())
+            if (instruction.IsLdarg() || instruction.OpCode == Ldarga || instruction.OpCode == Ldarga_S ||
+                instruction.IsStarg())
+            {
+                Parameter instructionParameter = (Parameter)instruction.Operand!;
+                ProcessArgumentOperationInstruction(instruction, instructionParameter);
+            }
+            else if (instruction.IsLdloc() || instruction.OpCode == Ldloca || instruction.OpCode == Ldloca_S ||
+                     instruction.IsStloc())
             {
                 // This will reindex the locals as they are used. This means the inner container will only have the
                 // locals in needs instead of having all the locals of the other ones.
@@ -198,13 +214,13 @@ public abstract class LogicExtractor<TOuter, TInner>
         InnerBody.Instructions.CalculateOffsets();
     }
 
-    private MethodDefinition CreateOuterMoveNextClone()
+    private MethodDefinition CreateOuterMethodClone()
     {
         MemberCloner cloner = new(OuterLogic.ReceivingMethod.DeclaringModule!);
         cloner.Include(OuterLogic.ReceivingMethod);
         MemberCloneResult cloneResult = cloner.Clone();
-        MethodDefinition outerMoveNextClone = cloneResult.GetClonedMember(OuterLogic.ReceivingMethod);
-        return outerMoveNextClone;
+        MethodDefinition outerMethodClone = cloneResult.GetClonedMember(OuterLogic.ReceivingMethod);
+        return outerMethodClone;
     }
 
     private List<int> TransferExceptionHandlersFromClone(MethodDefinition outerMoveNextClone)
@@ -250,7 +266,7 @@ public abstract class LogicExtractor<TOuter, TInner>
             .ToList();
     }
 
-    private void ProcessLocalOperationInstruction(CilInstruction instruction)
+    protected virtual void ProcessLocalOperationInstruction(CilInstruction instruction)
     {
         CilLocalVariable local = instruction
             .GetLocalVariable(OuterLogic.ReceivingMethod.CilMethodBody!.LocalVariables);

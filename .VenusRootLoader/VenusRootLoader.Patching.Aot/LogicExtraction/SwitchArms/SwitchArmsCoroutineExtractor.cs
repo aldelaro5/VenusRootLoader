@@ -60,7 +60,6 @@ internal sealed class SwitchArmsCoroutineExtractor : SwitchArmsExtractor<StateMa
             gameModuleData,
             outerInitializeContextInstruction.Offset,
             switchEndLabel.Offset);
-
         OuterBody.Instructions.CalculateOffsets();
 
         // Since we are creating a state for each of the switch's arm, we want to insert IL to set the state to -1 which

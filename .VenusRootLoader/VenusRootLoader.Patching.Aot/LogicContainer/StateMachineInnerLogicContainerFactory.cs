@@ -6,11 +6,11 @@ using AsmResolver.PE.DotNet.Cil;
 using System.Collections;
 using System.Reflection;
 using VenusRootLoader.Patching.Aot.LogicExtraction;
-using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 using FieldAttributes = AsmResolver.PE.DotNet.Metadata.Tables.FieldAttributes;
 using MethodAttributes = AsmResolver.PE.DotNet.Metadata.Tables.MethodAttributes;
 using PropertyAttributes = AsmResolver.PE.DotNet.Metadata.Tables.PropertyAttributes;
 using TypeAttributes = AsmResolver.PE.DotNet.Metadata.Tables.TypeAttributes;
+using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
 namespace VenusRootLoader.Patching.Aot.LogicContainer;
 

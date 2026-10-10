@@ -6,17 +6,17 @@ using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 namespace VenusRootLoader.Patching.Aot.LogicExtraction.Extractor.Switch;
 
 /// <summary>
-/// Represents the top level class that can extract all the arms of a switch inside a coroutine to smaller coroutines for
-/// each arm.
+/// An extractor that can extract all the arms of a switch inside a <see cref="StateMachine"/> to smaller
+/// <see cref="StateMachine"/>s for each arm.
 /// </summary>
-internal sealed class SwitchArmsCoroutineExtractor : SwitchArmsExtractor<StateMachine, StateMachine>
+internal sealed class SwitchArmsStateMachineExtractor : SwitchArmsExtractor<StateMachine, StateMachine>
 {
     private readonly CilInstruction _stateSwitchInstruction;
     private readonly IList<ICilLabel> _stateSwitchLabels;
     private int _postSwitchStateNumber;
     private int _lastSwitchStateNumber;
 
-    public SwitchArmsCoroutineExtractor(GameModuleData gameModuleData, StateMachine outerLogic)
+    public SwitchArmsStateMachineExtractor(GameModuleData gameModuleData, StateMachine outerLogic)
         : base(gameModuleData, outerLogic, new MoveNextLogicExtractorFactory())
     {
         AsmResolverIlCursor ilCursor = new(OuterBody.Instructions);
@@ -92,7 +92,7 @@ internal sealed class SwitchArmsCoroutineExtractor : SwitchArmsExtractor<StateMa
     }
 
     // This assumes all state numbers are sequential which seems to be a guarantee by the compiler.
-    public static int ObtainCurrentStateMachineState(AsmResolverIlCursor ilCursor)
+    private static int ObtainCurrentStateMachineState(AsmResolverIlCursor ilCursor)
     {
         int oldIndex = ilCursor.Index;
         ilCursor.MatchPrevious(x => x.OpCode == Ret);

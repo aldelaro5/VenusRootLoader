@@ -45,14 +45,14 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
         GameModuleData gameModuleData,
         StateMachine doActionStateMachine)
     {
-        SwitchArmsCoroutineExtractor doActionSwitchArmsExtractor = new(gameModuleData, doActionStateMachine);
+        SwitchArmsStateMachineExtractor doActionSwitchArmsExtractor = new(gameModuleData, doActionStateMachine);
         ExtractPlayerActions(doActionStateMachine, doActionSwitchArmsExtractor);
         ExtractEnemyActions(doActionStateMachine, doActionSwitchArmsExtractor);
     }
 
     private static void ExtractPlayerActions(
         StateMachine doActionStateMachine,
-        SwitchArmsCoroutineExtractor doActionSwitchArmsExtractor)
+        SwitchArmsStateMachineExtractor doActionSwitchArmsExtractor)
     {
         CilInstructionCollection doActionMoveNextIl =
             doActionStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
@@ -86,7 +86,7 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
 
     private static void ExtractEnemyActions(
         StateMachine doActionStateMachine,
-        SwitchArmsCoroutineExtractor doActionSwitchArmsExtractor)
+        SwitchArmsStateMachineExtractor doActionSwitchArmsExtractor)
     {
         CilInstructionCollection doActionMoveNextIl =
             doActionStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
@@ -136,7 +136,9 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             x.IsLdarg() && (x.OpCode == Ldarg_0 || x.Operand is Parameter { MethodSignatureIndex: 0 }));
         CilInstruction beforeEventDialogueSwitch = ilCursor.Current();
 
-        SwitchArmsCoroutineExtractor eventDialoguesSwitchArmsExtractor = new(gameModuleData, eventDialogueStateMachine);
+        SwitchArmsStateMachineExtractor eventDialoguesSwitchArmsExtractor = new(
+            gameModuleData,
+            eventDialogueStateMachine);
         eventDialoguesSwitchArmsExtractor.ExtractSwitchArms(
             "EventDialogue",
             eventDialogueSwitch,
@@ -169,7 +171,7 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
                 doCommandStateMachine.AddContextFieldFromSpeakableFieldName("letters", false)
             ]);
 
-        SwitchArmsCoroutineIntoMethodsExtractor doCommandSetupSwitchArmsExtractor = new(
+        SwitchArmsStateMachineIntoMethodsExtractor doCommandSetupSwitchArmsExtractor = new(
             gameModuleData,
             doCommandStateMachine);
         doCommandSetupSwitchArmsExtractor.ExtractSwitchArms(
@@ -203,7 +205,7 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
                 doCommandStateMachine.AddContextFieldFromSpeakableFieldName("letters", true)
             ]);
 
-        SwitchArmsCoroutineExtractor doCommandSwitchArmsExtractor = new(gameModuleData, doCommandStateMachine);
+        SwitchArmsStateMachineExtractor doCommandSwitchArmsExtractor = new(gameModuleData, doCommandStateMachine);
         doCommandSwitchArmsExtractor.ExtractSwitchArms(
             "DoCommandExecution",
             doCommandExecutionSwitch,
@@ -282,7 +284,7 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
                 aiAttackStateMachine.AddContextFieldFromSpeakableFieldName("aid", true)
             ]);
 
-        SwitchArmsCoroutineExtractor aiAttackSwitchArmsExtractor = new(gameModuleData, aiAttackStateMachine);
+        SwitchArmsStateMachineExtractor aiAttackSwitchArmsExtractor = new(gameModuleData, aiAttackStateMachine);
         aiAttackSwitchArmsExtractor.ExtractSwitchArms(
             "AIAttack",
             newSwitchInstruction,
@@ -317,7 +319,7 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
                 useItemStateMachine.AddContextFieldFromLocalIndex(5, false)
             ]);
 
-        SwitchArmsCoroutineIntoMethodsExtractor useItemSetupSwitchArmsExtractor = new(
+        SwitchArmsStateMachineIntoMethodsExtractor useItemSetupSwitchArmsExtractor = new(
             gameModuleData,
             useItemStateMachine);
         useItemSetupSwitchArmsExtractor.ExtractSwitchArms(

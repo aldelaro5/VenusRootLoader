@@ -6,6 +6,10 @@ using MethodLogicContainer = VenusRootLoader.Patching.Aot.LogicExtraction.Contai
 
 namespace VenusRootLoader.Patching.Aot.LogicExtraction.Extractor.Switch;
 
+/// <summary>
+/// An extractor that can extract all the arms of a switch inside a <see cref="MethodLogicContainer"/> to smaller
+/// <see cref="MethodLogicContainer"/>s for each arm.
+/// </summary>
 public sealed class SwitchArmsMethodsExtractor : SwitchArmsExtractor<MethodLogicContainer, MethodLogicContainer>
 {
     public SwitchArmsMethodsExtractor(

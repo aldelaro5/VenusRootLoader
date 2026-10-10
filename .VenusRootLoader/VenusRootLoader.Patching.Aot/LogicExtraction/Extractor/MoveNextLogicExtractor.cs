@@ -2,7 +2,6 @@ using AsmResolver.DotNet;
 using AsmResolver.DotNet.Cloning;
 using AsmResolver.DotNet.Collections;
 using AsmResolver.PE.DotNet.Cil;
-using System.Collections;
 using VenusRootLoader.Patching.Aot.LogicExtraction.Container;
 using VenusRootLoader.Patching.Aot.LogicExtraction.Container.Factory;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
@@ -10,11 +9,7 @@ using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 namespace VenusRootLoader.Patching.Aot.LogicExtraction.Extractor;
 
 /// <summary>
-/// This class allows to extract the logic of an outer <see cref="StateMachine"/>'s <see cref="IEnumerator.MoveNext"/>
-/// to an inner one's <see cref="IEnumerator.MoveNext"/>. It is done in 2 steps where the first one prepares a state machine
-/// and collects other relevant information for the second step which processes all the instructions in the IL segment to
-/// the inner state machine. It supports various control flow scheme such as yield break, goto case if the IL is in a switch
-/// arm and a way to go back to state the beginning at state 0.
+/// An extractor that can extract logic from an outer <see cref="StateMachine"/> to an inner <see cref="StateMachine"/>.
 /// </summary>
 internal sealed class MoveNextLogicExtractor : LogicExtractor<StateMachine, StateMachine>
 {
@@ -26,16 +21,6 @@ internal sealed class MoveNextLogicExtractor : LogicExtractor<StateMachine, Stat
     private readonly int _innerInstructionIndexAfterStateMachineSetup;
     private int _nextStateNumber = 1;
 
-    /// <summary>
-    /// Creates an extractor using the information provided. This will perform the first step of the extraction process.
-    /// The second step is done by calling <see cref="LogicExtractor{TOuter,Tinner}.ExtractIl"/> and it should be done
-    /// once all the related state machines are created in the case of extracting all the arms of a switch.
-    /// </summary>
-    /// <param name="outerStateMachine">The outer state machine to extract logic from.</param>
-    /// <param name="gameModuleData">The <see cref="ReferenceImporter"/> to use when creating the state machine.</param>
-    /// <param name="stateMachineEnumeratorMethodName">The name the enumerator method of the inner state machine will have.</param>
-    /// <param name="innerFirstInstruction">The IL offset of the starting point of the IL segment to extract from the <paramref name="outerStateMachine"/></param>
-    /// <param name="innerLastInstruction">The IL offset of the ending point of the IL segment to extract from the <paramref name="outerStateMachine"/></param>
     public MoveNextLogicExtractor(
         StateMachine outerStateMachine,
         GameModuleData gameModuleData,
@@ -60,6 +45,7 @@ internal sealed class MoveNextLogicExtractor : LogicExtractor<StateMachine, Stat
             .ToHashSet();
         _stateSwitchInstruction = InnerBody.Instructions[^3];
 
+        // We can assume these local indexes.
         LocalIndexMapping.Add(0, InnerBody.LocalVariables[0]);
         if (InnerLogic.ThisField is not null)
             LocalIndexMapping.Add(1, InnerBody.LocalVariables[1]);
@@ -83,8 +69,8 @@ internal sealed class MoveNextLogicExtractor : LogicExtractor<StateMachine, Stat
         Dictionary<FieldDefinition, FieldDefinition> fieldsMapping = new();
         foreach (FieldDefinition originalField in clone.OriginalMembers.Cast<FieldDefinition>())
         {
-            FieldDefinition clonedField = clone.GetClonedMember(originalField);
             // The special fields must always be in the mappings.
+            FieldDefinition clonedField = clone.GetClonedMember(originalField);
             if (clonedField.Name == StateMachine.StateFieldName)
             {
                 fieldsMapping.Add(originalField, innerStateMachine.StateField);
@@ -121,6 +107,7 @@ internal sealed class MoveNextLogicExtractor : LogicExtractor<StateMachine, Stat
             new(Ret)
         ];
 
+        // This matters because it means this yield break goes after a yield return which implies a new state just to yield break.
         if (afterLogicTransfer)
             _stateSwitchLabels.Add(returnToOuterIl[0].CreateLabel());
         return returnToOuterIl;
@@ -155,6 +142,7 @@ internal sealed class MoveNextLogicExtractor : LogicExtractor<StateMachine, Stat
             return;
         }
 
+        // This effectively maps the states as we see them being used in the outer logic.
         InnerBody.Instructions[^1].Operand = _nextStateNumber;
         _nextStateNumber++;
     }
@@ -190,9 +178,9 @@ internal sealed class MoveNextLogicExtractor : LogicExtractor<StateMachine, Stat
         }
 
         // Mapping a context field has a complication: the field belongs to the context, not to a field of the state machine.
-        // Because of this, we need to insert an ldfld, but to figure out where, we do the assumption that the state mmachine
-        // was placed on the stack using ldarg.0. We need to look for one that didn't had an ldfld right after so we can
-        // insert our ldfld and have the field resolve correctly.
+        // Because of this, we need to insert an Ldfld, but to figure out where, we do the assumption that the state machine
+        // was placed on the stack using Ldarg.0. We need to look for one that didn't have an Ldfld right after so we can
+        // insert our Ldfld and have the field resolve correctly.
         int indexLastLdArg0 = -1;
         for (int j = InnerBody.Instructions.Count - 1; j >= _innerInstructionIndexAfterStateMachineSetup; j--)
         {
@@ -220,6 +208,7 @@ internal sealed class MoveNextLogicExtractor : LogicExtractor<StateMachine, Stat
     {
         FieldDefinition remappedField = _fieldsNonContextMapping[instructionField];
         instruction.Operand = remappedField;
+        // We check the field by name because the cloned one won't technically be the same, but the names would be.
         if (remappedField.Name is null || _innerStateMachineFieldNames.Contains(remappedField.Name.Value))
             return;
 

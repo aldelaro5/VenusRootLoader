@@ -9,6 +9,10 @@ using MethodLogicContainer = VenusRootLoader.Patching.Aot.LogicExtraction.Contai
 
 namespace VenusRootLoader.Patching.Aot.LogicExtraction.Extractor;
 
+/// <summary>
+/// An extractor that can extract logic from an outer <see cref="StateMachine"/> to an inner <see cref="MethodLogicContainer"/>.
+/// This only works if the outer logic never performs a yield return.
+/// </summary>
 public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine, MethodLogicContainer>
 {
     private readonly Dictionary<FieldDefinition, CilLocalVariable> _fieldsNonContextMapping = [];
@@ -34,6 +38,9 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
         CilInstruction instruction,
         Parameter instructionParameter)
     {
+        // arg 0 for a state machine places its state machine type on the stack, but since we're extracting to a regular
+        // method, that type never exists so we don't want that instruction in the inner logic. Since we don't want to
+        // break labels that might be there, it's simpler to just replace the instruction with a Nop.
         if (instructionParameter.MethodSignatureIndex == 0)
             instruction.ReplaceWithNop();
         return null;
@@ -41,10 +48,10 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
 
     protected override CilInstruction? ProcessLocalOperationInstruction(
         CilInstruction instruction,
-        CilLocalVariable local)
+        CilLocalVariable localVariable)
     {
         if (OuterLogic.Context is not null && OuterLogic.Context.ContextFieldsMapping.TryGetValue(
-                local,
+                localVariable,
                 out FieldDefinition? fieldInContext))
         {
             if (instruction.IsLdloc())
@@ -68,8 +75,10 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
             }
         }
 
-        if (OuterLogic.EnumeratorMethod.IsStatic || local.Index != 1)
-            return base.ProcessLocalOperationInstruction(instruction, local);
+        // The local 1 of a state machine is always the real "this" instance for instance state machine. This means we
+        // need to map it to the inner's arg 0.
+        if (OuterLogic.EnumeratorMethod.IsStatic || localVariable.Index != 1)
+            return base.ProcessLocalOperationInstruction(instruction, localVariable);
 
         if (instruction.IsLdloc())
             instruction.ReplaceWith(Ldarg_0);
@@ -113,6 +122,7 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
         CilInstruction instruction,
         FieldDefinition instructionField)
     {
+        // Non context fields are mapped similarly to locals of a regular method.
         if (!_fieldsNonContextMapping.TryGetValue(instructionField, out CilLocalVariable? mappedLocal))
         {
             CilLocalVariable newLocal = new(instructionField.Signature!.FieldType);

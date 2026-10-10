@@ -120,7 +120,7 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("com", true)
             ]);
 
-        SwitchArmsCoroutineExtractor setTextSwitchArmsExtractor = new(gameModuleData, setTextStateMachine);
+        SwitchArmsStateMachineExtractor setTextSwitchArmsExtractor = new(gameModuleData, setTextStateMachine);
         setTextSwitchArmsExtractor.ExtractSwitchArms(
             "SetTextCommand",
             commandSwitch,

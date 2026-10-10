@@ -7,9 +7,13 @@ using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
 namespace VenusRootLoader.Patching.Aot.LogicExtraction.Extractor.Switch;
 
-public sealed class SwitchArmsCoroutineIntoMethodsExtractor : SwitchArmsExtractor<StateMachine, MethodLogicContainer>
+/// <summary>
+/// An extractor that can extract all the arms of a switch inside a <see cref="StateMachine"/> to smaller
+/// <see cref="MethodLogicContainer"/>s for each arm. This only works if none of the arms performs a yield return.
+/// </summary>
+public sealed class SwitchArmsStateMachineIntoMethodsExtractor : SwitchArmsExtractor<StateMachine, MethodLogicContainer>
 {
-    public SwitchArmsCoroutineIntoMethodsExtractor(
+    public SwitchArmsStateMachineIntoMethodsExtractor(
         GameModuleData gameModuleData,
         StateMachine outerLogic)
         : base(

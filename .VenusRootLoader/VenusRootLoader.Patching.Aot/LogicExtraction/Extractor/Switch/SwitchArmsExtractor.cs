@@ -161,8 +161,10 @@ public abstract class SwitchArmsExtractor<TOuter, TInner>
                 arm.EndInstruction);
 
             labelIndexesToExtractors[indexedSwitchLabel.Index] = extractor;
-            firstInstructionToInnerContainers[((CilInstructionLabel)indexedSwitchLabel.Label).Instruction!] =
-                extractor.InnerLogic;
+            // Instructions are more reliable to use for offset tracking then labels so we need to get the backing
+            // instruction of the label.
+            CilInstructionLabel instructionLabel = (CilInstructionLabel)indexedSwitchLabel.Label;
+            firstInstructionToInnerContainers[instructionLabel.Instruction!] = extractor.InnerLogic;
         }
 
         foreach (SwitchArn arm in switchArms)

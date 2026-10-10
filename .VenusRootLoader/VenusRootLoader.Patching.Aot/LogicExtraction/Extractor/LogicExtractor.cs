@@ -10,7 +10,11 @@ using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 namespace VenusRootLoader.Patching.Aot.LogicExtraction.Extractor;
 
 /// <summary>
-/// A logic extractor that extracts from an outer container to an inner container.
+/// A logic extractor that extracts from an outer container to an inner container. The extraction process is done in 2 steps.
+/// The first steps creators all the inner containers and the second steps extracts their logic. This 2 steps process is
+/// done to allow mapping calls between inner containers that are related to the same outer container. Several control flow
+/// are supported such as calling another related inner container, returning early to the outer container or going back to the
+/// start of the logic.
 /// </summary>
 /// <typeparam name="TOuter">The type of the outer container.</typeparam>
 /// <typeparam name="TInner">The type of the inner container.</typeparam>
@@ -34,7 +38,7 @@ public abstract class LogicExtractor<TOuter, TInner>
     protected readonly CilMethodBody InnerBody;
 
     /// <summary>
-    /// The mappings from their index in the outer container to the newly created ones in the inner container.
+    /// The local index mappings from their index in the outer container to the newly created ones in the inner container.
     /// </summary>
     protected readonly Dictionary<int, CilLocalVariable> LocalIndexMapping = [];
 
@@ -45,19 +49,10 @@ public abstract class LogicExtractor<TOuter, TInner>
     /// Process an instruction that involves an argument.
     /// </summary>
     /// <param name="instruction">The instruction involved.</param>
-    /// <param name="instructionParameter"></param>
+    /// <param name="instructionParameter">The parameter involved in the instruction.</param>
     protected abstract CilInstruction? ProcessArgumentOperationInstruction(
         CilInstruction instruction,
         Parameter instructionParameter);
-
-    /// <summary>
-    /// Process an instruction that involves a field.
-    /// </summary>
-    /// <param name="instruction">The instruction involved.</param>
-    /// <param name="fieldInContext">The field involved in the instruction.</param>
-    protected abstract void ProcessFieldOperationInstruction(
-        CilInstruction instruction,
-        FieldDefinition fieldInContext);
 
     /// <summary>
     /// Obtains the IL needed to transfer control flow back to the outer container.
@@ -78,15 +73,28 @@ public abstract class LogicExtractor<TOuter, TInner>
     /// <param name="otherContainer">The container to transfer control flow into.</param>
     /// <param name="instructionAfter">The instruction that will be placed after the IL.</param>
     /// <returns>The IL that transfer control flow to <paramref name="otherContainer"/>.</returns>
-    protected abstract IList<CilInstruction> GetLogicTransferIl(
-        TInner otherContainer,
-        CilInstruction instructionAfter);
+    protected abstract IList<CilInstruction> GetLogicTransferIl(TInner otherContainer, CilInstruction instructionAfter);
+
+    /// <summary>
+    /// Performs tasks before the end of the extractions.
+    /// </summary>
+    protected abstract void PostProcessExtraction();
 
     /// <summary>
     /// Performs tasks before adding a regular instruction.
     /// </summary>
     /// <param name="instruction">The instruction that will be added.</param>
     protected virtual void BeforeAddingInstruction(CilInstruction instruction)
+    {
+        return;
+    }
+
+    /// <summary>
+    /// Process an instruction that involves a field.
+    /// </summary>
+    /// <param name="instruction">The instruction involved.</param>
+    /// <param name="fieldInContext">The field involved in the instruction.</param>
+    protected virtual void ProcessFieldOperationInstruction(CilInstruction instruction, FieldDefinition fieldInContext)
     {
         return;
     }
@@ -101,11 +109,53 @@ public abstract class LogicExtractor<TOuter, TInner>
     }
 
     /// <summary>
-    /// Performs tasks before the end of the extractions.
+    /// Process an instruction that involves a local variable. The base version will simply map every outer container
+    /// local variables to newly created ones in the inner container.
     /// </summary>
-    protected virtual void PostProcessExtraction()
+    /// <param name="instruction">The instruction involved.</param>
+    /// <param name="localVariable">The local variable involved in the instruction.</param>
+    /// <returns>An optional additional instruction to add in order to complete the operation.</returns>
+    protected virtual CilInstruction? ProcessLocalOperationInstruction(
+        CilInstruction instruction,
+        CilLocalVariable localVariable)
     {
-        return;
+        CilLocalVariable local = instruction.GetLocalVariable(OuterLogic.ReceivingMethod.CilMethodBody!.LocalVariables);
+        if (!LocalIndexMapping.TryGetValue(local.Index, out CilLocalVariable? mappedLocal))
+        {
+            CilLocalVariable newLocal = new(local.VariableType);
+            InnerBody.LocalVariables.Add(newLocal);
+            InnerBody.InitializeLocals = true;
+            LocalIndexMapping.Add(local.Index, newLocal);
+            mappedLocal = newLocal;
+        }
+
+        instruction.Operand = mappedLocal;
+        return null;
+    }
+
+    /// <summary>
+    /// Obtains the last instruction index where it is possible to insert a load instruction so a field could be stored
+    /// on what was loaded.
+    /// </summary>
+    /// <returns>The last index that can have a load instruction for a store or <c>InnerBody.Instructions.Count</c>
+    /// if no spot was found.</returns>
+    protected int GetInstructionIndexForLoadBeforeStore()
+    {
+        // We assume the stack is imbalanced by 1 pop and cumulate the transactions backwards. The moment we get back
+        // to balanced with this assumption, we know we can safely put our load instruction there.
+        int stackBalance = -1;
+        for (int j = InnerBody.Instructions.Count - 1; j >= 0; j--)
+        {
+            CilInstruction inst = InnerBody.Instructions[j];
+            stackBalance += inst.GetStackPushCount();
+            stackBalance -= inst.GetStackPopCount(true);
+            if (stackBalance != 0)
+                continue;
+
+            return j;
+        }
+
+        return InnerBody.Instructions.Count;
     }
 
     /// <summary>
@@ -287,34 +337,15 @@ public abstract class LogicExtractor<TOuter, TInner>
                && exceptionHandler.HandlerEnd.Offset <= _innerLastInstruction.Offset;
     }
 
-    private List<CilInstruction> GetIlSegmentToProcessFromClone(MethodDefinition outerMoveNextClone)
+    private List<CilInstruction> GetIlSegmentToProcessFromClone(MethodDefinition outerMethodClone)
     {
-        CilInstructionCollection outerMoveNextCloneIl = outerMoveNextClone.CilMethodBody!.Instructions;
-        int start = outerMoveNextCloneIl.GetIndexByOffset(_innerFirstInstruction.Offset);
-        int end = outerMoveNextCloneIl.GetIndexByOffset(_innerLastInstruction.Offset);
-        return outerMoveNextCloneIl
+        CilInstructionCollection outerMethodCloneIl = outerMethodClone.CilMethodBody!.Instructions;
+        int start = outerMethodCloneIl.GetIndexByOffset(_innerFirstInstruction.Offset);
+        int end = outerMethodCloneIl.GetIndexByOffset(_innerLastInstruction.Offset);
+        return outerMethodCloneIl
             .Skip(start)
             .Take(end - start + 1)
             .ToList();
-    }
-
-    protected virtual CilInstruction? ProcessLocalOperationInstruction(
-        CilInstruction instruction,
-        CilLocalVariable cilLocalVariable)
-    {
-        CilLocalVariable local = instruction
-            .GetLocalVariable(OuterLogic.ReceivingMethod.CilMethodBody!.LocalVariables);
-        if (!LocalIndexMapping.TryGetValue(local.Index, out CilLocalVariable? mappedLocal))
-        {
-            CilLocalVariable newLocal = new(local.VariableType);
-            InnerBody.LocalVariables.Add(newLocal);
-            InnerBody.InitializeLocals = true;
-            LocalIndexMapping.Add(local.Index, newLocal);
-            mappedLocal = newLocal;
-        }
-
-        instruction.Operand = mappedLocal;
-        return null;
     }
 
     private void ProcessFieldOperationInstruction(FieldDefinition fieldOperand, CilInstruction instruction)
@@ -435,11 +466,11 @@ public abstract class LogicExtractor<TOuter, TInner>
 
         BeforeAddingInstruction(resetIl);
         InnerBody.Instructions.Add(resetIl);
-        if (neededFixing && instructionNeedsLabelFix is not null)
-        {
-            instructionNeedsLabelFix.Operand = InnerBody.Instructions[^1].CreateLabel();
-            instructionNeedsLabelFix = null;
-        }
+        if (!neededFixing || instructionNeedsLabelFix is null)
+            return;
+
+        instructionNeedsLabelFix.Operand = InnerBody.Instructions[^1].CreateLabel();
+        instructionNeedsLabelFix = null;
     }
 
     private void PreProcessSpecialBranchOperationInstruction(
@@ -448,40 +479,21 @@ public abstract class LogicExtractor<TOuter, TInner>
         CilInstruction firstInstructionAfterPreProcess,
         ref CilInstruction? instructionNeedsLabelFix)
     {
-        if (instruction.IsConditionalBranch())
-        {
-            BeforeAddingInstruction(instruction);
-
-            InnerBody.Instructions.Add(instruction);
-            if (instructionNeedsLabelFix is not null)
-            {
-                instructionNeedsLabelFix.Operand = InnerBody.Instructions[^1].CreateLabel();
-                instructionNeedsLabelFix = null;
-            }
-
-            InnerBody.Instructions[^1].Operand = new CilInstructionLabel(firstInstructionAfterPreProcess);
-            InnerBody.Instructions.Add(Br, label);
-            instructionNeedsLabelFix = InnerBody.Instructions[^1];
+        if (!instruction.IsConditionalBranch())
             return;
-        }
-    }
 
-    protected int GetInstructionIndexForLoadBeforeStore()
-    {
-        // We assume the stack is imbalanced by 1 pop and cumulate the transactions backwards. The moment we get back
-        // to balanced with this assumption, we know we can safely put our load instruction there.
-        int stackBalance = -1;
-        for (int j = InnerBody.Instructions.Count - 1; j >= 0; j--)
+        BeforeAddingInstruction(instruction);
+
+        InnerBody.Instructions.Add(instruction);
+        if (instructionNeedsLabelFix is not null)
         {
-            CilInstruction inst = InnerBody.Instructions[j];
-            stackBalance += inst.GetStackPushCount();
-            stackBalance -= inst.GetStackPopCount(true);
-            if (stackBalance != 0)
-                continue;
-
-            return j;
+            instructionNeedsLabelFix.Operand = InnerBody.Instructions[^1].CreateLabel();
+            instructionNeedsLabelFix = null;
         }
 
-        return InnerBody.Instructions.Count;
+        InnerBody.Instructions[^1].Operand = new CilInstructionLabel(firstInstructionAfterPreProcess);
+        InnerBody.Instructions.Add(Br, label);
+        instructionNeedsLabelFix = InnerBody.Instructions[^1];
+        return;
     }
 }

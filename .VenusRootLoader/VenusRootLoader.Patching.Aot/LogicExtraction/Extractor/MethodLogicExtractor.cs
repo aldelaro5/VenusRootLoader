@@ -2,12 +2,15 @@ using AsmResolver.DotNet;
 using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.DotNet.Collections;
 using AsmResolver.PE.DotNet.Cil;
+using VenusRootLoader.Patching.Aot.LogicExtraction.Container;
 using VenusRootLoader.Patching.Aot.LogicExtraction.Container.Factory;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
-using MethodLogicContainer = VenusRootLoader.Patching.Aot.LogicExtraction.Container.MethodLogicContainer;
 
 namespace VenusRootLoader.Patching.Aot.LogicExtraction.Extractor;
 
+/// <summary>
+/// An extractor that can extract logic from an outer <see cref="MethodLogicContainer"/> to an inner <see cref="MethodLogicContainer"/>.
+/// </summary>
 public sealed class MethodLogicExtractor : LogicExtractor<MethodLogicContainer, MethodLogicContainer>
 {
     public MethodLogicExtractor(
@@ -31,6 +34,7 @@ public sealed class MethodLogicExtractor : LogicExtractor<MethodLogicContainer, 
         CilInstruction instruction,
         Parameter instructionParameter)
     {
+        // arg 0 for instance method is always the "this" so we don't need to do anything for this case.
         if (!OuterLogic.ReceivingMethod.IsStatic && instructionParameter.MethodSignatureIndex == 0)
             return null;
 
@@ -63,13 +67,13 @@ public sealed class MethodLogicExtractor : LogicExtractor<MethodLogicContainer, 
 
     protected override CilInstruction? ProcessLocalOperationInstruction(
         CilInstruction instruction,
-        CilLocalVariable local)
+        CilLocalVariable localVariable)
     {
         if (OuterLogic.Context is null || !OuterLogic.Context.ContextFieldsMapping.TryGetValue(
-                local,
+                localVariable,
                 out FieldDefinition? fieldInContext))
         {
-            return base.ProcessLocalOperationInstruction(instruction, local);
+            return base.ProcessLocalOperationInstruction(instruction, localVariable);
         }
 
         if (instruction.IsLdloc())
@@ -85,19 +89,12 @@ public sealed class MethodLogicExtractor : LogicExtractor<MethodLogicContainer, 
         }
 
         if (!instruction.IsStloc())
-            return base.ProcessLocalOperationInstruction(instruction, local);
+            return base.ProcessLocalOperationInstruction(instruction, localVariable);
 
         int indexLastNop = GetInstructionIndexForLoadBeforeStore();
         InnerBody.Instructions.Insert(indexLastNop, InnerLogic.ReceivingMethod.IsStatic ? Ldarg_0 : Ldarg_1);
         instruction.ReplaceWith(Stfld, fieldInContext);
         return null;
-    }
-
-    protected override void ProcessFieldOperationInstruction(
-        CilInstruction instruction,
-        FieldDefinition instructionField)
-    {
-        return;
     }
 
     protected override IList<CilInstruction> GetReturnToOuterIl(bool afterLogicTransfer) => [new(Ret)];

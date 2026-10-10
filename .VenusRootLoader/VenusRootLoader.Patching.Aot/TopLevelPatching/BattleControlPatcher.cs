@@ -3,8 +3,8 @@ using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.DotNet.Collections;
 using AsmResolver.DotNet.Signatures;
 using AsmResolver.PE.DotNet.Cil;
-using VenusRootLoader.Patching.Aot.Logic;
-using VenusRootLoader.Patching.Aot.LogicExtraction.SwitchArms;
+using VenusRootLoader.Patching.Aot.LogicExtraction.Container;
+using VenusRootLoader.Patching.Aot.LogicExtraction.Extractor.Switch;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
 namespace VenusRootLoader.Patching.Aot.TopLevelPatching;

@@ -1,5 +1,4 @@
 using AsmResolver.PE.DotNet.Cil;
-using System.Collections;
 
 namespace VenusRootLoader.Patching.Aot;
 
@@ -69,21 +68,5 @@ public sealed class AsmResolverIlCursor
         }
 
         Index = -1;
-    }
-
-    /// <summary>
-    /// Assuming the IL instructions are within the <see cref="IEnumerator.MoveNext"/> of a state machine, this obtains
-    /// the current state number from the current index assuming all states are in sequential order.
-    /// </summary>
-    /// <returns>The state number that corresponds to the current instruction.</returns>
-    public int ObtainCurrentStateMachineState()
-    {
-        int oldIndex = Index;
-        MatchPrevious(x => x.OpCode == CilOpCodes.Ret);
-        MatchPrevious(x => x.OpCode == CilOpCodes.Stfld);
-        MatchPrevious(x => x.IsLdcI4());
-        int switchStateNumber = Index < 0 ? 0 : Current().GetLdcI4Constant();
-        Index = oldIndex;
-        return switchStateNumber;
     }
 }

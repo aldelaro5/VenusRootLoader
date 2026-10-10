@@ -183,7 +183,7 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
         doItemEffectContainer.AssignNewContext(
             "DoItemEffectContext",
             [
-                doItemEffectContainer.AddContextFieldFromArgumentIndexAndLocalIndex(0, 0, true),
+                doItemEffectContainer.AddContextFieldFromArgumentIndexAndLocalIndexes(0, [0], true),
                 doItemEffectContainer.AddContextFieldFromArgumentIndex(1, false),
                 doItemEffectContainer.AddContextFieldFromArgumentIndex(2, true),
             ]);

@@ -50,26 +50,29 @@ public sealed class MethodLogicContainer : LogicContainer
     }
 
     /// <summary>
-    /// Creates a field to be added to the context using either an argument index or a local index of the container's method.
+    /// Creates a field to be added to the context using either an argument index or many local indexes of the container's method.
     /// </summary>
     /// <param name="argumentIndex">The argument index to use as source for the context field.</param>
-    /// <param name="localIndex">The local index to use as source for the context field.</param>
+    /// <param name="localIndexes">The local indexes to use as source for the context field.</param>
     /// <param name="readOnly">Whether the context field will only be initialized without being commited back to the container.</param>
     /// <param name="mappedName">An optional name to use as the field of the context. This defaults to A_<paramref name="argumentIndex"/></param>
     /// <returns>The new context field sourced from either the argument of the container at index <paramref name="argumentIndex"/>.
-    /// or the local variable of the container at index <paramref name="localIndex"/>.</returns>
-    public LogicContextField AddContextFieldFromArgumentIndexAndLocalIndex(
+    /// or a local variable of the container whose index is in <paramref name="localIndexes"/>.</returns>
+    public LogicContextField AddContextFieldFromArgumentIndexAndLocalIndexes(
         int argumentIndex,
-        int localIndex,
+        List<int> localIndexes,
         bool readOnly,
         string? mappedName = null)
     {
+        List<LocalLogicContextFieldSource> localSources = localIndexes
+            .Select(x => new LocalLogicContextFieldSource(ReceivingMethod.CilMethodBody!.LocalVariables[x]))
+            .ToList();
         return new LogicContextField
         {
             ContextFieldSources =
             [
                 new ArgumentLogicContextFieldSource(ReceivingMethod.Parameters[argumentIndex]),
-                new LocalLogicContextFieldSource(ReceivingMethod.CilMethodBody!.LocalVariables[localIndex])
+                .. localSources
             ],
             FieldName = mappedName ?? "A_" + argumentIndex,
             ReadOnly = readOnly

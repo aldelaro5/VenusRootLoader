@@ -1,6 +1,6 @@
 using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.PE.DotNet.Cil;
-using VenusRootLoader.Patching.Aot.LogicContainer;
+using VenusRootLoader.Patching.Aot.Logic;
 
 namespace VenusRootLoader.Patching.Aot.LogicExtraction.SwitchArms;
 
@@ -10,8 +10,8 @@ namespace VenusRootLoader.Patching.Aot.LogicExtraction.SwitchArms;
 /// <typeparam name="TOuter">The type of the outer container that has the switch.</typeparam>
 /// <typeparam name="TInner">The type of the inner container to extract the switch arms into.</typeparam>
 public abstract class SwitchArmsExtractor<TOuter, TInner>
-    where TOuter : ILogicContainer
-    where TInner : ILogicContainer
+    where TOuter : LogicContainer
+    where TInner : LogicContainer
 {
     /// <summary>
     /// This is an abstraction of what constitutes the code segment forming the arm of a switch. It's possible multiple switch

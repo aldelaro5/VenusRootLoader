@@ -2,9 +2,14 @@ using AsmResolver.DotNet;
 using AsmResolver.DotNet.Collections;
 using AsmResolver.DotNet.Signatures;
 using AsmResolver.PE.DotNet.Metadata.Tables;
+using VenusRootLoader.Patching.Aot.LogicExtraction;
 
-namespace VenusRootLoader.Patching.Aot.LogicContainer;
+namespace VenusRootLoader.Patching.Aot.Logic.ContainerFactory;
 
+/// <summary>
+/// Allows to create an inner <see cref="MethodLogicContainer"/> from an outer <see cref="MethodLogicContainer"/>. It will
+/// have an empty body as it is meant to be filled with a <see cref="MethodLogicExtractor"/>.
+/// </summary>
 public sealed class InnerMethodFactory : IInnerLogicContainerFactory<MethodLogicContainer, MethodLogicContainer>
 {
     public MethodLogicContainer Create(

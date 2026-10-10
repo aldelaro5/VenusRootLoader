@@ -3,7 +3,8 @@ using AsmResolver.DotNet.Cloning;
 using AsmResolver.DotNet.Collections;
 using AsmResolver.PE.DotNet.Cil;
 using System.Collections;
-using VenusRootLoader.Patching.Aot.LogicContainer;
+using VenusRootLoader.Patching.Aot.Logic;
+using VenusRootLoader.Patching.Aot.Logic.ContainerFactory;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
 namespace VenusRootLoader.Patching.Aot.LogicExtraction;
@@ -43,7 +44,7 @@ internal sealed class MoveNextLogicExtractor : LogicExtractor<StateMachine, Stat
         CilInstruction innerLastInstruction)
         : base(
             outerStateMachine,
-            new StateMachineInnerLogicContainerFactory(),
+            new InnerStateMachineFactory(),
             gameModuleData,
             stateMachineEnumeratorMethodName,
             innerFirstInstruction,
@@ -53,7 +54,7 @@ internal sealed class MoveNextLogicExtractor : LogicExtractor<StateMachine, Stat
             gameModuleData,
             outerStateMachine.StateMachineType,
             InnerLogic,
-            outerStateMachine.ContextInfo?.ContextFieldsMapping ?? []);
+            outerStateMachine.Context?.ContextFieldsMapping ?? []);
         _innerStateMachineFieldNames = InnerLogic.StateMachineType.Fields
             .Select(x => x.Name!.Value)
             .ToHashSet();
@@ -169,7 +170,7 @@ internal sealed class MoveNextLogicExtractor : LogicExtractor<StateMachine, Stat
         CilInstruction instruction,
         FieldDefinition instructionField)
     {
-        if (OuterLogic.ContextInfo is not null && OuterLogic.ContextInfo.ContextFieldsMapping.TryGetValue(
+        if (OuterLogic.Context is not null && OuterLogic.Context.ContextFieldsMapping.TryGetValue(
                 instructionField,
                 out FieldDefinition? fieldInContext))
             ProcessContextFieldOperationInstruction(instruction, fieldInContext);

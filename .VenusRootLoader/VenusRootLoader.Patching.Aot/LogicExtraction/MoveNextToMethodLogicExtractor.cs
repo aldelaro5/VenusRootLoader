@@ -2,8 +2,10 @@ using AsmResolver.DotNet;
 using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.DotNet.Collections;
 using AsmResolver.PE.DotNet.Cil;
-using VenusRootLoader.Patching.Aot.LogicContainer;
+using VenusRootLoader.Patching.Aot.Logic;
+using VenusRootLoader.Patching.Aot.Logic.ContainerFactory;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
+using MethodLogicContainer = VenusRootLoader.Patching.Aot.Logic.MethodLogicContainer;
 
 namespace VenusRootLoader.Patching.Aot.LogicExtraction;
 
@@ -41,7 +43,7 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
         CilInstruction instruction,
         CilLocalVariable local)
     {
-        if (OuterLogic.ContextInfo is not null && OuterLogic.ContextInfo.ContextFieldsMapping.TryGetValue(
+        if (OuterLogic.Context is not null && OuterLogic.Context.ContextFieldsMapping.TryGetValue(
                 local,
                 out FieldDefinition? fieldInContext))
         {
@@ -83,7 +85,7 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
         CilInstruction instruction,
         FieldDefinition instructionField)
     {
-        if (OuterLogic.ContextInfo is not null && OuterLogic.ContextInfo.ContextFieldsMapping.TryGetValue(
+        if (OuterLogic.Context is not null && OuterLogic.Context.ContextFieldsMapping.TryGetValue(
                 instructionField,
                 out FieldDefinition? fieldInContext))
             ProcessContextFieldOperationInstruction(instruction, fieldInContext);

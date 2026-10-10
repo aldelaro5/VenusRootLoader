@@ -1,9 +1,10 @@
 using AsmResolver.DotNet;
 using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.PE.DotNet.Cil;
-using VenusRootLoader.Patching.Aot.LogicContainer;
+using VenusRootLoader.Patching.Aot.Logic;
 using VenusRootLoader.Patching.Aot.LogicExtraction.SwitchArms;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
+using MethodLogicContainer = VenusRootLoader.Patching.Aot.Logic.MethodLogicContainer;
 
 namespace VenusRootLoader.Patching.Aot.TopLevelPatching;
 

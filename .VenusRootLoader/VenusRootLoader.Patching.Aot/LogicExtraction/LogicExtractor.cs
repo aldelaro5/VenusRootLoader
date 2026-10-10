@@ -3,7 +3,8 @@ using AsmResolver.DotNet.Cloning;
 using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.DotNet.Collections;
 using AsmResolver.PE.DotNet.Cil;
-using VenusRootLoader.Patching.Aot.LogicContainer;
+using VenusRootLoader.Patching.Aot.Logic;
+using VenusRootLoader.Patching.Aot.Logic.ContainerFactory;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
 namespace VenusRootLoader.Patching.Aot.LogicExtraction;
@@ -14,8 +15,8 @@ namespace VenusRootLoader.Patching.Aot.LogicExtraction;
 /// <typeparam name="TOuter">The type of the outer container.</typeparam>
 /// <typeparam name="TInner">The type of the inner container.</typeparam>
 public abstract class LogicExtractor<TOuter, TInner>
-    where TOuter : ILogicContainer
-    where TInner : ILogicContainer
+    where TOuter : LogicContainer
+    where TInner : LogicContainer
 {
     /// <summary>
     /// The outer container.

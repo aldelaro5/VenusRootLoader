@@ -1,5 +1,5 @@
 using AsmResolver.PE.DotNet.Cil;
-using VenusRootLoader.Patching.Aot.LogicContainer;
+using VenusRootLoader.Patching.Aot.Logic;
 
 namespace VenusRootLoader.Patching.Aot.LogicExtraction;
 
@@ -9,8 +9,8 @@ namespace VenusRootLoader.Patching.Aot.LogicExtraction;
 /// <typeparam name="TOuter">The type of the outer container.</typeparam>
 /// <typeparam name="TInner">The type of the inner container.</typeparam>
 public interface ILogicExtractorFactory<TOuter, TInner>
-    where TOuter : ILogicContainer
-    where TInner : ILogicContainer
+    where TOuter : LogicContainer
+    where TInner : LogicContainer
 {
     /// <summary>
     /// Creates an extractor that can extract logic from an outer container to an inner one.

@@ -1,5 +1,5 @@
 using AsmResolver.PE.DotNet.Cil;
-using VenusRootLoader.Patching.Aot.LogicContainer;
+using VenusRootLoader.Patching.Aot.Logic;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
 namespace VenusRootLoader.Patching.Aot.LogicExtraction.SwitchArms;
@@ -32,8 +32,8 @@ internal sealed class SwitchArmsCoroutineExtractor : SwitchArmsExtractor<StateMa
     {
         return outer.GetTransferToOtherStateMachineIl(
             inner,
-            OuterLogic.ContextInfo?.ContextField is not null
-                ? [OuterLogic.ContextInfo.ContextField]
+            OuterLogic.ContextField is not null
+                ? [OuterLogic.ContextField]
                 : [],
             _postSwitchStateNumber,
             switchEndLabel);
@@ -56,7 +56,7 @@ internal sealed class SwitchArmsCoroutineExtractor : SwitchArmsExtractor<StateMa
         _lastSwitchStateNumber = ilCursor.ObtainCurrentStateMachineState();
         ilCursor.Index = OuterBody.Instructions.GetIndexByOffset(switchEndLabel.Offset);
 
-        OuterLogic.PatchStateMachineContext(
+        OuterLogic.PatchContextIntoContainer(
             gameModuleData,
             outerInitializeContextInstruction.Offset,
             switchEndLabel.Offset);

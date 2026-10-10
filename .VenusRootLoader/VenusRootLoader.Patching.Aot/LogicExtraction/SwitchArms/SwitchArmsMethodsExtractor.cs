@@ -1,7 +1,7 @@
 using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.PE.DotNet.Cil;
-using VenusRootLoader.Patching.Aot.LogicContainer;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
+using MethodLogicContainer = VenusRootLoader.Patching.Aot.Logic.MethodLogicContainer;
 
 namespace VenusRootLoader.Patching.Aot.LogicExtraction.SwitchArms;
 
@@ -23,7 +23,7 @@ public sealed class SwitchArmsMethodsExtractor : SwitchArmsExtractor<MethodLogic
         CilInstruction outerSwitchInstruction,
         ICilLabel switchEndLabel)
     {
-        OuterLogic.PatchMethodContext(
+        OuterLogic.PatchContextIntoContainer(
             gameModuleData,
             outerInitializeContextInstruction.Offset,
             switchEndLabel.Offset);
@@ -35,7 +35,7 @@ public sealed class SwitchArmsMethodsExtractor : SwitchArmsExtractor<MethodLogic
         MethodLogicContainer inner,
         ICilLabel switchEndLabel)
     {
-        CilLocalVariable? contextLocal = outer.ContextInfo?.ContextLocal;
+        CilLocalVariable? contextLocal = outer.ContextLocal;
         List<CilInstruction> transferToMethodIl = MethodLogicContainer.GetTransferFromOuterMethodIl(
             inner,
             contextLocal is not null ? [contextLocal] : []);

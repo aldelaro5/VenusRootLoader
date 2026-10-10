@@ -12,14 +12,14 @@ using PropertyAttributes = AsmResolver.PE.DotNet.Metadata.Tables.PropertyAttribu
 using TypeAttributes = AsmResolver.PE.DotNet.Metadata.Tables.TypeAttributes;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
-namespace VenusRootLoader.Patching.Aot.LogicContainer;
+namespace VenusRootLoader.Patching.Aot.Logic.ContainerFactory;
 
 /// <summary>
-/// This class allows to create a <see cref="StateMachine"/> containing the basic structure where the state machine is
-/// intended to serve as an inner portion of an outer one. The <see cref="IEnumerator.MoveNext"/> will be left with a
-/// dummy setup of its state switch. It is meant to be filled by an <see cref="LogicExtractor{TOuter,TInner}"/>.
+/// This class allows to create an inner <see cref="StateMachine"/> from an outer <see cref="StateMachine"/>.
+/// The <see cref="IEnumerator.MoveNext"/> will be left with a dummy setup of its state switch. It is meant to be filled
+/// by an <see cref="LogicExtractor{TOuter,TInner}"/>.
 /// </summary>
-public sealed class StateMachineInnerLogicContainerFactory : IInnerLogicContainerFactory<StateMachine, StateMachine>
+public sealed class InnerStateMachineFactory : IInnerLogicContainerFactory<StateMachine, StateMachine>
 {
     public StateMachine Create(
         StateMachine outerContainer,
@@ -43,17 +43,6 @@ public sealed class StateMachineInnerLogicContainerFactory : IInnerLogicContaine
         return stateMachine;
     }
 
-    /// <summary>
-    /// Creates a new <see cref="StateMachine"/> that will serve to implement a portion of a bigger one. Its components
-    /// will be added to the same declaring type as the outer state machine.
-    /// </summary>
-    /// <param name="outerStateMachine">The outer state machine of the one to create.</param>
-    /// <param name="gameModuleData">The <see cref="parameters"/> to use for creating the state machine.</param>
-    /// <param name="parameters">The parameters the enumerator method will have.</param>
-    /// <param name="speakableName">The speakable version of the name of the state machine which will be the name of the
-    /// enumerator method.</param>
-    /// <returns>A new state machine with an empty <see cref="IEnumerator"/> that is set up to implement a smaller
-    /// portion of the <paramref name="outerStateMachine"/>.</returns>
     private static StateMachine CreateAndAddInnerStateMachineType(
         StateMachine outerStateMachine,
         GameModuleData gameModuleData,

@@ -1,6 +1,8 @@
 using AsmResolver.DotNet;
 using AsmResolver.PE.DotNet.Cil;
-using VenusRootLoader.Patching.Aot.LogicContainer;
+using VenusRootLoader.Patching.Aot.Logic;
+using MethodLogicContainer = VenusRootLoader.Patching.Aot.Logic.MethodLogicContainer;
+using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
 namespace VenusRootLoader.Patching.Aot.LogicExtraction.SwitchArms;
 
@@ -22,7 +24,7 @@ public sealed class SwitchArmsCoroutineIntoMethodsExtractor : SwitchArmsExtracto
         CilInstruction outerSwitchInstruction,
         ICilLabel switchEndLabel)
     {
-        OuterLogic.PatchStateMachineContext(
+        OuterLogic.PatchContextIntoContainer(
             gameModuleData,
             outerInitializeContextInstruction.Offset,
             switchEndLabel.Offset);
@@ -34,9 +36,13 @@ public sealed class SwitchArmsCoroutineIntoMethodsExtractor : SwitchArmsExtracto
         MethodLogicContainer inner,
         ICilLabel switchEndLabel)
     {
-        List<FieldDefinition> fieldArguments = OuterLogic.ContextInfo?.ContextField is not null
-            ? [OuterLogic.ContextInfo.ContextField]
+        List<FieldDefinition> fieldArguments = OuterLogic.ContextField is not null
+            ? [OuterLogic.ContextField]
             : [];
-        return StateMachine.GetTransferToMethodIl(inner, fieldArguments, switchEndLabel);
+        List<CilInstruction> transferToMethodIl = StateMachine.GetTransferToMethodIl(
+            inner,
+            fieldArguments);
+        transferToMethodIl.Add(new(Br, switchEndLabel));
+        return transferToMethodIl;
     }
 }

@@ -1,5 +1,5 @@
 using AsmResolver.PE.DotNet.Cil;
-using VenusRootLoader.Patching.Aot.LogicContainer;
+using VenusRootLoader.Patching.Aot.Logic;
 
 namespace VenusRootLoader.Patching.Aot.LogicExtraction;
 

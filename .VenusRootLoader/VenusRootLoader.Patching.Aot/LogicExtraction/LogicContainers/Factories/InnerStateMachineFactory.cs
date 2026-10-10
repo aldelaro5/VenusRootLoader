@@ -5,14 +5,13 @@ using AsmResolver.DotNet.Signatures;
 using AsmResolver.PE.DotNet.Cil;
 using System.Collections;
 using System.Reflection;
-using VenusRootLoader.Patching.Aot.LogicExtraction.Extractor;
 using FieldAttributes = AsmResolver.PE.DotNet.Metadata.Tables.FieldAttributes;
 using MethodAttributes = AsmResolver.PE.DotNet.Metadata.Tables.MethodAttributes;
 using PropertyAttributes = AsmResolver.PE.DotNet.Metadata.Tables.PropertyAttributes;
 using TypeAttributes = AsmResolver.PE.DotNet.Metadata.Tables.TypeAttributes;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
-namespace VenusRootLoader.Patching.Aot.LogicExtraction.Container.Factory;
+namespace VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers.Factories;
 
 /// <summary>
 /// This class allows to create an inner <see cref="StateMachine"/> from an outer <see cref="StateMachine"/>.

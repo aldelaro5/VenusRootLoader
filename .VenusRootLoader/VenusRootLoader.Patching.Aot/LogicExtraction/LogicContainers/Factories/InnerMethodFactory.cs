@@ -2,23 +2,23 @@ using AsmResolver.DotNet;
 using AsmResolver.DotNet.Collections;
 using AsmResolver.DotNet.Signatures;
 using AsmResolver.PE.DotNet.Metadata.Tables;
-using VenusRootLoader.Patching.Aot.LogicExtraction.Extractor;
+using VenusRootLoader.Patching.Aot.LogicExtraction.LogicExtractors;
 
-namespace VenusRootLoader.Patching.Aot.LogicExtraction.Container.Factory;
+namespace VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers.Factories;
 
 /// <summary>
-/// Allows to create an inner <see cref="MethodLogicContainer"/> from an outer <see cref="StateMachine"/>. It will
-/// have an empty body as it is meant to be filled with a <see cref="MoveNextToMethodLogicExtractor"/>.
+/// Allows to create an inner <see cref="MethodLogicContainer"/> from an outer <see cref="MethodLogicContainer"/>. It will
+/// have an empty body as it is meant to be filled with a <see cref="MethodLogicExtractor"/>.
 /// </summary>
-public sealed class InnerMethodFromCoroutineFactory : IInnerLogicContainerFactory<StateMachine, MethodLogicContainer>
+public sealed class InnerMethodFactory : IInnerLogicContainerFactory<MethodLogicContainer, MethodLogicContainer>
 {
     public MethodLogicContainer Create(
-        StateMachine outerContainer,
+        MethodLogicContainer outerContainer,
         GameModuleData gameModuleData,
         List<NamedParameter> parameters,
         string name)
     {
-        bool isStatic = outerContainer.EnumeratorMethod.IsStatic;
+        bool isStatic = outerContainer.ReceivingMethod.IsStatic;
         Func<TypeSignature, IEnumerable<TypeSignature>, MethodSignature> signatureCreator = isStatic
             ? MethodSignature.CreateStatic
             : MethodSignature.CreateInstance;
@@ -38,7 +38,7 @@ public sealed class InnerMethodFromCoroutineFactory : IInnerLogicContainerFactor
             contextParameter.GetOrCreateDefinition().Name = parameters[i].Name;
         }
 
-        outerContainer.EnumeratorMethod.DeclaringType!.Methods.Add(methodDefinition);
+        outerContainer.ReceivingMethod.DeclaringType!.Methods.Add(methodDefinition);
         return new MethodLogicContainer(methodDefinition);
     }
 }

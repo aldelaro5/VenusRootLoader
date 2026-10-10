@@ -1,9 +1,8 @@
 using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.PE.DotNet.Cil;
-using VenusRootLoader.Patching.Aot.LogicExtraction.Container;
-using VenusRootLoader.Patching.Aot.LogicExtraction.Extractor.Factory;
+using VenusRootLoader.Patching.Aot.LogicExtraction.LogicExtractors.Factories;
 
-namespace VenusRootLoader.Patching.Aot.LogicExtraction.Extractor.Switch;
+namespace VenusRootLoader.Patching.Aot.LogicExtraction.LogicExtractors.SwitchArmsExtractors;
 
 /// <summary>
 /// The base class that allows to extract all the arms of a switch from an outer container to an inner one with shared context.

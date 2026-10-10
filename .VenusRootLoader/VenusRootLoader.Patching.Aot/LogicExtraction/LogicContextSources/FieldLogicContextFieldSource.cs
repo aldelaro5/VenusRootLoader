@@ -3,12 +3,12 @@ using AsmResolver.DotNet.Signatures;
 using AsmResolver.PE.DotNet.Cil;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
-namespace VenusRootLoader.Patching.Aot.LogicExtraction.Context.ContextSource;
+namespace VenusRootLoader.Patching.Aot.LogicExtraction.LogicContextSources;
 
 /// <summary>
-/// A <see cref="IContextFieldSource"/> sourced from a field of a method's containing type.
+/// A <see cref="ILogicContextFieldSource"/> sourced from a field of a method's containing type.
 /// </summary>
-public sealed class FieldContextFieldSource : IContextFieldSource
+public sealed class FieldLogicContextFieldSource : ILogicContextFieldSource
 {
     private readonly FieldDefinition _field;
 
@@ -18,7 +18,7 @@ public sealed class FieldContextFieldSource : IContextFieldSource
     public object Key { get; }
     public TypeSignature TypeSignature => _field.Signature!.FieldType;
 
-    public FieldContextFieldSource(FieldDefinition field)
+    public FieldLogicContextFieldSource(FieldDefinition field)
     {
         _field = field;
         Key = field;

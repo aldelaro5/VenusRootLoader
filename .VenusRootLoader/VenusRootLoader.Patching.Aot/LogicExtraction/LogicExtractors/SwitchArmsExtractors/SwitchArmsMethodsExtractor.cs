@@ -1,10 +1,10 @@
 using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.PE.DotNet.Cil;
-using VenusRootLoader.Patching.Aot.LogicExtraction.Extractor.Factory;
+using VenusRootLoader.Patching.Aot.LogicExtraction.LogicExtractors.Factories;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
-using MethodLogicContainer = VenusRootLoader.Patching.Aot.LogicExtraction.Container.MethodLogicContainer;
+using MethodLogicContainer = VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers.MethodLogicContainer;
 
-namespace VenusRootLoader.Patching.Aot.LogicExtraction.Extractor.Switch;
+namespace VenusRootLoader.Patching.Aot.LogicExtraction.LogicExtractors.SwitchArmsExtractors;
 
 /// <summary>
 /// An extractor that can extract all the arms of a switch inside a <see cref="MethodLogicContainer"/> to smaller

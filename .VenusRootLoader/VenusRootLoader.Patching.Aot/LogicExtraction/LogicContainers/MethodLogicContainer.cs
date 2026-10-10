@@ -3,11 +3,10 @@ using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.DotNet.Collections;
 using AsmResolver.DotNet.Signatures;
 using AsmResolver.PE.DotNet.Cil;
-using VenusRootLoader.Patching.Aot.LogicExtraction.Context;
-using VenusRootLoader.Patching.Aot.LogicExtraction.Context.ContextSource;
+using VenusRootLoader.Patching.Aot.LogicExtraction.LogicContextSources;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
-namespace VenusRootLoader.Patching.Aot.LogicExtraction.Container;
+namespace VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers;
 
 /// <summary>
 /// A <see cref="LogicContainer"/> wrapping a regular method.
@@ -44,7 +43,7 @@ public sealed class MethodLogicContainer : LogicContainer
     {
         return new LogicContextField
         {
-            ContextFieldSources = [new ArgumentContextFieldSource(ReceivingMethod.Parameters[argumentIndex])],
+            ContextFieldSources = [new ArgumentLogicContextFieldSource(ReceivingMethod.Parameters[argumentIndex])],
             FieldName = mappedName ?? "A_" + argumentIndex,
             ReadOnly = readOnly
         };
@@ -69,8 +68,8 @@ public sealed class MethodLogicContainer : LogicContainer
         {
             ContextFieldSources =
             [
-                new ArgumentContextFieldSource(ReceivingMethod.Parameters[argumentIndex]),
-                new LocalContextFieldSource(ReceivingMethod.CilMethodBody!.LocalVariables[localIndex])
+                new ArgumentLogicContextFieldSource(ReceivingMethod.Parameters[argumentIndex]),
+                new LocalLogicContextFieldSource(ReceivingMethod.CilMethodBody!.LocalVariables[localIndex])
             ],
             FieldName = mappedName ?? "A_" + argumentIndex,
             ReadOnly = readOnly
@@ -137,7 +136,7 @@ public sealed class MethodLogicContainer : LogicContainer
         ];
     }
 
-    protected override List<CilInstruction> GetIlPrepareContextForFieldCommit(IContextFieldSource fieldSource)
+    protected override List<CilInstruction> GetIlPrepareContextForFieldCommit(ILogicContextFieldSource fieldSource)
     {
         return [new(Ldloc, ContextLocal)];
     }

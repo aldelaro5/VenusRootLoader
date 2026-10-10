@@ -1,4 +1,4 @@
-namespace VenusRootLoader.Patching.Aot.LogicExtraction.Container.Factory;
+namespace VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers.Factories;
 
 /// <summary>
 /// Allows to create instances of <see cref="LogicContainer"/> that are made to be the inner part of an outer

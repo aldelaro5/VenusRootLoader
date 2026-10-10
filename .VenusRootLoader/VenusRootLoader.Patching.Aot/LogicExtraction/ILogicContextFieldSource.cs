@@ -1,12 +1,12 @@
 using AsmResolver.DotNet.Signatures;
 using AsmResolver.PE.DotNet.Cil;
 
-namespace VenusRootLoader.Patching.Aot.LogicExtraction.Context.ContextSource;
+namespace VenusRootLoader.Patching.Aot.LogicExtraction;
 
 /// <summary>
 /// Represents a source of value for a <see cref="LogicContextField"/>.
 /// </summary>
-public interface IContextFieldSource
+public interface ILogicContextFieldSource
 {
     /// <summary>
     /// Obtains the IL that places the value of the context field on the stack.

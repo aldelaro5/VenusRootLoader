@@ -1,7 +1,6 @@
 using AsmResolver.PE.DotNet.Cil;
-using VenusRootLoader.Patching.Aot.LogicExtraction.Container;
 
-namespace VenusRootLoader.Patching.Aot.LogicExtraction.Extractor.Factory;
+namespace VenusRootLoader.Patching.Aot.LogicExtraction.LogicExtractors.Factories;
 
 /// <summary>
 /// Allows to create an extractor that can extract logic from an outer container to an inner one.

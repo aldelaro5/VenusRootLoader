@@ -3,11 +3,10 @@ using AsmResolver.DotNet.Cloning;
 using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.DotNet.Collections;
 using AsmResolver.PE.DotNet.Cil;
-using VenusRootLoader.Patching.Aot.LogicExtraction.Container;
-using VenusRootLoader.Patching.Aot.LogicExtraction.Container.Factory;
+using VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers.Factories;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
-namespace VenusRootLoader.Patching.Aot.LogicExtraction.Extractor;
+namespace VenusRootLoader.Patching.Aot.LogicExtraction;
 
 /// <summary>
 /// A logic extractor that extracts from an outer container to an inner container. The extraction process is done in 2 steps.

@@ -1,8 +1,6 @@
 using AsmResolver.DotNet;
-using VenusRootLoader.Patching.Aot.LogicExtraction.Container;
-using VenusRootLoader.Patching.Aot.LogicExtraction.Context.ContextSource;
 
-namespace VenusRootLoader.Patching.Aot.LogicExtraction.Context;
+namespace VenusRootLoader.Patching.Aot.LogicExtraction;
 
 /// <summary>
 /// A construct used by a <see cref="LogicContainer"/> to pass information to inner containers allowing them to change them
@@ -21,7 +19,7 @@ public sealed class LogicContext
     public required string TypeName { get; init; }
 
     /// <summary>
-    /// After patching the initialize and commit part of the context, this represents the mapping from their <see cref="IContextFieldSource"/>.
+    /// After patching the initialize and commit part of the context, this represents the mapping from their <see cref="ILogicContextFieldSource"/>.
     /// to their field in the context instance. This is empty if the context hasn't been patched yet.
     /// </summary>
     public Dictionary<object, FieldDefinition> ContextFieldsMapping { get; } = [];

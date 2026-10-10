@@ -2,11 +2,11 @@ using AsmResolver.DotNet;
 using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.DotNet.Collections;
 using AsmResolver.PE.DotNet.Cil;
-using VenusRootLoader.Patching.Aot.LogicExtraction.Container;
-using VenusRootLoader.Patching.Aot.LogicExtraction.Container.Factory;
+using VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers;
+using VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers.Factories;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
-namespace VenusRootLoader.Patching.Aot.LogicExtraction.Extractor;
+namespace VenusRootLoader.Patching.Aot.LogicExtraction.LogicExtractors;
 
 /// <summary>
 /// An extractor that can extract logic from an outer <see cref="MethodLogicContainer"/> to an inner <see cref="MethodLogicContainer"/>.

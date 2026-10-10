@@ -3,18 +3,16 @@ using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.DotNet.Signatures;
 using AsmResolver.PE.DotNet.Cil;
 using AsmResolver.PE.DotNet.Metadata.Tables;
-using VenusRootLoader.Patching.Aot.LogicExtraction.Context;
-using VenusRootLoader.Patching.Aot.LogicExtraction.Context.ContextSource;
-using VenusRootLoader.Patching.Aot.LogicExtraction.Extractor;
+using VenusRootLoader.Patching.Aot.LogicExtraction.LogicContextSources;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
-namespace VenusRootLoader.Patching.Aot.LogicExtraction.Container;
+namespace VenusRootLoader.Patching.Aot.LogicExtraction;
 
 /// <summary>
 /// A construct that allows to contain logic in a method such that part of them can be extracted via an <see cref="LogicExtractor{TOuter,TInner}"/>.
 /// Containers also have access to a <see cref="LogicContext"/> which allows an inner container to receive information from an outer container
 /// and for the outer container to commit back the information changed by the inner container. The context is tracked by the
-/// container implementation and its <see cref="LogicContextField"/> can be sourced from different schemes via an <see cref="IContextFieldSource"/>.
+/// container implementation and its <see cref="LogicContextField"/> can be sourced from different schemes via an <see cref="ILogicContextFieldSource"/>.
 /// </summary>
 public abstract class LogicContainer
 {
@@ -88,7 +86,7 @@ public abstract class LogicContainer
     /// </summary>
     /// <param name="fieldSource">The source of the context field.</param>
     /// <returns>The IL that prepares the context for commiting a field.</returns>
-    protected abstract List<CilInstruction> GetIlPrepareContextForFieldCommit(IContextFieldSource fieldSource);
+    protected abstract List<CilInstruction> GetIlPrepareContextForFieldCommit(ILogicContextFieldSource fieldSource);
 
     /// <summary>
     /// Creates a field to be added to the context using a local index of the container's method.
@@ -105,7 +103,7 @@ public abstract class LogicContainer
         return new LogicContextField
         {
             ContextFieldSources =
-                [new LocalContextFieldSource(ReceivingMethod.CilMethodBody!.LocalVariables[localIndex])],
+                [new LocalLogicContextFieldSource(ReceivingMethod.CilMethodBody!.LocalVariables[localIndex])],
             FieldName = mappedName ?? "V_" + localIndex,
             ReadOnly = readOnly
         };
@@ -128,8 +126,8 @@ public abstract class LogicContainer
 
         TypeDefinition contextType = CreateContextType(gameModuleData);
 
-        Dictionary<IContextFieldSource, FieldDefinition> fieldsToCommitContextMapping = new();
-        Dictionary<IContextFieldSource, FieldDefinition> fieldsToInitializeContextMapping = new();
+        Dictionary<ILogicContextFieldSource, FieldDefinition> fieldsToCommitContextMapping = new();
+        Dictionary<ILogicContextFieldSource, FieldDefinition> fieldsToInitializeContextMapping = new();
         AddContextFields(contextType, fieldsToInitializeContextMapping, fieldsToCommitContextMapping);
 
         ContextDeclaringType.NestedTypes.Add(contextType);
@@ -165,8 +163,8 @@ public abstract class LogicContainer
 
     private void AddContextFields(
         TypeDefinition contextType,
-        Dictionary<IContextFieldSource, FieldDefinition> fieldsToInitializeContextMapping,
-        Dictionary<IContextFieldSource, FieldDefinition> fieldsToCommitContextMapping)
+        Dictionary<ILogicContextFieldSource, FieldDefinition> fieldsToInitializeContextMapping,
+        Dictionary<ILogicContextFieldSource, FieldDefinition> fieldsToCommitContextMapping)
     {
         foreach (LogicContextField logicContextField in Context!.ContextFields)
         {
@@ -178,7 +176,7 @@ public abstract class LogicContainer
 
             contextType.Fields.Add(newContextField);
 
-            foreach (IContextFieldSource contextSource in logicContextField.ContextFieldSources)
+            foreach (ILogicContextFieldSource contextSource in logicContextField.ContextFieldSources)
                 Context.ContextFieldsMapping.Add(contextSource.Key, newContextField);
 
             // We don't want to map each field multiple time so we just need the first one to use for the IL generation.
@@ -201,12 +199,13 @@ public abstract class LogicContainer
 
     private void PatchContextInitializeCode(
         int initializeContextIlOffset,
-        Dictionary<IContextFieldSource, FieldDefinition> fieldsToInitializeContextMapping,
+        Dictionary<ILogicContextFieldSource, FieldDefinition> fieldsToInitializeContextMapping,
         CilInstructionCollection methodIl,
         TypeDefinition contextType)
     {
         List<CilInstruction> instructionsInitializeContext = new();
-        foreach (KeyValuePair<IContextFieldSource, FieldDefinition> fieldMapping in fieldsToInitializeContextMapping)
+        foreach (KeyValuePair<ILogicContextFieldSource, FieldDefinition> fieldMapping in
+                 fieldsToInitializeContextMapping)
         {
             // By this point, the instance of the context is on the stack so we can take advantage of its presence by
             // issuing a Dup so we can keep storing fields into it. The code will later pop the context once we're done
@@ -223,11 +222,11 @@ public abstract class LogicContainer
 
     private void PatchContextCommitCode(
         int commitContextIlOffset,
-        Dictionary<IContextFieldSource, FieldDefinition> fieldsToCommitContextMapping,
+        Dictionary<ILogicContextFieldSource, FieldDefinition> fieldsToCommitContextMapping,
         CilInstructionCollection methodIl)
     {
         List<CilInstruction> instructionsWriteContext = new();
-        foreach (KeyValuePair<IContextFieldSource, FieldDefinition> fieldMapping in fieldsToCommitContextMapping)
+        foreach (KeyValuePair<ILogicContextFieldSource, FieldDefinition> fieldMapping in fieldsToCommitContextMapping)
         {
             instructionsWriteContext.AddRange(GetIlPrepareContextForFieldCommit(fieldMapping.Key));
             instructionsWriteContext.Add(new(Ldfld, fieldMapping.Value));

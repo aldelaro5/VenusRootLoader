@@ -4,11 +4,10 @@ using AsmResolver.DotNet.Signatures;
 using AsmResolver.PE.DotNet.Cil;
 using AsmResolver.PE.DotNet.Metadata.Tables;
 using System.Collections;
-using VenusRootLoader.Patching.Aot.LogicExtraction.Context;
-using VenusRootLoader.Patching.Aot.LogicExtraction.Context.ContextSource;
+using VenusRootLoader.Patching.Aot.LogicExtraction.LogicContextSources;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
-namespace VenusRootLoader.Patching.Aot.LogicExtraction.Container;
+namespace VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers;
 
 /// <summary>
 /// <p>
@@ -259,7 +258,7 @@ public sealed class StateMachine : LogicContainer
     {
         return new LogicContextField
         {
-            ContextFieldSources = [new FieldContextFieldSource(GetFieldFromSpeakableName(fieldSpeakableName))],
+            ContextFieldSources = [new FieldLogicContextFieldSource(GetFieldFromSpeakableName(fieldSpeakableName))],
             FieldName = mappedName ?? fieldSpeakableName,
             ReadOnly = readOnly,
         };
@@ -294,11 +293,11 @@ public sealed class StateMachine : LogicContainer
         ];
     }
 
-    protected override List<CilInstruction> GetIlPrepareContextForFieldCommit(IContextFieldSource fieldSource)
+    protected override List<CilInstruction> GetIlPrepareContextForFieldCommit(ILogicContextFieldSource fieldSource)
     {
         List<CilInstruction> il = [];
         // This is required for the stfld to work after this code.
-        if (fieldSource is FieldContextFieldSource)
+        if (fieldSource is FieldLogicContextFieldSource)
             il.Add(new(Ldarg_0));
 
         il.Add(new(Ldarg_0));

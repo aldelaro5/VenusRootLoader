@@ -25,6 +25,11 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
             .Single(x => x.Name == "DoItemEffect");
         MethodLogicContainer methodContainer = new(doItemEffectMethod);
         ExtractDoItemEffect(gameModuleData, methodContainer);
+
+        MethodDefinition showItemListMethod = type.Methods
+            .Single(x => x.Name == "ShowItemList");
+        MethodLogicContainer showItemListContainer = new(showItemListMethod);
+        ExtractShowItemList(gameModuleData, showItemListContainer);
     }
 
     private static void ExtractSetText(
@@ -209,5 +214,58 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
         ilCursor.MatchNext(x => x.IsConditionalBranch());
         ilCursor.Index++;
         doItemEffectIl.Insert(ilCursor.Index, new CilInstruction(Br, ilCursor.Current().CreateLabel()));
+    }
+
+    private static void ExtractShowItemList(GameModuleData gameModuleData, MethodLogicContainer showItemListContainer)
+    {
+        CilInstructionCollection methodIl = showItemListContainer.ReceivingMethod.CilMethodBody!.Instructions;
+        methodIl.CalculateOffsets();
+        AsmResolverIlCursor ilCursor = new(methodIl);
+
+        ilCursor.MatchNext(x => x.OpCode == Switch);
+
+        CilInstruction showItemListSetupSwitch = ilCursor.Current();
+        int indexSwitch = ilCursor.Index;
+        IList<ICilLabel> switchArmLabels = (IList<ICilLabel>)ilCursor.Current().Operand!;
+        ilCursor.MatchPrevious(x => x.OpCode == Ldarg_0 || x.OpCode == Ldarg);
+        CilInstruction beforeShowItemListSwitch = ilCursor.Current();
+
+        ilCursor.Index = methodIl.GetIndexByOffset(switchArmLabels[5].Offset);
+        int startBadArm = ilCursor.Index;
+        ilCursor.MatchNext(x => x.IsUnconditionalBranch());
+        int endBadArm = ilCursor.Index;
+        methodIl.RemoveRange(startBadArm, endBadArm - startBadArm + 1);
+
+        ilCursor.Index = indexSwitch;
+        ilCursor.MatchNext(x => x.IsUnconditionalBranch());
+        CilInstruction branchToSwitchEnd = ilCursor.Current();
+        CilInstructionLabel labelDefault = (CilInstructionLabel)branchToSwitchEnd.Operand!;
+        ilCursor.Index++;
+        ilCursor.MatchNext(x => x.IsUnconditionalBranch());
+        CilInstructionLabel labelRealSwitchEnd = (CilInstructionLabel)ilCursor.Current().Operand!;
+
+        branchToSwitchEnd.Operand = labelRealSwitchEnd;
+        switchArmLabels[5] = labelDefault;
+
+        showItemListContainer.AssignNewContext(
+            "ShowItemListSetupContext",
+            [
+                showItemListContainer.AddContextFieldFromArgumentIndex(0, false),
+                showItemListContainer.AddContextFieldFromLocalIndex(0, false),
+                showItemListContainer.AddContextFieldFromArgumentIndex(1, true),
+                showItemListContainer.AddContextFieldFromArgumentIndex(2, false),
+                showItemListContainer.AddContextFieldFromArgumentIndex(3, true),
+                showItemListContainer.AddContextFieldFromLocalIndex(2, false)
+            ]);
+
+        SwitchArmsMethodsExtractor showItemListArmsExtractor = new(
+            gameModuleData,
+            showItemListContainer);
+        showItemListArmsExtractor.ExtractSwitchArms(
+            "ShowItemListSetup",
+            showItemListSetupSwitch,
+            beforeShowItemListSwitch,
+            null,
+            null);
     }
 }

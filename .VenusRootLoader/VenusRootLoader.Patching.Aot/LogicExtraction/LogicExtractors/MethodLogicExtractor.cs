@@ -58,8 +58,15 @@ public sealed class MethodLogicExtractor : LogicExtractor<MethodLogicContainer, 
         if (!instruction.IsStarg())
             return null;
 
-        int indexLastNop = GetInstructionIndexForLoadBeforeStore();
-        InnerBody.Instructions.Insert(indexLastNop, InnerLogic.ReceivingMethod.IsStatic ? Ldarg_0 : Ldarg_1);
+        int indexLastLoadSpot = GetInstructionIndexForLoadBeforeStore();
+        CilInstruction originalInstructionAtIndex = InnerBody.Instructions[indexLastLoadSpot];
+        InnerBody.Instructions.ReplaceRange(
+            indexLastLoadSpot,
+            indexLastLoadSpot,
+            [
+                new(InnerLogic.ReceivingMethod.IsStatic ? Ldarg_0 : Ldarg_1),
+                new(originalInstructionAtIndex.OpCode, originalInstructionAtIndex.Operand)
+            ]);
         instruction.ReplaceWith(Stfld, fieldInContext);
 
         return null;
@@ -91,8 +98,15 @@ public sealed class MethodLogicExtractor : LogicExtractor<MethodLogicContainer, 
         if (!instruction.IsStloc())
             return base.ProcessLocalOperationInstruction(instruction, localVariable);
 
-        int indexLastNop = GetInstructionIndexForLoadBeforeStore();
-        InnerBody.Instructions.Insert(indexLastNop, InnerLogic.ReceivingMethod.IsStatic ? Ldarg_0 : Ldarg_1);
+        int indexLastLoadSpot = GetInstructionIndexForLoadBeforeStore();
+        CilInstruction originalInstructionAtIndex = InnerBody.Instructions[indexLastLoadSpot];
+        InnerBody.Instructions.ReplaceRange(
+            indexLastLoadSpot,
+            indexLastLoadSpot,
+            [
+                new(InnerLogic.ReceivingMethod.IsStatic ? Ldarg_0 : Ldarg_1),
+                new(originalInstructionAtIndex.OpCode, originalInstructionAtIndex.Operand)
+            ]);
         instruction.ReplaceWith(Stfld, fieldInContext);
         return null;
     }

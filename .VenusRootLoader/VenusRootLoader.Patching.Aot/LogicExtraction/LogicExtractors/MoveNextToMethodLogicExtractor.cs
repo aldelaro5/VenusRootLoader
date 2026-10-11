@@ -68,8 +68,15 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
 
             if (instruction.IsStloc())
             {
-                int indexLastNop = GetInstructionIndexForLoadBeforeStore();
-                InnerBody.Instructions.Insert(indexLastNop, InnerLogic.ReceivingMethod.IsStatic ? Ldarg_0 : Ldarg_1);
+                int indexLastLoadSpot = GetInstructionIndexForLoadBeforeStore();
+                CilInstruction originalInstructionAtIndex = InnerBody.Instructions[indexLastLoadSpot];
+                InnerBody.Instructions.ReplaceRange(
+                    indexLastLoadSpot,
+                    indexLastLoadSpot,
+                    [
+                        new(InnerLogic.ReceivingMethod.IsStatic ? Ldarg_0 : Ldarg_1),
+                        new(originalInstructionAtIndex.OpCode, originalInstructionAtIndex.Operand)
+                    ]);
                 instruction.ReplaceWith(Stfld, fieldInContext);
                 return null;
             }
@@ -113,8 +120,15 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
             return;
         }
 
-        int indexLastNop = GetInstructionIndexForLoadBeforeStore();
-        InnerBody.Instructions.Insert(indexLastNop, Ldarg_1);
+        int indexLastLoadSpot = GetInstructionIndexForLoadBeforeStore();
+        CilInstruction originalInstructionAtIndex = InnerBody.Instructions[indexLastLoadSpot];
+        InnerBody.Instructions.ReplaceRange(
+            indexLastLoadSpot,
+            indexLastLoadSpot,
+            [
+                new(Ldarg_1),
+                new(originalInstructionAtIndex.OpCode, originalInstructionAtIndex.Operand)
+            ]);
         instruction.Operand = fieldInContext;
     }
 

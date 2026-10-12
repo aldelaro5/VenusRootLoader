@@ -52,6 +52,7 @@ public sealed class StateMachine : LogicContainer
     private CilLocalVariable? _localCoroutine;
 
     public override MethodDefinition ReceivingMethod => MoveNextMethod;
+    public override string Name => EnumeratorMethod.Name!;
 
     public override LogicContext? Context { get; protected set; }
     protected override TypeDefinition ContextDeclaringType => StateMachineType.DeclaringType!;

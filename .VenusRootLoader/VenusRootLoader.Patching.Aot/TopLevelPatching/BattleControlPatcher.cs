@@ -67,7 +67,7 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
         CilInstruction beforePlayerActionSwitch = ilCursor.Current();
 
         doActionStateMachine.AssignNewContext(
-            "PlayerActionContext",
+            "PlayerAction",
             [
                 doActionStateMachine.AddContextFieldFromSpeakableFieldName("entity", true),
                 doActionStateMachine.AddContextFieldFromSpeakableFieldName("actionid", true),
@@ -77,11 +77,11 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             ]);
 
         doActionSwitchArmsExtractor.ExtractSwitchArms(
-            "PlayerAction",
             playerActionSwitch,
             beforePlayerActionSwitch,
             null,
-            null);
+            null,
+            "PlayerAction");
     }
 
     private static void ExtractEnemyActions(
@@ -101,7 +101,7 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
         CilInstruction beforeEnemyActionSwitch = ilCursor.Current();
 
         doActionStateMachine.AssignNewContext(
-            "EnemyActionContext",
+            "EnemyAction",
             [
                 doActionStateMachine.AddContextFieldFromSpeakableFieldName("entity", true),
                 doActionStateMachine.AddContextFieldFromSpeakableFieldName("actionid", false),
@@ -114,11 +114,11 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             ]);
 
         doActionSwitchArmsExtractor.ExtractSwitchArms(
-            "EnemyAction",
             enemyActionSwitch,
             beforeEnemyActionSwitch,
             beforeEnemyActionSwitch,
-            EnemyActionPostProcessor);
+            EnemyActionPostProcessor,
+            "EnemyAction");
     }
 
     private static void ExtractEventDialogues(GameModuleData gameModuleData, StateMachine eventDialogueStateMachine)
@@ -140,7 +140,6 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             gameModuleData,
             eventDialogueStateMachine);
         eventDialoguesSwitchArmsExtractor.ExtractSwitchArms(
-            "EventDialogue",
             eventDialogueSwitch,
             beforeEventDialogueSwitch,
             null,
@@ -161,7 +160,7 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
         CilInstruction beforeDoCommandSetupSwitch = ilCursor.Current();
 
         doCommandStateMachine.AssignNewContext(
-            "DoCommandSetupContext",
+            "Setup",
             [
                 doCommandStateMachine.AddContextFieldFromSpeakableFieldName("timer", true),
                 doCommandStateMachine.AddContextFieldFromSpeakableFieldName("commandtype", true),
@@ -175,11 +174,11 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             gameModuleData,
             doCommandStateMachine);
         doCommandSetupSwitchArmsExtractor.ExtractSwitchArms(
-            "DoCommandSetup",
             doCommandSetupSwitch,
             beforeDoCommandSetupSwitch,
             null,
-            null);
+            null,
+            "Setup");
 
         ilCursor.Index = 0;
         ilCursor.MatchNext(x => x.OpCode == Switch);
@@ -193,7 +192,7 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
         CilInstruction beforeDoCommandSwitch = ilCursor.Current();
 
         doCommandStateMachine.AssignNewContext(
-            "DoCommandExecutionContext",
+            "Execution",
             [
                 doCommandStateMachine.AddContextFieldFromSpeakableFieldName("timer", true),
                 doCommandStateMachine.AddContextFieldFromSpeakableFieldName("commandtype", true),
@@ -207,11 +206,11 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
 
         SwitchArmsStateMachineExtractor doCommandSwitchArmsExtractor = new(gameModuleData, doCommandStateMachine);
         doCommandSwitchArmsExtractor.ExtractSwitchArms(
-            "DoCommandExecution",
             doCommandExecutionSwitch,
             beforeDoCommandSwitch,
             null,
-            null);
+            null,
+            "Execution");
     }
 
     private static void ExtractAIAttack(GameModuleData gameModuleData, StateMachine aiAttackStateMachine)
@@ -275,7 +274,7 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
         CilInstruction newSwitchInstruction = ilCursor.Current();
 
         aiAttackStateMachine.AssignNewContext(
-            "AIAttackContext",
+            "",
             [
                 aiAttackStateMachine.AddContextFieldFromSpeakableFieldName("targetid", false),
                 aiAttackStateMachine.AddContextFieldFromSpeakableFieldName("dammod", true),
@@ -286,7 +285,6 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
 
         SwitchArmsStateMachineExtractor aiAttackSwitchArmsExtractor = new(gameModuleData, aiAttackStateMachine);
         aiAttackSwitchArmsExtractor.ExtractSwitchArms(
-            "AIAttack",
             newSwitchInstruction,
             beforeAiAttackSwitch,
             null,
@@ -309,7 +307,7 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
         CilInstruction beforeUseItemSetupSwitch = ilCursor.Current();
 
         useItemStateMachine.AssignNewContext(
-            "UseItemBattleEffectContext",
+            "BattleEffect",
             [
                 useItemStateMachine.AddContextFieldFromSpeakableFieldName("id", true),
                 useItemStateMachine.AddContextFieldFromSpeakableFieldName("san", false),
@@ -323,11 +321,11 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             gameModuleData,
             useItemStateMachine);
         useItemSetupSwitchArmsExtractor.ExtractSwitchArms(
-            "UseItemBattleEffect",
             useItemSwitch,
             beforeUseItemSetupSwitch,
             null,
-            null);
+            null,
+            "BattleEffect");
     }
 
     private static void EnemyActionPostProcessor(

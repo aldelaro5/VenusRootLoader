@@ -57,7 +57,7 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
         FixMissingSetTextGotoCases(ilCursor, switchArmLabels, setTextMoveNextIl);
 
         setTextStateMachine.AssignNewContext(
-            "SetTextCommandContext",
+            "Command",
             [
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("text", false),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("fonttype", false),
@@ -127,11 +127,11 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
 
         SwitchArmsStateMachineExtractor setTextSwitchArmsExtractor = new(gameModuleData, setTextStateMachine);
         setTextSwitchArmsExtractor.ExtractSwitchArms(
-            "SetTextCommand",
             commandSwitch,
             beforeCommandSwitch,
             null,
-            null);
+            null,
+            "Command");
     }
 
     private static void FixWaitCnArmBoundaries(
@@ -186,7 +186,7 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
         FixMissingDoItemEffectGotoCases(ilCursor, switchArmLabels, methodIl);
 
         doItemEffectContainer.AssignNewContext(
-            "DoItemEffectContext",
+            "",
             [
                 doItemEffectContainer.AddContextFieldFromArgumentIndexAndLocalIndexes(0, [0], true),
                 doItemEffectContainer.AddContextFieldFromArgumentIndex(1, false),
@@ -197,7 +197,6 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
             gameModuleData,
             doItemEffectContainer);
         doItemEffectSwitchArmsExtractor.ExtractSwitchArms(
-            "DoItemEffect",
             doItemEffectSwitch,
             beforeDoItemEffectSwitch,
             null,
@@ -258,7 +257,7 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
         switchArmLabels[5] = labelDefault;
 
         showItemListContainer.AssignNewContext(
-            "ShowItemListSetupContext",
+            "Setup",
             [
                 showItemListContainer.AddContextFieldFromArgumentIndex(0, false),
                 showItemListContainer.AddContextFieldFromLocalIndex(0, false),
@@ -272,11 +271,11 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
             gameModuleData,
             showItemListContainer);
         showItemListArmsExtractor.ExtractSwitchArms(
-            "ShowItemListSetup",
             showItemListSetupSwitch,
             beforeShowItemListSwitch,
             null,
-            null);
+            null,
+            "Setup");
     }
 
     private static void ExtractShowItemListRender(
@@ -385,7 +384,7 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
         CilInstruction beforeShowItemListRenderSwitch = ilCursor.Current();
 
         showItemListContainer.AssignNewContext(
-            "ShowItemListRenderContext",
+            "Render",
             [
                 showItemListContainer.AddContextFieldFromArgumentIndex(0, true),
                 showItemListContainer.AddContextFieldFromArgumentIndex(1, true),
@@ -408,10 +407,10 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
             gameModuleData,
             showItemListContainer);
         showItemListArmsExtractor.ExtractSwitchArms(
-            "ShowItemListRender",
             showItemListRenderSwitch,
             beforeShowItemListRenderSwitch,
             null,
-            null);
+            null,
+            "Render");
     }
 }

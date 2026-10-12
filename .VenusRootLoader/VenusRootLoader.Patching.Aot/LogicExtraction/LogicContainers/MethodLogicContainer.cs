@@ -14,6 +14,7 @@ namespace VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers;
 public sealed class MethodLogicContainer : LogicContainer
 {
     public override MethodDefinition ReceivingMethod { get; }
+    public override string Name => ReceivingMethod.Name!;
     public override LogicContext? Context { get; protected set; }
     protected override TypeDefinition ContextDeclaringType => ReceivingMethod.DeclaringType!;
     protected override TypeSignature? ContextTypeSignature => ContextLocal?.VariableType;

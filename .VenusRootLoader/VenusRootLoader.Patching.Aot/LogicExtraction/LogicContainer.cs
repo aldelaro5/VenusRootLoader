@@ -22,6 +22,11 @@ public abstract class LogicContainer
     public abstract MethodDefinition ReceivingMethod { get; }
 
     /// <summary>
+    /// A name that identifies this container among others.
+    /// </summary>
+    public abstract string Name { get; }
+
+    /// <summary>
     /// The current context if it exists. If it doesn't, this is null.
     /// </summary>
     public abstract LogicContext? Context { get; protected set; }
@@ -39,11 +44,12 @@ public abstract class LogicContainer
     /// <summary>
     /// Discard the previous context if it exists and create a new one.
     /// </summary>
-    /// <param name="typeName">The name the new context type will have.</param>
+    /// <param name="nameSegment">The middle segment of the name the new context type will have. The full type name will be preceded
+    /// by the name of the container and suffixed by the word <c>Context</c></param>
     /// <param name="contextFields">The fields information of the new context.</param>
-    public void AssignNewContext(string typeName, List<LogicContextField> contextFields)
+    public void AssignNewContext(string nameSegment, List<LogicContextField> contextFields)
     {
-        Context = new() { TypeName = typeName };
+        Context = new() { TypeName = $"{Name}{nameSegment}Context" };
         Context.ContextFields.AddRange(contextFields);
     }
 

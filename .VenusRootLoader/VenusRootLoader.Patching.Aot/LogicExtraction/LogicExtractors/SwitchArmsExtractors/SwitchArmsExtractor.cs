@@ -1,5 +1,6 @@
 using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.PE.DotNet.Cil;
+using System.Text;
 using VenusRootLoader.Patching.Aot.LogicExtraction.LogicExtractors.Factories;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
@@ -117,20 +118,20 @@ public abstract class SwitchArmsExtractor<TOuter, TInner>
     /// <summary>
     /// Extract all the switch arms into inner containers.
     /// </summary>
-    /// <param name="innerContainersMethodPrefix">A prefix to place before the case identifier for each of the inner
-    /// containers</param>
     /// <param name="outerSwitchInstruction">The switch instruction.</param>
     /// <param name="outerInitializeContextInstruction">The instruction to insert the context initialization code at.</param>
     /// <param name="outerResetContainerInstruction">An instruction that marks the place the code will branch to
-    /// if the switch arm where to restart from the beginning of its logic.</param>
+    ///     if the switch arm where to restart from the beginning of its logic.</param>
     /// <param name="innerContainerPostProcessor">An optional delegate that performs further patching on each of the inner
-    /// containers after the logic have been fully extracted from the switch arm.</param>
+    ///     containers after the logic have been fully extracted from the switch arm.</param>
+    /// <param name="innerContainersMethodPrefix">A prefix to place before the case identifier for each of the inner
+    ///     containers</param>
     public void ExtractSwitchArms(
-        string innerContainersMethodPrefix,
         CilInstruction outerSwitchInstruction,
         CilInstruction outerInitializeContextInstruction,
         CilInstruction? outerResetContainerInstruction,
-        Action<int, TInner, GameModuleData>? innerContainerPostProcessor)
+        Action<int, TInner, GameModuleData>? innerContainerPostProcessor,
+        string innerContainersMethodPrefix = "")
     {
         CilInstructionCollection moveNextIl = OuterBody.Instructions;
         moveNextIl.ExpandMacros();
@@ -165,10 +166,20 @@ public abstract class SwitchArmsExtractor<TOuter, TInner>
         foreach (SwitchArn arm in switchArms)
         foreach (IndexedSwitchLabel indexedSwitchLabel in arm.Labels)
         {
+            StringBuilder sb = new(OuterLogic.Name);
+            sb.Append('_');
+            if (!string.IsNullOrWhiteSpace(innerContainersMethodPrefix))
+            {
+                sb.Append(innerContainersMethodPrefix);
+                sb.Append('_');
+            }
+
+            sb.Append(indexedSwitchLabel.Index);
+
             LogicExtractor<TOuter, TInner> extractor = _logicExtractorFactory.Create(
                 OuterLogic,
                 _gameModuleData,
-                $"{innerContainersMethodPrefix}{indexedSwitchLabel.Index}",
+                sb.ToString(),
                 arm.StartInstruction,
                 arm.EndInstruction);
 

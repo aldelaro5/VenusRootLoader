@@ -220,6 +220,16 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
     {
         CilInstructionCollection methodIl = showItemListContainer.ReceivingMethod.CilMethodBody!.Instructions;
         methodIl.CalculateOffsets();
+        ExtractShowItemListSetup(gameModuleData, showItemListContainer, methodIl);
+        methodIl.CalculateOffsets();
+        ExtractShowItemListRender(gameModuleData, showItemListContainer, methodIl);
+    }
+
+    private static void ExtractShowItemListSetup(
+        GameModuleData gameModuleData,
+        MethodLogicContainer showItemListContainer,
+        CilInstructionCollection methodIl)
+    {
         AsmResolverIlCursor ilCursor = new(methodIl);
 
         ilCursor.MatchNext(x => x.OpCode == Switch);
@@ -265,6 +275,142 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
             "ShowItemListSetup",
             showItemListSetupSwitch,
             beforeShowItemListSwitch,
+            null,
+            null);
+    }
+
+    private static void ExtractShowItemListRender(
+        GameModuleData gameModuleData,
+        MethodLogicContainer showItemListContainer,
+        CilInstructionCollection methodIl)
+    {
+        AsmResolverIlCursor ilCursor = new(methodIl);
+
+        Dictionary<int, ICilLabel> switchCases = [];
+        List<int> ilIndexesToRemove = [];
+
+        ilCursor.MatchNext(x => x.OpCode == Ldstr && (string)x.Operand! == "Bar");
+        ilCursor.MatchNext(x => x.OpCode == Ldc_R4 && Math.Abs((float)x.Operand! - -0.15f) < float.Epsilon);
+        ilCursor.MatchNext(x => x.IsLdarg());
+        int indexBeforeSwitch = ilCursor.Index;
+        ilCursor.MatchNext(x => x.IsConditionalBranch());
+        ilIndexesToRemove.Add(ilCursor.Index);
+        ilIndexesToRemove.Add(ilCursor.Index - 1);
+
+        switchCases.TryAdd(methodIl[ilCursor.Index - 1].GetLdcI4Constant(), methodIl[ilCursor.Index + 1].CreateLabel());
+        ilCursor.Index = methodIl.GetIndexByOffset(((ICilLabel)ilCursor.Current().Operand!).Offset);
+
+        ICilLabel switchEndLabel = (ICilLabel)methodIl[ilCursor.Index - 1].Operand!;
+
+        ilCursor.Index++;
+        ilCursor.MatchNext(x => x.IsConditionalBranch());
+
+        while (ilCursor.Current().Offset <= switchEndLabel.Offset)
+        {
+            ilIndexesToRemove.Add(ilCursor.Index);
+            ilIndexesToRemove.Add(ilCursor.Index - 1);
+            ilIndexesToRemove.Add(ilCursor.Index - 2);
+
+            CilOpCode currentOpCode = ilCursor.Current().OpCode;
+            if (currentOpCode == Bne_Un || currentOpCode == Bne_Un_S)
+            {
+                switchCases.TryAdd(
+                    methodIl[ilCursor.Index - 1].GetLdcI4Constant(),
+                    methodIl[ilCursor.Index + 1].CreateLabel());
+            }
+            else if (currentOpCode == Beq || currentOpCode == Beq_S)
+            {
+                switchCases.TryAdd(
+                    methodIl[ilCursor.Index - 1].GetLdcI4Constant(),
+                    (ICilLabel)ilCursor.Current().Operand!);
+                ilCursor.Index++;
+                ilCursor.MatchNext(x => x.IsConditionalBranch());
+                continue;
+            }
+            else if (currentOpCode == Blt || currentOpCode == Blt_S)
+            {
+                int lowerBound = methodIl[ilCursor.Index - 1].GetLdcI4Constant();
+                ilCursor.Index++;
+                ilCursor.MatchNext(x => x.IsConditionalBranch());
+                ilIndexesToRemove.Add(ilCursor.Index);
+                ilIndexesToRemove.Add(ilCursor.Index - 1);
+                ilIndexesToRemove.Add(ilCursor.Index - 2);
+                int upperBound = methodIl[ilCursor.Index - 1].GetLdcI4Constant();
+
+                CilOpCode upperBoundOpCode = ilCursor.Current().OpCode;
+                if (upperBoundOpCode == Bgt || upperBoundOpCode == Bgt_S)
+                {
+                    ICilLabel label = methodIl[ilCursor.Index + 1].CreateLabel();
+                    for (int i = lowerBound; i <= upperBound; i++)
+                        switchCases.TryAdd(i, label);
+                }
+                else if (upperBoundOpCode == Ble || upperBoundOpCode == Ble_S)
+                {
+                    ICilLabel label = (ICilLabel)ilCursor.Current().Operand!;
+                    for (int i = lowerBound; i <= upperBound; i++)
+                        switchCases.TryAdd(i, label);
+
+                    ilCursor.Index++;
+                    ilCursor.MatchNext(x => x.IsConditionalBranch());
+                    continue;
+                }
+            }
+
+            ilCursor.Index = methodIl.GetIndexByOffset(((ICilLabel)ilCursor.Current().Operand!).Offset);
+            ilCursor.MatchNext(x => x.IsConditionalBranch());
+        }
+
+        foreach (int i in ilIndexesToRemove.OrderDescending())
+            methodIl.RemoveAt(i);
+
+        List<ICilLabel> switchLabels = [];
+        int firstCaseKey = switchCases.MinBy(x => x.Key).Key;
+        int lastCaseKey = switchCases.MaxBy(x => x.Key).Key + 1;
+        for (int i = firstCaseKey; i <= lastCaseKey; i++)
+            switchLabels.Add(switchCases.GetValueOrDefault(i, switchEndLabel));
+
+        methodIl.InsertRange(
+            indexBeforeSwitch + 1,
+            [
+                CilInstruction.CreateLdcI4(-3),
+                new(Sub),
+                new(Switch, switchLabels),
+                new(Br, switchEndLabel)
+            ]);
+        ilCursor.Index = indexBeforeSwitch;
+
+        ilCursor.MatchNext(x => x.OpCode == Switch);
+        CilInstruction showItemListRenderSwitch = ilCursor.Current();
+        ilCursor.MatchPrevious(x => x.IsLdarg());
+        CilInstruction beforeShowItemListRenderSwitch = ilCursor.Current();
+
+        showItemListContainer.AssignNewContext(
+            "ShowItemListRenderContext",
+            [
+                showItemListContainer.AddContextFieldFromArgumentIndex(0, true),
+                showItemListContainer.AddContextFieldFromArgumentIndex(1, true),
+                showItemListContainer.AddContextFieldFromArgumentIndex(2, true),
+                showItemListContainer.AddContextFieldFromArgumentIndex(3, true),
+                showItemListContainer.AddContextFieldFromLocalIndex(0, true),
+                showItemListContainer.AddContextFieldFromLocalIndex(1, true),
+                showItemListContainer.AddContextFieldFromLocalIndex(2, true),
+                showItemListContainer.AddContextFieldFromLocalIndex(9, false),
+                showItemListContainer.AddContextFieldFromLocalIndex(10, false),
+                showItemListContainer.AddContextFieldFromLocalIndex(11, true),
+                showItemListContainer.AddContextFieldFromLocalIndex(15, true),
+                showItemListContainer.AddContextFieldFromLocalIndex(16, true),
+                showItemListContainer.AddContextFieldFromLocalIndex(17, false),
+                showItemListContainer.AddContextFieldFromLocalIndex(18, false),
+                showItemListContainer.AddContextFieldFromLocalIndex(19, false)
+            ]);
+
+        SwitchArmsMethodsExtractor showItemListArmsExtractor = new(
+            gameModuleData,
+            showItemListContainer);
+        showItemListArmsExtractor.ExtractSwitchArms(
+            "ShowItemListRender",
+            showItemListRenderSwitch,
+            beforeShowItemListRenderSwitch,
             null,
             null);
     }

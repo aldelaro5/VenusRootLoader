@@ -124,13 +124,15 @@ public abstract class SwitchArmsExtractor<TOuter, TInner>
     ///     if the switch arm where to restart from the beginning of its logic.</param>
     /// <param name="innerContainerPostProcessor">An optional delegate that performs further patching on each of the inner
     ///     containers after the logic have been fully extracted from the switch arm.</param>
-    /// <param name="innerContainersMethodPrefix">A prefix to place before the case identifier for each of the inner
-    ///     containers</param>
+    /// <param name="labelIndexNameMapping">A mapping from switch label indexes to their names. If the label index doesn't
+    /// appear in this dictionary, the inner method will be suffixed with the index number instead of its name.</param>
+    /// <param name="innerContainersMethodPrefix">A prefix to place before the case identifier for each of the inner containers</param>
     public void ExtractSwitchArms(
         CilInstruction outerSwitchInstruction,
         CilInstruction outerInitializeContextInstruction,
         CilInstruction? outerResetContainerInstruction,
         Action<int, TInner, GameModuleData>? innerContainerPostProcessor,
+        Dictionary<int, string> labelIndexNameMapping,
         string innerContainersMethodPrefix = "")
     {
         CilInstructionCollection moveNextIl = OuterBody.Instructions;
@@ -174,7 +176,10 @@ public abstract class SwitchArmsExtractor<TOuter, TInner>
                 sb.Append('_');
             }
 
-            sb.Append(indexedSwitchLabel.Index);
+            sb.Append(
+                labelIndexNameMapping.TryGetValue(indexedSwitchLabel.Index, out string? name)
+                    ? name
+                    : indexedSwitchLabel.Index.ToString().Replace('-', 'm'));
 
             LogicExtractor<TOuter, TInner> extractor = _logicExtractorFactory.Create(
                 OuterLogic,

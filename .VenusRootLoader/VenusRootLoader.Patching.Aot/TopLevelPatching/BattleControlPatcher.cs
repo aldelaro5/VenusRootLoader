@@ -9,11 +9,11 @@ using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
 namespace VenusRootLoader.Patching.Aot.TopLevelPatching;
 
-public sealed class BattleControlPatcher : ITopLevelTypePatcher
+public sealed class BattleControlPatcher : TopLevelTypePatcher
 {
-    public string TypeName => "BattleControl";
+    public override string TypeName => "BattleControl";
 
-    public void PatchType(GameModuleData gameModuleData, TypeDefinition type)
+    public override void PatchType(GameModuleData gameModuleData, TypeDefinition type)
     {
         MethodDefinition doActionMethod = type.Methods
             .Single(x => x.Name == "DoAction");
@@ -28,17 +28,20 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
         MethodDefinition doCommandMethod = type.Methods
             .Single(x => x.Name == "DoCommand");
         StateMachine doCommandStateMachine = new(gameModuleData, doCommandMethod);
-        ExtractDoCommand(gameModuleData, doCommandStateMachine);
+        Dictionary<int, string> actionCommandsEnum = BuildEnumValueToNameMapping(gameModuleData, "ActionCommands");
+        ExtractDoCommand(gameModuleData, doCommandStateMachine, actionCommandsEnum);
 
         MethodDefinition aiAttackMethod = type.Methods
             .Single(x => x.Name == "AIAttack");
         StateMachine aiAttackStateMachine = new(gameModuleData, aiAttackMethod);
-        ExtractAIAttack(gameModuleData, aiAttackStateMachine);
+        Dictionary<int, string> animIdsEnum = BuildEnumValueToNameMapping(gameModuleData, "AnimIDs");
+        ExtractAIAttack(gameModuleData, aiAttackStateMachine, animIdsEnum);
 
         MethodDefinition useItemMethod = type.Methods
             .Single(x => x.Name == "UseItem");
         StateMachine useItemStateMachine = new(gameModuleData, useItemMethod);
-        ExtractUseItem(gameModuleData, useItemStateMachine);
+        Dictionary<int, string> itemsEnum = BuildEnumValueToNameMapping(gameModuleData, "ItemUsage");
+        ExtractUseItem(gameModuleData, useItemStateMachine, itemsEnum);
     }
 
     private static void PatchDoAction(
@@ -46,13 +49,16 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
         StateMachine doActionStateMachine)
     {
         SwitchArmsStateMachineExtractor doActionSwitchArmsExtractor = new(gameModuleData, doActionStateMachine);
-        ExtractPlayerActions(doActionStateMachine, doActionSwitchArmsExtractor);
-        ExtractEnemyActions(doActionStateMachine, doActionSwitchArmsExtractor);
+        Dictionary<int, string> skillsEnum = BuildEnumValueToNameMapping(gameModuleData, "Skills");
+        ExtractPlayerActions(doActionStateMachine, doActionSwitchArmsExtractor, skillsEnum);
+        Dictionary<int, string> enemiesEnum = BuildEnumValueToNameMapping(gameModuleData, "Enemies");
+        ExtractEnemyActions(doActionStateMachine, doActionSwitchArmsExtractor, enemiesEnum);
     }
 
     private static void ExtractPlayerActions(
         StateMachine doActionStateMachine,
-        SwitchArmsStateMachineExtractor doActionSwitchArmsExtractor)
+        SwitchArmsStateMachineExtractor doActionSwitchArmsExtractor,
+        Dictionary<int, string> skillsEnum)
     {
         CilInstructionCollection doActionMoveNextIl =
             doActionStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
@@ -81,12 +87,14 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             beforePlayerActionSwitch,
             null,
             null,
+            skillsEnum,
             "PlayerAction");
     }
 
     private static void ExtractEnemyActions(
         StateMachine doActionStateMachine,
-        SwitchArmsStateMachineExtractor doActionSwitchArmsExtractor)
+        SwitchArmsStateMachineExtractor doActionSwitchArmsExtractor,
+        Dictionary<int, string> enemiesEnum)
     {
         CilInstructionCollection doActionMoveNextIl =
             doActionStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
@@ -118,6 +126,7 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             beforeEnemyActionSwitch,
             beforeEnemyActionSwitch,
             EnemyActionPostProcessor,
+            enemiesEnum,
             "EnemyAction");
     }
 
@@ -143,10 +152,14 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             eventDialogueSwitch,
             beforeEventDialogueSwitch,
             null,
-            null);
+            null,
+            []);
     }
 
-    private static void ExtractDoCommand(GameModuleData gameModuleData, StateMachine doCommandStateMachine)
+    private static void ExtractDoCommand(
+        GameModuleData gameModuleData,
+        StateMachine doCommandStateMachine,
+        Dictionary<int, string> actionCommandsEnum)
     {
         CilInstructionCollection doCommandMoveNextIl = doCommandStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
         AsmResolverIlCursor ilCursor = new(doCommandMoveNextIl);
@@ -178,6 +191,7 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             beforeDoCommandSetupSwitch,
             null,
             null,
+            actionCommandsEnum,
             "Setup");
 
         ilCursor.Index = 0;
@@ -210,10 +224,14 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             beforeDoCommandSwitch,
             null,
             null,
+            actionCommandsEnum,
             "Execution");
     }
 
-    private static void ExtractAIAttack(GameModuleData gameModuleData, StateMachine aiAttackStateMachine)
+    private static void ExtractAIAttack(
+        GameModuleData gameModuleData,
+        StateMachine aiAttackStateMachine,
+        Dictionary<int, string> animIdsEnum)
     {
         CilInstructionCollection aiAttackMoveNextIl =
             aiAttackStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
@@ -288,10 +306,14 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             newSwitchInstruction,
             beforeAiAttackSwitch,
             null,
-            null);
+            null,
+            animIdsEnum);
     }
 
-    private static void ExtractUseItem(GameModuleData gameModuleData, StateMachine useItemStateMachine)
+    private static void ExtractUseItem(
+        GameModuleData gameModuleData,
+        StateMachine useItemStateMachine,
+        Dictionary<int, string> itemsEnum)
     {
         CilInstructionCollection useItemMoveNextIl = useItemStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
         AsmResolverIlCursor ilCursor = new(useItemMoveNextIl);
@@ -325,6 +347,7 @@ public sealed class BattleControlPatcher : ITopLevelTypePatcher
             beforeUseItemSetupSwitch,
             null,
             null,
+            itemsEnum,
             "BattleEffect");
     }
 

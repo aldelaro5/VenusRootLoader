@@ -11,7 +11,7 @@ public static class Program
         LocalNetStandardReferenceImporter referenceImporter = new(assembly.ManifestModule!);
         GameModuleData gameModuleData = new(assembly.ManifestModule!, referenceImporter);
 
-        List<ITopLevelTypePatcher> patchers =
+        List<TopLevelTypePatcher> patchers =
         [
             new BattleControlPatcher(),
             new MainManagerPatcher()
@@ -29,9 +29,9 @@ public static class Program
 
     private static void PatchAssembly(
         GameModuleData gameModuleData,
-        List<ITopLevelTypePatcher> patchers)
+        List<TopLevelTypePatcher> patchers)
     {
-        foreach (ITopLevelTypePatcher topLevelTypePatcher in patchers)
+        foreach (TopLevelTypePatcher topLevelTypePatcher in patchers)
         {
             TypeDefinition type = gameModuleData.Module
                 .GetAllTypes()

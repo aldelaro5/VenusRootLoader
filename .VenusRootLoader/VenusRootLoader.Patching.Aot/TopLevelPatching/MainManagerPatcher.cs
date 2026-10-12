@@ -8,23 +8,25 @@ using MethodLogicContainer = VenusRootLoader.Patching.Aot.LogicExtraction.LogicC
 
 namespace VenusRootLoader.Patching.Aot.TopLevelPatching;
 
-public sealed class MainManagerPatcher : ITopLevelTypePatcher
+public sealed class MainManagerPatcher : TopLevelTypePatcher
 {
-    public string TypeName => "MainManager";
+    public override string TypeName => "MainManager";
 
-    public void PatchType(GameModuleData gameModuleData, TypeDefinition type)
+    public override void PatchType(GameModuleData gameModuleData, TypeDefinition type)
     {
         MethodDefinition setTextMethod = type.Methods
             .Where(x => x.Name == "SetText")
             .OrderByDescending(x => x.Signature!.ParameterTypes.Count)
             .First();
         StateMachine setTextStateMachine = new(gameModuleData, setTextMethod);
-        ExtractSetText(gameModuleData, type, setTextStateMachine);
+        Dictionary<int, string> commandsEnum = BuildEnumValueToNameMapping(gameModuleData, "Commands");
+        ExtractSetText(gameModuleData, type, setTextStateMachine, commandsEnum);
 
         MethodDefinition doItemEffectMethod = type.Methods
             .Single(x => x.Name == "DoItemEffect");
         MethodLogicContainer methodContainer = new(doItemEffectMethod);
-        ExtractDoItemEffect(gameModuleData, methodContainer);
+        Dictionary<int, string> itemUsageEnum = BuildEnumValueToNameMapping(gameModuleData, "ItemUsage");
+        ExtractDoItemEffect(gameModuleData, methodContainer, itemUsageEnum);
 
         MethodDefinition showItemListMethod = type.Methods
             .Single(x => x.Name == "ShowItemList");
@@ -35,7 +37,8 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
     private static void ExtractSetText(
         GameModuleData gameModuleData,
         TypeDefinition type,
-        StateMachine setTextStateMachine)
+        StateMachine setTextStateMachine,
+        Dictionary<int, string> commandsEnum)
     {
         CilInstructionCollection setTextMoveNextIl =
             setTextStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
@@ -131,6 +134,7 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
             beforeCommandSwitch,
             null,
             null,
+            commandsEnum,
             "Command");
     }
 
@@ -171,7 +175,10 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
         setTextMoveNextIl.Insert(ilCursor.Index, new CilInstruction(Br, ilCursor.Current().CreateLabel()));
     }
 
-    private static void ExtractDoItemEffect(GameModuleData gameModuleData, MethodLogicContainer doItemEffectContainer)
+    private static void ExtractDoItemEffect(
+        GameModuleData gameModuleData,
+        MethodLogicContainer doItemEffectContainer,
+        Dictionary<int, string> itemUsageEnum)
     {
         CilInstructionCollection methodIl = doItemEffectContainer.ReceivingMethod.CilMethodBody!.Instructions;
         AsmResolverIlCursor ilCursor = new(methodIl);
@@ -200,7 +207,8 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
             doItemEffectSwitch,
             beforeDoItemEffectSwitch,
             null,
-            null);
+            null,
+            itemUsageEnum);
     }
 
     private static void FixMissingDoItemEffectGotoCases(
@@ -275,6 +283,7 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
             beforeShowItemListSwitch,
             null,
             null,
+            [],
             "Setup");
     }
 
@@ -411,6 +420,7 @@ public sealed class MainManagerPatcher : ITopLevelTypePatcher
             beforeShowItemListRenderSwitch,
             null,
             null,
+            [],
             "Render");
     }
 }

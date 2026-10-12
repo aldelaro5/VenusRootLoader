@@ -1,6 +1,7 @@
 using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.PE.DotNet.Cil;
 using VenusRootLoader.Patching.Aot.LogicExtraction.LogicExtractors.Factories;
+using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
 namespace VenusRootLoader.Patching.Aot.LogicExtraction.LogicExtractors.SwitchArmsExtractors;
 
@@ -141,9 +142,21 @@ public abstract class SwitchArmsExtractor<TOuter, TInner>
         ilCursor.Index++;
         ICilLabel switchEndLabel = (ICilLabel)ilCursor.Current().Operand!;
 
+        int labelIndexOffset = 0;
+        ilCursor.Index -= 2;
+        if (ilCursor.Current().OpCode == Sub)
+        {
+            ilCursor.Index--;
+            labelIndexOffset = ilCursor.Current().GetLdcI4Constant();
+        }
+
         Setup(_gameModuleData, outerInitializeContextInstruction, outerSwitchInstruction, switchEndLabel);
 
-        List<SwitchArn> switchArms = OrganizeSwitchLabelsIntoArms(switchArmLabels, switchEndLabel, moveNextIl);
+        List<SwitchArn> switchArms = OrganizeSwitchLabelsIntoArms(
+            switchArmLabels,
+            switchEndLabel,
+            moveNextIl,
+            labelIndexOffset);
 
         Dictionary<CilInstruction, TInner> firstInstructionToInnerContainers = new();
         Dictionary<int, LogicExtractor<TOuter, TInner>> labelIndexesToExtractors = new();
@@ -159,7 +172,7 @@ public abstract class SwitchArmsExtractor<TOuter, TInner>
                 arm.StartInstruction,
                 arm.EndInstruction);
 
-            labelIndexesToExtractors[indexedSwitchLabel.Index] = extractor;
+            labelIndexesToExtractors[indexedSwitchLabel.Index - labelIndexOffset] = extractor;
             // Instructions are more reliable to use for offset tracking then labels so we need to get the backing
             // instruction of the label.
             CilInstructionLabel instructionLabel = (CilInstructionLabel)indexedSwitchLabel.Label;
@@ -175,10 +188,11 @@ public abstract class SwitchArmsExtractor<TOuter, TInner>
             List<TInner> innerContainers = new();
             foreach (IndexedSwitchLabel indexedSwitchArmLabel in arm.Labels)
             {
-                TInner innerContainer = labelIndexesToExtractors[indexedSwitchArmLabel.Index].InnerLogic;
+                TInner innerContainer =
+                    labelIndexesToExtractors[indexedSwitchArmLabel.Index - labelIndexOffset].InnerLogic;
                 innerContainers.Add(innerContainer);
 
-                labelIndexesToExtractors[indexedSwitchArmLabel.Index].ExtractIl(
+                labelIndexesToExtractors[indexedSwitchArmLabel.Index - labelIndexOffset].ExtractIl(
                     offsetsToInnerContainers,
                     switchEndLabel,
                     outerResetContainerInstruction,
@@ -207,7 +221,10 @@ public abstract class SwitchArmsExtractor<TOuter, TInner>
 
             // The first one is already setup by the game so we just need to change the ones after it.
             for (int j = 1; j < arm.Labels.Count; j++)
-                switchArmLabels[arm.Labels[j].Index] = stateTransitionStartInstructions[j].CreateLabel();
+            {
+                switchArmLabels[arm.Labels[j].Index - labelIndexOffset] =
+                    stateTransitionStartInstructions[j].CreateLabel();
+            }
         }
 
         PostExtraction(switchEndLabel);
@@ -219,12 +236,13 @@ public abstract class SwitchArmsExtractor<TOuter, TInner>
     private static List<SwitchArn> OrganizeSwitchLabelsIntoArms(
         IList<ICilLabel> switchArmLabels,
         ICilLabel switchEndLabel,
-        CilInstructionCollection moveNextIl)
+        CilInstructionCollection moveNextIl,
+        int labelIndexOffset)
     {
         List<(int Offset, List<IndexedSwitchLabel> Labels)> indexedLabelsAndOffset = switchArmLabels
             .Select((x, i) => new IndexedSwitchLabel
             {
-                Index = i,
+                Index = i + labelIndexOffset,
                 Label = x
             })
             .Where(x => x.Label.Offset != switchEndLabel.Offset)

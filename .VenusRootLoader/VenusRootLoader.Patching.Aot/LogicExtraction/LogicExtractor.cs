@@ -21,6 +21,9 @@ public abstract class LogicExtractor<TOuter, TInner>
     where TOuter : LogicContainer
     where TInner : LogicContainer
 {
+    // ReSharper disable once StaticMemberInGenericType
+    protected static readonly List<CilInstruction> EmptyIl = [];
+
     /// <summary>
     /// The outer container.
     /// </summary>
@@ -49,7 +52,7 @@ public abstract class LogicExtractor<TOuter, TInner>
     /// </summary>
     /// <param name="instruction">The instruction involved.</param>
     /// <param name="instructionParameter">The parameter involved in the instruction.</param>
-    protected abstract CilInstruction? ProcessArgumentOperationInstruction(
+    protected abstract List<CilInstruction> ProcessArgumentOperationInstruction(
         CilInstruction instruction,
         Parameter instructionParameter);
 
@@ -114,7 +117,7 @@ public abstract class LogicExtractor<TOuter, TInner>
     /// <param name="instruction">The instruction involved.</param>
     /// <param name="localVariable">The local variable involved in the instruction.</param>
     /// <returns>An optional additional instruction to add in order to complete the operation.</returns>
-    protected virtual CilInstruction? ProcessLocalOperationInstruction(
+    protected virtual List<CilInstruction> ProcessLocalOperationInstruction(
         CilInstruction instruction,
         CilLocalVariable localVariable)
     {
@@ -129,7 +132,7 @@ public abstract class LogicExtractor<TOuter, TInner>
         }
 
         instruction.Operand = mappedLocal;
-        return null;
+        return [];
     }
 
     /// <summary>
@@ -220,12 +223,12 @@ public abstract class LogicExtractor<TOuter, TInner>
                      instruction.IsStarg())
             {
                 Parameter instructionParameter = (Parameter)instruction.Operand!;
-                CilInstruction? additionalInstruction =
+                List<CilInstruction> additionalInstructions =
                     ProcessArgumentOperationInstruction(instruction, instructionParameter);
-                if (additionalInstruction is not null)
+                if (additionalInstructions.Count > 0)
                 {
                     ProcessRegularInstruction(instruction, ref instructionNeedsLabelFix);
-                    InnerBody.Instructions.Add(additionalInstruction);
+                    InnerBody.Instructions.AddRange(additionalInstructions);
                     continue;
                 }
             }
@@ -236,11 +239,11 @@ public abstract class LogicExtractor<TOuter, TInner>
                 // locals in needs instead of having all the locals of the other ones.
                 CilLocalVariable local =
                     instruction.GetLocalVariable(OuterLogic.ReceivingMethod.CilMethodBody!.LocalVariables);
-                CilInstruction? additionalInstruction = ProcessLocalOperationInstruction(instruction, local);
-                if (additionalInstruction is not null)
+                List<CilInstruction> additionalInstructions = ProcessLocalOperationInstruction(instruction, local);
+                if (additionalInstructions.Count > 0)
                 {
                     ProcessRegularInstruction(instruction, ref instructionNeedsLabelFix);
-                    InnerBody.Instructions.Add(additionalInstruction);
+                    InnerBody.Instructions.AddRange(additionalInstructions);
                     continue;
                 }
             }

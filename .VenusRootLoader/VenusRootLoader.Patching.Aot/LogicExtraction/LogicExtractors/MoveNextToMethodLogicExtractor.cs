@@ -15,6 +15,7 @@ namespace VenusRootLoader.Patching.Aot.LogicExtraction.LogicExtractors;
 /// </summary>
 public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine, MethodLogicContainer>
 {
+    private readonly Dictionary<CilLocalVariable, CilLocalVariable> _contextSourceLocalsToContextLocals = [];
     private readonly Dictionary<FieldDefinition, CilLocalVariable> _fieldsNonContextMapping = [];
 
     public MoveNextToMethodLogicExtractor(
@@ -34,7 +35,7 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
     {
     }
 
-    protected override CilInstruction? ProcessArgumentOperationInstruction(
+    protected override List<CilInstruction> ProcessArgumentOperationInstruction(
         CilInstruction instruction,
         Parameter instructionParameter)
     {
@@ -43,10 +44,10 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
         // break labels that might be there, it's simpler to just replace the instruction with a Nop.
         if (instructionParameter.MethodSignatureIndex == 0)
             instruction.ReplaceWithNop();
-        return null;
+        return EmptyIl;
     }
 
-    protected override CilInstruction? ProcessLocalOperationInstruction(
+    protected override List<CilInstruction> ProcessLocalOperationInstruction(
         CilInstruction instruction,
         CilLocalVariable localVariable)
     {
@@ -57,28 +58,34 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
             if (instruction.IsLdloc())
             {
                 instruction.ReplaceWith(InnerLogic.ReceivingMethod.IsStatic ? Ldarg_0 : Ldarg_1);
-                return new(Ldfld, fieldInContext);
+                return [new(Ldfld, fieldInContext)];
             }
 
             if (instruction.OpCode == Ldloca || instruction.OpCode == Ldloca_S)
             {
                 instruction.ReplaceWith(InnerLogic.ReceivingMethod.IsStatic ? Ldarg_0 : Ldarg_1);
-                return new(Ldflda, fieldInContext);
+                return [new(Ldflda, fieldInContext)];
             }
 
             if (instruction.IsStloc())
             {
-                int indexLastLoadSpot = GetInstructionIndexForLoadBeforeStore();
-                CilInstruction originalInstructionAtIndex = InnerBody.Instructions[indexLastLoadSpot];
-                InnerBody.Instructions.ReplaceRange(
-                    indexLastLoadSpot,
-                    indexLastLoadSpot,
-                    [
-                        new(InnerLogic.ReceivingMethod.IsStatic ? Ldarg_0 : Ldarg_1),
-                        new(originalInstructionAtIndex.OpCode, originalInstructionAtIndex.Operand)
-                    ]);
-                instruction.ReplaceWith(Stfld, fieldInContext);
-                return null;
+                if (!_contextSourceLocalsToContextLocals.TryGetValue(localVariable, out CilLocalVariable? mappedLocal))
+                {
+                    CilLocalVariable newLocal = new(localVariable.VariableType);
+                    InnerBody.LocalVariables.Add(newLocal);
+                    InnerBody.InitializeLocals = true;
+                    _contextSourceLocalsToContextLocals.Add(localVariable, newLocal);
+                    mappedLocal = newLocal;
+                }
+
+                instruction.ReplaceWith(Stloc, mappedLocal);
+
+                return
+                [
+                    new(InnerLogic.ReceivingMethod.IsStatic ? Ldarg_0 : Ldarg_1),
+                    new(Ldloc, mappedLocal),
+                    new(Stfld, fieldInContext)
+                ];
             }
         }
 
@@ -94,7 +101,7 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
         else if (instruction.IsStloc())
             instruction.ReplaceWith(Starg, (byte)0);
 
-        return null;
+        return EmptyIl;
     }
 
     protected override void ProcessFieldOperationInstruction(

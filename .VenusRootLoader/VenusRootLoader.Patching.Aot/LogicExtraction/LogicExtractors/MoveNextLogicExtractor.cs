@@ -147,11 +147,11 @@ internal sealed class MoveNextLogicExtractor : LogicExtractor<StateMachine, Stat
         _nextStateNumber++;
     }
 
-    protected override CilInstruction? ProcessArgumentOperationInstruction(
+    protected override List<CilInstruction> ProcessArgumentOperationInstruction(
         CilInstruction instruction,
         Parameter instructionParameter)
     {
-        return null;
+        return EmptyIl;
     }
 
     protected override void ProcessFieldOperationInstruction(

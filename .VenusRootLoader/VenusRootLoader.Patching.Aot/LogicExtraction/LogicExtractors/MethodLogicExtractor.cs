@@ -191,8 +191,7 @@ public sealed class MethodLogicExtractor : LogicExtractor<MethodLogicContainer, 
         return varWrites.Select(GetLdArgIndex).Min();
     }
 
-    private static List<VariableExpression<CilInstruction>> GetVarExpressionLeaves(
-        TreeNodeBase statement)
+    private static List<VariableExpression<CilInstruction>> GetVarExpressionLeaves(TreeNodeBase statement)
     {
         List<TreeNodeBase> child = statement.GetChildren().ToList();
         if (child.Count == 0)

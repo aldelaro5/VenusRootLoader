@@ -145,31 +145,6 @@ public abstract class LogicExtractor<TOuter, TInner>
     }
 
     /// <summary>
-    /// Obtains the last instruction index where it is possible to insert a load instruction so a field could be stored
-    /// on what was loaded.
-    /// </summary>
-    /// <returns>The last index that can have a load instruction for a store or <c>InnerBody.Instructions.Count</c>
-    /// if no spot was found.</returns>
-    protected int GetInstructionIndexForLoadBeforeStore()
-    {
-        // We assume the stack is imbalanced by 1 pop and cumulate the transactions backwards. The moment we get back
-        // to balanced with this assumption, we know we can safely put our load instruction there.
-        int stackBalance = -1;
-        for (int j = InnerBody.Instructions.Count - 1; j >= 0; j--)
-        {
-            CilInstruction inst = InnerBody.Instructions[j];
-            stackBalance += inst.GetStackPushCount();
-            stackBalance -= inst.GetStackPopCount(true);
-            if (stackBalance != 0)
-                continue;
-
-            return j;
-        }
-
-        return InnerBody.Instructions.Count;
-    }
-
-    /// <summary>
     /// Creates a logic extractor to extract logic from an outer container to an inner container.
     /// </summary>
     /// <param name="outerLogic">The outer container.</param>

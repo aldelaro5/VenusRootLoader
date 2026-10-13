@@ -136,6 +136,15 @@ public abstract class LogicExtractor<TOuter, TInner>
     }
 
     /// <summary>
+    /// Performs additional processing tasks after the outer clone was generated.
+    /// </summary>
+    /// <param name="outerCloneBody">A clone of the outer method body.</param>
+    protected virtual void PreProcessOuterClone(CilMethodBody outerCloneBody)
+    {
+        return;
+    }
+
+    /// <summary>
     /// Obtains the last instruction index where it is possible to insert a load instruction so a field could be stored
     /// on what was loaded.
     /// </summary>
@@ -208,6 +217,7 @@ public abstract class LogicExtractor<TOuter, TInner>
         // to clash with the original so this makes sure we won't be doing that.
         MethodDefinition outerMethodClone = CreateOuterMethodClone();
         usedExceptionHandlerIndexes = TransferExceptionHandlersFromClone(outerMethodClone);
+        PreProcessOuterClone(outerMethodClone.CilMethodBody!);
         List<CilInstruction> outerCloneIl = GetIlSegmentToProcessFromClone(outerMethodClone);
 
         foreach (CilInstruction instruction in outerCloneIl)

@@ -12,9 +12,15 @@
         <SelfContained>true</SelfContained>
         <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
         <PublishDir>$(BuildDir)/VenusRootLoader</PublishDir>
+        <RestoreAdditionalProjectSources>
+            https://api.nuget.org/v3/index.json;
+            https://nuget.washi.dev/v3/index.json
+        </RestoreAdditionalProjectSources>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="AsmResolver.DotNet" Version="6.0.1"/>
+        <PackageReference Include="Echo.Ast" Version="0.9.0.1"/>
+        <PackageReference Include="Echo.Platforms.AsmResolver" Version="0.9.0.1"/>
     </ItemGroup>
 </Project>

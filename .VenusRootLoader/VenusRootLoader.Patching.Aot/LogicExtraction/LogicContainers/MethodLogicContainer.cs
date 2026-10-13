@@ -35,17 +35,30 @@ public sealed class MethodLogicContainer : LogicContainer
     /// </summary>
     /// <param name="argumentIndex">The argument index to use as source for the context field.</param>
     /// <param name="readOnly">Whether the context field will only be initialized without being commited back to the container.</param>
-    /// <param name="mappedName">An optional name to use as the field of the context. This defaults to A_<paramref name="argumentIndex"/></param>
+    /// <param name="mappedName">An optional name to use as the field of the context. This defaults to the name of the argument
+    /// or to <c>this</c> for argument 0 of an instance method.</param>
     /// <returns>The new context field sourced from the argument of the container at index <paramref name="argumentIndex"/>.</returns>
     public LogicContextField AddContextFieldFromArgumentIndex(
         int argumentIndex,
         bool readOnly,
         string? mappedName = null)
     {
+        bool isStatic = ReceivingMethod.IsStatic;
+        string fieldName;
+        if (mappedName is not null)
+        {
+            fieldName = mappedName;
+        }
+        else
+        {
+            int parameterIndex = isStatic ? argumentIndex : argumentIndex - 1;
+            fieldName = !isStatic && argumentIndex == 0 ? "this" : ReceivingMethod.Parameters[parameterIndex].Name;
+        }
+
         return new LogicContextField
         {
             ContextFieldSources = [new ArgumentLogicContextFieldSource(ReceivingMethod.Parameters[argumentIndex])],
-            FieldName = mappedName ?? "A_" + argumentIndex,
+            FieldName = fieldName,
             ReadOnly = readOnly
         };
     }

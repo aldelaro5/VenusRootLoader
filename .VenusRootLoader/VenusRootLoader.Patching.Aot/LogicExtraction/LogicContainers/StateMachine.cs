@@ -1,5 +1,4 @@
 using AsmResolver.DotNet;
-using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.DotNet.Signatures;
 using AsmResolver.PE.DotNet.Cil;
 using AsmResolver.PE.DotNet.Metadata.Tables;
@@ -49,7 +48,6 @@ public sealed class StateMachine : LogicContainer
     public const string ThisFieldName = "<>4__this";
 
     private GameModuleData GameModuleData { get; }
-    private CilLocalVariable? _localCoroutine;
 
     public override MethodDefinition ReceivingMethod => MoveNextMethod;
     public override string Name => EnumeratorMethod.Name!;
@@ -178,14 +176,7 @@ public sealed class StateMachine : LogicContainer
         int stateNumber,
         ICilLabel labelAfter)
     {
-        // The code requires a local so we need to reserve one if it wasn't present already.
-        if (_localCoroutine is null)
-        {
-            _localCoroutine = new(GameModuleData.CoroutineType.ToTypeSignature(false));
-            MoveNextMethod.CilMethodBody!.LocalVariables.Add(_localCoroutine);
-        }
-
-        List<CilInstruction> il = [];
+        List<CilInstruction> il = [new(Ldarg_0)];
         if (!otherStateMachine.EnumeratorMethod.IsStatic)
         {
             il.Add(new(Ldloc_1));
@@ -204,15 +195,18 @@ public sealed class StateMachine : LogicContainer
             il.Add(new(Ldfld, fieldArgument));
         }
 
+        CilInstruction yieldReturnFirstInstruction = new(Stfld, CurrentField);
+
         il.Add(new(Call, otherStateMachine.EnumeratorMethod));
         il.Add(new(Call, GameModuleData.StartCoroutineMethod));
-        il.Add(new(Stloc, _localCoroutine));
-        il.Add(new(Ldloc, _localCoroutine));
-        il.Add(new(Brfalse, labelAfter));
+        il.Add(new(Dup));
+        il.Add(new(Brtrue, yieldReturnFirstInstruction.CreateLabel()));
 
-        il.Add(new(Ldarg_0));
-        il.Add(new(Ldloc, _localCoroutine));
-        il.Add(new(Stfld, CurrentField));
+        il.Add(new(Pop));
+        il.Add(new(Pop));
+        il.Add(new(Br, labelAfter));
+
+        il.Add(yieldReturnFirstInstruction);
         il.Add(new(Ldarg_0));
         il.Add(CilInstruction.CreateLdcI4(stateNumber));
         il.Add(new(Stfld, StateField));

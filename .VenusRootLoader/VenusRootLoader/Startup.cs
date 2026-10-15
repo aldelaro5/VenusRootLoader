@@ -107,6 +107,7 @@ internal static class Startup
         services.AddAutoSequentialIdBasedLeavesRegistryWithOrdering<SpyCardLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<MedalShopLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<CuttableGrassLeaf>();
+        services.AddEnumBasedLeavesRegistry<SetTextCommandLeaf, MainManager.Commands>();
         services.AddEnumBasedLeavesRegistry<MapLeaf, MainManager.Maps>();
 
         services.AddSingleton<ISpriteArrayPatcher, EnemyPortraitsSpriteArrayPatcher>(provider =>
@@ -272,6 +273,7 @@ internal static class Startup
         services.AddScoped<IBaseGameCollector, SpyCardsCollector>();
         services.AddScoped<IBaseGameCollector, MedalShopsCollector>();
         services.AddScoped<IBaseGameCollector, CuttableGrassCollector>();
+        services.AddScoped<IBaseGameCollector, SetTextCommandsCollector>();
         services.AddScoped<IBaseGameCollector, MapsCollector>();
         services.AddScoped<RootCollector>();
 
@@ -317,6 +319,7 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, CollectibleMedalNearEnemyEncounterTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, RecordsUnlockTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, HazardsMapYLimitTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, SetTextCommandsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, MapEntitiesArraysLengthZeroTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, EnemyLogicTopLevelPatcher>();
 

@@ -318,6 +318,7 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, RecordsUnlockTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, HazardsMapYLimitTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, MapEntitiesArraysLengthZeroTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, EnemyLogicTopLevelPatcher>();
 
         services.AddSingleton<ITopLevelPatcher, BudLoaderTopLevelPatcher>();
 

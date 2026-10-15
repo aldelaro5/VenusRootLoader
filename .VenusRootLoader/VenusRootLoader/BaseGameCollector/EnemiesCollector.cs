@@ -129,6 +129,11 @@ internal sealed class EnemiesCollector : IBaseGameCollector
             .Where(e => e >= 0)
             .ToHashSet();
 
+        Dictionary<string, MethodInfo> enemyActions = RootCollector.GetLeavesMethods(
+            typeof(BattleControl),
+            nameof(BattleControl.DoAction),
+            "EnemyAction");
+
         for (int i = 0; i < _enemyNamedIds.Length; i++)
         {
             EnemyLeaf enemyLeaf = _orderedRegistry.Registry.GetByGameId(i);
@@ -150,6 +155,8 @@ internal sealed class EnemiesCollector : IBaseGameCollector
                 enemyLeaf.IsIncludedInRandomCaveOfTrialsPool = false;
             if (gameIdsWithRareSpyData.Contains(i))
                 enemyLeaf.IsRareSpyData = true;
+            if (enemyActions.TryGetValue(enemyLeaf.NamedId, out MethodInfo? action))
+                enemyLeaf.Action = RootCollector.CreateOpenDelegateFromMethod<EnemyLeaf.EnemyAction>(action);
         }
 
         foreach (EnemyLeaf leaf in _orderedRegistry.Registry)

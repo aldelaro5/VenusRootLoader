@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Logging;
+using System.Reflection;
+using System.Text;
 using UnityEngine;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
@@ -64,5 +66,34 @@ internal sealed class RootCollector
             "Collected and registered {amount} base game {registryName}",
             amount,
             registry.RegistryName);
+    }
+
+    internal static TDelegate CreateOpenDelegateFromMethod<TDelegate>(MethodInfo method)
+        where TDelegate : Delegate
+    {
+        return (TDelegate)Delegate.CreateDelegate(
+            typeof(TDelegate),
+            null,
+            method);
+    }
+
+    internal static Dictionary<string, MethodInfo> GetLeavesMethods(
+        Type topLevelType,
+        string methodName,
+        string? methodSegmentName)
+    {
+        StringBuilder sb = new(methodName);
+        sb.Append('_');
+        if (!string.IsNullOrEmpty(methodSegmentName))
+        {
+            sb.Append(methodSegmentName);
+            sb.Append('_');
+        }
+
+        string prefix = sb.ToString();
+        return topLevelType
+            .GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static)
+            .Where(x => x.Name.StartsWith(prefix))
+            .ToDictionary(x => x.Name.Remove(0, prefix.Length), x => x);
     }
 }

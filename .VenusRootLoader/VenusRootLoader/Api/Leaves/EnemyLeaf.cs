@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using VenusRootLoader.Api.Unity;
 using VenusRootLoader.LeavesInternals;
@@ -9,6 +10,8 @@ namespace VenusRootLoader.Api.Leaves;
 [ExposeFromVenus(null, false)]
 public sealed class EnemyLeaf : Leaf, IHasEnemyPortraitSprite
 {
+    public delegate IEnumerator EnemyAction(BattleControl battle, BattleControl.DoActionEnemyActionContext context);
+
     private const int DeathTypeKoWithReserveDuplicateId = 4;
 
     public enum EnemyDeathType
@@ -113,4 +116,6 @@ public sealed class EnemyLeaf : Leaf, IHasEnemyPortraitSprite
 
     public bool IsIncludedInRandomCaveOfTrialsPool { get; set; } = true;
     public bool IsRareSpyData { get; set; }
+
+    public EnemyAction? Action { get; set; }
 }

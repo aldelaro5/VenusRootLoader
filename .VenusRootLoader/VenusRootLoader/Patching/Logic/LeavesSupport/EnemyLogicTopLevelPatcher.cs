@@ -2,7 +2,7 @@ using HarmonyLib;
 using System.Collections;
 using System.Reflection;
 using System.Reflection.Emit;
-using UnityEngine;
+using VenusRootLoader.Api.Extensions;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
@@ -51,17 +51,7 @@ internal sealed class EnemyLogicTopLevelPatcher : ITopLevelPatcher
             nameof(EntityControl.onground));
         FieldInfo doActionStateMachineEnemyActionContextField = AccessTools.Field(
             method.DeclaringType,
-            "doActionEnemyActionContext");
-        FieldInfo doActionStateMachineCurrentField = AccessTools.Field(
-            method.DeclaringType,
-            "<>2__current");
-        FieldInfo doActionStateMachineStateField = AccessTools.Field(
-            method.DeclaringType,
-            "<>1__state");
-        MethodInfo monoBehaviourStartCoroutineMethod = AccessTools.Method(
-            typeof(MonoBehaviour),
-            nameof(MonoBehaviour.StartCoroutine),
-            [typeof(IEnumerator)]);
+            StringUtils.ToCamelCase(nameof(BattleControl.DoActionEnemyActionContext)));
 
         matcher.MatchStartForward(CodeMatch.LoadsField(battleControlFirstStrikeField));
         matcher.MatchStartForward(CodeMatch.LoadsField(entityControlOnGroundField));
@@ -72,32 +62,17 @@ internal sealed class EnemyLogicTopLevelPatcher : ITopLevelPatcher
         int enemyGameIdLocalIndex = matcher.Instruction.LocalIndex();
 
         matcher.InsertAndAdvance(
-            Code.Ldloc_1,
-            Code.Dup,
-            Code.Ldarg_0,
-            new CodeInstruction(OpCodes.Ldfld, doActionStateMachineEnemyActionContextField));
-
-        // This keeps the enemy game id on the stack.
-        matcher.Advance(1);
-
-        // TODO: Simplify this mess.
-        matcher.Insert(
-            Transpilers.EmitDelegate(EnemyActionHook),
-            new CodeInstruction(OpCodes.Call, monoBehaviourStartCoroutineMethod),
-            CodeInstruction.StoreLocal(316),
-            CodeInstruction.LoadLocal(316),
-            new CodeInstruction(OpCodes.Brfalse, switchEndLabel),
-            Code.Ldarg_0,
-            CodeInstruction.LoadLocal(316),
-            new CodeInstruction(OpCodes.Stfld, doActionStateMachineCurrentField),
-            Code.Ldarg_0,
-            new CodeInstruction(OpCodes.Ldc_I4, 210),
-            new CodeInstruction(OpCodes.Stfld, doActionStateMachineStateField),
-            Code.Ldc_I4_1,
-            Code.Ret,
-            // We have to do this to keep the stack balance even if the original switch won't get to execute.
-            CodeInstruction.LoadLocal(enemyGameIdLocalIndex)
-        );
+            Transpilers.EmitYieldReturnCoroutine(
+                method,
+                EnemyActionHook,
+                matcher,
+                [
+                    new(OpCodes.Ldloc_1),
+                    new(OpCodes.Ldarg_0),
+                    new(OpCodes.Ldfld, doActionStateMachineEnemyActionContextField),
+                    new(CodeInstruction.LoadLocal(enemyGameIdLocalIndex))
+                ],
+                switchEndLabel));
 
         return matcher.Instructions();
     }

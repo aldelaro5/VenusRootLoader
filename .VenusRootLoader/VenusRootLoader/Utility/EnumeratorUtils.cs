@@ -6,6 +6,10 @@ namespace VenusRootLoader.Utility;
 
 internal static class EnumeratorUtils
 {
+    internal const string StateFieldName = "<>1__state";
+    internal const string CurrentFieldName = "<>2__current";
+    internal const string ThisFieldName = "<>4__this";
+
     internal sealed class DummyEnumerator : IEnumerator
     {
         public bool MoveNext() => false;

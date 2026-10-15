@@ -17,4 +17,6 @@ internal static class StringUtils
     internal static readonly char[] DashSplitDelimiter = ['-'];
     internal static readonly string[] FlagstringSplitDelimiter = ["|SPLIT|"];
     internal static readonly string[] LeafEffectiveIdDelimiter = [Constants.LeafEffectiveIdSeparator];
+
+    internal static string ToCamelCase(string str) => char.ToLowerInvariant(str[0]) + str[1..];
 }

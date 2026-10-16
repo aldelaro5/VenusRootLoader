@@ -1,9 +1,5 @@
-using HarmonyLib;
 using Microsoft.Extensions.Logging;
-using Mono.Cecil.Cil;
-using MonoMod.Cil;
-using MonoMod.Utils;
-using System.Collections;
+using System.Globalization;
 using System.Reflection;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
@@ -25,24 +21,24 @@ internal sealed class BattleEventDialoguesCollector : IBaseGameCollector
 
     public void CollectBaseGameData()
     {
-        Type eventDialogueEnumeratorType =
-            typeof(BattleControl).InnerTypes().Single(x => x.Name.Contains("<EventDialogue>"));
-        MethodInfo moveNextMethod =
-            AccessTools.DeclaredMethod(eventDialogueEnumeratorType, nameof(IEnumerator.MoveNext))!;
+        Dictionary<int, MethodInfo> eventDialogueHandlers = RootCollector.GetLeavesMethods(
+                typeof(BattleControl),
+                nameof(BattleControl.EventDialogue))
+            .ToDictionary(x => int.Parse(x.Key, CultureInfo.InvariantCulture), x => x.Value);
 
-        using DynamicMethodDefinition dmd = new(moveNextMethod);
-        ILContext context = new(dmd.Definition);
-        ILCursor cursor = new(context);
+        foreach (int gameId in eventDialogueHandlers.Keys.OrderBy(x => x))
+        {
+            BattleEventDialogueLeaf listTypeLeaf = _battleEventDialoguesRegistry.RegisterExisting(
+                gameId,
+                gameId.ToString(CultureInfo.InvariantCulture));
+            if (eventDialogueHandlers.TryGetValue(gameId, out MethodInfo method))
+            {
+                listTypeLeaf.Handler =
+                    RootCollector.CreateOpenDelegateFromMethod<BattleEventDialogueLeaf.BattleEventDialogueHandler>(
+                        method);
+            }
+        }
 
-        cursor.GotoNext(i => i.Match(OpCodes.Switch));
-        cursor.Index++;
-        cursor.GotoNext(i => i.Match(OpCodes.Switch));
-        Instruction[] switchArmInstructions = (Instruction[])cursor.Instrs[cursor.Index].Operand;
-
-        int eventDialoguesAmount = switchArmInstructions.Length;
-        for (int i = 0; i < eventDialoguesAmount; i++)
-            _battleEventDialoguesRegistry.RegisterExisting(i, i.ToString());
-
-        RootCollector.LogCollectedAmount(_logger, _battleEventDialoguesRegistry, eventDialoguesAmount);
+        RootCollector.LogCollectedAmount(_logger, _battleEventDialoguesRegistry, eventDialogueHandlers.Count);
     }
 }

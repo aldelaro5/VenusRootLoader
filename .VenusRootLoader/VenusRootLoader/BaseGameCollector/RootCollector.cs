@@ -80,7 +80,7 @@ internal sealed class RootCollector
     internal static Dictionary<string, MethodInfo> GetLeavesMethods(
         Type topLevelType,
         string methodName,
-        string? methodSegmentName)
+        string? methodSegmentName = null)
     {
         StringBuilder sb = new(methodName);
         sb.Append('_');

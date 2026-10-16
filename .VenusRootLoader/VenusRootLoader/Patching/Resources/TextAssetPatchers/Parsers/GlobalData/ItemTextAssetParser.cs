@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Extensions;
+using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalData;
@@ -9,6 +10,13 @@ namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalDat
 /// <inheritdoc/>
 internal sealed class ItemTextAssetParser : ITextAssetParser<ItemLeaf>
 {
+    private readonly ILeavesRegistry<ItemUsageLeaf> _itemUsagesRegistry;
+
+    public ItemTextAssetParser(ILeavesRegistry<ItemUsageLeaf> itemUsagesRegistry)
+    {
+        _itemUsagesRegistry = itemUsagesRegistry;
+    }
+
     public string GetTextAssetSerializedString(string subPath, ItemLeaf leaf)
     {
         StringBuilder sb = new();
@@ -16,7 +24,7 @@ internal sealed class ItemTextAssetParser : ITextAssetParser<ItemLeaf>
         sb.Append('@');
 
         string[] serializedEffects = leaf.Effects
-            .Select(e => $"{e.Effect},{e.Value}")
+            .Select(e => $"{e.Effect.Resolve().EffectiveId},{e.Value}")
             .ToArray();
         sb.Append(string.Join(";", serializedEffects));
 
@@ -36,10 +44,15 @@ internal sealed class ItemTextAssetParser : ITextAssetParser<ItemLeaf>
             leaf.Effects.Clear();
             foreach (string effect in effects)
             {
-                ItemLeaf.ItemUse itemUse = new();
                 string[] effectFields = effect.Split(StringUtils.CommaSplitDelimiter);
-                itemUse.Effect = Enum.Parse<MainManager.ItemUsage>(effectFields[0]);
-                itemUse.Value = int.Parse(effectFields[1], CultureInfo.InvariantCulture);
+                int usageGameId = (int)Enum.Parse<MainManager.ItemUsage>(effectFields[0]);
+                ItemUsageLeaf usage = _itemUsagesRegistry.GetByGameId(usageGameId);
+                int value = int.Parse(effectFields[1], CultureInfo.InvariantCulture);
+                ItemLeaf.ItemUse itemUse = new()
+                {
+                    Effect = usage,
+                    Value = value
+                };
                 leaf.Effects.Add(itemUse);
             }
         }

@@ -78,6 +78,7 @@ internal static class Startup
         services.AddAutoSequentialIdBasedLeavesRegistry<EventLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<DialogueBleepLeaf>();
         services.AddEnumBasedLeavesRegistry<AnimIdLeaf, MainManager.AnimIDs>(-1);
+        services.AddEnumBasedLeavesRegistry<ItemUsageLeaf, MainManager.ItemUsage>();
         services.AddEnumBasedLeavesRegistry<ItemLeaf, MainManager.Items>();
         services.AddEnumBasedLeavesRegistryWithOrdering<MedalLeaf, MainManager.BadgeTypes>();
         services.AddAutoSequentialIdBasedLeavesRegistry<BattleEventDialogueLeaf>();
@@ -246,6 +247,7 @@ internal static class Startup
         services.AddScoped<IBaseGameCollector, EventCollector>();
         services.AddScoped<IBaseGameCollector, DialogueBleepCollector>();
         services.AddScoped<IBaseGameCollector, AnimIdsCollector>();
+        services.AddScoped<IBaseGameCollector, ItemUsagesCollector>();
         services.AddScoped<IBaseGameCollector, ItemsCollector>();
         services.AddScoped<IBaseGameCollector, BattleEventDialoguesCollector>();
         services.AddScoped<IBaseGameCollector, EnemiesCollector>();
@@ -297,6 +299,7 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, ResourcesTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, GlobalFlagsCapsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, CrystalBerriesAmountTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, ItemUsagesTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, ItemAndMedalSpriteTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, PrizeMedalsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, LibraryCapsTopLevelPatcher>();

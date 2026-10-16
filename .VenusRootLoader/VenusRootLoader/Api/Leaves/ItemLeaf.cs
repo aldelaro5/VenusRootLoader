@@ -9,8 +9,8 @@ public sealed class ItemLeaf : Leaf
 {
     public sealed class ItemUse
     {
-        public MainManager.ItemUsage Effect { get; set; }
-        public int Value { get; set; }
+        public required Branch<ItemUsageLeaf> Effect { get; set; }
+        public required int Value { get; set; }
     }
 
     public sealed class ItemLanguageData

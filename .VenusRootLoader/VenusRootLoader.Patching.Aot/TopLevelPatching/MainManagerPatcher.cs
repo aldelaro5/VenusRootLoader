@@ -264,6 +264,9 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
         branchToSwitchEnd.Operand = labelRealSwitchEnd;
         switchArmLabels[5] = labelDefault;
 
+        for (int i = 7; i <= 11; i++)
+            switchArmLabels[i] = labelRealSwitchEnd;
+
         showItemListContainer.AssignNewContext(
             "Setup",
             [

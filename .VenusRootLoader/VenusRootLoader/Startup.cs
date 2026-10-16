@@ -75,6 +75,7 @@ internal static class Startup
         services.AddSingleton<EnumPatcher>();
 
         services.AddAutoSequentialIdBasedLeavesRegistry<LanguageLeaf>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<ListTypeLeaf>(IdSequenceDirection.Increment, -3);
         services.AddAutoSequentialIdBasedLeavesRegistry<EventLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<DialogueBleepLeaf>();
         services.AddEnumBasedLeavesRegistry<AnimIdLeaf, MainManager.AnimIDs>(-1);
@@ -244,6 +245,7 @@ internal static class Startup
 
         services.AddScoped<IAssemblyCSharpDataCollector, AssemblyCSharpDataCollector>();
         services.AddScoped<IBaseGameCollector, LanguagesCollector>();
+        services.AddScoped<IBaseGameCollector, ListTypesCollector>();
         services.AddScoped<IBaseGameCollector, EventCollector>();
         services.AddScoped<IBaseGameCollector, DialogueBleepCollector>();
         services.AddScoped<IBaseGameCollector, AnimIdsCollector>();
@@ -298,6 +300,7 @@ internal static class Startup
 
         services.AddSingleton<ITopLevelPatcher, ResourcesTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, GlobalFlagsCapsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, ListTypesTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, CrystalBerriesAmountTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, ItemUsagesTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, ItemAndMedalSpriteTopLevelPatcher>();

@@ -2,9 +2,11 @@ using AsmResolver.DotNet;
 using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.PE.DotNet.Cil;
 using VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers;
+using VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers.Factories;
+using VenusRootLoader.Patching.Aot.LogicExtraction.LogicExtractors;
 using VenusRootLoader.Patching.Aot.LogicExtraction.LogicExtractors.SwitchArmsExtractors;
-using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 using MethodLogicContainer = VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers.MethodLogicContainer;
+using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
 namespace VenusRootLoader.Patching.Aot.TopLevelPatching;
 
@@ -32,6 +34,12 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
             .Single(x => x.Name == "ShowItemList");
         MethodLogicContainer showItemListContainer = new(showItemListMethod);
         ExtractShowItemList(gameModuleData, showItemListContainer);
+
+        MethodDefinition refreshSkillsMethod = type.Methods
+            .Single(x => x.Name == "RefreshSkills");
+        MethodLogicContainer refreshSkillsContainer = new(refreshSkillsMethod);
+        Dictionary<int, string> skillsEnum = BuildEnumValueToNameMapping(gameModuleData, "Skills");
+        ExtractRefreshSkills(gameModuleData, refreshSkillsContainer, skillsEnum);
     }
 
     private static void ExtractSetText(
@@ -425,5 +433,265 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
             null,
             [],
             "Render");
+    }
+
+    private static void ExtractRefreshSkills(
+        GameModuleData gameModuleData,
+        MethodLogicContainer refreshSkillsContainer,
+        Dictionary<int, string> skillsEnum)
+    {
+        CilInstructionCollection methodIl = refreshSkillsContainer.ReceivingMethod.CilMethodBody!.Instructions;
+        methodIl.ExpandMacros();
+        RefreshSkillsSpreadBattleNullChecks(methodIl);
+        RefreshSkillsInsertDummyConditions(methodIl);
+        RefreshSkillsSpreadRoyalDecreeConditions(methodIl);
+        ExtractRefreshSkillsPredicates(gameModuleData, refreshSkillsContainer, methodIl, skillsEnum);
+        methodIl.OptimizeMacros();
+    }
+
+    private static void RefreshSkillsSpreadBattleNullChecks(CilInstructionCollection methodIl)
+    {
+        AsmResolverIlCursor ilCursor = new(methodIl);
+
+        ilCursor.MatchNext(x => x.OpCode == Switch);
+        List<ICilLabel> switchLabels = (List<ICilLabel>)ilCursor.Current().Operand!;
+        foreach (ICilLabel switchLabel in switchLabels)
+        {
+            methodIl.CalculateOffsets();
+            ilCursor.Index = methodIl.GetIndexByOffset(switchLabel.Offset);
+
+            List<CilInstruction> battleNullCheck = [ilCursor.Current()];
+            while (!ilCursor.Current().IsConditionalBranch())
+            {
+                ilCursor.Index++;
+                battleNullCheck.Add(ilCursor.Current());
+            }
+
+            int firstLabelInstruction = ilCursor.Index;
+            ICilLabel lastLabel = (ICilLabel)ilCursor.Current().Operand!;
+
+            bool isFirst = true;
+            while (ilCursor.Current().Offset < lastLabel.Offset)
+            {
+                int startCondition = ilCursor.Index;
+                CilInstruction firstInstructionCondition = ilCursor.Current();
+                ilCursor.MatchNext(x => x.Operand is IMethodDefOrRef method && method.Name == "Add");
+                ilCursor.Index++;
+                CilInstructionLabel newLabel = new(ilCursor.Current());
+
+                if (isFirst)
+                {
+                    methodIl[firstLabelInstruction].Operand = newLabel;
+                }
+                else
+                {
+                    List<CilInstruction> newBattleNullCheck = [];
+                    foreach (CilInstruction instruction in battleNullCheck)
+                        newBattleNullCheck.Add(new(instruction.OpCode, instruction.Operand));
+
+                    methodIl.ReplaceRange(
+                        startCondition,
+                        startCondition,
+                        [
+                            .. newBattleNullCheck,
+                            new(firstInstructionCondition.OpCode, firstInstructionCondition.Operand)
+                        ]);
+                    methodIl[startCondition + newBattleNullCheck.Count - 1].Operand = newLabel;
+                    ilCursor.MatchNext(x => x.Operand is IMethodDefOrRef method && method.Name == "Add");
+                    ilCursor.Index++;
+                }
+
+                isFirst = false;
+            }
+        }
+    }
+
+    private static void RefreshSkillsInsertDummyConditions(CilInstructionCollection methodIl)
+    {
+        methodIl.CalculateOffsets();
+        AsmResolverIlCursor ilCursor = new(methodIl);
+        ilCursor.MatchNext(x => x.Operand is IMethodDefOrRef method && method.Name == "Add");
+
+        while (ilCursor.Index >= 0)
+        {
+            int indexAdd = ilCursor.Index;
+            ilCursor.Index++;
+            CilInstruction instructionAfter = ilCursor.Current();
+            int expectedOffset = ilCursor.Current().Offset;
+            ilCursor.MatchPrevious(x => x.IsConditionalBranch());
+            ICilLabel label = (ICilLabel)ilCursor.Current().Operand!;
+            if (!instructionAfter.IsUnconditionalBranch() && expectedOffset != label.Offset)
+            {
+                ilCursor.Index = indexAdd - 1;
+                ilCursor.MatchPrevious(x => x.Operand is IMethodDefOrRef method && method.Name == "Add");
+                ilCursor.Index++;
+                CilInstruction instructionBefore = ilCursor.Current();
+
+                methodIl.ReplaceRange(
+                    ilCursor.Index,
+                    ilCursor.Index,
+                    [
+                        new(Ldc_I4_1),
+                        new(Brfalse, new CilInstructionLabel(instructionAfter)),
+                        new(instructionBefore.OpCode, instructionBefore.Operand)
+                    ]);
+            }
+
+            ilCursor.MatchNext(x => x.Operand is IMethodDefOrRef method && method.Name == "Add");
+            ilCursor.Index++;
+            ilCursor.MatchNext(x => x.Operand is IMethodDefOrRef method && method.Name == "Add");
+        }
+    }
+
+    private static void RefreshSkillsSpreadRoyalDecreeConditions(CilInstructionCollection methodIl)
+    {
+        methodIl.CalculateOffsets();
+        AsmResolverIlCursor ilCursor = new(methodIl);
+
+        List<CilInstruction> royalDecreeConditions = [ilCursor.Current()];
+        while (!ilCursor.Current().IsStloc())
+        {
+            ilCursor.Index++;
+            royalDecreeConditions.Add(ilCursor.Current());
+        }
+
+        CilLocalVariable local = (CilLocalVariable)ilCursor.Current().Operand!;
+        methodIl.RemoveRange(0, royalDecreeConditions.Count);
+
+        ilCursor.MatchNext(x => x.IsLdloc() && x.Operand == local);
+        while (ilCursor.Index >= 0)
+        {
+            List<CilInstruction> royalDecreeConditionsClone = [];
+            foreach (CilInstruction instruction in royalDecreeConditions)
+                royalDecreeConditionsClone.Add(new(instruction.OpCode, instruction.Operand));
+            foreach (CilInstruction instruction in royalDecreeConditionsClone)
+            {
+                if (instruction.IsConditionalBranch())
+                    instruction.Operand = new CilInstructionLabel(royalDecreeConditionsClone[^2]);
+                else if (instruction.IsUnconditionalBranch())
+                    instruction.Operand = new CilInstructionLabel(royalDecreeConditionsClone[^1]);
+            }
+
+            CilInstruction instructionAfter = ilCursor.Current();
+            methodIl.ReplaceRange(
+                ilCursor.Index,
+                ilCursor.Index,
+                [
+                    .. royalDecreeConditionsClone,
+                    new(instructionAfter.OpCode, instructionAfter.Operand)
+                ]);
+
+            ilCursor.MatchNext(x => x.IsLdloc() && x.Operand == local);
+            ilCursor.Index++;
+            ilCursor.MatchNext(x => x.IsLdloc() && x.Operand == local);
+        }
+    }
+
+    private static void ExtractRefreshSkillsPredicates(
+        GameModuleData gameModuleData,
+        MethodLogicContainer refreshSkillsContainer,
+        CilInstructionCollection methodIl,
+        Dictionary<int, string> skillsEnum)
+    {
+        methodIl.CalculateOffsets();
+        AsmResolverIlCursor ilCursor = new(methodIl);
+
+        ilCursor.MatchNext(x => x.OpCode == Switch);
+        List<ICilLabel> labelsSwitch = (List<ICilLabel>)ilCursor.Current().Operand!;
+        ilCursor.Index++;
+        ICilLabel switchEndLabel = (ICilLabel)ilCursor.Current().Operand!;
+        int offsetCommit = switchEndLabel.Offset;
+        ilCursor.MatchPrevious(x => x.IsLdloc());
+        int offsetInit = ilCursor.Current().Offset;
+
+        refreshSkillsContainer.AssignNewContext(
+            "",
+            [
+                refreshSkillsContainer.AddContextFieldFromLocalIndex(1, true, "playerDataIndex")
+            ]);
+        refreshSkillsContainer.PatchContextIntoContainer(gameModuleData, offsetInit, offsetCommit);
+
+        ilCursor.Index = methodIl.GetIndexByOffset(labelsSwitch[0].Offset);
+
+        Dictionary<int, MethodDefinition> innerMethodBySkillIds = [];
+        int indexStart = ilCursor.Index;
+        ilCursor.MatchNext(x => x.Operand is IMethodDefOrRef method && method.Name == "Add");
+        while (ilCursor.Index >= 0)
+        {
+            methodIl.CalculateOffsets();
+            int skillId = methodIl[ilCursor.Index - 1].GetLdcI4Constant();
+            ilCursor.MatchPrevious(x => x.IsConditionalBranch());
+            int indexEnd = ilCursor.Index;
+            CilInstruction lastInstruction = ilCursor.Current();
+            ICilLabel labelContinue = (ICilLabel)lastInstruction.Operand!;
+
+            if (!innerMethodBySkillIds.TryGetValue(skillId, out MethodDefinition? innerMethod))
+            {
+                MethodLogicExtractor extractor = new(
+                    refreshSkillsContainer,
+                    new InnerMethodFactory(),
+                    gameModuleData,
+                    $"RefreshSkills_Predicate_{skillsEnum[skillId]}",
+                    methodIl[indexStart],
+                    methodIl[indexEnd]);
+                extractor.ExtractIl([], labelContinue, null, out _);
+                MethodDefinition newInnerMethod = extractor.InnerLogic.ReceivingMethod;
+                PostProcessRefreshSkillsPredicate(gameModuleData, newInnerMethod);
+                innerMethod = newInnerMethod;
+                innerMethodBySkillIds.Add(skillId, innerMethod);
+            }
+
+            methodIl.ReplaceRange(
+                indexStart,
+                indexEnd,
+                [
+                    new(Ldloc, refreshSkillsContainer.ContextLocal),
+                    new(Call, innerMethod),
+                    new(Brfalse, labelContinue)
+                ]);
+
+            ilCursor.Index = indexStart;
+            ilCursor.MatchNext(x => x.Operand is IMethodDefOrRef method && method.Name == "Add");
+            ilCursor.Index++;
+            if (ilCursor.Current().IsUnconditionalBranch())
+                ilCursor.Index++;
+            indexStart = ilCursor.Index;
+            ilCursor.MatchNext(x => x.Operand is IMethodDefOrRef method && method.Name == "Add");
+        }
+    }
+
+    private static void PostProcessRefreshSkillsPredicate(
+        GameModuleData gameModuleData,
+        MethodDefinition newInnerMethod)
+    {
+        CilInstructionCollection il = newInnerMethod.CilMethodBody!.Instructions;
+        il.ExpandMacros();
+        il.CalculateOffsets();
+        AsmResolverIlCursor ilCursor = new(il);
+
+        ilCursor.Index = il.Count - 1;
+        if (il[ilCursor.Index - 2].OpCode == Brfalse)
+        {
+            il.RemoveRange(ilCursor.Index - 2, 2);
+            ilCursor.Index = il.Count - 1;
+        }
+        else
+        {
+            il.ReplaceRange(ilCursor.Index, ilCursor.Index, [new(Ldc_I4_0), new(Ret)]);
+            ilCursor.Index = il.Count - 1;
+            ilCursor.MatchPrevious(x => x.IsUnconditionalBranch());
+            il[ilCursor.Index].ReplaceWith(Ret);
+            il.Insert(ilCursor.Index, Ldc_I4_1);
+        }
+
+        ilCursor.Index--;
+        ilCursor.MatchPrevious(x => x.OpCode == Ret);
+        while (ilCursor.Index >= 0)
+        {
+            il.ReplaceRange(ilCursor.Index, ilCursor.Index, [new(Ldc_I4_0), new(Ret)]);
+            ilCursor.MatchPrevious(x => x.OpCode == Ret);
+        }
+
+        newInnerMethod.Signature!.ReturnType = gameModuleData.Module.CorLibTypeFactory.Boolean;
     }
 }

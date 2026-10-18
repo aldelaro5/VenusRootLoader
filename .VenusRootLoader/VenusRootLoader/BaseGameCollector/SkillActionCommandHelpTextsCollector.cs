@@ -6,21 +6,21 @@ using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
-internal sealed class ActionCommandHelpTextsCollector : IBaseGameCollector
+internal sealed class SkillActionCommandHelpTextsCollector : IBaseGameCollector
 {
     private readonly Dictionary<int, string[]> _actionCommandHelpTextsLanguageData =
         RootCollector.ReadLocalizedTestAssetLines(ResourcesPaths.DataLocalizedActionCommandHelpTextsPathSuffix);
 
-    private readonly ILogger<ActionCommandHelpTextsCollector> _logger;
-    private readonly ILeavesRegistry<ActionCommandHelpTextLeaf> _actionCommandHelpTextsRegistry;
+    private readonly ILogger<SkillActionCommandHelpTextsCollector> _logger;
+    private readonly ILeavesRegistry<SkillActionCommandHelpTextLeaf> _actionCommandHelpTextsRegistry;
 
-    private readonly ILocalizedTextAssetParser<ActionCommandHelpTextLeaf>
+    private readonly ILocalizedTextAssetParser<SkillActionCommandHelpTextLeaf>
         _actionCommandHelpTextLocalizedTextAssetParser;
 
-    public ActionCommandHelpTextsCollector(
-        ILogger<ActionCommandHelpTextsCollector> logger,
-        ILocalizedTextAssetParser<ActionCommandHelpTextLeaf> actionCommandHelpTextLocalizedTextAssetParser,
-        ILeavesRegistry<ActionCommandHelpTextLeaf> actionCommandHelpTextsRegistry)
+    public SkillActionCommandHelpTextsCollector(
+        ILogger<SkillActionCommandHelpTextsCollector> logger,
+        ILocalizedTextAssetParser<SkillActionCommandHelpTextLeaf> actionCommandHelpTextLocalizedTextAssetParser,
+        ILeavesRegistry<SkillActionCommandHelpTextLeaf> actionCommandHelpTextsRegistry)
     {
         _logger = logger;
         _actionCommandHelpTextLocalizedTextAssetParser = actionCommandHelpTextLocalizedTextAssetParser;
@@ -32,7 +32,7 @@ internal sealed class ActionCommandHelpTextsCollector : IBaseGameCollector
         int actionCommandHelpTextsAmount = _actionCommandHelpTextsLanguageData.Values.First().Length;
         for (int i = 0; i < actionCommandHelpTextsAmount; i++)
         {
-            ActionCommandHelpTextLeaf actionCommandHelpTextLeaf =
+            SkillActionCommandHelpTextLeaf skillActionCommandHelpTextLeaf =
                 _actionCommandHelpTextsRegistry.RegisterExisting(i, i.ToString());
             for (int j = 0; j < RootCollector.LanguageDisplayNames.Length; j++)
             {
@@ -40,7 +40,7 @@ internal sealed class ActionCommandHelpTextsCollector : IBaseGameCollector
                     ResourcesPaths.DataLocalizedActionCommandHelpTextsPathSuffix,
                     j,
                     _actionCommandHelpTextsLanguageData[j][i],
-                    actionCommandHelpTextLeaf);
+                    skillActionCommandHelpTextLeaf);
             }
         }
 

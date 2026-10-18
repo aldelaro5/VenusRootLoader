@@ -102,8 +102,8 @@ internal static class Startup
         services.AddEnumBasedLeavesRegistry<QuestLeaf, MainManager.BoardQuests>();
         services.AddAutoSequentialIdBasedLeavesRegistry<RankBonusLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<LoreBookLeaf>();
-        services.AddAutoSequentialIdBasedLeavesRegistry<ActionCommandHelpTextLeaf>();
-        services.AddEnumBasedLeavesRegistry<SkillLeaf, MainManager.Skills>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<SkillActionCommandHelpTextLeaf>();
+        services.AddEnumBasedLeavesRegistryWithOrdering<SkillLeaf, MainManager.Skills>();
         services.AddAutoSequentialIdBasedLeavesRegistry<FishingTextLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<SpyCardsTextLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistryWithOrdering<SpyCardLeaf>();
@@ -214,8 +214,10 @@ internal static class Startup
             ResourcesPaths.DataLocalizedLoreBookFortuneTellerHintsPathSuffix
         ]);
 
-        services.AddLocalizedTextAssetPatcher<ActionCommandHelpTextLeaf, ActionCommandHelpTextLocalizedTextAssetParser>(
-            [ResourcesPaths.DataLocalizedActionCommandHelpTextsPathSuffix]);
+        services
+            .AddLocalizedTextAssetPatcher<SkillActionCommandHelpTextLeaf,
+                ActionCommandHelpTextLocalizedTextAssetParser>(
+                [ResourcesPaths.DataLocalizedActionCommandHelpTextsPathSuffix]);
 
         services.AddTextAssetPatcher<SkillLeaf, SkillTextAssetParser>([ResourcesPaths.DataSkillsPath]);
         services.AddLocalizedTextAssetPatcher<SkillLeaf, SkillLocalizedTextAssetParser>(
@@ -270,7 +272,7 @@ internal static class Startup
         services.AddScoped<IBaseGameCollector, QuestsCollector>();
         services.AddScoped<IBaseGameCollector, RankBonusesCollector>();
         services.AddScoped<IBaseGameCollector, LoreBooksCollector>();
-        services.AddScoped<IBaseGameCollector, ActionCommandHelpTextsCollector>();
+        services.AddScoped<IBaseGameCollector, SkillActionCommandHelpTextsCollector>();
         services.AddScoped<IBaseGameCollector, SkillsCollector>();
         services.AddScoped<IBaseGameCollector, FishingTextsCollector>();
         services.AddScoped<IBaseGameCollector, SpyCardsTextsCollector>();
@@ -329,6 +331,7 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, MapEntitiesArraysLengthZeroTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, EnemyLogicTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, EventDialoguesTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, SkillsTopLevelPatcher>();
 
         services.AddSingleton<ITopLevelPatcher, BudLoaderTopLevelPatcher>();
 

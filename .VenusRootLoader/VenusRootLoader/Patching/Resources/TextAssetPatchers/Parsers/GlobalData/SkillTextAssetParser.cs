@@ -15,9 +15,9 @@ namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalDat
 /// <inheritdoc/>
 internal class SkillTextAssetParser : ITextAssetParser<SkillLeaf>
 {
-    private readonly ILeavesRegistry<ActionCommandHelpTextLeaf> _actionCommandHelpTextsRegistry;
+    private readonly ILeavesRegistry<SkillActionCommandHelpTextLeaf> _actionCommandHelpTextsRegistry;
 
-    public SkillTextAssetParser(ILeavesRegistry<ActionCommandHelpTextLeaf> actionCommandHelpTextsRegistry)
+    public SkillTextAssetParser(ILeavesRegistry<SkillActionCommandHelpTextLeaf> actionCommandHelpTextsRegistry)
     {
         _actionCommandHelpTextsRegistry = actionCommandHelpTextsRegistry;
     }

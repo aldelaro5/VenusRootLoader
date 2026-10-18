@@ -1,7 +1,10 @@
+using VenusRootLoader.SourceGenerators;
+
 namespace VenusRootLoader.Api.Leaves;
 
-// TODO: Need to patch RefreshSkills which requires additional conditions support and linking with RankBonus leaves
-internal sealed class SkillLeaf : Leaf
+// TODO: Need linking with RankBonus leaves
+[ExposeFromVenus(typeof(MainManager.Skills))]
+public sealed class SkillLeaf : Leaf
 {
     internal enum BoolCasing
     {
@@ -10,13 +13,13 @@ internal sealed class SkillLeaf : Leaf
         PascalCaseWithLastTwoCamelCase
     }
 
-    internal enum SkillCostResource
+    public enum SkillCostResource
     {
         Tp,
         Hp
     }
 
-    internal enum SkillTarget
+    public enum SkillTarget
     {
         SingleEnemy,
         SingleEnemyGround,
@@ -46,11 +49,13 @@ internal sealed class SkillLeaf : Leaf
         BeetleAndMoth,
     }
 
-    internal sealed class SkillLanguageData
+    public sealed class SkillLanguageData
     {
-        internal string Name { get; set; } = "";
-        internal string Description { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
     }
+
+    public delegate bool SkillUsabilityPredicate(MainManager.RefreshSkillsContext context);
 
     internal SkillLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
@@ -58,10 +63,18 @@ internal sealed class SkillLeaf : Leaf
 
     internal BoolCasing OriginalBoolCasing { get; set; }
 
-    internal LocalizedData<SkillLanguageData> LocalizedData { get; } = new();
-    internal SkillCostResource CostResource { get; set; }
-    internal int Cost { get; set; }
-    internal SkillTarget Target { get; set; }
-    internal SkillUsability UsableBy { get; set; }
-    internal Branch<ActionCommandHelpTextLeaf>? ActionCommandHelpText { get; set; }
+    public LocalizedData<SkillLanguageData> LocalizedData { get; } = new();
+    public SkillCostResource CostResource { get; set; }
+    public int Cost { get; set; }
+    public SkillTarget Target { get; set; }
+    public SkillUsability UsableBy { get; set; }
+    public Branch<SkillActionCommandHelpTextLeaf>? ActionCommandHelpText { get; set; }
+
+    public SkillUsabilityPredicate? UsabilityPredicate { get; set; }
+
+    [LeafInitializeFromNew]
+    internal void InitializeFromNew(SkillUsabilityPredicate predicate)
+    {
+        UsabilityPredicate = predicate;
+    }
 }

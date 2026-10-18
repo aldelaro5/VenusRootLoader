@@ -45,6 +45,10 @@ internal sealed class SkillsCollector : IBaseGameCollector
             typeof(MainManager),
             nameof(MainManager.RefreshSkills),
             "Predicate");
+        Dictionary<string, MethodInfo> playerActions = RootCollector.GetLeavesMethods(
+            typeof(BattleControl),
+            nameof(BattleControl.DoAction),
+            "PlayerAction");
 
         int skillsAmount = _skillNamedIds.Length;
         for (int i = 0; i < skillsAmount; i++)
@@ -86,6 +90,9 @@ internal sealed class SkillsCollector : IBaseGameCollector
                 skillLeaf.UsabilityPredicate =
                     RootCollector.CreateOpenDelegateFromMethod<SkillLeaf.SkillUsabilityPredicate>(method);
             }
+
+            if (playerActions.TryGetValue(skillLeaf.NamedId, out MethodInfo? action))
+                skillLeaf.Action = RootCollector.CreateOpenDelegateFromMethod<SkillLeaf.PlayerAction>(action);
         }
 
         int[] skillsBaseGameOrdering = ComputerSkillsBaseGameOrdering();

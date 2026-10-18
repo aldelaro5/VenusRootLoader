@@ -1,3 +1,4 @@
+using System.Collections;
 using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves;
@@ -57,6 +58,8 @@ public sealed class SkillLeaf : Leaf
 
     public delegate bool SkillUsabilityPredicate(MainManager.RefreshSkillsContext context);
 
+    public delegate IEnumerator PlayerAction(BattleControl battle, BattleControl.DoActionPlayerActionContext context);
+
     internal SkillLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
@@ -71,10 +74,12 @@ public sealed class SkillLeaf : Leaf
     public Branch<SkillActionCommandHelpTextLeaf>? ActionCommandHelpText { get; set; }
 
     public SkillUsabilityPredicate? UsabilityPredicate { get; set; }
+    public PlayerAction? Action { get; set; }
 
     [LeafInitializeFromNew]
-    internal void InitializeFromNew(SkillUsabilityPredicate predicate)
+    internal void InitializeFromNew(SkillUsabilityPredicate predicate, PlayerAction action)
     {
         UsabilityPredicate = predicate;
+        Action = action;
     }
 }

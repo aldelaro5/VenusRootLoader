@@ -6,7 +6,6 @@ using AsmResolver.PE.DotNet.Cil;
 using VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers;
 using VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers.Factories;
 using VenusRootLoader.Patching.Aot.LogicExtraction.LogicExtractors;
-using VenusRootLoader.Patching.Aot.LogicExtraction.LogicExtractors.Factories;
 using VenusRootLoader.Patching.Aot.LogicExtraction.LogicExtractors.SwitchArmsExtractors;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
@@ -18,11 +17,11 @@ public sealed class BattleControlPatcher : TopLevelTypePatcher
 
     public override void PatchType(GameModuleData gameModuleData, TypeDefinition type)
     {
-        // MethodDefinition startBattleMethod = type.Methods
-        //     .Single(x => x.Name == "StartBattle");
-        // StateMachine startBattleStateMachine = new(gameModuleData, startBattleMethod);
+        MethodDefinition startBattleMethod = type.Methods
+            .Single(x => x.Name == "StartBattle");
+        StateMachine startBattleStateMachine = new(gameModuleData, startBattleMethod);
         Dictionary<int, string> animIdsEnum = BuildEnumValueToNameMapping(gameModuleData, "AnimIDs");
-        // PatchStartBattle(gameModuleData, startBattleStateMachine, animIdsEnum);
+        PatchStartBattle(gameModuleData, startBattleStateMachine, animIdsEnum);
 
         MethodDefinition doActionMethod = type.Methods
             .Single(x => x.Name == "DoAction");
@@ -52,44 +51,68 @@ public sealed class BattleControlPatcher : TopLevelTypePatcher
         ExtractUseItem(gameModuleData, useItemStateMachine, itemsEnum);
     }
 
-    // private static void PatchStartBattle(
-    //     GameModuleData gameModuleData,
-    //     StateMachine startBattleStateMachine,
-    //     Dictionary<int, string> animIdsEnum)
-    // {
-    //     CilInstructionCollection il = startBattleStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
-    //     AsmResolverIlCursor ilCursor = new(il);
-    //
-    //     ilCursor.MatchNext(x => x.OpCode == Stfld && x.Operand is FieldDefinition field && field.Name == "aiparty");
-    //     ilCursor.Index++;
-    //     int indexStart = ilCursor.Index;
-    //
-    //     ilCursor.MatchNext(x => x.OpCode == Stfld && x.Operand is FieldDefinition field && field.Name == "aiparty");
-    //     ilCursor.Index--;
-    //     int indexStop = ilCursor.Index;
-    //
-    //     ilCursor.Index = indexStart;
-    //     while (ilCursor.Index < indexStop)
-    //     {
-    //         ilCursor.MatchNext(x => x.OpCode == Callvirt
-    //                                 && x.Operand is MethodDefinition method
-    //                                 && method.Name == "AddAI");
-    //         int animId = il[ilCursor.Index - 2].GetLdcI4Constant();
-    //         ilCursor.MatchPrevious(x => x.IsConditionalBranch());
-    //         int indexEnd = ilCursor.Index;
-    //
-    //         CilInstruction instructionStart = il[indexStart];
-    //         CilInstruction instructionEnd = il[indexEnd];
-    //         MoveNextToMethodLogicExtractor extractor = new(
-    //             startBattleStateMachine,
-    //             new InnerMethodFromCoroutineFactory(),
-    //             gameModuleData,
-    //             $"StartBattle_HelperPredicate_{animIdsEnum[animId]}",
-    //             instructionStart,
-    //             instructionEnd);
-    //         extractor.ExtractIl([], , null, out _);
-    //     }
-    // }
+    private static void PatchStartBattle(
+        GameModuleData gameModuleData,
+        StateMachine startBattleStateMachine,
+        Dictionary<int, string> animIdsEnum)
+    {
+        CilInstructionCollection il = startBattleStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
+        AsmResolverIlCursor ilCursor = new(il);
+
+        ilCursor.MatchNext(x => x.OpCode == Stfld && x.Operand is FieldDefinition field && field.Name == "aiparty");
+        ilCursor.Index++;
+        int indexStart = ilCursor.Index;
+
+        ilCursor.MatchNext(x => x.OpCode == Ldfld && x.Operand is FieldDefinition field && field.Name == "aiparty");
+        ilCursor.Index--;
+        CilInstruction instructionStop = ilCursor.Current();
+
+        ilCursor.Index = indexStart;
+        while (ilCursor.Current().Offset < instructionStop.Offset)
+        {
+            ilCursor.MatchNext(x => x.OpCode == Callvirt
+                                    && x.Operand is MethodDefinition method
+                                    && method.Name == "AddAI");
+            int animId = il[ilCursor.Index - 2].GetLdcI4Constant();
+            ilCursor.MatchPrevious(x => x.IsConditionalBranch());
+            ICilLabel labelNext = (ICilLabel)ilCursor.Current().Operand!;
+            ilCursor.Index++;
+            il.Insert(ilCursor.Index, Br, il[ilCursor.Index].CreateLabel());
+            int indexEnd = ilCursor.Index;
+
+            CilInstruction instructionStart = il[indexStart];
+            CilInstruction instructionEnd = il[indexEnd];
+            MoveNextToMethodLogicExtractor extractor = new(
+                startBattleStateMachine,
+                new InnerMethodFromCoroutineFactory(),
+                gameModuleData.Module.CorLibTypeFactory.Boolean,
+                gameModuleData,
+                $"StartBattle_HelperPredicate_{animIdsEnum[animId + 1]}",
+                instructionStart,
+                instructionEnd);
+            il.CalculateOffsets();
+            extractor.ExtractIl(
+                [],
+                new Dictionary<int, List<CilInstruction>>
+                {
+                    [labelNext.Offset] = [new(Ldc_I4_0)],
+                    [il[ilCursor.Index + 1].Offset] = [new(Ldc_I4_1)]
+                },
+                null,
+                out _);
+
+            il.ReplaceRange(
+                indexStart,
+                indexEnd,
+                [
+                    new(Call, extractor.InnerLogic.ReceivingMethod),
+                    new(Brfalse, labelNext)
+                ]);
+
+            ilCursor.Index = il.GetIndexByOffset(labelNext.Offset);
+            indexStart = ilCursor.Index;
+        }
+    }
 
     private static void PatchDoAction(
         GameModuleData gameModuleData,

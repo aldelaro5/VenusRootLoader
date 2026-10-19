@@ -10,12 +10,23 @@ namespace VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers.Factories
 /// Allows to create an inner <see cref="MethodLogicContainer"/> from an outer <see cref="MethodLogicContainer"/>. It will
 /// have an empty body as it is meant to be filled with a <see cref="MethodLogicExtractor"/>.
 /// </summary>
-public sealed class InnerMethodFactory : IInnerLogicContainerFactory<MethodLogicContainer, MethodLogicContainer>
+public sealed class
+    InnerMethodFactory : IInnerLogicContainerWithReturnFactory<MethodLogicContainer, MethodLogicContainer>
 {
     public MethodLogicContainer Create(
         MethodLogicContainer outerContainer,
         GameModuleData gameModuleData,
         List<NamedParameter> parameters,
+        string name)
+    {
+        return Create(outerContainer, gameModuleData, parameters, gameModuleData.Module.CorLibTypeFactory.Void, name);
+    }
+
+    public MethodLogicContainer Create(
+        MethodLogicContainer outerContainer,
+        GameModuleData gameModuleData,
+        List<NamedParameter> parameters,
+        TypeSignature returnType,
         string name)
     {
         bool isStatic = outerContainer.ReceivingMethod.IsStatic;
@@ -29,7 +40,7 @@ public sealed class InnerMethodFactory : IInnerLogicContainerFactory<MethodLogic
         MethodDefinition methodDefinition = new(
             name,
             methodAttributes,
-            signatureCreator(gameModuleData.Module.CorLibTypeFactory.Void, parameters.Select(x => x.TypeSignature)));
+            signatureCreator(returnType, parameters.Select(x => x.TypeSignature)));
         methodDefinition.CilMethodBody = new();
 
         for (int i = 0; i < parameters.Count; i++)

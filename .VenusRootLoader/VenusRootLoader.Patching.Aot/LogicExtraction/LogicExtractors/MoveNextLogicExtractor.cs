@@ -96,7 +96,9 @@ internal sealed class MoveNextLogicExtractor : LogicExtractor<StateMachine, Stat
         return fieldsMapping;
     }
 
-    protected override IList<CilInstruction> GetReturnToOuterIl(bool afterLogicTransfer)
+    protected override IList<CilInstruction> GetReturnToOuterIl(
+        bool afterLogicTransfer,
+        List<CilInstruction> ilReturnValue)
     {
         List<CilInstruction> returnToOuterIl =
         [

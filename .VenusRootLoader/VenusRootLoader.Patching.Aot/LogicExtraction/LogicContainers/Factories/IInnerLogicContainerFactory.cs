@@ -2,7 +2,7 @@ namespace VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers.Factories
 
 /// <summary>
 /// Allows to create instances of <see cref="LogicContainer"/> that are made to be the inner part of an outer
-/// <see cref="LogicContainer"/>.
+/// <see cref="LogicContainer"/> whose return type will be the outer container's <see cref="LogicContainer.DefaultReturnType"/>.
 /// </summary>
 /// <typeparam name="TOuter">The outer container type.</typeparam>
 /// <typeparam name="TInner">The inner container type.</typeparam>
@@ -11,7 +11,7 @@ public interface IInnerLogicContainerFactory<in TOuter, out TInner>
     where TInner : LogicContainer
 {
     /// <summary>
-    /// Creates an inner container given an outer one.
+    /// Creates an inner container given an outer one that will return the default return type for the outer container.
     /// </summary>
     /// <param name="outerContainer">The outer container.</param>
     /// <param name="gameModuleData">The game module data to use for creating the inner container.</param>

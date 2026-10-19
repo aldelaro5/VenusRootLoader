@@ -2,6 +2,7 @@ using AsmResolver.DotNet;
 using AsmResolver.DotNet.Cloning;
 using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.DotNet.Collections;
+using AsmResolver.DotNet.Signatures;
 using AsmResolver.PE.DotNet.Cil;
 using VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers.Factories;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
@@ -60,8 +61,11 @@ public abstract class LogicExtractor<TOuter, TInner>
     /// Obtains the IL needed to transfer control flow back to the outer container.
     /// </summary>
     /// <param name="afterLogicTransfer">Tells if this IL will be placed immediately after a logic transfer to another container.</param>
+    /// <param name="ilReturnValue"></param>
     /// <returns>The IL that transfer control back to the outer container.</returns>
-    protected abstract IList<CilInstruction> GetReturnToOuterIl(bool afterLogicTransfer);
+    protected abstract IList<CilInstruction> GetReturnToOuterIl(
+        bool afterLogicTransfer,
+        List<CilInstruction> ilReturnValue);
 
     /// <summary>
     /// Obtains a label that marks the start of the container so the IL can branch to it to restart the logic.
@@ -175,15 +179,49 @@ public abstract class LogicExtractor<TOuter, TInner>
     }
 
     /// <summary>
+    /// Creates a logic extractor to extract logic from an outer container to an inner container.
+    /// </summary>
+    /// <param name="outerLogic">The outer container.</param>
+    /// <param name="innerLogicContainerFactory">A factory to create the inner container.</param>
+    /// <param name="returnType">The return type of the inner container.</param>
+    /// <param name="gameModuleData">The game module data.</param>
+    /// <param name="methodName">The name to assign the inner container.</param>
+    /// <param name="innerFirstInstruction">The first instruction in the outer container to extract logic from.</param>
+    /// <param name="innerLastInstruction">The last instruction in the outer container to extract logic from.</param>
+    protected LogicExtractor(
+        TOuter outerLogic,
+        IInnerLogicContainerWithReturnFactory<TOuter, TInner> innerLogicContainerFactory,
+        TypeSignature returnType,
+        GameModuleData gameModuleData,
+        string methodName,
+        CilInstruction innerFirstInstruction,
+        CilInstruction innerLastInstruction)
+    {
+        OuterLogic = outerLogic;
+        _innerFirstInstruction = innerFirstInstruction;
+        _innerLastInstruction = innerLastInstruction;
+
+        NamedParameter? contextParameter = OuterLogic.GetContextParameter();
+        InnerLogic = innerLogicContainerFactory.Create(
+            outerLogic,
+            gameModuleData,
+            contextParameter is not null ? [contextParameter] : [],
+            returnType,
+            methodName);
+        InnerBody = InnerLogic.ReceivingMethod.CilMethodBody!;
+    }
+
+    /// <summary>
     /// Extracts the IL into the inner container.
     /// </summary>
     /// <param name="offsetsToInnerContainers">A mapping from offsets to other contains used for goto flow mapping.</param>
-    /// <param name="returnToOuterOffsets">A list of offsets that marks a return to the outer container.</param>
+    /// <param name="returnToOuterByOffsets">A dictionary whose key is an offsets that marks a return to the outer container
+    /// and whose values is a list of instruction to place before the return.</param>
     /// <param name="instructionRestart">A label that marks a restart of the logic.</param>
     /// <param name="usedExceptionHandlerIndexes">A list of exception handler indexes that were used from the outer container.</param>
     public void ExtractIl(
         Dictionary<int, TInner> offsetsToInnerContainers,
-        HashSet<int> returnToOuterOffsets,
+        Dictionary<int, List<CilInstruction>> returnToOuterByOffsets,
         CilInstruction? instructionRestart,
         out List<int> usedExceptionHandlerIndexes)
     {
@@ -243,7 +281,7 @@ public abstract class LogicExtractor<TOuter, TInner>
                 // the beginning of the logic.
                 if (ProcessSpecialBranchOperationInstruction(
                         offsetsToInnerContainers,
-                        returnToOuterOffsets,
+                        returnToOuterByOffsets,
                         instructionRestart,
                         instructionLabel,
                         instruction,
@@ -348,15 +386,15 @@ public abstract class LogicExtractor<TOuter, TInner>
 
     private bool ProcessSpecialBranchOperationInstruction(
         Dictionary<int, TInner> offsetsToInnerContainers,
-        HashSet<int> returnToOuterLabelOffsets,
+        Dictionary<int, List<CilInstruction>> returnToOuterLabelOffsets,
         CilInstruction? instructionRestart,
         ICilLabel label,
         CilInstruction instruction,
         ref CilInstruction? instructionNeedsLabelFix)
     {
-        if (returnToOuterLabelOffsets.Contains(label.Offset))
+        if (returnToOuterLabelOffsets.TryGetValue(label.Offset, out List<CilInstruction>? ilReturnValue))
         {
-            ProcessBranchInstructionAsReturnToOuter(instruction, label, ref instructionNeedsLabelFix);
+            ProcessBranchInstructionAsReturnToOuter(instruction, label, ilReturnValue, ref instructionNeedsLabelFix);
             return true;
         }
 
@@ -389,10 +427,11 @@ public abstract class LogicExtractor<TOuter, TInner>
     private void ProcessBranchInstructionAsReturnToOuter(
         CilInstruction instruction,
         ICilLabel label,
+        List<CilInstruction> ilReturnValue,
         ref CilInstruction? instructionNeedsLabelFix)
     {
         bool neededFixing = instructionNeedsLabelFix is not null;
-        IList<CilInstruction> returnToOuterIl = GetReturnToOuterIl(false);
+        IList<CilInstruction> returnToOuterIl = GetReturnToOuterIl(false, ilReturnValue);
         CilInstruction firstInstruction = returnToOuterIl[0];
 
         PreProcessSpecialBranchOperationInstruction(
@@ -419,7 +458,7 @@ public abstract class LogicExtractor<TOuter, TInner>
         ref CilInstruction? instructionNeedsLabelFix)
     {
         bool neededFixing = instructionNeedsLabelFix is not null;
-        IList<CilInstruction> returnToOuterIl = GetReturnToOuterIl(true);
+        IList<CilInstruction> returnToOuterIl = GetReturnToOuterIl(true, []);
         IList<CilInstruction> transferIl = GetLogicTransferIl(otherInnerContainer, returnToOuterIl[0]);
 
         PreProcessSpecialBranchOperationInstruction(
@@ -478,7 +517,7 @@ public abstract class LogicExtractor<TOuter, TInner>
             instructionNeedsLabelFix = null;
         }
 
-        InnerBody.Instructions[^1].Operand = new CilInstructionLabel(firstInstructionAfterPreProcess);
+        InnerBody.Instructions[^1].Operand = firstInstructionAfterPreProcess.CreateLabel();
         InnerBody.Instructions.Add(Br, label);
         instructionNeedsLabelFix = InnerBody.Instructions[^1];
         return;

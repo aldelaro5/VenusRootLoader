@@ -215,10 +215,12 @@ public abstract class SwitchArmsExtractor<TOuter, TInner>
                     switchEndLabel.Offset,
                     .. additionalEndInstructions?.Select(x => x.Offset) ?? []
                 ];
+                Dictionary<int, List<CilInstruction>> allEmptyReturnIlByOffsets = allEndOffsets
+                    .ToDictionary(x => x, _ => new List<CilInstruction>());
 
                 labelIndexesToExtractors[indexedSwitchArmLabel.Index - labelIndexOffset].ExtractIl(
                     offsetsToInnerContainers,
-                    allEndOffsets,
+                    allEmptyReturnIlByOffsets,
                     outerResetContainerInstruction,
                     out List<int> usedExceptionHandlerIndexes);
 

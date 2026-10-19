@@ -618,26 +618,35 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
         ilCursor.MatchNext(x => x.Operand is IMethodDefOrRef method && method.Name == "Add");
         while (ilCursor.Index >= 0)
         {
-            methodIl.CalculateOffsets();
             int skillId = methodIl[ilCursor.Index - 1].GetLdcI4Constant();
             ilCursor.MatchPrevious(x => x.IsConditionalBranch());
-            int indexEnd = ilCursor.Index;
             CilInstruction lastInstruction = ilCursor.Current();
             ICilLabel labelContinue = (ICilLabel)lastInstruction.Operand!;
+            ilCursor.Index++;
+            methodIl.Insert(ilCursor.Index, Br, methodIl[ilCursor.Index].CreateLabel());
+            int indexEnd = ilCursor.Index;
 
             if (!innerMethodBySkillIds.TryGetValue(skillId, out MethodDefinition? innerMethod))
             {
                 MethodLogicExtractor extractor = new(
                     refreshSkillsContainer,
                     new InnerMethodFactory(),
+                    gameModuleData.Module.CorLibTypeFactory.Boolean,
                     gameModuleData,
                     $"RefreshSkills_Predicate_{skillsEnum[skillId]}",
                     methodIl[indexStart],
                     methodIl[indexEnd]);
-                extractor.ExtractIl([], [labelContinue.Offset], null, out _);
-                MethodDefinition newInnerMethod = extractor.InnerLogic.ReceivingMethod;
-                PostProcessRefreshSkillsPredicate(gameModuleData, newInnerMethod);
-                innerMethod = newInnerMethod;
+                methodIl.CalculateOffsets();
+                extractor.ExtractIl(
+                    [],
+                    new Dictionary<int, List<CilInstruction>>
+                    {
+                        [labelContinue.Offset] = [new(Ldc_I4_0)],
+                        [methodIl[indexEnd + 1].Offset] = [new(Ldc_I4_1)]
+                    },
+                    null,
+                    out _);
+                innerMethod = extractor.InnerLogic.ReceivingMethod;
                 innerMethodBySkillIds.Add(skillId, innerMethod);
             }
 
@@ -658,40 +667,5 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
             indexStart = ilCursor.Index;
             ilCursor.MatchNext(x => x.Operand is IMethodDefOrRef method && method.Name == "Add");
         }
-    }
-
-    private static void PostProcessRefreshSkillsPredicate(
-        GameModuleData gameModuleData,
-        MethodDefinition newInnerMethod)
-    {
-        CilInstructionCollection il = newInnerMethod.CilMethodBody!.Instructions;
-        il.ExpandMacros();
-        il.CalculateOffsets();
-        AsmResolverIlCursor ilCursor = new(il);
-
-        ilCursor.Index = il.Count - 1;
-        if (il[ilCursor.Index - 2].OpCode == Brfalse)
-        {
-            il.RemoveRange(ilCursor.Index - 2, 2);
-            ilCursor.Index = il.Count - 1;
-        }
-        else
-        {
-            il.ReplaceRange(ilCursor.Index, ilCursor.Index, [new(Ldc_I4_0), new(Ret)]);
-            ilCursor.Index = il.Count - 1;
-            ilCursor.MatchPrevious(x => x.IsUnconditionalBranch());
-            il[ilCursor.Index].ReplaceWith(Ret);
-            il.Insert(ilCursor.Index, Ldc_I4_1);
-        }
-
-        ilCursor.Index--;
-        ilCursor.MatchPrevious(x => x.OpCode == Ret);
-        while (ilCursor.Index >= 0)
-        {
-            il.ReplaceRange(ilCursor.Index, ilCursor.Index, [new(Ldc_I4_0), new(Ret)]);
-            ilCursor.MatchPrevious(x => x.OpCode == Ret);
-        }
-
-        newInnerMethod.Signature!.ReturnType = gameModuleData.Module.CorLibTypeFactory.Boolean;
     }
 }

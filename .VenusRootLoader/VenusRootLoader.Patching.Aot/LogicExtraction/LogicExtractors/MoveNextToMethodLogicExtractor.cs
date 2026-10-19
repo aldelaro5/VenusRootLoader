@@ -1,6 +1,7 @@
 using AsmResolver.DotNet;
 using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.DotNet.Collections;
+using AsmResolver.DotNet.Signatures;
 using AsmResolver.PE.DotNet.Cil;
 using Echo.Ast;
 using Echo.Ast.Construction;
@@ -34,6 +35,25 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
         : base(
             outerLogic,
             innerLogicContainerFactory,
+            gameModuleData,
+            methodName,
+            innerFirstInstruction,
+            innerLastInstruction)
+    {
+    }
+
+    public MoveNextToMethodLogicExtractor(
+        StateMachine outerLogic,
+        IInnerLogicContainerWithReturnFactory<StateMachine, MethodLogicContainer> innerLogicContainerFactory,
+        TypeSignature returnType,
+        GameModuleData gameModuleData,
+        string methodName,
+        CilInstruction innerFirstInstruction,
+        CilInstruction innerLastInstruction)
+        : base(
+            outerLogic,
+            innerLogicContainerFactory,
+            returnType,
             gameModuleData,
             methodName,
             innerFirstInstruction,
@@ -250,7 +270,13 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
         return child.SelectMany(GetVarExpressionLeaves).ToList();
     }
 
-    protected override IList<CilInstruction> GetReturnToOuterIl(bool afterLogicTransfer) => [new(Ret)];
+    protected override IList<CilInstruction> GetReturnToOuterIl(
+        bool afterLogicTransfer,
+        List<CilInstruction> ilReturnValue) =>
+    [
+        .. ilReturnValue.Select(x => new CilInstruction(x.OpCode, x.Operand)),
+        new(Ret)
+    ];
 
     protected override ICilLabel GetRestartLabel() => InnerBody.Instructions[0].CreateLabel();
 

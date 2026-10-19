@@ -110,6 +110,7 @@ internal static class Startup
         services.AddAutoSequentialIdBasedLeavesRegistry<MedalShopLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<CuttableGrassLeaf>();
         services.AddEnumBasedLeavesRegistry<SetTextCommandLeaf, MainManager.Commands>();
+        services.AddEnumBasedLeavesRegistry<ActionCommandLeaf, BattleControl.ActionCommands>();
         services.AddEnumBasedLeavesRegistry<MapLeaf, MainManager.Maps>();
 
         services.AddSingleton<ISpriteArrayPatcher, EnemyPortraitsSpriteArrayPatcher>(provider =>
@@ -280,6 +281,7 @@ internal static class Startup
         services.AddScoped<IBaseGameCollector, MedalShopsCollector>();
         services.AddScoped<IBaseGameCollector, CuttableGrassCollector>();
         services.AddScoped<IBaseGameCollector, SetTextCommandsCollector>();
+        services.AddScoped<IBaseGameCollector, ActionCommandsCollector>();
         services.AddScoped<IBaseGameCollector, MapsCollector>();
         services.AddScoped<RootCollector>();
 
@@ -332,6 +334,7 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, EnemyLogicTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, EventDialoguesTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, SkillsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, ActionCommandsTopLevelPatcher>();
 
         services.AddSingleton<ITopLevelPatcher, BudLoaderTopLevelPatcher>();
 

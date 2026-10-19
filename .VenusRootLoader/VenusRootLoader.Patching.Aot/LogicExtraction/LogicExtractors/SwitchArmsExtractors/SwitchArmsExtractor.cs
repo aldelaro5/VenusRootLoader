@@ -127,13 +127,15 @@ public abstract class SwitchArmsExtractor<TOuter, TInner>
     /// <param name="labelIndexNameMapping">A mapping from switch label indexes to their names. If the label index doesn't
     /// appear in this dictionary, the inner method will be suffixed with the index number instead of its name.</param>
     /// <param name="innerContainersMethodPrefix">A prefix to place before the case identifier for each of the inner containers</param>
+    /// <param name="additionalEndInstructions">Additional instructions that marks the end of the switch in addition to its normal end.</param>
     public void ExtractSwitchArms(
         CilInstruction outerSwitchInstruction,
         CilInstruction outerInitializeContextInstruction,
         CilInstruction? outerResetContainerInstruction,
         Action<int, TInner, GameModuleData>? innerContainerPostProcessor,
         Dictionary<int, string> labelIndexNameMapping,
-        string innerContainersMethodPrefix = "")
+        string innerContainersMethodPrefix = "",
+        List<CilInstruction>? additionalEndInstructions = null)
     {
         CilInstructionCollection moveNextIl = OuterBody.Instructions;
         moveNextIl.ExpandMacros();
@@ -208,9 +210,15 @@ public abstract class SwitchArmsExtractor<TOuter, TInner>
                     labelIndexesToExtractors[indexedSwitchArmLabel.Index - labelIndexOffset].InnerLogic;
                 innerContainers.Add(innerContainer);
 
+                HashSet<int> allEndOffsets =
+                [
+                    switchEndLabel.Offset,
+                    .. additionalEndInstructions?.Select(x => x.Offset) ?? []
+                ];
+
                 labelIndexesToExtractors[indexedSwitchArmLabel.Index - labelIndexOffset].ExtractIl(
                     offsetsToInnerContainers,
-                    switchEndLabel,
+                    allEndOffsets,
                     outerResetContainerInstruction,
                     out List<int> usedExceptionHandlerIndexes);
 

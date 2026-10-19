@@ -4,6 +4,9 @@ using AsmResolver.DotNet.Collections;
 using AsmResolver.DotNet.Signatures;
 using AsmResolver.PE.DotNet.Cil;
 using VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers;
+using VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers.Factories;
+using VenusRootLoader.Patching.Aot.LogicExtraction.LogicExtractors;
+using VenusRootLoader.Patching.Aot.LogicExtraction.LogicExtractors.Factories;
 using VenusRootLoader.Patching.Aot.LogicExtraction.LogicExtractors.SwitchArmsExtractors;
 using static AsmResolver.PE.DotNet.Cil.CilOpCodes;
 
@@ -15,6 +18,12 @@ public sealed class BattleControlPatcher : TopLevelTypePatcher
 
     public override void PatchType(GameModuleData gameModuleData, TypeDefinition type)
     {
+        // MethodDefinition startBattleMethod = type.Methods
+        //     .Single(x => x.Name == "StartBattle");
+        // StateMachine startBattleStateMachine = new(gameModuleData, startBattleMethod);
+        Dictionary<int, string> animIdsEnum = BuildEnumValueToNameMapping(gameModuleData, "AnimIDs");
+        // PatchStartBattle(gameModuleData, startBattleStateMachine, animIdsEnum);
+
         MethodDefinition doActionMethod = type.Methods
             .Single(x => x.Name == "DoAction");
         StateMachine doActionStateMachine = new(gameModuleData, doActionMethod);
@@ -34,7 +43,6 @@ public sealed class BattleControlPatcher : TopLevelTypePatcher
         MethodDefinition aiAttackMethod = type.Methods
             .Single(x => x.Name == "AIAttack");
         StateMachine aiAttackStateMachine = new(gameModuleData, aiAttackMethod);
-        Dictionary<int, string> animIdsEnum = BuildEnumValueToNameMapping(gameModuleData, "AnimIDs");
         ExtractAIAttack(gameModuleData, aiAttackStateMachine, animIdsEnum);
 
         MethodDefinition useItemMethod = type.Methods
@@ -43,6 +51,45 @@ public sealed class BattleControlPatcher : TopLevelTypePatcher
         Dictionary<int, string> itemsEnum = BuildEnumValueToNameMapping(gameModuleData, "ItemUsage");
         ExtractUseItem(gameModuleData, useItemStateMachine, itemsEnum);
     }
+
+    // private static void PatchStartBattle(
+    //     GameModuleData gameModuleData,
+    //     StateMachine startBattleStateMachine,
+    //     Dictionary<int, string> animIdsEnum)
+    // {
+    //     CilInstructionCollection il = startBattleStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
+    //     AsmResolverIlCursor ilCursor = new(il);
+    //
+    //     ilCursor.MatchNext(x => x.OpCode == Stfld && x.Operand is FieldDefinition field && field.Name == "aiparty");
+    //     ilCursor.Index++;
+    //     int indexStart = ilCursor.Index;
+    //
+    //     ilCursor.MatchNext(x => x.OpCode == Stfld && x.Operand is FieldDefinition field && field.Name == "aiparty");
+    //     ilCursor.Index--;
+    //     int indexStop = ilCursor.Index;
+    //
+    //     ilCursor.Index = indexStart;
+    //     while (ilCursor.Index < indexStop)
+    //     {
+    //         ilCursor.MatchNext(x => x.OpCode == Callvirt
+    //                                 && x.Operand is MethodDefinition method
+    //                                 && method.Name == "AddAI");
+    //         int animId = il[ilCursor.Index - 2].GetLdcI4Constant();
+    //         ilCursor.MatchPrevious(x => x.IsConditionalBranch());
+    //         int indexEnd = ilCursor.Index;
+    //
+    //         CilInstruction instructionStart = il[indexStart];
+    //         CilInstruction instructionEnd = il[indexEnd];
+    //         MoveNextToMethodLogicExtractor extractor = new(
+    //             startBattleStateMachine,
+    //             new InnerMethodFromCoroutineFactory(),
+    //             gameModuleData,
+    //             $"StartBattle_HelperPredicate_{animIdsEnum[animId]}",
+    //             instructionStart,
+    //             instructionEnd);
+    //         extractor.ExtractIl([], , null, out _);
+    //     }
+    // }
 
     private static void PatchDoAction(
         GameModuleData gameModuleData,
@@ -98,6 +145,7 @@ public sealed class BattleControlPatcher : TopLevelTypePatcher
     {
         CilInstructionCollection doActionMoveNextIl =
             doActionStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
+        doActionMoveNextIl.CalculateOffsets();
         AsmResolverIlCursor ilCursor = new(doActionMoveNextIl);
 
         ilCursor.MatchNext(x => x.OpCode == Ldfld && ((IFieldDescriptor)x.Operand!).Name == "firststrike");
@@ -105,6 +153,14 @@ public sealed class BattleControlPatcher : TopLevelTypePatcher
         ilCursor.MatchNext(x => x.OpCode == Switch);
 
         CilInstruction enemyActionSwitch = ilCursor.Current();
+        int indexEnemyActionSwitch = ilCursor.Index;
+        ilCursor.Index++;
+        ICilLabel switchEndLabel = (ICilLabel)ilCursor.Current().Operand!;
+        ilCursor.Index = doActionMoveNextIl.GetIndexByOffset(switchEndLabel.Offset);
+        ilCursor.MatchNext(x => x.IsLdloc());
+        CilInstruction additionalSwitchEnd = ilCursor.Current();
+        ilCursor.Index = indexEnemyActionSwitch;
+
         ilCursor.MatchPrevious(x => x.IsLdloc() && (x.OpCode == Ldloc_1 || x.Operand is CilLocalVariable { Index: 1 }));
         CilInstruction beforeEnemyActionSwitch = ilCursor.Current();
 
@@ -127,7 +183,8 @@ public sealed class BattleControlPatcher : TopLevelTypePatcher
             beforeEnemyActionSwitch,
             EnemyActionPostProcessor,
             enemiesEnum,
-            "EnemyAction");
+            "EnemyAction",
+            [additionalSwitchEnd]);
     }
 
     private static void ExtractEventDialogues(GameModuleData gameModuleData, StateMachine eventDialogueStateMachine)

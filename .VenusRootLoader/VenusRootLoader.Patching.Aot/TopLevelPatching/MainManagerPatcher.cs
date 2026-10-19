@@ -634,7 +634,7 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
                     $"RefreshSkills_Predicate_{skillsEnum[skillId]}",
                     methodIl[indexStart],
                     methodIl[indexEnd]);
-                extractor.ExtractIl([], labelContinue, null, out _);
+                extractor.ExtractIl([], [labelContinue.Offset], null, out _);
                 MethodDefinition newInnerMethod = extractor.InnerLogic.ReceivingMethod;
                 PostProcessRefreshSkillsPredicate(gameModuleData, newInnerMethod);
                 innerMethod = newInnerMethod;

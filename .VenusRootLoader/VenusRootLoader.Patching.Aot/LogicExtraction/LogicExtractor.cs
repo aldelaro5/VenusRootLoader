@@ -178,12 +178,12 @@ public abstract class LogicExtractor<TOuter, TInner>
     /// Extracts the IL into the inner container.
     /// </summary>
     /// <param name="offsetsToInnerContainers">A mapping from offsets to other contains used for goto flow mapping.</param>
-    /// <param name="returnToOuterLabel">A label that marks a return to the outer container.</param>
+    /// <param name="returnToOuterOffsets">A list of offsets that marks a return to the outer container.</param>
     /// <param name="instructionRestart">A label that marks a restart of the logic.</param>
     /// <param name="usedExceptionHandlerIndexes">A list of exception handler indexes that were used from the outer container.</param>
     public void ExtractIl(
         Dictionary<int, TInner> offsetsToInnerContainers,
-        ICilLabel returnToOuterLabel,
+        HashSet<int> returnToOuterOffsets,
         CilInstruction? instructionRestart,
         out List<int> usedExceptionHandlerIndexes)
     {
@@ -243,7 +243,7 @@ public abstract class LogicExtractor<TOuter, TInner>
                 // the beginning of the logic.
                 if (ProcessSpecialBranchOperationInstruction(
                         offsetsToInnerContainers,
-                        returnToOuterLabel,
+                        returnToOuterOffsets,
                         instructionRestart,
                         instructionLabel,
                         instruction,
@@ -348,13 +348,13 @@ public abstract class LogicExtractor<TOuter, TInner>
 
     private bool ProcessSpecialBranchOperationInstruction(
         Dictionary<int, TInner> offsetsToInnerContainers,
-        ICilLabel returnToOuterLabel,
+        HashSet<int> returnToOuterLabelOffsets,
         CilInstruction? instructionRestart,
         ICilLabel label,
         CilInstruction instruction,
         ref CilInstruction? instructionNeedsLabelFix)
     {
-        if (label.Offset >= returnToOuterLabel.Offset)
+        if (returnToOuterLabelOffsets.Contains(label.Offset))
         {
             ProcessBranchInstructionAsReturnToOuter(instruction, label, ref instructionNeedsLabelFix);
             return true;

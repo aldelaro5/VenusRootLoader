@@ -57,6 +57,16 @@ public sealed class BattleControlPatcher : TopLevelTypePatcher
         Dictionary<int, string> animIdsEnum)
     {
         CilInstructionCollection il = startBattleStateMachine.MoveNextMethod.CilMethodBody!.Instructions;
+        ExtractStartBattleHelperPredicate(gameModuleData, startBattleStateMachine, animIdsEnum, il);
+        ExtractStartBattleHelperMedalPoolPredicate(gameModuleData, startBattleStateMachine, animIdsEnum, il);
+    }
+
+    private static void ExtractStartBattleHelperPredicate(
+        GameModuleData gameModuleData,
+        StateMachine startBattleStateMachine,
+        Dictionary<int, string> animIdsEnum,
+        CilInstructionCollection il)
+    {
         AsmResolverIlCursor ilCursor = new(il);
 
         ilCursor.MatchNext(x => x.OpCode == Stfld && x.Operand is FieldDefinition field && field.Name == "aiparty");
@@ -88,6 +98,95 @@ public sealed class BattleControlPatcher : TopLevelTypePatcher
                 gameModuleData.Module.CorLibTypeFactory.Boolean,
                 gameModuleData,
                 $"StartBattle_HelperPredicate_{animIdsEnum[animId + 1]}",
+                instructionStart,
+                instructionEnd);
+            il.CalculateOffsets();
+            extractor.ExtractIl(
+                [],
+                new Dictionary<int, List<CilInstruction>>
+                {
+                    [labelNext.Offset] = [new(Ldc_I4_0)],
+                    [il[ilCursor.Index + 1].Offset] = [new(Ldc_I4_1)]
+                },
+                null,
+                out _);
+
+            il.ReplaceRange(
+                indexStart,
+                indexEnd,
+                [
+                    new(Call, extractor.InnerLogic.ReceivingMethod),
+                    new(Brfalse, labelNext)
+                ]);
+
+            ilCursor.Index = il.GetIndexByOffset(labelNext.Offset);
+            indexStart = ilCursor.Index;
+        }
+    }
+
+    private static void ExtractStartBattleHelperMedalPoolPredicate(
+        GameModuleData gameModuleData,
+        StateMachine startBattleStateMachine,
+        Dictionary<int, string> animIdsEnum,
+        CilInstructionCollection il)
+    {
+        AsmResolverIlCursor ilCursor = new(il);
+
+        ilCursor.MatchNext(x => x.OpCode == Stfld && x.Operand is FieldDefinition field && field.Name == "aiparty");
+        ilCursor.MatchNext(x => x.OpCode == Ldfld && x.Operand is FieldDefinition field && field.Name == "aiparty");
+        ilCursor.MatchNext(x => x.IsConditionalBranch());
+        ilCursor.Index++;
+        ilCursor.MatchNext(x => x.IsConditionalBranch());
+        ilCursor.Index++;
+        ilCursor.MatchNext(x => x.IsStloc());
+        ilCursor.Index++;
+
+        int indexStart = ilCursor.Index;
+
+        ilCursor.MatchNext(x => x.OpCode == Callvirt
+                                && x.Operand is IMethodDefOrRef method
+                                && method.Name == "get_Count");
+        ilCursor.Index--;
+        CilInstruction instructionStop = ilCursor.Current();
+
+        ilCursor.Index = indexStart;
+        while (ilCursor.Current().Offset < instructionStop.Offset)
+        {
+            ilCursor.MatchNext(x => x.OpCode == Callvirt
+                                    && x.Operand is IMethodDefOrRef method
+                                    && method.Name == "Add");
+            int indexAdd = ilCursor.Index;
+            ilCursor.MatchPrevious(x => x.OpCode == Newarr);
+            ilCursor.MatchNext(x => x.IsLdcI4());
+            ilCursor.Index++;
+            int animId = ilCursor.Current().GetLdcI4Constant();
+            ilCursor.MatchPrevious(x => x.IsConditionalBranch());
+            int indexLastBranch = ilCursor.Index;
+            CilInstructionLabel labelNext = (CilInstructionLabel)ilCursor.Current().Operand!;
+            ilCursor.Index++;
+
+            if (labelNext.Offset != il[indexAdd + 1].Offset)
+            {
+                List<CilInstruction> predicateClone = [];
+                for (int i = indexStart; i <= indexLastBranch; i++)
+                    predicateClone.Add(new(il[i].OpCode, il[i].Operand));
+
+                predicateClone[^1].Operand = labelNext.Instruction!.CreateLabel();
+                il.InsertRange(indexAdd + 1, predicateClone);
+                labelNext.Instruction = predicateClone[0];
+            }
+
+            il.Insert(ilCursor.Index, Br, il[ilCursor.Index].CreateLabel());
+            int indexEnd = ilCursor.Index;
+
+            CilInstruction instructionStart = il[indexStart];
+            CilInstruction instructionEnd = il[indexEnd];
+            MoveNextToMethodLogicExtractor extractor = new(
+                startBattleStateMachine,
+                new InnerMethodFromCoroutineFactory(),
+                gameModuleData.Module.CorLibTypeFactory.Boolean,
+                gameModuleData,
+                $"StartBattle_HelperMedalPoolPredicate_{animIdsEnum[animId + 1]}",
                 instructionStart,
                 instructionEnd);
             il.CalculateOffsets();

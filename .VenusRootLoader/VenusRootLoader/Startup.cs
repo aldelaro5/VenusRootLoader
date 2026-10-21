@@ -98,7 +98,9 @@ internal static class Startup
         services.AddAutoSequentialIdBasedLeavesRegistryWithOrdering<DiscoveryLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistryWithOrdering<RecordLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<TermacadePrizeLeaf>();
-        services.AddEnumBasedLeavesRegistry<MusicLeaf, MainManager.Musics>();
+        services.AddEnumBasedLeavesRegistry<MusicLeaf, MainManager.Musics>(
+            0,
+            StringComparer.InvariantCultureIgnoreCase);
         services.AddEnumBasedLeavesRegistry<QuestLeaf, MainManager.BoardQuests>();
         services.AddAutoSequentialIdBasedLeavesRegistry<RankBonusLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<LoreBookLeaf>();
@@ -111,6 +113,7 @@ internal static class Startup
         services.AddAutoSequentialIdBasedLeavesRegistry<CuttableGrassLeaf>();
         services.AddEnumBasedLeavesRegistry<SetTextCommandLeaf, MainManager.Commands>();
         services.AddEnumBasedLeavesRegistry<ActionCommandLeaf, BattleControl.ActionCommands>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<BattleHelperLeaf>();
         services.AddEnumBasedLeavesRegistry<MapLeaf, MainManager.Maps>();
 
         services.AddSingleton<ISpriteArrayPatcher, EnemyPortraitsSpriteArrayPatcher>(provider =>
@@ -282,6 +285,7 @@ internal static class Startup
         services.AddScoped<IBaseGameCollector, CuttableGrassCollector>();
         services.AddScoped<IBaseGameCollector, SetTextCommandsCollector>();
         services.AddScoped<IBaseGameCollector, ActionCommandsCollector>();
+        services.AddScoped<IBaseGameCollector, BattleHelpersCollector>();
         services.AddScoped<IBaseGameCollector, MapsCollector>();
         services.AddScoped<RootCollector>();
 
@@ -335,6 +339,7 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, EventDialoguesTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, SkillsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, ActionCommandsTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, BattleHelpersTopLevelPatcher>();
 
         services.AddSingleton<ITopLevelPatcher, BudLoaderTopLevelPatcher>();
 

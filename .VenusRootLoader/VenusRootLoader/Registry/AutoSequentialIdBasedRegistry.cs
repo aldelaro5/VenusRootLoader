@@ -24,7 +24,8 @@ internal sealed class AutoSequentialIdBasedRegistry<TLeaf> : BaseRegistry<TLeaf>
     public AutoSequentialIdBasedRegistry(
         ILogger logger,
         IdSequenceDirection idSequenceDirection,
-        int firstGameId = 0) : base(logger)
+        int firstGameId,
+        IEqualityComparer<string> effectiveIdComparer) : base(logger, effectiveIdComparer)
     {
         _idSequenceDirection = idSequenceDirection;
         _nextAutoIncrementId = firstGameId;

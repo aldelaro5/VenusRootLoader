@@ -14,11 +14,15 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
 {
     private readonly ILogger _logger;
 
-    protected BaseRegistry(ILogger logger) => _logger = logger;
+    protected BaseRegistry(ILogger logger, IEqualityComparer<string> effectiveIdComparer)
+    {
+        _logger = logger;
+        LeavesByEffectiveIds = new Dictionary<string, TLeaf>(effectiveIdComparer);
+    }
 
     private IDictionary<int, TLeaf> LeavesByGameIds { get; } = new Dictionary<int, TLeaf>();
 
-    private IDictionary<string, TLeaf> LeavesByEffectiveIds { get; } = new Dictionary<string, TLeaf>();
+    private IDictionary<string, TLeaf> LeavesByEffectiveIds { get; }
 
     public string RegistryName => typeof(TLeaf).Name;
 

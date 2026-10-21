@@ -255,10 +255,14 @@ internal sealed class MapsCollector : IBaseGameCollector
             mapLeaf.PrefabLoader = new AssetLoaderFromResources<GameObject>($"prefabs/maps/{mapLeaf.NamedId}");
             mapLeaf.EntitiesRegistry = new AutoSequentialIdBasedRegistry<MapEntityLeaf>(
                 _loggerFactory.CreateLogger($"Maps.{mapLeaf.NamedId}_{nameof(MapLeaf.EntitiesRegistry)}"),
-                IdSequenceDirection.Increment);
+                IdSequenceDirection.Increment,
+                0,
+                EqualityComparer<string>.Default);
             mapLeaf.DialoguesRegistry = new AutoSequentialIdBasedRegistry<MapDialogueLeaf>(
                 _loggerFactory.CreateLogger($"Maps.{mapLeaf.NamedId}_{nameof(MapLeaf.DialoguesRegistry)}"),
-                IdSequenceDirection.Increment);
+                IdSequenceDirection.Increment,
+                0,
+                EqualityComparer<string>.Default);
 
             for (int j = 0; j < mapEntityData.Data.Length; j++)
             {

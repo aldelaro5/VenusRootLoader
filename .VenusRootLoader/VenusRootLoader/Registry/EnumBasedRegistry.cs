@@ -17,8 +17,12 @@ internal sealed class EnumBasedRegistry<TLeaf, TEnum> : BaseRegistry<TLeaf>
     private readonly int _offsetEnumValueToGameId;
     private readonly EnumPatcher _enumPatcher;
 
-    public EnumBasedRegistry(int offsetEnumValueToGameId, EnumPatcher enumPatcher, ILogger logger)
-        : base(logger)
+    public EnumBasedRegistry(
+        int offsetEnumValueToGameId,
+        EnumPatcher enumPatcher,
+        ILogger logger,
+        IEqualityComparer<string> effectiveIdComparer)
+        : base(logger, effectiveIdComparer)
     {
         _offsetEnumValueToGameId = offsetEnumValueToGameId;
         _enumPatcher = enumPatcher;

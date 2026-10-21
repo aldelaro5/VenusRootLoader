@@ -33,10 +33,14 @@ public partial class Venus
         mapLeaf.AddMusicToMap(defaultMapMusic);
         mapLeaf.DialoguesRegistry = new AutoSequentialIdBasedRegistry<MapDialogueLeaf>(
             LoggerFactory.CreateLogger($"Maps.{mapLeaf.NamedId}_{nameof(MapLeaf.DialoguesRegistry)}"),
-            IdSequenceDirection.Increment);
+            IdSequenceDirection.Increment,
+            0,
+            EqualityComparer<string>.Default);
         mapLeaf.EntitiesRegistry = new AutoSequentialIdBasedRegistry<MapEntityLeaf>(
             LoggerFactory.CreateLogger($"Maps.{mapLeaf.NamedId}_{nameof(MapLeaf.EntitiesRegistry)}"),
-            IdSequenceDirection.Increment);
+            IdSequenceDirection.Increment,
+            0,
+            EqualityComparer<string>.Default);
         return mapLeaf;
     }
 
@@ -56,10 +60,14 @@ public partial class Venus
         MapLeaf mapLeaf = RegistryResolver.Resolve<MapLeaf>().RegisterNew(BudId, namedId);
         mapLeaf.DialoguesRegistry = new AutoSequentialIdBasedRegistry<MapDialogueLeaf>(
             LoggerFactory.CreateLogger($"Maps.{mapLeaf.NamedId}_{nameof(MapLeaf.DialoguesRegistry)}"),
-            IdSequenceDirection.Increment);
+            IdSequenceDirection.Increment,
+            0,
+            EqualityComparer<string>.Default);
         mapLeaf.EntitiesRegistry = new AutoSequentialIdBasedRegistry<MapEntityLeaf>(
             LoggerFactory.CreateLogger($"Maps.{mapLeaf.NamedId}_{nameof(MapLeaf.EntitiesRegistry)}"),
-            IdSequenceDirection.Increment);
+            IdSequenceDirection.Increment,
+            0,
+            EqualityComparer<string>.Default);
         mapLeaf.PrefabLoader = new AssetLoaderFromBundle<GameObject>(assetBundle, scriptableObject.Prefab);
 
         mapLeaf.Area = RegistryResolver.Resolve<AreaLeaf>()

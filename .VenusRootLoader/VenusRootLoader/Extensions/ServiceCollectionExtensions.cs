@@ -20,10 +20,13 @@ internal static class ServiceCollectionExtensions
         /// Adds an <see cref="EnumBasedRegistry{TLeaf,TEnum}"/> to the service collections.
         /// </summary>
         /// <param name="offsetEnumValueToGameId">An offset to convert the backing enum values to the leaf's game id.</param>
+        /// <param name="effectiveIdComparer">The comparer to use for effective id resolution in the registry.</param>
         /// <typeparam name="TLeaf"><inheritdoc cref="ILeavesRegistry{TLeaf}"/></typeparam>
         /// <typeparam name="TEnum">The <see cref="Enum"/> type that can identify every leaf in this registry.</typeparam>
         /// <returns>The service collection.</returns>
-        internal IServiceCollection AddEnumBasedLeavesRegistry<TLeaf, TEnum>(int offsetEnumValueToGameId = 0)
+        internal IServiceCollection AddEnumBasedLeavesRegistry<TLeaf, TEnum>(
+            int offsetEnumValueToGameId = 0,
+            IEqualityComparer<string>? effectiveIdComparer = null)
             where TLeaf : Leaf
             where TEnum : Enum
         {
@@ -32,7 +35,8 @@ internal static class ServiceCollectionExtensions
                     offsetEnumValueToGameId,
                     provider.GetRequiredService<EnumPatcher>(),
                     provider.GetRequiredService<ILoggerFactory>().CreateLogger(
-                        IServiceCollection.GenerateRegistryLogCategoryName<TLeaf>())));
+                        IServiceCollection.GenerateRegistryLogCategoryName<TLeaf>()),
+                    effectiveIdComparer ?? EqualityComparer<string>.Default));
             return collection;
         }
 
@@ -58,11 +62,13 @@ internal static class ServiceCollectionExtensions
         /// <param name="sequenceDirection">The direction the sequence of the leaves's <see cref="Leaf.GameId"/> will
         /// grow as leaves gets registered.</param>
         /// <param name="firstGameId">The <see cref="Leaf.GameId"/> to use as the first leaf</param>
+        /// <param name="effectiveIdComparer">The comparer to use for effective id resolution in the registry.</param>
         /// <typeparam name="TLeaf"><inheritdoc cref="ILeavesRegistry{TLeaf}"/></typeparam>
         /// <returns>The service collection.</returns>
         internal IServiceCollection AddAutoSequentialIdBasedLeavesRegistry<TLeaf>(
             IdSequenceDirection sequenceDirection = IdSequenceDirection.Increment,
-            int firstGameId = 0)
+            int firstGameId = 0,
+            IEqualityComparer<string>? effectiveIdComparer = null)
             where TLeaf : Leaf
         {
             collection.AddSingleton<ILeavesRegistry<TLeaf>, AutoSequentialIdBasedRegistry<TLeaf>>(provider =>
@@ -70,7 +76,8 @@ internal static class ServiceCollectionExtensions
                     provider.GetRequiredService<ILoggerFactory>()
                         .CreateLogger(IServiceCollection.GenerateRegistryLogCategoryName<TLeaf>()),
                     sequenceDirection,
-                    firstGameId));
+                    firstGameId,
+                    effectiveIdComparer ?? EqualityComparer<string>.Default));
             return collection;
         }
 
@@ -160,12 +167,12 @@ internal static class ServiceCollectionExtensions
             collection.AddSingleton<ILocalizedTextAssetParser<TLeaf>, TLocalizedTextAssetParser>();
             collection.AddSingleton<ILocalizedTextAssetPatcher, LocalizedTextAssetPatcher<TLeaf>>(provider =>
                 new(
-                textAssetResourcesSubpath,
-                provider.GetRequiredService<ILogger<LocalizedTextAssetPatcher<TLeaf>>>(),
-                provider.GetRequiredService<ITextAssetDumper>(),
-                provider.GetRequiredService<ILeavesRegistry<TLeaf>>(),
-                provider.GetRequiredService<ILocalizedTextAssetParser<TLeaf>>(),
-                leavesSorter));
+                    textAssetResourcesSubpath,
+                    provider.GetRequiredService<ILogger<LocalizedTextAssetPatcher<TLeaf>>>(),
+                    provider.GetRequiredService<ITextAssetDumper>(),
+                    provider.GetRequiredService<ILeavesRegistry<TLeaf>>(),
+                    provider.GetRequiredService<ILocalizedTextAssetParser<TLeaf>>(),
+                    leavesSorter));
             return collection;
         }
 

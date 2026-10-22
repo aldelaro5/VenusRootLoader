@@ -175,9 +175,7 @@ internal sealed class BattleHelpersTopLevelPatcher : ITopLevelPatcher
         BattleControl.AIAttackContext context,
         int commandGameId)
     {
-        return _instance._battleHelpersRegistry
-            .Single(x => x.AnimId.Resolve().GameId == commandGameId - 1)
-            .Attack(instance, context);
+        return _instance._battleHelpersRegistry.GetByGameId(commandGameId - 1).Attack(instance, context);
     }
 
     private static void StartBattleHelperJoinHook()
@@ -185,7 +183,7 @@ internal sealed class BattleHelpersTopLevelPatcher : ITopLevelPatcher
         foreach (BattleHelperLeaf battleHelperLeaf in _instance._battleHelpersRegistry)
         {
             if (battleHelperLeaf.PredicateJoinBattle?.Invoke() ?? false)
-                MainManager.battle.AddAI(battleHelperLeaf.AnimId.Resolve().GameId, battleHelperLeaf.StartingAnimstate);
+                MainManager.battle.AddAI(battleHelperLeaf.GameId, battleHelperLeaf.StartingAnimstate);
         }
     }
 
@@ -193,13 +191,13 @@ internal sealed class BattleHelpersTopLevelPatcher : ITopLevelPatcher
     {
         foreach (BattleHelperLeaf battleHelperLeaf in _instance._battleHelpersRegistry)
         {
-            if (battleHelperLeaf.PredicateIsInHelperMedalPool.Invoke())
-                helperMedalPool.Add([battleHelperLeaf.AnimId.Resolve().GameId, battleHelperLeaf.StartingAnimstate]);
+            if (battleHelperLeaf.PredicateIsInHelperMedalPool())
+                helperMedalPool.Add([battleHelperLeaf.GameId, battleHelperLeaf.StartingAnimstate]);
         }
     }
 
     private static bool HelperMedalCheckHook() =>
-        _instance._battleHelpersRegistry.Any(x => x.PredicateIsInHelperMedalPool.Invoke());
+        _instance._battleHelpersRegistry.Any(x => x.PredicateIsInHelperMedalPool());
 
     private static IEnumerator LooseEndsEventHook()
     {

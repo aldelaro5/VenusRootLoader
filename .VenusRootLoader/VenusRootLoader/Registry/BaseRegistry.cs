@@ -17,12 +17,15 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
     protected BaseRegistry(ILogger logger, IEqualityComparer<string> effectiveIdComparer)
     {
         _logger = logger;
+        EffectiveIdComparer = effectiveIdComparer;
         LeavesByEffectiveIds = new Dictionary<string, TLeaf>(effectiveIdComparer);
     }
 
     private IDictionary<int, TLeaf> LeavesByGameIds { get; } = new Dictionary<int, TLeaf>();
 
     private IDictionary<string, TLeaf> LeavesByEffectiveIds { get; }
+
+    public IEqualityComparer<string> EffectiveIdComparer { get; }
 
     public string RegistryName => typeof(TLeaf).Name;
 
@@ -38,7 +41,27 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
 
     public TLeaf RegisterNew(string creatorId, string namedId) => RegisterNew<TLeaf>(creatorId, namedId);
 
+    public TLeaf RegisterNew(string creatorId, string namedId, string subEffectiveId) =>
+        RegisterNew<TLeaf>(creatorId, namedId, subEffectiveId);
+
     public TSubLeaf RegisterNew<TSubLeaf>(string creatorId, string namedId) where TSubLeaf : TLeaf
+    {
+        string effectiveId = CreateEffectiveId(creatorId, namedId);
+        int gameId = CreateNewGameId(effectiveId);
+        TSubLeaf leaf = CreateLeafIntoRegistry<TSubLeaf>(creatorId, namedId, gameId, effectiveId);
+        return leaf;
+    }
+
+    public TSubLeaf RegisterNew<TSubLeaf>(string creatorId, string namedId, string subEffectiveId)
+        where TSubLeaf : TLeaf
+    {
+        string effectiveId = CreateEffectiveId(creatorId, namedId);
+        int gameId = CreateNewGameId(subEffectiveId);
+        TSubLeaf leaf = CreateLeafIntoRegistry<TSubLeaf>(creatorId, namedId, gameId, effectiveId);
+        return leaf;
+    }
+
+    private string CreateEffectiveId(string creatorId, string namedId)
     {
         EffectiveLeafId.EnsureIdPartIsValid(creatorId, nameof(Leaf.CreatorId));
         EffectiveLeafId.EnsureIdPartIsValid(namedId, nameof(Leaf.NamedId));
@@ -50,7 +73,12 @@ internal abstract class BaseRegistry<TLeaf> : ILeavesRegistry<TLeaf>
                 $"The creator {creatorId} already created a leaf named {namedId} in the {RegistryName} registry");
         }
 
-        int gameId = CreateNewGameId(effectiveId);
+        return effectiveId;
+    }
+
+    private TSubLeaf CreateLeafIntoRegistry<TSubLeaf>(string creatorId, string namedId, int gameId, string effectiveId)
+        where TSubLeaf : TLeaf
+    {
         TSubLeaf leaf = CreateLeafInstance<TSubLeaf>(gameId, creatorId, namedId);
         LeavesByEffectiveIds[effectiveId] = leaf;
         LeavesByGameIds[gameId] = leaf;

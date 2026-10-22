@@ -7,7 +7,7 @@ using VenusRootLoader.SourceGenerators;
 namespace VenusRootLoader.Api.Leaves;
 
 // TODO: Should we involve polymorphism to split spyable vs non spyable?
-[ExposeFromVenus(null, false)]
+[ExposeFromVenus(withRegisterMethod: false)]
 public sealed class EnemyLeaf : Leaf, IHasEnemyPortraitSprite
 {
     public delegate IEnumerator EnemyAction(BattleControl battle, BattleControl.DoActionEnemyActionContext context);

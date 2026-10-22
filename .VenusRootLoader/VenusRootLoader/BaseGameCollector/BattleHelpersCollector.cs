@@ -65,7 +65,9 @@ internal sealed class BattleHelpersCollector : IBaseGameCollector
         foreach (KeyValuePair<int, int> helper in helperStartingAnimStatesByAnimId)
         {
             AnimIdLeaf animIdLeaf = _animIdsRegistry.GetByGameId(helper.Key);
-            BattleHelperLeaf battleHelperLeaf = _battleHelpersRegistry.RegisterExisting(helper.Key, animIdLeaf.NamedId);
+            BattleHelperLeaf battleHelperLeaf = _battleHelpersRegistry.RegisterExisting(
+                animIdLeaf.GameId,
+                animIdLeaf.NamedId);
             battleHelperLeaf.AnimId = animIdLeaf;
             battleHelperLeaf.StartingAnimstate = helper.Value;
 

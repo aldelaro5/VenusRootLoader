@@ -101,6 +101,25 @@ internal static class ServiceCollectionExtensions
         }
 
         /// <summary>
+        /// Adds an <see cref="BranchBasedRegistry{TLeaf,TEnum}"/> to the service collections.
+        /// </summary>
+        /// <typeparam name="TLeaf"><inheritdoc cref="ILeavesRegistry{TLeaf}"/></typeparam>
+        /// <typeparam name="TKeyLeaf">The leaf type that can identify every leaf in this registry.</typeparam>
+        /// <returns>The service collection.</returns>
+        internal IServiceCollection AddBranchBasedLeavesRegistry<TLeaf, TKeyLeaf>()
+            where TLeaf : Leaf
+            where TKeyLeaf : Leaf
+        {
+            collection.AddSingleton<ILeavesRegistry<TLeaf>, BranchBasedRegistry<TLeaf, TKeyLeaf>>(provider =>
+                new(
+                    provider.GetRequiredService<ILoggerFactory>()
+                        .CreateLogger(IServiceCollection.GenerateRegistryLogCategoryName<TLeaf>()),
+                    provider.GetRequiredService<ILeavesRegistry<TKeyLeaf>>()
+                ));
+            return collection;
+        }
+
+        /// <summary>
         /// Adds an <see cref="ITextAssetPatcher"/> and a matching <see cref="ITextAssetParser{T}"/> to the service collection.
         /// </summary>
         /// <param name="textAssetResourcesPath">The resources paths that the patcher and parser can handle.</param>

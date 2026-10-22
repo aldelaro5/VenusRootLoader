@@ -34,6 +34,11 @@ internal interface ILeavesRegistry
 internal interface ILeavesRegistry<TLeaf> : ILeavesRegistry, IEnumerable<TLeaf> where TLeaf : Leaf
 {
     /// <summary>
+    /// The equality comparer used for <see cref="Leaf.EffectiveId"/> comparison.
+    /// </summary>
+    IEqualityComparer<string> EffectiveIdComparer { get; }
+
+    /// <summary>
     /// Creates a newly registered leaf to the registry with an automatically determined <see cref="Leaf.GameId"/>.
     /// </summary>
     /// <param name="creatorId">The creator id that identifies who authored the leaf.</param>
@@ -42,13 +47,34 @@ internal interface ILeavesRegistry<TLeaf> : ILeavesRegistry, IEnumerable<TLeaf> 
     TLeaf RegisterNew(string creatorId, string namedId);
 
     /// <summary>
+    /// Creates a newly registered leaf to the registry with an automatically determined <see cref="Leaf.GameId"/>.
+    /// </summary>
+    /// <param name="creatorId">The creator id that identifies who authored the leaf.</param>
+    /// <param name="namedId">The named id of the new leaf for buds to identify it.</param>
+    /// <param name="subEffectiveId">The effective id of the leaf key.</param>
+    /// <returns>The newly registered leaf.</returns>
+    TLeaf RegisterNew(string creatorId, string namedId, string subEffectiveId);
+
+    /// <summary>
     /// Creates a newly registered leaf using a subtype of <typeparamref name="TLeaf" /> to the registry with an automatically determined <see cref="Leaf.GameId"/>.
     /// </summary>
     /// <param name="creatorId">The creator id that identifies who authored the leaf.</param>
     /// <param name="namedId">The named id of the new leaf for buds to identify it.</param>
     /// <typeparam name="TSubLeaf">The leaf subtype</typeparam>
     /// <returns>The newly registered leaf.</returns>
-    TSubLeaf RegisterNew<TSubLeaf>(string creatorId, string namedId) where TSubLeaf : TLeaf;
+    TSubLeaf RegisterNew<TSubLeaf>(string creatorId, string namedId)
+        where TSubLeaf : TLeaf;
+
+    /// <summary>
+    /// Creates a newly registered leaf using a subtype of <typeparamref name="TLeaf" /> to the registry with an automatically determined <see cref="Leaf.GameId"/>.
+    /// </summary>
+    /// <param name="creatorId">The creator id that identifies who authored the leaf.</param>
+    /// <param name="namedId">The named id of the new leaf for buds to identify it.</param>
+    /// <param name="subEffectiveId">The effective id of the leaf key.</param>
+    /// <typeparam name="TSubLeaf">The leaf subtype</typeparam>
+    /// <returns>The newly registered leaf.</returns>
+    TSubLeaf RegisterNew<TSubLeaf>(string creatorId, string namedId, string subEffectiveId)
+        where TSubLeaf : TLeaf;
 
     /// <summary>
     /// Creates a newly registered leaf with a predetermined <see cref="Leaf.GameId"/>.

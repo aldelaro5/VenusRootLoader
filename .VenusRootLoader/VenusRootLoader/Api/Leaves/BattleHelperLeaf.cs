@@ -3,8 +3,7 @@ using VenusRootLoader.SourceGenerators;
 
 namespace VenusRootLoader.Api.Leaves;
 
-// TODO: This leaf shouldn't be part of AnimIdLeaf, but it's also unique BY anim id. See if we can have a concept of a "sub" leaf.
-[ExposeFromVenus]
+[ExposeFromVenus(leafKeyType: typeof(AnimIdLeaf))]
 public sealed class BattleHelperLeaf : Leaf
 {
     public delegate bool JoinBattlePredicate();
@@ -24,7 +23,7 @@ public sealed class BattleHelperLeaf : Leaf
     public PresenceInHelperMedalPoolPredicate PredicateIsInHelperMedalPool { get; set; } = null!;
     public AttackHandler Attack { get; set; } = null!;
 
-    [LeafInitializeFromNew]
+    [LeafInitializeFromNew(true)]
     internal void InitializeFromNew(
         Branch<AnimIdLeaf> animId,
         JoinBattlePredicate? predicateJoinBattle,

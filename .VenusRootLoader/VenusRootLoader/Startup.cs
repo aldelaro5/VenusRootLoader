@@ -113,7 +113,7 @@ internal static class Startup
         services.AddAutoSequentialIdBasedLeavesRegistry<CuttableGrassLeaf>();
         services.AddEnumBasedLeavesRegistry<SetTextCommandLeaf, MainManager.Commands>();
         services.AddEnumBasedLeavesRegistry<ActionCommandLeaf, BattleControl.ActionCommands>();
-        services.AddAutoSequentialIdBasedLeavesRegistry<BattleHelperLeaf>();
+        services.AddBranchBasedLeavesRegistry<BattleHelperLeaf, AnimIdLeaf>();
         services.AddEnumBasedLeavesRegistry<MapLeaf, MainManager.Maps>();
 
         services.AddSingleton<ISpriteArrayPatcher, EnemyPortraitsSpriteArrayPatcher>(provider =>

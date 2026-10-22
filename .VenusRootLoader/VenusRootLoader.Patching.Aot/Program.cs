@@ -34,6 +34,9 @@ public static class Program
         GameModuleData gameModuleData,
         List<TopLevelTypePatcher> patchers)
     {
+        MakeAllPrivateEnumPublic(gameModuleData);
+        AddMissingUpdateToMonoBehaviours(gameModuleData);
+
         foreach (TopLevelTypePatcher topLevelTypePatcher in patchers)
         {
             TypeDefinition type = gameModuleData.Module
@@ -41,8 +44,21 @@ public static class Program
                 .Single(x => x.Name == topLevelTypePatcher.TypeName);
             topLevelTypePatcher.PatchType(gameModuleData, type);
         }
+    }
 
-        AddMissingUpdateToMonoBehaviours(gameModuleData);
+    private static void MakeAllPrivateEnumPublic(GameModuleData gameModuleData)
+    {
+        foreach (TypeDefinition enumType in gameModuleData.Module.GetAllTypes().Where(x => x.IsEnum))
+        {
+            if (enumType is { IsNestedPrivate: false, IsNestedFamily: false, IsNotPublic: false })
+                continue;
+
+            bool wasNested = enumType.IsNested;
+            if (wasNested)
+                enumType.IsNestedPublic = true;
+            else
+                enumType.IsPublic = true;
+        }
     }
 
     private static void AddMissingUpdateToMonoBehaviours(GameModuleData gameModuleData)

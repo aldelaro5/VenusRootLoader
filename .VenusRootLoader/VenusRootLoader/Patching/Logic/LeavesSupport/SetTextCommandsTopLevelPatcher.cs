@@ -56,9 +56,9 @@ internal sealed class SetTextCommandsTopLevelPatcher : ITopLevelPatcher
         MethodInfo mainManagerSetTalkMethod = AccessTools.Method(
             typeof(MainManager),
             nameof(MainManager.SetTalk));
-        FieldInfo setTextStateMachineCommandContextField = AccessTools.Field(
-            method.DeclaringType,
-            StringUtils.ToCamelCase(nameof(MainManager.SetTextCommandContext)));
+        FieldInfo setTextStateMachineCommandContextField = EnumeratorUtils.GetStateMachineFieldFromUniqueType(
+            method.DeclaringType!,
+            typeof(MainManager.SetTextCommandContext));
 
         matcher.MatchStartForward(CodeMatch.Calls(mainManagerSetTalkMethod));
         matcher.MatchStartForward(Code.Switch);

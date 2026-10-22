@@ -56,4 +56,16 @@ internal static class EnumeratorUtils
             .Select(y => y.FieldType);
         return parameterTypes.SequenceEqual(stateMachineSpeakableFields);
     }
+
+    public static FieldInfo GetStateMachineFieldFromUniqueType(Type stateMachineType, Type fieldType)
+    {
+        return stateMachineType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+            .Single(x => x.FieldType == fieldType);
+    }
+
+    public static FieldInfo GetStateMachineThisField(Type stateMachineType)
+    {
+        return stateMachineType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+            .Single(x => x.Name == ThisFieldName);
+    }
 }

@@ -46,7 +46,8 @@ internal sealed class ListTypesTopLevelPatcher : ITopLevelPatcher
         matcher.MatchStartForward(Code.Switch);
         matcher.Advance(1);
         Label switchSetupEndLabel = (Label)matcher.Operand;
-        matcher.MatchStartBackwards(CodeMatch.IsStloc());
+        matcher.MatchStartBackwards(Code.Stfld);
+        matcher.MatchStartForward(CodeMatch.IsStloc());
         int contextSetupLocalIndex = matcher.Instruction.LocalIndex();
         matcher.Advance(1);
         matcher.InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc, contextSetupLocalIndex));
@@ -63,7 +64,8 @@ internal sealed class ListTypesTopLevelPatcher : ITopLevelPatcher
         matcher.MatchStartForward(Code.Switch);
         matcher.Advance(1);
         Label switchRenderEndLabel = (Label)matcher.Operand;
-        matcher.MatchStartBackwards(CodeMatch.IsStloc());
+        matcher.MatchStartBackwards(Code.Stfld);
+        matcher.MatchStartForward(CodeMatch.IsStloc());
         int contextRenderLocalIndex = matcher.Instruction.LocalIndex();
         matcher.Advance(1);
         matcher.InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc, contextRenderLocalIndex));

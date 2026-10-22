@@ -94,6 +94,7 @@ public static class TranspilersExtensions
             cloneMatcher.Start();
             // The first switch is always the state switch.
             cloneMatcher.MatchStartForward(Code.Switch);
+            int indexStateSwitch = cloneMatcher.Pos;
             CodeInstruction stateSwitch = cloneMatcher.Instruction;
             List<Label> stateLabels = ((Label[])stateSwitch.operand).ToList();
             // Labels targeting the same instruction won't be equal so we need to manually find an instruction that both
@@ -110,7 +111,7 @@ public static class TranspilersExtensions
             else
             {
                 stateLabels.Add(labelToResumeTo);
-                stateSwitch.operand = stateLabels.ToArray();
+                matcher.Instructions()[indexStateSwitch].operand = stateLabels.ToArray();
             }
 
             FieldInfo currentField = AccessTools.Field(

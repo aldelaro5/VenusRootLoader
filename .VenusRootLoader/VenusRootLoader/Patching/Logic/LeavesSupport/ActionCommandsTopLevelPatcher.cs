@@ -46,12 +46,13 @@ internal sealed class ActionCommandsTopLevelPatcher : ITopLevelPatcher
     {
         CodeMatcher matcher = new(instructions, generator);
 
-        FieldInfo setupContextField = AccessTools.Field(
-            method.DeclaringType,
-            StringUtils.ToCamelCase(nameof(BattleControl.DoCommandSetupContext)));
-        FieldInfo executionContextField = AccessTools.Field(
-            method.DeclaringType,
-            StringUtils.ToCamelCase(nameof(BattleControl.DoCommandExecutionContext)));
+        FieldInfo setupContextField = EnumeratorUtils.GetStateMachineFieldFromUniqueType(
+            method.DeclaringType!,
+            typeof(BattleControl.DoCommandSetupContext));
+        FieldInfo executionContextField = EnumeratorUtils.GetStateMachineFieldFromUniqueType(
+            method.DeclaringType!,
+            typeof(BattleControl.DoCommandExecutionContext));
+        FieldInfo thisField = EnumeratorUtils.GetStateMachineThisField(method.DeclaringType!);
 
         matcher.MatchStartForward(Code.Switch);
         matcher.Advance(1);
@@ -61,7 +62,8 @@ internal sealed class ActionCommandsTopLevelPatcher : ITopLevelPatcher
         matcher.MatchStartBackwards(CodeMatch.IsLdloc());
         int actionCommandGameIdLocalIndex = matcher.Instruction.LocalIndex();
         matcher.InsertAndAdvance(
-            Code.Ldloc_1,
+            new(OpCodes.Ldarg_0),
+            new(OpCodes.Ldfld, thisField),
             Code.Ldarg_0,
             new(OpCodes.Ldfld, setupContextField),
             new(OpCodes.Ldloc, actionCommandGameIdLocalIndex),
@@ -83,7 +85,8 @@ internal sealed class ActionCommandsTopLevelPatcher : ITopLevelPatcher
                 DoCommandExecutionHook,
                 matcher,
                 [
-                    new(OpCodes.Ldloc_1),
+                    new(OpCodes.Ldarg_0),
+                    new(OpCodes.Ldfld, thisField),
                     new(OpCodes.Ldarg_0),
                     new(OpCodes.Ldfld, executionContextField),
                     new(CodeInstruction.LoadLocal(actionCommandGameIdLocalIndex))

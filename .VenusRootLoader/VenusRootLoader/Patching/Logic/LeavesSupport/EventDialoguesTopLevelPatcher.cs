@@ -5,6 +5,7 @@ using System.Reflection.Emit;
 using VenusRootLoader.Api.Extensions;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 
@@ -44,6 +45,7 @@ internal sealed class EventDialoguesTopLevelPatcher : ITopLevelPatcher
         MethodBase method)
     {
         CodeMatcher matcher = new(instructions, generator);
+        FieldInfo thisField = EnumeratorUtils.GetStateMachineThisField(method.DeclaringType!);
 
         matcher.MatchStartForward(Code.Switch);
         matcher.Advance(1);
@@ -59,7 +61,8 @@ internal sealed class EventDialoguesTopLevelPatcher : ITopLevelPatcher
                 EventDialogueHandlerHook,
                 matcher,
                 [
-                    Code.Ldloc_1,
+                    new(OpCodes.Ldarg_0),
+                    new(OpCodes.Ldfld, thisField),
                     new(CodeInstruction.LoadLocal(eventDialogueGameIdLocalIndex))
                 ],
                 switchEndLabel));

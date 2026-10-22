@@ -90,9 +90,10 @@ internal sealed class SkillsTopLevelPatcher : ITopLevelPatcher
         MethodBase method)
     {
         CodeMatcher matcher = new(instructions, generator);
-        FieldInfo doActionStateMachinePlayerActionContextField = AccessTools.Field(
-            method.DeclaringType,
-            StringUtils.ToCamelCase(nameof(BattleControl.DoActionPlayerActionContext)));
+        FieldInfo doActionStateMachinePlayerActionContextField = EnumeratorUtils.GetStateMachineFieldFromUniqueType(
+            method.DeclaringType!,
+            typeof(BattleControl.DoActionPlayerActionContext));
+        FieldInfo thisField = EnumeratorUtils.GetStateMachineThisField(method.DeclaringType!);
 
         matcher.MatchStartForward(CodeMatch.LoadsConstant("Player"));
         matcher.MatchStartForward(Code.Switch);
@@ -112,7 +113,8 @@ internal sealed class SkillsTopLevelPatcher : ITopLevelPatcher
                 PlayerActionHook,
                 matcher,
                 [
-                    new(OpCodes.Ldloc_1),
+                    new(OpCodes.Ldarg_0),
+                    new(OpCodes.Ldfld, thisField),
                     new(OpCodes.Ldarg_0),
                     new(OpCodes.Ldfld, doActionStateMachinePlayerActionContextField),
                     new(CodeInstruction.LoadLocal(skillGameIdLocalIndex))

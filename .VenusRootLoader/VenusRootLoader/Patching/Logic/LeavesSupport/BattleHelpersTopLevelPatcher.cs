@@ -18,8 +18,9 @@ namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 /// <see cref="BattleHelperLeaf"/> registry.</item>
 /// <item><see cref="BattleControl.StartBattle"/>: Changes helper addition logic to reflect the predicates from the
 /// <see cref="BattleHelperLeaf"/> registry.</item>
-/// <item><see cref="MapControl.HelperMedalCheck"/>: Changes the conditions required for the <see cref="MainManager.BadgeTypes.Helper"/>
-/// medal to appear at Merab's shop to reflect the predicates from the <see cref="BattleHelperLeaf"/> registry.</item>
+/// <item><see cref="MapControl.HelperMedalCheck"/>: Completely replace the method such that the conditions required for
+/// the <see cref="MainManager.BadgeTypes.Helper"/> medal to appear at Merab's shop reflects the predicates from the
+/// <see cref="BattleHelperLeaf"/> registry.</item>
 /// <item><see cref="EventControl.Event222"/>: Adds back the logic to apply an infinite attack up and defense up conditions
 /// to all enemies after the battle has starter (this logic would have been removed by the <see cref="BattleControl.StartBattle"/>
 /// mentioned above).</item>
@@ -52,17 +53,33 @@ internal sealed class BattleHelpersTopLevelPatcher : ITopLevelPatcher
         MethodBase method)
     {
         CodeMatcher matcher = new(instructions, generator);
-        FieldInfo aiAttackContextField = AccessTools.Field(
-            method.DeclaringType,
-            StringUtils.ToCamelCase(nameof(BattleControl.AIAttackContext)));
+        FieldInfo aiAttackContextField = EnumeratorUtils.GetStateMachineFieldFromUniqueType(
+            method.DeclaringType!,
+            typeof(BattleControl.AIAttackContext));
+        FieldInfo thisField = EnumeratorUtils.GetStateMachineThisField(method.DeclaringType!);
 
         matcher.MatchStartForward(Code.Switch);
         matcher.Advance(1);
         matcher.MatchStartForward(Code.Switch);
         matcher.Advance(1);
         Label switchEndLabel = (Label)matcher.Operand;
-        matcher.MatchStartBackwards(CodeMatch.IsLdloc());
-        int aiAttackAnimIdGameIdLocalIndex = matcher.Instruction.LocalIndex();
+        matcher.MatchStartBackwards(CodeMatch.StoresField(aiAttackContextField));
+        matcher.Advance(1);
+        int? aiAttackAnimIdGameIdLocalIndex = matcher.Instruction.IsLdloc()
+            ? matcher.Instruction.LocalIndex()
+            : null;
+        FieldInfo? aiAttackAnimIdGameIdField = null;
+        if (aiAttackAnimIdGameIdLocalIndex is null)
+        {
+            matcher.MatchStartForward(Code.Ldfld);
+            aiAttackAnimIdGameIdField = (FieldInfo?)matcher.Instruction.operand;
+            matcher.MatchStartBackwards(CodeMatch.StoresField(aiAttackContextField));
+            matcher.Advance(1);
+        }
+
+        List<CodeInstruction> ilLoadAnimIdGameId = aiAttackAnimIdGameIdLocalIndex is not null
+            ? [CodeInstruction.LoadLocal(aiAttackAnimIdGameIdLocalIndex.Value)]
+            : [Code.Ldarg_0, new CodeInstruction(OpCodes.Ldfld, aiAttackAnimIdGameIdField)];
 
         matcher.InsertAndAdvance(
             Transpilers.EmitYieldReturnCoroutine(
@@ -70,10 +87,11 @@ internal sealed class BattleHelpersTopLevelPatcher : ITopLevelPatcher
                 AiAttackHook,
                 matcher,
                 [
-                    new(OpCodes.Ldloc_1),
+                    new(OpCodes.Ldarg_0),
+                    new(OpCodes.Ldfld, thisField),
                     new(OpCodes.Ldarg_0),
                     new(OpCodes.Ldfld, aiAttackContextField),
-                    new(CodeInstruction.LoadLocal(aiAttackAnimIdGameIdLocalIndex))
+                    .. ilLoadAnimIdGameId
                 ],
                 switchEndLabel));
 
@@ -107,44 +125,48 @@ internal sealed class BattleHelpersTopLevelPatcher : ITopLevelPatcher
         matcher.Labels.Add(labelAfterHelperJoin);
 
         matcher.MatchStartForward(CodeMatch.LoadsField(battleControlAiPartyField));
-        matcher.MatchStartForward(CodeMatch.StoresLocal());
-        int helperPoolListLocalIndex = matcher.Instruction.LocalIndex();
+        matcher.MatchStartForward(Code.Newobj);
         matcher.Advance(1);
+        int? helperPoolListLocalIndex = matcher.Instruction.IsStloc() ? matcher.Instruction.LocalIndex() : null;
+        FieldInfo? helperPoolListField = helperPoolListLocalIndex is null
+            ? (FieldInfo?)matcher.Instruction.operand
+            : null;
+        matcher.Advance(1);
+
+        List<CodeInstruction> ilLoadHelperPoolList = helperPoolListLocalIndex is not null
+            ? [CodeInstruction.LoadLocal(helperPoolListLocalIndex.Value)]
+            : [Code.Ldarg_0, new CodeInstruction(OpCodes.Ldfld, helperPoolListField)];
 
         matcher.DefineLabel(out Label labelAfterHelperPool);
         matcher.Insert(
-            CodeInstruction.LoadLocal(helperPoolListLocalIndex),
+        [
+            .. ilLoadHelperPoolList,
             Transpilers.EmitDelegate(StartBattleMedalHelperPoolHook),
-            new(OpCodes.Br, labelAfterHelperPool));
+            new(OpCodes.Br, labelAfterHelperPool)
+        ]);
 
         matcher.MatchStartForward(CodeMatch.Calls(unityRandomRangeMethod));
         matcher.MatchStartBackwards(CodeMatch.Branches());
-        matcher.MatchStartBackwards(CodeMatch.LoadsLocal());
+        matcher.MatchStartBackwards(
+            helperPoolListLocalIndex is not null
+                ? CodeMatch.LoadsLocal()
+                : Code.Ldarg_0);
         matcher.Labels.Add(labelAfterHelperPool);
 
         return matcher.Instructions();
     }
 
-    [HarmonyTranspiler]
+    [HarmonyPrefix]
     [HarmonyPatch(nameof(MapControl), nameof(MapControl.HelperMedalCheck))]
-    private static IEnumerable<CodeInstruction> PatchHelperMedalCheck(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator,
-        MethodBase method)
+    private static bool PatchHelperMedalCheck()
     {
-        CodeMatcher matcher = new(instructions, generator);
-        FieldInfo mainManagerBadgeShopsField = AccessTools.Field(typeof(MainManager), nameof(MainManager.badgeshops));
+        if (!MainManager.instance.flags[716] && HelperMedalCheckHook())
+        {
+            MainManager.instance.badgeshops[0].Add(85);
+            MainManager.instance.flags[716] = true;
+        }
 
-        matcher.MatchStartForward(CodeMatch.LoadsField(mainManagerBadgeShopsField));
-        matcher.MatchStartBackwards(CodeMatch.Branches());
-        int indexStop = matcher.Pos;
-        matcher.Start();
-        matcher.MatchStartForward(CodeMatch.Branches());
-        matcher.Advance(1);
-        matcher.RemoveInstructions(indexStop - matcher.Pos);
-        matcher.Insert(Transpilers.EmitDelegate(HelperMedalCheckHook));
-
-        return matcher.Instructions();
+        return false;
     }
 
     [HarmonyTranspiler]
@@ -182,8 +204,11 @@ internal sealed class BattleHelpersTopLevelPatcher : ITopLevelPatcher
     {
         foreach (BattleHelperLeaf battleHelperLeaf in _instance._battleHelpersRegistry)
         {
-            if (battleHelperLeaf.PredicateJoinBattle?.Invoke() ?? false)
-                MainManager.battle.AddAI(battleHelperLeaf.GameId, battleHelperLeaf.StartingAnimstate);
+            if (!(battleHelperLeaf.PredicateJoinBattle?.Invoke() ?? false))
+                continue;
+
+            MainManager.battle.AddAI(battleHelperLeaf.GameId, battleHelperLeaf.StartingAnimstate);
+            break;
         }
     }
 

@@ -49,7 +49,8 @@ internal sealed class ItemUsagesTopLevelPatcher : ITopLevelPatcher
         matcher.MatchStartForward(Code.Switch);
         matcher.Advance(1);
         Label switchEndLabel = (Label)matcher.Operand;
-        matcher.MatchStartBackwards(CodeMatch.IsStloc());
+        matcher.MatchStartBackwards(Code.Stfld);
+        matcher.MatchStartForward(CodeMatch.IsStloc());
         int contextLocalIndex = matcher.Instruction.LocalIndex();
         matcher.Advance(1);
         matcher.InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc, contextLocalIndex));
@@ -70,9 +71,10 @@ internal sealed class ItemUsagesTopLevelPatcher : ITopLevelPatcher
         MethodBase method)
     {
         CodeMatcher matcher = new(instructions, generator);
-        FieldInfo useItemContextField = AccessTools.Field(
-            method.DeclaringType,
-            StringUtils.ToCamelCase(nameof(BattleControl.UseItemBattleEffectContext)));
+        FieldInfo useItemContextField = EnumeratorUtils.GetStateMachineFieldFromUniqueType(
+            method.DeclaringType!,
+            typeof(BattleControl.UseItemBattleEffectContext));
+        FieldInfo thisField = EnumeratorUtils.GetStateMachineThisField(method.DeclaringType!);
 
         matcher.MatchStartForward(CodeMatch.StoresField(useItemContextField));
         matcher.MatchStartForward(Code.Switch);
@@ -81,7 +83,8 @@ internal sealed class ItemUsagesTopLevelPatcher : ITopLevelPatcher
         matcher.MatchStartBackwards(CodeMatch.IsLdloc());
         int contextLocalIndex = matcher.Instruction.LocalIndex();
         matcher.InsertAndAdvance(
-            new CodeInstruction(OpCodes.Ldloc, 1),
+            new CodeInstruction(OpCodes.Ldarg_0),
+            new CodeInstruction(OpCodes.Ldfld, thisField),
             new CodeInstruction(OpCodes.Ldarg_0),
             new CodeInstruction(OpCodes.Ldfld, useItemContextField));
         matcher.Advance(1);

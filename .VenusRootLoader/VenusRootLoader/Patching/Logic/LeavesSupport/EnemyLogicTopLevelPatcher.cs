@@ -49,9 +49,10 @@ internal sealed class EnemyLogicTopLevelPatcher : ITopLevelPatcher
         FieldInfo entityControlOnGroundField = AccessTools.Field(
             typeof(EntityControl),
             nameof(EntityControl.onground));
-        FieldInfo doActionStateMachineEnemyActionContextField = AccessTools.Field(
-            method.DeclaringType,
-            StringUtils.ToCamelCase(nameof(BattleControl.DoActionEnemyActionContext)));
+        FieldInfo doActionStateMachineEnemyActionContextField = EnumeratorUtils.GetStateMachineFieldFromUniqueType(
+            method.DeclaringType!,
+            typeof(BattleControl.DoActionEnemyActionContext));
+        FieldInfo thisField = EnumeratorUtils.GetStateMachineThisField(method.DeclaringType!);
 
         matcher.MatchStartForward(CodeMatch.LoadsField(battleControlFirstStrikeField));
         matcher.MatchStartForward(CodeMatch.LoadsField(entityControlOnGroundField));
@@ -67,7 +68,8 @@ internal sealed class EnemyLogicTopLevelPatcher : ITopLevelPatcher
                 EnemyActionHook,
                 matcher,
                 [
-                    new(OpCodes.Ldloc_1),
+                    new(OpCodes.Ldarg_0),
+                    new(OpCodes.Ldfld, thisField),
                     new(OpCodes.Ldarg_0),
                     new(OpCodes.Ldfld, doActionStateMachineEnemyActionContextField),
                     new(CodeInstruction.LoadLocal(enemyGameIdLocalIndex))

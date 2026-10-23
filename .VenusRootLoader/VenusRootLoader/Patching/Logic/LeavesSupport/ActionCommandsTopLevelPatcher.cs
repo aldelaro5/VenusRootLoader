@@ -1,9 +1,9 @@
-using HarmonyLib;
+using MonoDetour.Cil;
+using MonoMod.Cil;
 using System.Collections;
 using System.Reflection;
-using System.Reflection.Emit;
-using VenusRootLoader.Api.Extensions;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Extensions;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
@@ -23,77 +23,66 @@ internal sealed class ActionCommandsTopLevelPatcher : ITopLevelPatcher
 {
     private static ActionCommandsTopLevelPatcher _instance = null!;
 
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<ActionCommandLeaf> _actionCommandsRegistry;
 
-    public ActionCommandsTopLevelPatcher(
-        IHarmonyTypePatcher harmonyTypePatcher,
-        ILeavesRegistry<ActionCommandLeaf> actionCommandsRegistry)
+    public ActionCommandsTopLevelPatcher(ILeavesRegistry<ActionCommandLeaf> actionCommandsRegistry)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _actionCommandsRegistry = actionCommandsRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(ActionCommandsTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(nameof(BattleControl), nameof(BattleControl.DoCommand), MethodType.Enumerator)]
-    private static IEnumerable<CodeInstruction> PatchDoItemEffectSwitch(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator,
-        MethodBase method)
+    public void Patch()
     {
-        CodeMatcher matcher = new(instructions, generator);
+        Md.BattleControl.DoCommand.ILHookMoveNext(PatchDoCommand);
+    }
 
+    private static void PatchDoCommand(ILManipulationInfo info)
+    {
+        ILCursor cursor = new(info.Context);
         FieldInfo setupContextField = EnumeratorUtils.GetStateMachineFieldFromUniqueType(
-            method.DeclaringType!,
+            info.Original!.DeclaringType!,
             typeof(BattleControl.DoCommandSetupContext));
         FieldInfo executionContextField = EnumeratorUtils.GetStateMachineFieldFromUniqueType(
-            method.DeclaringType!,
+            info.Original!.DeclaringType!,
             typeof(BattleControl.DoCommandExecutionContext));
-        FieldInfo thisField = EnumeratorUtils.GetStateMachineThisField(method.DeclaringType!);
+        FieldInfo thisField = EnumeratorUtils.GetStateMachineThisField(info.Original!.DeclaringType!);
 
-        matcher.MatchStartForward(Code.Switch);
-        matcher.Advance(1);
-        matcher.MatchStartForward(Code.Switch);
-        matcher.Advance(1);
-        Label setupSwitchEndLabel = (Label)matcher.Operand;
-        matcher.MatchStartBackwards(CodeMatch.IsLdloc());
-        int actionCommandGameIdLocalIndex = matcher.Instruction.LocalIndex();
-        matcher.InsertAndAdvance(
-            new(OpCodes.Ldarg_0),
-            new(OpCodes.Ldfld, thisField),
-            Code.Ldarg_0,
-            new(OpCodes.Ldfld, setupContextField),
-            new(OpCodes.Ldloc, actionCommandGameIdLocalIndex),
-            Transpilers.EmitDelegate(DoCommandSetupHook),
-            new CodeInstruction(OpCodes.Br, setupSwitchEndLabel));
+        cursor.GotoNext(x => x.MatchSwitch(out _));
+        cursor.Index++;
+        cursor.GotoNext(x => x.MatchSwitch(out _));
+        cursor.Index++;
+        ILLabel setupSwitchEndLabel = (ILLabel)cursor.Current.Operand;
+        int actionCommandGameIdLocalIndex = 0;
+        cursor.GotoPrev(x => x.MatchLdloc(out actionCommandGameIdLocalIndex));
 
-        matcher.MatchStartForward(Code.Switch);
-        matcher.Advance(1);
-        matcher.MatchStartForward(Code.Switch);
-        matcher.Advance(1);
+        cursor.EmitLdarg0();
+        cursor.EmitLdfld(thisField);
+        cursor.EmitLdarg0();
+        cursor.EmitLdfld(setupContextField);
+        cursor.EmitLdloc(actionCommandGameIdLocalIndex);
+        cursor.EmitDelegate(DoCommandSetupHook);
+        cursor.EmitBr(setupSwitchEndLabel);
 
-        Label executionSwitchEndLabel = (Label)matcher.Operand;
-        matcher.MatchStartBackwards(CodeMatch.IsLdloc());
-        actionCommandGameIdLocalIndex = matcher.Instruction.LocalIndex();
+        cursor.GotoNext(x => x.MatchSwitch(out _));
+        cursor.Index++;
+        cursor.GotoNext(x => x.MatchSwitch(out _));
+        cursor.Index++;
 
-        matcher.InsertAndAdvance(
-            Transpilers.EmitYieldReturnCoroutine(
-                method,
-                DoCommandExecutionHook,
-                matcher,
-                [
-                    new(OpCodes.Ldarg_0),
-                    new(OpCodes.Ldfld, thisField),
-                    new(OpCodes.Ldarg_0),
-                    new(OpCodes.Ldfld, executionContextField),
-                    new(CodeInstruction.LoadLocal(actionCommandGameIdLocalIndex))
-                ],
-                executionSwitchEndLabel));
+        ILLabel executionSwitchEndLabel = (ILLabel)cursor.Current.Operand;
+        cursor.GotoPrev(x => x.MatchLdloc(out actionCommandGameIdLocalIndex));
 
-        return matcher.Instructions();
+        cursor.EmitYieldReturnCoroutine(
+            info.Original,
+            DoCommandExecutionHook,
+            ilCursor =>
+            {
+                ilCursor.EmitLdarg0();
+                ilCursor.EmitLdfld(thisField);
+                ilCursor.EmitLdarg0();
+                ilCursor.EmitLdfld(executionContextField);
+                ilCursor.EmitLdloc(actionCommandGameIdLocalIndex);
+            },
+            executionSwitchEndLabel);
     }
 
     private static void DoCommandSetupHook(

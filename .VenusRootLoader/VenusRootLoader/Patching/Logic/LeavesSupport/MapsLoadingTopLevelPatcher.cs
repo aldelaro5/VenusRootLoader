@@ -1,11 +1,12 @@
-using HarmonyLib;
-using System.Reflection;
-using System.Reflection.Emit;
+using MonoDetour.Cil;
+using MonoMod.Cil;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Extensions;
 using VenusRootLoader.LeavesInternals;
 using VenusRootLoader.Registry;
 using Object = UnityEngine.Object;
+using OpCodes = Mono.Cecil.Cil.OpCodes;
 
 namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 
@@ -29,39 +30,27 @@ internal sealed class MapsLoadingTopLevelPatcher : ITopLevelPatcher
 {
     private static MapsLoadingTopLevelPatcher _instance = null!;
 
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<MapLeaf> _mapsRegistry;
 
-    public MapsLoadingTopLevelPatcher(
-        IHarmonyTypePatcher harmonyTypePatcher,
-        ILeavesRegistry<MapLeaf> mapsRegistry)
+    public MapsLoadingTopLevelPatcher(ILeavesRegistry<MapLeaf> mapsRegistry)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _mapsRegistry = mapsRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(MapsLoadingTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(MainManager), nameof(MainManager.LoadMap), typeof(int))]
-    private static IEnumerable<CodeInstruction> RedirectMapPrefabs(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator)
+    public void Patch()
     {
-        CodeMatcher matcher = new(instructions, generator);
-        MethodInfo resourcesLoadMethod = typeof(UnityEngine.Resources)
-            .GetMethods(BindingFlags.Static | BindingFlags.Public)
-            .Single(x => x.Name == nameof(UnityEngine.Resources.Load)
-                         && x is { ContainsGenericParameters: false, ReturnParameter: not null }
-                         && x.GetParameters().Length == 1);
+        Md.MainManager.LoadMap_System_Int32.ILHook(RedirectMapPrefabs);
+    }
 
-        matcher.MatchStartForward(CodeMatch.Calls(resourcesLoadMethod));
-        while (matcher.Instruction.opcode != OpCodes.Isinst)
-            matcher.SetInstructionAndAdvance(Code.Nop);
-        matcher.SetInstruction(Transpilers.EmitDelegate(PatchMapPrefab));
+    private static void RedirectMapPrefabs(ILManipulationInfo info)
+    {
+        ILCursor cursor = new(info.Context);
 
-        return matcher.Instructions();
+        cursor.GotoNext(x => x.MatchCallOrCallvirt<UnityEngine.Resources>(nameof(UnityEngine.Resources.Load)));
+        while (cursor.Current.OpCode != OpCodes.Isinst)
+            cursor.SetAndAdvance(OpCodes.Nop);
+        cursor.SetToStaticDelegateCall(PatchMapPrefab);
     }
 
     private static GameObject PatchMapPrefab(string resourcesPath)

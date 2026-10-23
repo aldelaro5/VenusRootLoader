@@ -1,8 +1,8 @@
-using HarmonyLib;
-using System.Reflection;
-using System.Reflection.Emit;
+using MonoDetour.Cil;
+using MonoMod.Cil;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Extensions;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Logic.LeavesSupport;
@@ -19,49 +19,41 @@ namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 /// </summary>
 internal sealed class AreaMapPositionsTopLevelPatcher : ITopLevelPatcher
 {
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<AreaLeaf> _areasRegistry;
 
     private static AreaMapPositionsTopLevelPatcher _instance = null!;
 
     private float _yPositionAreas;
 
-    public AreaMapPositionsTopLevelPatcher(
-        IHarmonyTypePatcher harmonyTypePatcher,
-        ILeavesRegistry<AreaLeaf> areasRegistry)
+    public AreaMapPositionsTopLevelPatcher(ILeavesRegistry<AreaLeaf> areasRegistry)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _areasRegistry = areasRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(AreaMapPositionsTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(PauseMenu), nameof(PauseMenu.MapSetup))]
-    internal static IEnumerable<CodeInstruction> PatchAllMapPositions(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator,
-        MethodBase method)
+    public void Patch()
     {
-        CodeMatcher matcher = new(instructions, generator);
+        Md.PauseMenu.MapSetup.ILHook(PatchAllMapPositions);
+    }
 
-        matcher.MatchStartForward(CodeMatch.WithOpcodes([OpCodes.Switch]));
+    private static void PatchAllMapPositions(ILManipulationInfo info)
+    {
+        ILCursor cursor = new(info.Context);
+
+        cursor.GotoNext(x => x.MatchSwitch(out _));
 
         // We first need to take a detour to gather the local where the area is stored and the y position map positions
         // always have (which is effectively a z derived component value).
-        CodeMatcher tempMatcher = matcher.Clone();
-        tempMatcher.MatchStartForward(CodeMatch.LoadsLocal(true));
-        LocalBuilder localPosition = (LocalBuilder)tempMatcher.Operand;
-        tempMatcher.MatchStartForward(CodeMatch.LoadsConstant());
-        tempMatcher.Advance(1);
-        tempMatcher.MatchStartForward(CodeMatch.LoadsConstant());
-        _instance._yPositionAreas = (float)tempMatcher.Operand;
+        int cursorIndex = cursor.Index;
+        int localPositionIndex = 0;
+        cursor.GotoNext(x => x.MatchLdloca(out localPositionIndex));
+        cursor.GotoNext(x => x.MatchLdcR4(out _));
+        cursor.Index++;
+        cursor.GotoNext(x => x.MatchLdcR4(out _instance._yPositionAreas));
+        cursor.Index = cursorIndex;
 
-        matcher.InsertAndAdvance(new CodeInstruction(OpCodes.Ldloca_S, localPosition));
-        matcher.SetInstruction(Transpilers.EmitDelegate(PatchAreaMapPosition));
-
-        return matcher.Instructions();
+        cursor.EmitLdloca(localPositionIndex);
+        cursor.SetToStaticDelegateCall(PatchAreaMapPosition);
     }
 
     private static void PatchAreaMapPosition(MainManager.Areas area, out Vector3 mapPosition)

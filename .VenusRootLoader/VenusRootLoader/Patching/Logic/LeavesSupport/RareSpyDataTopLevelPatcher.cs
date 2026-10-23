@@ -44,7 +44,7 @@ internal sealed class RareSpyDataTopLevelPatcher : ITopLevelPatcher
         // isn't a boss / miniboss so we can sort of rely on this being there.
         cursor.GotoNext(x => x.MatchCallOrCallvirt<List<int>>(nameof(List<>.Add)));
         cursor.GotoPrev(x => x.MatchLdcI4(out _));
-        cursor.EmitDelegate(ChangeRareSpyDataEnemies);
+        cursor.SetToStaticDelegateCallAndAdvance(ChangeRareSpyDataEnemies);
         while (!cursor.Instrs[cursor.Index].MatchLdarg0())
             cursor.SetAndAdvance(OpCodes.Nop);
     }

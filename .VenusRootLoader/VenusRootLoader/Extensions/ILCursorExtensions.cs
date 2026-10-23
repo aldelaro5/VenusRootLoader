@@ -32,5 +32,16 @@ internal static class ILCursorExtensions
             cursor.Set(opCode, operand);
             cursor.Index++;
         }
+
+        public void SetToStaticDelegateCall<T>(T cb) where T : Delegate
+        {
+            cursor.Set(OpCodes.Call, cb.Method);
+        }
+
+        public void SetToStaticDelegateCallAndAdvance<T>(T cb) where T : Delegate
+        {
+            cursor.Set(OpCodes.Call, cb.Method);
+            cursor.Index++;
+        }
     }
 }

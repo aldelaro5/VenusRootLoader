@@ -1,4 +1,4 @@
-using HarmonyLib;
+using MonoDetour.DetourTypes;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
 
@@ -17,28 +17,26 @@ namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 /// </summary>
 internal sealed class NonPurchasableMusicsTopLevelPatcher : ITopLevelPatcher
 {
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<MusicLeaf> _musicRegistry;
 
     private static NonPurchasableMusicsTopLevelPatcher _instance = null!;
 
-    public NonPurchasableMusicsTopLevelPatcher(
-        IHarmonyTypePatcher harmonyTypePatcher,
-        ILeavesRegistry<MusicLeaf> musicRegistry)
+    public NonPurchasableMusicsTopLevelPatcher(ILeavesRegistry<MusicLeaf> musicRegistry)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _musicRegistry = musicRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(NonPurchasableMusicsTopLevelPatcher));
+    public void Patch()
+    {
+        Md.MainManager.FixSamira.ControlFlowPrefix(FixNonPurchasableMusic);
+        Md.MainManager.SamiraGotAll.ControlFlowPrefix(AdjustPurchasedAllMusic);
+    }
 
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(MainManager), nameof(MainManager.FixSamira))]
-    internal static bool FixNonPurchasableMusic()
+    private static ReturnFlow FixNonPurchasableMusic()
     {
         if (MainManager.instance.samiramusics is null || MainManager.instance.samiramusics.Count <= 0)
-            return false;
+            return ReturnFlow.SkipOriginal;
 
         // Going over backwards to avoid indexing problems while removing.
         for (int i = MainManager.instance.samiramusics.Count - 1; i >= 0; i--)
@@ -48,16 +46,13 @@ internal sealed class NonPurchasableMusicsTopLevelPatcher : ITopLevelPatcher
                 MainManager.instance.samiramusics.RemoveAt(i);
         }
 
-        return false;
+        return ReturnFlow.SkipOriginal;
     }
 
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(MainManager), nameof(MainManager.SamiraGotAll))]
-    internal static bool AdjustPurchasedAllMusic(ref bool __result)
+    private static ReturnFlow AdjustPurchasedAllMusic(ref bool result)
     {
-        int amountPurchasableMusic = _instance._musicRegistry
-            .Count(l => l.CanBePurchasedFromSamira);
-        __result = MainManager.PurchasedMusicAmmount() >= amountPurchasableMusic;
-        return false;
+        int amountPurchasableMusic = _instance._musicRegistry.Count(l => l.CanBePurchasedFromSamira);
+        result = MainManager.PurchasedMusicAmmount() >= amountPurchasableMusic;
+        return ReturnFlow.SkipOriginal;
     }
 }

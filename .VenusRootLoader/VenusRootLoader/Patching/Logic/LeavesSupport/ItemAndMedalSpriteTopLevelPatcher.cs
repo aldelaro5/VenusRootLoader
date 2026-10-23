@@ -1,4 +1,4 @@
-using HarmonyLib;
+using MonoDetour.DetourTypes;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
@@ -26,26 +26,24 @@ internal sealed class ItemAndMedalSpriteTopLevelPatcher : ITopLevelPatcher
 
     private static ItemAndMedalSpriteTopLevelPatcher _instance = null!;
 
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<ItemLeaf> _itemLeafRegistry;
     private readonly ILeavesRegistry<MedalLeaf> _medalLeafRegistry;
 
     public ItemAndMedalSpriteTopLevelPatcher(
-        IHarmonyTypePatcher harmonyTypePatcher,
         ILeavesRegistry<ItemLeaf> itemLeafRegistry,
         ILeavesRegistry<MedalLeaf> medalLeafRegistry)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _itemLeafRegistry = itemLeafRegistry;
         _medalLeafRegistry = medalLeafRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(ItemAndMedalSpriteTopLevelPatcher));
+    public void Patch()
+    {
+        Md.MainManager.LoadItemSprites.ControlFlowPrefix(InsertCustomItemSpriteHandler);
+    }
 
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(MainManager), nameof(MainManager.LoadItemSprites))]
-    private static bool InsertCustomItemSpriteHandler()
+    private static ReturnFlow InsertCustomItemSpriteHandler()
     {
         Sprite[] itemsSprites = _instance._itemLeafRegistry
             .Select(i => i.Sprite.LoadAsset())
@@ -67,6 +65,6 @@ internal sealed class ItemAndMedalSpriteTopLevelPatcher : ITopLevelPatcher
             MainManager.itemsprites[(int)SpriteKind.Medal, i] = sprite;
         }
 
-        return false;
+        return ReturnFlow.SkipOriginal;
     }
 }

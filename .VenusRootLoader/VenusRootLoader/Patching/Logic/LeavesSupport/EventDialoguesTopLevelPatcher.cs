@@ -1,9 +1,9 @@
-using HarmonyLib;
+using MonoDetour.Cil;
+using MonoMod.Cil;
 using System.Collections;
 using System.Reflection;
-using System.Reflection.Emit;
-using VenusRootLoader.Api.Extensions;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Extensions;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
@@ -23,51 +23,42 @@ internal sealed class EventDialoguesTopLevelPatcher : ITopLevelPatcher
 {
     private static EventDialoguesTopLevelPatcher _instance = null!;
 
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<BattleEventDialogueLeaf> _battleEventDialoguesRegistry;
 
-    public EventDialoguesTopLevelPatcher(
-        IHarmonyTypePatcher harmonyTypePatcher,
-        ILeavesRegistry<BattleEventDialogueLeaf> battleEventDialoguesRegistry)
+    public EventDialoguesTopLevelPatcher(ILeavesRegistry<BattleEventDialogueLeaf> battleEventDialoguesRegistry)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _battleEventDialoguesRegistry = battleEventDialoguesRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(EventDialoguesTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(nameof(BattleControl), nameof(BattleControl.EventDialogue), MethodType.Enumerator)]
-    private static IEnumerable<CodeInstruction> PatchEventDialogue(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator,
-        MethodBase method)
+    public void Patch()
     {
-        CodeMatcher matcher = new(instructions, generator);
-        FieldInfo thisField = EnumeratorUtils.GetStateMachineThisField(method.DeclaringType!);
+        Md.BattleControl.EventDialogue.ILHookMoveNext(PatchEventDialogue);
+    }
 
-        matcher.MatchStartForward(Code.Switch);
-        matcher.Advance(1);
-        matcher.MatchStartForward(Code.Switch);
-        matcher.Advance(1);
-        Label switchEndLabel = (Label)matcher.Operand;
-        matcher.MatchStartBackwards(CodeMatch.IsLdloc());
-        int eventDialogueGameIdLocalIndex = matcher.Instruction.LocalIndex();
+    private static void PatchEventDialogue(ILManipulationInfo info)
+    {
+        ILCursor cursor = new(info.Context);
+        FieldInfo thisField = EnumeratorUtils.GetStateMachineThisField(info.Original!.DeclaringType!);
 
-        matcher.InsertAndAdvance(
-            Transpilers.EmitYieldReturnCoroutine(
-                method,
-                EventDialogueHandlerHook,
-                matcher,
-                [
-                    new(OpCodes.Ldarg_0),
-                    new(OpCodes.Ldfld, thisField),
-                    new(CodeInstruction.LoadLocal(eventDialogueGameIdLocalIndex))
-                ],
-                switchEndLabel));
+        cursor.GotoNext(x => x.MatchSwitch(out _));
+        cursor.Index++;
+        cursor.GotoNext(x => x.MatchSwitch(out _));
+        cursor.Index++;
+        ILLabel switchEndLabel = (ILLabel)cursor.Current.Operand;
+        int eventDialogueGameIdLocalIndex = 0;
+        cursor.GotoPrev(x => x.MatchLdloc(out eventDialogueGameIdLocalIndex));
 
-        return matcher.Instructions();
+        cursor.EmitYieldReturnCoroutine(
+            info.Original,
+            EventDialogueHandlerHook,
+            ilCursor =>
+            {
+                ilCursor.EmitLdarg0();
+                ilCursor.EmitLdfld(thisField);
+                ilCursor.EmitLdloc(eventDialogueGameIdLocalIndex);
+            },
+            switchEndLabel);
     }
 
     private static IEnumerator EventDialogueHandlerHook(BattleControl battle, int eventDialogueGameId)

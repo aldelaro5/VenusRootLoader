@@ -1,7 +1,7 @@
-using HarmonyLib;
-using System.Reflection;
-using System.Reflection.Emit;
+using MonoDetour.Cil;
+using MonoMod.Cil;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Extensions;
 using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Logic.LeavesSupport;
@@ -20,62 +20,52 @@ internal sealed class ListTypesTopLevelPatcher : ITopLevelPatcher
 {
     private static ListTypesTopLevelPatcher _instance = null!;
 
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<ListTypeLeaf> _listTypesRegistry;
 
-    public ListTypesTopLevelPatcher(
-        IHarmonyTypePatcher harmonyTypePatcher,
-        ILeavesRegistry<ListTypeLeaf> listTypesRegistry)
+    public ListTypesTopLevelPatcher(ILeavesRegistry<ListTypeLeaf> listTypesRegistry)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _listTypesRegistry = listTypesRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(ListTypesTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(nameof(MainManager), nameof(MainManager.ShowItemList))]
-    private static IEnumerable<CodeInstruction> PatchShowItemList(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator,
-        MethodBase method)
+    public void Patch()
     {
-        CodeMatcher matcher = new(instructions, generator);
+        Md.MainManager.ShowItemList.ILHook(PatchShowItemList);
+    }
 
-        matcher.MatchStartForward(Code.Switch);
-        matcher.Advance(1);
-        Label switchSetupEndLabel = (Label)matcher.Operand;
-        matcher.MatchStartBackwards(Code.Stfld);
-        matcher.MatchStartForward(CodeMatch.IsStloc());
-        int contextSetupLocalIndex = matcher.Instruction.LocalIndex();
-        matcher.Advance(1);
-        matcher.InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc, contextSetupLocalIndex));
-        matcher.Advance(1);
-        matcher.InsertAndAdvance(
-            Transpilers.EmitDelegate(ShowItemListSetupHandlerHook),
-            new CodeInstruction(OpCodes.Br, switchSetupEndLabel),
-            Code.Ldarg_0);
+    private static void PatchShowItemList(ILManipulationInfo info)
+    {
+        ILCursor cursor = new(info.Context);
 
-        matcher.Advance(1);
-        matcher.MatchStartForward(Code.Switch);
-        matcher.Advance(1);
+        cursor.GotoNext(x => x.MatchSwitch(out _));
+        cursor.Index++;
+        ILLabel switchSetupEndLabel = (ILLabel)cursor.Current.Operand;
+        cursor.GotoPrev(x => x.MatchStfld(out _));
+        int contextSetupLocalIndex = 0;
+        cursor.GotoNext(x => x.MatchStloc(out contextSetupLocalIndex));
+        cursor.Index++;
+        cursor.EmitLdloc(contextSetupLocalIndex);
+        cursor.Index++;
+        cursor.EmitDelegate(ShowItemListSetupHandlerHook);
+        cursor.EmitBr(switchSetupEndLabel);
+        cursor.EmitLdarg0();
 
-        matcher.MatchStartForward(Code.Switch);
-        matcher.Advance(1);
-        Label switchRenderEndLabel = (Label)matcher.Operand;
-        matcher.MatchStartBackwards(Code.Stfld);
-        matcher.MatchStartForward(CodeMatch.IsStloc());
-        int contextRenderLocalIndex = matcher.Instruction.LocalIndex();
-        matcher.Advance(1);
-        matcher.InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc, contextRenderLocalIndex));
-        matcher.Advance(1);
-        matcher.InsertAndAdvance(
-            Transpilers.EmitDelegate(ShowItemListRendererHook),
-            new CodeInstruction(OpCodes.Br, switchRenderEndLabel),
-            Code.Ldarg_0);
+        cursor.Index++;
+        cursor.GotoNext(x => x.MatchSwitch(out _));
+        cursor.Index++;
 
-        return matcher.Instructions();
+        cursor.GotoNext(x => x.MatchSwitch(out _));
+        cursor.Index++;
+        ILLabel switchRenderEndLabel = (ILLabel)cursor.Current.Operand;
+        cursor.GotoPrev(x => x.MatchStfld(out _));
+        int contextRenderLocalIndex = 0;
+        cursor.GotoNext(x => x.MatchStloc(out contextRenderLocalIndex));
+        cursor.Index++;
+        cursor.EmitLdloc(contextRenderLocalIndex);
+        cursor.Index++;
+        cursor.EmitDelegate(ShowItemListRendererHook);
+        cursor.EmitBr(switchRenderEndLabel);
+        cursor.EmitLdarg0();
     }
 
     private static void ShowItemListSetupHandlerHook(MainManager.ShowItemListSetupContext context, int listTypeGameId)

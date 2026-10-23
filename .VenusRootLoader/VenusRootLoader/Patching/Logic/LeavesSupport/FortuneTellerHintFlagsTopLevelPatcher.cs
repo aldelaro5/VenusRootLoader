@@ -1,7 +1,6 @@
-using HarmonyLib;
+using MonoDetour.Cil;
+using MonoMod.Cil;
 using System.Reflection;
-using System.Reflection.Emit;
-using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
 
@@ -21,44 +20,33 @@ internal sealed class FortuneTellerHintFlagsTopLevelPatcher : ITopLevelPatcher
 {
     private static FortuneTellerHintFlagsTopLevelPatcher _instance = null!;
 
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<LoreBookLeaf> _loreBooksRegistry;
     private readonly ILeavesRegistry<MedalFortuneTellerHintLeaf> _medalFortuneTellerHintsRegistry;
 
     public FortuneTellerHintFlagsTopLevelPatcher(
-        IHarmonyTypePatcher harmonyTypePatcher,
         ILeavesRegistry<LoreBookLeaf> loreBooksRegistry,
         ILeavesRegistry<MedalFortuneTellerHintLeaf> medalFortuneTellerHintsRegistry)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _loreBooksRegistry = loreBooksRegistry;
         _medalFortuneTellerHintsRegistry = medalFortuneTellerHintsRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(FortuneTellerHintFlagsTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(EventControl), nameof(EventControl.Event71), MethodType.Enumerator)]
-    internal static IEnumerable<CodeInstruction> PatchFortuneTellerHintFlags(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator,
-        MethodBase method)
+    public void Patch()
     {
-        CodeMatcher matcher = new(instructions, generator);
-        MethodInfo resourcesLoadTextAssetMethod = typeof(UnityEngine.Resources)
-            .GetMethods(BindingFlags.Static | BindingFlags.Public)
-            .Single(m => m.Name == nameof(UnityEngine.Resources.Load) && m.ContainsGenericParameters)
-            .MakeGenericMethod(typeof(TextAsset));
-        FieldInfo flagsField = method.DeclaringType
+        Md.EventControl.Event71.ILHookMoveNext(PatchFortuneTellerHintFlags);
+    }
+
+    private static void PatchFortuneTellerHintFlags(ILManipulationInfo info)
+    {
+        ILCursor cursor = new(info.Context);
+        FieldInfo flagsField = info.Original!.DeclaringType
             .GetRuntimeFields()
             .Single(f => f.Name.Contains("<flags>"));
 
-        matcher.MatchStartForward(CodeMatch.Calls(resourcesLoadTextAssetMethod));
-        matcher.MatchStartForward(CodeMatch.StoresField(flagsField));
-        matcher.Insert(Transpilers.EmitDelegate(GetNewFortuneTallerHintFlagsArray));
-
-        return matcher.Instructions();
+        cursor.GotoNext(x => x.MatchCallOrCallvirt<UnityEngine.Resources>(nameof(UnityEngine.Resources.Load)));
+        cursor.GotoNext(x => x.MatchStfld(flagsField));
+        cursor.EmitDelegate(GetNewFortuneTallerHintFlagsArray);
     }
 
     private static int[][] GetNewFortuneTallerHintFlagsArray(int[][] original) =>

@@ -1,9 +1,9 @@
-using HarmonyLib;
+using MonoDetour.Cil;
+using MonoMod.Cil;
 using System.Collections;
 using System.Reflection;
-using System.Reflection.Emit;
-using VenusRootLoader.Api.Extensions;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Extensions;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
@@ -23,56 +23,47 @@ internal sealed class EnemyLogicTopLevelPatcher : ITopLevelPatcher
 {
     private static EnemyLogicTopLevelPatcher _instance = null!;
 
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<EnemyLeaf> _enemiesRegistry;
 
-    public EnemyLogicTopLevelPatcher(IHarmonyTypePatcher harmonyTypePatcher, ILeavesRegistry<EnemyLeaf> enemiesRegistry)
+    public EnemyLogicTopLevelPatcher(ILeavesRegistry<EnemyLeaf> enemiesRegistry)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _enemiesRegistry = enemiesRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(EnemyLogicTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(BattleControl), nameof(BattleControl.DoAction), MethodType.Enumerator)]
-    private static IEnumerable<CodeInstruction> PatchEnemyAction(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator,
-        MethodBase method)
+    public void Patch()
     {
-        CodeMatcher matcher = new(instructions, generator);
-        FieldInfo battleControlFirstStrikeField = typeof(BattleControl).FieldByName(nameof(BattleControl.firststrike))!;
-        FieldInfo entityControlOnGroundField = typeof(EntityControl).FieldByName(nameof(EntityControl.onground))!;
+        Md.BattleControl.DoAction.ILHookMoveNext(PatchEnemyAction);
+    }
+
+    private static void PatchEnemyAction(ILManipulationInfo info)
+    {
+        ILCursor cursor = new(info.Context);
         FieldInfo doActionStateMachineEnemyActionContextField = EnumeratorUtils.GetStateMachineFieldFromUniqueType(
-            method.DeclaringType!,
+            info.Original!.DeclaringType!,
             typeof(BattleControl.DoActionEnemyActionContext));
-        FieldInfo thisField = EnumeratorUtils.GetStateMachineThisField(method.DeclaringType!);
+        FieldInfo thisField = EnumeratorUtils.GetStateMachineThisField(info.Original!.DeclaringType!);
 
-        matcher.MatchStartForward(CodeMatch.LoadsField(battleControlFirstStrikeField));
-        matcher.MatchStartForward(CodeMatch.LoadsField(entityControlOnGroundField));
-        matcher.MatchStartForward(Code.Switch);
-        matcher.Advance(1);
-        Label switchEndLabel = (Label)matcher.Operand;
-        matcher.MatchStartBackwards(CodeMatch.IsLdloc());
-        int enemyGameIdLocalIndex = matcher.Instruction.LocalIndex();
+        cursor.GotoNext(x => x.MatchLdfld<BattleControl>(nameof(BattleControl.firststrike)));
+        cursor.GotoNext(x => x.MatchLdfld<EntityControl>(nameof(EntityControl.onground)));
+        cursor.GotoNext(x => x.MatchSwitch(out _));
+        cursor.Index++;
+        ILLabel switchEndLabel = (ILLabel)cursor.Current.Operand;
+        int enemyGameIdLocalIndex = 0;
+        cursor.GotoPrev(x => x.MatchLdloc(out enemyGameIdLocalIndex));
 
-        matcher.InsertAndAdvance(
-            Transpilers.EmitYieldReturnCoroutine(
-                method,
-                EnemyActionHook,
-                matcher,
-                [
-                    new(OpCodes.Ldarg_0),
-                    new(OpCodes.Ldfld, thisField),
-                    new(OpCodes.Ldarg_0),
-                    new(OpCodes.Ldfld, doActionStateMachineEnemyActionContextField),
-                    new(CodeInstruction.LoadLocal(enemyGameIdLocalIndex))
-                ],
-                switchEndLabel));
-
-        return matcher.Instructions();
+        cursor.EmitYieldReturnCoroutine(
+            info.Original,
+            EnemyActionHook,
+            ilCursor =>
+            {
+                ilCursor.EmitLdarg0();
+                ilCursor.EmitLdfld(thisField);
+                ilCursor.EmitLdarg0();
+                ilCursor.EmitLdfld(doActionStateMachineEnemyActionContextField);
+                ilCursor.EmitLdloc(enemyGameIdLocalIndex);
+            },
+            switchEndLabel);
     }
 
     private static IEnumerator EnemyActionHook(

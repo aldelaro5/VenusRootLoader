@@ -69,7 +69,10 @@ internal sealed class Entry
         "MonoMod.RuntimeDetour.dll",
         "MonoMod.Utils.dll",
         "MonoMod.Backports.dll",
-        "0Harmony.dll"
+        "0Harmony.dll",
+        "com.github.MonoDetour.Reflection.dll",
+        "com.github.MonoDetour.Bindings.Reorg.dll",
+        "com.github.MonoDetour.dll"
     ];
 
     /// <summary>

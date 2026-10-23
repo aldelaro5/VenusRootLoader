@@ -1,7 +1,8 @@
-using HarmonyLib;
+using MonoDetour.Cil;
+using MonoMod.Cil;
 using System.Reflection;
-using System.Reflection.Emit;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Extensions;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
@@ -23,77 +24,61 @@ internal sealed class ItemUsagesTopLevelPatcher : ITopLevelPatcher
 {
     private static ItemUsagesTopLevelPatcher _instance = null!;
 
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<ItemUsageLeaf> _itemUsagesRegistry;
 
-    public ItemUsagesTopLevelPatcher(
-        IHarmonyTypePatcher harmonyTypePatcher,
-        ILeavesRegistry<ItemUsageLeaf> itemUsagesRegistry)
+    public ItemUsagesTopLevelPatcher(ILeavesRegistry<ItemUsageLeaf> itemUsagesRegistry)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _itemUsagesRegistry = itemUsagesRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(ItemUsagesTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(nameof(MainManager), nameof(MainManager.DoItemEffect))]
-    private static IEnumerable<CodeInstruction> PatchDoItemEffectSwitch(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator,
-        MethodBase method)
+    public void Patch()
     {
-        CodeMatcher matcher = new(instructions, generator);
-
-        matcher.MatchStartForward(Code.Switch);
-        matcher.Advance(1);
-        Label switchEndLabel = (Label)matcher.Operand;
-        matcher.MatchStartBackwards(Code.Stfld);
-        matcher.MatchStartForward(CodeMatch.IsStloc());
-        int contextLocalIndex = matcher.Instruction.LocalIndex();
-        matcher.Advance(1);
-        matcher.InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc, contextLocalIndex));
-        matcher.Advance(1);
-        matcher.InsertAndAdvance(
-            Transpilers.EmitDelegate(DoItemEffectHandlerHook),
-            new CodeInstruction(OpCodes.Br, switchEndLabel),
-            Code.Ldarg_0);
-
-        return matcher.Instructions();
+        Md.MainManager.DoItemEffect.ILHook(PatchDoItemEffectSwitch);
+        Md.BattleControl.UseItem.ILHookMoveNext(PatchUseItemSwitch);
     }
 
-    [HarmonyTranspiler]
-    [HarmonyPatch(nameof(BattleControl), nameof(BattleControl.UseItem), MethodType.Enumerator)]
-    private static IEnumerable<CodeInstruction> PatchUseItemSwitch(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator,
-        MethodBase method)
+    private static void PatchDoItemEffectSwitch(ILManipulationInfo info)
     {
-        CodeMatcher matcher = new(instructions, generator);
+        ILCursor cursor = new(info.Context);
+
+        cursor.GotoNext(x => x.MatchSwitch(out _));
+        cursor.Index++;
+        ILLabel switchEndLabel = (ILLabel)cursor.Current.Operand;
+        cursor.GotoPrev(x => x.MatchStfld(out _));
+        int contextLocalIndex = 0;
+        cursor.GotoNext(x => x.MatchStloc(out contextLocalIndex));
+        cursor.Index++;
+        cursor.EmitLdloc(contextLocalIndex);
+        cursor.Index++;
+        cursor.EmitDelegate(DoItemEffectHandlerHook);
+        cursor.EmitBr(switchEndLabel);
+        cursor.EmitLdarg0();
+    }
+
+    private static void PatchUseItemSwitch(ILManipulationInfo info)
+    {
+        ILCursor cursor = new(info.Context);
         FieldInfo useItemContextField = EnumeratorUtils.GetStateMachineFieldFromUniqueType(
-            method.DeclaringType!,
+            info.Original!.DeclaringType!,
             typeof(BattleControl.UseItemBattleEffectContext));
-        FieldInfo thisField = EnumeratorUtils.GetStateMachineThisField(method.DeclaringType!);
+        FieldInfo thisField = EnumeratorUtils.GetStateMachineThisField(info.Original!.DeclaringType!);
 
-        matcher.MatchStartForward(CodeMatch.StoresField(useItemContextField));
-        matcher.MatchStartForward(Code.Switch);
-        matcher.Advance(1);
-        Label switchEndLabel = (Label)matcher.Operand;
-        matcher.MatchStartBackwards(CodeMatch.IsLdloc());
-        int contextLocalIndex = matcher.Instruction.LocalIndex();
-        matcher.InsertAndAdvance(
-            new CodeInstruction(OpCodes.Ldarg_0),
-            new CodeInstruction(OpCodes.Ldfld, thisField),
-            new CodeInstruction(OpCodes.Ldarg_0),
-            new CodeInstruction(OpCodes.Ldfld, useItemContextField));
-        matcher.Advance(1);
-        matcher.InsertAndAdvance(
-            Transpilers.EmitDelegate(UseItemHandlerHook),
-            new CodeInstruction(OpCodes.Br, switchEndLabel),
-            new CodeInstruction(OpCodes.Ldloc, contextLocalIndex));
+        cursor.GotoNext(x => x.MatchStfld(useItemContextField));
+        cursor.GotoNext(x => x.MatchSwitch(out _));
+        cursor.Index++;
+        ILLabel switchEndLabel = (ILLabel)cursor.Current.Operand;
+        int contextLocalIndex = 0;
+        cursor.GotoPrev(x => x.MatchLdloc(out contextLocalIndex));
 
-        return matcher.Instructions();
+        cursor.EmitLdarg0();
+        cursor.EmitLdfld(thisField);
+        cursor.EmitLdarg0();
+        cursor.EmitLdfld(useItemContextField);
+        cursor.Index++;
+        cursor.EmitDelegate(UseItemHandlerHook);
+        cursor.EmitBr(switchEndLabel);
+        cursor.EmitLdloc(contextLocalIndex);
     }
 
     private static void DoItemEffectHandlerHook(MainManager.DoItemEffectContext context, int itemUsageGameId)

@@ -1,7 +1,7 @@
-using HarmonyLib;
-using System.Reflection;
-using System.Reflection.Emit;
-using VenusRootLoader.Utility;
+using MonoDetour.Cil;
+using MonoMod.Cil;
+using VenusRootLoader.Extensions;
+using OpCodes = Mono.Cecil.Cil.OpCodes;
 
 namespace VenusRootLoader.Patching.Logic.BaseGameFixes;
 
@@ -22,64 +22,44 @@ internal sealed class MemoryAllocationsTopLevelPatcher : ITopLevelPatcher
 {
     private static readonly List<int> TemporaryLimits = new();
 
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
-
-    public MemoryAllocationsTopLevelPatcher(IHarmonyTypePatcher harmonyTypePatcher)
+    public void Patch()
     {
-        _harmonyTypePatcher = harmonyTypePatcher;
+        Md.MainManager.DoClock.ILHook(RemoveForcedGcCollection);
+        Md.MainManager.CheckIfCanExist.ILHook(FixMemoryAllocation);
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(MemoryAllocationsTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(MainManager), nameof(MainManager.DoClock))]
-    internal static IEnumerable<CodeInstruction> RemoveForcedGcCollection(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator)
+    private static void RemoveForcedGcCollection(ILManipulationInfo info)
     {
-        CodeMatcher matcher = new(instructions, generator);
-        FieldInfo clockSecField = typeof(MainManager).FieldByName(nameof(MainManager.clocksec))!;
-        MethodInfo gcCollectMethod = typeof(GC).MethodByName(nameof(GC.Collect), [])!;
+        ILCursor cursor = new(info.Context);
 
-        matcher.MatchStartForward(CodeMatch.StoresField(clockSecField));
-        matcher.Advance(1);
-        while (!matcher.Instruction.Calls(gcCollectMethod))
-            matcher.SetInstructionAndAdvance(Code.Nop);
-        matcher.SetInstructionAndAdvance(Code.Nop);
-
-        return matcher.Instructions();
+        cursor.GotoNext(x => x.MatchStfld<MainManager>(nameof(MainManager.clocksec)));
+        cursor.Index++;
+        while (!cursor.Current.MatchCallOrCallvirt(typeof(GC), nameof(GC.Collect)))
+            cursor.SetAndAdvance(OpCodes.Nop);
+        cursor.SetAndAdvance(OpCodes.Nop);
     }
 
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(MainManager), nameof(MainManager.CheckIfCanExist))]
-    internal static IEnumerable<CodeInstruction> FixMemoryAllocation(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator)
+    private static void FixMemoryAllocation(ILManipulationInfo info)
     {
-        CodeMatcher matcher = new(instructions, generator);
-        MethodInfo checkAllBoolMethod = typeof(MainManager).MethodByName(
-            nameof(MainManager.CheckAllBool),
-            [typeof(bool[]), typeof(int[]), typeof(bool)])!;
+        ILCursor cursor = new(info.Context);
 
-        matcher.MatchStartForward(Code.Newobj);
-        matcher.SetInstructionAndAdvance(Transpilers.EmitDelegate(GetClearedPreallocatedList));
-        int localIndex = matcher.Instruction.LocalIndex();
-        matcher.MatchStartForward(CodeMatch.Branches());
-        Label labelForConditionCheck = (Label)matcher.Operand;
-        matcher.MatchStartForward(new CodeMatch(x => x.labels.Contains(labelForConditionCheck)));
-        matcher.MatchStartForward(new CodeMatch(x => x.IsLdloc() && x.LocalIndex() == localIndex));
-        while (!matcher.Instruction.IsStarg())
-            matcher.SetInstructionAndAdvance(Code.Nop);
-        matcher.SetInstructionAndAdvance(Code.Nop);
+        cursor.GotoNext(x => x.MatchNewobj(out _));
+        cursor.SetToStaticDelegateCallAndAdvance(GetClearedPreallocatedList);
+        cursor.Current.MatchLdloc(out int localIndex);
+        cursor.GotoNext(x => x.MatchBranch(out _));
+        ILLabel labelForConditionCheck = (ILLabel)cursor.Current.Operand;
+        cursor.GotoLabel(labelForConditionCheck);
+        cursor.GotoNext(x => x.MatchLdloc(localIndex));
+        while (!cursor.Current.MatchStarg(out _))
+            cursor.SetAndAdvance(OpCodes.Nop);
+        cursor.SetAndAdvance(OpCodes.Nop);
 
-        matcher.MatchStartForward(CodeMatch.Calls(checkAllBoolMethod));
-        matcher.Advance(1);
-        matcher.MatchStartForward(CodeMatch.Calls(checkAllBoolMethod));
-        matcher.SetInstruction(Transpilers.EmitDelegate(CheckAllBoolUsingListValuesInput));
-        matcher.MatchStartBackwards(CodeMatch.LoadsArgument());
-        matcher.SetInstructionAndAdvance(CodeInstruction.LoadLocal(localIndex));
-
-        return matcher.Instructions();
+        cursor.GotoNext(x => x.MatchCallOrCallvirt<MainManager>(nameof(MainManager.CheckAllBool)));
+        cursor.Index++;
+        cursor.GotoNext(x => x.MatchCallOrCallvirt<MainManager>(nameof(MainManager.CheckAllBool)));
+        cursor.SetToStaticDelegateCall(CheckAllBoolUsingListValuesInput);
+        cursor.GotoPrev(x => x.MatchLdarg(out _));
+        cursor.SetAndAdvance(OpCodes.Ldloc, localIndex);
     }
 
     private static List<int> GetClearedPreallocatedList()

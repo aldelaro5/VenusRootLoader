@@ -1,8 +1,11 @@
-using HarmonyLib;
+using Mono.Cecil.Cil;
+using MonoDetour.Cil;
+using MonoMod.Cil;
 using System.Reflection;
-using System.Reflection.Emit;
 using VenusRootLoader.Api.Leaves.MapEntities.Enemies;
 using VenusRootLoader.Api.Leaves.MapEntities.Objects.Collectibles;
+using VenusRootLoader.Extensions;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Logic.BaseGameFixes;
 
@@ -23,37 +26,24 @@ namespace VenusRootLoader.Patching.Logic.BaseGameFixes;
 /// </summary>
 internal sealed class CollectibleMedalNearEnemyEncounterTopLevelPatcher : ITopLevelPatcher
 {
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
-
-    public CollectibleMedalNearEnemyEncounterTopLevelPatcher(IHarmonyTypePatcher harmonyTypePatcher)
+    public void Patch()
     {
-        _harmonyTypePatcher = harmonyTypePatcher;
+        Md.NPCControl.CheckItem.ILHookMoveNext(RefineIsMoneyCheck);
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(CollectibleMedalNearEnemyEncounterTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(NPCControl), nameof(NPCControl.CheckItem), MethodType.Enumerator)]
-    internal static IEnumerable<CodeInstruction> RefineIsMoneyCheck(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator,
-        MethodBase __originalMethod)
+    private static void RefineIsMoneyCheck(ILManipulationInfo info)
     {
-        CodeMatcher matcher = new(instructions, generator);
+        ILCursor cursor = new(info.Context);
+        FieldInfo thisLocalField = EnumeratorUtils.GetStateMachineThisField(info.Original!.DeclaringType!);
+        FieldInfo isMoneyLocalField = info.Original!.DeclaringType!
+            .GetFields(ReflectionUtils.AllDeclared)
+            .Single(x => x.Name.Contains("ismoney"));
 
-        FieldInfo thisLocalField =
-            __originalMethod.DeclaringType.GetDeclaredFields().Single(x => x.Name.Contains("this"));
-        FieldInfo isMoneyLocalField =
-            __originalMethod.DeclaringType.GetDeclaredFields().Single(x => x.Name.Contains("ismoney"));
-
-        matcher.MatchStartForward(CodeMatch.StoresField(isMoneyLocalField));
-        matcher.MatchStartBackwards(CodeMatch.LoadsConstant(1));
-        matcher.SetOpcodeAndAdvance(OpCodes.Ldarg_0);
-        matcher.Insert(
-            new CodeInstruction(OpCodes.Ldfld, thisLocalField),
-            Transpilers.EmitDelegate(IsRegularItemEntity));
-
-        return matcher.Instructions();
+        cursor.GotoNext(x => x.MatchStfld(isMoneyLocalField));
+        cursor.GotoPrev(x => x.MatchLdcI4(1));
+        cursor.SetAndAdvance(OpCodes.Ldarg_0);
+        cursor.EmitLdfld(thisLocalField);
+        cursor.EmitDelegate(IsRegularItemEntity);
     }
 
     private static bool IsRegularItemEntity(NPCControl npcControl) => npcControl.entity.animid == 0;

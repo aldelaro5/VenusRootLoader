@@ -1,5 +1,5 @@
-using HarmonyLib;
-using System.Reflection.Emit;
+using MonoDetour.Cil;
+using MonoMod.Cil;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
 
@@ -20,45 +20,37 @@ internal sealed class CaveOfTrialsRandomModeExclusionTopLevelPatcher : ITopLevel
 {
     private static CaveOfTrialsRandomModeExclusionTopLevelPatcher _instance = null!;
 
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<EnemyLeaf> _enemiesRegistry;
 
-    public CaveOfTrialsRandomModeExclusionTopLevelPatcher(
-        IHarmonyTypePatcher harmonyTypePatcher,
-        ILeavesRegistry<EnemyLeaf> enemiesRegistry)
+    public CaveOfTrialsRandomModeExclusionTopLevelPatcher(ILeavesRegistry<EnemyLeaf> enemiesRegistry)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _enemiesRegistry = enemiesRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(CaveOfTrialsRandomModeExclusionTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(EventControl), nameof(EventControl.GetRandomEnemy))]
-    private static IEnumerable<CodeInstruction> ChangeCaveOfTrialsRandomModeExclusions(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator)
+    public void Patch()
     {
-        CodeMatcher matcher = new(instructions, generator);
+        Md.EventControl.GetRandomEnemy.ILHook(ChangeCaveOfTrialsRandomModeExclusions);
+    }
 
-        matcher.MatchStartForward(CodeMatch.Branches());
-        Label startLoopLabel = (Label)matcher.Operand;
-        matcher.MatchStartBackwards(CodeMatch.LoadsLocal());
-        int returnValueLocalIndex = matcher.Instruction.LocalIndex();
-        CodeInstruction loadReturnValueLocal = CodeInstruction.LoadLocal(returnValueLocalIndex);
-        matcher.MatchStartBackwards(CodeMatch.StoresLocal());
-        matcher.Advance(1);
+    private static void ChangeCaveOfTrialsRandomModeExclusions(ILManipulationInfo info)
+    {
+        ILCursor cursor = new(info.Context);
+
+        ILLabel startLoopLabel = null!;
+        cursor.GotoNext(x => x.MatchBranch(out startLoopLabel!));
+        int returnValueLocalIndex = 0;
+        cursor.GotoPrev(x => x.MatchLdloc(out returnValueLocalIndex));
+        cursor.GotoPrev(x => x.MatchStloc(out _));
+        cursor.Index++;
+
         // We are effectively hijacking the while condition here by going to the loop start if it's excluded and returning
         // immediately if it's included.
-        matcher.Insert(
-            loadReturnValueLocal,
-            Transpilers.EmitDelegate(IsAllowedOnCaveOfTrialsRandomMode),
-            new(OpCodes.Brfalse, startLoopLabel),
-            loadReturnValueLocal,
-            new(OpCodes.Ret));
-
-        return matcher.Instructions();
+        cursor.EmitLdloc(returnValueLocalIndex);
+        cursor.EmitDelegate(IsAllowedOnCaveOfTrialsRandomMode);
+        cursor.EmitBrfalse(startLoopLabel);
+        cursor.EmitLdloc(returnValueLocalIndex);
+        cursor.EmitRet();
     }
 
     private static bool IsAllowedOnCaveOfTrialsRandomMode(int enemyId) =>

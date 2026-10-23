@@ -24,7 +24,7 @@ internal static class EnumeratorUtils
         Type? stateMachine = enumeratorMethod.DeclaringType!
             .GetNestedTypes(BindingFlags.NonPublic)
             .Where(x => typeof(IEnumerator).IsAssignableFrom(x))
-            .SingleOrDefault(x => x.Name.StartsWith($"<{enumeratorMethod.Name}>")
+            .SingleOrDefault(x => x.Name.StartsWith($"<{enumeratorMethod.Name}>d__")
                                   && StateMachineMatchesEnumeratorMethod(x, enumeratorMethod));
 
         if (stateMachine == null)

@@ -53,7 +53,7 @@ public sealed class InnerStateMachineFactory : IInnerLogicContainerFactory<State
 
         TypeDefinition stateMachineType = new(
             declaringType.Namespace,
-            $"<{speakableName}>",
+            $"<{speakableName}>d__",
             TypeAttributes.NestedPrivate
             | TypeAttributes.Sealed
             | TypeAttributes.BeforeFieldInit

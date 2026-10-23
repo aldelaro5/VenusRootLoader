@@ -1,9 +1,8 @@
-using HarmonyLib;
+using MonoDetour.Cil;
+using MonoMod.Cil;
 using System.Reflection;
-using System.Reflection.Emit;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
-using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 
@@ -22,34 +21,32 @@ internal sealed class EventControlExcludeIdsTopLevelPatcher : ITopLevelPatcher
 {
     private static EventControlExcludeIdsTopLevelPatcher _instance = null!;
 
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly IOrderedLeavesRegistry<EnemyLeaf> _orderedEnemiesRegistry;
 
-    public EventControlExcludeIdsTopLevelPatcher(
-        IHarmonyTypePatcher harmonyTypePatcher,
-        IOrderedLeavesRegistry<EnemyLeaf> orderedEnemiesRegistry)
+    public EventControlExcludeIdsTopLevelPatcher(IOrderedLeavesRegistry<EnemyLeaf> orderedEnemiesRegistry)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _orderedEnemiesRegistry = orderedEnemiesRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(EventControlExcludeIdsTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(EventControl), MethodType.Constructor)]
-    private static IEnumerable<CodeInstruction> AdjustExcludeIds(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator)
+    public void Patch()
     {
-        CodeMatcher matcher = new(instructions, generator);
-        FieldInfo excludeIdsField = typeof(EventControl).FieldByName(nameof(EventControl.excludeids))!;
+        // MonoDetour.HookGen has an issue where it can't disambiguate a ctor vs a cctor so we have to set up the hook manually.
+        ConstructorInfo method = typeof(EventControl).GetConstructor(
+            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+            null,
+            [],
+            null)!;
+        MonoDetour.HookGen.DefaultMonoDetourManager.Instance.ILHook(method, AdjustExcludeIds);
+    }
 
-        matcher.MatchStartForward(CodeMatch.StoresField(excludeIdsField));
-        matcher.MatchStartBackwards(Code.Newobj);
-        matcher.Insert(Transpilers.EmitDelegate(GetNewExcludeIds));
+    private static void AdjustExcludeIds(ILManipulationInfo info)
+    {
+        ILCursor cursor = new(info.Context);
 
-        return matcher.Instructions();
+        cursor.GotoNext(x => x.MatchStfld<EventControl>(nameof(EventControl.excludeids)));
+        cursor.GotoPrev(x => x.MatchNewobj(out _));
+        cursor.EmitDelegate(GetNewExcludeIds);
     }
 
     private static IEnumerable<int> GetNewExcludeIds(IEnumerable<int> original)

@@ -21,6 +21,9 @@ internal static class ReflectionUtils
     /// </summary>
     public const BindingFlags AllDeclared = All | BindingFlags.DeclaredOnly;
 
+    public static string PropertyNameToGetterName(string propertyName) => $"get_{propertyName}";
+    public static string PropertyNameToSetterName(string propertyName) => $"set_{propertyName}";
+
     extension(Type type)
     {
         public FieldInfo? FieldByName(string name) => type.GetField(name, All);
@@ -31,8 +34,5 @@ internal static class ReflectionUtils
 
         public ConstructorInfo? StaticConstructor(Type[] parameters) =>
             type.GetConstructor(All & ~BindingFlags.Instance, null, parameters, []);
-
-        public MethodInfo PropertyGetterByName(string name) => type.GetProperty(name, All)!.GetGetMethod();
-        public MethodInfo PropertySetterByName(string name) => type.GetProperty(name, All)!.GetSetMethod();
     }
 }

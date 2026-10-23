@@ -1,6 +1,5 @@
-using HarmonyLib;
-using System.Reflection;
-using System.Reflection.Emit;
+using MonoDetour.Cil;
+using MonoMod.Cil;
 using UnityEngine;
 using VenusRootLoader.Utility;
 
@@ -21,42 +20,30 @@ namespace VenusRootLoader.Patching.Logic.BaseGameFixes;
 /// </summary>
 internal sealed class EntityIsKillLastPositionTopLevelPatcher : ITopLevelPatcher
 {
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
-
-    public EntityIsKillLastPositionTopLevelPatcher(IHarmonyTypePatcher harmonyTypePatcher)
+    public void Patch()
     {
-        _harmonyTypePatcher = harmonyTypePatcher;
+        Md.NPCControl.LateUpdate.ILHook(SetEntityLastPositionWhenIsKilled);
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(EntityIsKillLastPositionTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(NPCControl), nameof(MapControl.LateUpdate))]
-    internal static IEnumerable<CodeInstruction> SetEntityLastPositionWhenIsKilled(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator)
+    private static void SetEntityLastPositionWhenIsKilled(ILManipulationInfo info)
     {
-        MethodInfo transformPositionSetterMethod = typeof(Transform).PropertySetterByName(nameof(Transform.position));
-        FieldInfo npcDummyField = typeof(NPCControl).FieldByName(nameof(NPCControl.dummy))!;
-        FieldInfo entityInCameraField = typeof(EntityControl).FieldByName(nameof(EntityControl.incamera))!;
-        MethodInfo timeFrameCountGetterMethod = typeof(Time).PropertyGetterByName(nameof(Time.frameCount));
-
-        CodeMatcher matcher = new(instructions, generator);
+        ILCursor cursor = new(info.Context);
 
         // Navigate through the control flows to the iskill logic
-        matcher.MatchStartForward(CodeMatch.LoadsField(npcDummyField));
-        matcher.MatchStartForward(CodeMatch.LoadsField(entityInCameraField));
-        matcher.MatchStartForward(CodeMatch.Calls(timeFrameCountGetterMethod));
+        cursor.GotoNext(x => x.MatchLdfld<NPCControl>(nameof(NPCControl.dummy)));
+        cursor.GotoNext(x => x.MatchLdfld<EntityControl>(nameof(EntityControl.incamera)));
+        cursor.GotoNext(x => x.MatchCallOrCallvirt<Time>(
+            ReflectionUtils.PropertyNameToGetterName(nameof(Time.frameCount))));
 
         // This constant happens to be used to check if the transform position was already set
-        matcher.MatchStartForward(CodeMatch.LoadsConstant(-999f));
+        cursor.GotoNext(x => x.MatchLdcR4(-999f));
 
         // We want to go after the transform position is set which is the last step of the iskill logic
-        matcher.MatchStartForward(CodeMatch.Calls(transformPositionSetterMethod));
-        matcher.Advance(1);
-        matcher.Insert(CodeInstruction.LoadArgument(0), Transpilers.EmitDelegate(OnPostIsKillLogic));
-
-        return matcher.Instructions();
+        cursor.GotoNext(x => x.MatchCallOrCallvirt<Transform>(
+            ReflectionUtils.PropertyNameToSetterName(nameof(Transform.position))));
+        cursor.Index++;
+        cursor.EmitLdarg0();
+        cursor.EmitDelegate(OnPostIsKillLogic);
     }
 
     private static void OnPostIsKillLogic(NPCControl instance)

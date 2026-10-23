@@ -1,11 +1,14 @@
-using HarmonyLib;
+using Mono.Cecil;
+using MonoDetour.Cil;
+using MonoDetour.DetourTypes;
+using MonoMod.Cil;
 using System.Collections;
 using System.Reflection;
-using System.Reflection.Emit;
-using VenusRootLoader.Api.Extensions;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Extensions;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
+using Random = UnityEngine.Random;
 
 namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 
@@ -31,161 +34,139 @@ internal sealed class BattleHelpersTopLevelPatcher : ITopLevelPatcher
 {
     private static BattleHelpersTopLevelPatcher _instance = null!;
 
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<BattleHelperLeaf> _battleHelpersRegistry;
 
-    public BattleHelpersTopLevelPatcher(
-        IHarmonyTypePatcher harmonyTypePatcher,
-        ILeavesRegistry<BattleHelperLeaf> battleHelpersRegistry)
+    public BattleHelpersTopLevelPatcher(ILeavesRegistry<BattleHelperLeaf> battleHelpersRegistry)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _battleHelpersRegistry = battleHelpersRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(BattleHelpersTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(nameof(BattleControl), nameof(BattleControl.AIAttack), MethodType.Enumerator)]
-    private static IEnumerable<CodeInstruction> PatchAiAttack(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator,
-        MethodBase method)
+    public void Patch()
     {
-        CodeMatcher matcher = new(instructions, generator);
-        FieldInfo aiAttackContextField = EnumeratorUtils.GetStateMachineFieldFromUniqueType(
-            method.DeclaringType!,
-            typeof(BattleControl.AIAttackContext));
-        FieldInfo thisField = EnumeratorUtils.GetStateMachineThisField(method.DeclaringType!);
+        Md.BattleControl.AIAttack.ILHookMoveNext(PatchAiAttack);
+        Md.BattleControl.StartBattle.ILHookMoveNext(PatchStartBattle);
+        Md.MapControl.HelperMedalCheck.ControlFlowPrefix(PatchHelperMedalCheck);
+        Md.EventControl.Event222.ILHookMoveNext(PatchLooseEndsEvent);
+    }
 
-        matcher.MatchStartForward(Code.Switch);
-        matcher.Advance(1);
-        matcher.MatchStartForward(Code.Switch);
-        matcher.Advance(1);
-        Label switchEndLabel = (Label)matcher.Operand;
-        matcher.MatchStartBackwards(CodeMatch.StoresField(aiAttackContextField));
-        matcher.Advance(1);
-        int? aiAttackAnimIdGameIdLocalIndex = matcher.Instruction.IsLdloc()
-            ? matcher.Instruction.LocalIndex()
-            : null;
-        FieldInfo? aiAttackAnimIdGameIdField = null;
-        if (aiAttackAnimIdGameIdLocalIndex is null)
+    private static void PatchAiAttack(ILManipulationInfo info)
+    {
+        ILCursor cursor = new(info.Context);
+        FieldInfo aiAttackContextField = EnumeratorUtils.GetStateMachineFieldFromUniqueType(
+            info.Original!.DeclaringType!,
+            typeof(BattleControl.AIAttackContext));
+        FieldInfo thisField = EnumeratorUtils.GetStateMachineThisField(info.Original!.DeclaringType!);
+
+        cursor.GotoNext(x => x.MatchSwitch(out _));
+        cursor.Index++;
+        cursor.GotoNext(x => x.MatchSwitch(out _));
+        cursor.Index++;
+        ILLabel switchEndLabel = (ILLabel)cursor.Current.Operand;
+        cursor.GotoPrev(x => x.MatchStfld(aiAttackContextField));
+        cursor.Index++;
+        if (!cursor.Current.MatchLdloc(out int aiAttackAnimIdGameIdLocalIndex))
+            aiAttackAnimIdGameIdLocalIndex = -1;
+        FieldReference? aiAttackAnimIdGameIdField = null;
+        if (aiAttackAnimIdGameIdLocalIndex == -1)
         {
-            matcher.MatchStartForward(Code.Ldfld);
-            aiAttackAnimIdGameIdField = (FieldInfo?)matcher.Instruction.operand;
-            matcher.MatchStartBackwards(CodeMatch.StoresField(aiAttackContextField));
-            matcher.Advance(1);
+            cursor.GotoNext(x => x.MatchLdfld(out aiAttackAnimIdGameIdField));
+            cursor.GotoPrev(x => x.MatchStfld(aiAttackContextField));
+            cursor.Index++;
         }
 
-        List<CodeInstruction> ilLoadAnimIdGameId = aiAttackAnimIdGameIdLocalIndex is not null
-            ? [CodeInstruction.LoadLocal(aiAttackAnimIdGameIdLocalIndex.Value)]
-            : [Code.Ldarg_0, new CodeInstruction(OpCodes.Ldfld, aiAttackAnimIdGameIdField)];
-
-        matcher.InsertAndAdvance(
-            Transpilers.EmitYieldReturnCoroutine(
-                method,
-                AiAttackHook,
-                matcher,
-                [
-                    new(OpCodes.Ldarg_0),
-                    new(OpCodes.Ldfld, thisField),
-                    new(OpCodes.Ldarg_0),
-                    new(OpCodes.Ldfld, aiAttackContextField),
-                    .. ilLoadAnimIdGameId
-                ],
-                switchEndLabel));
-
-        return matcher.Instructions();
+        cursor.EmitYieldReturnCoroutine(
+            info.Original,
+            AiAttackHook,
+            ilCursor =>
+            {
+                ilCursor.EmitLdarg0();
+                ilCursor.EmitLdfld(thisField);
+                ilCursor.EmitLdarg0();
+                ilCursor.EmitLdfld(aiAttackContextField);
+                if (aiAttackAnimIdGameIdLocalIndex != -1)
+                {
+                    ilCursor.EmitLdloc(aiAttackAnimIdGameIdLocalIndex);
+                }
+                else
+                {
+                    ilCursor.EmitLdarg0();
+                    ilCursor.EmitLdfld(aiAttackAnimIdGameIdField!);
+                }
+            },
+            switchEndLabel);
     }
 
-    [HarmonyTranspiler]
-    [HarmonyPatch(nameof(BattleControl), nameof(BattleControl.StartBattle), MethodType.Enumerator)]
-    private static IEnumerable<CodeInstruction> PatchStartBattle(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator,
-        MethodBase method)
+    private static void PatchStartBattle(ILManipulationInfo info)
     {
-        CodeMatcher matcher = new(instructions, generator);
-        FieldInfo battleControlAiPartyField = typeof(BattleControl).FieldByName(nameof(BattleControl.aiparty))!;
-        MethodInfo unityRandomRangeMethod = typeof(UnityEngine.Random).MethodByName(
-            nameof(UnityEngine.Random.Range),
-            [typeof(int), typeof(int)])!;
+        ILCursor cursor = new(info.Context);
 
-        matcher.MatchStartForward(CodeMatch.StoresField(battleControlAiPartyField));
-        matcher.Advance(1);
+        cursor.GotoNext(x => x.MatchStfld<BattleControl>(nameof(BattleControl.aiparty)));
+        cursor.Index++;
 
-        matcher.DefineLabel(out Label labelAfterHelperJoin);
-        matcher.Insert(Transpilers.EmitDelegate(StartBattleHelperJoinHook), new(OpCodes.Br, labelAfterHelperJoin));
+        ILLabel labelAfterHelperJoin = cursor.DefineLabel();
+        cursor.EmitDelegate(StartBattleHelperJoinHook);
+        cursor.EmitBr(labelAfterHelperJoin);
 
-        matcher.MatchStartForward(CodeMatch.LoadsField(battleControlAiPartyField));
-        matcher.Advance(-1);
-        matcher.Labels.Add(labelAfterHelperJoin);
+        cursor.GotoNext(x => x.MatchLdfld<BattleControl>(nameof(BattleControl.aiparty)));
+        cursor.Index--;
+        cursor.MarkLabel(labelAfterHelperJoin);
 
-        matcher.MatchStartForward(CodeMatch.LoadsField(battleControlAiPartyField));
-        matcher.MatchStartForward(Code.Newobj);
-        matcher.Advance(1);
-        int? helperPoolListLocalIndex = matcher.Instruction.IsStloc() ? matcher.Instruction.LocalIndex() : null;
-        FieldInfo? helperPoolListField = helperPoolListLocalIndex is null
-            ? (FieldInfo?)matcher.Instruction.operand
+        cursor.GotoNext(x => x.MatchLdfld<BattleControl>(nameof(BattleControl.aiparty)));
+        cursor.GotoNext(x => x.MatchNewobj(out _));
+        cursor.Index++;
+        if (!cursor.Current.MatchStloc(out int helperPoolListLocalIndex))
+            helperPoolListLocalIndex = -1;
+        FieldReference? helperPoolListField = helperPoolListLocalIndex == -1
+            ? (FieldReference)cursor.Current.Operand
             : null;
-        matcher.Advance(1);
+        cursor.Index++;
 
-        List<CodeInstruction> ilLoadHelperPoolList = helperPoolListLocalIndex is not null
-            ? [CodeInstruction.LoadLocal(helperPoolListLocalIndex.Value)]
-            : [Code.Ldarg_0, new CodeInstruction(OpCodes.Ldfld, helperPoolListField)];
+        ILLabel labelAfterHelperPool = cursor.DefineLabel();
+        if (helperPoolListLocalIndex != -1)
+        {
+            cursor.EmitLdloc(helperPoolListLocalIndex);
+        }
+        else
+        {
+            cursor.EmitLdarg0();
+            cursor.EmitLdfld(helperPoolListField!);
+        }
 
-        matcher.DefineLabel(out Label labelAfterHelperPool);
-        matcher.Insert(
-        [
-            .. ilLoadHelperPoolList,
-            Transpilers.EmitDelegate(StartBattleMedalHelperPoolHook),
-            new(OpCodes.Br, labelAfterHelperPool)
-        ]);
+        cursor.EmitDelegate(StartBattleMedalHelperPoolHook);
+        cursor.EmitBr(labelAfterHelperPool);
 
-        matcher.MatchStartForward(CodeMatch.Calls(unityRandomRangeMethod));
-        matcher.MatchStartBackwards(CodeMatch.Branches());
-        matcher.MatchStartBackwards(
-            helperPoolListLocalIndex is not null
-                ? CodeMatch.LoadsLocal()
-                : Code.Ldarg_0);
-        matcher.Labels.Add(labelAfterHelperPool);
-
-        return matcher.Instructions();
+        cursor.GotoNext(x => x.MatchCallOrCallvirt<Random>(nameof(Random.Range)));
+        cursor.GotoPrev(x => x.MatchBranch(out _));
+        cursor.GotoPrev(x => helperPoolListLocalIndex != -1
+            ? x.MatchLdloc(out _)
+            : x.MatchLdarg0());
+        cursor.MarkLabel(labelAfterHelperPool);
     }
 
-    [HarmonyPrefix]
-    [HarmonyPatch(nameof(MapControl), nameof(MapControl.HelperMedalCheck))]
-    private static bool PatchHelperMedalCheck()
+    private static ReturnFlow PatchHelperMedalCheck()
     {
-        if (!MainManager.instance.flags[716] && HelperMedalCheckHook())
+        if (!MainManager.instance.flags[716]
+            && _instance._battleHelpersRegistry.Any(x => x.PredicateIsInHelperMedalPool()))
         {
             MainManager.instance.badgeshops[0].Add(85);
             MainManager.instance.flags[716] = true;
         }
 
-        return false;
+        return ReturnFlow.SkipOriginal;
     }
 
-    [HarmonyTranspiler]
-    [HarmonyPatch(nameof(EventControl), nameof(EventControl.Event222), MethodType.Enumerator)]
-    private static IEnumerable<CodeInstruction> PatchLooseEndsEvent(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator,
-        MethodBase method)
+    private static void PatchLooseEndsEvent(ILManipulationInfo info)
     {
-        CodeMatcher matcher = new(instructions, generator);
-        MethodInfo battleControlStartBattleMethod =
-            typeof(BattleControl).MethodByName(nameof(BattleControl.StartBattle))!;
+        ILCursor cursor = new(info.Context);
 
-        matcher.MatchStartForward(CodeMatch.Calls(battleControlStartBattleMethod));
-        matcher.MatchStartForward(Code.Ret);
-        matcher.Advance(1);
-        Label labelYieldBattle = matcher.Labels[0];
-        matcher.MatchStartBackwards(CodeMatch.Calls(battleControlStartBattleMethod));
-        matcher.MatchStartForward(CodeMatch.LoadsArgument());
-        matcher.Insert(Transpilers.EmitYieldReturnCoroutine(method, LooseEndsEventHook, matcher, [], labelYieldBattle));
-
-        return matcher.Instructions();
+        cursor.GotoNext(x => x.MatchCallOrCallvirt<BattleControl>(nameof(BattleControl.StartBattle)));
+        cursor.GotoNext(x => x.MatchRet());
+        cursor.Index++;
+        ILLabel labelYieldBattle = cursor.IncomingLabels.Single();
+        cursor.GotoPrev(x => x.MatchCallOrCallvirt<BattleControl>(nameof(BattleControl.StartBattle)));
+        cursor.GotoNext(x => x.MatchLdarg(out _));
+        cursor.EmitYieldReturnCoroutine(info.Original!, LooseEndsEventHook, _ => { }, labelYieldBattle);
     }
 
     private static IEnumerator AiAttackHook(
@@ -216,9 +197,6 @@ internal sealed class BattleHelpersTopLevelPatcher : ITopLevelPatcher
                 helperMedalPool.Add([battleHelperLeaf.GameId, battleHelperLeaf.StartingAnimstate]);
         }
     }
-
-    private static bool HelperMedalCheckHook() =>
-        _instance._battleHelpersRegistry.Any(x => x.PredicateIsInHelperMedalPool());
 
     private static IEnumerator LooseEndsEventHook()
     {

@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
 using VenusRootLoader.Persistence;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Logic;
 
@@ -101,7 +102,7 @@ internal sealed class SaveDataPersistenceTopLevelPatcher : ITopLevelPatcher
     {
         CodeMatcher matcher = new(instructions, generator);
 
-        MethodInfo inputIoCreateFileMethod = AccessTools.Method(typeof(InputIO), nameof(InputIO.CreateFile));
+        MethodInfo inputIoCreateFileMethod = typeof(InputIO).MethodByName(nameof(InputIO.CreateFile))!;
         FieldInfo coroutineStateField =
             __originalMethod.DeclaringType.GetDeclaredFields().Single(x => x.Name.Contains("state"));
         FieldInfo coroutineThisField =

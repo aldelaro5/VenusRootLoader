@@ -49,11 +49,14 @@ internal static class EnumeratorUtils
 
     private static bool StateMachineMatchesEnumeratorMethod(Type stateMachine, MethodInfo enumeratorMethod)
     {
-        IEnumerable<Type> parameterTypes = enumeratorMethod.GetParameters().Select(y => y.ParameterType);
+        IEnumerable<Type> parameterTypes = enumeratorMethod.GetParameters()
+            .Select(y => y.ParameterType)
+            .OrderBy(x => x.Name);
         IEnumerable<Type> stateMachineSpeakableFields = stateMachine
             .GetFields(BindingFlags.Public | BindingFlags.Instance)
-            .Where(y => y.Name != "<>4__this")
-            .Select(y => y.FieldType);
+            .Where(y => y.Name != ThisFieldName)
+            .Select(y => y.FieldType)
+            .OrderBy(x => x.Name);
         return parameterTypes.SequenceEqual(stateMachineSpeakableFields);
     }
 

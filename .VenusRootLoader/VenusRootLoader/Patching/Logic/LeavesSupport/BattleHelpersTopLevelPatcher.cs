@@ -106,13 +106,10 @@ internal sealed class BattleHelpersTopLevelPatcher : ITopLevelPatcher
         MethodBase method)
     {
         CodeMatcher matcher = new(instructions, generator);
-        FieldInfo battleControlAiPartyField = AccessTools.Field(
-            typeof(BattleControl),
-            nameof(BattleControl.aiparty));
-        MethodInfo unityRandomRangeMethod = AccessTools.Method(
-            typeof(UnityEngine.Random),
+        FieldInfo battleControlAiPartyField = typeof(BattleControl).FieldByName(nameof(BattleControl.aiparty))!;
+        MethodInfo unityRandomRangeMethod = typeof(UnityEngine.Random).MethodByName(
             nameof(UnityEngine.Random.Range),
-            [typeof(int), typeof(int)]);
+            [typeof(int), typeof(int)])!;
 
         matcher.MatchStartForward(CodeMatch.StoresField(battleControlAiPartyField));
         matcher.Advance(1);
@@ -177,9 +174,8 @@ internal sealed class BattleHelpersTopLevelPatcher : ITopLevelPatcher
         MethodBase method)
     {
         CodeMatcher matcher = new(instructions, generator);
-        MethodInfo battleControlStartBattleMethod = AccessTools.Method(
-            typeof(BattleControl),
-            nameof(BattleControl.StartBattle));
+        MethodInfo battleControlStartBattleMethod =
+            typeof(BattleControl).MethodByName(nameof(BattleControl.StartBattle))!;
 
         matcher.MatchStartForward(CodeMatch.Calls(battleControlStartBattleMethod));
         matcher.MatchStartForward(Code.Ret);

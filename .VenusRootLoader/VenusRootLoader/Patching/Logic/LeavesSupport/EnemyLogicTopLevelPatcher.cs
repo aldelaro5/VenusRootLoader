@@ -43,12 +43,8 @@ internal sealed class EnemyLogicTopLevelPatcher : ITopLevelPatcher
         MethodBase method)
     {
         CodeMatcher matcher = new(instructions, generator);
-        FieldInfo battleControlFirstStrikeField = AccessTools.Field(
-            typeof(BattleControl),
-            nameof(BattleControl.firststrike));
-        FieldInfo entityControlOnGroundField = AccessTools.Field(
-            typeof(EntityControl),
-            nameof(EntityControl.onground));
+        FieldInfo battleControlFirstStrikeField = typeof(BattleControl).FieldByName(nameof(BattleControl.firststrike))!;
+        FieldInfo entityControlOnGroundField = typeof(EntityControl).FieldByName(nameof(EntityControl.onground))!;
         FieldInfo doActionStateMachineEnemyActionContextField = EnumeratorUtils.GetStateMachineFieldFromUniqueType(
             method.DeclaringType!,
             typeof(BattleControl.DoActionEnemyActionContext));

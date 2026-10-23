@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 
@@ -46,11 +47,11 @@ internal sealed class PrizeMedalsTopLevelPatcher : ITopLevelPatcher
     {
         CodeMatcher matcher = new(instructions, generator);
 
-        FieldInfo prizeIdsField = AccessTools.Field(typeof(MainManager), nameof(MainManager.prizeids));
+        FieldInfo prizeIdsField = typeof(MainManager).FieldByName(nameof(MainManager.prizeids))!;
         matcher = PatchPrizeMedalArray(matcher, prizeIdsField, GetPrizeIds);
-        FieldInfo prizeFlagsField = AccessTools.Field(typeof(MainManager), nameof(MainManager.prizeflags));
+        FieldInfo prizeFlagsField = typeof(MainManager).FieldByName(nameof(MainManager.prizeflags))!;
         matcher = PatchPrizeMedalArray(matcher, prizeFlagsField, GetPrizeFlagIds);
-        FieldInfo prizeEnemyIdsField = AccessTools.Field(typeof(MainManager), nameof(MainManager.prizeenemyids));
+        FieldInfo prizeEnemyIdsField = typeof(MainManager).FieldByName(nameof(MainManager.prizeenemyids))!;
         matcher = PatchPrizeMedalArray(matcher, prizeEnemyIdsField, GetPrizeEnemyIds);
 
         return matcher.Instructions();

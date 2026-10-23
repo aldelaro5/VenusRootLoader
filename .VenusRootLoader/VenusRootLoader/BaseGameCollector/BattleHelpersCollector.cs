@@ -1,10 +1,11 @@
-using HarmonyLib;
 using Microsoft.Extensions.Logging;
 using MonoMod.Cil;
 using MonoMod.Utils;
 using System.Reflection;
+using VenusRootLoader.Api.Extensions;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
@@ -38,8 +39,8 @@ internal sealed class BattleHelpersCollector : IBaseGameCollector
             typeof(BattleControl),
             nameof(BattleControl.AIAttack));
 
-        MethodInfo startBattle = AccessTools.DeclaredMethod(typeof(BattleControl), nameof(BattleControl.StartBattle))!;
-        MethodInfo startBattleMoveNextMethod = AccessTools.EnumeratorMoveNext(startBattle)!;
+        MethodInfo startBattle = typeof(BattleControl).MethodByName(nameof(BattleControl.StartBattle))!;
+        MethodInfo startBattleMoveNextMethod = startBattle.GetMoveNextForCoroutineMethod();
         using DynamicMethodDefinition dmd = new(startBattleMoveNextMethod);
         ILContext context = new(dmd.Definition);
         ILCursor cursor = new(context);

@@ -5,6 +5,7 @@ using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Api.Leaves.MapEntities;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 
@@ -52,7 +53,7 @@ internal sealed class PathNodesActionBehaviorsTopLevelPatcher : ITopLevelPatcher
         ILGenerator generator)
     {
         CodeMatcher matcher = new(instructions, generator);
-        FieldInfo npcControlVectorDataField = AccessTools.Field(typeof(NPCControl), nameof(NPCControl.vectordata));
+        FieldInfo npcControlVectorDataField = typeof(NPCControl).FieldByName(nameof(NPCControl.vectordata))!;
 
         matcher.MatchStartForward(Code.Switch);
         Label[] actionBehaviorsLabels = (Label[])matcher.Operand;
@@ -76,14 +77,12 @@ internal sealed class PathNodesActionBehaviorsTopLevelPatcher : ITopLevelPatcher
         ILGenerator generator)
     {
         CodeMatcher matcher = new(instructions, generator);
-        MethodInfo npcControlHasBehaviorMethod = AccessTools.Method(
-            typeof(NPCControl),
+        MethodInfo npcControlHasBehaviorMethod = typeof(NPCControl).MethodByName(
             nameof(NPCControl.HasBehavior),
-            [typeof(NPCControl.ActionBehaviors)]);
-        MethodInfo mainManagerBadgeHowManageEquippedMethod = AccessTools.Method(
-            typeof(MainManager),
+            [typeof(NPCControl.ActionBehaviors)])!;
+        MethodInfo mainManagerBadgeHowManageEquippedMethod = typeof(MainManager).MethodByName(
             nameof(MainManager.BadgeHowManyEquipped),
-            [typeof(int)]);
+            [typeof(int)])!;
 
         matcher.MatchStartForward(CodeMatch.Calls(npcControlHasBehaviorMethod));
         matcher.Advance(1);

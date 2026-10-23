@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 
@@ -44,7 +45,7 @@ internal sealed class CrystalBerriesAmountTopLevelPatcher : ITopLevelPatcher
         ILGenerator generator)
     {
         CodeMatcher matcher = new(instructions, generator);
-        FieldInfo crystalBerriesFlagsField = AccessTools.Field(typeof(MainManager), nameof(MainManager.crystalbflags));
+        FieldInfo crystalBerriesFlagsField = typeof(MainManager).FieldByName(nameof(MainManager.crystalbflags))!;
 
         matcher.MatchStartForward(CodeMatch.StoresField(crystalBerriesFlagsField));
         matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
@@ -60,7 +61,7 @@ internal sealed class CrystalBerriesAmountTopLevelPatcher : ITopLevelPatcher
         ILGenerator generator)
     {
         CodeMatcher matcher = new(instructions, generator);
-        FieldInfo crystalBerriesFlagsField = AccessTools.Field(typeof(MainManager), nameof(MainManager.crystalbflags));
+        FieldInfo crystalBerriesFlagsField = typeof(MainManager).FieldByName(nameof(MainManager.crystalbflags))!;
 
         // The save loading process will actually attempt to overwrite the entire array with the lengths it got from the save.
         // We don't want this because it would undo our SetVariables patch so we want to patch this length. What's interesting
@@ -80,9 +81,8 @@ internal sealed class CrystalBerriesAmountTopLevelPatcher : ITopLevelPatcher
         ILGenerator generator)
     {
         CodeMatcher matcher = new(instructions, generator);
-        MethodInfo crystalBerriesAmountMethod = AccessTools.Method(
-            typeof(MainManager),
-            nameof(MainManager.CrystalBerryAmmount));
+        MethodInfo crystalBerriesAmountMethod =
+            typeof(MainManager).MethodByName(nameof(MainManager.CrystalBerryAmmount))!;
 
         matcher.MatchStartForward(CodeMatch.Calls(crystalBerriesAmountMethod));
         matcher.MatchStartForward(CodeMatch.LoadsConstant());

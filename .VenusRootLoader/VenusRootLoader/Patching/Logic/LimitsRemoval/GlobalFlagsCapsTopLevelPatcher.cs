@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 
@@ -51,9 +52,9 @@ internal sealed class GlobalFlagsCapsTopLevelPatcher : ITopLevelPatcher
         ILGenerator generator)
     {
         CodeMatcher matcher = new(instructions, generator);
-        FieldInfo flagField = AccessTools.Field(typeof(MainManager), nameof(MainManager.flags));
-        FieldInfo flagvarField = AccessTools.Field(typeof(MainManager), nameof(MainManager.flagvar));
-        FieldInfo flagstringField = AccessTools.Field(typeof(MainManager), nameof(MainManager.flagstring));
+        FieldInfo flagField = typeof(MainManager).FieldByName(nameof(MainManager.flags))!;
+        FieldInfo flagvarField = typeof(MainManager).FieldByName(nameof(MainManager.flagvar))!;
+        FieldInfo flagstringField = typeof(MainManager).FieldByName(nameof(MainManager.flagstring))!;
 
         // We do this patch on Load because not doing it will cause Load to undo the SetVariables patch by overwritting the array.
         // This is still fine to do because while it technically changes the amount the game will attempt to read from the save,

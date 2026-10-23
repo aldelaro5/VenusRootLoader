@@ -1,4 +1,3 @@
-using HarmonyLib;
 using Microsoft.Extensions.Logging;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -65,8 +64,7 @@ internal sealed class AreasCollector : IBaseGameCollector
     // This method contains a switch on the area's game id that will assign the position to render the area on the map.
     private void CollectMapPositions()
     {
-        MethodInfo setVariableMethod =
-            AccessTools.DeclaredMethod(typeof(PauseMenu), nameof(PauseMenu.MapSetup))!;
+        MethodInfo setVariableMethod = typeof(PauseMenu).MethodByName(nameof(PauseMenu.MapSetup))!;
         using DynamicMethodDefinition dmd = new(setVariableMethod);
         ILContext context = new(dmd.Definition);
         ILCursor cursor = new(context);

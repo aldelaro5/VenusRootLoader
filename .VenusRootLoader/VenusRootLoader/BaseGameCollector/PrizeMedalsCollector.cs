@@ -1,5 +1,4 @@
 using CommunityToolkit.Diagnostics;
-using HarmonyLib;
 using Microsoft.Extensions.Logging;
 using Mono.Cecil;
 using MonoMod.Cil;
@@ -7,6 +6,7 @@ using MonoMod.Utils;
 using System.Reflection;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
@@ -38,8 +38,7 @@ internal sealed class PrizeMedalsCollector : IBaseGameCollector
         IMetadataTokenProvider tokenPrizeFlags = null!;
         IMetadataTokenProvider tokenPrizeEnemyIds = null!;
 
-        MethodInfo setVariableMethod =
-            AccessTools.DeclaredMethod(typeof(MainManager), nameof(MainManager.SetVariables))!;
+        MethodInfo setVariableMethod = typeof(MainManager).MethodByName(nameof(MainManager.SetVariables))!;
         using DynamicMethodDefinition dmd = new(setVariableMethod);
         ILContext context = new(dmd.Definition);
         ILCursor cursor = new(context);

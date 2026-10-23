@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 
@@ -72,11 +73,10 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
     {
         bool isSetVariables = method.Name == nameof(MainManager.SetVariables);
         CodeMatcher matcher = new(instructions, generator);
-        FieldInfo libraryField = AccessTools.Field(
-            typeof(MainManager),
+        FieldInfo libraryField = typeof(MainManager).FieldByName(
             isSetVariables
                 ? nameof(MainManager.librarydata)
-                : nameof(MainManager.librarystuff));
+                : nameof(MainManager.librarystuff))!;
 
         matcher.MatchStartForward(CodeMatch.StoresField(libraryField));
         matcher.MatchStartBackwards(CodeMatch.LoadsConstant());

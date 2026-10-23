@@ -1,4 +1,3 @@
-using HarmonyLib;
 using Microsoft.Extensions.Logging;
 using MonoMod.Cil;
 using MonoMod.Utils;
@@ -80,8 +79,7 @@ internal sealed class QuestsCollector : IBaseGameCollector
     // Bounty quests have their game ids hardcoded in GetQuestsBoards so we need to collect them from that method.
     private static List<int> CollectBountyQuestsGameIds()
     {
-        MethodInfo setVariableMethod =
-            AccessTools.DeclaredMethod(typeof(MainManager), nameof(MainManager.GetQuestsBoard))!;
+        MethodInfo setVariableMethod = typeof(MainManager).MethodByName(nameof(MainManager.GetQuestsBoard))!;
         using DynamicMethodDefinition dmd = new(setVariableMethod);
         using ILContext context = new(dmd.Definition);
 

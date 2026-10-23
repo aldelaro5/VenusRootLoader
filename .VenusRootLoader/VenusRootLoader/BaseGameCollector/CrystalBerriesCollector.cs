@@ -1,4 +1,3 @@
-using HarmonyLib;
 using Microsoft.Extensions.Logging;
 using MonoMod.Cil;
 using MonoMod.Utils;
@@ -55,8 +54,7 @@ internal sealed class CrystalBerriesCollector : IBaseGameCollector
     {
         int crystalBerriesAmount = 0;
 
-        MethodInfo setVariableMethod =
-            AccessTools.DeclaredMethod(typeof(MainManager), nameof(MainManager.SetVariables))!;
+        MethodInfo setVariableMethod = typeof(MainManager).MethodByName(nameof(MainManager.SetVariables))!;
         using DynamicMethodDefinition dmd = new(setVariableMethod);
         ILContext context = new(dmd.Definition);
         ILCursor cursor = new(context);

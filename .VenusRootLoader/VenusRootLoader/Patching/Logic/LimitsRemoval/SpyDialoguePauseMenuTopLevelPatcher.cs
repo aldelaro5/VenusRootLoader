@@ -2,6 +2,7 @@ using HarmonyLib;
 using System.Reflection;
 using System.Reflection.Emit;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 
@@ -34,7 +35,7 @@ internal sealed class SpyDialoguePauseMenuTopLevelPatcher : ITopLevelPatcher
     {
         const int pauseMenuLibraryWindowId = 3;
         CodeMatcher matcher = new(instructions, generator);
-        FieldInfo optionField = AccessTools.Field(typeof(PauseMenu), nameof(PauseMenu.option));
+        FieldInfo optionField = typeof(PauseMenu).FieldByName(nameof(PauseMenu.option))!;
 
         // Reaching the library window switch branch.
         matcher.MatchStartForward(Code.Switch);

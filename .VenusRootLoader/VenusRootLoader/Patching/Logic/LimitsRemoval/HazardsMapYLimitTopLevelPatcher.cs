@@ -2,6 +2,7 @@ using HarmonyLib;
 using System.Reflection;
 using System.Reflection.Emit;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 
@@ -36,8 +37,8 @@ internal sealed class HazardsMapYLimitTopLevelPatcher : ITopLevelPatcher
     {
         CodeMatcher matcher = new(instructions, generator);
 
-        FieldInfo mapControlYLimitField = AccessTools.Field(typeof(MapControl), nameof(MapControl.ylimit));
-        FieldInfo mainManagerMapField = AccessTools.Field(typeof(MainManager), nameof(MainManager.map));
+        FieldInfo mapControlYLimitField = typeof(MapControl).FieldByName(nameof(MapControl.ylimit))!;
+        FieldInfo mainManagerMapField = typeof(MainManager).FieldByName(nameof(MainManager.map))!;
 
         matcher.MatchStartForward(CodeMatch.StoresField(mapControlYLimitField));
         while (!matcher.Instruction.LoadsField(mainManagerMapField))

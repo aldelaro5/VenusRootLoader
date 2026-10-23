@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 
@@ -42,7 +43,7 @@ internal sealed class EventControlExcludeIdsTopLevelPatcher : ITopLevelPatcher
         ILGenerator generator)
     {
         CodeMatcher matcher = new(instructions, generator);
-        FieldInfo excludeIdsField = AccessTools.Field(typeof(EventControl), nameof(EventControl.excludeids));
+        FieldInfo excludeIdsField = typeof(EventControl).FieldByName(nameof(EventControl.excludeids))!;
 
         matcher.MatchStartForward(CodeMatch.StoresField(excludeIdsField));
         matcher.MatchStartBackwards(Code.Newobj);

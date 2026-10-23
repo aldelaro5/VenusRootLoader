@@ -1,4 +1,3 @@
-using HarmonyLib;
 using Microsoft.Extensions.Logging;
 using Mono.Cecil;
 using MonoMod.Cil;
@@ -6,6 +5,7 @@ using MonoMod.Utils;
 using System.Reflection;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
@@ -54,8 +54,7 @@ internal sealed class MedalShopsCollector : IBaseGameCollector
     {
         int medalShopsAmount = 0;
 
-        MethodInfo setVariableMethod =
-            AccessTools.DeclaredMethod(typeof(MainManager), nameof(MainManager.SetVariables))!;
+        MethodInfo setVariableMethod = typeof(MainManager).MethodByName(nameof(MainManager.SetVariables))!;
         using DynamicMethodDefinition dmd = new(setVariableMethod);
         ILContext context = new(dmd.Definition);
         context.Invoke(ilc =>
@@ -72,8 +71,7 @@ internal sealed class MedalShopsCollector : IBaseGameCollector
     {
         List<List<Branch<MedalLeaf>>> medalShopsStartingStock = new();
 
-        MethodInfo setVariableMethod =
-            AccessTools.DeclaredMethod(typeof(MainManager), nameof(MainManager.SetUpBadges))!;
+        MethodInfo setVariableMethod = typeof(MainManager).MethodByName(nameof(MainManager.SetUpBadges))!;
         using DynamicMethodDefinition dmd = new(setVariableMethod);
         ILContext context = new(dmd.Definition);
         context.Invoke(ilc =>
@@ -100,8 +98,7 @@ internal sealed class MedalShopsCollector : IBaseGameCollector
     {
         List<Branch<FlagLeaf>> medalShopsStartingStock = new();
 
-        MethodInfo setVariableMethod =
-            AccessTools.DeclaredMethod(typeof(MainManager), nameof(MainManager.EndOfMessage))!;
+        MethodInfo setVariableMethod = typeof(MainManager).MethodByName(nameof(MainManager.EndOfMessage))!;
         using DynamicMethodDefinition dmd = new(setVariableMethod);
         ILContext context = new(dmd.Definition);
         context.Invoke(ilc =>

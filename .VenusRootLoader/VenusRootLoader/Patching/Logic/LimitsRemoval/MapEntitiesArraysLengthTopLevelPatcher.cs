@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 
@@ -54,13 +55,13 @@ internal sealed class MapEntitiesArraysLengthTopLevelPatcher : ITopLevelPatcher
         ILGenerator generator)
     {
         CodeMatcher matcher = new(instructions, generator);
-        FieldInfo npcControlEventIdField = AccessTools.Field(typeof(NPCControl), nameof(NPCControl.eventid));
-        FieldInfo npcControlLimitField = AccessTools.Field(typeof(NPCControl), nameof(NPCControl.limit));
-        FieldInfo npcControlDataField = AccessTools.Field(typeof(NPCControl), nameof(NPCControl.data));
-        FieldInfo npcControlVectorDataField = AccessTools.Field(typeof(NPCControl), nameof(NPCControl.vectordata));
-        FieldInfo npcControlDialoguesField = AccessTools.Field(typeof(NPCControl), nameof(NPCControl.dialogues));
-        FieldInfo npcControlBattleIdsField = AccessTools.Field(typeof(NPCControl), nameof(NPCControl.battleids));
-        FieldInfo npcControlEmoticonFlagsField = AccessTools.Field(typeof(NPCControl), nameof(NPCControl.emoticonflag));
+        FieldInfo npcControlEventIdField = typeof(NPCControl).FieldByName(nameof(NPCControl.eventid))!;
+        FieldInfo npcControlLimitField = typeof(NPCControl).FieldByName(nameof(NPCControl.limit))!;
+        FieldInfo npcControlDataField = typeof(NPCControl).FieldByName(nameof(NPCControl.data))!;
+        FieldInfo npcControlVectorDataField = typeof(NPCControl).FieldByName(nameof(NPCControl.vectordata))!;
+        FieldInfo npcControlDialoguesField = typeof(NPCControl).FieldByName(nameof(NPCControl.dialogues))!;
+        FieldInfo npcControlBattleIdsField = typeof(NPCControl).FieldByName(nameof(NPCControl.battleids))!;
+        FieldInfo npcControlEmoticonFlagsField = typeof(NPCControl).FieldByName(nameof(NPCControl.emoticonflag))!;
 
         matcher.MatchStartForward(CodeMatch.StoresLocal());
         int mapIdLocalIndex = matcher.Instruction.LocalIndex();
@@ -160,8 +161,8 @@ internal sealed class MapEntitiesArraysLengthTopLevelPatcher : ITopLevelPatcher
         ILGenerator generator)
     {
         CodeMatcher matcher = new(instructions, generator);
-        FieldInfo npcControlDataField = AccessTools.Field(typeof(NPCControl), nameof(NPCControl.data));
-        FieldInfo npcControlVectorDataField = AccessTools.Field(typeof(NPCControl), nameof(NPCControl.vectordata));
+        FieldInfo npcControlDataField = typeof(NPCControl).FieldByName(nameof(NPCControl.data))!;
+        FieldInfo npcControlVectorDataField = typeof(NPCControl).FieldByName(nameof(NPCControl.vectordata))!;
 
         matcher.MatchStartForward(CodeMatch.LoadsField(npcControlDataField));
         matcher.Instruction.operand = npcControlVectorDataField;

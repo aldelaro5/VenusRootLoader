@@ -13,14 +13,11 @@ namespace VenusRootLoader.Api.Extensions;
 /// </summary>
 public static class TranspilersExtensions
 {
-    private static readonly FieldInfo MainManagerInstanceField = AccessTools.Field(
-        typeof(MainManager),
-        nameof(MainManager.instance));
+    private static readonly FieldInfo MainManagerInstanceField =
+        typeof(MainManager).FieldByName(nameof(MainManager.instance))!;
 
-    private static readonly MethodInfo MonoBehaviourStartCoroutineMethod = AccessTools.Method(
-        typeof(MonoBehaviour),
-        nameof(MonoBehaviour.StartCoroutine),
-        [typeof(IEnumerator)]);
+    private static readonly MethodInfo MonoBehaviourStartCoroutineMethod =
+        typeof(MonoBehaviour).MethodByName(nameof(MonoBehaviour.StartCoroutine), [typeof(IEnumerator)])!;
 
     extension(Transpilers)
     {
@@ -114,16 +111,10 @@ public static class TranspilersExtensions
                 matcher.Instructions()[indexStateSwitch].operand = stateLabels.ToArray();
             }
 
-            FieldInfo currentField = AccessTools.Field(
-                sourceMoveNextMethod.DeclaringType,
-                EnumeratorUtils.CurrentFieldName);
-            FieldInfo stateField = AccessTools.Field(
-                sourceMoveNextMethod.DeclaringType,
-                EnumeratorUtils.StateFieldName);
+            FieldInfo currentField = sourceMoveNextMethod.DeclaringType!.FieldByName(EnumeratorUtils.CurrentFieldName)!;
+            FieldInfo stateField = sourceMoveNextMethod.DeclaringType!.FieldByName(EnumeratorUtils.StateFieldName)!;
             // The this field will not exist for static coroutines.
-            FieldInfo? thisField = AccessTools.Field(
-                sourceMoveNextMethod.DeclaringType,
-                EnumeratorUtils.ThisFieldName);
+            FieldInfo? thisField = sourceMoveNextMethod.DeclaringType!.FieldByName(EnumeratorUtils.ThisFieldName);
 
             List<CodeInstruction> il = [new(Ldarg_0)];
             if (thisField != null)

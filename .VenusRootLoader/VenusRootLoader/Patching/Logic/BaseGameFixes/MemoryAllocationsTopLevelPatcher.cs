@@ -1,6 +1,7 @@
 using HarmonyLib;
 using System.Reflection;
 using System.Reflection.Emit;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Logic.BaseGameFixes;
 
@@ -37,8 +38,8 @@ internal sealed class MemoryAllocationsTopLevelPatcher : ITopLevelPatcher
         ILGenerator generator)
     {
         CodeMatcher matcher = new(instructions, generator);
-        FieldInfo clockSecField = AccessTools.Field(typeof(MainManager), nameof(MainManager.clocksec));
-        MethodInfo gcCollectMethod = AccessTools.Method(typeof(GC), nameof(GC.Collect), []);
+        FieldInfo clockSecField = typeof(MainManager).FieldByName(nameof(MainManager.clocksec))!;
+        MethodInfo gcCollectMethod = typeof(GC).MethodByName(nameof(GC.Collect), [])!;
 
         matcher.MatchStartForward(CodeMatch.StoresField(clockSecField));
         matcher.Advance(1);
@@ -56,10 +57,9 @@ internal sealed class MemoryAllocationsTopLevelPatcher : ITopLevelPatcher
         ILGenerator generator)
     {
         CodeMatcher matcher = new(instructions, generator);
-        MethodInfo checkAllBoolMethod = AccessTools.Method(
-            typeof(MainManager),
+        MethodInfo checkAllBoolMethod = typeof(MainManager).MethodByName(
             nameof(MainManager.CheckAllBool),
-            [typeof(bool[]), typeof(int[]), typeof(bool)]);
+            [typeof(bool[]), typeof(int[]), typeof(bool)])!;
 
         matcher.MatchStartForward(Code.Newobj);
         matcher.SetInstructionAndAdvance(Transpilers.EmitDelegate(GetClearedPreallocatedList));

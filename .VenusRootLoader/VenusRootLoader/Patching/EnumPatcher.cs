@@ -1,6 +1,7 @@
 using HarmonyLib;
 using System.Reflection;
 using VenusRootLoader.Extensions;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching;
 
@@ -29,7 +30,7 @@ internal sealed class EnumPatcher
     // A field that when set to null, it clears the enum values cache of the type and will force Mono to go through our
     // patch below to fetch the new enum values.
     private readonly FieldInfo _runtimeTypeGenericCacheField =
-        AccessTools.TypeByName("System.RuntimeType").Field("GenericCache");
+        Type.GetType("System.RuntimeType")!.FieldByName("GenericCache")!;
 
     public EnumPatcher(IHarmonyTypePatcher harmonyTypePatcher)
     {

@@ -7,6 +7,7 @@ using Tomlet.Attributes;
 using Tomlet.Models;
 using UnityEngine;
 using VenusRootLoader.Api;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BudLoading;
 
@@ -228,10 +229,10 @@ internal sealed class BudConfigManager : IBudConfigManager
         Type configType,
         object? defaultConfigData)
     {
-        List<MemberInfo> memberInfos = AccessTools.GetDeclaredProperties(configType)
+        List<MemberInfo> memberInfos = configType.GetProperties(ReflectionUtils.AllDeclared)
             .Cast<MemberInfo>()
             .ToList();
-        memberInfos.AddRange(AccessTools.GetDeclaredFields(configType));
+        memberInfos.AddRange(configType.GetFields(ReflectionUtils.AllDeclared));
         Dictionary<string, MemberInfo> membersByMappedNames = memberInfos.ToDictionary(
             m => m.GetCustomAttribute<TomlPropertyAttribute>()?.GetMappedString() ?? m.Name,
             m => m);

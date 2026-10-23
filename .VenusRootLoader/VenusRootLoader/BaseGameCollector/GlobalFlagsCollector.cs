@@ -1,10 +1,10 @@
-using HarmonyLib;
 using Microsoft.Extensions.Logging;
 using MonoMod.Cil;
 using MonoMod.Utils;
 using System.Reflection;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
 
@@ -35,8 +35,7 @@ internal sealed class GlobalFlagsCollector : IBaseGameCollector
 
         // The amount of flags, flagvars and flagstrings aren't straight forward to figure out because it's not declared
         // in a dedicated way. The best heuristic is to find the length that these arrays gets initalized at in SetVariables.
-        MethodInfo setVariableMethod =
-            AccessTools.DeclaredMethod(typeof(MainManager), nameof(MainManager.SetVariables))!;
+        MethodInfo setVariableMethod = typeof(MainManager).MethodByName(nameof(MainManager.SetVariables))!;
         using DynamicMethodDefinition dmd = new(setVariableMethod);
         ILContext context = new(dmd.Definition);
         ILCursor cursor = new(context);

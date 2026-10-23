@@ -1,6 +1,7 @@
 using HarmonyLib;
 using System.Reflection;
 using System.Reflection.Emit;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 
@@ -39,8 +40,8 @@ internal sealed class MapEntitiesArraysLengthZeroTopLevelPatcher : ITopLevelPatc
     {
         CodeMatcher matcher = new(instructions, generator);
 
-        FieldInfo dataField = AccessTools.Field(typeof(NPCControl), nameof(NPCControl.data));
-        FieldInfo vectorDataField = AccessTools.Field(typeof(NPCControl), nameof(NPCControl.vectordata));
+        FieldInfo dataField = typeof(NPCControl).FieldByName(nameof(NPCControl.data))!;
+        FieldInfo vectorDataField = typeof(NPCControl).FieldByName(nameof(NPCControl.vectordata))!;
 
         // Patches data default length.
         matcher.MatchStartForward(CodeMatch.StoresField(dataField));
@@ -72,7 +73,7 @@ internal sealed class MapEntitiesArraysLengthZeroTopLevelPatcher : ITopLevelPatc
     {
         CodeMatcher matcher = new(instructions, generator);
 
-        FieldInfo dataField = AccessTools.Field(typeof(NPCControl), nameof(NPCControl.data));
+        FieldInfo dataField = typeof(NPCControl).FieldByName(nameof(NPCControl.data))!;
 
         matcher.MatchStartForward(CodeMatch.LoadsField(dataField));
         // The NPCControl should be on the stack by this point so we can just dup it.

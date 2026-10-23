@@ -1,4 +1,3 @@
-using HarmonyLib;
 using Microsoft.Extensions.Logging;
 using Mono.Cecil;
 using MonoMod.Cil;
@@ -71,8 +70,7 @@ internal sealed class EnemiesCollector : IBaseGameCollector
         IMetadataTokenProvider tokenMiniBossCard = null!;
         IMetadataTokenProvider tokenSpecialList = null!;
 
-        MethodBase eventControlCctor =
-            AccessTools.Constructor(typeof(EventControl), null, true)!;
+        MethodBase eventControlCctor = typeof(EventControl).StaticConstructor([])!;
         using DynamicMethodDefinition dmd = new(eventControlCctor);
         ILContext context = new(dmd.Definition);
         ILCursor cursor = new(context);

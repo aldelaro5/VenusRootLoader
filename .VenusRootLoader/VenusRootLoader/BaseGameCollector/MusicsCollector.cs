@@ -1,4 +1,3 @@
-using HarmonyLib;
 using Microsoft.Extensions.Logging;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -54,8 +53,7 @@ internal sealed class MusicsCollector : IBaseGameCollector
         // The game contains specific music that technically exists as music, but cannot be purchased from Samira.
         // This is enforced in FixSamira where should any music ends up being unlocked, it will be removed from the list.
         // We can use this to collect those excluded music.
-        MethodInfo setVariableMethod =
-            AccessTools.DeclaredMethod(typeof(MainManager), nameof(MainManager.FixSamira))!;
+        MethodInfo setVariableMethod = typeof(MainManager).MethodByName(nameof(MainManager.FixSamira))!;
         using DynamicMethodDefinition dmd = new(setVariableMethod);
         ILContext context = new(dmd.Definition);
         ILCursor cursor = new(context);

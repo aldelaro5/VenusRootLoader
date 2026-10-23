@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 
@@ -46,7 +47,7 @@ internal sealed class MedalShopsTopLevelPatcher : ITopLevelPatcher
         ILGenerator generator)
     {
         CodeMatcher matcher = new(instructions, generator);
-        FieldInfo mainManagerBadgeShopsField = AccessTools.Field(typeof(MainManager), nameof(MainManager.badgeshops));
+        FieldInfo mainManagerBadgeShopsField = typeof(MainManager).FieldByName(nameof(MainManager.badgeshops))!;
 
         matcher.MatchStartForward(CodeMatch.StoresField(mainManagerBadgeShopsField));
         matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
@@ -67,10 +68,9 @@ internal sealed class MedalShopsTopLevelPatcher : ITopLevelPatcher
         ILGenerator generator)
     {
         CodeMatcher matcher = new(instructions, generator);
-        FieldInfo mainManagerAvailableBadgePoolField = AccessTools.Field(
-            typeof(MainManager),
-            nameof(MainManager.avaliablebadgepool));
-        FieldInfo mainManagerBadgeShopsField = AccessTools.Field(typeof(MainManager), nameof(MainManager.badgeshops));
+        FieldInfo mainManagerAvailableBadgePoolField =
+            typeof(MainManager).FieldByName(nameof(MainManager.avaliablebadgepool))!;
+        FieldInfo mainManagerBadgeShopsField = typeof(MainManager).FieldByName(nameof(MainManager.badgeshops))!;
 
         // avaliablebadgepool - overwrites the initialization
         matcher.MatchStartForward(CodeMatch.StoresField(mainManagerAvailableBadgePoolField));
@@ -120,8 +120,8 @@ internal sealed class MedalShopsTopLevelPatcher : ITopLevelPatcher
         ILGenerator generator)
     {
         CodeMatcher matcher = new(instructions, generator);
-        FieldInfo mainManagerBadgeShopsField = AccessTools.Field(typeof(MainManager), nameof(MainManager.badgeshops));
-        FieldInfo mainManagerInstanceField = AccessTools.Field(typeof(MainManager), nameof(MainManager.instance));
+        FieldInfo mainManagerBadgeShopsField = typeof(MainManager).FieldByName(nameof(MainManager.badgeshops))!;
+        FieldInfo mainManagerInstanceField = typeof(MainManager).FieldByName(nameof(MainManager.instance))!;
 
         matcher.MatchStartForward(CodeMatch.LoadsField(mainManagerBadgeShopsField));
         matcher.MatchStartBackwards(CodeMatch.Branches());

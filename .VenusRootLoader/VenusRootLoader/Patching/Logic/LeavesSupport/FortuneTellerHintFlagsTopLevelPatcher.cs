@@ -46,7 +46,8 @@ internal sealed class FortuneTellerHintFlagsTopLevelPatcher : ITopLevelPatcher
         MethodBase method)
     {
         CodeMatcher matcher = new(instructions, generator);
-        MethodInfo resourcesLoadTextAssetMethod = AccessTools.GetDeclaredMethods(typeof(UnityEngine.Resources))
+        MethodInfo resourcesLoadTextAssetMethod = typeof(UnityEngine.Resources)
+            .GetMethods(BindingFlags.Static | BindingFlags.Public)
             .Single(m => m.Name == nameof(UnityEngine.Resources.Load) && m.ContainsGenericParameters)
             .MakeGenericMethod(typeof(TextAsset));
         FieldInfo flagsField = method.DeclaringType

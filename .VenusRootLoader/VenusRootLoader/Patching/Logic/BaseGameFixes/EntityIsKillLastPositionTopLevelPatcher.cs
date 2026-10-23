@@ -2,6 +2,7 @@ using HarmonyLib;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
+using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Logic.BaseGameFixes;
 
@@ -35,15 +36,14 @@ internal sealed class EntityIsKillLastPositionTopLevelPatcher : ITopLevelPatcher
         IEnumerable<CodeInstruction> instructions,
         ILGenerator generator)
     {
-        MethodInfo transformPositionSetterMethod =
-            AccessTools.PropertySetter(typeof(Transform), nameof(Transform.position));
-        FieldInfo npcDummyField = AccessTools.Field(typeof(NPCControl), nameof(NPCControl.dummy));
-        FieldInfo entityInCameraField = AccessTools.Field(typeof(EntityControl), nameof(EntityControl.incamera));
-        MethodInfo timeFrameCountGetterMethod = AccessTools.PropertyGetter(typeof(Time), nameof(Time.frameCount));
+        MethodInfo transformPositionSetterMethod = typeof(Transform).PropertySetterByName(nameof(Transform.position));
+        FieldInfo npcDummyField = typeof(NPCControl).FieldByName(nameof(NPCControl.dummy))!;
+        FieldInfo entityInCameraField = typeof(EntityControl).FieldByName(nameof(EntityControl.incamera))!;
+        MethodInfo timeFrameCountGetterMethod = typeof(Time).PropertyGetterByName(nameof(Time.frameCount));
 
         CodeMatcher matcher = new(instructions, generator);
 
-        // Naviguate through the control flows to the iskill logic
+        // Navigate through the control flows to the iskill logic
         matcher.MatchStartForward(CodeMatch.LoadsField(npcDummyField));
         matcher.MatchStartForward(CodeMatch.LoadsField(entityInCameraField));
         matcher.MatchStartForward(CodeMatch.Calls(timeFrameCountGetterMethod));

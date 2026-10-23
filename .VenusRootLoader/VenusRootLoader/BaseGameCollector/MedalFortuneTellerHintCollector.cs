@@ -1,11 +1,10 @@
-using HarmonyLib;
 using Microsoft.Extensions.Logging;
 using Mono.Cecil;
 using MonoMod.Cil;
 using MonoMod.Utils;
-using System.Collections;
 using System.Reflection;
 using UnityEngine;
+using VenusRootLoader.Api.Extensions;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
@@ -66,17 +65,17 @@ internal sealed class MedalFortuneTellerHintCollector : IBaseGameCollector
     {
         IMetadataTokenProvider tokenFlags = null!;
 
-        Type event71EnumeratorType = typeof(EventControl).InnerTypes().Single(x => x.Name.Contains("<Event71>"));
-        MethodInfo setVariableMethod =
-            AccessTools.DeclaredMethod(event71EnumeratorType, nameof(IEnumerator.MoveNext))!;
-        using DynamicMethodDefinition dmd = new(setVariableMethod);
+        MethodInfo event71EnumeratorMethod = typeof(EventControl).MethodByName(nameof(EventControl.Event71))!;
+        MethodInfo event71MoveNextMethod = event71EnumeratorMethod.GetMoveNextForCoroutineMethod();
+        using DynamicMethodDefinition dmd = new(event71MoveNextMethod);
         ILContext context = new(dmd.Definition);
         ILCursor cursor = new(context);
 
-        MethodInfo resourcesLoadTextAssetMethod = AccessTools.GetDeclaredMethods(typeof(Resources))
+        MethodInfo resourcesLoadTextAssetMethod = typeof(Resources)
+            .GetMethods(BindingFlags.Static | BindingFlags.Public)
             .Single(m => m.Name == nameof(Resources.Load) && m.ContainsGenericParameters)
             .MakeGenericMethod(typeof(TextAsset));
-        FieldInfo flagsField = event71EnumeratorType
+        FieldInfo flagsField = event71MoveNextMethod.DeclaringType
             .GetRuntimeFields()
             .Single(f => f.Name.Contains("<flags>"));
 

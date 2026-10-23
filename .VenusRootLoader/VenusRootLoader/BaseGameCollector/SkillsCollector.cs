@@ -1,4 +1,3 @@
-using HarmonyLib;
 using Microsoft.Extensions.Logging;
 using MonoMod.Cil;
 using MonoMod.Utils;
@@ -123,8 +122,7 @@ internal sealed class SkillsCollector : IBaseGameCollector
         List<List<int>> skillsBeforeTeamSkills = [];
         List<List<int>> skillsAfterTeamSkills = [];
 
-        MethodInfo refreshSkillsMethod =
-            AccessTools.DeclaredMethod(typeof(MainManager), nameof(MainManager.RefreshSkills))!;
+        MethodInfo refreshSkillsMethod = typeof(MainManager).MethodByName(nameof(MainManager.RefreshSkills))!;
         using DynamicMethodDefinition dmd = new(refreshSkillsMethod);
         ILContext context = new(dmd.Definition);
         context.Invoke(ctx =>

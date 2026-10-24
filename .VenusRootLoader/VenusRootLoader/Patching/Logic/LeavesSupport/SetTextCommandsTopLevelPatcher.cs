@@ -1,10 +1,10 @@
-using HarmonyLib;
+using MonoDetour.Cil;
+using MonoMod.Cil;
 using System.Collections;
 using System.Reflection;
-using System.Reflection.Emit;
 using UnityEngine;
-using VenusRootLoader.Api.Extensions;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Extensions;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
@@ -24,60 +24,45 @@ internal sealed class SetTextCommandsTopLevelPatcher : ITopLevelPatcher
 {
     private static SetTextCommandsTopLevelPatcher _instance = null!;
 
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<SetTextCommandLeaf> _setTextCommandsRegistry;
 
-    public SetTextCommandsTopLevelPatcher(
-        IHarmonyTypePatcher harmonyTypePatcher,
-        ILeavesRegistry<SetTextCommandLeaf> setTextCommandsRegistry)
+    public SetTextCommandsTopLevelPatcher(ILeavesRegistry<SetTextCommandLeaf> setTextCommandsRegistry)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _setTextCommandsRegistry = setTextCommandsRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(SetTextCommandsTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(
-        nameof(MainManager),
-        nameof(MainManager.SetText),
-        MethodType.Enumerator,
-        [
-            typeof(string), typeof(int), typeof(float?), typeof(bool), typeof(bool), typeof(Vector3), typeof(Vector3),
-            typeof(Vector2), typeof(Transform), typeof(NPCControl)
-        ])]
-    private static IEnumerable<CodeInstruction> PatchSetTextCommandSwitch(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator,
-        MethodBase method)
+    public void Patch()
     {
-        CodeMatcher matcher = new(instructions, generator);
-        MethodInfo mainManagerSetTalkMethod = typeof(MainManager).MethodByName(nameof(MainManager.SetTalk))!;
+        Md.MainManager
+            .SetText_System_String_System_Int32_System_Nullable_1_System_Boolean_System_Boolean_UnityEngine_Vector3_UnityEngine_Vector3_UnityEngine_Vector2_UnityEngine_Transform_NPCControl
+            .ILHookMoveNext(PatchSetTextCommandSwitch);
+    }
+
+    private static void PatchSetTextCommandSwitch(ILManipulationInfo info)
+    {
+        ILCursor cursor = new(info.Context);
         FieldInfo setTextStateMachineCommandContextField = EnumeratorUtils.GetStateMachineFieldFromUniqueType(
-            method.DeclaringType!,
+            info.Original!.DeclaringType!,
             typeof(MainManager.SetTextCommandContext));
 
-        matcher.MatchStartForward(CodeMatch.Calls(mainManagerSetTalkMethod));
-        matcher.MatchStartForward(Code.Switch);
-        matcher.Advance(1);
-        Label switchEndLabel = (Label)matcher.Operand;
-        matcher.MatchStartBackwards(CodeMatch.IsLdloc());
-        int setTextCommandGameIdLocalIndex = matcher.Instruction.LocalIndex();
+        cursor.GotoNext(x => x.MatchCallOrCallvirt<MainManager>(nameof(MainManager.SetTalk)));
+        cursor.GotoNext(x => x.MatchSwitch(out _));
+        cursor.Index++;
+        ILLabel switchEndLabel = (ILLabel)cursor.Current.Operand;
+        int setTextCommandGameIdLocalIndex = 0;
+        cursor.GotoPrev(x => x.MatchLdloc(out setTextCommandGameIdLocalIndex));
 
-        matcher.InsertAndAdvance(
-            Transpilers.EmitYieldReturnCoroutine(
-                method,
-                SetTextHandlerHook,
-                matcher,
-                [
-                    new(OpCodes.Ldarg_0),
-                    new(OpCodes.Ldfld, setTextStateMachineCommandContextField),
-                    new(CodeInstruction.LoadLocal(setTextCommandGameIdLocalIndex))
-                ],
-                switchEndLabel));
-
-        return matcher.Instructions();
+        cursor.EmitYieldReturnCoroutine(
+            info.Original!,
+            SetTextHandlerHook,
+            ilCursor =>
+            {
+                ilCursor.EmitLdarg0();
+                ilCursor.EmitLdfld(setTextStateMachineCommandContextField);
+                ilCursor.EmitLdloc(setTextCommandGameIdLocalIndex);
+            },
+            switchEndLabel);
     }
 
     private static IEnumerator SetTextHandlerHook(MainManager.SetTextCommandContext context, int commandGameId)

@@ -1,9 +1,7 @@
-using HarmonyLib;
-using System.Reflection;
-using System.Reflection.Emit;
+using MonoDetour.Cil;
+using MonoMod.Cil;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
-using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 
@@ -22,61 +20,47 @@ namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 /// </summary>
 internal sealed class EnemyEncounterCapTopLevelPatcher : ITopLevelPatcher
 {
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<EnemyLeaf> _enemiesRegistry;
 
     private static EnemyEncounterCapTopLevelPatcher _instance = null!;
 
-    public EnemyEncounterCapTopLevelPatcher(
-        IHarmonyTypePatcher harmonyTypePatcher,
-        ILeavesRegistry<EnemyLeaf> enemiesRegistry)
+    public EnemyEncounterCapTopLevelPatcher(ILeavesRegistry<EnemyLeaf> enemiesRegistry)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _enemiesRegistry = enemiesRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(EnemyEncounterCapTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(MainManager), nameof(MainManager.SetVariables))]
-    internal static IEnumerable<CodeInstruction> RemoveEnemyEncounterHardCap(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator)
+    public void Patch()
     {
-        CodeMatcher matcher = new(instructions, generator);
-        FieldInfo enemyEncounterField = typeof(MainManager).FieldByName(nameof(MainManager.enemyencounter))!;
-
-        matcher.MatchStartForward(CodeMatch.StoresField(enemyEncounterField));
-        matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
-        matcher.Insert(Transpilers.EmitDelegate(GetNewEnemyEncounterCap));
-
-        return matcher.Instructions();
+        Md.MainManager.SetVariables.ILHook(RemoveEnemyEncounterHardCap);
+        Md.MainManager.Load.ILHook(AdjustEnemyEncounterAmountFromSave);
     }
 
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(MainManager), nameof(MainManager.Load))]
-    internal static IEnumerable<CodeInstruction> AdjustEnemyEncounterAmountFromSave(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator)
+    private static void RemoveEnemyEncounterHardCap(ILManipulationInfo info)
     {
-        CodeMatcher matcher = new(instructions, generator);
-        FieldInfo enemyEncounterField = typeof(MainManager).FieldByName(nameof(MainManager.enemyencounter))!;
+        ILCursor cursor = new(info.Context);
+
+        cursor.GotoNext(x => x.MatchStfld<MainManager>(nameof(MainManager.enemyencounter)));
+        cursor.GotoPrev(x => x.MatchLdcI4(out _));
+        cursor.EmitDelegate(GetNewEnemyEncounterCap);
+    }
+
+    private static void AdjustEnemyEncounterAmountFromSave(ILManipulationInfo info)
+    {
+        ILCursor cursor = new(info.Context);
 
         // The save loading process will actually attempt to overwrite the entire array with the lengths it got from the save.
         // We don't want this because it would undo our SetVariables patch so we want to patch this length. What's interesting
         // is this will not break save loading because Load will still use the length found in the actual save to read it.
         // What's actually going to happen is any leftover data will be left to default values, which is what we want.
-        matcher.MatchStartForward(CodeMatch.StoresField(enemyEncounterField));
+        cursor.GotoNext(x => x.MatchStfld<MainManager>(nameof(MainManager.enemyencounter)));
         // This is a 2D array so we need to seek ldlen twice.
-        matcher.MatchStartBackwards(Code.Ldlen);
-        matcher.Advance(-1);
-        matcher.MatchStartBackwards(Code.Ldlen);
-        matcher.MatchStartForward(Code.Conv_I4);
-        matcher.MatchStartForward(CodeMatch.LoadsLocal());
-        matcher.Insert(Transpilers.EmitDelegate(GetBestEnemyEncounterAmountFromSave));
-
-        return matcher.Instructions();
+        cursor.GotoPrev(x => x.MatchLdlen());
+        cursor.Index--;
+        cursor.GotoPrev(x => x.MatchLdlen());
+        cursor.GotoNext(x => x.MatchConvI4());
+        cursor.GotoNext(x => x.MatchLdloc(out _));
+        cursor.EmitDelegate(GetBestEnemyEncounterAmountFromSave);
     }
 
     private static int GetNewEnemyEncounterCap(int originalCap) =>

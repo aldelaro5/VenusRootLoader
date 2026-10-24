@@ -1,9 +1,8 @@
-using HarmonyLib;
-using System.Reflection;
-using System.Reflection.Emit;
+using MonoDetour.Cil;
+using MonoMod.Cil;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Extensions;
 using VenusRootLoader.Registry;
-using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 
@@ -22,73 +21,52 @@ namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 /// </summary>
 internal sealed class CrystalBerriesAmountTopLevelPatcher : ITopLevelPatcher
 {
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<CrystalBerryLeaf> _crystalBerriesLeafRegistry;
 
     private static CrystalBerriesAmountTopLevelPatcher _instance = null!;
 
-    public CrystalBerriesAmountTopLevelPatcher(
-        IHarmonyTypePatcher harmonyTypePatcher,
-        ILeavesRegistry<CrystalBerryLeaf> crystalBerriesLeafRegistry)
+    public CrystalBerriesAmountTopLevelPatcher(ILeavesRegistry<CrystalBerryLeaf> crystalBerriesLeafRegistry)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _crystalBerriesLeafRegistry = crystalBerriesLeafRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(CrystalBerriesAmountTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(MainManager), nameof(MainManager.SetVariables))]
-    internal static IEnumerable<CodeInstruction> RemoveCrystalBerriesHardCap(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator)
+    public void Patch()
     {
-        CodeMatcher matcher = new(instructions, generator);
-        FieldInfo crystalBerriesFlagsField = typeof(MainManager).FieldByName(nameof(MainManager.crystalbflags))!;
-
-        matcher.MatchStartForward(CodeMatch.StoresField(crystalBerriesFlagsField));
-        matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
-        matcher.SetInstructionAndAdvance(Transpilers.EmitDelegate(GetNewCrystalBerriesCap));
-
-        return matcher.Instructions();
+        Md.MainManager.SetVariables.ILHook(RemoveCrystalBerriesHardCap);
+        Md.MainManager.Load.ILHook(AdjustCrystalBerriesAmountFromSave);
+        Md.MainManager.CheckAchievement.ILHook(AdjustCrystalBerriesRecordCheck);
     }
 
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(MainManager), nameof(MainManager.Load))]
-    internal static IEnumerable<CodeInstruction> AdjustCrystalBerriesAmountFromSave(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator)
+    private static void RemoveCrystalBerriesHardCap(ILManipulationInfo info)
     {
-        CodeMatcher matcher = new(instructions, generator);
-        FieldInfo crystalBerriesFlagsField = typeof(MainManager).FieldByName(nameof(MainManager.crystalbflags))!;
+        ILCursor cursor = new(info.Context);
+
+        cursor.GotoNext(x => x.MatchStfld<MainManager>(nameof(MainManager.crystalbflags)));
+        cursor.GotoPrev(x => x.MatchLdcI4(out _));
+        cursor.SetToStaticDelegateCall(GetNewCrystalBerriesCap);
+    }
+
+    private static void AdjustCrystalBerriesAmountFromSave(ILManipulationInfo info)
+    {
+        ILCursor cursor = new(info.Context);
 
         // The save loading process will actually attempt to overwrite the entire array with the lengths it got from the save.
         // We don't want this because it would undo our SetVariables patch so we want to patch this length. What's interesting
         // is this will not break save loading because Load will still use the length found in the actual save to read it.
         // What's actually going to happen is any leftover data will be left to default values, which is what we want.
-        matcher.MatchStartForward(CodeMatch.StoresField(crystalBerriesFlagsField));
-        matcher.MatchStartBackwards(Code.Newarr);
-        matcher.Insert(Transpilers.EmitDelegate(GetBestCrystalBerriesAmountFromSave));
-
-        return matcher.Instructions();
+        cursor.GotoNext(x => x.MatchStfld<MainManager>(nameof(MainManager.crystalbflags)));
+        cursor.GotoPrev(x => x.MatchNewarr(out _));
+        cursor.EmitDelegate(GetBestCrystalBerriesAmountFromSave);
     }
 
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(MainManager), nameof(MainManager.CheckAchievement))]
-    internal static IEnumerable<CodeInstruction> AdjustCrystalBerriesRecordCheck(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator)
+    private static void AdjustCrystalBerriesRecordCheck(ILManipulationInfo info)
     {
-        CodeMatcher matcher = new(instructions, generator);
-        MethodInfo crystalBerriesAmountMethod =
-            typeof(MainManager).MethodByName(nameof(MainManager.CrystalBerryAmmount))!;
+        ILCursor cursor = new(info.Context);
 
-        matcher.MatchStartForward(CodeMatch.Calls(crystalBerriesAmountMethod));
-        matcher.MatchStartForward(CodeMatch.LoadsConstant());
-        matcher.SetInstructionAndAdvance(Transpilers.EmitDelegate(GetNewCrystalBerriesCap));
-
-        return matcher.Instructions();
+        cursor.GotoNext(x => x.MatchCallOrCallvirt<MainManager>(nameof(MainManager.CrystalBerryAmmount)));
+        cursor.GotoNext(x => x.MatchLdcI4(out _));
+        cursor.SetToStaticDelegateCall(GetNewCrystalBerriesCap);
     }
 
     private static int GetNewCrystalBerriesCap() => _instance._crystalBerriesLeafRegistry.Count;

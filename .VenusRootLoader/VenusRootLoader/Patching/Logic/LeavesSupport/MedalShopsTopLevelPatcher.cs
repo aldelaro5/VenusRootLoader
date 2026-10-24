@@ -1,7 +1,10 @@
-using HarmonyLib;
+using Mono.Cecil.Cil;
+using MonoDetour.Cil;
+using MonoDetour.DetourTypes;
+using MonoMod.Cil;
 using System.Reflection;
-using System.Reflection.Emit;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Extensions;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
@@ -24,36 +27,31 @@ namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 /// </summary>
 internal sealed class MedalShopsTopLevelPatcher : ITopLevelPatcher
 {
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<MedalShopLeaf> _medalShopsRegistry;
 
     private static MedalShopsTopLevelPatcher _instance = null!;
 
-    public MedalShopsTopLevelPatcher(
-        IHarmonyTypePatcher harmonyTypePatcher,
-        ILeavesRegistry<MedalShopLeaf> medalShopsRegistry)
+    public MedalShopsTopLevelPatcher(ILeavesRegistry<MedalShopLeaf> medalShopsRegistry)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _medalShopsRegistry = medalShopsRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(MedalShopsTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(MainManager), nameof(MainManager.SetVariables))]
-    internal static IEnumerable<CodeInstruction> PatchBadgeShopsArraysLengthHardCap(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator)
+    public void Patch()
     {
-        CodeMatcher matcher = new(instructions, generator);
-        FieldInfo mainManagerBadgeShopsField = typeof(MainManager).FieldByName(nameof(MainManager.badgeshops))!;
+        Md.MainManager.SetVariables.ILHook(PatchBadgeShopsArraysLengthHardCap);
+        Md.MainManager.Load.ILHook(PatchAmountBadgeShopsStockLoaded);
+        Md.MainManager.EndOfMessage.ILHook(PatchLogicForSettingMedalShopsBoughtAllStockFlags);
+        Md.MainManager.SetUpBadges.ControlFlowPrefix(PatchLogicForSettingMedalShopsStartingStock);
+    }
 
-        matcher.MatchStartForward(CodeMatch.StoresField(mainManagerBadgeShopsField));
-        matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
-        matcher.SetInstruction(Transpilers.EmitDelegate(PatchNewMedalShopsAmount));
+    private static void PatchBadgeShopsArraysLengthHardCap(ILManipulationInfo info)
+    {
+        ILCursor cursor = new(info.Context);
 
-        return matcher.Instructions();
+        cursor.GotoNext(x => x.MatchStfld<MainManager>(nameof(MainManager.badgeshops)));
+        cursor.GotoPrev(x => x.MatchLdcI4(out _));
+        cursor.SetToStaticDelegateCall(PatchNewMedalShopsAmount);
     }
 
     // This patches Load by changing how loading the medal shop pool lines are treated. It consists of 2 steps for each line:
@@ -61,96 +59,78 @@ internal sealed class MedalShopsTopLevelPatcher : ITopLevelPatcher
     // - Let the save overwrites the now initialized data with the parts that it has, skipping the ones not in the registry
     // This requires 2 patches each: one to overwrite the initialization and one to overwrite the length read from the save
     // so it skips the shops that aren't in the registry.
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(MainManager), nameof(MainManager.Load))]
-    internal static IEnumerable<CodeInstruction> PatchAmountBadgeShopsStockLoaded(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator)
+    private static void PatchAmountBadgeShopsStockLoaded(ILManipulationInfo info)
     {
-        CodeMatcher matcher = new(instructions, generator);
-        FieldInfo mainManagerAvailableBadgePoolField =
-            typeof(MainManager).FieldByName(nameof(MainManager.avaliablebadgepool))!;
-        FieldInfo mainManagerBadgeShopsField = typeof(MainManager).FieldByName(nameof(MainManager.badgeshops))!;
+        ILCursor cursor = new(info.Context);
 
         // avaliablebadgepool - overwrites the initialization
-        matcher.MatchStartForward(CodeMatch.StoresField(mainManagerAvailableBadgePoolField));
-        while (!matcher.Instruction.IsLdloc())
+        cursor.GotoNext(x => x.MatchStfld<MainManager>(nameof(MainManager.avaliablebadgepool)));
+        while (!cursor.Current.MatchLdloc(out _))
         {
-            matcher.SetInstruction(new CodeInstruction(OpCodes.Nop));
-            matcher.Advance(-1);
+            cursor.Set(OpCodes.Nop);
+            cursor.Index--;
         }
 
-        matcher.SetInstruction(Transpilers.EmitDelegate(InitializeAvailableBadgePoolFromLoad));
+        cursor.SetToStaticDelegateCall(InitializeAvailableBadgePoolFromLoad);
 
         // avaliablebadgepool - overwrite the length so it skips shops that aren't in the registry
-        matcher.MatchStartForward(CodeMatch.Branches());
-        Label forAvailableShopPoolsEndLabel = (Label)matcher.Operand;
-        matcher.MatchStartForward(new CodeMatch(i => i.labels.Contains(forAvailableShopPoolsEndLabel)));
-        matcher.MatchStartForward(CodeMatch.Branches());
-        matcher.MatchStartBackwards(Code.Conv_I4);
-        matcher.Advance(1);
-        matcher.Insert(Transpilers.EmitDelegate(PatchMedalShopsAmountLoadedFromSave));
+        ILLabel forAvailableShopPoolsEndLabel = null!;
+        cursor.GotoNext(x => x.MatchBranch(out forAvailableShopPoolsEndLabel!));
+        cursor.GotoLabel(forAvailableShopPoolsEndLabel);
+        cursor.GotoNext(x => x.MatchBranch(out _));
+        cursor.GotoPrev(x => x.MatchConvI4());
+        cursor.Index++;
+        cursor.EmitDelegate(PatchMedalShopsAmountLoadedFromSave);
 
         // badgeshops - overwrites the initialization
-        matcher.MatchStartForward(CodeMatch.StoresField(mainManagerBadgeShopsField));
-        while (!matcher.Instruction.IsLdloc())
+        cursor.GotoNext(x => x.MatchStfld<MainManager>(nameof(MainManager.badgeshops)));
+        while (!cursor.Current.MatchLdloc(out _))
         {
-            matcher.SetInstruction(new CodeInstruction(OpCodes.Nop));
-            matcher.Advance(-1);
+            cursor.Set(OpCodes.Nop);
+            cursor.Index--;
         }
 
-        matcher.SetInstruction(Transpilers.EmitDelegate(InitializeBadgesShopsFromLoad));
+        cursor.SetToStaticDelegateCall(InitializeBadgesShopsFromLoad);
 
         // badgeshops - overwrite the length so it skips shops that aren't in the registry
-        matcher.MatchStartForward(CodeMatch.Branches());
-        Label forBadgeShopsEndLabel = (Label)matcher.Operand;
-        matcher.MatchStartForward(new CodeMatch(i => i.labels.Contains(forBadgeShopsEndLabel)));
-        matcher.MatchStartForward(CodeMatch.Branches());
-        matcher.MatchStartBackwards(Code.Conv_I4);
-        matcher.Advance(1);
-        matcher.Insert(Transpilers.EmitDelegate(PatchMedalShopsAmountLoadedFromSave));
-
-        return matcher.Instructions();
+        ILLabel forBadgeShopsEndLabel = null!;
+        cursor.GotoNext(x => x.MatchBranch(out forBadgeShopsEndLabel!));
+        cursor.GotoLabel(forBadgeShopsEndLabel);
+        cursor.GotoNext(x => x.MatchBranch(out _));
+        cursor.GotoPrev(x => x.MatchConvI4());
+        cursor.Index++;
+        cursor.EmitDelegate(PatchMedalShopsAmountLoadedFromSave);
     }
 
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(MainManager), nameof(MainManager.EndOfMessage))]
-    internal static IEnumerable<CodeInstruction> PatchLogicForSettingMedalShopsBoughtAllStockFlags(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator)
+    private static void PatchLogicForSettingMedalShopsBoughtAllStockFlags(ILManipulationInfo info)
     {
-        CodeMatcher matcher = new(instructions, generator);
-        FieldInfo mainManagerBadgeShopsField = typeof(MainManager).FieldByName(nameof(MainManager.badgeshops))!;
+        ILCursor cursor = new(info.Context);
         FieldInfo mainManagerInstanceField = typeof(MainManager).FieldByName(nameof(MainManager.instance))!;
 
-        matcher.MatchStartForward(CodeMatch.LoadsField(mainManagerBadgeShopsField));
-        matcher.MatchStartBackwards(CodeMatch.Branches());
+        cursor.GotoNext(x => x.MatchLdfld<MainManager>(nameof(MainManager.badgeshops)));
+        cursor.GotoPrev(x => x.MatchBranch(out _));
 
-        CodeMatcher subMatcher = matcher.Clone();
-        subMatcher.Advance(-1);
-        subMatcher.MatchStartBackwards(CodeMatch.Branches());
-        Label afterProcessingBoughtAllFlagsLabel = (Label)subMatcher.Operand;
+        int cursorIndex = cursor.Index;
+        cursor.Index--;
+        ILLabel afterProcessingBoughtAllFlagsLabel = null!;
+        cursor.GotoPrev(x => x.MatchBranch(out afterProcessingBoughtAllFlagsLabel!));
+        cursor.Index = cursorIndex;
 
-        matcher.SetInstruction(new CodeInstruction(OpCodes.Br_S, afterProcessingBoughtAllFlagsLabel));
-        matcher.Insert(
-            new CodeInstruction(OpCodes.Ldsfld, mainManagerInstanceField),
-            Transpilers.EmitDelegate(SetMedalShopsBoughtAllFlags));
-
-        return matcher.Instructions();
+        cursor.Set(OpCodes.Br, afterProcessingBoughtAllFlagsLabel);
+        cursor.EmitLdsfld(mainManagerInstanceField);
+        cursor.EmitDelegate(SetMedalShopsBoughtAllFlags);
     }
 
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(MainManager), nameof(MainManager.SetUpBadges))]
-    internal static bool PatchLogicForSettingMedalShopsStartingStock(MainManager __instance)
+    private static ReturnFlow PatchLogicForSettingMedalShopsStartingStock(MainManager instance)
     {
         foreach (MedalShopLeaf medalShopLeaf in _instance._medalShopsRegistry)
         {
             List<int> medalIds = medalShopLeaf.StartingMedalsStock.Select(m => m.Resolve().GameId).ToList();
-            __instance.badgeshops[medalShopLeaf.GameId].AddRange(medalIds);
-            __instance.avaliablebadgepool[medalShopLeaf.GameId].AddRange(medalIds);
+            instance.badgeshops[medalShopLeaf.GameId].AddRange(medalIds);
+            instance.avaliablebadgepool[medalShopLeaf.GameId].AddRange(medalIds);
         }
 
-        return false;
+        return ReturnFlow.SkipOriginal;
     }
 
     private static int PatchNewMedalShopsAmount() => _instance._medalShopsRegistry.Count;

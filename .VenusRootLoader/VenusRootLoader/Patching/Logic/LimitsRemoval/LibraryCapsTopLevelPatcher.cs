@@ -1,6 +1,7 @@
-using HarmonyLib;
+using MonoDetour.Cil;
+using MonoDetour.DetourTypes;
+using MonoMod.Cil;
 using System.Reflection;
-using System.Reflection.Emit;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
@@ -31,7 +32,6 @@ namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 /// </summary>
 internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
 {
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<DiscoveryLeaf> _discoveriesRegistry;
     private readonly IOrderedLeavesRegistry<EnemyLeaf> _orderedEnemiesRegistry;
     private readonly ILeavesRegistry<RecipeLibraryEntryLeaf> _recipeLibraryEntriesRegistry;
@@ -41,7 +41,6 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
     private static LibraryCapsTopLevelPatcher _instance = null!;
 
     public LibraryCapsTopLevelPatcher(
-        IHarmonyTypePatcher harmonyTypePatcher,
         ILeavesRegistry<DiscoveryLeaf> discoveriesRegistry,
         IOrderedLeavesRegistry<EnemyLeaf> orderedEnemiesRegistry,
         ILeavesRegistry<RecipeLibraryEntryLeaf> recipeLibraryEntriesRegistry,
@@ -49,7 +48,6 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
         ILeavesRegistry<AreaLeaf> areasRegistry)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _discoveriesRegistry = discoveriesRegistry;
         _orderedEnemiesRegistry = orderedEnemiesRegistry;
         _recipeLibraryEntriesRegistry = recipeLibraryEntriesRegistry;
@@ -57,46 +55,49 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
         _areasRegistry = areasRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(LibraryCapsTopLevelPatcher));
+    public void Patch()
+    {
+        Md.MainManager.SetVariables.ILHook(RemoveFlagsHardCapSetVariables);
+        Md.MainManager.Load.ILHook(RemoveFlagsHardCapSetVariables);
+        // MonoDetour.HookGen has an issue where it can't disambiguate a ctor vs a cctor so we have to set up the hook manually.
+        ConstructorInfo method = typeof(MainManager).GetConstructor(
+            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+            null,
+            [],
+            null)!;
+        MonoDetour.HookGen.DefaultMonoDetourManager.Instance.Hook<PrefixDetour>(method, PatchLibraryLimit);
+    }
 
     // The save loading process will actually attempt to overwrite the entire array with the lengths it got from the save.
     // We don't want this because it would undo our SetVariables patch so we want to patch this length. What's interesting
     // is this will not break save loading because Load will still use the length found in the actual save to read it.
     // What's actually going to happen is any leftover data will be left to default values, which is what we want.
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(MainManager), nameof(MainManager.Load))]
-    [HarmonyPatch(typeof(MainManager), nameof(MainManager.SetVariables))]
-    internal static IEnumerable<CodeInstruction> RemoveFlagsHardCapSetVariables(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator,
-        MethodBase method)
+    private static void RemoveFlagsHardCapSetVariables(ILManipulationInfo info)
     {
-        bool isSetVariables = method.Name == nameof(MainManager.SetVariables);
-        CodeMatcher matcher = new(instructions, generator);
+        bool isSetVariables = info.Original!.Name == nameof(MainManager.SetVariables);
+        ILCursor cursor = new(info.Context);
         FieldInfo libraryField = typeof(MainManager).FieldByName(
             isSetVariables
                 ? nameof(MainManager.librarydata)
                 : nameof(MainManager.librarystuff))!;
 
-        matcher.MatchStartForward(CodeMatch.StoresField(libraryField));
-        matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
+        cursor.GotoNext(x => isSetVariables
+            ? x.MatchStsfld(libraryField)
+            : x.MatchStfld(libraryField));
+        cursor.GotoPrev(x => x.MatchLdcI4(out _));
         // Both of them are multidimensional arrays, but the length we want to change for librarydata is the second to last one
         // while it's the last one for librarystuff which explains why we need to seek twice on the former.
         if (isSetVariables)
         {
-            matcher.Advance(-1);
-            matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
+            cursor.Index--;
+            cursor.GotoNext(x => x.MatchLdcI4(out _));
         }
 
-        matcher.Advance(1);
-        matcher.Insert(Transpilers.EmitDelegate(GetNewLibraryStuffCap));
-
-        return matcher.Instructions();
+        cursor.Index++;
+        cursor.EmitDelegate(GetNewLibraryStuffCap);
     }
 
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(MainManager), MethodType.Constructor)]
-    internal static bool PatchLibraryLimit()
+    private static void PatchLibraryLimit(MainManager instance)
     {
         int[] original = new int[Enum.GetValues(typeof(MainManager.Library)).Length];
         MainManager.librarylimit.CopyTo(original);
@@ -111,8 +112,6 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
         AssignNewLibraryLimitByPage(MainManager.Library.Recipes, _instance._recipeLibraryEntriesRegistry, original);
         AssignNewLibraryLimitByPage(MainManager.Library.Logbook, _instance._recordsRegistry, original);
         AssignNewLibraryLimitByPage(MainManager.Library.Map, _instance._areasRegistry, original);
-
-        return true;
     }
 
     private static int GetNewLibraryStuffCap(int baseGameCap)

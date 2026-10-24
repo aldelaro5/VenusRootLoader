@@ -1,9 +1,8 @@
-using HarmonyLib;
-using System.Reflection;
-using System.Reflection.Emit;
+using MonoDetour.Cil;
+using MonoMod.Cil;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Extensions;
 using VenusRootLoader.Registry;
-using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 
@@ -22,7 +21,6 @@ namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 /// </summary>
 internal sealed class GlobalFlagsCapsTopLevelPatcher : ITopLevelPatcher
 {
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<FlagLeaf> _flagsLeafRegistry;
     private readonly ILeavesRegistry<FlagvarLeaf> _flagvarsLeafRegistry;
     private readonly ILeavesRegistry<FlagstringLeaf> _flagstringsLeafRegistry;
@@ -30,49 +28,41 @@ internal sealed class GlobalFlagsCapsTopLevelPatcher : ITopLevelPatcher
     private static GlobalFlagsCapsTopLevelPatcher _instance = null!;
 
     public GlobalFlagsCapsTopLevelPatcher(
-        IHarmonyTypePatcher harmonyTypePatcher,
         ILeavesRegistry<FlagLeaf> flagsLeafRegistry,
         ILeavesRegistry<FlagvarLeaf> flagvarsLeafRegistry,
         ILeavesRegistry<FlagstringLeaf> flagstringsLeafRegistry)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _flagsLeafRegistry = flagsLeafRegistry;
         _flagvarsLeafRegistry = flagvarsLeafRegistry;
         _flagstringsLeafRegistry = flagstringsLeafRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(GlobalFlagsCapsTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(MainManager), nameof(MainManager.SetVariables))]
-    [HarmonyPatch(typeof(MainManager), nameof(MainManager.Load))]
-    internal static IEnumerable<CodeInstruction> RemoveFlagsHardCap(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator)
+    public void Patch()
     {
-        CodeMatcher matcher = new(instructions, generator);
-        FieldInfo flagField = typeof(MainManager).FieldByName(nameof(MainManager.flags))!;
-        FieldInfo flagvarField = typeof(MainManager).FieldByName(nameof(MainManager.flagvar))!;
-        FieldInfo flagstringField = typeof(MainManager).FieldByName(nameof(MainManager.flagstring))!;
+        Md.MainManager.SetVariables.ILHook(RemoveFlagsHardCap);
+        Md.MainManager.Load.ILHook(RemoveFlagsHardCap);
+    }
+
+    private static void RemoveFlagsHardCap(ILManipulationInfo info)
+    {
+        ILCursor cursor = new(info.Context);
 
         // We do this patch on Load because not doing it will cause Load to undo the SetVariables patch by overwritting the array.
         // This is still fine to do because while it technically changes the amount the game will attempt to read from the save,
         // it won't consider any indexes past the amount present on the save itself. This will leave all leftovers values
         // to false which is what we want.
-        matcher.MatchStartForward(CodeMatch.StoresField(flagField));
-        matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
-        matcher.SetInstructionAndAdvance(Transpilers.EmitDelegate(GetNewFlagsCap));
-        matcher.Start();
-        matcher.MatchStartForward(CodeMatch.StoresField(flagvarField));
-        matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
-        matcher.SetInstructionAndAdvance(Transpilers.EmitDelegate(GetNewFlagvarsCap));
-        matcher.Start();
-        matcher.MatchStartForward(CodeMatch.StoresField(flagstringField));
-        matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
-        matcher.SetInstructionAndAdvance(Transpilers.EmitDelegate(GetNewFlagstringsCap));
-
-        return matcher.Instructions();
+        cursor.GotoNext(x => x.MatchStfld<MainManager>(nameof(MainManager.flags)));
+        cursor.GotoPrev(x => x.MatchLdcI4(out _));
+        cursor.SetToStaticDelegateCallAndAdvance(GetNewFlagsCap);
+        cursor.Goto(0);
+        cursor.GotoNext(x => x.MatchStfld<MainManager>(nameof(MainManager.flagvar)));
+        cursor.GotoPrev(x => x.MatchLdcI4(out _));
+        cursor.SetToStaticDelegateCallAndAdvance(GetNewFlagvarsCap);
+        cursor.Goto(0);
+        cursor.GotoNext(x => x.MatchStfld<MainManager>(nameof(MainManager.flagstring)));
+        cursor.GotoPrev(x => x.MatchLdcI4(out _));
+        cursor.SetToStaticDelegateCall(GetNewFlagstringsCap);
     }
 
     private static int GetNewFlagsCap() => _instance._flagsLeafRegistry.Count;

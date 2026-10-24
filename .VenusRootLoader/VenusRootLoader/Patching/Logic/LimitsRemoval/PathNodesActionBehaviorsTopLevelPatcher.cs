@@ -1,11 +1,10 @@
-using HarmonyLib;
-using System.Reflection;
-using System.Reflection.Emit;
+using MonoDetour.Cil;
+using MonoMod.Cil;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Api.Leaves.MapEntities;
+using VenusRootLoader.Extensions;
 using VenusRootLoader.Registry;
-using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 
@@ -26,80 +25,53 @@ namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 /// </summary>
 internal sealed class PathNodesActionBehaviorsTopLevelPatcher : ITopLevelPatcher
 {
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<MapLeaf> _mapsRegistry;
 
     private static PathNodesActionBehaviorsTopLevelPatcher _instance = null!;
 
-    public PathNodesActionBehaviorsTopLevelPatcher(
-        IHarmonyTypePatcher harmonyTypePatcher,
-        ILeavesRegistry<MapLeaf> mapsRegistry)
+    public PathNodesActionBehaviorsTopLevelPatcher(ILeavesRegistry<MapLeaf> mapsRegistry)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _mapsRegistry = mapsRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(PathNodesActionBehaviorsTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(
-        typeof(NPCControl),
-        nameof(NPCControl.DoBehavior),
-        [typeof(NPCControl.ActionBehaviors), typeof(float)],
-        [ArgumentType.Ref, ArgumentType.Normal])]
-    internal static IEnumerable<CodeInstruction> ChangeNodesPositionArrays(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator)
+    public void Patch()
     {
-        CodeMatcher matcher = new(instructions, generator);
-        FieldInfo npcControlVectorDataField = typeof(NPCControl).FieldByName(nameof(NPCControl.vectordata))!;
-
-        matcher.MatchStartForward(Code.Switch);
-        Label[] actionBehaviorsLabels = (Label[])matcher.Operand;
-        Label setPathActionBehaviorArm = actionBehaviorsLabels[(int)NPCControl.ActionBehaviors.SetPath];
-        matcher.MatchStartForward(new CodeMatch(i => i.labels.Contains(setPathActionBehaviorArm)));
-
-        matcher.MatchStartForward(CodeMatch.LoadsField(npcControlVectorDataField));
-        while (matcher.IsValid)
-        {
-            matcher.SetInstructionAndAdvance(Transpilers.EmitDelegate(PatchNewPathNodesArray));
-            matcher.MatchStartForward(CodeMatch.LoadsField(npcControlVectorDataField));
-        }
-
-        return matcher.Instructions();
+        Md.NPCControl.DoBehavior_ref_NPCControl_ActionBehaviors_System_Single.ILHook(ChangeNodesPositionArrays);
+        Md.EntityControl.Death_System_Boolean.ILHookMoveNext(AllowEnemiesItemsDropsOnDeath);
     }
 
-    [HarmonyTranspiler]
-    [HarmonyPatch(nameof(EntityControl), nameof(EntityControl.Death), MethodType.Enumerator, [typeof(bool)])]
-    internal static IEnumerable<CodeInstruction> AllowEnemiesItemsDropsOnDeath(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator)
+    private static void ChangeNodesPositionArrays(ILManipulationInfo info)
     {
-        CodeMatcher matcher = new(instructions, generator);
-        MethodInfo npcControlHasBehaviorMethod = typeof(NPCControl).MethodByName(
-            nameof(NPCControl.HasBehavior),
-            [typeof(NPCControl.ActionBehaviors)])!;
-        MethodInfo mainManagerBadgeHowManageEquippedMethod = typeof(MainManager).MethodByName(
-            nameof(MainManager.BadgeHowManyEquipped),
-            [typeof(int)])!;
+        ILCursor cursor = new(info.Context);
 
-        matcher.MatchStartForward(CodeMatch.Calls(npcControlHasBehaviorMethod));
-        matcher.Advance(1);
-        matcher.MatchStartForward(CodeMatch.Calls(npcControlHasBehaviorMethod));
-        matcher.MatchStartForward(CodeMatch.Calls(mainManagerBadgeHowManageEquippedMethod));
-        matcher.MatchStartBackwards(CodeMatch.Branches());
-        matcher.Advance(1);
-        matcher.CreateLabel(out Label itemDropsLogicLabel);
+        ILLabel[] actionBehaviorsLabels = null!;
+        cursor.GotoNext(x => x.MatchSwitch(out actionBehaviorsLabels!));
+        ILLabel setPathActionBehaviorArm = actionBehaviorsLabels[(int)NPCControl.ActionBehaviors.SetPath];
+        cursor.GotoLabel(setPathActionBehaviorArm);
 
-        matcher.MatchStartBackwards(CodeMatch.Calls(npcControlHasBehaviorMethod));
-        matcher.Advance(-1);
-        matcher.MatchStartBackwards(CodeMatch.Calls(npcControlHasBehaviorMethod));
-        matcher.MatchStartBackwards(CodeMatch.Branches());
-        matcher.Advance(1);
-        matcher.Insert(new CodeInstruction(OpCodes.Br_S, itemDropsLogicLabel));
+        while (cursor.TryGotoNext(x => x.MatchLdfld<NPCControl>(nameof(NPCControl.vectordata))))
+            cursor.SetToStaticDelegateCallAndAdvance(PatchNewPathNodesArray);
+    }
 
-        return matcher.Instructions();
+    private static void AllowEnemiesItemsDropsOnDeath(ILManipulationInfo info)
+    {
+        ILCursor cursor = new(info.Context);
+
+        cursor.GotoNext(x => x.MatchCallOrCallvirt<NPCControl>(nameof(NPCControl.HasBehavior)));
+        cursor.Index++;
+        cursor.GotoNext(x => x.MatchCallOrCallvirt<NPCControl>(nameof(NPCControl.HasBehavior)));
+        cursor.GotoNext(x => x.MatchCallOrCallvirt<MainManager>(nameof(MainManager.BadgeHowManyEquipped)));
+        cursor.GotoPrev(x => x.MatchBranch(out _));
+        cursor.Index++;
+        ILLabel itemDropsLogicLabel = cursor.MarkLabel();
+
+        cursor.GotoPrev(x => x.MatchCallOrCallvirt<NPCControl>(nameof(NPCControl.HasBehavior)));
+        cursor.Index--;
+        cursor.GotoPrev(x => x.MatchCallOrCallvirt<NPCControl>(nameof(NPCControl.HasBehavior)));
+        cursor.GotoPrev(x => x.MatchBranch(out _));
+        cursor.Index++;
+        cursor.EmitBr(itemDropsLogicLabel);
     }
 
     private static Vector3[] PatchNewPathNodesArray(NPCControl instance)

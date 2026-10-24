@@ -66,6 +66,12 @@ internal static class EnumeratorUtils
             .Single(x => x.FieldType == fieldType);
     }
 
+    public static FieldInfo GetStateMachineStateField(Type stateMachineType)
+    {
+        return stateMachineType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+            .Single(x => x.Name == StateFieldName);
+    }
+
     public static FieldInfo GetStateMachineThisField(Type stateMachineType)
     {
         return stateMachineType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)

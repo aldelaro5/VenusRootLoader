@@ -1,11 +1,14 @@
-using HarmonyLib;
 using InputIOManager;
+using MonoDetour.Cil;
+using MonoDetour.DetourTypes;
+using MonoMod.Cil;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using System.Reflection.Emit;
 using UnityEngine;
+using VenusRootLoader.Extensions;
 using VenusRootLoader.Persistence;
 using VenusRootLoader.Utility;
+using OpCodes = Mono.Cecil.Cil.OpCodes;
 
 namespace VenusRootLoader.Patching.Logic;
 
@@ -36,90 +39,72 @@ internal sealed class SaveDataPersistenceTopLevelPatcher : ITopLevelPatcher
 
     private static readonly string BaseGameSavesPrefix = IsGogEdition ? "Saves/save" : "save";
 
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ISaveDataPersistence _saveDataPersistence;
 
-    public SaveDataPersistenceTopLevelPatcher(
-        IHarmonyTypePatcher harmonyTypePatcher,
-        ISaveDataPersistence saveDataPersistence)
+    public SaveDataPersistenceTopLevelPatcher(ISaveDataPersistence saveDataPersistence)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _saveDataPersistence = saveDataPersistence;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(SaveDataPersistenceTopLevelPatcher));
+    public void Patch()
+    {
+        Md.MainManager.Load.ControlFlowPrefix(LoadSaveData);
+        Md.MainManager.Save.ControlFlowPrefix(WriteSaveData);
+        Md.InputIOManager.InputIO.DeleteFile.ControlFlowPrefix(DeleteSaveData);
+        Md.StartMenu.DoCopy.ILHookMoveNext(PatchCopySaveData);
+    }
 
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(MainManager), nameof(MainManager.Load))]
-    // ReSharper disable once InconsistentNaming
-    internal static bool LoadSaveData(int file, bool lite, ref MainManager.LoadData? __result)
+    private static ReturnFlow LoadSaveData(ref int file, ref bool lite, ref MainManager.LoadData? result)
     {
         if (!_instance._saveDataPersistence.SaveSlotExistsInVenusRootLoader(file))
-            return true;
+            return ReturnFlow.None;
 
         if (lite)
         {
-            __result = _instance._saveDataPersistence.LoadLiteSaveDataFromSlot(file);
-            return false;
+            result = _instance._saveDataPersistence.LoadLiteSaveDataFromSlot(file);
+            return ReturnFlow.SkipOriginal;
         }
 
-        __result = _instance._saveDataPersistence.LoadFullSaveDataFromSlot(file);
+        result = _instance._saveDataPersistence.LoadFullSaveDataFromSlot(file);
         // This is necessary for the stats calc and HUD to work properly since the save loading effectively did a ChangeParty
         MainManager.RebuildHUD();
-        return false;
+        return ReturnFlow.SkipOriginal;
     }
 
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(MainManager), nameof(MainManager.Save))]
-    // ReSharper disable once InconsistentNaming
-    internal static bool WriteSaveData(Vector3? savepos, ref bool __result)
+    private static ReturnFlow WriteSaveData(ref Vector3? savepos, ref bool result)
     {
-        __result = _instance._saveDataPersistence.WriteSaveDataToSaveSlot(MainManager.saveslot, savepos);
-        return false;
+        result = _instance._saveDataPersistence.WriteSaveDataToSaveSlot(MainManager.saveslot, savepos);
+        return ReturnFlow.SkipOriginal;
     }
 
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(InputIO), nameof(InputIO.DeleteFile))]
-    // ReSharper disable once InconsistentNaming
-    internal static bool DeleteSaveData(string path, ref bool __result)
+    private static ReturnFlow DeleteSaveData(ref string path, ref bool result)
     {
         int saveSlot = int.Parse(path.Replace(BaseGameSavesPrefix, "").Replace(".dat", ""));
         if (!_instance._saveDataPersistence.SaveSlotExistsInVenusRootLoader(saveSlot))
-            return true;
+            return ReturnFlow.None;
 
-        __result = _instance._saveDataPersistence.DeleteSaveSlot(saveSlot);
-        return __result && File.Exists(BaseGameSavesPrefix + MainManager.instance.option + ".dat");
+        result = _instance._saveDataPersistence.DeleteSaveSlot(saveSlot);
+        return result && File.Exists(BaseGameSavesPrefix + MainManager.instance.option + ".dat")
+            ? ReturnFlow.None
+            : ReturnFlow.SkipOriginal;
     }
 
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(StartMenu), nameof(StartMenu.DoCopy), MethodType.Enumerator)]
-    // ReSharper disable once InconsistentNaming
-    internal static IEnumerable<CodeInstruction> PatchCopySaveData(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator,
-        MethodBase __originalMethod)
+    private static void PatchCopySaveData(ILManipulationInfo info)
     {
-        CodeMatcher matcher = new(instructions, generator);
+        ILCursor cursor = new(info.Context);
+        FieldInfo coroutineStateField = EnumeratorUtils.GetStateMachineStateField(info.Original!.DeclaringType!);
+        FieldInfo coroutineThisField = EnumeratorUtils.GetStateMachineThisField(info.Original!.DeclaringType!);
 
-        MethodInfo inputIoCreateFileMethod = typeof(InputIO).MethodByName(nameof(InputIO.CreateFile))!;
-        FieldInfo coroutineStateField =
-            __originalMethod.DeclaringType.GetDeclaredFields().Single(x => x.Name.Contains("state"));
-        FieldInfo coroutineThisField =
-            __originalMethod.DeclaringType.GetDeclaredFields().Single(x => x.Name.Contains("this"));
-
-        matcher.MatchStartForward(CodeMatch.LoadsConstant(""));
-        matcher.MatchStartBackwards(CodeMatch.StoresField(coroutineStateField));
-        matcher.Advance(1);
-        while (!matcher.Instruction.Calls(inputIoCreateFileMethod))
-            matcher.SetInstructionAndAdvance(Code.Nop);
-        matcher.SetInstructionAndAdvance(Code.Nop);
-        matcher.Insert(
-            CodeInstruction.LoadArgument(0),
-            CodeInstruction.LoadField(coroutineThisField.DeclaringType, coroutineThisField.Name),
-            Transpilers.EmitDelegate(CopySaveData));
-
-        return matcher.Instructions();
+        cursor.GotoNext(x => x.MatchLdstr(""));
+        cursor.GotoPrev(x => x.MatchStfld(coroutineStateField));
+        cursor.Index++;
+        while (!cursor.Current.MatchCallOrCallvirt<InputIO>(nameof(InputIO.CreateFile)))
+            cursor.SetAndAdvance(OpCodes.Nop);
+        cursor.SetAndAdvance(OpCodes.Nop);
+        cursor.EmitLdarg0();
+        cursor.EmitLdfld(coroutineThisField);
+        cursor.EmitDelegate(CopySaveData);
     }
 
     private static bool CopySaveData(StartMenu startMenu)

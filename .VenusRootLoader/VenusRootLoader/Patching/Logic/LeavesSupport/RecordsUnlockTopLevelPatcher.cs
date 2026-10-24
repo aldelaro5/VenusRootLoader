@@ -1,5 +1,5 @@
-using HarmonyLib;
 using InputIOManager;
+using MonoDetour.DetourTypes;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
 
@@ -20,21 +20,19 @@ internal sealed class RecordsUnlockTopLevelPatcher : ITopLevelPatcher
 {
     private static RecordsUnlockTopLevelPatcher _instance = null!;
 
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly ILeavesRegistry<RecordLeaf> _orderedEnemiesRegistry;
 
-    public RecordsUnlockTopLevelPatcher(
-        IHarmonyTypePatcher harmonyTypePatcher,
-        ILeavesRegistry<RecordLeaf> orderedEnemiesRegistry)
+    public RecordsUnlockTopLevelPatcher(ILeavesRegistry<RecordLeaf> orderedEnemiesRegistry)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _orderedEnemiesRegistry = orderedEnemiesRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(RecordsUnlockTopLevelPatcher));
+    public void Patch()
+    {
+        Md.InputIOManager.InputIO.Achivement.ControlFlowPrefix(AllowPlatformSpecificUnlock);
+    }
 
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(InputIO), nameof(InputIO.Achivement))]
-    private static bool AllowPlatformSpecificUnlock(int id) => id < _instance._orderedEnemiesRegistry.CountBaseGame;
+    private static ReturnFlow AllowPlatformSpecificUnlock(ref int id) =>
+        id < _instance._orderedEnemiesRegistry.CountBaseGame ? ReturnFlow.None : ReturnFlow.SkipOriginal;
 }

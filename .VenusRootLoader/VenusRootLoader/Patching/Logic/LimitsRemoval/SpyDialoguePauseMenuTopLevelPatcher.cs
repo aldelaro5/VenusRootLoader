@@ -1,8 +1,6 @@
-using HarmonyLib;
-using System.Reflection;
-using System.Reflection.Emit;
+using MonoDetour.Cil;
+using MonoMod.Cil;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 
@@ -18,54 +16,43 @@ namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 /// </summary>
 internal sealed class SpyDialoguePauseMenuTopLevelPatcher : ITopLevelPatcher
 {
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
-
-    public SpyDialoguePauseMenuTopLevelPatcher(IHarmonyTypePatcher harmonyTypePatcher)
+    public void Patch()
     {
-        _harmonyTypePatcher = harmonyTypePatcher;
+        Md.PauseMenu.UpdateText.ILHook(RemoveSpyDialoguesLengthRestriction);
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(SpyDialoguePauseMenuTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(PauseMenu), nameof(PauseMenu.UpdateText))]
-    private static IEnumerable<CodeInstruction> RemoveSpyDialoguesLengthRestriction(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator)
+    private static void RemoveSpyDialoguesLengthRestriction(ILManipulationInfo info)
     {
         const int pauseMenuLibraryWindowId = 3;
-        CodeMatcher matcher = new(instructions, generator);
-        FieldInfo optionField = typeof(PauseMenu).FieldByName(nameof(PauseMenu.option))!;
+        ILCursor cursor = new(info.Context);
 
         // Reaching the library window switch branch.
-        matcher.MatchStartForward(Code.Switch);
-        Label[] windowSwitchArms = (Label[])matcher.Operand;
-        matcher.MatchStartForward(new CodeMatch(i => i.labels.Contains(windowSwitchArms[pauseMenuLibraryWindowId])));
+        ILLabel[] windowSwitchArms = null!;
+        cursor.GotoNext(x => x.MatchSwitch(out windowSwitchArms!));
+        cursor.GotoLabel(windowSwitchArms[pauseMenuLibraryWindowId]);
 
         // Skipping over main window render.
-        matcher.MatchStartForward(Code.Switch);
-        matcher.MatchStartForward(CodeMatch.Branches());
-        Label afterOptionSwitch = (Label)matcher.Operand;
-        matcher.MatchStartForward(new CodeMatch(i => i.labels.Contains(afterOptionSwitch)));
+        cursor.GotoNext(x => x.MatchSwitch(out _));
+        ILLabel afterOptionSwitch = null!;
+        cursor.GotoNext(x => x.MatchBranch(out afterOptionSwitch!));
+        cursor.GotoLabel(afterOptionSwitch);
 
         // Reaching the secondoption handling for the bestiary.
-        matcher.MatchStartForward(
-            CodeMatch.LoadsField(optionField),
-            CodeMatch.LoadsConstant((int)MainManager.Library.Bestiary));
+        cursor.GotoNext(
+            x => x.MatchLdfld<PauseMenu>(nameof(PauseMenu.option)),
+            x => x.MatchLdcI4((int)MainManager.Library.Bestiary));
 
         // Some sanity heuristical control flow naviguation to get closer to the length > 5 check.
-        matcher.MatchStartForward(CodeMatch.Branches());
-        matcher.Advance(1);
-        matcher.MatchStartForward(CodeMatch.Branches());
-        matcher.MatchStartForward(CodeMatch.LoadsConstant("|librarybreak|"));
-        matcher.MatchStartForward(CodeMatch.Branches());
+        cursor.GotoNext(x => x.MatchBranch(out _));
+        cursor.Index++;
+        cursor.GotoNext(x => x.MatchBranch(out _));
+        cursor.GotoNext(x => x.MatchLdstr("|librarybreak|"));
+        cursor.GotoNext(x => x.MatchBranch(out _));
 
         // We've made it to the > 5 length check.
-        matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
-        matcher.Advance(1);
-        matcher.Insert(Transpilers.EmitDelegate(ChangeSpyDialogueLengthRead));
-
-        return matcher.Instructions();
+        cursor.GotoPrev(x => x.MatchLdcI4(out _));
+        cursor.Index++;
+        cursor.EmitDelegate(ChangeSpyDialogueLengthRead);
     }
 
     private static int ChangeSpyDialogueLengthRead(int originalLength)

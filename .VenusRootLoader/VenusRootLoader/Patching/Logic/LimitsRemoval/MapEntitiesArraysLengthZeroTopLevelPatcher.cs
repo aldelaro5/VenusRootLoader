@@ -1,7 +1,8 @@
-using HarmonyLib;
+using Mono.Cecil.Cil;
+using MonoDetour.Cil;
+using MonoMod.Cil;
 using System.Reflection;
-using System.Reflection.Emit;
-using VenusRootLoader.Utility;
+using VenusRootLoader.Extensions;
 
 namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 
@@ -23,63 +24,50 @@ internal sealed class MapEntitiesArraysLengthZeroTopLevelPatcher : ITopLevelPatc
 {
     private static readonly int[] InitialItemDataArray = [0];
 
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
-
-    public MapEntitiesArraysLengthZeroTopLevelPatcher(IHarmonyTypePatcher harmonyTypePatcher)
+    public void Patch()
     {
-        _harmonyTypePatcher = harmonyTypePatcher;
+        // MonoDetour.HookGen has an issue where it can't disambiguate a ctor vs a cctor so we have to set up the hook manually.
+        ConstructorInfo method = typeof(NPCControl).GetConstructor(
+            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+            null,
+            [],
+            null)!;
+        MonoDetour.HookGen.DefaultMonoDetourManager.Instance.ILHook(method, DefaultArrayToLengthZero);
+        Md.EntityControl.CreateItem.ILHook(AssignEntireArrayOfData);
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(MapEntitiesArraysLengthZeroTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(NPCControl), MethodType.Constructor)]
-    private static IEnumerable<CodeInstruction> DefaultArrayToLengthZero(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator)
+    private static void DefaultArrayToLengthZero(ILManipulationInfo info)
     {
-        CodeMatcher matcher = new(instructions, generator);
-
-        FieldInfo dataField = typeof(NPCControl).FieldByName(nameof(NPCControl.data))!;
-        FieldInfo vectorDataField = typeof(NPCControl).FieldByName(nameof(NPCControl.vectordata))!;
+        ILCursor cursor = new(info.Context);
 
         // Patches data default length.
-        matcher.MatchStartForward(CodeMatch.StoresField(dataField));
-        matcher.MatchStartBackwards(CodeMatch.LoadsConstant());
-        matcher.Set(OpCodes.Ldc_I4_0, null);
+        cursor.GotoNext(x => x.MatchStfld<NPCControl>(nameof(NPCControl.data)));
+        cursor.GotoPrev(x => x.MatchLdcI4(out _));
+        cursor.Set(OpCodes.Ldc_I4_0);
 
         // Patches vectordata default length.
-        matcher.MatchStartForward(CodeMatch.StoresField(vectorDataField));
+        cursor.GotoNext(x => x.MatchStfld<NPCControl>(nameof(NPCControl.vectordata)));
 
         // Need to remove the first element initializer.
-        matcher.Advance(-1);
-        while (matcher.Instruction.opcode != OpCodes.Newarr)
+        cursor.Index--;
+        while (cursor.Current.OpCode != OpCodes.Newarr)
         {
-            matcher.Set(OpCodes.Nop, null);
-            matcher.Advance(-1);
+            cursor.Set(OpCodes.Nop);
+            cursor.Index--;
         }
 
-        matcher.MatchStartBackwards(CodeMatch.LoadsConstant(1));
-        matcher.Set(OpCodes.Ldc_I4_0, null);
-
-        return matcher.Instructions();
+        cursor.GotoPrev(x => x.MatchLdcI4(1));
+        cursor.Set(OpCodes.Ldc_I4_0);
     }
 
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(EntityControl), nameof(EntityControl.CreateItem))]
-    private static IEnumerable<CodeInstruction> AssignEntireArrayOfData(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator)
+    private static void AssignEntireArrayOfData(ILManipulationInfo info)
     {
-        CodeMatcher matcher = new(instructions, generator);
+        ILCursor cursor = new(info.Context);
 
-        FieldInfo dataField = typeof(NPCControl).FieldByName(nameof(NPCControl.data))!;
-
-        matcher.MatchStartForward(CodeMatch.LoadsField(dataField));
+        cursor.GotoNext(x => x.MatchLdfld<NPCControl>(nameof(NPCControl.data)));
         // The NPCControl should be on the stack by this point so we can just dup it.
-        matcher.Insert(Code.Dup, Transpilers.EmitDelegate(SetNpcControlDataArray));
-
-        return matcher.Instructions();
+        cursor.EmitDup();
+        cursor.EmitDelegate(SetNpcControlDataArray);
     }
 
     private static void SetNpcControlDataArray(NPCControl npcControl) => npcControl.data = InitialItemDataArray;

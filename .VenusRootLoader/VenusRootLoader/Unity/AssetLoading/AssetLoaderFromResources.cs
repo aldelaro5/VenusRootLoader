@@ -40,14 +40,17 @@ internal sealed class AssetLoaderFromResources<TObject> : IAssetLoader<TObject>
     {
         if (_arrayIndex is null)
         {
-            TObject? asset = (TObject?)UnpatchedMethods.UnpatchedResourcesLoad(_resourcesPath, typeof(TObject));
+            TObject? asset = (TObject?)DmdICalls.UnityEngineResourcesLoad.Unpatched.Invoke(
+                null,
+                [_resourcesPath, typeof(TObject)]);
             if (asset == null)
                 ThrowHelper.ThrowInvalidOperationException($"The resource at {_resourcesPath} does not exist.");
             return asset;
         }
 
-        Object[]? assetArray = (Object[]?)UnpatchedMethods
-            .UnpatchedResourcesLoadAll(_resourcesPath, typeof(TObject));
+        Object[]? assetArray = (Object[]?)DmdICalls.UnityEngineResourcesLoadAll.Unpatched.Invoke(
+            null,
+            [_resourcesPath, typeof(TObject)]);
         if (assetArray is null || assetArray.Length <= _arrayIndex)
         {
             ThrowHelper.ThrowInvalidOperationException(

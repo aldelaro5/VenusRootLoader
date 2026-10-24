@@ -7,17 +7,14 @@ namespace VenusRootLoader.Patching;
 internal sealed class RootPatcher
 {
     private readonly IEnumerable<ITopLevelPatcher> _patchers;
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
 
-    public RootPatcher(IEnumerable<ITopLevelPatcher> patchers, IHarmonyTypePatcher harmonyTypePatcher)
+    public RootPatcher(IEnumerable<ITopLevelPatcher> patchers)
     {
         _patchers = patchers;
-        _harmonyTypePatcher = harmonyTypePatcher;
     }
 
     public void RunAllTopLevelPatchers()
     {
-        _harmonyTypePatcher.PatchAll(typeof(UnpatchedMethods));
         foreach (ITopLevelPatcher patcher in _patchers)
             patcher.Patch();
     }

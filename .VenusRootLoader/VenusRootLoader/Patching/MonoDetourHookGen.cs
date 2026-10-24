@@ -1,4 +1,5 @@
 using MonoDetour.HookGen;
+using UnityEngine;
 
 [assembly: MonoDetourTargets(typeof(MainManager), GenerateControlFlowVariants = true)]
 [assembly: MonoDetourTargets(typeof(BattleControl))]
@@ -10,3 +11,4 @@ using MonoDetour.HookGen;
 [assembly: MonoDetourTargets(typeof(PauseMenu))]
 [assembly: MonoDetourTargets(typeof(InputIOManager.InputIO), GenerateControlFlowVariants = true)]
 [assembly: MonoDetourTargets(typeof(Hazards))]
+[assembly: MonoDetourTargets(typeof(AttributeHelperEngine), GenerateControlFlowVariants = true)]

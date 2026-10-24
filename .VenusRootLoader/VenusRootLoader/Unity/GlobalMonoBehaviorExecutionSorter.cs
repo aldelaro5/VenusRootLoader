@@ -1,7 +1,6 @@
-using HarmonyLib;
+using MonoDetour.DetourTypes;
 using UnityEngine;
 using VenusRootLoader.Api.Unity;
-using VenusRootLoader.Patching;
 
 namespace VenusRootLoader.Unity;
 
@@ -47,9 +46,10 @@ internal sealed class GlobalMonoBehaviourExecution : IGlobalMonoBehaviourExecuti
     private int _nextExecutionOrder = int.MinValue;
     private static Dictionary<Type, int> CustomExecutionOrders { get; } = new();
 
-    public GlobalMonoBehaviourExecution(IHarmonyTypePatcher harmonyTypePatcher)
+    public GlobalMonoBehaviourExecution()
     {
-        harmonyTypePatcher.PatchAll(typeof(GlobalMonoBehaviourExecution));
+        Md.UnityEngine.AttributeHelperEngine.GetDefaultExecutionOrderFor.ControlFlowPrefix(
+            ChangeExecutionOrderForGlobalMonoBehaviours);
         UnityEngine.Object.DontDestroyOnLoad(_globalGameObject);
         _globalGameObject.hideFlags = HideFlags.HideAndDontSave;
     }
@@ -77,14 +77,12 @@ internal sealed class GlobalMonoBehaviourExecution : IGlobalMonoBehaviourExecuti
     // This method is how Unity allows to put a DefaultExecutionOrder attribute to control the number at runtime
     // instead of serializing it from the editor. By using a false returning prefix, we can effectively make Unity act
     // as if we just happened to put that attribute ourselves when in reality, we determine the value at runtime.
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(AttributeHelperEngine), nameof(AttributeHelperEngine.GetDefaultExecutionOrderFor))]
-    private static bool ChangeExecutionOrderForGlobalMonoBehaviours(Type klass, ref int __result)
+    private static ReturnFlow ChangeExecutionOrderForGlobalMonoBehaviours(ref Type klass, ref int result)
     {
         if (!CustomExecutionOrders.TryGetValue(klass, out int value))
-            return true;
+            return ReturnFlow.None;
 
-        __result = value;
-        return false;
+        result = value;
+        return ReturnFlow.SkipOriginal;
     }
 }

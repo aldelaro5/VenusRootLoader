@@ -1,8 +1,8 @@
-using HarmonyLib;
-using System.Reflection;
-using System.Reflection.Emit;
+using Mono.Cecil.Cil;
+using MonoDetour.Cil;
+using MonoMod.Cil;
 using VenusRootLoader.Api.Leaves;
-using VenusRootLoader.Utility;
+using VenusRootLoader.Extensions;
 
 namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 
@@ -20,35 +20,22 @@ namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
 /// </summary>
 internal sealed class HazardsMapYLimitTopLevelPatcher : ITopLevelPatcher
 {
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
-
-    public HazardsMapYLimitTopLevelPatcher(IHarmonyTypePatcher harmonyTypePatcher)
+    public void Patch()
     {
-        _harmonyTypePatcher = harmonyTypePatcher;
+        Md.Hazards.Start.ILHook(RemoveMapYLimitOverride);
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(HazardsMapYLimitTopLevelPatcher));
-
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(Hazards), nameof(Hazards.Start))]
-    private static IEnumerable<CodeInstruction> RemoveMapYLimitOverride(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator)
+    private static void RemoveMapYLimitOverride(ILManipulationInfo info)
     {
-        CodeMatcher matcher = new(instructions, generator);
+        ILCursor cursor = new(info.Context);
 
-        FieldInfo mapControlYLimitField = typeof(MapControl).FieldByName(nameof(MapControl.ylimit))!;
-        FieldInfo mainManagerMapField = typeof(MainManager).FieldByName(nameof(MainManager.map))!;
-
-        matcher.MatchStartForward(CodeMatch.StoresField(mapControlYLimitField));
-        while (!matcher.Instruction.LoadsField(mainManagerMapField))
+        cursor.GotoNext(x => x.MatchStfld<MapControl>(nameof(MapControl.ylimit)));
+        while (!cursor.Current.MatchLdsfld<MainManager>(nameof(MainManager.map)))
         {
-            matcher.Set(OpCodes.Nop, null);
-            matcher.Advance(-1);
+            cursor.Set(OpCodes.Nop);
+            cursor.Index--;
         }
 
-        matcher.Set(OpCodes.Nop, null);
-
-        return matcher.Instructions();
+        cursor.Set(OpCodes.Nop);
     }
 }

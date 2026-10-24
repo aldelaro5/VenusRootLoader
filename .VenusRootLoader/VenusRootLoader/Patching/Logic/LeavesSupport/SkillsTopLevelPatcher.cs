@@ -1,10 +1,11 @@
 using CommunityToolkit.Diagnostics;
-using HarmonyLib;
+using MonoDetour.Cil;
+using MonoDetour.DetourTypes;
+using MonoMod.Cil;
 using System.Collections;
 using System.Reflection;
-using System.Reflection.Emit;
-using VenusRootLoader.Api.Extensions;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Extensions;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
@@ -27,23 +28,21 @@ internal sealed class SkillsTopLevelPatcher : ITopLevelPatcher
 {
     private static SkillsTopLevelPatcher _instance = null!;
 
-    private readonly IHarmonyTypePatcher _harmonyTypePatcher;
     private readonly IOrderedLeavesRegistry<SkillLeaf> _skillsRegistry;
 
-    public SkillsTopLevelPatcher(
-        IHarmonyTypePatcher harmonyTypePatcher,
-        IOrderedLeavesRegistry<SkillLeaf> skillsRegistry)
+    public SkillsTopLevelPatcher(IOrderedLeavesRegistry<SkillLeaf> skillsRegistry)
     {
         _instance = this;
-        _harmonyTypePatcher = harmonyTypePatcher;
         _skillsRegistry = skillsRegistry;
     }
 
-    public void Patch() => _harmonyTypePatcher.PatchAll(typeof(SkillsTopLevelPatcher));
+    public void Patch()
+    {
+        Md.MainManager.RefreshSkills.ControlFlowPrefix(PatchRefreshSkills);
+        Md.BattleControl.DoAction.ILHookMoveNext(PatchPlayerAction);
+    }
 
-    [HarmonyPrefix]
-    [HarmonyPatch(nameof(MainManager), nameof(MainManager.RefreshSkills))]
-    private static bool PatchRefreshSkills()
+    private static ReturnFlow PatchRefreshSkills()
     {
         IReadOnlyCollection<SkillLeaf> skillLeaves = _instance._skillsRegistry.GetOrderedLeaves();
         for (int i = 0; i < MainManager.instance.playerdata.Length; i++)
@@ -63,7 +62,7 @@ internal sealed class SkillsTopLevelPatcher : ITopLevelPatcher
             }
         }
 
-        return false;
+        return ReturnFlow.SkipOriginal;
     }
 
     private static bool IsSkillUsableByPlayerPartyMember(SkillLeaf skillLeaf, int trueId)
@@ -82,46 +81,38 @@ internal sealed class SkillsTopLevelPatcher : ITopLevelPatcher
         };
     }
 
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(BattleControl), nameof(BattleControl.DoAction), MethodType.Enumerator)]
-    private static IEnumerable<CodeInstruction> PatchPlayerAction(
-        IEnumerable<CodeInstruction> instructions,
-        ILGenerator generator,
-        MethodBase method)
+    private static void PatchPlayerAction(ILManipulationInfo info)
     {
-        CodeMatcher matcher = new(instructions, generator);
+        ILCursor cursor = new(info.Context);
         FieldInfo doActionStateMachinePlayerActionContextField = EnumeratorUtils.GetStateMachineFieldFromUniqueType(
-            method.DeclaringType!,
+            info.Original!.DeclaringType!,
             typeof(BattleControl.DoActionPlayerActionContext));
-        FieldInfo thisField = EnumeratorUtils.GetStateMachineThisField(method.DeclaringType!);
+        FieldInfo thisField = EnumeratorUtils.GetStateMachineThisField(info.Original!.DeclaringType!);
 
-        matcher.MatchStartForward(CodeMatch.LoadsConstant("Player"));
-        matcher.MatchStartForward(Code.Switch);
-        matcher.Advance(1);
-        Label switchEndLabel = (Label)matcher.Operand;
-        matcher.MatchStartBackwards(CodeMatch.IsLdloc());
-        int skillGameIdLocalIndex = matcher.Instruction.LocalIndex();
-        matcher.CreateLabel(out Label originalActionLabel);
-        matcher.InsertAndAdvance(
-            new(CodeInstruction.LoadLocal(skillGameIdLocalIndex)),
-            Code.Ldc_I4_0,
-            new(OpCodes.Blt, originalActionLabel));
+        cursor.GotoNext(x => x.MatchLdstr("Player"));
+        cursor.GotoNext(x => x.MatchSwitch(out _));
+        cursor.Index++;
+        ILLabel switchEndLabel = (ILLabel)cursor.Current.Operand;
+        int skillGameIdLocalIndex = 0;
+        cursor.GotoPrev(x => x.MatchLdloc(out skillGameIdLocalIndex));
+        ILLabel originalActionLabel = cursor.MarkLabel();
+        cursor.MoveBeforeLabels();
+        cursor.EmitLdloc(skillGameIdLocalIndex);
+        cursor.EmitLdcI4(0);
+        cursor.EmitBlt(originalActionLabel);
 
-        matcher.InsertAndAdvance(
-            Transpilers.EmitYieldReturnCoroutine(
-                method,
-                PlayerActionHook,
-                matcher,
-                [
-                    new(OpCodes.Ldarg_0),
-                    new(OpCodes.Ldfld, thisField),
-                    new(OpCodes.Ldarg_0),
-                    new(OpCodes.Ldfld, doActionStateMachinePlayerActionContextField),
-                    new(CodeInstruction.LoadLocal(skillGameIdLocalIndex))
-                ],
-                switchEndLabel));
-
-        return matcher.Instructions();
+        cursor.EmitYieldReturnCoroutine(
+            info.Original,
+            PlayerActionHook,
+            ilCursor =>
+            {
+                ilCursor.EmitLdarg0();
+                ilCursor.EmitLdfld(thisField);
+                ilCursor.EmitLdarg0();
+                ilCursor.EmitLdfld(doActionStateMachinePlayerActionContextField);
+                ilCursor.EmitLdloc(skillGameIdLocalIndex);
+            },
+            switchEndLabel);
     }
 
     private static IEnumerator PlayerActionHook(

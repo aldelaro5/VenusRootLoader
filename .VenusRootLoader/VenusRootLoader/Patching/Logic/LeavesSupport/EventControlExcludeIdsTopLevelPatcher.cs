@@ -1,6 +1,5 @@
 using MonoDetour.Cil;
 using MonoMod.Cil;
-using System.Reflection;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
 
@@ -31,13 +30,7 @@ internal sealed class EventControlExcludeIdsTopLevelPatcher : ITopLevelPatcher
 
     public void Patch()
     {
-        // MonoDetour.HookGen has an issue where it can't disambiguate a ctor vs a cctor so we have to set up the hook manually.
-        ConstructorInfo method = typeof(EventControl).GetConstructor(
-            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
-            null,
-            [],
-            null)!;
-        MonoDetour.HookGen.DefaultMonoDetourManager.Instance.ILHook(method, AdjustExcludeIds);
+        Md.EventControl._ctor.ILHook(AdjustExcludeIds);
     }
 
     private static void AdjustExcludeIds(ILManipulationInfo info)

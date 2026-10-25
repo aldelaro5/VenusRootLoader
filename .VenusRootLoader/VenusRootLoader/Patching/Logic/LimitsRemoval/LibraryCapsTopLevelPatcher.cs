@@ -1,5 +1,4 @@
 using MonoDetour.Cil;
-using MonoDetour.DetourTypes;
 using MonoMod.Cil;
 using System.Reflection;
 using VenusRootLoader.Api.Leaves;
@@ -59,13 +58,7 @@ internal sealed class LibraryCapsTopLevelPatcher : ITopLevelPatcher
     {
         Md.MainManager.SetVariables.ILHook(RemoveFlagsHardCapSetVariables);
         Md.MainManager.Load.ILHook(RemoveFlagsHardCapSetVariables);
-        // MonoDetour.HookGen has an issue where it can't disambiguate a ctor vs a cctor so we have to set up the hook manually.
-        ConstructorInfo method = typeof(MainManager).GetConstructor(
-            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
-            null,
-            [],
-            null)!;
-        MonoDetour.HookGen.DefaultMonoDetourManager.Instance.Hook<PrefixDetour>(method, PatchLibraryLimit);
+        Md.MainManager._ctor.Prefix(PatchLibraryLimit);
     }
 
     // The save loading process will actually attempt to overwrite the entire array with the lengths it got from the save.

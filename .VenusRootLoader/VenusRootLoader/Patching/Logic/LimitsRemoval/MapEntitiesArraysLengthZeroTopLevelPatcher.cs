@@ -1,7 +1,6 @@
 using Mono.Cecil.Cil;
 using MonoDetour.Cil;
 using MonoMod.Cil;
-using System.Reflection;
 using VenusRootLoader.Extensions;
 
 namespace VenusRootLoader.Patching.Logic.LimitsRemoval;
@@ -26,13 +25,7 @@ internal sealed class MapEntitiesArraysLengthZeroTopLevelPatcher : ITopLevelPatc
 
     public void Patch()
     {
-        // MonoDetour.HookGen has an issue where it can't disambiguate a ctor vs a cctor so we have to set up the hook manually.
-        ConstructorInfo method = typeof(NPCControl).GetConstructor(
-            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
-            null,
-            [],
-            null)!;
-        MonoDetour.HookGen.DefaultMonoDetourManager.Instance.ILHook(method, DefaultArrayToLengthZero);
+        Md.NPCControl._ctor.ILHook(DefaultArrayToLengthZero);
         Md.EntityControl.CreateItem.ILHook(AssignEntireArrayOfData);
     }
 

@@ -36,6 +36,9 @@ internal static class Entry
             AppDomainEventsHandler appDomainEventsHandler = host.GetRequiredService<AppDomainEventsHandler>();
             appDomainEventsHandler.InstallHandlers();
 
+            HarmonyLogger harmonyLogger = host.GetRequiredService<HarmonyLogger>();
+            harmonyLogger.InstallHarmonyLogging();
+
             UnityLogger unityLogger = host.GetRequiredService<UnityLogger>();
             unityLogger.InstallManagedUnityLogger();
 

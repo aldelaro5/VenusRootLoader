@@ -1,3 +1,4 @@
+using MonoMod;
 using System.Reflection;
 
 namespace VenusRootLoader.Patching;
@@ -21,8 +22,18 @@ internal sealed class DmdICall
 
     public DmdICall(MethodInfo method)
     {
+        // We have to temporarily use the MethodBuilder DMD backend for this because DynamicMethod doesn't work for hooking
+        // due to MonoMod being unable to get their method bodies.
+        bool hadValue = Switches.TryGetSwitchValue(nameof(Switches.DMDType), out object? dmdType);
+        Switches.SetSwitchValue(nameof(Switches.DMDType), "mb");
+
         _dmdICallWrapper = DmdICallWrapper.GetICallWrapper(method);
         Unpatched = _dmdICallWrapper.GetUnpatchedCopy();
         PatchedWrapper = _dmdICallWrapper.GenerateWrapper();
+
+        if (hadValue)
+            Switches.SetSwitchValue(nameof(Switches.DMDType), dmdType);
+        else
+            Switches.ClearSwitchValue(nameof(Switches.DMDType));
     }
 }

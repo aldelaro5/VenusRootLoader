@@ -1,4 +1,3 @@
-using MonoMod;
 using MonoMod.Cil;
 using MonoMod.Core.Platforms;
 using MonoMod.Utils;
@@ -71,14 +70,7 @@ internal sealed class DmdICallWrapper
     {
         DynamicMethodDefinition callerDmd =
             GenerateAltEntryProxyCaller($"NativeDetourProxy<{_original.DeclaringType?.FullName}:{_original.Name}>");
-
-        bool hadValue = Switches.TryGetSwitchValue(nameof(Switches.DMDType), out object? dmdType);
-        Switches.SetSwitchValue(nameof(Switches.DMDType), "mb");
         MethodBase replacement = callerDmd.Generate();
-        if (hadValue)
-            Switches.SetSwitchValue(nameof(Switches.DMDType), dmdType);
-        else
-            Switches.ClearSwitchValue(nameof(Switches.DMDType));
 
         PlatformTriple triple = PlatformTriple.Current;
 

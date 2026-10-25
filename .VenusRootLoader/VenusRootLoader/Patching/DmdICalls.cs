@@ -22,4 +22,10 @@ internal static class DmdICalls
         typeof(UnityEngine.Resources).MethodByName(
             nameof(UnityEngine.Resources.LoadAll),
             [typeof(string), typeof(Type)])!);
+
+    /// <summary>
+    /// <see cref="DmdICall"/> for Mono's Enum.GetEnumValuesAndNames.
+    /// </summary>
+    internal static DmdICall EnumGetEnumValuesAndNames { get; } =
+        new(typeof(Enum).MethodByName("GetEnumValuesAndNames")!);
 }

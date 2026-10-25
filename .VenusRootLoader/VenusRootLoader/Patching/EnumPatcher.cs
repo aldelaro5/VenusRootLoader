@@ -1,4 +1,5 @@
-using HarmonyLib;
+using MonoDetour.DetourTypes;
+using MonoDetour.HookGen;
 using System.Reflection;
 using VenusRootLoader.Extensions;
 using VenusRootLoader.Utility;
@@ -32,10 +33,12 @@ internal sealed class EnumPatcher
     private readonly FieldInfo _runtimeTypeGenericCacheField =
         Type.GetType("System.RuntimeType")!.FieldByName("GenericCache")!;
 
-    public EnumPatcher(IHarmonyTypePatcher harmonyTypePatcher)
+    public EnumPatcher()
     {
         _instance = this;
-        harmonyTypePatcher.PatchAll(typeof(EnumPatcher));
+        DefaultMonoDetourManager.Instance.Hook<PostfixDetour>(
+            DmdICalls.EnumGetEnumValuesAndNames.PatchedWrapper,
+            AddCustomEnumValuesAndNames);
     }
 
     internal int AddCustomEnumName(Type type, string name)
@@ -43,7 +46,7 @@ internal sealed class EnumPatcher
         if (!_customEnumNames.ContainsKey(type))
             _customEnumNames[type] = new((ulong)Enum.GetNextIntEnumValue(type));
         if (_customEnumNames[type].CustomNames.Contains(name))
-            throw new ArgumentException($"The custom enum name {name} already exists in {type.FullDescription()}");
+            throw new ArgumentException($"The custom enum name {name} already exists in {type.FullName}");
 
         _customEnumNames[type].CustomNames.Add(name);
 
@@ -59,12 +62,11 @@ internal sealed class EnumPatcher
     // add values to those list, they simply exist from now on. The only thing to keep in mind is this is only true if the
     // internal cache of the enum type hasn't been filled yet. This means we need to clear the cache on any changes done
     // through this patch.
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(Enum), "GetEnumValuesAndNames")]
     private static void AddCustomEnumValuesAndNames(
-        object enumType,
+        ref object enumType,
         ref ulong[] values,
-        ref string[] names)
+        ref string[] names,
+        ref bool result)
     {
         Type type = (Type)enumType;
         if (!_instance._customEnumNames.TryGetValue(type, out CustomEnumNamesInfo customEnumNamesInfo))

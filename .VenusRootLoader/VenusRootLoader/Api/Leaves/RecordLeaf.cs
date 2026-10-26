@@ -14,6 +14,8 @@ public sealed class RecordLeaf : Leaf, IHasEnemyPortraitSprite
         public string Description { get; set; } = "";
     }
 
+    public delegate bool AutoUnlockPredicate(MainManager mainManager);
+
     internal RecordLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
@@ -28,10 +30,14 @@ public sealed class RecordLeaf : Leaf, IHasEnemyPortraitSprite
     }
 
     public LocalizedData<RecordLanguageData> LocalizedData { get; } = new();
+    public AutoUnlockPredicate? AutoUnlockConditions { get; set; }
 
     [LeafInitializeFromNew]
-    internal void InitializeFromNew(IAssetLoader<Sprite> portraitSprite)
+    internal void InitializeFromNew(
+        IAssetLoader<Sprite> portraitSprite,
+        AutoUnlockPredicate? autoUnlockConditions)
     {
         PortraitSprite = portraitSprite;
+        AutoUnlockConditions = autoUnlockConditions;
     }
 }

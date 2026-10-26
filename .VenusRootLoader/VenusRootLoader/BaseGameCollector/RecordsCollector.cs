@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using System.Reflection;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.LeavesInternals;
@@ -39,6 +40,11 @@ internal sealed class RecordsCollector : IBaseGameCollector
 
     public void CollectBaseGameData()
     {
+        Dictionary<string, MethodInfo> checkAchievementPredicates = RootCollector.GetLeavesMethods(
+            typeof(MainManager),
+            nameof(MainManager.CheckAchievement),
+            "Predicate");
+
         int recordsAmount = _recordsOrderingData
             .Split('\n')
             .Length;
@@ -53,6 +59,12 @@ internal sealed class RecordsCollector : IBaseGameCollector
                     j,
                     _recordsLanguageData[j][i],
                     recordLeaf);
+            }
+
+            if (checkAchievementPredicates.TryGetValue(recordLeaf.NamedId, out MethodInfo method))
+            {
+                recordLeaf.AutoUnlockConditions =
+                    RootCollector.CreateOpenDelegateFromMethod<RecordLeaf.AutoUnlockPredicate>(method);
             }
         }
 

@@ -39,6 +39,9 @@ internal static class Entry
             HarmonyLogger harmonyLogger = host.GetRequiredService<HarmonyLogger>();
             harmonyLogger.InstallHarmonyLogging();
 
+            MonoDetourLogger monoDetourLogger = host.GetRequiredService<MonoDetourLogger>();
+            monoDetourLogger.InstallMonoDetourLogger();
+
             UnityLogger unityLogger = host.GetRequiredService<UnityLogger>();
             unityLogger.InstallManagedUnityLogger();
 

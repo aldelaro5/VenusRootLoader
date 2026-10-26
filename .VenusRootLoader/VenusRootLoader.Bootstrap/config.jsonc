@@ -81,14 +81,19 @@
       // NOTE: Native Unity logs can be very verbose and constantly spam messages. Only use "Trace" for complex diagnostics.
       "UNITY": "Debug",
       "Maps": "Warning",
+      // VenusRootLoader's MonoDetourManager logs.
+      "VenusRootLoader-MonoDetour": "Information",
+      // Global MonoDetour logs.
+      "VenusRootLoader.Logging.MonoDetourLogger": "Information",
+      // Global HarmonyX logs.
+      "VenusRootLoader.Logging.HarmonyLogger": "Warning",
       "VenusRootLoader.Bootstrap": "Information",
       "VenusRootLoader.Bootstrap.Mono": "Information",
       "VenusRootLoader.AppDomainEventsHandler": "Information",
-      "VenusRootLoader.Logging.HarmonyLogger": "Warning",
-      "VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalData.MapEntityTextAssetParser": "Trace",
+      "VenusRootLoader.Registry": "Warning",
       "VenusRootLoader.Patching": "Trace",
       "VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.MapEntityTextAssetParser": "Warning",
-      "VenusRootLoader.Registry": "Warning"
+      "VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalData.MapEntityTextAssetParser": "Trace"
     }
   }
 }

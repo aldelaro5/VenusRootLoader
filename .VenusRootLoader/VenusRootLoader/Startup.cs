@@ -69,6 +69,7 @@ internal static class Startup
         services.AddSingleton<IAppDomainEvents, AppDomainEvents>();
         services.AddSingleton<AppDomainEventsHandler>();
         services.AddSingleton<HarmonyLogger>();
+        services.AddSingleton<MonoDetourLogger>();
         services.AddSingleton<UnityLogger>();
 
         services.AddSingleton<EnumPatcher>();

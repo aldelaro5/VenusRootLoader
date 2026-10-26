@@ -40,6 +40,11 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
         MethodLogicContainer refreshSkillsContainer = new(refreshSkillsMethod);
         Dictionary<int, string> skillsEnum = BuildEnumValueToNameMapping(gameModuleData, "Skills");
         ExtractRefreshSkills(gameModuleData, refreshSkillsContainer, skillsEnum);
+
+        MethodDefinition checkAchievementMethod = type.Methods
+            .Single(x => x.Name == "CheckAchievement");
+        MethodLogicContainer checkAchievementContainer = new(checkAchievementMethod);
+        ExtractCheckAchievementContainer(gameModuleData, checkAchievementContainer);
     }
 
     private static void ExtractSetText(
@@ -667,5 +672,77 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
             indexStart = ilCursor.Index;
             ilCursor.MatchNext(x => x.Operand is IMethodDefOrRef method && method.Name == "Add");
         }
+    }
+
+    private static void ExtractCheckAchievementContainer(
+        GameModuleData gameModuleData,
+        MethodLogicContainer checkAchievementContainer)
+    {
+        CilInstructionCollection methodIl = checkAchievementContainer.ReceivingMethod.CilMethodBody!.Instructions;
+        AsmResolverIlCursor ilCursor = new(methodIl);
+
+        methodIl.ExpandMacros();
+        ilCursor.MatchNext(x => x.IsConditionalBranch());
+        ilCursor.Index++;
+        ilCursor.MatchNext(x => x.IsConditionalBranch());
+        ilCursor.Index++;
+        int indexStart = ilCursor.Index;
+
+        ilCursor.MatchNext(x => x.Operand is IMethodDefOrRef method && method.Name == "UpdateJounal");
+        while (ilCursor.Index >= 0)
+        {
+            if (methodIl[ilCursor.Index - 2].GetLdcI4Constant() != 3)
+            {
+                ilCursor.Index++;
+                ilCursor.MatchNext(x => x.Operand is IMethodDefOrRef method && method.Name == "UpdateJounal");
+                continue;
+            }
+
+            int recordId = methodIl[ilCursor.Index - 1].GetLdcI4Constant();
+            ilCursor.MatchPrevious(x => x.IsConditionalBranch());
+            CilInstruction lastInstruction = ilCursor.Current();
+            ICilLabel labelContinue = (ICilLabel)lastInstruction.Operand!;
+            ilCursor.Index++;
+            methodIl.Insert(ilCursor.Index, Br, methodIl[ilCursor.Index].CreateLabel());
+            int indexEnd = ilCursor.Index;
+
+            MethodLogicExtractor extractor = new(
+                checkAchievementContainer,
+                new InnerMethodFactory(),
+                gameModuleData.Module.CorLibTypeFactory.Boolean,
+                gameModuleData,
+                $"CheckAchievement_Predicate_{recordId}",
+                methodIl[indexStart],
+                methodIl[indexEnd]);
+            methodIl.CalculateOffsets();
+            extractor.ExtractIl(
+                [],
+                new Dictionary<int, List<CilInstruction>>
+                {
+                    [labelContinue.Offset] = [new(Ldc_I4_0)],
+                    [methodIl[indexEnd + 1].Offset] = [new(Ldc_I4_1)]
+                },
+                null,
+                out _);
+            MethodDefinition innerMethod = extractor.InnerLogic.ReceivingMethod;
+
+            methodIl.ReplaceRange(
+                indexStart,
+                indexEnd,
+                [
+                    new(Ldarg_0),
+                    new(Call, innerMethod),
+                    new(Brfalse, labelContinue)
+                ]);
+
+            methodIl.CalculateOffsets();
+            ilCursor.Index = methodIl.GetIndexByOffset(labelContinue.Offset);
+            ilCursor.MatchNext(x => x.IsConditionalBranch());
+            ilCursor.Index++;
+            indexStart = ilCursor.Index;
+            ilCursor.MatchNext(x => x.Operand is IMethodDefOrRef method && method.Name == "UpdateJounal");
+        }
+
+        methodIl.OptimizeMacros();
     }
 }

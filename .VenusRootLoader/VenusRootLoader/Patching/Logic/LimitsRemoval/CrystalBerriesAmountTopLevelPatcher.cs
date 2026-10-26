@@ -35,7 +35,7 @@ internal sealed class CrystalBerriesAmountTopLevelPatcher : ITopLevelPatcher
     {
         Md.MainManager.SetVariables.ILHook(RemoveCrystalBerriesHardCap);
         Md.MainManager.Load.ILHook(AdjustCrystalBerriesAmountFromSave);
-        Md.MainManager.CheckAchievement.ILHook(AdjustCrystalBerriesRecordCheck);
+        Md.MainManager.CheckAchievement_Predicate_1.ILHook(AdjustCrystalBerriesRecordCheck);
     }
 
     private static void RemoveCrystalBerriesHardCap(ILManipulationInfo info)

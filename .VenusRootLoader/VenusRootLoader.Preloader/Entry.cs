@@ -54,7 +54,7 @@ internal sealed class Entry
     private static ILHook _loaderEntrypointHook = null!;
 
     // These assemblies (especially MonoMod.Core) are force loaded early because there is a known issue with
-    // Unity Mono where if some assemblies are loaded too early, it can lead to crashes.
+    // Unity Mono where if some assemblies are loaded too late, it can lead to crashes.
     // This list is similar to what BepInEx does and they are so core to the modloader that it's not a huge deal
     // to force load them.
     private static readonly List<string> ForceLoadAssemblies =

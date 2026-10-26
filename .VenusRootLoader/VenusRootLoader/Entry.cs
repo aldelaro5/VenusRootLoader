@@ -45,6 +45,9 @@ internal static class Entry
             UnityLogger unityLogger = host.GetRequiredService<UnityLogger>();
             unityLogger.InstallManagedUnityLogger();
 
+            // Needs to be done before the collectors due to the EnumPatcher being needed early.
+            MonoDetour.Interop.HarmonyX.HarmonyXInterop.Initialize();
+
             RunAllCollectors(host);
             Resources.UnloadUnusedAssets();
 

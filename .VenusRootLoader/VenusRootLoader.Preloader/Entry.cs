@@ -72,7 +72,8 @@ internal sealed class Entry
         "0Harmony.dll",
         "com.github.MonoDetour.Reflection.dll",
         "com.github.MonoDetour.Bindings.Reorg.dll",
-        "com.github.MonoDetour.dll"
+        "com.github.MonoDetour.dll",
+        "com.github.MonoDetour.Interop.HarmonyX.dll"
     ];
 
     /// <summary>

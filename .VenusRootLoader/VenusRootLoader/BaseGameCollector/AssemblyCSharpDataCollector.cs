@@ -19,12 +19,6 @@ internal interface IAssemblyCSharpDataCollector
     /// <param name="field">The field inside <c>&lt;PrivateImplementationDetails&gt;</c> to read the array from.</param>
     /// <returns>The array read.</returns>
     int[] ReadIntArrayFromPrivateImplementationDetailField(FieldInfo field);
-
-    /// <summary>
-    /// Obtains all the events' method definitions of the game indexed by their underlying event id.
-    /// </summary>
-    /// <returns>A dictionary of method definitions indexed by their underlying event id.</returns>
-    IList<int> GetEventControlEventsIds();
 }
 
 /// <inheritdoc/>
@@ -35,7 +29,6 @@ internal sealed class AssemblyCSharpDataCollector : IAssemblyCSharpDataCollector
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         internal required AssemblyDefinition AssemblyDefinition { get; init; }
         internal required TypeDefinition PrivateImplementationDetailType { get; init; }
-        internal required TypeDefinition EventControlType { get; init; }
     }
 
     private readonly GameExecutionContext _executionContext;
@@ -65,14 +58,6 @@ internal sealed class AssemblyCSharpDataCollector : IAssemblyCSharpDataCollector
         return data.ToArray();
     }
 
-    public IList<int> GetEventControlEventsIds()
-    {
-        return _assemblyData.EventControlType.Methods
-            .Where(m => m.Name is not null && m.Name.Value.StartsWith("Event"))
-            .Select(m => int.Parse(m.Name!.Value[5..]))
-            .ToList();
-    }
-
     [MemberNotNull(nameof(_assemblyData))]
     private void InitialiseAssemblyData()
     {
@@ -84,15 +69,11 @@ internal sealed class AssemblyCSharpDataCollector : IAssemblyCSharpDataCollector
         TypeDefinition privateImplementationDetailType = assemblyDefinition.ManifestModule!
             .GetAllTypes()
             .Single(t => t.Name == "<PrivateImplementationDetails>");
-        TypeDefinition eventControlType = assemblyDefinition.ManifestModule
-            .GetAllTypes()
-            .Single(t => t.Name == nameof(EventControl));
 
         _assemblyData = new()
         {
             AssemblyDefinition = assemblyDefinition,
-            PrivateImplementationDetailType = privateImplementationDetailType,
-            EventControlType = eventControlType
+            PrivateImplementationDetailType = privateImplementationDetailType
         };
     }
 }

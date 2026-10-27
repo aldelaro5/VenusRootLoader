@@ -336,6 +336,7 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, SetTextCommandsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, MapEntitiesArraysLengthZeroTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, EnemyLogicTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, EventHandlersTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, EventDialoguesTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, SkillsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, ActionCommandsTopLevelPatcher>();

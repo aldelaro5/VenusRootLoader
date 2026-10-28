@@ -61,7 +61,6 @@ internal sealed class ResourcesTopLevelPatcher : ITopLevelPatcher
     {
         if (systemTypeInstance == typeof(Sprite))
             result = _instance._spriteArrayPatcher.PatchResources(path, result.Cast<Sprite>().ToArray());
-
         if (systemTypeInstance == typeof(AudioClip))
             result = _instance._audioClipArrayPatcher.PatchResources(path, result.Cast<AudioClip>().ToArray());
     }

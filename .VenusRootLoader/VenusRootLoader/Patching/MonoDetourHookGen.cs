@@ -11,4 +11,7 @@ using UnityEngine;
 [assembly: MonoDetourTargets(typeof(PauseMenu))]
 [assembly: MonoDetourTargets(typeof(InputIOManager.InputIO), GenerateControlFlowVariants = true)]
 [assembly: MonoDetourTargets(typeof(Hazards))]
+[assembly: MonoDetourTargets(typeof(SoundControl))]
+[assembly: MonoDetourTargets(typeof(MusicSpinner))]
+[assembly: MonoDetourTargets(typeof(FishingMain))]
 [assembly: MonoDetourTargets(typeof(AttributeHelperEngine), GenerateControlFlowVariants = true)]

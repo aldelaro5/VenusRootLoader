@@ -98,6 +98,8 @@ internal static class Startup
         services.AddAutoSequentialIdBasedLeavesRegistryWithOrdering<DiscoveryLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistryWithOrdering<RecordLeaf>();
         services.AddAutoSequentialIdBasedLeavesRegistry<TermacadePrizeLeaf>();
+        services.AddAutoSequentialIdBasedLeavesRegistry<SoundLeaf>(
+            effectiveIdComparer: StringComparer.InvariantCultureIgnoreCase);
         services.AddEnumBasedLeavesRegistry<MusicLeaf, MainManager.Musics>(
             0,
             StringComparer.InvariantCultureIgnoreCase);
@@ -140,6 +142,11 @@ internal static class Startup
 
         services.AddSingleton<IAudioClipPatcher, MusicAudioClipPatcher>(provider =>
             new([ResourcesPaths.AudioMusicDirectory], provider.GetRequiredService<ILeavesRegistry<MusicLeaf>>()));
+
+        services.AddSingleton<IAudioClipPatcher, SoundAudioClipPatcher>(provider =>
+            new([ResourcesPaths.AudioSoundsDirectory], provider.GetRequiredService<ILeavesRegistry<SoundLeaf>>()));
+        services.AddSingleton<IAudioClipArrayPatcher, SoundAudioClipArrayPatcher>(provider =>
+            new([ResourcesPaths.AudioSoundsDirectory], provider.GetRequiredService<ILeavesRegistry<SoundLeaf>>()));
 
         services.AddSingleton<ITextAssetDumper, TextAssetDumper>();
 
@@ -273,6 +280,7 @@ internal static class Startup
         services.AddScoped<IBaseGameCollector, RecordsCollector>();
         services.AddScoped<IBaseGameCollector, TermacadePrizesCollector>();
         services.AddScoped<IBaseGameCollector, MusicsCollector>();
+        services.AddScoped<IBaseGameCollector, SoundsCollector>();
         services.AddScoped<IBaseGameCollector, QuestsCollector>();
         services.AddScoped<IBaseGameCollector, RankBonusesCollector>();
         services.AddScoped<IBaseGameCollector, LoreBooksCollector>();
@@ -341,6 +349,7 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, SkillsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, ActionCommandsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, BattleHelpersTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, AdditionalAudioClipTopLevelPatcher>();
 
         services.AddSingleton<ITopLevelPatcher, BudLoaderTopLevelPatcher>();
 

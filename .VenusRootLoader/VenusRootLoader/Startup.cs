@@ -221,9 +221,6 @@ internal static class Startup
         services.AddLocalizedTextAssetPatcher<QuestLeaf, QuestLocalizedTextAssetParser>(
             [ResourcesPaths.DataLocalizedQuestsPathSuffix]);
 
-        services.AddTextAssetPatcherBoundToList<RankBonusLeaf, RankBonusTextAssetParser>(
-            [ResourcesPaths.DataRankBonusesPath]);
-
         services.AddLocalizedTextAssetPatcher<LoreBookLeaf, LoreBookLocalizedTextAssetParser>(
         [
             ResourcesPaths.DataLocalizedLoreBooksPathSuffix,
@@ -238,6 +235,9 @@ internal static class Startup
         services.AddTextAssetPatcherBoundToRegistry<SkillLeaf, SkillTextAssetParser>([ResourcesPaths.DataSkillsPath]);
         services.AddLocalizedTextAssetPatcher<SkillLeaf, SkillLocalizedTextAssetParser>(
             [ResourcesPaths.DataLocalizedSkillsPathSuffix]);
+
+        services.AddTextAssetPatcherBoundToList<RankBonusLeaf, RankBonusTextAssetParser>(
+            [ResourcesPaths.DataRankBonusesPath]);
 
         services.AddLocalizedTextAssetPatcher<FishingTextLeaf, FishingTextLocalizedTextAssetParser>(
             [ResourcesPaths.DataLocalizedFishingTextsPathSuffix]);
@@ -288,10 +288,10 @@ internal static class Startup
         services.AddScoped<IBaseGameCollector, MusicsCollector>();
         services.AddScoped<IBaseGameCollector, SoundsCollector>();
         services.AddScoped<IBaseGameCollector, QuestsCollector>();
-        services.AddScoped<IBaseGameCollector, RankBonusesCollector>();
         services.AddScoped<IBaseGameCollector, LoreBooksCollector>();
         services.AddScoped<IBaseGameCollector, SkillActionCommandHelpTextsCollector>();
         services.AddScoped<IBaseGameCollector, SkillsCollector>();
+        services.AddScoped<IBaseGameCollector, RankBonusesCollector>();
         services.AddScoped<IBaseGameCollector, FishingTextsCollector>();
         services.AddScoped<IBaseGameCollector, SpyCardsTextsCollector>();
         services.AddScoped<IBaseGameCollector, SpyCardsCollector>();

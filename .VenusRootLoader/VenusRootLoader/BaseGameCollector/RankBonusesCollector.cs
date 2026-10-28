@@ -1,8 +1,8 @@
+using CommunityToolkit.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VenusRootLoader.Api;
 using VenusRootLoader.Api.Leaves.RankBonuses;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
-using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.BaseGameCollector;
@@ -29,8 +29,18 @@ internal sealed class RankBonusesCollector : IBaseGameCollector
     {
         foreach (string rankBonusString in _rankBonusesData)
         {
+            string[] split = rankBonusString.Split(StringUtils.CommaSplitDelimiter);
+            int bonusType = int.Parse(split[1]);
             int gameId = _rankBonusesList.Count;
-            RankBonusLeaf rankBonusLeaf = new(gameId, Constants.BaseGameCreatorId, gameId.ToString());
+
+            RankBonusLeaf rankBonusLeaf = bonusType switch
+            {
+                0 => new SkillGrantRankBonusLeaf(gameId, Constants.BaseGameCreatorId, gameId.ToString()),
+                1 => new PartyMemberStatRankBonusLeaf(gameId, Constants.BaseGameCreatorId, gameId.ToString()),
+                2 => new WholePartyStatRankBonusLeaf(gameId, Constants.BaseGameCreatorId, gameId.ToString()),
+                3 => new InventoryCapacityRankBonusLeaf(gameId, Constants.BaseGameCreatorId, gameId.ToString()),
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<RankBonusLeaf>()
+            };
             _rankBonusTextAssetParser.FromTextAssetSerializedString(
                 ResourcesPaths.DataRankBonusesPath,
                 rankBonusString,

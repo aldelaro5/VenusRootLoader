@@ -1,6 +1,9 @@
+using VenusRootLoader.SourceGenerators;
+
 namespace VenusRootLoader.Api.Leaves.RankBonuses;
 
 // We need to make this API easier instead of having 3 parameter values
+[ExposeCreateFromVenus]
 public class RankBonusLeaf : Leaf
 {
     internal enum RankBonusType

@@ -1,5 +1,5 @@
 using System.Text;
-using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Api.Leaves.RankBonuses;
 using VenusRootLoader.Utility;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers.GlobalData;
@@ -13,13 +13,13 @@ internal sealed class RankBonusTextAssetParser : ITextAssetParser<RankBonusLeaf>
 
         sb.Append(leaf.RankNeeded);
         sb.Append(',');
-        sb.Append((int)leaf.BonusType);
+        sb.Append((int)leaf.InternalBonusType);
         sb.Append(',');
-        sb.Append(leaf.FirstParameter);
+        sb.Append(leaf.InternalFirstParameter);
         sb.Append(',');
-        sb.Append(leaf.SecondParameter);
+        sb.Append(leaf.InternalSecondParameter);
         sb.Append(',');
-        sb.Append(leaf.ThirdParameter);
+        sb.Append(leaf.InternalThirdParameter);
 
         return sb.ToString();
     }
@@ -29,9 +29,9 @@ internal sealed class RankBonusTextAssetParser : ITextAssetParser<RankBonusLeaf>
         string[] split = text.Split(StringUtils.CommaSplitDelimiter);
 
         leaf.RankNeeded = int.Parse(split[0]);
-        leaf.BonusType = (RankBonusLeaf.RankBonusType)int.Parse(split[1]);
-        leaf.FirstParameter = int.Parse(split[2]);
-        leaf.SecondParameter = int.Parse(split[3]);
-        leaf.ThirdParameter = int.Parse(split[4]);
+        leaf.InternalBonusType = (RankBonusLeaf.RankBonusType)int.Parse(split[1]);
+        leaf.InternalFirstParameter = int.Parse(split[2]);
+        leaf.InternalSecondParameter = int.Parse(split[3]);
+        leaf.InternalThirdParameter = int.Parse(split[4]);
     }
 }

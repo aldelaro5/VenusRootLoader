@@ -3,7 +3,6 @@ using System.Text;
 using UnityEngine;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
-using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Patching.Resources.TextAssetPatchers;
 
@@ -39,37 +38,37 @@ internal sealed class TextAssetPatcher<TLeaf> : ITextAssetPatcher
 {
     private readonly ILogger<TextAssetPatcher<TLeaf>> _logger;
     private readonly ITextAssetDumper _textAssetDumper;
-    private readonly ILeavesRegistry<TLeaf> _registry;
+    private readonly IEnumerable<TLeaf> _leaves;
     private readonly ITextAssetParser<TLeaf> _parser;
-    private readonly Func<ILeavesRegistry<TLeaf>, IEnumerable<TLeaf>>? _leavesSorter;
+    private readonly Func<IEnumerable<TLeaf>, IEnumerable<TLeaf>>? _leavesSorter;
 
     public TextAssetPatcher(
         string[] subPaths,
         ILogger<TextAssetPatcher<TLeaf>> logger,
         ITextAssetDumper textAssetDumper,
-        ILeavesRegistry<TLeaf> registry,
+        IEnumerable<TLeaf> leaves,
         ITextAssetParser<TLeaf> parser,
-        Func<ILeavesRegistry<TLeaf>, IEnumerable<TLeaf>>? leavesSorter)
+        Func<IEnumerable<TLeaf>, IEnumerable<TLeaf>>? leavesSorter)
     {
         SubPaths = subPaths;
         _leavesSorter = leavesSorter;
         _logger = logger;
         _parser = parser;
         _textAssetDumper = textAssetDumper;
-        _registry = registry;
+        _leaves = leaves;
     }
 
     public string[] SubPaths { get; }
 
     public TextAsset PatchTextAsset(string path, TextAsset original)
     {
-        bool registryHasData = _registry.Count > 0;
+        bool registryHasData = _leaves.Any();
         if (!registryHasData)
             return original;
 
         IEnumerable<TLeaf> sortedLeaves = _leavesSorter is null
-            ? _registry.OrderBy(l => l.GameId)
-            : _leavesSorter(_registry);
+            ? _leaves.OrderBy(l => l.GameId)
+            : _leavesSorter(_leaves);
         IEnumerable<string> newLines = sortedLeaves
             .Select(customLine => _parser.GetTextAssetSerializedString(path, customLine));
 

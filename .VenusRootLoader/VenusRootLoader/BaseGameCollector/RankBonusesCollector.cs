@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
-using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Api;
+using VenusRootLoader.Api.Leaves.RankBonuses;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers.Parsers;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
@@ -8,36 +9,35 @@ namespace VenusRootLoader.BaseGameCollector;
 
 internal sealed class RankBonusesCollector : IBaseGameCollector
 {
-    private readonly string[] _rankBonusesData =
-        RootCollector.ReadTextAssetLines(ResourcesPaths.DataRankBonusesPath);
+    private readonly string[] _rankBonusesData = RootCollector.ReadTextAssetLines(ResourcesPaths.DataRankBonusesPath);
 
     private readonly ILogger<RankBonusesCollector> _logger;
-    private readonly ILeavesRegistry<RankBonusLeaf> _rankBonusesRegistry;
+    private readonly ILeafList<RankBonusLeaf> _rankBonusesList;
     private readonly ITextAssetParser<RankBonusLeaf> _rankBonusTextAssetParser;
 
     public RankBonusesCollector(
         ILogger<RankBonusesCollector> logger,
-        ILeavesRegistry<RankBonusLeaf> rankBonusesRegistry,
+        ILeafList<RankBonusLeaf> rankBonusesList,
         ITextAssetParser<RankBonusLeaf> rankBonusTextAssetParser)
     {
         _logger = logger;
-        _rankBonusesRegistry = rankBonusesRegistry;
+        _rankBonusesList = rankBonusesList;
         _rankBonusTextAssetParser = rankBonusTextAssetParser;
     }
 
     public void CollectBaseGameData()
     {
-        for (int i = 0; i < _rankBonusesData.Length; i++)
+        foreach (string rankBonusString in _rankBonusesData)
         {
-            string rankBonusString = _rankBonusesData[i];
-            RankBonusLeaf rankBonusLeaf =
-                _rankBonusesRegistry.RegisterExisting(i, i.ToString());
+            int gameId = _rankBonusesList.Count;
+            RankBonusLeaf rankBonusLeaf = new(gameId, Constants.BaseGameCreatorId, gameId.ToString());
             _rankBonusTextAssetParser.FromTextAssetSerializedString(
                 ResourcesPaths.DataRankBonusesPath,
                 rankBonusString,
                 rankBonusLeaf);
+            _rankBonusesList.Add(rankBonusLeaf);
         }
 
-        RootCollector.LogCollectedAmount(_logger, _rankBonusesRegistry, _rankBonusesData.Length);
+        RootCollector.LogCollectedAmount<RankBonusLeaf>(_logger, _rankBonusesData.Length);
     }
 }

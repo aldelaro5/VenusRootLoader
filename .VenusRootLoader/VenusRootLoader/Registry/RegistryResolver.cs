@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using VenusRootLoader.Api;
 using VenusRootLoader.Api.Leaves;
 
 namespace VenusRootLoader.Registry;
@@ -33,5 +34,11 @@ internal static class RegistryResolver
         where TLeaf : Leaf
     {
         return _serviceProvider.GetRequiredService<IOrderedLeavesRegistry<TLeaf>>();
+    }
+
+    internal static ILeafList<TLeaf> ResolveList<TLeaf>()
+        where TLeaf : Leaf
+    {
+        return _serviceProvider.GetRequiredService<ILeafList<TLeaf>>();
     }
 }

@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
 
@@ -57,15 +58,27 @@ internal sealed class RootCollector
         return localizedLines;
     }
 
-    internal static void LogCollectedAmount(
+    internal static void LogCollectedAmount<TLeaf>(
         Microsoft.Extensions.Logging.ILogger logger,
-        ILeavesRegistry registry,
+        ILeavesRegistry<TLeaf> registry,
         int amount)
+        where TLeaf : Leaf
     {
         logger.LogInformation(
             "Collected and registered {amount} base game {registryName}",
             amount,
             registry.RegistryName);
+    }
+
+    internal static void LogCollectedAmount<TLeaf>(
+        Microsoft.Extensions.Logging.ILogger logger,
+        int amount)
+        where TLeaf : Leaf
+    {
+        logger.LogInformation(
+            "Collected and registered {amount} base game {registryName}",
+            amount,
+            typeof(TLeaf).Name);
     }
 
     internal static TDelegate CreateOpenDelegateFromMethod<TDelegate>(MethodInfo method)

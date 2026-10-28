@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using VenusRootLoader.Api;
 using VenusRootLoader.Api.Leaves;
 using VenusRootLoader.Patching;
 using VenusRootLoader.Patching.Resources.TextAssetPatchers;
@@ -120,26 +121,60 @@ internal static class ServiceCollectionExtensions
         }
 
         /// <summary>
-        /// Adds an <see cref="ITextAssetPatcher"/> and a matching <see cref="ITextAssetParser{T}"/> to the service collection.
+        /// Adds an <see cref="ITextAssetPatcher"/> and a matching <see cref="ITextAssetParser{T}"/> to the service collection
+        /// where the leaves are pulled from their registry.
         /// </summary>
         /// <param name="textAssetResourcesPath">The resources paths that the patcher and parser can handle.</param>
-        /// <param name="leavesSorter">A calback to determine the order of the leaves as they appear in the TextAsset
+        /// <param name="leavesSorter">A callback to determine the order of the leaves as they appear in the TextAsset
         /// if they do not follow their <see cref="Leaf.GameId"/> order.</param>
         /// <typeparam name="TLeaf">The type of <see cref="Leaf"/> to patch.</typeparam>
         /// <typeparam name="TTextAssetParser">The matching <see cref="ITextAssetParser{T}"/> that can handle the leaves.</typeparam>
         /// <returns>The service collection.</returns>
-        internal IServiceCollection AddTextAssetPatcher<TLeaf, TTextAssetParser>(
+        internal IServiceCollection AddTextAssetPatcherBoundToRegistry<TLeaf, TTextAssetParser>(
             string[] textAssetResourcesPath,
-            Func<ILeavesRegistry<TLeaf>, IEnumerable<TLeaf>>? leavesSorter = null)
+            Func<IEnumerable<TLeaf>, IEnumerable<TLeaf>>? leavesSorter = null)
             where TLeaf : Leaf
             where TTextAssetParser : class, ITextAssetParser<TLeaf>
+        {
+            return collection.ServiceCollection<TLeaf, TTextAssetParser, ILeavesRegistry<TLeaf>>(
+                textAssetResourcesPath,
+                leavesSorter);
+        }
+
+        /// <summary>
+        /// Adds an <see cref="ITextAssetPatcher"/> and a matching <see cref="ITextAssetParser{T}"/> to the service collection.
+        /// where the leaves are pulled from their list.
+        /// </summary>
+        /// <param name="textAssetResourcesPath">The resources paths that the patcher and parser can handle.</param>
+        /// <param name="leavesSorter">A callback to determine the order of the leaves as they appear in the TextAsset
+        /// if they do not follow their <see cref="Leaf.GameId"/> order.</param>
+        /// <typeparam name="TLeaf">The type of <see cref="Leaf"/> to patch.</typeparam>
+        /// <typeparam name="TTextAssetParser">The matching <see cref="ITextAssetParser{T}"/> that can handle the leaves.</typeparam>
+        /// <returns>The service collection.</returns>
+        internal IServiceCollection AddTextAssetPatcherBoundToList<TLeaf, TTextAssetParser>(
+            string[] textAssetResourcesPath,
+            Func<IEnumerable<TLeaf>, IEnumerable<TLeaf>>? leavesSorter = null)
+            where TLeaf : Leaf
+            where TTextAssetParser : class, ITextAssetParser<TLeaf>
+        {
+            return collection.ServiceCollection<TLeaf, TTextAssetParser, ILeafList<TLeaf>>(
+                textAssetResourcesPath,
+                leavesSorter);
+        }
+
+        private IServiceCollection ServiceCollection<TLeaf, TTextAssetParser, TLeafEnumerable>(
+            string[] textAssetResourcesPath,
+            Func<IEnumerable<TLeaf>, IEnumerable<TLeaf>>? leavesSorter)
+            where TLeaf : Leaf
+            where TTextAssetParser : class, ITextAssetParser<TLeaf>
+            where TLeafEnumerable : class, IEnumerable<TLeaf>
         {
             collection.AddSingleton<ITextAssetParser<TLeaf>, TTextAssetParser>();
             collection.AddSingleton<ITextAssetPatcher, TextAssetPatcher<TLeaf>>(provider => new(
                 textAssetResourcesPath,
                 provider.GetRequiredService<ILogger<TextAssetPatcher<TLeaf>>>(),
                 provider.GetRequiredService<ITextAssetDumper>(),
-                provider.GetRequiredService<ILeavesRegistry<TLeaf>>(),
+                provider.GetRequiredService<TLeafEnumerable>(),
                 provider.GetRequiredService<ITextAssetParser<TLeaf>>(),
                 leavesSorter));
             return collection;

@@ -5,7 +5,17 @@ using VenusRootLoader.BaseGameCollector;
 
 namespace VenusRootLoader.Registry;
 
-internal interface ILeavesRegistry
+/// <summary>
+/// A <see cref="Leaf"/> registry is an in memory database of every leaves that were either
+/// registered by an <see cref="IBaseGameCollector"/> or by a <see cref="Bud"/>.
+/// The goal of the registry is to become the single source of truth for all buds and the game itself.
+/// This has the interesting property that any operations done on a registry or its leaves will be the same
+/// no matter where a leaf comes from. More concretely, it means that editing or registering a base game leaf
+/// is the same operation as editing or registering a custom leaf (even if that custom leaf wasn't authored by the
+/// bud who edits it).
+/// </summary>
+/// <typeparam name="TLeaf">The <see cref="Leaf"/> type this registry manages.</typeparam>
+internal interface ILeavesRegistry<TLeaf> : IEnumerable<TLeaf> where TLeaf : Leaf
 {
     /// <summary>
     /// A display string that tells what this registry holds.
@@ -19,20 +29,7 @@ internal interface ILeavesRegistry
     /// <summary>Gets the number of leaves from the base game contained in the registry.</summary>
     /// <returns>The number of leaves from the base game contained in the registry.</returns>
     int CountBaseGame { get; }
-}
 
-/// <summary>
-/// A <see cref="Leaf"/> registry is an in memory database of every leaves that were either
-/// registred by an <see cref="IBaseGameCollector"/> or by a <see cref="Bud"/>.
-/// The goal of the registry is to become the single source of truth for all buds and the game itself.
-/// This has the interesting property that any operations done on a registry or its leaves will be the same
-/// no matter where a leaf comes from. More concretely, it means that editing or registering a base game leaf
-/// is the same operation as editing or registering a custom leaf (even if that custom leaf wasn't authored by the
-/// bud who edits it).
-/// </summary>
-/// <typeparam name="TLeaf">The <see cref="Leaf"/> type this registry manages.</typeparam>
-internal interface ILeavesRegistry<TLeaf> : ILeavesRegistry, IEnumerable<TLeaf> where TLeaf : Leaf
-{
     /// <summary>
     /// The equality comparer used for <see cref="Leaf.EffectiveId"/> comparison.
     /// </summary>

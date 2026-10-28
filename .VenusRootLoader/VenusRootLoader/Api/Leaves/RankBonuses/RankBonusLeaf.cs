@@ -1,7 +1,7 @@
-namespace VenusRootLoader.Api.Leaves;
+namespace VenusRootLoader.Api.Leaves.RankBonuses;
 
 // We need to make this API easier instead of having 3 parameter values
-internal sealed class RankBonusLeaf : Leaf
+public class RankBonusLeaf : Leaf
 {
     internal enum RankBonusType
     {
@@ -15,9 +15,9 @@ internal sealed class RankBonusLeaf : Leaf
     {
     }
 
-    internal int RankNeeded { get; set; }
-    internal RankBonusType BonusType { get; set; }
-    internal int FirstParameter { get; set; }
-    internal int SecondParameter { get; set; }
-    internal int ThirdParameter { get; set; }
+    public int RankNeeded { get; set; }
+    internal RankBonusType InternalBonusType { get; set; }
+    internal int InternalFirstParameter { get; set; }
+    internal int InternalSecondParameter { get; set; }
+    internal int InternalThirdParameter { get; set; }
 }

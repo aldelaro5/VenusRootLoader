@@ -35,7 +35,7 @@ internal sealed class RankBonusesCollector : IBaseGameCollector
 
             RankBonusLeaf rankBonusLeaf = bonusType switch
             {
-                0 => new SkillGrantRankBonusLeaf(gameId, Constants.BaseGameCreatorId, gameId.ToString()),
+                0 => new SkillLearnRankBonusLeaf(gameId, Constants.BaseGameCreatorId, gameId.ToString()),
                 1 => new PartyMemberStatRankBonusLeaf(gameId, Constants.BaseGameCreatorId, gameId.ToString()),
                 2 => new WholePartyStatRankBonusLeaf(gameId, Constants.BaseGameCreatorId, gameId.ToString()),
                 3 => new InventoryCapacityRankBonusLeaf(gameId, Constants.BaseGameCreatorId, gameId.ToString()),
@@ -45,6 +45,15 @@ internal sealed class RankBonusesCollector : IBaseGameCollector
                 ResourcesPaths.DataRankBonusesPath,
                 rankBonusString,
                 rankBonusLeaf);
+
+            if (rankBonusLeaf is SkillLearnRankBonusLeaf skillLearn)
+            {
+                // IceDrill is usable by Beetle and Moth, but there's only a rank bonus for Beetle in the base game.
+                skillLearn.Learner = skillLearn.Skill.NamedId == nameof(MainManager.Skills.IceDrill)
+                    ? SkillLearner.Beetle
+                    : SkillLearner.AllSkillUsers;
+            }
+
             _rankBonusesList.Add(rankBonusLeaf);
         }
 

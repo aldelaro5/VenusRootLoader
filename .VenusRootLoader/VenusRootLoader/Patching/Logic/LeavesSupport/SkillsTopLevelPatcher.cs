@@ -4,7 +4,9 @@ using MonoDetour.DetourTypes;
 using MonoMod.Cil;
 using System.Collections;
 using System.Reflection;
+using VenusRootLoader.Api;
 using VenusRootLoader.Api.Leaves;
+using VenusRootLoader.Api.Leaves.RankBonuses;
 using VenusRootLoader.Extensions;
 using VenusRootLoader.Registry;
 using VenusRootLoader.Utility;
@@ -29,11 +31,15 @@ internal sealed class SkillsTopLevelPatcher : ITopLevelPatcher
     private static SkillsTopLevelPatcher _instance = null!;
 
     private readonly IOrderedLeavesRegistry<SkillLeaf> _skillsRegistry;
+    private readonly ILeafList<RankBonusLeaf> _rankBonusesList;
 
-    public SkillsTopLevelPatcher(IOrderedLeavesRegistry<SkillLeaf> skillsRegistry)
+    public SkillsTopLevelPatcher(
+        IOrderedLeavesRegistry<SkillLeaf> skillsRegistry,
+        ILeafList<RankBonusLeaf> rankBonusesList)
     {
         _instance = this;
         _skillsRegistry = skillsRegistry;
+        _rankBonusesList = rankBonusesList;
     }
 
     public void Patch()
@@ -54,6 +60,8 @@ internal sealed class SkillsTopLevelPatcher : ITopLevelPatcher
             foreach (SkillLeaf skillLeaf in skillLeaves)
             {
                 if (!IsSkillUsableByPlayerPartyMember(skillLeaf, trueId))
+                    continue;
+                if (IsSkillLockedByRankBonus(skillLeaf, trueId))
                     continue;
                 if (!(skillLeaf.UsabilityPredicate?.Invoke(context) ?? false))
                     continue;
@@ -79,6 +87,19 @@ internal sealed class SkillsTopLevelPatcher : ITopLevelPatcher
             SkillLeaf.SkillUsability.BeetleAndMoth => trueId is 1 or 2,
             _ => ThrowHelper.ThrowArgumentException<bool>()
         };
+    }
+
+    private static bool IsSkillLockedByRankBonus(SkillLeaf skillLeaf, int trueId)
+    {
+        // In case of ambiguity, we take the one requiring the highest rank.
+        RankBonusLeaf? highestRankBonusSkill = _instance._rankBonusesList
+            .OfType<SkillLearnRankBonusLeaf>()
+            .Where(x => x.Skill == skillLeaf && x.GetSkillLearnerTrueIds().Contains(trueId))
+            .OrderByDescending(x => x.RankNeeded)
+            .FirstOrDefault();
+
+        return highestRankBonusSkill is not null
+               && MainManager.instance.partylevel < highestRankBonusSkill.RankNeeded;
     }
 
     private static void PatchPlayerAction(ILManipulationInfo info)

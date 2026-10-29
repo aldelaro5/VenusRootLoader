@@ -11,15 +11,37 @@ internal sealed class RankBonusTextAssetParser : ITextAssetParser<RankBonusLeaf>
     {
         StringBuilder sb = new();
 
-        sb.Append(leaf.RankNeeded);
-        sb.Append(',');
-        sb.Append((int)leaf.InternalBonusType);
-        sb.Append(',');
-        sb.Append(leaf.InternalFirstParameter);
-        sb.Append(',');
-        sb.Append(leaf.InternalSecondParameter);
-        sb.Append(',');
-        sb.Append(leaf.InternalThirdParameter);
+        if (leaf is SkillLearnRankBonusLeaf skillLearnRankBonusLeaf)
+        {
+            // If multiple party members learns the same skill at once, we translate this by having multiple skill grant
+            // bonuses, one for each party members that learns it. The game will show every message in a row.
+            foreach (int skillLearnerTrueId in skillLearnRankBonusLeaf.GetSkillLearnerTrueIds())
+            {
+                if (sb.Length > 0)
+                    sb.Append('\n');
+                sb.Append(leaf.RankNeeded);
+                sb.Append(',');
+                sb.Append((int)leaf.InternalBonusType);
+                sb.Append(',');
+                sb.Append(skillLearnerTrueId);
+                sb.Append(',');
+                sb.Append(leaf.InternalSecondParameter);
+                sb.Append(',');
+                sb.Append(leaf.InternalThirdParameter);
+            }
+        }
+        else
+        {
+            sb.Append(leaf.RankNeeded);
+            sb.Append(',');
+            sb.Append((int)leaf.InternalBonusType);
+            sb.Append(',');
+            sb.Append(leaf.InternalFirstParameter);
+            sb.Append(',');
+            sb.Append(leaf.InternalSecondParameter);
+            sb.Append(',');
+            sb.Append(leaf.InternalThirdParameter);
+        }
 
         return sb.ToString();
     }

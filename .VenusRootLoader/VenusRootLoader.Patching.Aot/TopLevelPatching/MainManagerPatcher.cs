@@ -541,6 +541,18 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
                         new(instructionBefore.OpCode, instructionBefore.Operand)
                     ]);
             }
+            else if (ilCursor.Current().OpCode == Blt)
+            {
+                // This means this is a playerlevel comparison which we want to exclude from the predicates. To do this,
+                // we'll insert a dummy condition after it and have the extractor only take this part.
+                ilCursor.Index++;
+                methodIl.InsertRange(
+                    ilCursor.Index,
+                    [
+                        new(Ldc_I4_1),
+                        new(Brfalse, new CilInstructionLabel(instructionAfter))
+                    ]);
+            }
 
             ilCursor.MatchNext(x => x.Operand is IMethodDefOrRef method && method.Name == "Add");
             ilCursor.Index++;
@@ -625,6 +637,9 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
         {
             int skillId = methodIl[ilCursor.Index - 1].GetLdcI4Constant();
             ilCursor.MatchPrevious(x => x.IsConditionalBranch());
+            // This is a playerlevel comparison so we skip that portion in the extractor.
+            if (methodIl[ilCursor.Index - 2].OpCode == Blt)
+                indexStart = ilCursor.Index - 1;
             CilInstruction lastInstruction = ilCursor.Current();
             ICilLabel labelContinue = (ICilLabel)lastInstruction.Operand!;
             ilCursor.Index++;

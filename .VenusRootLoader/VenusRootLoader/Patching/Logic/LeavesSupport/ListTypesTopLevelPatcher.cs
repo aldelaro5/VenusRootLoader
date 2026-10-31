@@ -11,8 +11,8 @@ namespace VenusRootLoader.Patching.Logic.LeavesSupport;
 /// <p>
 /// It patches the following:
 /// <list type="bullet">
-/// <item><see cref="MainManager.ShowItemList"/>: Changes the setup and render switches to reflect the delegates from the
-/// <see cref="ListTypeLeaf"/> registry.</item>
+/// <item><see cref="MainManager.ShowItemList"/>: Changes the setup, render and description switches to reflect the delegates
+/// from the <see cref="ListTypeLeaf"/> registry.</item>
 /// </list>
 /// </p>
 /// </summary>
@@ -66,6 +66,20 @@ internal sealed class ListTypesTopLevelPatcher : ITopLevelPatcher
         cursor.EmitDelegate(ShowItemListRendererHook);
         cursor.EmitBr(switchRenderEndLabel);
         cursor.EmitLdarg0();
+
+        cursor.GotoNext(x => x.MatchLdsfld<MainManager>(nameof(MainManager.listdescbox)));
+        cursor.GotoNext(x => x.MatchSwitch(out _));
+        cursor.Index++;
+        ILLabel switchDescriptionRenderEndLabel = (ILLabel)cursor.Current.Operand;
+        cursor.GotoPrev(x => x.MatchStfld(out _));
+        int contextDescriptionRenderLocalIndex = 0;
+        cursor.GotoNext(x => x.MatchStloc(out contextDescriptionRenderLocalIndex));
+        cursor.Index++;
+        cursor.EmitLdloc(contextDescriptionRenderLocalIndex);
+        cursor.Index++;
+        cursor.EmitDelegate(ShowItemListDescriptionRendererHook);
+        cursor.EmitBr(switchDescriptionRenderEndLabel);
+        cursor.EmitLdarg0();
     }
 
     private static void ShowItemListSetupHandlerHook(MainManager.ShowItemListSetupContext context, int listTypeGameId)
@@ -76,5 +90,12 @@ internal sealed class ListTypesTopLevelPatcher : ITopLevelPatcher
     private static void ShowItemListRendererHook(MainManager.ShowItemListRenderContext context, int listTypeGameId)
     {
         _instance._listTypesRegistry.GetByGameId(listTypeGameId).Renderer?.Invoke(context);
+    }
+
+    private static void ShowItemListDescriptionRendererHook(
+        MainManager.ShowItemListDescriptionRenderContext context,
+        int listTypeGameId)
+    {
+        _instance._listTypesRegistry.GetByGameId(listTypeGameId).DescriptionRenderer?.Invoke(context);
     }
 }

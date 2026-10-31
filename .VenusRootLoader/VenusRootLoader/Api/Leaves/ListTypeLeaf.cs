@@ -10,12 +10,15 @@ public sealed class ListTypeLeaf : Leaf
 
     public delegate void ListTypeRenderer(MainManager.ShowItemListRenderContext context);
 
+    public delegate void ListTypeDescriptionRenderer(MainManager.ShowItemListDescriptionRenderContext context);
+
     internal ListTypeLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {
     }
 
     public ListTypeSetupHandler SetupHandler { get; set; } = null!;
     public ListTypeRenderer? Renderer { get; set; }
+    public ListTypeDescriptionRenderer? DescriptionRenderer { get; set; }
 
     [LeafInitializeFromNew]
     internal void InitializeFromNew(ListTypeSetupHandler setupHandler, ListTypeRenderer? renderer)

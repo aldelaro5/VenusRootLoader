@@ -31,6 +31,11 @@ internal sealed class ListTypesCollector : IBaseGameCollector
                 nameof(MainManager.ShowItemList),
                 "Render")
             .ToDictionary(x => int.Parse(x.Key.Replace('m', '-'), CultureInfo.InvariantCulture), x => x.Value);
+        Dictionary<int, MethodInfo> listTypeDescriptionRenderers = RootCollector.GetLeavesMethods(
+                typeof(MainManager),
+                nameof(MainManager.ShowItemList),
+                "DescriptionRender")
+            .ToDictionary(x => int.Parse(x.Key.Replace('m', '-'), CultureInfo.InvariantCulture), x => x.Value);
 
         foreach (int gameId in listTypeSetupHandlers.Keys.OrderBy(x => x))
         {
@@ -47,6 +52,13 @@ internal sealed class ListTypesCollector : IBaseGameCollector
             {
                 listTypeLeaf.Renderer =
                     RootCollector.CreateOpenDelegateFromMethod<ListTypeLeaf.ListTypeRenderer>(methodRenderer);
+            }
+
+            if (listTypeDescriptionRenderers.TryGetValue(gameId, out MethodInfo methodDescriptionRenderer))
+            {
+                listTypeLeaf.DescriptionRenderer =
+                    RootCollector.CreateOpenDelegateFromMethod<ListTypeLeaf.ListTypeDescriptionRenderer>(
+                        methodDescriptionRenderer);
             }
         }
 

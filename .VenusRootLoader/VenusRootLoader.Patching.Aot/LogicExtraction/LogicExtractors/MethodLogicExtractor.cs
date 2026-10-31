@@ -19,6 +19,8 @@ namespace VenusRootLoader.Patching.Aot.LogicExtraction.LogicExtractors;
 /// </summary>
 public sealed class MethodLogicExtractor : LogicExtractor<MethodLogicContainer, MethodLogicContainer>
 {
+    private readonly Dictionary<object, int> _logicParametersMapping = new();
+
     private ControlFlowGraph<Statement<CilInstruction>> _outerAst = null!;
     private CompilationUnit<CilInstruction> _compilationUnit = null!;
 
@@ -42,6 +44,7 @@ public sealed class MethodLogicExtractor : LogicExtractor<MethodLogicContainer, 
     public MethodLogicExtractor(
         MethodLogicContainer outerLogic,
         IInnerLogicContainerWithReturnFactory<MethodLogicContainer, MethodLogicContainer> innerLogicContainerFactory,
+        List<LogicParameter> logicParameters,
         TypeSignature returnType,
         GameModuleData gameModuleData,
         string methodName,
@@ -50,12 +53,19 @@ public sealed class MethodLogicExtractor : LogicExtractor<MethodLogicContainer, 
         : base(
             outerLogic,
             innerLogicContainerFactory,
+            logicParameters,
             returnType,
             gameModuleData,
             methodName,
             innerFirstInstruction,
             innerLastInstruction)
     {
+        for (int i = 0; i < logicParameters.Count; i++)
+        {
+            LogicParameter logicParameter = logicParameters[i];
+            foreach (ILogicContextFieldSource contextFieldSource in logicParameter.ContextFieldSources)
+                _logicParametersMapping.Add(contextFieldSource.Key, InnerLogic.ReceivingMethod.IsStatic ? i : i + 1);
+        }
     }
 
     protected override void PreProcessOuterClone(CilMethodBody outerCloneBody)
@@ -72,13 +82,20 @@ public sealed class MethodLogicExtractor : LogicExtractor<MethodLogicContainer, 
         Parameter instructionParameter)
     {
         // arg 0 for instance method is always the "this" so we don't need to do anything for this case.
-        if (!OuterLogic.ReceivingMethod.IsStatic && instructionParameter.MethodSignatureIndex == 0)
+        bool isStatic = OuterLogic.ReceivingMethod.IsStatic;
+        if (!isStatic && instructionParameter.MethodSignatureIndex == 0)
             return EmptyIl;
 
         if (OuterLogic.Context is null || !OuterLogic.Context.ContextFieldsMapping.TryGetValue(
                 instructionParameter.MethodSignatureIndex,
                 out FieldDefinition? fieldInContext))
+        {
+            if (!_logicParametersMapping.TryGetValue(instructionParameter.MethodSignatureIndex, out int argIndex))
+                return EmptyIl;
+
+            instruction.Operand = InnerLogic.ReceivingMethod.Parameters[isStatic ? argIndex : argIndex - 1];
             return EmptyIl;
+        }
 
         if (instruction.IsLdarg())
         {
@@ -103,11 +120,18 @@ public sealed class MethodLogicExtractor : LogicExtractor<MethodLogicContainer, 
         CilInstruction instruction,
         CilLocalVariable localVariable)
     {
+        bool isStatic = OuterLogic.ReceivingMethod.IsStatic;
         if (OuterLogic.Context is null || !OuterLogic.Context.ContextFieldsMapping.TryGetValue(
                 localVariable,
                 out FieldDefinition? fieldInContext))
         {
-            return base.ProcessLocalOperationInstruction(instruction, localVariable);
+            if (!_logicParametersMapping.TryGetValue(localVariable, out int argIndex))
+                return base.ProcessLocalOperationInstruction(instruction, localVariable);
+
+            instruction.ReplaceWith(
+                instruction.IsLdloc() ? Ldarg : Starg,
+                InnerLogic.ReceivingMethod.Parameters[isStatic ? argIndex : argIndex - 1]);
+            return EmptyIl;
         }
 
         if (instruction.IsLdloc())

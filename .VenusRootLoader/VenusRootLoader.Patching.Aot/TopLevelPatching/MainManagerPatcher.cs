@@ -208,9 +208,9 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
         doItemEffectContainer.AssignNewContext(
             "",
             [
-                doItemEffectContainer.AddContextFieldFromArgumentIndexAndLocalIndexes(0, [0], true),
-                doItemEffectContainer.AddContextFieldFromArgumentIndex(1, false),
-                doItemEffectContainer.AddContextFieldFromArgumentIndex(2, true),
+                doItemEffectContainer.GetContextFieldFromArgumentIndexAndLocalIndexes(0, [0], true),
+                doItemEffectContainer.GetContextFieldFromArgumentIndex(1, false),
+                doItemEffectContainer.GetContextFieldFromArgumentIndex(2, true),
             ]);
 
         SwitchArmsMethodsExtractor doItemEffectSwitchArmsExtractor = new(
@@ -283,12 +283,12 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
         showItemListContainer.AssignNewContext(
             "Setup",
             [
-                showItemListContainer.AddContextFieldFromArgumentIndex(0, false),
-                showItemListContainer.AddContextFieldFromLocalIndex(0, false),
-                showItemListContainer.AddContextFieldFromArgumentIndex(1, true),
-                showItemListContainer.AddContextFieldFromArgumentIndex(2, false),
-                showItemListContainer.AddContextFieldFromArgumentIndex(3, true),
-                showItemListContainer.AddContextFieldFromLocalIndex(2, false)
+                showItemListContainer.GetContextFieldFromArgumentIndex(0, false),
+                showItemListContainer.GetContextFieldFromLocalIndex(0, false),
+                showItemListContainer.GetContextFieldFromArgumentIndex(1, true),
+                showItemListContainer.GetContextFieldFromArgumentIndex(2, false),
+                showItemListContainer.GetContextFieldFromArgumentIndex(3, true),
+                showItemListContainer.GetContextFieldFromLocalIndex(2, false)
             ]);
 
         SwitchArmsMethodsExtractor showItemListArmsExtractor = new(
@@ -411,21 +411,21 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
         showItemListContainer.AssignNewContext(
             "Render",
             [
-                showItemListContainer.AddContextFieldFromArgumentIndex(0, true),
-                showItemListContainer.AddContextFieldFromArgumentIndex(1, true),
-                showItemListContainer.AddContextFieldFromArgumentIndex(2, true),
-                showItemListContainer.AddContextFieldFromArgumentIndex(3, true),
-                showItemListContainer.AddContextFieldFromLocalIndex(0, true),
-                showItemListContainer.AddContextFieldFromLocalIndex(1, true),
-                showItemListContainer.AddContextFieldFromLocalIndex(2, true),
-                showItemListContainer.AddContextFieldFromLocalIndex(9, false),
-                showItemListContainer.AddContextFieldFromLocalIndex(10, false),
-                showItemListContainer.AddContextFieldFromLocalIndex(11, true),
-                showItemListContainer.AddContextFieldFromLocalIndex(15, true),
-                showItemListContainer.AddContextFieldFromLocalIndex(16, true),
-                showItemListContainer.AddContextFieldFromLocalIndex(17, false),
-                showItemListContainer.AddContextFieldFromLocalIndex(18, false),
-                showItemListContainer.AddContextFieldFromLocalIndex(19, false)
+                showItemListContainer.GetContextFieldFromArgumentIndex(0, true),
+                showItemListContainer.GetContextFieldFromArgumentIndex(1, true),
+                showItemListContainer.GetContextFieldFromArgumentIndex(2, true),
+                showItemListContainer.GetContextFieldFromArgumentIndex(3, true),
+                showItemListContainer.GetContextFieldFromLocalIndex(0, true),
+                showItemListContainer.GetContextFieldFromLocalIndex(1, true),
+                showItemListContainer.GetContextFieldFromLocalIndex(2, true),
+                showItemListContainer.GetContextFieldFromLocalIndex(9, false),
+                showItemListContainer.GetContextFieldFromLocalIndex(10, false),
+                showItemListContainer.GetContextFieldFromLocalIndex(11, true),
+                showItemListContainer.GetContextFieldFromLocalIndex(15, true),
+                showItemListContainer.GetContextFieldFromLocalIndex(16, true),
+                showItemListContainer.GetContextFieldFromLocalIndex(17, false),
+                showItemListContainer.GetContextFieldFromLocalIndex(18, false),
+                showItemListContainer.GetContextFieldFromLocalIndex(19, false)
             ]);
 
         SwitchArmsMethodsExtractor showItemListArmsExtractor = new(
@@ -624,7 +624,7 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
         refreshSkillsContainer.AssignNewContext(
             "",
             [
-                refreshSkillsContainer.AddContextFieldFromLocalIndex(1, true, "playerDataIndex")
+                refreshSkillsContainer.GetContextFieldFromLocalIndex(1, true, "playerDataIndex")
             ]);
         refreshSkillsContainer.PatchContextIntoContainer(gameModuleData, offsetInit, offsetCommit);
 
@@ -651,6 +651,7 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
                 MethodLogicExtractor extractor = new(
                     refreshSkillsContainer,
                     new InnerMethodFactory(),
+                    [],
                     gameModuleData.Module.CorLibTypeFactory.Boolean,
                     gameModuleData,
                     $"RefreshSkills_Predicate_{skillsEnum[skillId]}",
@@ -724,6 +725,7 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
             MethodLogicExtractor extractor = new(
                 checkAchievementContainer,
                 new InnerMethodFactory(),
+                [],
                 gameModuleData.Module.CorLibTypeFactory.Boolean,
                 gameModuleData,
                 $"CheckAchievement_Predicate_{recordId}",

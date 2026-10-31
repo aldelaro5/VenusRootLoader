@@ -53,6 +53,7 @@ public sealed class MoveNextToMethodLogicExtractor : LogicExtractor<StateMachine
         : base(
             outerLogic,
             innerLogicContainerFactory,
+            [],
             returnType,
             gameModuleData,
             methodName,

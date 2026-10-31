@@ -47,9 +47,10 @@ public abstract class LogicContainer
     /// <param name="nameSegment">The middle segment of the name the new context type will have. The full type name will be preceded
     /// by the name of the container and suffixed by the word <c>Context</c></param>
     /// <param name="contextFields">The fields information of the new context.</param>
-    public void AssignNewContext(string nameSegment, List<LogicContextField> contextFields)
+    public virtual void AssignNewContext(string nameSegment, List<LogicContextField> contextFields)
     {
         Context = new() { TypeName = $"{Name}{nameSegment}Context" };
+        Context.ContextFields.Clear();
         Context.ContextFields.AddRange(contextFields);
     }
 
@@ -101,7 +102,7 @@ public abstract class LogicContainer
     /// <param name="readOnly">Whether the context field will only be initialized without being commited back to the container.</param>
     /// <param name="mappedName">An optional name to use as the field of the context. This defaults to V_<paramref name="localIndex"/></param>
     /// <returns>The new context field sourced from the local variable of the container at index <paramref name="localIndex"/>.</returns>
-    public LogicContextField AddContextFieldFromLocalIndex(
+    public LogicContextField GetContextFieldFromLocalIndex(
         int localIndex,
         bool readOnly,
         string? mappedName = null)

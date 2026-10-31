@@ -183,6 +183,7 @@ public abstract class LogicExtractor<TOuter, TInner>
     /// </summary>
     /// <param name="outerLogic">The outer container.</param>
     /// <param name="innerLogicContainerFactory">A factory to create the inner container.</param>
+    /// <param name="logicParameters"></param>
     /// <param name="returnType">The return type of the inner container.</param>
     /// <param name="gameModuleData">The game module data.</param>
     /// <param name="methodName">The name to assign the inner container.</param>
@@ -191,6 +192,7 @@ public abstract class LogicExtractor<TOuter, TInner>
     protected LogicExtractor(
         TOuter outerLogic,
         IInnerLogicContainerWithReturnFactory<TOuter, TInner> innerLogicContainerFactory,
+        List<LogicParameter> logicParameters,
         TypeSignature returnType,
         GameModuleData gameModuleData,
         string methodName,
@@ -201,11 +203,21 @@ public abstract class LogicExtractor<TOuter, TInner>
         _innerFirstInstruction = innerFirstInstruction;
         _innerLastInstruction = innerLastInstruction;
 
-        NamedParameter? contextParameter = OuterLogic.GetContextParameter();
+        List<NamedParameter> namedParameters;
+        if (logicParameters.Count > 0)
+        {
+            namedParameters = logicParameters.Select(x => x.NamedParameter).ToList();
+        }
+        else
+        {
+            NamedParameter? contextParameter = OuterLogic.GetContextParameter();
+            namedParameters = contextParameter is not null ? [contextParameter] : [];
+        }
+
         InnerLogic = innerLogicContainerFactory.Create(
             outerLogic,
             gameModuleData,
-            contextParameter is not null ? [contextParameter] : [],
+            namedParameters,
             returnType,
             methodName);
         InnerBody = InnerLogic.ReceivingMethod.CilMethodBody!;

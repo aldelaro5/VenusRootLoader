@@ -514,8 +514,8 @@ public sealed class BattleControlPatcher : TopLevelTypePatcher
                 useItemStateMachine.AddContextFieldFromSpeakableFieldName("san", false),
                 useItemStateMachine.AddContextFieldFromSpeakableFieldName("itemuse", true),
                 useItemStateMachine.AddContextFieldFromSpeakableFieldName("i", true),
-                useItemStateMachine.AddContextFieldFromLocalIndex(4, true),
-                useItemStateMachine.AddContextFieldFromLocalIndex(5, false)
+                useItemStateMachine.GetContextFieldFromLocalIndex(4, true),
+                useItemStateMachine.GetContextFieldFromLocalIndex(5, false)
             ]);
 
         SwitchArmsStateMachineIntoMethodsExtractor useItemSetupSwitchArmsExtractor = new(

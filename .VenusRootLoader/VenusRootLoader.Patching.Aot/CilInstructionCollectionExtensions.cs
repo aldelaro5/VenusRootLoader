@@ -29,5 +29,19 @@ public static class CilInstructionCollectionExtensions
             for (int i = 1; i < instructions.Count; i++)
                 il.Insert(startReplaceRange + i, instructions[i]);
         }
+
+        /// <summary>
+        /// Gets a clone of a range of instructions (only opcodes and operands are cloned, labels are not).
+        /// </summary>
+        /// <param name="start">The index to start cloning.</param>
+        /// <param name="end">The index to stop cloning inclusive.</param>
+        /// <returns>A list of instructions that are a different copy of the specified range.</returns>
+        public List<CilInstruction> CloneRange(int start, int end)
+        {
+            List<CilInstruction> innerLogicCheckClone = [];
+            for (int i = start; i <= end; i++)
+                innerLogicCheckClone.Add(new(il[i].OpCode, il[i].Operand));
+            return innerLogicCheckClone;
+        }
     }
 }

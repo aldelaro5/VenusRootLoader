@@ -1,5 +1,6 @@
 using AsmResolver.DotNet;
 using AsmResolver.DotNet.Code.Cil;
+using AsmResolver.DotNet.Collections;
 using AsmResolver.PE.DotNet.Cil;
 using VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers;
 using VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers.Factories;
@@ -243,6 +244,10 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
         ExtractShowItemListSetup(gameModuleData, showItemListContainer, methodIl);
         methodIl.CalculateOffsets();
         ExtractShowItemListRender(gameModuleData, showItemListContainer, methodIl);
+        methodIl.ExpandMacros();
+        methodIl.CalculateOffsets();
+        ExtractShowItemListDescriptionRender(gameModuleData, showItemListContainer, methodIl);
+        methodIl.OptimizeMacros();
     }
 
     private static void ExtractShowItemListSetup(
@@ -438,6 +443,361 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
             null,
             [],
             "Render");
+    }
+
+    private static void ExtractShowItemListDescriptionRender(
+        GameModuleData gameModuleData,
+        MethodLogicContainer showItemListContainer,
+        CilInstructionCollection methodIl)
+    {
+        AsmResolverIlCursor ilCursor = new(methodIl);
+        showItemListContainer.AssignNewContext("", []);
+
+        ilCursor.MatchNext(x => x.OpCode == Call && x.Operand is IMethodDefOrRef method && method.Name == "Create9Box");
+        ilCursor.MatchPrevious(x => x.IsConditionalBranch());
+        ICilLabel labelEnd = (ICilLabel)ilCursor.Current().Operand!;
+
+        // First, we extract the default description box renderer into a new method so we can spread a call to it.
+        ilCursor.Index++;
+        int indexStart = ilCursor.Index;
+        ilCursor.MatchNext(x => x.IsUnconditionalBranch());
+        int indexEnd = ilCursor.Index;
+        MethodLogicExtractor extractor = new(
+            showItemListContainer,
+            new InnerMethodFactory(),
+            [
+                showItemListContainer.GetLogicParameterFromLocalIndex(62),
+                showItemListContainer.GetLogicParameterFromLocalIndex(63),
+                showItemListContainer.GetLogicParameterFromArgumentIndex(3)
+            ],
+            gameModuleData.Module.CorLibTypeFactory.Void,
+            gameModuleData,
+            "ShowItemList_RenderDefaultDescriptionBox",
+            methodIl[indexStart],
+            methodIl[indexEnd]);
+        extractor.ExtractIl(
+            [],
+            new Dictionary<int, List<CilInstruction>>
+            {
+                [labelEnd.Offset] = [],
+            },
+            null,
+            out _);
+
+        // Remove the logic of the default renderer since we don't need it anymore as it was just extracted to a method.
+        ilCursor.Index = indexStart;
+        ilCursor.MatchPrevious(x => x.IsLdloc());
+        methodIl.ReplaceRange(ilCursor.Index, indexEnd, [new(Br, labelEnd)]);
+        CilInstruction instructionEnd = ilCursor.Current();
+
+        ilCursor.MatchPrevious(x =>
+            x.OpCode == Ldsfld && x.Operand is FieldDefinition field && field.Name == "listdescbox");
+        ilCursor.MatchNext(x => x.IsLdarg() && x.Operand is Parameter { MethodSignatureIndex: 0 });
+        int indexStartChain = ilCursor.Index;
+
+        // We remove an stloc to the local that was supposed to store if we are going to render using the default renderer.
+        // Not only this code would get in the way later, we want to get rid of this local usage anyway since we want to
+        // spread the rendering check.
+        ilCursor.MatchNext(x => x.IsStloc());
+        int indexStoreLocalFlagEnd = ilCursor.Index;
+        CilInstruction instructionAfterStoreLocalFlag = methodIl[indexStoreLocalFlagEnd + 1];
+        ilCursor.MatchPrevious(x => x.IsLdcI4());
+        methodIl.ReplaceRange(
+            ilCursor.Index,
+            indexStoreLocalFlagEnd + 1,
+            [
+                new(instructionAfterStoreLocalFlag.OpCode, instructionAfterStoreLocalFlag.Operand)
+            ]);
+
+        // Next, we want to take a shared check for having a valid option selected and spread it.
+        ilCursor.MatchNext(x => x.OpCode == Ldsfld && x.Operand is FieldDefinition field && field.Name == "listvar");
+        int indexInnerLogicCheckStart = ilCursor.Index;
+        ilCursor.MatchPrevious(x => x.IsConditionalBranch());
+        CilInstruction instructionLastBranchInnerLogic = ilCursor.Current();
+        ilCursor.Index++;
+        ilCursor.MatchNext(x => x.IsConditionalBranch());
+        ICilLabel labelInnerLogicEnd = (ICilLabel)ilCursor.Current().Operand!;
+        int indexInnerLogicCheckEnd = ilCursor.Index;
+
+        ilCursor.MatchNext(x => x.IsUnconditionalBranch());
+        ilCursor.Index = indexInnerLogicCheckStart;
+        ilCursor.MatchNext(x => x.IsUnconditionalBranch());
+        while (ilCursor.Current().Offset < labelInnerLogicEnd.Offset)
+        {
+            ilCursor.MatchPrevious(x => x.IsConditionalBranch());
+            ilCursor.Index++;
+
+            // Spreading the option selected check.
+            InsertCloneWithLabelStealing(
+                methodIl,
+                ilCursor,
+                indexInnerLogicCheckStart,
+                indexInnerLogicCheckEnd,
+                labelEnd);
+
+            ilCursor.MatchNext(x => x.IsUnconditionalBranch());
+
+            // Spreading the method call we extracted earlier.
+            methodIl.InsertRange(
+                ilCursor.Index,
+                [
+                    new(Ldloc, showItemListContainer.ReceivingMethod.CilMethodBody!.LocalVariables[62]),
+                    new(Ldloc, showItemListContainer.ReceivingMethod.CilMethodBody!.LocalVariables[63]),
+                    new(Ldarg, showItemListContainer.ReceivingMethod.Parameters[3]),
+                    new(Call, extractor.InnerLogic.ReceivingMethod)
+                ]);
+
+            ilCursor.MatchNext(x => x.IsUnconditionalBranch());
+            // While we're spreading the check, we take this opportunity to normalize the end br so they all go to the end.
+            ilCursor.Current().Operand = labelEnd;
+            ilCursor.Index++;
+            ilCursor.MatchNext(x => x.IsUnconditionalBranch());
+            ilCursor.Index++;
+        }
+
+        // The last applicable block is a bit of an outlier so we process it separately.
+        ilCursor.Index -= 2;
+        ilCursor.MatchPrevious(x => x.IsUnconditionalBranch());
+        ilCursor.Index++;
+
+        InsertCloneWithLabelStealing(
+            methodIl,
+            ilCursor,
+            indexInnerLogicCheckStart,
+            indexInnerLogicCheckEnd,
+            labelEnd);
+
+        ilCursor.MatchNext(x => x.IsUnconditionalBranch());
+        ilCursor.Current().Operand = labelEnd;
+
+        methodIl.InsertRange(
+            ilCursor.Index,
+            [
+                new(Ldloc, showItemListContainer.ReceivingMethod.CilMethodBody!.LocalVariables[62]),
+                new(Ldloc, showItemListContainer.ReceivingMethod.CilMethodBody!.LocalVariables[63]),
+                new(Ldarg, showItemListContainer.ReceivingMethod.Parameters[3]),
+                new(Call, extractor.InnerLogic.ReceivingMethod)
+            ]);
+
+        // We can now remove the original option selected check.
+        CilInstruction firstInstructionAfterLogicCheck = methodIl[indexInnerLogicCheckEnd + 1];
+        methodIl.ReplaceRange(
+            indexInnerLogicCheckStart,
+            indexInnerLogicCheckEnd + 1,
+            [new(firstInstructionAfterLogicCheck.OpCode, firstInstructionAfterLogicCheck.Operand)]);
+
+        // We can now remove the set local flag logic that is no longer needed and is in the way.
+        methodIl.CalculateOffsets();
+        ilCursor.Index = methodIl.GetIndexByOffset(labelInnerLogicEnd.Offset);
+        int indexSetFlagStart = ilCursor.Index;
+        ilCursor.MatchNext(x => x.IsUnconditionalBranch());
+        int indexSetFlagEnd = ilCursor.Index;
+        CilInstruction firstInstructionAfterSetFlag = methodIl[indexSetFlagEnd + 1];
+        methodIl.ReplaceRange(
+            indexSetFlagStart,
+            indexSetFlagEnd + 1,
+            [new(firstInstructionAfterSetFlag.OpCode, firstInstructionAfterSetFlag.Operand)]);
+        ilCursor.Index = indexSetFlagStart;
+        instructionLastBranchInnerLogic.Operand = ilCursor.Current().CreateLabel();
+
+        // For the other blocks, we also need to spread the method call, but also a stloc so the second parameter of the
+        // method defaults to empty strings.
+        methodIl.CalculateOffsets();
+        while (ilCursor.Current().Offset < instructionEnd.Offset)
+        {
+            ICilLabel labelAfter = null!;
+            int indexArmStart = 0;
+            // All of this is just to find precisely where the block starts since we have to follow the sub if chain until
+            // we can't find a followup to it.
+            while (ilCursor.Index >= 0 && ilCursor.Current().Offset < instructionEnd.Offset)
+            {
+                ilCursor.MatchNext(x => x.IsConditionalBranch());
+                labelAfter = (ICilLabel)ilCursor.Current().Operand!;
+                ilCursor.Index++;
+                indexArmStart = ilCursor.Index;
+                int labelAfterOffset = labelAfter.Offset;
+                ilCursor.MatchNext(x => x.IsConditionalBranch()
+                                        && x.Operand is ICilLabel label
+                                        && label.Offset == labelAfterOffset);
+            }
+
+            ilCursor.Index = methodIl.GetIndexByOffset(labelAfter.Offset);
+            bool isLast = false;
+            // The last one ends with a br to the end so we want to stay on it.
+            if (ilCursor.Current().Offset == instructionEnd.Offset)
+                isLast = true;
+            else
+                ilCursor.Index--;
+
+            methodIl.InsertRange(
+                ilCursor.Index,
+                [
+                    new(Ldloc, showItemListContainer.ReceivingMethod.CilMethodBody!.LocalVariables[62]),
+                    new(Ldloc, showItemListContainer.ReceivingMethod.CilMethodBody!.LocalVariables[63]),
+                    new(Ldarg, showItemListContainer.ReceivingMethod.Parameters[3]),
+                    new(Call, extractor.InnerLogic.ReceivingMethod)
+                ]);
+            if (isLast)
+            {
+                // The last one has 2 branches that needs to lead to out method call so we need to relabel the br.
+                ICilLabel newArmEnd = ilCursor.Current().CreateLabel();
+                ilCursor.MatchPrevious(x => x.IsUnconditionalBranch());
+                ilCursor.Current().Operand = newArmEnd;
+                ilCursor.Index--;
+                ilCursor.MatchPrevious(x => x.IsUnconditionalBranch());
+                ilCursor.Current().Operand = newArmEnd;
+            }
+            else
+            {
+                ilCursor.MatchNext(x => x.IsUnconditionalBranch());
+                ilCursor.Current().Operand = labelEnd;
+            }
+
+            CilInstruction instructionArmStart = methodIl[indexArmStart];
+            methodIl.ReplaceRange(
+                indexArmStart,
+                indexArmStart,
+                [
+                    new(Ldstr, ""),
+                    new(Stloc, showItemListContainer.ReceivingMethod.CilMethodBody!.LocalVariables[63]),
+                    new(instructionArmStart.OpCode, instructionArmStart.Operand)
+                ]);
+
+            methodIl.CalculateOffsets();
+            ilCursor.Index = methodIl.GetIndexByOffset(labelAfter.Offset);
+        }
+
+        // We can now start to move code. We start by moving the quests list types logic up and invert its logic so it no
+        // longer introduce nesting.
+        int indexQuestTypesStart = ilCursor.Index + 1;
+        ilCursor.Index = methodIl.GetIndexByOffset(labelEnd.Offset);
+        int indexQuestTypesEnd = ilCursor.Index - 1;
+        List<CilInstruction> cloneQuestTypes = [];
+        for (int i = indexQuestTypesStart; i <= indexQuestTypesEnd; i++)
+            cloneQuestTypes.Add(methodIl[i]);
+        cloneQuestTypes.Add(new(Br, labelEnd));
+        methodIl.RemoveRange(indexQuestTypesStart, indexQuestTypesEnd - indexQuestTypesStart + 1);
+
+        ilCursor.Index = indexStartChain;
+        ilCursor.MatchNext(x => x.IsConditionalBranch());
+        ICilLabel labelNonQuestTypes = (ICilLabel)ilCursor.Current().Operand!;
+        ilCursor.Index++;
+        ilCursor.MatchNext(x => x.IsConditionalBranch());
+        ilCursor.Current().ReplaceWith(Bgt, labelNonQuestTypes);
+        ilCursor.Index++;
+        methodIl.InsertRange(ilCursor.Index, cloneQuestTypes);
+
+        methodIl.CalculateOffsets();
+        ilCursor.Index = methodIl.GetIndexByOffset(labelNonQuestTypes.Offset);
+        int indexBadIfsStart = ilCursor.Index;
+        ilCursor.MatchNext(x => x.OpCode == Bne_Un);
+        int indexBadIfsEnd = ilCursor.Index;
+
+        // We'll need a copy of the first part for later since it's the default block conditions, but we need to relabel it.
+        ilCursor.MatchPrevious(x => x.OpCode == Blt || x.OpCode == Blt_Un);
+        List<CilInstruction> clonedDefaultIf = methodIl.CloneRange(indexBadIfsStart, ilCursor.Index);
+        AsmResolverIlCursor subCursor = new(clonedDefaultIf);
+        subCursor.MatchNext(x => x.IsConditionalBranch());
+        subCursor.Current().Operand = labelEnd;
+        subCursor.Index++;
+        subCursor.MatchNext(x => x.IsConditionalBranch());
+        // We need to change this so it only includes 0 to 2 because 3 was handled already and 4 to 8 aren't used.
+        subCursor.Current().ReplaceWith(Bge, labelEnd);
+        subCursor.MatchPrevious(x => x.IsLdcI4());
+        subCursor.Current().Operand = 3;
+
+        // Now we can remove the whole if chain.
+        ilCursor.Index = indexBadIfsEnd + 1;
+        CilInstruction instructionAfterBadIfs = ilCursor.Current();
+        methodIl.ReplaceRange(
+            indexBadIfsStart,
+            indexBadIfsEnd + 1,
+            [
+                new(instructionAfterBadIfs.OpCode, instructionAfterBadIfs.Operand)
+            ]);
+
+        // We now need to move some specific list type handlers up to make it easier later to change the last handler
+        // conditions.
+        ilCursor.Index = indexBadIfsStart;
+        ilCursor.MatchNext(x => x.IsLdcI4() && x.GetLdcI4Constant() == -3);
+        ilCursor.MatchPrevious(x => x.IsLdarg());
+        int indexRestStart = ilCursor.Index;
+        ilCursor.Index = methodIl.Count - 1;
+        ilCursor.MatchPrevious(x => x.IsUnconditionalBranch());
+        int indexRestEnd = ilCursor.Index;
+        List<CilInstruction> cloneRest = [];
+        for (int i = indexRestStart; i <= indexRestEnd; i++)
+            cloneRest.Add(methodIl[i]);
+        methodIl.RemoveRange(indexRestStart, indexRestEnd - indexRestStart + 1);
+        ilCursor.Index = indexRestStart - 1;
+        ilCursor.Current().Operand = methodIl[indexRestStart].CreateLabel();
+
+        ilCursor.Index = indexBadIfsStart;
+        CilInstruction instructionStartRest = methodIl[ilCursor.Index];
+        CilInstruction newInstructionStartRest = new(instructionStartRest.OpCode, instructionStartRest.Operand);
+        methodIl.ReplaceRange(
+            ilCursor.Index,
+            ilCursor.Index,
+            [
+                .. cloneRest,
+                newInstructionStartRest
+            ]);
+
+        // Since we moved code that was below upward, we need to relabel its last branching so it connects.
+        ICilLabel connectingLabel = newInstructionStartRest.CreateLabel();
+        ilCursor.MatchNext(x => x.IsLdcI4() && x.GetLdcI4Constant() == 26);
+        ilCursor.MatchNext(x => x.IsConditionalBranch());
+        ilCursor.Current().Operand = connectingLabel;
+
+        // Remove some code that is unreachable because it checks for a list type that was handled prior.
+        ilCursor.Index = methodIl.Count - 1;
+        ilCursor.MatchPrevious(x => x.IsLdcI4() && x.GetLdcI4Constant() == 33);
+        ilCursor.MatchPrevious(x => x.IsLdarg());
+        int indexUnreachableStart = ilCursor.Index;
+        ilCursor.MatchNext(x => x.IsConditionalBranch());
+        ICilLabel labelAfterUnreachable = (ICilLabel)ilCursor.Current().Operand!;
+        methodIl.CalculateOffsets();
+        ilCursor.Index = methodIl.GetIndexByOffset(labelAfterUnreachable.Offset);
+        CilInstruction instructionAfterUnreachable = ilCursor.Current();
+        ilCursor.Index--;
+        int indexUnreachableEnd = ilCursor.Index;
+        methodIl.ReplaceRange(
+            indexUnreachableStart,
+            indexUnreachableEnd + 1,
+            [
+                new(instructionAfterUnreachable.OpCode, instructionAfterUnreachable.Operand)
+            ]);
+
+        // We can now put back the default arm conditions.
+        ilCursor.Index = indexUnreachableStart;
+        CilInstruction instructionDefaultArm = ilCursor.Current();
+        methodIl.ReplaceRange(
+            ilCursor.Index,
+            ilCursor.Index,
+            [
+                .. clonedDefaultIf,
+                new(instructionDefaultArm.OpCode, instructionDefaultArm.Operand)
+            ]);
+    }
+
+    private static void InsertCloneWithLabelStealing(
+        CilInstructionCollection methodIl,
+        AsmResolverIlCursor ilCursor,
+        int indexInnerLogicCheckStart,
+        int indexInnerLogicCheckEnd,
+        ICilLabel labelEnd)
+    {
+        List<CilInstruction> cloneIl = methodIl.CloneRange(indexInnerLogicCheckStart, indexInnerLogicCheckEnd);
+        cloneIl[^1].Operand = labelEnd;
+        CilInstruction firstInstruction = ilCursor.Current();
+
+        methodIl.ReplaceRange(
+            ilCursor.Index,
+            ilCursor.Index,
+            [
+                .. cloneIl,
+                new(firstInstruction.OpCode, firstInstruction.Operand)
+            ]);
     }
 
     private static void ExtractRefreshSkills(

@@ -246,7 +246,11 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
         ExtractShowItemListRender(gameModuleData, showItemListContainer, methodIl);
         methodIl.ExpandMacros();
         methodIl.CalculateOffsets();
-        ExtractShowItemListDescriptionRender(gameModuleData, showItemListContainer, methodIl);
+        DemangleShowItemListDescriptionRenderIntoBranchChain(gameModuleData, showItemListContainer, methodIl);
+        methodIl.CalculateOffsets();
+        ConvertShowItemListDescriptionRenderToSwitch(methodIl);
+        methodIl.CalculateOffsets();
+        ExtractShowItemListDescriptionRenderSwitch(gameModuleData, showItemListContainer, methodIl);
         methodIl.OptimizeMacros();
     }
 
@@ -445,7 +449,7 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
             "Render");
     }
 
-    private static void ExtractShowItemListDescriptionRender(
+    private static void DemangleShowItemListDescriptionRenderIntoBranchChain(
         GameModuleData gameModuleData,
         MethodLogicContainer showItemListContainer,
         CilInstructionCollection methodIl)
@@ -798,6 +802,119 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
                 .. cloneIl,
                 new(firstInstruction.OpCode, firstInstruction.Operand)
             ]);
+    }
+
+    private static void ConvertShowItemListDescriptionRenderToSwitch(CilInstructionCollection methodIl)
+    {
+        AsmResolverIlCursor ilCursor = new(methodIl);
+
+        ilCursor.MatchNext(x =>
+            x.OpCode == Ldsfld && x.Operand is FieldDefinition field && field.Name == "listdescbox");
+        ilCursor.MatchNext(x => x.IsLdarg());
+        int indexStart = ilCursor.Index;
+        ilCursor.Index = methodIl.Count - 1;
+        ilCursor.MatchPrevious(x => x.IsUnconditionalBranch());
+        ICilLabel labelEnd = (ICilLabel)ilCursor.Current().Operand!;
+        int indexEnd = ilCursor.Index;
+
+        // The first listTypes has id -3 so we need to offset the switch labels by 3.
+        List<CilInstruction> switchIl =
+        [
+            new(Ldarg_0),
+            CilInstruction.CreateLdcI4(-3),
+            new(Sub),
+            new(Switch)
+        ];
+        CilInstruction switchInstruction = switchIl[^1];
+        // BaseGame listTypes goes from -3 to 35 so we should default the labels to have this many and change them as we
+        // encounter them.
+        List<ICilLabel> switchLabels = Enumerable.Repeat(labelEnd, 38).ToList();
+        switchIl.Add(new(Br, labelEnd));
+
+        ilCursor.Index = indexStart;
+        while (ilCursor.Index >= 0 && ilCursor.Index <= indexEnd)
+        {
+            int startRange = -1;
+            int endRange = -1;
+            while (ilCursor.Current().IsLdarg())
+            {
+                ilCursor.MatchNext(x => x.IsConditionalBranch());
+                int rangeBoundary = methodIl[ilCursor.Index - 1].GetLdcI4Constant();
+                if (ilCursor.Current().OpCode == Blt || ilCursor.Current().OpCode == Beq)
+                {
+                    startRange = rangeBoundary;
+                }
+                else if (ilCursor.Current().OpCode == Bgt)
+                {
+                    endRange = rangeBoundary;
+                }
+                else if (ilCursor.Current().OpCode == Bge)
+                {
+                    endRange = rangeBoundary - 1;
+                }
+                else if (ilCursor.Current().OpCode == Bne_Un)
+                {
+                    endRange = rangeBoundary;
+                    if (startRange == -1)
+                        startRange = endRange;
+                }
+
+                ilCursor.Index++;
+            }
+
+            int indexArmStart = ilCursor.Index;
+            ICilLabel labelArm = ilCursor.Current().CreateLabel();
+            for (int i = startRange; i <= endRange; i++)
+                switchLabels[i + 3] = labelArm;
+
+            ICilLabel labelNext = (ICilLabel)methodIl[ilCursor.Index - 1].Operand!;
+            ilCursor.Index = methodIl.GetIndexByOffset(labelNext.Offset);
+            int indexArmEnd = ilCursor.Index - 1;
+            for (int i = indexArmStart; i <= indexArmEnd; i++)
+                switchIl.Add(methodIl[i]);
+        }
+
+        switchInstruction.Operand = switchLabels;
+
+        methodIl.ReplaceRange(indexStart, indexEnd, switchIl);
+    }
+
+    private static void ExtractShowItemListDescriptionRenderSwitch(
+        GameModuleData gameModuleData,
+        MethodLogicContainer showItemListContainer,
+        CilInstructionCollection methodIl)
+    {
+        AsmResolverIlCursor ilCursor = new(methodIl);
+
+        ilCursor.MatchNext(x =>
+            x.OpCode == Ldsfld && x.Operand is FieldDefinition field && field.Name == "listdescbox");
+        int indexBeforeSwitch = ilCursor.Index;
+        ilCursor.MatchNext(x => x.OpCode == Switch);
+        CilInstruction switchInstruction = ilCursor.Current();
+        ilCursor.MatchPrevious(x => x.IsLdarg());
+        CilInstruction instructionInitContext = ilCursor.Current();
+
+        showItemListContainer.AssignNewContext(
+            "DescriptionRender",
+            [
+                showItemListContainer.GetContextFieldFromLocalIndex(0, true),
+                showItemListContainer.GetContextFieldFromArgumentIndex(3, true)
+            ]);
+
+        SwitchArmsMethodsExtractor extractor = new(gameModuleData, showItemListContainer);
+        extractor.ExtractSwitchArms(
+            switchInstruction,
+            instructionInitContext,
+            null,
+            null,
+            [],
+            "DescriptionRender");
+
+        ilCursor.Index = indexBeforeSwitch;
+        ilCursor.MatchNext(x => x.OpCode == Newobj);
+        ICilLabel newLabel = ilCursor.Current().CreateLabel();
+        ilCursor.MatchPrevious(x => x.IsConditionalBranch());
+        ilCursor.Current().Operand = newLabel;
     }
 
     private static void ExtractRefreshSkills(

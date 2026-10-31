@@ -145,6 +145,18 @@ public sealed class MethodLogicContainer : LogicContainer
         List<LocalLogicContextFieldSource> localSources = localIndexes
             .Select(x => new LocalLogicContextFieldSource(ReceivingMethod.CilMethodBody!.LocalVariables[x]))
             .ToList();
+        bool isStatic = ReceivingMethod.IsStatic;
+        string fieldName;
+        if (mappedName is not null)
+        {
+            fieldName = mappedName;
+        }
+        else
+        {
+            int parameterIndex = isStatic ? argumentIndex : argumentIndex - 1;
+            fieldName = !isStatic && argumentIndex == 0 ? "this" : ReceivingMethod.Parameters[parameterIndex].Name;
+        }
+
         return new LogicContextField
         {
             ContextFieldSources =
@@ -152,7 +164,7 @@ public sealed class MethodLogicContainer : LogicContainer
                 new ArgumentLogicContextFieldSource(ReceivingMethod.Parameters[argumentIndex]),
                 .. localSources
             ],
-            FieldName = mappedName ?? "A_" + argumentIndex,
+            FieldName = fieldName,
             ReadOnly = readOnly
         };
     }

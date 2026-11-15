@@ -14,7 +14,7 @@
         <PublishDir>$(BuildDir)</PublishDir>
         <NoWarn>CA1416</NoWarn>
         <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
-        <IlcUseEnvironmentalTools>true</IlcUseEnvironmentalTools>
+        <IlcUseEnvironmentalTools Condition="$([MSBuild]::IsOSPlatform('Linux'))">true</IlcUseEnvironmentalTools>
     </PropertyGroup>
 
     <Target Name="AdjustLinkerArgs" AfterTargets="SetupOSSpecificProps">

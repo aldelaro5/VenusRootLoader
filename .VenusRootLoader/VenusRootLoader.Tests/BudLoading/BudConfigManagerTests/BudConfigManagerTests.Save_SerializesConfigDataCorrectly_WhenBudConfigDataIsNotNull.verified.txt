@@ -41,10 +41,10 @@ DoubleValue = 800.0
 # Type: VenusRootLoader.Tests.BudLoading.BudConfigManagerTests.TestConfigData+AnEnum
 # Default value: "C"
 AnEnumValue = "D"
-# Type: DateTime
+# Type: System.DateTime
 # Default value: 2026-10-01T11:50:39.584
 DateTimeValue = 2026-10-03T11:50:39.584
-# Type: TimeSpan
+# Type: System.TimeSpan
 # Default value: 17:00:00
 TimeSpanValue = 21:00:00
 # Type: UnityEngine.Vector2

@@ -85,7 +85,7 @@ internal sealed class DmdICallWrapper
 
             _replacement = replacement;
 
-            MethodBase realReplacement = triple.GetRealDetourTarget(_original, replacement, AbiArgumentMap.Identity);
+            MethodBase realReplacement = triple.GetRealDetourTarget(_original, replacement);
             _realReplacementPin?.Dispose();
             _realReplacementPin = triple.PinMethodIfNeeded(realReplacement);
 

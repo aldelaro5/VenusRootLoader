@@ -4,6 +4,8 @@
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
         <NoWarn>NU1701;NU1702;MSB3277</NoWarn>
+        <!-- We only pull MonoMod transitively as a side effect, but we do not use it so this check is irrelevant here. -->
+        <MonoMod_ReallySkipCheckTargetRuntime>true</MonoMod_ReallySkipCheckTargetRuntime>
         <OutputType>Exe</OutputType>
     </PropertyGroup>
 

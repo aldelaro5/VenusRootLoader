@@ -196,7 +196,7 @@ public sealed class MethodLogicExtractor : LogicExtractor<MethodLogicContainer, 
             IEnumerable<Statement<CilInstruction>> phiWrites = phiStatement.Sources
                 .SelectMany(x => x.Variable.GetIsWrittenBy(_compilationUnit));
             List<ControlFlowNode<Statement<CilInstruction>>> cfgNodes = phiWrites
-                .Select(x => _outerAst.GetNodeByOffset(x.Parent!.OriginalRange!.Value.Start))
+                .Select(x => _outerAst.Nodes.GetByOffset(x.Parent!.OriginalRange!.Value.Start)!)
                 .Distinct()
                 .ToList();
 

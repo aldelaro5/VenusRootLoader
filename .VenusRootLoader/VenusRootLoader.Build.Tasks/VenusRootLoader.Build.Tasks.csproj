@@ -12,7 +12,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.12.2"/>
-        <PackageReference Include="NuGet.Versioning" Version="7.9.0"/>
+        <PackageReference Include="NuGet.Versioning" Version="8.0.0" />
         <PackageReference Include="PolySharp" Version="1.17.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using VenusRootLoader.Unity;
+using VenusRootLoader.Patching;
 
 // ReSharper disable UnusedMember.Global
 

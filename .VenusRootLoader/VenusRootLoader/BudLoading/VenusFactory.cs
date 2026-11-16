@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using VenusRootLoader.Api;
+using VenusRootLoader.Patching;
 using VenusRootLoader.Unity;
 using Venus = VenusRootLoader.Api.Venus;
 

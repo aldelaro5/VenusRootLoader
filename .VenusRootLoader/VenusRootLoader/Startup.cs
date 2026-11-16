@@ -29,7 +29,6 @@ using VenusRootLoader.Persistence;
 using VenusRootLoader.Persistence.BaseGameSave;
 using VenusRootLoader.Persistence.BudsSave;
 using VenusRootLoader.Registry;
-using VenusRootLoader.Unity;
 using VenusRootLoader.Utility;
 using Object = UnityEngine.Object;
 
@@ -310,7 +309,7 @@ internal static class Startup
         services.AddSingleton<IBudsSaveDataDeserializer, BudsSaveDataDeserializer>();
         services.AddSingleton<ISaveDataPersistence, SaveDataPersistence>();
 
-        services.AddSingleton<IGlobalMonoBehaviourExecution, GlobalMonoBehaviourExecution>();
+        services.AddSingleton<IGlobalMonoBehaviourExecution, GlobalMonoBehaviourPatcher>();
         services.AddSingleton<IBudConfigManager, BudConfigManager>();
         services.AddSingleton<IVenusFactory, VenusFactory>();
         services.AddSingleton<IBudsDiscoverer, BudsDiscoverer>();
@@ -356,6 +355,7 @@ internal static class Startup
         services.AddSingleton<ITopLevelPatcher, ActionCommandsTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, BattleHelpersTopLevelPatcher>();
         services.AddSingleton<ITopLevelPatcher, AdditionalAudioClipTopLevelPatcher>();
+        services.AddSingleton<ITopLevelPatcher, GlobalMonoBehaviourPatcher>();
 
         services.AddSingleton<ITopLevelPatcher, BudLoaderTopLevelPatcher>();
 

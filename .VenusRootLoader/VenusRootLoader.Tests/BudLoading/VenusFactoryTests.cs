@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using VenusRootLoader.Api;
 using VenusRootLoader.BudLoading;
+using VenusRootLoader.Patching;
 using VenusRootLoader.Unity;
 
 namespace VenusRootLoader.Tests.BudLoading;

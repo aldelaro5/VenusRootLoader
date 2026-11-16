@@ -2,7 +2,7 @@ using MonoDetour.DetourTypes;
 using UnityEngine;
 using VenusRootLoader.Api.Unity;
 
-namespace VenusRootLoader.Unity;
+namespace VenusRootLoader.Patching;
 
 /// <summary>
 /// A service offered to buds that allows them to register <see cref="GlobalMonoBehaviour"/>
@@ -35,8 +35,8 @@ internal interface IGlobalMonoBehaviourExecution
     GlobalMonoBehaviour? GetGlobalMonoBehaviourFromGameObject(string gameObjectName);
 }
 
-/// <inheritdoc/>
-internal sealed class GlobalMonoBehaviourExecution : IGlobalMonoBehaviourExecution
+/// <inheritdoc cref="IGlobalMonoBehaviourExecution"/>
+internal sealed class GlobalMonoBehaviourPatcher : IGlobalMonoBehaviourExecution, ITopLevelPatcher
 {
     // The game's highest priority MonoBehaviour is InputIOManager.InputIO which is set to -200
     // so we want to stop at -201 should we ever reach this.
@@ -46,12 +46,16 @@ internal sealed class GlobalMonoBehaviourExecution : IGlobalMonoBehaviourExecuti
     private int _nextExecutionOrder = int.MinValue;
     private static Dictionary<Type, int> CustomExecutionOrders { get; } = new();
 
-    public GlobalMonoBehaviourExecution()
+    public GlobalMonoBehaviourPatcher()
+    {
+        UnityEngine.Object.DontDestroyOnLoad(_globalGameObject);
+        _globalGameObject.hideFlags = HideFlags.HideAndDontSave;
+    }
+
+    public void Patch()
     {
         Md.UnityEngine.AttributeHelperEngine.GetDefaultExecutionOrderFor.ControlFlowPrefix(
             ChangeExecutionOrderForGlobalMonoBehaviours);
-        UnityEngine.Object.DontDestroyOnLoad(_globalGameObject);
-        _globalGameObject.hideFlags = HideFlags.HideAndDontSave;
     }
 
     public GlobalMonoBehaviour AddGlobalMonoBehavior<T>(string gameObjectName)

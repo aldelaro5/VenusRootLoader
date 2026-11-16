@@ -188,7 +188,6 @@ internal sealed class AssembliesListAppender : IGlobalManagersPatcher, IAssembli
         IGameExecutionContext gameExecutionContext,
         IFileSystem fileSystem)
     {
-        // TODO: This directory might not exist, recheck how we manage the buds directory creation since only the loader manages this for now.
         string budsDirectory = fileSystem.Path.Combine(bootstrapEnvironment.BasePath, "Buds");
         string venusRootLoaderDirectory = fileSystem.Path.Combine(
             gameExecutionContext.GameDir,

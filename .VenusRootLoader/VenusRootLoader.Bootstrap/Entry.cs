@@ -74,6 +74,11 @@ internal sealed class Entry
             logger = serviceProvider.GetRequiredService<ILogger<Entry>>();
             logger.LogInformation("Using base directory {BaseDir}", customContentRootPath);
 
+            IFileSystem fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
+            string budsPath = fileSystem.Path.Combine(customContentRootPath, "Buds");
+            if (!fileSystem.Directory.Exists(budsPath))
+                fileSystem.Directory.CreateDirectory(budsPath);
+
             StandardStreamsProtector standardStreamsProtector =
                 serviceProvider.GetRequiredService<StandardStreamsProtector>();
             standardStreamsProtector.ProtectStreams();

@@ -10,6 +10,13 @@
         <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
     </PropertyGroup>
 
+    <Target Name="SetMonoCommand" AfterTargets="ComputeRunArguments" Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+        <PropertyGroup>
+            <RunCommand>mono</RunCommand>
+            <RunArguments>&quot;$(TargetPath)&quot; $(StartArguments)</RunArguments>
+        </PropertyGroup>
+    </Target>
+
     <ItemGroup>
         <Reference Include="$(PublicizedGameLibsDirectory)/*.dll"/>
     </ItemGroup>

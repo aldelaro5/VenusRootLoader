@@ -8,6 +8,13 @@
         <RootNamespace>VenusRootLoader.Build.Tasks.Tests</RootNamespace>
     </PropertyGroup>
 
+    <Target Name="SetMonoCommand" AfterTargets="ComputeRunArguments" Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+        <PropertyGroup>
+            <RunCommand>mono</RunCommand>
+            <RunArguments>&quot;$(TargetPath)&quot; $(StartArguments)</RunArguments>
+        </PropertyGroup>
+    </Target>
+
     <ItemGroup>
         <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest"/>
     </ItemGroup>

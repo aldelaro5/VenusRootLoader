@@ -66,17 +66,4 @@
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
     </ItemGroup>
-
-    <Target Name="CopyBugFablesLibs" AfterTargets="Build">
-        <ItemGroup>
-            <UnityEngineLibs Include="$(SolutionDir)/.VenusRootLoader/External/BugFables.GameLibs/UnityEngine/*.*"/>
-        </ItemGroup>
-        <ItemGroup>
-            <AssemblyCSharp Include="$(SolutionDir)/.VenusRootLoader/External/BugFables.GameLibs/BugFables.GameLibs.120.0/Assembly-CSharp.dll"/>
-        </ItemGroup>
-        <Message Importance="high" Text="Copying UnityEngineLibs files to $(TargetDir)"/>
-        <Copy ContinueOnError="false" SourceFiles="@(UnityEngineLibs)" DestinationFiles="$(TargetDir)/%(Filename)%(Extension)"/>
-        <Message Importance="high" Text="Copying Assembly-CSharp file to $(TargetDir)"/>
-        <Copy ContinueOnError="false" SourceFiles="@(AssemblyCSharp)" DestinationFiles="$(TargetDir)/%(Filename)%(Extension)"/>
-    </Target>
 </Project>

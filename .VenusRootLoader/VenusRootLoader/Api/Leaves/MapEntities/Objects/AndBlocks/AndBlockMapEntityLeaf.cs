@@ -4,7 +4,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.AndBlocks;
 
-public abstract class AndBlockMapEntityLeaf : ObjectMapEntityLeaf
+public closed class AndBlockMapEntityLeaf : ObjectMapEntityLeaf
 {
     protected AndBlockMapEntityLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {

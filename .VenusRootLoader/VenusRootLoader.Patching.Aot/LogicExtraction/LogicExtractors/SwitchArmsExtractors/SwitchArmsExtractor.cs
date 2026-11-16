@@ -11,7 +11,7 @@ namespace VenusRootLoader.Patching.Aot.LogicExtraction.LogicExtractors.SwitchArm
 /// </summary>
 /// <typeparam name="TOuter">The type of the outer container that contains the switch.</typeparam>
 /// <typeparam name="TInner">The type of the inner container to extract the switch arms into.</typeparam>
-public abstract class SwitchArmsExtractor<TOuter, TInner>
+public closed class SwitchArmsExtractor<TOuter, TInner>
     where TOuter : LogicContainer
     where TInner : LogicContainer
 {

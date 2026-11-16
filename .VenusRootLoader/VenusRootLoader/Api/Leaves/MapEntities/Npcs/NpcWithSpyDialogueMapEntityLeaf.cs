@@ -5,7 +5,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
-public abstract class NpcWithSpyDialogueMapEntityLeaf : NpcMapEntityLeaf
+public closed class NpcWithSpyDialogueMapEntityLeaf : NpcMapEntityLeaf
 {
     protected NpcWithSpyDialogueMapEntityLeaf(int gameId, string creatorId, string namedId) : base(
         gameId,

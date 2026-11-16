@@ -3,7 +3,7 @@ using VenusRootLoader.LeavesInternals;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.RollingRocks;
 
-public abstract class RollingRockMapEntityLeaf : ObjectMapEntityLeaf
+public closed class RollingRockMapEntityLeaf : ObjectMapEntityLeaf
 {
     protected RollingRockMapEntityLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {

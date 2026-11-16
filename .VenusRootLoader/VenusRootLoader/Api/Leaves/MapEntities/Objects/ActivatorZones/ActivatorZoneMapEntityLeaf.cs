@@ -4,7 +4,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.ActivatorZones;
 
-public abstract class ActivatorZoneMapEntityLeaf : ObjectMapEntityLeaf
+public closed class ActivatorZoneMapEntityLeaf : ObjectMapEntityLeaf
 {
     protected ActivatorZoneMapEntityLeaf(int gameId, string creatorId, string namedId) : base(
         gameId,

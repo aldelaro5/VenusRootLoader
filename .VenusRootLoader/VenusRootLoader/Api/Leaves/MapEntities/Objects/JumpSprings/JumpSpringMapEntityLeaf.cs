@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.JumpSprings;
 
-public abstract class JumpSpringMapEntityLeaf : ObjectMapEntityLeaf
+public closed class JumpSpringMapEntityLeaf : ObjectMapEntityLeaf
 {
     protected JumpSpringMapEntityLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {

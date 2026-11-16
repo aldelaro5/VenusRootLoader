@@ -1,6 +1,6 @@
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects;
 
-public abstract class ObjectMapEntityLeaf : MapEntityLeaf
+public closed class ObjectMapEntityLeaf : MapEntityLeaf
 {
     protected ObjectMapEntityLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {

@@ -14,7 +14,7 @@ namespace VenusRootLoader.Patching.Aot.LogicExtraction;
 /// and for the outer container to commit back the information changed by the inner container. The context is tracked by the
 /// container implementation and its <see cref="LogicContextField"/> can be sourced from different schemes via an <see cref="ILogicContextFieldSource"/>.
 /// </summary>
-public abstract class LogicContainer
+public closed class LogicContainer
 {
     /// <summary>
     /// The method that contains the logic.

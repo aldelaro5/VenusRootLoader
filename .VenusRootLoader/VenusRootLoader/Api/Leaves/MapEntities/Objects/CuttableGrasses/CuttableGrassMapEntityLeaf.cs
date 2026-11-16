@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.CuttableGrasses;
 
-public abstract class CuttableGrassMapEntityLeaf : ObjectMapEntityLeaf
+public closed class CuttableGrassMapEntityLeaf : ObjectMapEntityLeaf
 {
     protected CuttableGrassMapEntityLeaf(int gameId, string creatorId, string namedId) : base(
         gameId,

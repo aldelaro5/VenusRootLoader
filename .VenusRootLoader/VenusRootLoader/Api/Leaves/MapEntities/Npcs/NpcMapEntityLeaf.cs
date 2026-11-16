@@ -5,7 +5,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Npcs;
 
-public abstract class NpcMapEntityLeaf : MapEntityLeaf
+public closed class NpcMapEntityLeaf : MapEntityLeaf
 {
     protected NpcMapEntityLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {

@@ -4,7 +4,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.MovingPlatforms;
 
-public abstract class MovingPlatformMapEntityLeaf : ObjectMapEntityLeaf
+public closed class MovingPlatformMapEntityLeaf : ObjectMapEntityLeaf
 {
     protected MovingPlatformMapEntityLeaf(int gameId, string creatorId, string namedId) : base(
         gameId,

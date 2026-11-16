@@ -1,6 +1,6 @@
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.DialogueTriggers;
 
-public abstract class DialogueTriggerMapEntityLeaf : ObjectMapEntityLeaf
+public closed class DialogueTriggerMapEntityLeaf : ObjectMapEntityLeaf
 {
     protected DialogueTriggerMapEntityLeaf(int gameId, string creatorId, string namedId) : base(
         gameId,

@@ -5,7 +5,7 @@ namespace VenusRootLoader.Patching.Aot;
 /// <summary>
 /// Performs all the patching tasks needed on a top level type of the game assembly.
 /// </summary>
-public abstract class TopLevelTypePatcher
+public closed class TopLevelTypePatcher
 {
     /// <summary>
     /// The name of the top level type in the game assembly.

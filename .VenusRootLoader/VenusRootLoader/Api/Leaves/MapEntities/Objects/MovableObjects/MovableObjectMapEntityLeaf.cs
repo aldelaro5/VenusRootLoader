@@ -3,7 +3,7 @@ using VenusRootLoader.LeavesInternals;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.MovableObjects;
 
-public abstract class MovableObjectMapEntityLeaf : ObjectMapEntityLeaf
+public closed class MovableObjectMapEntityLeaf : ObjectMapEntityLeaf
 {
     protected MovableObjectMapEntityLeaf(int gameId, string creatorId, string namedId) : base(
         gameId,

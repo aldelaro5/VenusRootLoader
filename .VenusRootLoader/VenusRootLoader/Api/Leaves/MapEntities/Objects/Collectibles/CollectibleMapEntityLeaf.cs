@@ -3,7 +3,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Objects.Collectibles;
 
-public abstract class CollectibleMapEntityLeaf : ObjectMapEntityLeaf
+public closed class CollectibleMapEntityLeaf : ObjectMapEntityLeaf
 {
     protected CollectibleMapEntityLeaf(int gameId, string creatorId, string namedId) : base(gameId, creatorId, namedId)
     {

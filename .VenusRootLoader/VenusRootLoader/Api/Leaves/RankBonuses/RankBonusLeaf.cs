@@ -1,6 +1,6 @@
 namespace VenusRootLoader.Api.Leaves.RankBonuses;
 
-public abstract class RankBonusLeaf : Leaf
+public closed class RankBonusLeaf : Leaf
 {
     internal enum RankBonusType
     {

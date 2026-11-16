@@ -23,7 +23,7 @@ namespace VenusRootLoader.Api.Leaves;
 /// decided by the buds for custom leaves. Each leaves also contains an identifier that specifies who created it.
 /// </p>
 /// </summary>
-public abstract class Leaf : ILeafId
+public closed class Leaf : ILeafId
 {
     /// <summary>
     /// The unique identifier of the leaf among its type the game uses to uniquely identify them. The value is always determined by

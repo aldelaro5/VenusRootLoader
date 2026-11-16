@@ -18,7 +18,7 @@ namespace VenusRootLoader.Patching.Aot.LogicExtraction;
 /// </summary>
 /// <typeparam name="TOuter">The type of the outer container.</typeparam>
 /// <typeparam name="TInner">The type of the inner container.</typeparam>
-public abstract class LogicExtractor<TOuter, TInner>
+public closed class LogicExtractor<TOuter, TInner>
     where TOuter : LogicContainer
     where TInner : LogicContainer
 {

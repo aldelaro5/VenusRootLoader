@@ -4,7 +4,7 @@ using VenusRootLoader.LeavesInternals;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities;
 
-public abstract class MapEntityLeaf : Leaf
+public closed class MapEntityLeaf : Leaf
 {
     private readonly string[] _modifiersNames = [.. Enum.GetNames(typeof(MapEntityModifiers)).Skip(1)];
     internal MapEntityModifiers Modifiers { get; set; }

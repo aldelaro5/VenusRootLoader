@@ -3,7 +3,7 @@ using VenusRootLoader.Api.Leaves.MapEntities.Behaviors.Enums;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Behaviors;
 
-public abstract class MapEntityBehavior
+public closed class MapEntityBehavior
 {
     internal MapEntityLeaf MapEntityLeaf { get; }
 

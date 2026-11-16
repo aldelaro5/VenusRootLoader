@@ -5,7 +5,7 @@ using VenusRootLoader.Registry;
 
 namespace VenusRootLoader.Api.Leaves.MapEntities.Enemies;
 
-public abstract class EnemyEncounterMapEntityLeaf : MapEntityLeaf
+public closed class EnemyEncounterMapEntityLeaf : MapEntityLeaf
 {
     internal sealed override NPCControl.NPCType Type => NPCControl.NPCType.Enemy;
     internal sealed override NPCControl.ObjectTypes ObjectType => NPCControl.ObjectTypes.None;

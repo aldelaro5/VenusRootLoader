@@ -430,8 +430,7 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
                 showItemListContainer.GetContextFieldFromLocalIndex(0, true, "baseListType"),
                 showItemListContainer.GetContextFieldFromLocalIndex(1, true, "initialListType"),
                 showItemListContainer.GetContextFieldFromLocalIndex(2, true, "data"),
-                // TODO: it's a bit jank, explore this deeper on how the value is calculated
-                showItemListContainer.GetContextFieldFromLocalIndex(9, false, "verticalPositionAccumulator"),
+                showItemListContainer.GetContextFieldFromLocalIndex(9, false, "nextBarLocalYPosition"),
                 showItemListContainer.GetContextFieldFromLocalIndex(10, false, "text"),
                 showItemListContainer.GetContextFieldFromLocalIndex(15, true, "listElementIndex"),
                 showItemListContainer.GetContextFieldFromLocalIndex(16, true, "barSprite"),

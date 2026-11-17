@@ -139,8 +139,7 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("tokenbox", false),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("bleep", false),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("i", false, "currentCharacterIndex"),
-                // TODO: Only Prompt writes to it, but it's suspicious, recheck if this could be read only.
-                setTextStateMachine.AddContextFieldFromSpeakableFieldName("command", false, "commandWithArguments"),
+                setTextStateMachine.AddContextFieldFromSpeakableFieldName("command", true, "commandWithArguments"),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("temp", true, "commandParts"),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("com", true, "command")
             ]);

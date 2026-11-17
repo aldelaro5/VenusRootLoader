@@ -392,8 +392,6 @@ public sealed class BattleControlPatcher : TopLevelTypePatcher
                 doCommandStateMachine.AddContextFieldFromSpeakableFieldName("data", true),
                 doCommandStateMachine.AddContextFieldFromSpeakableFieldName("internaldata", true),
                 doCommandStateMachine.AddContextFieldFromSpeakableFieldName("initialtimer", true),
-                // TODO: we should patch out this one because it's just used once and it's just timer == -1.0f
-                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("infinite", true),
                 doCommandStateMachine.AddContextFieldFromSpeakableFieldName("intdata", true),
                 doCommandStateMachine.AddContextFieldFromSpeakableFieldName("letters", true)
             ]);
@@ -403,9 +401,64 @@ public sealed class BattleControlPatcher : TopLevelTypePatcher
             doCommandExecutionSwitch,
             beforeDoCommandSwitch,
             null,
-            null,
+            DoCommandExecutionPostProcessor,
             actionCommandsEnum,
             "Execution");
+    }
+
+    private static void DoCommandExecutionPostProcessor(
+        int commandId,
+        StateMachine outer,
+        StateMachine inner,
+        GameModuleData gameModuleData)
+    {
+        // The RandomTappingBar command uses an outer field called "infinite", but it's just "timer == -1.0f so we inline it
+        // to remove the context field.
+        if (commandId != 10)
+            return;
+
+        CilInstructionCollection outerIl = outer.MoveNextMethod.CilMethodBody!.Instructions;
+        CilMethodBody innerBody = inner.MoveNextMethod.CilMethodBody!;
+        // This is needed because what we will do will break a short form branch so we need to expand, do our edits and optimize after.
+        innerBody.Instructions.ExpandMacros();
+
+        FieldDefinition infiniteOuterField =
+            outer.StateMachineType.Fields.Single(x => x.Name!.Value.Contains("<infinite>"));
+        FieldDefinition infiniteInnerField =
+            inner.StateMachineType.Fields.Single(x => x.Name!.Value.Contains("<infinite>"));
+
+        AsmResolverIlCursor outerCursor = new(outerIl);
+        AsmResolverIlCursor innerCursor = new(innerBody.Instructions);
+
+        // Find the IL that sets the initial value we want to inline.
+        outerCursor.MatchNext(x => x.OpCode == Stfld && x.Operand == infiniteOuterField);
+        outerCursor.Index--;
+        int lastInstructionIndex = outerCursor.Index;
+        outerCursor.MatchPrevious(x => x.OpCode == Ldfld);
+        List<CilInstruction> instructionsInfiniteValues = [];
+        for (int i = outerCursor.Index; i <= lastInstructionIndex; i++)
+            instructionsInfiniteValues.Add(outerIl[i]);
+
+        // We need to change the ldfld so it refers to the timer of the inner context.
+        string outerName = ((FieldDefinition)outerCursor.Current().Operand!).Name!;
+        TypeDefinition contextType = (TypeDefinition)outer.ContextField!.Signature!.FieldType.ToTypeDefOrRef();
+        FieldDefinition contextField = contextType.Fields.Single(x => x.Name == outerName);
+        instructionsInfiniteValues[0] = new(instructionsInfiniteValues[0].OpCode, contextField);
+
+        // Find where the infinite value is used and replace it with IL that does the same as the outer.
+        innerCursor.MatchNext(x => x.OpCode == Ldfld && x.Operand == infiniteInnerField);
+        innerBody.Instructions.RemoveAt(innerCursor.Index);
+        FieldDefinition innerContext =
+            inner.StateMachineType.Fields.Single(x => x.Signature!.FieldType.ToTypeDefOrRef() == contextType);
+        innerBody.Instructions.InsertRange(
+            innerCursor.Index,
+            [
+                new(Ldfld, innerContext),
+                .. instructionsInfiniteValues
+            ]);
+        inner.StateMachineType.Fields.Remove(infiniteInnerField);
+
+        innerBody.Instructions.OptimizeMacros();
     }
 
     private static void ExtractAIAttack(

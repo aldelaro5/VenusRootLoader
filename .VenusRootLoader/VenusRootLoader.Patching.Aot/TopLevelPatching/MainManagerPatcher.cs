@@ -293,11 +293,11 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
             "Setup",
             [
                 showItemListContainer.GetContextFieldFromArgumentIndex(0, false),
-                showItemListContainer.GetContextFieldFromLocalIndex(0, false),
+                showItemListContainer.GetContextFieldFromLocalIndex(0, false, "baseListType"),
                 showItemListContainer.GetContextFieldFromArgumentIndex(1, true),
                 showItemListContainer.GetContextFieldFromArgumentIndex(2, false),
                 showItemListContainer.GetContextFieldFromArgumentIndex(3, true),
-                showItemListContainer.GetContextFieldFromLocalIndex(2, false)
+                showItemListContainer.GetContextFieldFromLocalIndex(2, false, "data")
             ]);
 
         SwitchArmsMethodsExtractor showItemListArmsExtractor = new(
@@ -424,17 +424,19 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
                 showItemListContainer.GetContextFieldFromArgumentIndex(1, true),
                 showItemListContainer.GetContextFieldFromArgumentIndex(2, true),
                 showItemListContainer.GetContextFieldFromArgumentIndex(3, true),
-                showItemListContainer.GetContextFieldFromLocalIndex(0, true),
-                showItemListContainer.GetContextFieldFromLocalIndex(1, true),
-                showItemListContainer.GetContextFieldFromLocalIndex(2, true),
-                showItemListContainer.GetContextFieldFromLocalIndex(9, false),
-                showItemListContainer.GetContextFieldFromLocalIndex(10, false),
+                showItemListContainer.GetContextFieldFromLocalIndex(0, true, "baseListType"),
+                showItemListContainer.GetContextFieldFromLocalIndex(1, true, "initialListType"),
+                showItemListContainer.GetContextFieldFromLocalIndex(2, true, "data"),
+                // TODO: it's a bit jank, explore this deeper on how the value is calculated
+                showItemListContainer.GetContextFieldFromLocalIndex(9, false, "verticalPositionAccumulator"),
+                showItemListContainer.GetContextFieldFromLocalIndex(10, false, "text"),
+                // TODO: Patch this out, it's always 0.55f, should be inlined
                 showItemListContainer.GetContextFieldFromLocalIndex(11, true),
-                showItemListContainer.GetContextFieldFromLocalIndex(15, true),
-                showItemListContainer.GetContextFieldFromLocalIndex(16, true),
-                showItemListContainer.GetContextFieldFromLocalIndex(17, false),
-                showItemListContainer.GetContextFieldFromLocalIndex(18, false),
-                showItemListContainer.GetContextFieldFromLocalIndex(19, false)
+                showItemListContainer.GetContextFieldFromLocalIndex(15, true, "listElementIndex"),
+                showItemListContainer.GetContextFieldFromLocalIndex(16, true, "barSprite"),
+                showItemListContainer.GetContextFieldFromLocalIndex(17, false, "textLocalXPosition"),
+                showItemListContainer.GetContextFieldFromLocalIndex(18, false, "textLocalYPosition"),
+                showItemListContainer.GetContextFieldFromLocalIndex(19, false, "textSize")
             ]);
 
         SwitchArmsMethodsExtractor showItemListArmsExtractor = new(

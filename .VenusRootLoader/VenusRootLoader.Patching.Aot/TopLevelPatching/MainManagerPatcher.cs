@@ -1,6 +1,7 @@
 using AsmResolver.DotNet;
 using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.DotNet.Collections;
+using AsmResolver.DotNet.Signatures;
 using AsmResolver.PE.DotNet.Cil;
 using VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers;
 using VenusRootLoader.Patching.Aot.LogicExtraction.LogicContainers.Factories;
@@ -134,8 +135,7 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("textbox", true),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("windowstyle", true, "boxStyle"),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("bubbles", true),
-                // TODO: Probably should be read only, Blank writes a new blank list while it probably wanted to clear it.
-                setTextStateMachine.AddContextFieldFromSpeakableFieldName("buts", false, "buttons"),
+                setTextStateMachine.AddContextFieldFromSpeakableFieldName("buts", true, "buttons"),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("tokenbox", false),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("bleep", false),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("i", false, "currentCharacterIndex"),
@@ -150,9 +150,33 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
             commandSwitch,
             beforeCommandSwitch,
             null,
-            null,
+            PostProcessSetTextCommand,
             commandsEnum,
             "Command");
+    }
+
+    private static void PostProcessSetTextCommand(
+        int commandId,
+        StateMachine outer,
+        StateMachine inner,
+        GameModuleData gameModuleData)
+    {
+        // The blank command sets the buts list to a new empty one, but it should clear it so we can make the context field read only.
+        if (commandId != 10)
+            return;
+
+        CilInstructionCollection innerIl = inner.MoveNextMethod.CilMethodBody!.Instructions;
+        AsmResolverIlCursor cursor = new(innerIl);
+
+        cursor.MatchNext(x => x.OpCode == Stfld && x.Operand is FieldDefinition field && field.Name == "buttons");
+        cursor.Index--;
+        innerIl.RemoveAt(cursor.Index);
+        cursor.Current().OpCode = Ldfld;
+        ITypeDefOrRef fieldType = ((FieldDefinition)cursor.Current().Operand!).Signature!.FieldType.ToTypeDefOrRef();
+        IMethodDescriptor clearMethod = fieldType.CreateMethodReference(
+            "Clear",
+            MethodSignature.CreateInstance(gameModuleData.Module.CorLibTypeFactory.Void));
+        innerIl.Insert(cursor.Index + 1, Callvirt, clearMethod);
     }
 
     private static void FixWaitCnArmBoundaries(

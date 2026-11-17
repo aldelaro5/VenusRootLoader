@@ -118,7 +118,6 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("tempevent", false),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("fadeletter", false),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("fontlock", false),
-                // TODO: Only affects something on the first 10 iterations of the char loop?
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("initialflip", false),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("ui3d", false),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("single", false),

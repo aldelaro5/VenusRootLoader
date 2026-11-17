@@ -532,14 +532,15 @@ public sealed class BattleControlPatcher : TopLevelTypePatcher
     }
 
     private static void EnemyActionPostProcessor(
-        int switchLabelIndex,
-        StateMachine stateMachine,
+        int enemyId,
+        StateMachine outer,
+        StateMachine inner,
         GameModuleData gameModuleData)
     {
-        if (switchLabelIndex != 1)
+        if (enemyId != 1)
             return;
 
-        PatchMushroomCField(stateMachine, gameModuleData);
+        PatchMushroomCField(inner, gameModuleData);
     }
 
     // This is needed to avoid having the "c" field of DoAction to be part of the context unnecessarily. Only the Mushroom

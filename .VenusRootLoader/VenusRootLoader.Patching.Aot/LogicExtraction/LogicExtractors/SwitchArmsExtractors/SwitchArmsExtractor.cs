@@ -132,7 +132,7 @@ public closed class SwitchArmsExtractor<TOuter, TInner>
         CilInstruction outerSwitchInstruction,
         CilInstruction outerInitializeContextInstruction,
         CilInstruction? outerResetContainerInstruction,
-        Action<int, TInner, GameModuleData>? innerContainerPostProcessor,
+        Action<int, TOuter, TInner, GameModuleData>? innerContainerPostProcessor,
         Dictionary<int, string> labelIndexNameMapping,
         string innerContainersMethodPrefix = "",
         List<CilInstruction>? additionalEndInstructions = null)
@@ -227,7 +227,11 @@ public closed class SwitchArmsExtractor<TOuter, TInner>
                 foreach (int exceptionHandlerIndex in usedExceptionHandlerIndexes.OrderDescending())
                     OuterLogic.ReceivingMethod.CilMethodBody!.ExceptionHandlers.RemoveAt(exceptionHandlerIndex);
 
-                innerContainerPostProcessor?.Invoke(indexedSwitchArmLabel.Index, innerContainer, _gameModuleData);
+                innerContainerPostProcessor?.Invoke(
+                    indexedSwitchArmLabel.Index,
+                    OuterLogic,
+                    innerContainer,
+                    _gameModuleData);
             }
 
             int start = moveNextIl.GetIndexByOffset(arm.StartInstruction.Offset);

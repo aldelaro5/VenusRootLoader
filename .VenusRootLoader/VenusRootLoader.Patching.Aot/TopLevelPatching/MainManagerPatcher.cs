@@ -433,8 +433,6 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
                 // TODO: it's a bit jank, explore this deeper on how the value is calculated
                 showItemListContainer.GetContextFieldFromLocalIndex(9, false, "verticalPositionAccumulator"),
                 showItemListContainer.GetContextFieldFromLocalIndex(10, false, "text"),
-                // TODO: Patch this out, it's always 0.55f, should be inlined
-                showItemListContainer.GetContextFieldFromLocalIndex(11, true),
                 showItemListContainer.GetContextFieldFromLocalIndex(15, true, "listElementIndex"),
                 showItemListContainer.GetContextFieldFromLocalIndex(16, true, "barSprite"),
                 showItemListContainer.GetContextFieldFromLocalIndex(17, false, "textLocalXPosition"),
@@ -449,9 +447,45 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
             showItemListRenderSwitch,
             beforeShowItemListRenderSwitch,
             null,
-            null,
+            PostProcessShowItemListRender,
             [],
             "Render");
+    }
+
+    private static void PostProcessShowItemListRender(
+        int listType,
+        MethodLogicContainer outer,
+        MethodLogicContainer inner,
+        GameModuleData gameModuleData)
+    {
+        // These listTypes makes use of a local that is always 0.55f so we want to inline them to remove it from the context.
+        if (listType is not 26 and not 0 and not 1 and not 2 and not 34 and not 3)
+            return;
+
+        CilMethodBody outerBody = outer.ReceivingMethod.CilMethodBody!;
+        CilInstructionCollection innerIl = inner.ReceivingMethod.CilMethodBody!.Instructions;
+
+        AsmResolverIlCursor outerCursor = new(outerBody.Instructions);
+        AsmResolverIlCursor innerCursor = new(innerIl);
+
+        outerCursor.MatchNext(x => x.IsStloc() && x.Operand == outerBody.LocalVariables[11]);
+        outerCursor.Index--;
+        float value = (float)outerBody.Instructions[outerCursor.Index].Operand!;
+
+        if (listType == 3)
+        {
+            innerCursor.Index = innerIl.Count - 1;
+            innerCursor.MatchPrevious(x =>
+                x.OpCode == Callvirt && x.Operand is IMethodDefOrRef method && method.Name == "set_localScale");
+        }
+        else
+        {
+            innerCursor.MatchNext(x =>
+                x.OpCode == Callvirt && x.Operand is IMethodDefOrRef method && method.Name == "set_localScale");
+        }
+
+        innerCursor.MatchPrevious(x => x.IsLdloc());
+        innerIl[innerCursor.Index].ReplaceWith(Ldc_R4, value);
     }
 
     private static void DemangleShowItemListDescriptionRenderIntoBranchChain(

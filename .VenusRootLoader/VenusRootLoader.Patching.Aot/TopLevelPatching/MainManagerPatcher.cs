@@ -96,7 +96,7 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("langOffset", true),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("colorindex", false),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("sort", false),
-                setTextStateMachine.AddContextFieldFromSpeakableFieldName("transferi", false),
+                setTextStateMachine.AddContextFieldFromSpeakableFieldName("transferi", false, "transferMapId"),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("writen", false),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("ignorenext", false),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("layer", false),
@@ -105,7 +105,10 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("shaky", false),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("rainbow", false),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("glitchy", false),
-                setTextStateMachine.AddContextFieldFromSpeakableFieldName("skipi", false),
+                setTextStateMachine.AddContextFieldFromSpeakableFieldName(
+                    "skipi",
+                    false,
+                    "resumeProcessingAtCurrentIndex"),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("end", false),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("promptmenu", false),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("minibubble", false),
@@ -123,23 +126,23 @@ public sealed class MainManagerPatcher : TopLevelTypePatcher
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("superglitch", false),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("dropshadow", false),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("returnentitycol", true),
-                setTextStateMachine.AddContextFieldFromSpeakableFieldName("ndd", false),
-                setTextStateMachine.AddContextFieldFromSpeakableFieldName("ds", false),
-                setTextStateMachine.AddContextFieldFromSpeakableFieldName("transfer", false),
+                setTextStateMachine.AddContextFieldFromSpeakableFieldName("ndd", false, "currentLineTextMesh"),
+                setTextStateMachine.AddContextFieldFromSpeakableFieldName("ds", false, "dropShadowTextMesh"),
+                setTextStateMachine.AddContextFieldFromSpeakableFieldName("transfer", false, "transferMapPosition"),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("backbox", false),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("textholder", true),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("textbox", true),
-                setTextStateMachine.AddContextFieldFromSpeakableFieldName("windowstyle", true),
+                setTextStateMachine.AddContextFieldFromSpeakableFieldName("windowstyle", true, "boxStyle"),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("bubbles", true),
                 // TODO: Probably should be read only, Blank writes a new blank list while it probably wanted to clear it.
-                setTextStateMachine.AddContextFieldFromSpeakableFieldName("buts", false),
+                setTextStateMachine.AddContextFieldFromSpeakableFieldName("buts", false, "buttons"),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("tokenbox", false),
                 setTextStateMachine.AddContextFieldFromSpeakableFieldName("bleep", false),
-                setTextStateMachine.AddContextFieldFromSpeakableFieldName("i", false),
+                setTextStateMachine.AddContextFieldFromSpeakableFieldName("i", false, "currentCharacterIndex"),
                 // TODO: Only Prompt writes to it, but it's suspicious, recheck if this could be read only.
-                setTextStateMachine.AddContextFieldFromSpeakableFieldName("command", false),
-                setTextStateMachine.AddContextFieldFromSpeakableFieldName("temp", true),
-                setTextStateMachine.AddContextFieldFromSpeakableFieldName("com", true)
+                setTextStateMachine.AddContextFieldFromSpeakableFieldName("command", false, "commandWithArguments"),
+                setTextStateMachine.AddContextFieldFromSpeakableFieldName("temp", true, "commandParts"),
+                setTextStateMachine.AddContextFieldFromSpeakableFieldName("com", true, "command")
             ]);
 
         SwitchArmsStateMachineExtractor setTextSwitchArmsExtractor = new(gameModuleData, setTextStateMachine);

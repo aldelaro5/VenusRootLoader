@@ -247,8 +247,8 @@ public sealed class BattleControlPatcher : TopLevelTypePatcher
                 doActionStateMachine.AddContextFieldFromSpeakableFieldName("entity", true),
                 doActionStateMachine.AddContextFieldFromSpeakableFieldName("actionid", true),
                 doActionStateMachine.AddContextFieldFromSpeakableFieldName("startp", true, "startPosition"),
-                doActionStateMachine.AddContextFieldFromSpeakableFieldName("startstate", false, "startAnimstate"),
-                doActionStateMachine.AddContextFieldFromSpeakableFieldName("targetentity", true, "targetEntity"),
+                doActionStateMachine.AddContextFieldFromSpeakableFieldName("startstate", false),
+                doActionStateMachine.AddContextFieldFromSpeakableFieldName("targetentity", true)
             ]);
 
         doActionSwitchArmsExtractor.ExtractSwitchArms(
@@ -291,11 +291,11 @@ public sealed class BattleControlPatcher : TopLevelTypePatcher
             [
                 doActionStateMachine.AddContextFieldFromSpeakableFieldName("entity", true),
                 doActionStateMachine.AddContextFieldFromSpeakableFieldName("actionid", false),
-                doActionStateMachine.AddContextFieldFromSpeakableFieldName("randomposafter", false, "randomPosAfter"),
+                doActionStateMachine.AddContextFieldFromSpeakableFieldName("randomposafter", false),
                 doActionStateMachine.AddContextFieldFromSpeakableFieldName("fled", false),
-                doActionStateMachine.AddContextFieldFromSpeakableFieldName("nocharm", false, "noCharm"),
+                doActionStateMachine.AddContextFieldFromSpeakableFieldName("nocharm", false),
                 doActionStateMachine.AddContextFieldFromSpeakableFieldName("startp", false, "startPosition"),
-                doActionStateMachine.AddContextFieldFromSpeakableFieldName("startstate", false, "startAnimstate"),
+                doActionStateMachine.AddContextFieldFromSpeakableFieldName("startstate", false),
                 doActionStateMachine.AddContextFieldFromSpeakableFieldName("heavystrike", true, "hardmode")
             ]);
 
@@ -357,8 +357,8 @@ public sealed class BattleControlPatcher : TopLevelTypePatcher
                 doCommandStateMachine.AddContextFieldFromSpeakableFieldName("timer", true),
                 doCommandStateMachine.AddContextFieldFromSpeakableFieldName("commandtype", true),
                 doCommandStateMachine.AddContextFieldFromSpeakableFieldName("data", true),
-                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("internaldata", false, "internalData"),
-                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("intdata", false, "intData"),
+                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("internaldata", false),
+                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("intdata", false),
                 doCommandStateMachine.AddContextFieldFromSpeakableFieldName("letters", false)
             ]);
 
@@ -390,11 +390,11 @@ public sealed class BattleControlPatcher : TopLevelTypePatcher
                 doCommandStateMachine.AddContextFieldFromSpeakableFieldName("timer", true),
                 doCommandStateMachine.AddContextFieldFromSpeakableFieldName("commandtype", true),
                 doCommandStateMachine.AddContextFieldFromSpeakableFieldName("data", true),
-                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("internaldata", true, "internalData"),
-                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("initialtimer", true, "initialTimer"),
+                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("internaldata", true),
+                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("initialtimer", true),
                 // TODO: we should patch out this one because it's just used once and it's just timer == -1.0f
                 doCommandStateMachine.AddContextFieldFromSpeakableFieldName("infinite", true),
-                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("intdata", true, "intData"),
+                doCommandStateMachine.AddContextFieldFromSpeakableFieldName("intdata", true),
                 doCommandStateMachine.AddContextFieldFromSpeakableFieldName("letters", true)
             ]);
 
@@ -476,7 +476,7 @@ public sealed class BattleControlPatcher : TopLevelTypePatcher
             [
                 aiAttackStateMachine.AddContextFieldFromSpeakableFieldName("targetid", false),
                 aiAttackStateMachine.AddContextFieldFromSpeakableFieldName("dammod", true, "damageBonus"),
-                aiAttackStateMachine.AddContextFieldFromSpeakableFieldName("nodamage", false, "noDamage"),
+                aiAttackStateMachine.AddContextFieldFromSpeakableFieldName("nodamage", false),
                 aiAttackStateMachine.AddContextFieldFromSpeakableFieldName("sp", true, "startPosition"),
                 aiAttackStateMachine.AddContextFieldFromSpeakableFieldName("aid", true, "helperAnimid")
             ]);
@@ -513,7 +513,7 @@ public sealed class BattleControlPatcher : TopLevelTypePatcher
             [
                 useItemStateMachine.AddContextFieldFromSpeakableFieldName("id", true),
                 useItemStateMachine.AddContextFieldFromSpeakableFieldName("san", false, "startActionId"),
-                useItemStateMachine.AddContextFieldFromSpeakableFieldName("itemuse", true, "itemUse"),
+                useItemStateMachine.AddContextFieldFromSpeakableFieldName("itemuse", true),
                 useItemStateMachine.AddContextFieldFromSpeakableFieldName("i", true, "useTypeIndex"),
                 useItemStateMachine.GetContextFieldFromLocalIndex(4, true, "doItemEffectReturn"),
                 useItemStateMachine.GetContextFieldFromLocalIndex(5, false, "hasDelayBetweenUseTypes")
